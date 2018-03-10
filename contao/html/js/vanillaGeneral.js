@@ -81,6 +81,7 @@ document.onmouseup = function (ev)
 
 /**
  * get the source element from an event in a way that works for IE and Firefox and Safari
+ *
  * @param evt the source event for Firefox (but not IE--IE uses window.event)
  */
 function getEventSource(evt)
@@ -132,7 +133,6 @@ function GeneralTableDnD()
 	 * to do whatever you want, for example use Ajax to update the server
 	 *
 	 * @param table Current Table
-	 *
 	 * @param droppedRow Current row
 	 */
 	this.onDrop = function (table, droppedRow)

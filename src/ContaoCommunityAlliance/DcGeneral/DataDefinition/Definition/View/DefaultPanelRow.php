@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -33,14 +34,14 @@ class DefaultPanelRow implements PanelRowInterface
      *
      * @var ElementInformationInterface[]
      */
-    protected $elements = array();
+    protected $elements = [];
 
     /**
      * {@inheritDoc}
      */
     public function getElements()
     {
-        $names = array();
+        $names = [];
         foreach ($this as $element) {
             /** @var ElementInformationInterface $element */
             $names[] = $element->getName();
@@ -61,7 +62,7 @@ class DefaultPanelRow implements PanelRowInterface
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->elements[] = $element;
         } else {
-            array_splice($this->elements, $index, 0, array($element));
+            \array_splice($this->elements, $index, 0, [$element]);
         }
 
         return $this;
@@ -83,15 +84,15 @@ class DefaultPanelRow implements PanelRowInterface
                     return $element == $indexOrNameOrInstance;
                 }
             );
-        } elseif (is_string($indexOrNameOrInstance)) {
+        } elseif (\is_string($indexOrNameOrInstance)) {
             foreach ($this as $index => $element) {
                 /** @var ElementInformationInterface $element */
                 if ($indexOrNameOrInstance == $element->getName()) {
                     unset($this->elements[$index]);
                     break;
-                };
+                }
             }
-        } elseif (is_numeric($indexOrNameOrInstance)) {
+        } elseif (\is_numeric($indexOrNameOrInstance)) {
             unset($this->elements[$indexOrNameOrInstance]);
         }
 
@@ -106,15 +107,15 @@ class DefaultPanelRow implements PanelRowInterface
     public function hasElement($instanceOrName)
     {
         if ($instanceOrName instanceof ElementInformationInterface) {
-            return in_array($instanceOrName, $this->elements);
+            return \in_array($instanceOrName, $this->elements);
         }
 
-        if (is_string($instanceOrName)) {
+        if (\is_string($instanceOrName)) {
             foreach ($this as $element) {
                 /** @var ElementInformationInterface $element */
                 if ($instanceOrName == $element->getName()) {
                     return true;
-                };
+                }
             }
 
             return false;
@@ -128,7 +129,7 @@ class DefaultPanelRow implements PanelRowInterface
      */
     public function getCount()
     {
-        return count($this->elements);
+        return \count($this->elements);
     }
 
     /**
@@ -139,14 +140,14 @@ class DefaultPanelRow implements PanelRowInterface
      */
     public function getElement($indexOrName)
     {
-        if (is_string($indexOrName)) {
+        if (\is_string($indexOrName)) {
             foreach ($this as $element) {
                 /** @var ElementInformationInterface $element */
                 if ($indexOrName == $element->getName()) {
                     return $element;
-                };
+                }
             }
-        } elseif (!is_numeric($indexOrName)) {
+        } elseif (!\is_numeric($indexOrName)) {
             throw new DcGeneralInvalidArgumentException('Invalid value for element name given.');
         }
 

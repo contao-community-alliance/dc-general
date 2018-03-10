@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -35,14 +36,14 @@ class PropertyValueBag implements PropertyValueBagInterface
      *
      * @var array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * All properties that are marked as invalid and their error messages.
      *
      * @var array
      */
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * Create a new instance of a property bag.
@@ -53,7 +54,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function __construct($properties = null)
     {
-        if (is_array($properties) || $properties instanceof \Traversable) {
+        if (\is_array($properties) || $properties instanceof \Traversable) {
             foreach ($properties as $property => $value) {
                 $this->setPropertyValue($property, $value);
             }
@@ -87,7 +88,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function hasPropertyValue($property)
     {
-        return array_key_exists($property, $this->properties);
+        return \array_key_exists($property, $this->properties);
     }
 
     /**
@@ -163,8 +164,8 @@ class PropertyValueBag implements PropertyValueBagInterface
     {
         $this->requirePropertyValue($property);
 
-        if (!isset($this->errors[$property]) || !$append) {
-            $this->errors[$property] = array();
+        if (!$append || !isset($this->errors[$property])) {
+            $this->errors[$property] = [];
         }
 
         foreach ((array) $error as $singleError) {
@@ -190,7 +191,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function getInvalidPropertyNames()
     {
-        return array_keys($this->errors);
+        return \array_keys($this->errors);
     }
 
     /**
@@ -223,7 +224,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function count()
     {
-        return count($this->properties);
+        return \count($this->properties);
     }
 
     /**

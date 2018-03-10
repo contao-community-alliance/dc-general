@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
@@ -74,9 +76,23 @@ class ToggleHandler extends AbstractHandler
             $dataProvider->setCurrentLanguage($operation->getLanguage());
         }
 
-        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+        $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+        $originalModel = clone $model;
         $model->setProperty($operation->getToggleProperty(), $newState);
+        $dispatcher = $environment->getEventDispatcher();
+
+        $dispatcher->dispatch(
+            PrePersistModelEvent::NAME,
+            new PrePersistModelEvent($environment, $model, $originalModel)
+        );
+
         $dataProvider->save($model);
+
+        $dispatcher->dispatch(
+            PostPersistModelEvent::NAME,
+            new PostPersistModelEvent($environment, $model, $originalModel)
+        );
+
         // Select the previous language.
         if (isset($language)) {
             $dataProvider->setCurrentLanguage($language);
@@ -84,11 +100,10 @@ class ToggleHandler extends AbstractHandler
 
         // Sad that we can not determine ajax requests better.
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && ($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')) {
-            header('HTTP/1.1 204 No Content');
+            \header('HTTP/1.1 204 No Content');
             exit;
         }
 
-        $dispatcher  = $environment->getEventDispatcher();
         $newUrlEvent = new GetReferrerEvent();
         $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
         $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
@@ -111,7 +126,7 @@ class ToggleHandler extends AbstractHandler
 
         // TODO find a way for output the permission message.
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for toggle %s.
                 </div>',

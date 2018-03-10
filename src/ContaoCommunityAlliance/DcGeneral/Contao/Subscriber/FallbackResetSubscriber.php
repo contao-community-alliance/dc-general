@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,10 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -50,10 +52,10 @@ class FallbackResetSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            PostPersistModelEvent::NAME => array('handlePostPersistModelEvent', -200),
-            PostDuplicateModelEvent::NAME => array('handlePostDuplicateModelEvent', -200)
-        );
+        return [
+            PostPersistModelEvent::NAME => ['handlePostPersistModelEvent', -200],
+            PostDuplicateModelEvent::NAME => ['handlePostDuplicateModelEvent', -200]
+        ];
     }
 
     /**
@@ -93,13 +95,13 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         $dataProvider = $event->getEnvironment()->getDataProvider($model->getProviderName());
         $properties   = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
 
-        foreach (array_keys($model->getPropertiesAsArray()) as $propertyName) {
+        foreach (\array_keys($model->getPropertiesAsArray()) as $propertyName) {
             if (!$properties->hasProperty($propertyName)) {
                 continue;
             }
 
             $extra = (array) $properties->getProperty($propertyName)->getExtra();
-            if (array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
+            if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
                 // BC Layer - use old reset fallback methodology until it get's removed.
                 if (null === ($config = $this->determineFilterConfig($event))) {
                     // @codingStandardsIgnoreStart
@@ -111,6 +113,11 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                     // @codingStandardsIgnoreEnd
 
                     $dataProvider->resetFallback($propertyName);
+                }
+
+                // If value is empty, no need to reset the fallback.
+                if (!$model->getProperty($propertyName)) {
+                    continue;
                 }
 
                 $models = $dataProvider->fetchAll($config);
@@ -159,7 +166,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         }
 
         // Trigger BC layer in handleFallback().
-        if ($root === null && count($relationship->getChildConditions()) == 0) {
+        if ($root === null && \count($relationship->getChildConditions()) == 0) {
             return null;
         }
 

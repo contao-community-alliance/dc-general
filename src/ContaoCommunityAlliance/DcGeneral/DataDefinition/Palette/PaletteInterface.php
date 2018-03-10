@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,16 +13,17 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -50,7 +51,6 @@ interface PaletteInterface
      * Get all properties from all legends in this palette.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
@@ -61,7 +61,6 @@ interface PaletteInterface
      * Get all properties from all legends in this palette that are visible.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
@@ -72,7 +71,6 @@ interface PaletteInterface
      * Get all properties from all legends in this palette that are editable.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
@@ -110,7 +108,6 @@ interface PaletteInterface
      * Add all legends to this palette.
      *
      * @param array|LegendInterface[] $legends The legends.
-     *
      * @param LegendInterface         $before  The legend before which the new legends shall be inserted (optional).
      *
      * @return PaletteInterface
@@ -139,7 +136,6 @@ interface PaletteInterface
      * Add a legend to this palette.
      *
      * @param LegendInterface $legend The legend to add.
-     *
      * @param LegendInterface $before The legend before which the new legend shall be inserted (optional).
      *
      * @return PaletteInterface

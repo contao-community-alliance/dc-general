@@ -1,10 +1,17 @@
 <?php
+
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+
 ?>
 <?php $this->block('messages'); ?>
 <?= $this->getMessages(); ?>
+<?php if($this->info): ?>
+<div class="tl_message">
+  <p class="tl_info"><?php echo \implode('<br />', $this->info); ?></p>
+</div>
+<?php endif; ?>
 <?php $this->endblock(); ?>
 <?php if ($this->select) : ?>
 <form action="<?= $this->action ?>" id="tl_select" class="tl_form" method="post">
@@ -15,6 +22,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
   <div class="tl_listing_container <?php $this->block('view-class'); ?><?php $this->endblock(); ?> table_<?= $this->tableName ?>">
     <?= $this->breadcrumb ?>
     <?php if ($this->select) : ?>
+    <?php if ($this->subHeadline) : ?>
+    <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline != "")? " - " . $this->languageHeadline : "" ?></h2>
+    <?php endif; ?>
       <div class="tl_select_trigger">
         <label for="tl_select_trigger" class="tl_select_label"><?= $GLOBALS['TL_LANG']['MSC']['selectAll'] ?></label>
         <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
@@ -79,7 +89,7 @@ if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
       <tbody>
         <?php foreach ($collection as $model) : /** @var ModelInterface $model */ ?>
         <tr id="table_row_<?= $model->getId() ?>"
-          class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?>"
+          class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?><?php if ($this->select) : ?> toggle_select<?php endif; ?> click2edit"
           onmouseover="Theme.hoverRow(this, 1);" onmouseout="Theme.hoverRow(this, 0);"
           data-model-id="<?= ModelId::fromModel($model)->getSerialized() ?>">
         <?php foreach ($model->getMeta($model::LABEL_VALUE) as $label) : ?>
@@ -91,10 +101,12 @@ if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
             <td class="tl_file_list tl_right_nowrap">
                 <input
                   type="checkbox"
-                  name="IDS[]"
-                  id="ids_<?= $model->getId() ?>"
+                  name="<?= $this->selectCheckBoxName ?>"
+                  id="<?= $this->selectCheckBoxIdPrefix ?><?= $model->getId() ?>"
                   class="tl_tree_checkbox"
-                  value="<?= ModelId::fromModel($model)->getSerialized() ?>">
+                  value="<?= ModelId::fromModel($model)->getSerialized() ?>"
+                  <?php if (\in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?>checked<?php endif; ?>
+                  >
             </td>
         <?php else : ?>
             <td class="tl_file_list tl_right_nowrap">
@@ -121,13 +133,15 @@ SortableTableDnD.init(table);
 <?php $this->block('after-body'); ?>
 <?php $this->endblock(); ?>
 <?php if ($this->select) : ?>
-    <div class="tl_formbody_submit" style="text-align:right;">
+    <div class="tl_formbody_submit"<?php if ($this->floatRightSelectButtons): ?> style="text-align:right;"<?php endif; ?>>
       <div class="tl_submit_container">
-        <?= implode(' ', $this->selectButtons); ?>
+        <?= \implode(' ', $this->selectButtons); ?>
       </div>
     </div>
   </div>
-</form>
 <?php endif; ?>
 <?php endif; ?>
 <?php $this->endblock(); ?>
+</form>
+</div>
+</div>

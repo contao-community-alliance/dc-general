@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -39,14 +39,14 @@ class CheckPermission implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            BuildDataDefinitionEvent::NAME => array(
-                array('checkPermissionForProperties'),
-                array('checkPermissionIsCreatable', -1),
-                array('checkPermissionIsEditable', -1),
-                array('checkPermissionIsDeletable', -1)
-            )
-        );
+        return [
+            BuildDataDefinitionEvent::NAME => [
+                ['checkPermissionForProperties'],
+                ['checkPermissionIsCreatable', -1],
+                ['checkPermissionIsEditable', -1],
+                ['checkPermissionIsDeletable', -1]
+            ]
+        ];
     }
 
     /**
@@ -66,14 +66,16 @@ class CheckPermission implements EventSubscriberInterface
         foreach ($palettes as $palette) {
             foreach ($palette->getProperties() as $property) {
                 if (!$properties->hasProperty($name = $property->getName())) {
-                    trigger_error(
-                        sprintf(
+                    // @codingStandardsIgnoreStart
+                    @\trigger_error(
+                        \sprintf(
                             'Warning: unknown property "%s" in palette: %s',
                             $name,
                             $palette->getName()
                         ),
                         E_USER_DEPRECATED
                     );
+                    // @codingStandardsIgnoreEnd
                     continue;
                 }
 
@@ -179,7 +181,6 @@ class CheckPermission implements EventSubscriberInterface
      * Disable command by action name.
      *
      * @param CommandCollectionInterface $commands   The commands collection.
-     *
      * @param string                     $actionName The action name.
      *
      * @return void
@@ -191,7 +192,7 @@ class CheckPermission implements EventSubscriberInterface
 
             $disableCommand = false;
 
-            if (array_key_exists('act', $parameters)
+            if (\array_key_exists('act', $parameters)
                 && $parameters['act'] === $actionName
             ) {
                 $disableCommand = true;

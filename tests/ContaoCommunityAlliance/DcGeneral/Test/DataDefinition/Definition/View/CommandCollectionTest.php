@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -22,12 +23,13 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\Definition\View;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollection;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 class CommandCollectionTest extends TestCase
 {
     protected function assertIndexIs($expected, $array, $command)
     {
-        $this->assertSame($expected, array_search($command, array_values($array)));
+        $this->assertSame($expected, \array_search($command, \array_values($array)));
     }
 
     public function testAddOne()
@@ -74,7 +76,7 @@ class CommandCollectionTest extends TestCase
         $command2 = new Command();
         $command2->setName('test2');
 
-        $this->setExpectedException('ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException');
+        $this->setExpectedException(DcGeneralInvalidArgumentException::class);
         $collection->addCommand($command2, $command1);
 
         $this->assertTrue($collection->hasCommand($command1));
@@ -95,7 +97,7 @@ class CommandCollectionTest extends TestCase
         $command2 = new Command();
         $command2->setName('test2');
 
-        $collection->addCommands(array($command1, $command2));
+        $collection->addCommands([$command1, $command2]);
 
         $this->assertTrue($collection->hasCommand($command1));
         $this->assertTrue($collection->hasCommandNamed('test1'));
@@ -117,7 +119,7 @@ class CommandCollectionTest extends TestCase
         $command3->setName('test3');
 
         $collection->addCommand($command3);
-        $collection->addCommands(array($command1, $command2), $command3);
+        $collection->addCommands([$command1, $command2], $command3);
 
         $this->assertTrue($collection->hasCommand($command1));
         $this->assertTrue($collection->hasCommandNamed('test1'));
@@ -141,8 +143,8 @@ class CommandCollectionTest extends TestCase
         $command3 = new Command();
         $command3->setName('test3');
 
-        $this->setExpectedException('ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException');
-        $collection->addCommands(array($command1, $command2), $command3);
+        $this->setExpectedException(DcGeneralInvalidArgumentException::class);
+        $collection->addCommands([$command1, $command2], $command3);
 
         $this->assertTrue($collection->hasCommand($command1));
         $this->assertTrue($collection->hasCommandNamed('test1'));

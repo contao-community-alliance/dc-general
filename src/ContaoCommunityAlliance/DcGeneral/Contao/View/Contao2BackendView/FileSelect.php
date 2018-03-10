@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -107,7 +107,7 @@ class FileSelect
         // @codingStandardsIgnoreStart - We need POST access here.
         if ($_POST && Environment::get('isAjaxRequest')) // @codingStandardsIgnoreEnd
         {
-            $ajax = new Ajax(\Input::post('action'));
+            $ajax = new Ajax(Input::post('action'));
             $ajax->executePreActions();
         }
 
@@ -136,7 +136,7 @@ class FileSelect
         $information = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
 
         if (!isset($information['eval'])) {
-            $information['eval'] = array();
+            $information['eval'] = [];
         }
 
         // Merge with the information from the data container.
@@ -148,12 +148,12 @@ class FileSelect
             ->getProperty($propertyName);
         $extra    = $property->getExtra();
 
-        $information['eval'] = array_merge($extra, $information['eval']);
+        $information['eval'] = \array_merge($extra, $information['eval']);
 
         Session::getInstance()->set('filePickerRef', Environment::get('request'));
 
-        $fileSelectorValues = array();
-        foreach (array_filter(explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
+        $fileSelectorValues = [];
+        foreach (\array_filter(\explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
             // Can be a UUID or a path
             if (Validator::isStringUuid($v)) {
                 $fileSelectorValues[$k] = StringUtil::uuidToBin($v);
@@ -168,13 +168,13 @@ class FileSelect
         }
         $combat = new DcCompat($this->itemContainer->getEnvironment(), $activeModel, $propertyName);
 
-        if (is_array($GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'])) {
+        if (\is_array($GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'])) {
             $callbacks = $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'];
             foreach ($callbacks as $callback) {
-                if (is_array($callback)) {
+                if (\is_array($callback)) {
                     $fileSelectorValues =
-                        Callbacks::callArgs($callback, array($fileSelectorValues, $combat));
-                } elseif (is_callable($callback)) {
+                        Callbacks::callArgs($callback, [$fileSelectorValues, $combat]);
+                } elseif (\is_callable($callback)) {
                     $fileSelectorValues = $callback($fileSelectorValues, $combat);
                 }
             }
@@ -205,11 +205,11 @@ class FileSelect
         $template->theme       = Backend::getTheme();
         $template->base        = Environment::get('base');
         $template->language    = $GLOBALS['TL_LANGUAGE'];
-        $template->title       = specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
+        $template->title       = \specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
         $template->charset     = $GLOBALS['TL_CONFIG']['characterSet'];
         $template->addSearch   = $fileSelector->searchField;
         $template->search      = $GLOBALS['TL_LANG']['MSC']['search'];
-        $template->action      = ampersand(Environment::get('request'));
+        $template->action      = \ampersand(Environment::get('request'));
         $template->value       = Session::getInstance()->get('file_selector_search');
         $template->manager     = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
         $template->managerHref = '';
@@ -231,7 +231,7 @@ class FileSelect
         if (Input::get('switch') && $user->hasAccess('page', 'modules')) {
             $template->switch     = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
             $template->switchHref =
-                str_replace('contao/file.php', 'contao/page.php', ampersand(Environment::get('request')));
+                \str_replace('contao/file.php', 'contao/page.php', \ampersand(Environment::get('request')));
         }
 
         // Prevent debug output at all cost.

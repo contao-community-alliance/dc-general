@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,8 +15,9 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -38,14 +39,14 @@ class Clipboard implements ClipboardInterface
      *
      * @var ItemInterface[]
      */
-    private $items = array();
+    private $items = [];
 
     /**
      * The item collection (indexed by model ids).
      *
      * @var ItemInterface[]
      */
-    private $itemsByModelId = array();
+    private $itemsByModelId = [];
 
     /**
      * {@inheritDoc}
@@ -55,7 +56,7 @@ class Clipboard implements ClipboardInterface
         $data = $objEnvironment->getSessionStorage()->get('CLIPBOARD');
 
         if ($data) {
-            $this->items = unserialize(base64_decode($data));
+            $this->items = \unserialize(\base64_decode($data));
             foreach ($this->items as $item) {
                 if ($modelId = $item->getModelId()) {
                     $this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()] = $item;
@@ -71,7 +72,7 @@ class Clipboard implements ClipboardInterface
      */
     public function saveTo($objEnvironment)
     {
-        $data = base64_encode(serialize($this->items));
+        $data = \base64_encode(\serialize($this->items));
         $objEnvironment->getSessionStorage()->set('CLIPBOARD', $data);
 
         return $this;
@@ -170,7 +171,7 @@ class Clipboard implements ClipboardInterface
      */
     public function fetch(FilterInterface $filter)
     {
-        $items = array();
+        $items = [];
 
         foreach ($this->items as $item) {
             if ($filter->accepts($item)) {
@@ -208,7 +209,7 @@ class Clipboard implements ClipboardInterface
      */
     public function clear()
     {
-        $this->items = array();
+        $this->items = [];
 
         return $this;
     }

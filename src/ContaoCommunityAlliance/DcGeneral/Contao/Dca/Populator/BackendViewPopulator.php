@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,9 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -54,7 +55,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populateView(EnvironmentInterface $environment)
     {
         // Already populated or not in Backend? Get out then.
-        if ($environment->getView() || (TL_MODE != 'BE')) {
+        if ((TL_MODE != 'BE') || $environment->getView()) {
             return;
         }
 
@@ -96,7 +97,7 @@ class BackendViewPopulator extends AbstractEventDrivenEnvironmentPopulator
     protected function populatePanel(EnvironmentInterface $environment)
     {
         // Already populated or not in Backend? Get out then.
-        if (!(($environment->getView() instanceof BaseView) && (TL_MODE == 'BE'))) {
+        if (!((TL_MODE == 'BE') && ($environment->getView() instanceof BaseView))) {
             return;
         }
 

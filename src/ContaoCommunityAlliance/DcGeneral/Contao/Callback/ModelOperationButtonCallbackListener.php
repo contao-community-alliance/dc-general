@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,9 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <mail@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -36,13 +37,12 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      *
      * @var null|string
      */
-    protected $operationName = null;
+    protected $operationName;
 
     /**
      * Set the restrictions for this callback.
      *
      * @param null|string $dataContainerName The name of the data container to limit execution on.
-     *
      * @param null|string $operationName     The name of the operation button to limit execution on.
      *
      * @return void
@@ -79,7 +79,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     {
         $extra = $event->getCommand()->getExtra();
 
-        return array(
+        return [
             $event->getModel()->getPropertiesAsArray(),
             $this->buildHref($event->getCommand()),
             $event->getLabel(),
@@ -92,14 +92,13 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
             $event->isCircularReference(),
             $event->getPrevious() ? $event->getPrevious()->getId() : null,
             $event->getNext() ? $event->getNext()->getId() : null
-        );
+        ];
     }
 
     /**
      * Set the value in the event.
      *
      * @param GetOperationButtonEvent $event The event being emitted.
-     *
      * @param string                  $value The value returned by the callback.
      *
      * @return void
@@ -127,7 +126,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
         $strHref       = '';
 
         foreach ($arrParameters as $key => $value) {
-            $strHref .= sprintf('&%s=%s', $key, $value);
+            $strHref .= \sprintf('&%s=%s', $key, $value);
         }
 
         return $strHref;

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,14 +13,15 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use Contao\Environment;
+use Contao\Message;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -70,8 +71,11 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         }
         $grouping = ViewHelpers::getGroupingMode($this->environment);
 
+        Message::reset();
+
         // Process now.
         $collection = $this->loadCollection();
+        $this->handleEditAllButton($collection);
         $this->renderCollection($collection, $grouping);
         $template = $this->determineTemplate($grouping);
         $template->set('collection', $collection);
@@ -87,7 +91,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $result['clipboard'] = $clipboard->getResponse();
         $result['body']      = $template->parse();
 
-        $event->setResponse(implode("\n", $result));
+        $event->setResponse(\implode("\n", $result));
     }
 
     /**
@@ -184,15 +188,27 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     {
         $definition = $this->environment->getDataDefinition();
         $showColumn = $this->getViewSection()->getListingConfig()->getShowColumns();
-        $template->set('tableName', strlen($definition->getName()) ? $definition->getName() : 'none');
-        $template->set('select', ('select' === $this->environment->getInputProvider()->getParameter('act')));
-        $template->set('action', ampersand(Environment::get('request'), true));
+        // TODO translate sub headline.
+        $template->set('subHeadline', 'Elemente auswählen');
+        $template->set('tableName', null !== $definition->getName() ? $definition->getName() : 'none');
+        $template->set('select', 'select' === $this->environment->getInputProvider()->getParameter('act'));
+        $template->set('action', \ampersand(Environment::get('request'), true));
         $template->set('selectButtons', $this->getSelectButtons());
         $template->set('sortable', $this->isSortable());
         $template->set('showColumns', $showColumn);
         $template->set('tableHead', $showColumn ? $this->getTableHead() : '');
         // Add breadcrumb, if we have one.
         $template->set('breadcrumb', $this->breadcrumb());
+        $template->set('floatRightSelectButtons', true);
+        $template->set('selectCheckBoxName', 'models[]');
+        $template->set('selectCheckBoxIdPrefix', 'models_');
+        $template->set('selectContainer', $this->getSelectContainer());
+
+        if ((null !== $template->get('action'))
+            && (false !== \strpos($template->get('action'), 'select=models'))
+        ) {
+            $template->set('action', \str_replace('select=models', 'select=properties', $template->get('action')));
+        }
     }
 
     /**
@@ -202,7 +218,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      *
      * @return CollectionInterface
      */
-    private function loadCollection()
+    protected function loadCollection()
     {
         $dataProvider = $this->environment->getDataProvider();
         $dataConfig   = $this->environment->getBaseConfigRegistry()->getBaseConfig();
@@ -283,12 +299,16 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
             }
             $cssClasses = [((++$eoCount) % 2 == 0) ? 'even' : 'odd'];
-            $modelId    = ModelId::fromModel($model);
+
+            (null !== $model->getMeta($model::CSS_ROW_CLASS)) ?
+                $cssClasses[] = $model->getMeta($model::CSS_ROW_CLASS) : null;
+
+            $modelId = ModelId::fromModel($model);
             if ($clipboard->hasId($modelId)) {
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
-            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
+            $model->setMeta($model::CSS_ROW_CLASS, \implode(' ', $cssClasses));
 
             $this->renderModel($model);
         }
@@ -314,7 +334,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      *
      * @return array
      */
-    private function getTableHead()
+    protected function getTableHead()
     {
         $tableHead  = [];
         $definition = $this->getEnvironment()->getDataDefinition();
@@ -330,7 +350,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             $label = $properties->getProperty($field)->getLabel();
 
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . ((in_array($field, $columns)) ? ' ordered_by' : ''),
+                'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $label
             ];
         }
@@ -347,11 +367,8 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      * Return the formatted value for use in group headers as string.
      *
      * @param string         $field       The name of the property to format.
-     *
      * @param ModelInterface $model       The model from which the value shall be taken from.
-     *
      * @param string         $groupMode   The grouping mode in use.
-     *
      * @param int            $groupLength The length of the value to use for grouping (only used when grouping mode is
      *                                    ListingConfigInterface::GROUP_CHAR).
      *
@@ -381,50 +398,90 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      *
      * @return string[]
      */
-    private function getSelectButtons()
+    protected function getSelectButtons()
     {
         $definition      = $this->environment->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
         $buttons         = [];
 
+        $confirmMessage = \htmlentities(
+            \sprintf(
+                '<h2 class="tl_error">%s</h2>' .
+                '<p></p>' .
+                '<div class="tl_submit_container">' .
+                '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
+                '</div>',
+                \specialchars($this->translate('MSC.nothingSelect')),
+                'tl_submit',
+                \specialchars($this->translate('MSC.close')),
+                'this.blur(); BackendGeneral.hideMessage(); return false;'
+            )
+        );
+        $onClick        = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'models[]\', \''
+                          . $confirmMessage . '\'); return false;';
+
+        $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
+
         if ($basicDefinition->isDeletable()) {
-            $buttons['delete'] = sprintf(
-                '<input ' .
-                'type="submit"' .
-                'name="delete"' .
-                'id="delete"' .
-                'class="tl_submit"' .
-                'accesskey="d"' .
-                'onclick="return confirm(\'%s\')"' .
-                'value="%s" />',
-                specialchars($this->translate('MSC.delAllConfirm')),
-                specialchars($this->translate('MSC.deleteSelected'))
+            $onClickDelete = \sprintf(
+                'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
+                'models[]',
+                $confirmMessage,
+                \specialchars($this->translate('MSC.delAllConfirm')),
+                \specialchars($this->translate('MSC.confirmOk')),
+                \specialchars($this->translate('MSC.confirmAbort'))
+            );
+
+            $buttons['delete'] = \sprintf(
+                $input,
+                'delete',
+                'delete',
+                'd',
+                \specialchars($this->translate('MSC.deleteSelected')),
+                $onClickDelete
             );
         }
 
-        if ($basicDefinition->isEditable()) {
-            $buttons['cut'] = sprintf(
-                '<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-                specialchars($this->translate('MSC.moveSelected'))
+        $sortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+        if ($sortingProperty && $basicDefinition->isEditable()) {
+            $buttons['cut'] = \sprintf(
+                $input,
+                'cut',
+                'cut',
+                's',
+                \specialchars($this->translate('MSC.moveSelected')),
+                $onClick
             );
         }
 
         if ($basicDefinition->isCreatable()) {
-            $buttons['copy'] = sprintf(
-                '<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-                specialchars($this->translate('MSC.copySelected'))
+            $buttons['copy'] = \sprintf(
+                $input,
+                'copy',
+                'copy',
+                'c',
+                \specialchars($this->translate('MSC.copySelected')),
+                $onClick
             );
         }
 
         if ($basicDefinition->isEditable()) {
-            $buttons['override'] = sprintf(
-                '<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
-                specialchars($this->translate('MSC.overrideSelected'))
+            $buttons['override'] = \sprintf(
+                $input,
+                'override',
+                'override',
+                'v',
+                \specialchars($this->translate('MSC.overrideSelected')),
+                $onClick
             );
 
-            $buttons['edit'] = sprintf(
-                '<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
-                specialchars($this->translate('MSC.editSelected'))
+            $buttons['edit'] = \sprintf(
+                $input,
+                'edit',
+                'edit',
+                's',
+                \specialchars($this->translate('MSC.editSelected')),
+                $onClick
             );
         }
 
@@ -492,10 +549,10 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             )
         );
 
-        return sprintf(
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            specialchars($this->translate('pasteafter.0')),
+            \specialchars($this->translate('pasteafter.0')),
             $imageEvent->getHtml()
         );
     }
@@ -548,5 +605,61 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         }
 
         return $sortingColumns;
+    }
+
+    /**
+     * Get the the container of selections.
+     *
+     * @return array
+     */
+    private function getSelectContainer()
+    {
+        $environment    = $this->getEnvironment();
+        $inputProvider  = $environment->getInputProvider();
+        $sessionStorage = $environment->getSessionStorage();
+        $dataDefinition = $environment->getDataDefinition();
+
+        $sessionName = $dataDefinition->getName() . '.' . $inputProvider->getParameter('mode');
+        if (!$sessionStorage->has($sessionName)) {
+            return [];
+        }
+
+        $selectAction = $inputProvider->getParameter('select');
+        if (!$selectAction) {
+            return [];
+        }
+
+        $session = $sessionStorage->get($sessionName);
+        if (!\array_key_exists($selectAction, $session)) {
+            return [];
+        }
+
+        return $session[$selectAction];
+    }
+
+    /**
+     * Is the collection empty, the disable the edit/override all button.
+     *
+     * @param CollectionInterface $collection The collection.
+     *
+     * @return void
+     */
+    private function handleEditAllButton(CollectionInterface $collection)
+    {
+        if (0 < $collection->count()) {
+            return;
+        }
+
+        $enviroment     = $this->getEnvironment();
+        $dataDefinition = $enviroment->getDataDefinition();
+        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $globalCommands = $backendView->getGlobalCommands();
+
+        if (!$globalCommands->hasCommandNamed('all')) {
+            return;
+        }
+
+        $allCommand = $globalCommands->getCommandNamed('all');
+        $allCommand->setDisabled(true);
     }
 }

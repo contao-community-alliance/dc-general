@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -88,11 +89,8 @@ class SortingManager
      * Create a new instance.
      *
      * @param CollectionInterface $models        The collection containing the models to be inserted.
-     *
      * @param CollectionInterface $siblings      The collection containing the models that are siblings.
-     *
      * @param string              $sortedBy      The property that is used for sorting.
-     *
      * @param ModelInterface      $previousModel The model preceding the target position of the first model from the
      *                                           collection.
      */
@@ -229,7 +227,7 @@ class SortingManager
      */
     protected function getModelIds()
     {
-        $ids = array();
+        $ids = [];
 
         foreach ($this->models as $model) {
             /** @var ModelInterface $model */
@@ -264,7 +262,7 @@ class SortingManager
             do {
                 $this->marker = $this->siblingsCopy->shift();
 
-                if (in_array($this->marker->getId(), $ids)) {
+                if (\in_array($this->marker->getId(), $ids)) {
                     continue;
                 }
 
@@ -296,7 +294,7 @@ class SortingManager
         // If delta too narrow, we need to make room.
         // Prevent delta to exceed, also. Use minimum delta which is calculated as multiple of 128.
         if ($delta < 2 || $delta > 128) {
-            return (ceil($this->results->length() / 128) * 128);
+            return (\ceil($this->results->length() / 128) * 128);
         }
 
         return $delta;
@@ -335,7 +333,7 @@ class SortingManager
         if ($this->marker->getProperty($this->getSortingProperty()) <= $this->position) {
             do {
                 // Skip models about to be pasted.
-                if (in_array($this->marker->getId(), $ids)) {
+                if (\in_array($this->marker->getId(), $ids)) {
                     $this->marker = $this->siblingsCopy->shift();
                     continue;
                 }

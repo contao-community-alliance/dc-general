@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -39,7 +40,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      *
      * @var ParentChildConditionInterface[]
      */
-    protected $childConditions = array();
+    protected $childConditions = [];
 
     /**
      * {@inheritdoc}
@@ -64,7 +65,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      */
     public function addChildCondition($condition)
     {
-        $hash = spl_object_hash($condition);
+        $hash = \spl_object_hash($condition);
 
         $this->childConditions[$hash] = $condition;
 
@@ -91,10 +92,10 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
     public function getChildConditions($srcProvider = '')
     {
         if (!$this->childConditions) {
-            return array();
+            return [];
         }
 
-        $arrReturn = array();
+        $arrReturn = [];
         foreach ($this->childConditions as $condition) {
             if (!empty($srcProvider) && ($condition->getSourceName() != $srcProvider)) {
                 continue;
@@ -115,11 +116,11 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
             $this->rootCondition = clone $this->rootCondition;
         }
 
-        $conditions = array();
+        $conditions = [];
         foreach ($this->childConditions as $condition) {
             $bobaFett = clone $condition;
 
-            $conditions[spl_object_hash($bobaFett)] = $bobaFett;
+            $conditions[\spl_object_hash($bobaFett)] = $bobaFett;
         }
         $this->childConditions = $conditions;
     }

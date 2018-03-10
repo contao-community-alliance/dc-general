@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,8 +16,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -51,10 +51,10 @@ class ClipboardController implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DcGeneralEvents::ACTION => array('handleAction'),
-            DcGeneralEvents::VIEW   => array('handleView'),
-        );
+        return [
+            DcGeneralEvents::ACTION => ['handleAction'],
+            DcGeneralEvents::VIEW   => ['handleView'],
+        ];
     }
 
     /**
@@ -107,7 +107,7 @@ class ClipboardController implements EventSubscriberInterface
 
         if (('create' === $actionName && true === $basicDefinition->isCreatable())
             || ('cut' === $actionName && true === $basicDefinition->isEditable())
-            || (false === in_array($actionName, array('create', 'cut')))
+            || (false === \in_array($actionName, ['create', 'cut']))
         ) {
             return true;
         }
@@ -126,7 +126,7 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         $event->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">%s.</div>',
                 $permissionMessage
             )
@@ -139,7 +139,6 @@ class ClipboardController implements EventSubscriberInterface
      * Handle clear clipboard action.
      *
      * @param ActionEvent $event    The action event.
-     *
      * @param bool        $redirect Redirect after clear the clipboard.
      *
      * @return void
@@ -234,12 +233,8 @@ class ClipboardController implements EventSubscriberInterface
             $modelIdRaw = $input->getParameter('source');
             $modelId    = ModelId::fromSerialized($modelIdRaw);
 
-            $filter = new Filter();
-            $filter->andActionIs(ItemInterface::CREATE);
-            $items = $clipboard->fetch($filter);
-            foreach ($items as $item) {
-                $clipboard->remove($item);
-            }
+            // If edit several don´t remove items from the clipboard.
+            $this->removeItemsFromClipboard($event);
 
             // Only push item to clipboard if manual sorting is used.
             if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
@@ -248,6 +243,13 @@ class ClipboardController implements EventSubscriberInterface
 
             // create the new item
             $item = new Item($clipboardActionName, $parentId, $modelId);
+        }
+
+        // If edit several don´t redirect do home and push item to the clipboard.
+        if ($input->getParameter('act') === 'select') {
+            $clipboard->push($item)->saveTo($environment);
+
+            return;
         }
 
         // Let the clipboard save it's values persistent.
@@ -304,7 +306,7 @@ class ClipboardController implements EventSubscriberInterface
             $filter->andHasNoParent();
         }
 
-        $options = array();
+        $options = [];
         foreach ($clipboard->fetch($filter) as $item) {
             $modelId      = $item->getModelId();
             $dataProvider = $environment->getDataProvider($item->getDataProviderName());
@@ -322,18 +324,14 @@ class ClipboardController implements EventSubscriberInterface
                 $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
                 $eventDispatcher->dispatch(DcGeneralEvents::FORMAT_MODEL_LABEL, $formatModelLabelEvent);
                 $label = $formatModelLabelEvent->getLabel();
-                $label = array_shift($label);
+                $label = \array_shift($label);
                 $label = $label['content'];
             } else {
                 $model = $dataProvider->getEmptyModel();
                 $label = $environment->getTranslator()->translate('new.0', $item->getDataProviderName());
             }
 
-            $options[$item->getClipboardId()] = array(
-                'item'  => $item,
-                'model' => $model,
-                'label' => $label,
-            );
+            $options[$item->getClipboardId()] = ['item'  => $item, 'model' => $model, 'label' => $label,];
         }
 
         $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $input->getParameter('act'));
@@ -354,5 +352,29 @@ class ClipboardController implements EventSubscriberInterface
             ->set('clearItemUrl', $clearItemUrl);
 
         $event->setResponse($template->parse());
+    }
+
+    /**
+     * Remove items from clipboard.
+     * If action is select don´t remove anything.
+     *
+     * @param ActionEvent $event The event.
+     *
+     * @return void
+     */
+    private function removeItemsFromClipboard(ActionEvent $event)
+    {
+        $inputProvider = $event->getEnvironment()->getInputProvider();
+        if ($inputProvider->getParameter('act') === 'select') {
+            return;
+        }
+
+        $clipboard = $event->getEnvironment()->getClipboard();
+        $filter    = new Filter();
+        $filter->andActionIs(ItemInterface::CREATE);
+        $items = $clipboard->fetch($filter);
+        foreach ($items as $item) {
+            $clipboard->remove($item);
+        }
     }
 }

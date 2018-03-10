@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,9 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -64,7 +65,6 @@ interface ControllerInterface
      * Search the parent of the passed model.
      *
      * @param ModelInterface      $model  The model to search the parent for.
-     *
      * @param CollectionInterface $models The collection to search in.
      *
      * @return ModelInterface
@@ -96,7 +96,6 @@ interface ControllerInterface
      * conditions.
      *
      * @param ModelInterface $objModel        The model to assemble children from.
-     *
      * @param string         $strDataProvider The name of the data provider to fetch children from.
      *
      * @return array
@@ -111,7 +110,6 @@ interface ControllerInterface
      * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
      *
      * @param ModelInterface            $model          The model to update.
-     *
      * @param PropertyValueBagInterface $propertyValues The value bag to retrieve the values from.
      *
      * @return ControllerInterface
@@ -143,7 +141,6 @@ interface ControllerInterface
      * Fetch a certain model from its provider.
      *
      * @param string|ModelIdInterface $modelId      This is either the id of the model or a serialized id.
-     *
      * @param string|null             $providerName The name of the provider, if this is empty, the id will be
      *                                              deserialized and the provider name will get extracted from there.
      *
@@ -209,16 +206,14 @@ interface ControllerInterface
         ModelIdInterface $into = null,
         ModelIdInterface $parentModelId = null,
         FilterInterface $filter = null,
-        array &$items = array()
+        array &$items = []
     );
 
     /**
      * Paste the content of the clipboard onto the top.
      *
      * @param CollectionInterface $models   The models to be inserted.
-     *
      * @param string              $sortedBy The name of the sorting property.
-     *
      * @param ModelIdInterface    $parentId The parent model ID.
      *
      * @return void
@@ -229,9 +224,7 @@ interface ControllerInterface
      * Paste the content of the clipboard after the given model.
      *
      * @param ModelInterface      $previousModel The model after which to paste.
-     *
      * @param CollectionInterface $models        The models to be inserted.
-     *
      * @param string              $sortedBy      The name of the sorting property.
      *
      * @return void
@@ -242,9 +235,7 @@ interface ControllerInterface
      * Paste the content of the clipboard into the given model.
      *
      * @param ModelInterface      $parentModel The model to become the parent model of the clipboard content.
-     *
      * @param CollectionInterface $models      The models to be inserted.
-     *
      * @param string              $sortedBy    The name of the sorting property.
      *
      * @return void
@@ -281,7 +272,6 @@ interface ControllerInterface
      * Set a model as the parent of another model.
      *
      * @param ModelInterface $childModel  The model to become the child.
-     *
      * @param ModelInterface $parentModel The model to use as parent.
      *
      * @return ControllerInterface
@@ -298,9 +288,7 @@ interface ControllerInterface
      * Useful when moving an element after another in a different parent.
      *
      * @param ModelInterface $receivingModel The model that shall get updated.
-     *
      * @param ModelInterface $sourceModel    The model that the values shall get retrieved from.
-     *
      * @param string         $parentTable    The name of the parent table for the models.
      *
      * @return ControllerInterface

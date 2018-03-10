@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -25,6 +26,9 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
 
 /**
  * Test case for the relationship manager.
@@ -44,7 +48,7 @@ class RelationshipManagerTest extends TestCase
     {
         $model = $this->mockModel();
         $root  = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface'
+            RootConditionInterface::class
         );
         $root->expects($this->once())->method('matches')->with($model);
 
@@ -87,10 +91,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(
-            'ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException',
-            'No root condition defined'
-        );
+        $this->setExpectedException(DcGeneralRuntimeException::class, 'No root condition defined');
 
         $manager->isRoot($this->mockModel());
     }
@@ -106,7 +107,7 @@ class RelationshipManagerTest extends TestCase
     {
         $model = $this->mockModel();
         $root  = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface'
+            RootConditionInterface::class
         );
         $root->expects($this->once())->method('applyTo')->with($model);
 
@@ -149,10 +150,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(
-            'ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException',
-            'No root condition defined'
-        );
+        $this->setExpectedException(DcGeneralRuntimeException::class, 'No root condition defined');
 
         $manager->setRoot($this->mockModel());
     }
@@ -173,14 +171,11 @@ class RelationshipManagerTest extends TestCase
         $collection->push($model2);
 
         $manager = $this
-            ->getMockBuilder('ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager')
+            ->getMockBuilder(RelationshipManager::class)
             ->setMethods(['setRoot'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects($this->exactly(2))->method('setRoot')->withConsecutive(
-            [$model1],
-            [$model2]
-        );
+        $manager->expects($this->exactly(2))->method('setRoot')->withConsecutive([$model1], [$model2]);
 
         /** @var RelationshipManager $manager */
         $manager->setAllRoot($collection);
@@ -197,9 +192,7 @@ class RelationshipManagerTest extends TestCase
     {
         $model     = $this->mockModel();
         $parent    = $this->mockModel();
-        $condition = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface'
-        );
+        $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
         $condition->expects($this->once())->method('applyTo')->with($model);
 
         $model->expects($this->any())->method('getProviderName')->willReturn('child');
@@ -240,10 +233,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(
-            'ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException',
-            'No condition defined from parent to child'
-        );
+        $this->setExpectedException(DcGeneralRuntimeException::class, 'No condition defined from parent to child');
 
         $manager->setParent($model, $parent);
     }
@@ -265,7 +255,7 @@ class RelationshipManagerTest extends TestCase
 
         $parent  = $this->mockModel();
         $manager = $this
-            ->getMockBuilder('ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager')
+            ->getMockBuilder(RelationshipManager::class)
             ->setMethods(['setParent'])
             ->disableOriginalConstructor()
             ->getMock();
@@ -290,7 +280,7 @@ class RelationshipManagerTest extends TestCase
         $model     = $this->mockModel();
         $source    = $this->mockModel();
         $condition = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface'
+            ParentChildConditionInterface::class
         );
         $condition->expects($this->once())->method('copyFrom')->with($model, $source);
 
@@ -333,7 +323,7 @@ class RelationshipManagerTest extends TestCase
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
         $this->setExpectedException(
-            'ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException',
+            DcGeneralRuntimeException::class,
             'No condition defined from parent to child'
         );
 
@@ -360,7 +350,7 @@ class RelationshipManagerTest extends TestCase
         $source->expects($this->any())->method('getProviderName')->willReturn('child');
 
         $manager = $this
-            ->getMockBuilder('ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager')
+            ->getMockBuilder(RelationshipManager::class)
             ->setMethods(['setSameParent'])
             ->disableOriginalConstructor()
             ->getMock();
@@ -380,9 +370,7 @@ class RelationshipManagerTest extends TestCase
      */
     private function mockRelationship()
     {
-        return $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface'
-        );
+        return $this->getMockForAbstractClass(ModelRelationshipDefinitionInterface::class);
     }
 
     /**
@@ -392,6 +380,6 @@ class RelationshipManagerTest extends TestCase
      */
     private function mockModel()
     {
-        return $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface');
+        return $this->getMockForAbstractClass(ModelInterface::class);
     }
 }

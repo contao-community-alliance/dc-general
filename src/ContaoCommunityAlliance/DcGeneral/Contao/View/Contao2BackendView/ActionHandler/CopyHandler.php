@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,8 +15,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -42,48 +42,51 @@ use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
 class CopyHandler extends AbstractEnvironmentAwareHandler
 {
     /**
-     * Check if is it allowed to create a new record. This is necessary to create the copy.
-     *
-     * @param ModelIdInterface $modelId  The model id.
-     * @param bool             $redirect If true it redirects to error page instead of throwing an exception.
-     *
-     * @return void
-     *
-     * @throws NotCreatableException If deletion is disabled.
+     * {@inheritdoc}
      */
-    protected function guardIsCreatable(ModelIdInterface $modelId, $redirect = false)
+    public function process()
     {
-        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+        $event = $this->getEvent();
+        if ($event->getAction()->getName() !== 'copy') {
             return;
         }
 
-        if ($redirect) {
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent(
-                    sprintf(
-                        'Table "%s" is not creatable',
-                        'DC_General - DefaultController - copy()',
-                        $this->getEnvironment()->getDataDefinition()->getName()
-                    ),
-                    __CLASS__ . '::delete()',
-                    TL_ERROR
-                )
-            );
+        if (false === $this->checkPermission()) {
+            $this->getEvent()->stopPropagation();
 
-            $this->getEnvironment()->getEventDispatcher()->dispatch(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent('contao/main.php?act=error')
-            );
+            return;
         }
 
-        throw new NotCreatableException($modelId->getDataProviderName());
+        $modelId = ModelId::fromSerialized($this->getEnvironment()->getInputProvider()->getParameter('source'));
+
+        $this->guardValidEnvironment($modelId);
+        // We want a redirect here if not creatable.
+        $this->guardIsCreatable($modelId, true);
+
+        if ($this->isEditOnlyResponse()) {
+            return;
+        }
+
+        // Manual sorting mode. The ClipboardController should pick it up.
+        $manualSortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+        if ($manualSortingProperty && $this->getEnvironment()->getDataProvider()->fieldExists($manualSortingProperty)) {
+            return;
+        }
+
+        $copiedModel = $this->copy($modelId);
+
+        // If edit several don´t redirect do home.
+        if ($this->getEnvironment()->getInputProvider()->getParameter('act') === 'select') {
+            return;
+        }
+
+        $this->redirect($this->getEnvironment(), ModelId::fromModel($copiedModel));
     }
 
     /**
      * Copy a model by using.
      *
-     * @param ModelIdInterface  $modelId   The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return ModelInterface
      */
@@ -115,6 +118,45 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
     }
 
     /**
+     * Check if is it allowed to create a new record. This is necessary to create the copy.
+     *
+     * @param ModelIdInterface $modelId  The model id.
+     * @param bool             $redirect If true it redirects to error page instead of throwing an exception.
+     *
+     * @return void
+     *
+     * @throws NotCreatableException If deletion is disabled.
+     */
+    protected function guardIsCreatable(ModelIdInterface $modelId, $redirect = false)
+    {
+        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+            return;
+        }
+
+        if ($redirect) {
+            $this->getEnvironment()->getEventDispatcher()->dispatch(
+                ContaoEvents::SYSTEM_LOG,
+                new LogEvent(
+                    \sprintf(
+                        'Table "%s" is not creatable',
+                        'DC_General - DefaultController - copy()',
+                        $this->getEnvironment()->getDataDefinition()->getName()
+                    ),
+                    __CLASS__ . '::delete()',
+                    TL_ERROR
+                )
+            );
+
+            $this->getEnvironment()->getEventDispatcher()->dispatch(
+                ContaoEvents::CONTROLLER_REDIRECT,
+                new RedirectEvent('contao/main.php?act=error')
+            );
+        }
+
+        throw new NotCreatableException($modelId->getDataProviderName());
+    }
+
+    /**
      * Redirect to edit mask.
      *
      * @param EnvironmentInterface $environment   The environment.
@@ -139,44 +181,6 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function process()
-    {
-        $event = $this->getEvent();
-        if ($event->getAction()->getName() !== 'copy') {
-            return;
-        }
-
-        if (false === $this->checkPermission()) {
-            $this->getEvent()->stopPropagation();
-
-            return;
-        }
-
-        $environment = $this->getEnvironment();
-        $modelId     = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-
-        $this->guardValidEnvironment($modelId);
-        // We want a redirect here if not creatable.
-        $this->guardIsCreatable($modelId, true);
-
-        if ($this->isEditOnlyResponse()) {
-            return;
-        }
-
-        // Manual sorting mode. The ClipboardController should pick it up.
-        $manualSortingProperty = ViewHelpers::getManualSortingProperty($environment);
-        if ($manualSortingProperty && $this->environment->getDataProvider()->fieldExists($manualSortingProperty)) {
-            return;
-        }
-
-        $copiedModel = $this->copy($modelId);
-
-        $this->redirect($environment, ModelId::fromModel($copiedModel));
-    }
-
-    /**
      * Check permission for copy a model.
      *
      * @return bool
@@ -194,7 +198,7 @@ class CopyHandler extends AbstractEnvironmentAwareHandler
         $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for copy model %s.
                 </div>',

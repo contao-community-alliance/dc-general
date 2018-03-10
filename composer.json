@@ -11,7 +11,7 @@
     ],
     "type": "contao-module",
     "homepage": "http://c-c-a.org/",
-    "license": "LGPL-3.0+",
+    "license": "LGPL-3.0-or-later",
     "authors": [
         {
             "name": "Christian Schiffler",
@@ -32,18 +32,19 @@
         "source": "https://github.com/contao-community-alliance/dc-general"
     },
     "require": {
-        "php": ">=5.4",
+        "php": "^5.6 || ^7.0",
         "contao/core": "^3.5.5",
-        "contao-community-alliance/composer-plugin": "~2.4",
-        "contao-community-alliance/event-dispatcher": "~1.3",
-        "contao-community-alliance/translator": "~2.0",
+        "contao-community-alliance/composer-plugin": "^2.4",
+        "contao-community-alliance/event-dispatcher": "^1.3",
+        "contao-community-alliance/translator": "^2.0",
         "contao-community-alliance/events-contao-bindings": "^3.5.0",
-        "contao-community-alliance/url-builder": "~1.1",
-        "symfony/expression-language": "~2.4 | ~3.0"
+        "contao-community-alliance/url-builder": "^1.3",
+        "symfony/expression-language": "^2.4 || ^3.4"
     },
     "require-dev": {
-        "phpcq/all-tasks": "~1.1",
-        "contao-community-alliance/contao-twig": "~1.12"
+        "phpcq/all-tasks": "^1.2",
+        "contao-community-alliance/contao-twig": "^1.12",
+        "menatwork/contao-multicolumnwizard": "^3.3"
     },
     "replace": {
         "metamodels/dc_general": "self.version"

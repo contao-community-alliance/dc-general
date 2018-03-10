@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -40,13 +41,13 @@ class FilterTest extends TestCase
      */
     public function provideActions()
     {
-        return array(
-            array(ItemInterface::CREATE, ItemInterface::COPY, ItemInterface::CUT),
-            array(ItemInterface::COPY, ItemInterface::CREATE, ItemInterface::DEEP_COPY),
-            array(ItemInterface::DEEP_COPY, ItemInterface::COPY, ItemInterface::CREATE),
-            array(ItemInterface::CREATE, ItemInterface::COPY, ItemInterface::CUT),
-            array(ItemInterface::CUT, ItemInterface::COPY, ItemInterface::CREATE),
-        );
+        return [
+            [ItemInterface::CREATE, ItemInterface::COPY, ItemInterface::CUT],
+            [ItemInterface::COPY, ItemInterface::CREATE, ItemInterface::DEEP_COPY],
+            [ItemInterface::DEEP_COPY, ItemInterface::COPY, ItemInterface::CREATE],
+            [ItemInterface::CREATE, ItemInterface::COPY, ItemInterface::CUT],
+            [ItemInterface::CUT, ItemInterface::COPY, ItemInterface::CREATE],
+        ];
     }
 
     /**
@@ -136,7 +137,7 @@ class FilterTest extends TestCase
     {
         $filter = new Filter();
         $filter->andSub(new MockedFilter(true));
-        $filter->andActionIsIn(array($action1));
+        $filter->andActionIsIn([$action1]);
 
         $item = new MockedAbstractItem($action1);
         $this->assertEquals(true, $filter->accepts($item));
@@ -157,7 +158,7 @@ class FilterTest extends TestCase
     {
         $filter = new Filter();
         $filter->andSub(new MockedFilter(true));
-        $filter->andActionIsNotIn(array($action1, $action2));
+        $filter->andActionIsNotIn([$action1, $action2]);
 
         $item = new MockedAbstractItem($action1);
         $this->assertEquals(false, $filter->accepts($item));
@@ -178,7 +179,7 @@ class FilterTest extends TestCase
     {
         $filter = new Filter();
         $filter->orSub(new MockedFilter(false));
-        $filter->orActionIsIn(array($action1));
+        $filter->orActionIsIn([$action1]);
 
         $item = new MockedAbstractItem($action1);
         $this->assertEquals(true, $filter->accepts($item));
@@ -200,8 +201,8 @@ class FilterTest extends TestCase
         $filter = new Filter();
         $filter
             ->andSub(new MockedFilter(false))
-            ->orActionIsNotIn(array($action1))
-            ->orActionIsNotIn(array($action1, $action2));
+            ->orActionIsNotIn([$action1])
+            ->orActionIsNotIn([$action1, $action2]);
 
         $item = new MockedAbstractItem($action1);
         $this->assertEquals(false, $filter->accepts($item));
@@ -260,11 +261,11 @@ class FilterTest extends TestCase
         $parentId2 = new ModelId('dummy-provider', 5);
         $parentId3 = new ModelId('dummy-provider', 6);
 
-        return array(
-            array(true, $parentId1, $parentId1, $parentId3),
-            array(false, $parentId1, $parentId2, $parentId3),
-            array(false, null, $parentId2, $parentId3),
-        );
+        return [
+            [true, $parentId1, $parentId1, $parentId3],
+            [false, $parentId1, $parentId2, $parentId3],
+            [false, null, $parentId2, $parentId3],
+        ];
     }
 
     /**
@@ -309,11 +310,11 @@ class FilterTest extends TestCase
         $modelId1 = new ModelId('dummy-provider', 4);
         $modelId2 = new ModelId('dummy-provider', 5);
 
-        return array(
-            array(true, $modelId1, $modelId1),
-            array(false, $modelId1, $modelId2),
-            array(false, $modelId2, $modelId1),
-        );
+        return [
+            [true, $modelId1, $modelId1],
+            [false, $modelId1, $modelId2],
+            [false, $modelId2, $modelId1],
+        ];
     }
 
     /**
@@ -342,11 +343,11 @@ class FilterTest extends TestCase
         $modelId1 = new ModelId('dummy-provider', 4);
         $modelId2 = new ModelId('dummy-provider', 5);
 
-        return array(
-            array(false, $modelId1, $modelId1),
-            array(true, $modelId1, $modelId2),
-            array(true, $modelId2, $modelId1),
-        );
+        return [
+            [false, $modelId1, $modelId1],
+            [true, $modelId1, $modelId2],
+            [true, $modelId2, $modelId1],
+        ];
     }
 
     /**
@@ -376,11 +377,11 @@ class FilterTest extends TestCase
         $modelId2 = new ModelId('dummy-provider', 5);
         $modelId3 = new ModelId('dummy-provider', 5);
 
-        return array(
-            array(true, $modelId1, $modelId1, $modelId2),
-            array(false, $modelId1, $modelId2, $modelId3),
-            array(true, $modelId1, $modelId1, $modelId3),
-        );
+        return [
+            [true, $modelId1, $modelId1, $modelId2],
+            [false, $modelId1, $modelId2, $modelId3],
+            [true, $modelId1, $modelId1, $modelId3],
+        ];
     }
 
     /**
@@ -410,11 +411,11 @@ class FilterTest extends TestCase
         $modelId2 = new ModelId('dummy-provider', 5);
         $modelId3 = new ModelId('dummy-provider', 5);
 
-        return array(
-            array(true, $modelId1, $modelId1, $modelId2),
-            array(true, $modelId1, $modelId2, $modelId3),
-            array(false, $modelId1, $modelId1, $modelId1),
-        );
+        return [
+            [true, $modelId1, $modelId1, $modelId2],
+            [true, $modelId1, $modelId2, $modelId3],
+            [false, $modelId1, $modelId1, $modelId1],
+        ];
     }
 
     /**
@@ -443,11 +444,11 @@ class FilterTest extends TestCase
         $provider1 = 'dummy-a';
         $provider2 = 'dummy-b';
 
-        return array(
-            array(true, $provider1, $provider1),
-            array(false, $provider1, $provider2),
-            array(true, $provider2, $provider2),
-        );
+        return [
+            [true, $provider1, $provider1],
+            [false, $provider1, $provider2],
+            [true, $provider2, $provider2],
+        ];
     }
 
     /**
@@ -492,11 +493,11 @@ class FilterTest extends TestCase
         $provider1 = 'dummy-a';
         $provider2 = 'dummy-b';
 
-        return array(
-            array(false, $provider1, $provider1),
-            array(true, $provider1, $provider2),
-            array(false, $provider2, $provider2),
-        );
+        return [
+            [false, $provider1, $provider1],
+            [true, $provider1, $provider2],
+            [false, $provider2, $provider2],
+        ];
     }
 
     /**
@@ -559,7 +560,7 @@ class FilterTest extends TestCase
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
 
         $filter->andSub(new MockedFilter(true));
-        $filter->andParentIsIn(array($parentId2, $parentId3));
+        $filter->andParentIsIn([$parentId2, $parentId3]);
         $this->assertEquals($expected, $filter->accepts($item));
     }
 
@@ -574,7 +575,7 @@ class FilterTest extends TestCase
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
 
         $filter->andSub(new MockedFilter(true));
-        $filter->andParentIsNotIn(array($parentId2, $parentId3));
+        $filter->andParentIsNotIn([$parentId2, $parentId3]);
         $this->assertEquals(!$expected, $filter->accepts($item));
     }
 
@@ -589,7 +590,7 @@ class FilterTest extends TestCase
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
 
         $filter->andSub(new MockedFilter(false));
-        $filter->orParentIsIn(array($parentId2, $parentId3));
+        $filter->orParentIsIn([$parentId2, $parentId3]);
         $this->assertEquals($expected, $filter->accepts($item));
     }
 
@@ -600,10 +601,10 @@ class FilterTest extends TestCase
      */
     public function provideSubFilter()
     {
-        return array(
-            array(true, new MockedFilter(true)),
-            array(false, new MockedFilter(false))
-        );
+        return [
+            [true, new MockedFilter(true)],
+            [false, new MockedFilter(false)]
+        ];
     }
 
     /**

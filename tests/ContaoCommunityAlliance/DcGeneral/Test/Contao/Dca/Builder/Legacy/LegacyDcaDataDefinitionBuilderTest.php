@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -39,18 +40,16 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      * Mocker callback for loading a dca.
      *
      * @param array           $dca
-     *
      * @param string          $eventName
-     *
      * @param Eventdispatcher $dispatcher
      *
-     * @return LegacyDcaDataDefinitionBuilder
+     * @return \PHPUnit_Framework_MockObject_MockObject|LegacyDcaDataDefinitionBuilder
      */
     public function mockBuilderWithDca($dca, $eventName, $dispatcher)
     {
-        $class = 'ContaoCommunityAlliance\\DcGeneral\\Contao\\Dca\\Builder\\Legacy\\LegacyDcaDataDefinitionBuilder';
+        $class = LegacyDcaDataDefinitionBuilder::class;
         $mock  = $this
-            ->getMock($class, array('loadDca', 'process'));
+            ->getMock($class, ['loadDca', 'process']);
 
         $mock
             ->expects($this->once())
@@ -92,16 +91,17 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         $dispatcher = new EventDispatcher();
         $container  = new DefaultContainer('tl_test');
         $event      = new BuildDataDefinitionEvent($container);
-        $builder    = $this->mockBuilderWithDca(
-            array(
-                'fields' => array(
-                    'testProperty' => array(
-                        'save_callback' => array(function () {
-                            return 'executed';
-                        })
-                    )
-                )
-            ),
+        $builder = $this->mockBuilderWithDca([
+                'fields' => [
+                    'testProperty' => [
+                        'save_callback' => [
+                            function () {
+                                return 'executed';
+                            }
+                        ]
+                    ]
+                ]
+            ],
             $event::NAME,
             $dispatcher
         );
@@ -117,7 +117,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         );
 
         $event->setProperty('testProperty');
-        $this->assertEquals(1, count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
+        $this->assertEquals(1, \count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
         foreach ($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME) as $listener) {
             /** @var AbstractCallbackListener $listener */
             $this->assertTrue($listener->wantToExecute($event));

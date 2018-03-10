@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -42,19 +42,18 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getModel()->getPropertiesAsArray(),
             $event->getLabel(),
             new DcCompat($event->getEnvironment(), $event->getModel()),
             $event->getArgs()
-        );
+        ];
     }
 
     /**
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event The event being emitted.
-     *
      * @param string|array      $value The label text to use.
      *
      * @return void
@@ -65,14 +64,14 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
         if (isset($groupingInformation['mode'])
             && ($groupingInformation['mode'] === GroupAndSortingInformationInterface::GROUP_NONE)
         ) {
-            if (!is_array($value)) {
+            if (!\is_array($value)) {
                 return;
             }
 
             $this->updateTableMode($event, $value);
         }
 
-        if (!is_string($value)) {
+        if (!\is_string($value)) {
             return;
         }
 
@@ -83,7 +82,6 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event The event being emitted.
-     *
      * @param string            $value The label text to use.
      *
      * @return void
@@ -95,7 +93,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
         }
 
         // HACK: we need to escape all % chars but preserve the %s and the like.
-        $value = str_replace('%', '%%', $value);
+        $value = \str_replace('%', '%%', $value);
         $value = preg_replace(
             '#%(%([0-9]+\$)?(\'.|0| )?-?([0-9]+)?(.[0-9]+)?(b|c|d|e|E|f|F|g|G|o|s|u|x|X))#',
             '\\1',
@@ -109,7 +107,6 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event     The event being emitted.
-     *
      * @param array             $arguments The label arguments.
      *
      * @return void
@@ -124,7 +121,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 
         $updateArguments = $event->getArgs();
 
-        //Step 1 update arguments by index as propertyName
+        // Step 1 update arguments by index as propertyName
         foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
             if (!isset($arguments[$propertyName])) {
                 continue;
@@ -133,7 +130,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
             $updateArguments[$propertyName] = $arguments[$propertyName];
         }
 
-        //Step 2 update arguments by index as integer
+        // Step 2 update arguments by index as integer
         foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
             if (!isset($arguments[$index])) {
                 continue;

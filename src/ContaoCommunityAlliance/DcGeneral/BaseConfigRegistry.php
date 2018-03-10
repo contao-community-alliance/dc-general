@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,18 +12,19 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -71,7 +72,6 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      * Add the filter for the item with the given id from the parent data provider to the given config.
      *
      * @param ModelIdInterface $idParent The id of the parent item.
-     *
      * @param ConfigInterface  $config   The config to add the filter to.
      *
      * @return ConfigInterface
@@ -111,17 +111,10 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
                 $arrFilter     = $condition->getFilter($objParent);
 
                 if ($arrBaseFilter) {
-                    $arrFilter = array_merge($arrBaseFilter, $arrFilter);
+                    $arrFilter = \array_merge($arrBaseFilter, $arrFilter);
                 }
 
-                $config->setFilter(
-                    array(
-                        array(
-                            'operation' => 'AND',
-                            'children'  => $arrFilter,
-                        )
-                    )
-                );
+                $config->setFilter([['operation' => 'AND', 'children'  => $arrFilter,]]);
             }
         }
 

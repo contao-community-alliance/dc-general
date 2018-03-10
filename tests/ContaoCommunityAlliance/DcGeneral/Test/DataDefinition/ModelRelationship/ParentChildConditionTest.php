@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -45,12 +46,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test-provider')
             ->setDestinationName('test-provider');
@@ -75,12 +77,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test-provider')
             ->setDestinationName('test-provider');
@@ -105,12 +108,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setDestinationName('test-provider');
 
@@ -134,12 +138,13 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray(
-                [[
-                     'local'     => 'id',
-                     'operation' => '=',
-                     'remote'    => 'pid'
-                ]]
+            ->setFilterArray([
+                    [
+                        'local'     => 'id',
+                        'operation' => '=',
+                        'remote'    => 'pid'
+                    ]
+                ]
             )
             ->setSourceName('test2-provider');
 
@@ -160,11 +165,14 @@ class ParentChildConditionTest extends TestCase
         $child->setPropertyRaw('pid', 1);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray(array(array(
+        $condition->setFilterArray([
+                [
             'local'     => 'id',
             'operation' => '=',
             'remote'    => 'pid'
-        )));
+                ]
+            ]
+        );
 
         $this->assertTrue($condition->matches($parent, $child));
     }
@@ -184,11 +192,14 @@ class ParentChildConditionTest extends TestCase
         $child->setId(2);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray(array(array(
-            'local'        => 'id',
-            'operation'    => '=',
-            'remote_value' => '2'
-        )));
+        $condition->setFilterArray([
+                [
+                    'local'        => 'id',
+                    'operation'    => '=',
+                    'remote_value' => '2'
+                ]
+            ]
+        );
 
         $this->assertTrue($condition->matches($parent, $child));
     }

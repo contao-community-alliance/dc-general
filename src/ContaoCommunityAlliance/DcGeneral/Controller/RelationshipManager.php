@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -124,7 +125,6 @@ class RelationshipManager
      * Set a model as the parent of another model.
      *
      * @param ModelInterface $childModel  The model to become the child.
-     *
      * @param ModelInterface $parentModel The model to use as parent.
      *
      * @return void
@@ -150,7 +150,6 @@ class RelationshipManager
      * Sets the parent for all models.
      *
      * @param CollectionInterface $models      The collection of models to apply the parent to.
-     *
      * @param ModelInterface      $parentModel The new parent model.
      *
      * @return void
@@ -168,9 +167,7 @@ class RelationshipManager
      * Useful when moving an element after another in a different parent.
      *
      * @param ModelInterface $receivingModel The model that shall get updated.
-     *
      * @param ModelInterface $sourceModel    The model that the values shall get retrieved from.
-     *
      * @param string         $parentTable    The name of the parent table for the models.
      *
      * @return void
@@ -193,9 +190,7 @@ class RelationshipManager
      * Sets the same parent for all models.
      *
      * @param CollectionInterface $models      The collection of models to apply the parent to.
-     *
      * @param ModelInterface      $sourceModel The model that the values shall get retrieved from.
-     *
      * @param string              $parentTable The name of the parent table for the models.
      *
      * @return void

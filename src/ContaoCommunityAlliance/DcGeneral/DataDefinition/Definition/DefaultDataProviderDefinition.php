@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -35,7 +36,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      *
      * @var DataProviderInformationInterface[]
      */
-    protected $information = array();
+    protected $information = [];
 
     /**
      * {@inheritdoc}
@@ -78,7 +79,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
             $information = $information->getName();
         }
 
-        if (!is_string($information)) {
+        if (!\is_string($information)) {
             throw new DcGeneralInvalidArgumentException('Invalid value passed.');
         }
 
@@ -106,7 +107,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function hasInformation($information)
     {
-        return array_key_exists($this->makeName($information), $this->information);
+        return \array_key_exists($this->makeName($information), $this->information);
     }
 
     /**
@@ -122,7 +123,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function getProviderNames()
     {
-        return array_keys($this->information);
+        return \array_keys($this->information);
     }
 
     /**
@@ -138,7 +139,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function count()
     {
-        return count($this->information);
+        return \count($this->information);
     }
 
     /**

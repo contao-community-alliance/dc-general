@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -34,7 +35,7 @@ class PaletteCollection implements PaletteCollectionInterface
      *
      * @var array|PaletteInterface[]
      */
-    protected $palettes = array();
+    protected $palettes = [];
 
     /**
      * Remove all palettes from this collection.
@@ -43,7 +44,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function clearPalettes()
     {
-        $this->palettes = array();
+        $this->palettes = [];
         return $this;
     }
 
@@ -73,7 +74,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function addPalette(PaletteInterface $palette)
     {
-        $hash = spl_object_hash($palette);
+        $hash = \spl_object_hash($palette);
 
         $this->palettes[$hash] = $palette;
         return $this;
@@ -84,7 +85,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function removePalette(PaletteInterface $palette)
     {
-        $hash = spl_object_hash($palette);
+        $hash = \spl_object_hash($palette);
         unset($this->palettes[$hash]);
         return $this;
     }
@@ -94,7 +95,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function getPalettes()
     {
-        return array_values($this->palettes);
+        return \array_values($this->palettes);
     }
 
     /**
@@ -102,7 +103,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function hasPalette(PaletteInterface $palette)
     {
-        $hash = spl_object_hash($palette);
+        $hash = \spl_object_hash($palette);
         return isset($this->palettes[$hash]);
     }
 
@@ -113,7 +114,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        $matches = array();
+        $matches = [];
 
         // Determinate the matching count for each palette.
         foreach ($this->palettes as $palette) {
@@ -129,13 +130,13 @@ class PaletteCollection implements PaletteCollectionInterface
         }
 
         // Sort by count.
-        ksort($matches);
+        \ksort($matches);
 
         // Get palettes with highest matching count.
-        $palettes = array_pop($matches);
+        $palettes = \array_pop($matches);
 
-        if (count($palettes) !== 1) {
-            throw new DcGeneralInvalidArgumentException(sprintf('%d matching palettes found.', count($palettes)));
+        if (\count($palettes) !== 1) {
+            throw new DcGeneralInvalidArgumentException(\sprintf('%d matching palettes found.', \count($palettes)));
         }
 
         return $palettes[0];
@@ -176,7 +177,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function __clone()
     {
-        $palettes = array();
+        $palettes = [];
         foreach ($this->palettes as $index => $palette) {
             $palettes[$index] = clone $palette;
         }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,19 +16,24 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
+use Contao\Config;
 use Contao\DataContainer;
+use Contao\Environment;
+use Contao\File;
+use Contao\FilesModel;
+use Contao\Image;
+use Contao\Model\Collection;
 use Contao\RequestToken;
+use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use Model\Collection;
 
 /**
  * File tree widget being compatible with the dc general.
@@ -96,7 +101,6 @@ class FileTree extends AbstractWidget
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
-     *
      * @param DcCompat|null $dataContainer The data container.
      */
     public function __construct($attributes = null, DcCompat $dataContainer = null)
@@ -110,7 +114,6 @@ class FileTree extends AbstractWidget
      * Set an object property
      *
      * @param string $strKey   The property name.
-     *
      * @param mixed  $varValue The property value.
      *
      * @return void
@@ -215,12 +218,12 @@ class FileTree extends AbstractWidget
         $value = $this->dataContainer->getModel()->getProperty($this->orderField);
 
         // support serialized values.
-        if (!is_array($value)) {
-            $value = deserialize($value, true);
+        if (!\is_array($value)) {
+            $value = \deserialize($value, true);
         }
 
-        $this->orderId         = $this->orderField . str_replace($this->strField, '', $this->strId);
-        $this->orderFieldValue = (!empty($value) && is_array($value)) ? array_filter($value) : array();
+        $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
+        $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
     }
 
     /**
@@ -236,13 +239,13 @@ class FileTree extends AbstractWidget
 
         if ($inputValue == '') {
             if ($this->mandatory) {
-                $this->addError($translator->translate('mandatory', 'ERR', array($this->strLabel)));
+                $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
             }
 
             return '';
         }
 
-        $inputValue = array_map('\Contao\StringUtil::uuidToBin', array_filter(explode(',', $inputValue)));
+        $inputValue = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $inputValue)));
 
         return $this->multiple ? $inputValue : $inputValue[0];
     }
@@ -264,7 +267,7 @@ class FileTree extends AbstractWidget
 
         foreach ($collection->getModels() as $model) {
             // File system and database seem not in sync
-            if (!file_exists(TL_ROOT . '/' . $model->path)) {
+            if (!\file_exists(TL_ROOT . '/' . $model->path)) {
                 continue;
             }
 
@@ -290,25 +293,25 @@ class FileTree extends AbstractWidget
         static $allowedDownload;
 
         if ($allowedDownload === null) {
-            $allowedDownload = trimsplit(',', strtolower(\Config::get('allowedDownload')));
+            $allowedDownload = \trimsplit(',', \strtolower(Config::get('allowedDownload')));
         }
 
-        return in_array($extension, $allowedDownload);
+        return \in_array($extension, $allowedDownload);
     }
 
     /**
      * Render the file info.
      *
-     * @param \File $file The file.
+     * @param File $file The file.
      *
      * @return string
      */
-    protected function renderFileInfo($file)
+    protected function renderFileInfo(File $file)
     {
-        return sprintf(
+        return \sprintf(
             '%s <span class="tl_gray">(%s%s)</span>',
             $file->path,
-            $this->getReadableSize($file->size),
+            static::getReadableSize($file->size),
             (($file->isGdImage || $file->isSvgImage) ? ', ' . $file->width . 'x' . $file->height . ' px' : '')
         );
     }
@@ -316,9 +319,9 @@ class FileTree extends AbstractWidget
     /**
      * Render the image of a file.
      *
-     * @param \FilesModel $model      The file model.
-     * @param bool        $imagesOnly If true only images are rendered.
-     * @param bool        $downloads  If true file extension has to be in the allowed downloads list.
+     * @param FilesModel $model      The file model.
+     * @param bool       $imagesOnly If true only images are rendered.
+     * @param bool       $downloads  If true file extension has to be in the allowed downloads list.
      *
      * @return false|string
      */
@@ -329,9 +332,9 @@ class FileTree extends AbstractWidget
                 return false;
             }
 
-            return \Image::getHtml('folderC.gif') . ' ' . $model->path;
+            return Image::getHtml('folderC.gif') . ' ' . $model->path;
         }
-        $file = new \File($model->path, true);
+        $file = new File($model->path, true);
         $info = $this->renderFileInfo($file);
 
         if ($imagesOnly && !$file->isImage) {
@@ -340,14 +343,14 @@ class FileTree extends AbstractWidget
 
         if ($downloads) {
             if ($this->isAllowedDownload($file->extension)) {
-                return \Image::getHtml($file->icon) . ' ' . $info;
+                return Image::getHtml($file->icon) . ' ' . $info;
             }
 
             return false;
         }
 
         if (!$file->isImage) {
-            return \Image::getHtml($file->icon) . ' ' . $info;
+            return Image::getHtml($file->icon) . ' ' . $info;
         }
 
         return $this->generateGalleryImage($model, $file, $info);
@@ -356,27 +359,25 @@ class FileTree extends AbstractWidget
     /**
      * Generate a image for use as gallery listing.
      *
-     * @param \FilesModel $model The file model in use.
-     *
-     * @param \File       $file  The image file being rendered.
-     *
+     * @param FilesModel $model The file model in use.
+     * @param File       $file  The image file being rendered.
      * @param string      $info  The image information.
      *
      * @return string
      */
-    private function generateGalleryImage($model, $file, $info)
+    private function generateGalleryImage($model, File $file, $info)
     {
         $image = $this->placeholderImage;
 
         if ($file->isSvgImage
-            || $file->height <= \Config::get('gdMaxImgHeight') && $file->width <= \Config::get('gdMaxImgWidth')
+            || $file->height <= Config::get('gdMaxImgHeight') && $file->width <= Config::get('gdMaxImgWidth')
         ) {
-            $width  = min($file->width, $this->thumbnailWidth);
-            $height = min($file->height, $this->thumbnailHeight);
-            $image  = \Image::get($model->path, $width, $height, 'center_center');
+            $width  = \min($file->width, $this->thumbnailWidth);
+            $height = \min($file->height, $this->thumbnailHeight);
+            $image  = Image::get($model->path, $width, $height, 'center_center');
         }
 
-        return \Image::getHtml($image, '', 'class="gimage" title="' . specialchars($info) . '"');
+        return Image::getHtml($image, '', 'class="gimage" title="' . \specialchars($info) . '"');
     }
 
     /**
@@ -388,8 +389,8 @@ class FileTree extends AbstractWidget
      */
     private function applySorting($icons)
     {
-        if ($this->orderField != '' && is_array($this->orderFieldValue)) {
-            $ordered = array();
+        if ($this->orderField != '' && \is_array($this->orderFieldValue)) {
+            $ordered = [];
 
             foreach ($this->orderFieldValue as $uuid) {
                 if (isset($icons[$uuid])) {
@@ -425,13 +426,13 @@ class FileTree extends AbstractWidget
             $modelId = $this->dataContainer->getModel()->getProviderName(). '::4294967295';
         }
 
-        return sprintf(
+        return \sprintf(
             '%s?do=%s&amp;field=%s&amp;act=show&amp;id=%s&amp;value=%s&amp;rt=%s',
             'system/modules/dc-general/backend/generalfile.php',
             $inputProvider->getParameter('do'),
             $this->strField,
             $modelId,
-            implode(',', $values),
+            \implode(',', $values),
             RequestToken::get()
         );
     }
@@ -441,18 +442,18 @@ class FileTree extends AbstractWidget
      */
     public function generate()
     {
-        $values = array();
-        $icons  = array();
+        $values = [];
+        $icons  = [];
 
         if (!empty($this->varValue)) {
-            $files = \FilesModel::findMultipleByUuids((array) $this->varValue);
-            $this->renderList($icons, $files, ($this->isGallery || $this->isDownloads));
+            $files = FilesModel::findMultipleByUuids((array) $this->varValue);
+            $this->renderList($icons, $files, $this->isGallery || $this->isDownloads);
             $icons = $this->applySorting($icons);
 
             // Files can be null.
             if (null !== $files) {
                 foreach ($files as $model) {
-                    $values[] = call_user_func('\Contao\StringUtil::binToUuid', $model->uuid);
+                    $values[] = StringUtil::binToUuid($model->uuid);
                 }
             }
         }
@@ -462,15 +463,15 @@ class FileTree extends AbstractWidget
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('name', $this->strName)
             ->set('id', $this->strId)
-            ->set('value', implode(',', $values))
-            ->set('hasOrder', ($this->orderField != '' && is_array($this->orderFieldValue)))
+            ->set('value', \implode(',', $values))
+            ->set('hasOrder', $this->orderField != '' && \is_array($this->orderFieldValue))
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)
             ->set('orderId', $this->orderId)
             ->set('link', $this->generateLink($values))
             ->parse();
 
-        if (!\Environment::get('isAjaxRequest')) {
+        if (!Environment::get('isAjaxRequest')) {
             $buffer = '<div>' . $buffer . '</div>';
         }
 
@@ -481,7 +482,6 @@ class FileTree extends AbstractWidget
      * Update the value via ajax and redraw the widget.
      *
      * @param string        $ajaxAction    Not used in here.
-     *
      * @param DataContainer $dataContainer The data container to use.
      *
      * @return string

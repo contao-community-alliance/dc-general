@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -43,8 +44,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetLe
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteCollectionClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteConditionChainClassNameEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\
-SetPalettePropertyValueConditionClassNameEvent;
+// @codingStandardsIgnoreStart
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPalettePropertyValueConditionClassNameEvent;
+// @codingStandardsIgnoreEnd
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyConditionChainClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyValueConditionClassNameEvent;
@@ -52,13 +54,22 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UseLe
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteCollectionEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UsePaletteEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\UsePropertyEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
+// @codingStandardsIgnoreStart
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition as PropertyPropertyValueCondition;
+// @codingStandardsIgnoreEnd
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollection;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -92,8 +103,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $paletteCollectionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollection';
+    protected $paletteCollectionClassName = PaletteCollection::class;
 
     /**
      * The class to use for palette collections.
@@ -107,7 +117,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $paletteClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette';
+    protected $paletteClassName = Palette::class;
 
     /**
      * The class to use for palettes.
@@ -121,7 +131,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $legendClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend';
+    protected $legendClassName = Legend::class;
 
     /**
      * The class to use for palette legends.
@@ -135,7 +145,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $propertyClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property';
+    protected $propertyClassName = Property::class;
 
     /**
      * The class to use for palette properties.
@@ -149,8 +159,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $paletteConditionChainClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain';
+    protected $paletteConditionChainClassName = PaletteConditionChain::class;
 
     /**
      * The the class to use for palette condition chains.
@@ -164,8 +173,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $defaultPaletteConditionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\DefaultPaletteCondition';
+    protected $defaultPaletteConditionClassName = DefaultPaletteCondition::class;
 
     /**
      * The the class to use for palette conditions.
@@ -179,8 +187,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $palettePropertyValueConditionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition';
+    protected $palettePropertyValueConditionClassName = PropertyValueCondition::class;
 
     /**
      * The class to use for property value conditions.
@@ -194,8 +201,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $propertyConditionChainClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain';
+    protected $propertyConditionChainClassName = PropertyConditionChain::class;
 
     /**
      * The class to use for property condition chains.
@@ -209,8 +215,7 @@ class PaletteBuilder
      *
      * @var string
      */
-    protected $propertyValueConditionClassName =
-        'ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition';
+    protected $propertyValueConditionClassName = PropertyPropertyValueCondition::class;
 
     /**
      * The the class to use for property value conditions.
@@ -224,35 +229,35 @@ class PaletteBuilder
      *
      * @var PaletteCollectionInterface|null
      */
-    protected $paletteCollection = null;
+    protected $paletteCollection;
 
     /**
      * The palette currently working on.
      *
      * @var PaletteInterface|null
      */
-    protected $palette = null;
+    protected $palette;
 
     /**
      * The legend currently working on.
      *
      * @var LegendInterface|null
      */
-    protected $legend = null;
+    protected $legend;
 
     /**
      * The property currently working on.
      *
      * @var PropertyInterface|null
      */
-    protected $property = null;
+    protected $property;
 
     /**
      * The condition currently working on.
      *
      * @var PropertyConditionInterface|PaletteConditionInterface|ConditionChainInterface|null
      */
-    protected $condition = null;
+    protected $condition;
 
     /**
      * Factory method to create a new palette builder.
@@ -832,7 +837,6 @@ class PaletteBuilder
      * Reuse an existing property or set of properties.
      *
      * @param PropertyInterface $property The first property.
-     *
      * @param PropertyInterface $_        Any more subsequent properties to be used.
      *
      * @return PaletteBuilder
@@ -847,9 +851,9 @@ class PaletteBuilder
             $this->finishProperty();
         }
 
-        $properties = func_get_args();
+        $properties = \func_get_args();
 
-        $this->property = array();
+        $this->property = [];
         foreach ($properties as $property) {
             $event = new UsePropertyEvent($property, $this);
             $this->dispatchEvent($event);
@@ -857,8 +861,8 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (count($this->property) == 1) {
-            $this->property = array_shift($this->property);
+        if (\count($this->property) == 1) {
+            $this->property = \array_shift($this->property);
         }
 
         return $this;
@@ -868,7 +872,6 @@ class PaletteBuilder
      * Start a new single property or set of properties.
      *
      * @param string            $propertyName The name of the property.
-     *
      * @param PropertyInterface $_            Any more subsequent property names to be used.
      *
      * @return PaletteBuilder
@@ -883,9 +886,9 @@ class PaletteBuilder
             $this->finishProperty();
         }
 
-        $propertyNames = func_get_args();
+        $propertyNames = \func_get_args();
 
-        $this->property = array();
+        $this->property = [];
         foreach ($propertyNames as $propertyName) {
             $property = $this->propertyClass->newInstance($propertyName);
 
@@ -896,8 +899,8 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (count($this->property) == 1) {
-            $this->property = array_shift($this->property);
+        if (\count($this->property) == 1) {
+            $this->property = \array_shift($this->property);
         }
 
         return $this;
@@ -922,7 +925,7 @@ class PaletteBuilder
             $this->finishCondition();
         }
 
-        $properties = is_object($this->property) ? array($this->property) : $this->property;
+        $properties = \is_object($this->property) ? [$this->property] : $this->property;
 
         foreach ($properties as $index => $tempProperty) {
             $event = new FinishPropertyEvent($tempProperty, $this);
@@ -1063,9 +1066,7 @@ class PaletteBuilder
      * Start a new property-value condition.
      *
      * @param string $propertyName  The name of the property.
-     *
      * @param mixed  $propertyValue The value of the property.
-     *
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
      *
      * @return PaletteBuilder
@@ -1109,11 +1110,8 @@ class PaletteBuilder
      * Start a new property-value condition and chain with previous condition.
      *
      * @param string $propertyName  The name of the property.
-     *
      * @param mixed  $propertyValue The value of the property.
-     *
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
-     *
      * @param string $conjunction   The conjunction.
      *
      * @return PaletteBuilder
@@ -1217,7 +1215,6 @@ class PaletteBuilder
      * Add a custom condition to last created property.
      *
      * @param PropertyConditionInterface $condition The condition to add.
-     *
      * @param string                     $scope     The scope.
      *
      * @return void
@@ -1230,7 +1227,7 @@ class PaletteBuilder
             throw new DcGeneralRuntimeException('Property is missing, please create a property first');
         }
 
-        $properties = is_object($this->property) ? array($this->property) : $this->property;
+        $properties = \is_object($this->property) ? [$this->property] : $this->property;
 
         foreach ($properties as $property) {
             /** @var PropertyInterface $property */
@@ -1268,7 +1265,6 @@ class PaletteBuilder
      * Add a custom condition to last created property or palette.
      *
      * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition to add.
-     *
      * @param string                                               $scope     The scope.
      *
      * @return PaletteBuilder
@@ -1282,7 +1278,7 @@ class PaletteBuilder
         } elseif ($condition instanceof PropertyConditionInterface) {
             $this->addPropertyCondition($condition, $scope);
         } else {
-            $type = is_object($condition) ? get_class($condition) : gettype($condition);
+            $type = \is_object($condition) ? \get_class($condition) : \gettype($condition);
             throw new DcGeneralInvalidArgumentException('Cannot handle condition of type [' . $type . ']');
         }
 

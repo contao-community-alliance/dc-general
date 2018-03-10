@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,8 +16,9 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -91,7 +92,6 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      * If $index is out of bounds, just add at the end (does not fill with empty records!).
      *
      * @param int            $intIndex The index where the model shall be placed.
-     *
      * @param ModelInterface $objModel The model to insert.
      *
      * @return void

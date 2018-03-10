@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,15 +12,20 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Data;
 
 use Contao\Database;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider;
+use ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
@@ -38,7 +43,7 @@ class DefaultDataProviderTest extends TestCase
         return $this
             ->getMockBuilder('Contao\Database')
             ->disableOriginalConstructor()
-            ->setMethods(array('__destruct'))
+            ->setMethods(['__destruct'])
             ->getMockForAbstractClass();
     }
 
@@ -50,14 +55,15 @@ class DefaultDataProviderTest extends TestCase
     private function mockDefaultProvider()
     {
         $database = $this->mockDatabase();
-        $database->method('list_fields')->willReturn(array());
+        $database->method('list_fields')->willReturn([]);
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig(array(
-            'source'            => 'tl_something',
-            'database'          => $database,
-        ));
+        $dataProvider->setBaseConfig([
+                'source'   => 'tl_something',
+                'database' => $database,
+            ]
+        );
 
         return $dataProvider;
     }
@@ -70,39 +76,36 @@ class DefaultDataProviderTest extends TestCase
     public function testSetBaseConfig()
     {
         $database = $this->mockDatabase();
-        $database->method('list_fields')->willReturn(
-            array(
-                array(
+        $database->method('list_fields')->willReturn([
+                [
                     'name' => 'idField',
                     'type' => 'field',
-                ),
-                array(
+                ],
+                [
                     'name' => 'lastChanged',
                     'type' => 'field',
-                ),
-                array(
+                ],
+                [
                     'name' => 'idField',
                     'type' => 'index',
-                ),
-            )
+                ],
+            ]
         );
 
-        $idGenerator = $this->getMockForAbstractClass('ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface');
+        $idGenerator = $this->getMockForAbstractClass(IdGeneratorInterface::class);
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig(array(
-            'source'            => 'tl_something',
-            'database'          => $database,
-            'idProperty'        => 'idField',
-            'timeStampProperty' => 'lastChanged',
-            'idGenerator'       => $idGenerator
-        ));
-
-        $reflection = new \ReflectionProperty(
-            'ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider',
-            'objDatabase'
+        $dataProvider->setBaseConfig([
+                'source'            => 'tl_something',
+                'database'          => $database,
+                'idProperty'        => 'idField',
+                'timeStampProperty' => 'lastChanged',
+                'idGenerator'       => $idGenerator
+            ]
         );
+
+        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'objDatabase');
         $reflection->setAccessible(true);
 
         $this->assertEquals('tl_something', $dataProvider->getEmptyModel()->getProviderName());
@@ -120,7 +123,7 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyConfig()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf('ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface', $provider->getEmptyConfig());
+        $this->assertInstanceOf(ConfigInterface::class, $provider->getEmptyConfig());
     }
 
     /**
@@ -131,7 +134,7 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyModel()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface', $provider->getEmptyModel());
+        $this->assertInstanceOf(ModelInterface::class, $provider->getEmptyModel());
     }
 
     /**
@@ -142,9 +145,6 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyCollection()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf(
-            'ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface',
-            $provider->getEmptyCollection()
-        );
+        $this->assertInstanceOf(CollectionInterface::class, $provider->getEmptyCollection());
     }
 }

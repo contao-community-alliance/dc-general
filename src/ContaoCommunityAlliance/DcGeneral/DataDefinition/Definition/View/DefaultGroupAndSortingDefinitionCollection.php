@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -31,7 +32,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      *
      * @var GroupAndSortingDefinitionInterface[]
      */
-    protected $information = array();
+    protected $information = [];
 
     /**
      * Index of the default information.
@@ -51,7 +52,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
         } else {
-            array_splice($this->information, $index, 0, array($information));
+            \array_splice($this->information, $index, 0, [$information]);
         }
 
         return $information;
@@ -66,7 +67,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
             $this->default = -1;
         }
         unset($this->information[$index]);
-        $this->information = array_values($this->information);
+        $this->information = \array_values($this->information);
 
         return $this;
     }
@@ -76,7 +77,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function getCount()
     {
-        return count($this->information);
+        return \count($this->information);
     }
 
     /**
@@ -105,10 +106,10 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     public function markDefault($information)
     {
         if ($information instanceof GroupAndSortingDefinitionInterface) {
-            $information = array_search($information, $this->information);
+            $information = \array_search($information, $this->information);
         }
 
-        if (!is_int($information)) {
+        if (!\is_int($information)) {
             throw new DcGeneralInvalidArgumentException('Invalid argument.');
         }
 

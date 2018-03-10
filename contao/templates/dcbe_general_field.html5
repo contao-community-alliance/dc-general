@@ -2,7 +2,7 @@
   <input type="hidden" value="<?php echo $this->strName; ?>" name="FORM_INPUTS[]" />
   <?php echo $this->widget; ?>
   <?php if($this->strDatepicker): ?>
-    <img src="<?php echo (version_compare(VERSION, '3.0', '>='))?'assets/mootools/datepicker/'. DATEPICKER .'/icon.gif':'plugins/datepicker/icon.gif'; ?>" width="20" height="20" id="toggle_<?php echo $this->strId; ?>" style="vertical-align:-6px;">
+    <img src="<?php echo (\version_compare(VERSION, '3.0', '>='))?'assets/mootools/datepicker/'. DATEPICKER .'/icon.gif':'plugins/datepicker/icon.gif'; ?>" width="20" height="20" id="toggle_<?php echo $this->strId; ?>" style="vertical-align:-6px;">
     <script type="text/javascript">/* <![CDATA[ */
       window.addEvent('domready', function() { <?php echo $this->strDatepicker; ?> });
     /* ]]> */</script>

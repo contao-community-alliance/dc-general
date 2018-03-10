@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,13 +15,15 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
+use Contao\Config;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
@@ -58,7 +60,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getItemsPerPage()
     {
-        return \Config::get('resultsPerPage');
+        return Config::get('resultsPerPage');
     }
 
     /**
@@ -74,9 +76,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             ->getDataProvider()
             ->fetchAll($objTempConfig->setIdOnly(true));
 
-        if (is_array($total)) {
-            $this->intTotal = $total ? count($total) : 0;
-        } elseif (is_object($total)) {
+        if (\is_array($total)) {
+            $this->intTotal = $total ? \count($total) : 0;
+        } elseif (\is_object($total)) {
             $this->intTotal = $total->length();
         } else {
             $this->intTotal = 0;
@@ -90,30 +92,29 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getPersistent()
     {
-        $arrValue = array();
+        $arrValue = [];
         if ($this->getSessionStorage()->has('limit')) {
             $arrValue = $this->getSessionStorage()->get('limit');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
-        return array();
+        return [];
     }
 
     /**
      * Store the persistent value in the input provider.
      *
      * @param int $intOffset The offset.
-     *
      * @param int $intAmount The amount of items to show.
      *
      * @return void
      */
     protected function setPersistent($intOffset, $intAmount)
     {
-        $arrValue       = array();
+        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($this->getSessionStorage()->has('limit')) {
@@ -121,8 +122,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         }
 
         if ($intOffset) {
-            if (!is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = array();
+            if (!\is_array($arrValue[$definitionName])) {
+                $arrValue[$definitionName] = [];
             }
 
             $arrValue[$definitionName]['offset'] = $intOffset;
@@ -146,8 +147,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             $amount = $this->getItemsPerPage();
 
             $input = $this->getInputProvider();
-            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_limit')) {
-                $limit  = explode(',', $input->getValue('tl_limit'));
+            if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
+                $limit  = \explode(',', $input->getValue('tl_limit'));
                 $offset = $limit[0];
                 $amount = $limit[1];
 
@@ -189,16 +190,16 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     public function render(ViewTemplateInterface $objTemplate)
     {
-        $arrOptions = array(
-            array(
+        $arrOptions = [
+            [
                 'value'      => 'tl_limit',
                 'attributes' => '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
-            )
-        );
+            ]
+        ];
 
         $optionsPerPage = $this->getItemsPerPage();
-        $optionsTotal   = ceil(($this->intTotal / $optionsPerPage));
+        $optionsTotal   = \ceil($this->intTotal / $optionsPerPage);
 
         for ($i = 0; $i < $optionsTotal; $i++) {
             $first      = ($i * $optionsPerPage);
@@ -209,22 +210,22 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 $upperLimit = $this->intTotal;
             }
 
-            $arrOptions[] = array(
+            $arrOptions[] = [
                 'value'      => $thisLimit,
                 'attributes' => ($this->getOffset() == $first) ? ' selected' : '',
                 'content'    => ($first + 1) . ' - ' . $upperLimit
-            );
+            ];
         }
 
         if ($this->intTotal > $optionsPerPage) {
-            $arrOptions[] = array(
+            $arrOptions[] = [
                 'value'      => 'all',
                 'attributes' =>
                     (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
                         ? 'selected'
                         : '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
-            );
+            ];
         }
 
         $objTemplate->set('options', $arrOptions);

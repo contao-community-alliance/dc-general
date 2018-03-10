@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -148,10 +149,12 @@ class FormatModelLabelSubscriber
     private function renderWithColumns($propertyNames, $args, $firstSorting)
     {
         $label = [];
-        if (!is_array($args)) {
-            trigger_error('Warning, column layout without arguments will not be supported.', E_USER_DEPRECATED);
+        if (!\is_array($args)) {
+            // @codingStandardsIgnoreStart
+            @\trigger_error('Warning, column layout without arguments will not be supported.', E_USER_DEPRECATED);
+            // @codingStandardsIgnoreEnd
             $label[] = [
-                'colspan' => count($propertyNames),
+                'colspan' => \count($propertyNames),
                 'class'   => 'tl_file_list col_all',
                 'content' => $args
             ];
@@ -185,14 +188,14 @@ class FormatModelLabelSubscriber
     private function renderSingleValue($label, $args, $maxLength = null)
     {
         // BC: sometimes the label was returned as string in the arguments instead of an array.
-        if (!is_array($args)) {
+        if (!\is_array($args)) {
             $string = $args;
         } else {
-            $string = vsprintf($label, $args);
+            $string = \vsprintf($label, $args);
         }
 
-        if ($maxLength !== null && strlen($string) > $maxLength) {
-            $string = substr($string, 0, $maxLength);
+        if ($maxLength !== null && \strlen($string) > $maxLength) {
+            $string = \substr($string, 0, $maxLength);
         }
 
         return $string;

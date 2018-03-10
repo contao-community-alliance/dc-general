@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -52,7 +53,6 @@ class ColorPickerWizardSubscriber
      * Append wizard icons.
      *
      * @param PropertyInterface    $propInfo    The property for which the wizards shall be generated.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return string
@@ -68,15 +68,15 @@ class ColorPickerWizardSubscriber
         $propExtra  = $propInfo->getExtra();
         $assetsPath = 'assets/mootools/colorpicker/' . $GLOBALS['TL_ASSETS']['COLORPICKER'] . '/images/';
 
-        if (is_array($propExtra) && array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
+        if (\is_array($propExtra) && \array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
             $pickerText = $translator->translate('colorpicker', 'MSC');
             $event      = new GenerateHtmlEvent(
                 'pickcolor.gif',
                 $pickerText,
-                sprintf(
+                \sprintf(
                     'style="%s" title="%s" id="moo_%s"',
                     'vertical-align:top;cursor:pointer',
-                    specialchars($pickerText),
+                    \specialchars($pickerText),
                     $propInfo->getName()
                 )
             );
@@ -86,7 +86,7 @@ class ColorPickerWizardSubscriber
             // Support single fields as well (see contao/core#5240)
             $strKey = $propExtra['multiple'] ? $propInfo->getName() . '_0' : $propInfo->getName();
 
-            $wizard .= sprintf(
+            $wizard .= \sprintf(
                 ' %1$s <script>var cl;window.addEvent("domready", function() { new MooRainbow("moo_%2$s", {' .
                 'id: "ctrl_%3$s", startColor: ((cl = $("ctrl_%3$s").value.hexToRgb(true)) ? cl : [255, 0, 0]),' .
                 'imgPath: "%4$s", onComplete: function(color) {$("ctrl_%3$s").value = color.hex.replace("#", "");}});' .

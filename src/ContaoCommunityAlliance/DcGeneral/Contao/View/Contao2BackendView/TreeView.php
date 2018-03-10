@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,13 +16,15 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Config;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -41,6 +43,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 
 /**
  * Class TreeView.
@@ -69,8 +73,8 @@ class TreeView extends BaseView
         $sessionStorage = $this->getEnvironment()->getSessionStorage();
         $openElements   = $sessionStorage->get($this->getToggleId());
 
-        if (!is_array($openElements)) {
-            $openElements = array();
+        if (!\is_array($openElements)) {
+            $openElements = [];
         }
 
         return new TreeNodeStates($openElements);
@@ -119,7 +123,6 @@ class TreeView extends BaseView
      * Toggle the model with the given id from the given provider.
      *
      * @param string $providerName The data provider name.
-     *
      * @param mixed  $modelId      The id of the model.
      *
      * @return void
@@ -145,9 +148,7 @@ class TreeView extends BaseView
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
      * @param string $rootId       The root element (or null to fetch everything).
-     *
      * @param int    $intLevel     The current level in the tree (of the optional root element).
-     *
      * @param string $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
@@ -249,7 +250,6 @@ class TreeView extends BaseView
      * Render a given model.
      *
      * @param ModelInterface $objModel    The model to render.
-     *
      * @param string         $strToggleID The id of the toggler.
      *
      * @return string
@@ -272,7 +272,7 @@ class TreeView extends BaseView
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
         }
 
-        $toggleScript = sprintf(
+        $toggleScript = \sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
             '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'mode\':\'%s\'});',
             $strToggleID,
@@ -299,7 +299,8 @@ class TreeView extends BaseView
                 $objTemplate
             )
             ->addToTemplate('toggleTitle', $toggleTitle, $objTemplate)
-            ->addToTemplate('toggleScript', $toggleScript, $objTemplate);
+            ->addToTemplate('toggleScript', $toggleScript, $objTemplate)
+            ->addToTemplate('selectContainer', $this->getSelectContainer(), $objTemplate);
 
         return $objTemplate->parse();
     }
@@ -308,14 +309,13 @@ class TreeView extends BaseView
      * Render the tree view and return it as string.
      *
      * @param CollectionInterface $objCollection The collection to iterate over.
-     *
      * @param string              $treeClass     The class to use for the tree.
      *
      * @return string
      */
     protected function generateTreeView($objCollection, $treeClass)
     {
-        $arrHtml = array();
+        $arrHtml = [];
 
         // Generate buttons - only if not in select mode!
         if (!$this->isSelectModeActive()) {
@@ -349,7 +349,7 @@ class TreeView extends BaseView
             }
         }
 
-        return implode("\n", $arrHtml);
+        return \implode("\n", $arrHtml);
     }
 
     /**
@@ -393,10 +393,10 @@ class TreeView extends BaseView
             )
         );
 
-        return sprintf(
+        return \sprintf(
             ' <a href="%s" title="%s" %s>%s</a>',
             $event->getHref(),
-            specialchars($strLabel),
+            \specialchars($strLabel),
             'onclick="Backend.getScrollOffset()"',
             $imageEvent->getHtml()
         );
@@ -428,13 +428,13 @@ class TreeView extends BaseView
         }
 
         // Label + Icon.
-        if (strlen($listing->getRootLabel()) == 0) {
+        if (null === $listing->getRootLabel()) {
             $strLabelText = 'DC General Tree BackendView Ultimate';
         } else {
             $strLabelText = $listing->getRootLabel();
         }
 
-        if (strlen($listing->getRootIcon()) == 0) {
+        if (null === $listing->getRootIcon()) {
             $strLabelIcon = 'pagemounts.gif';
         } else {
             $strLabelIcon = $listing->getRootIcon();
@@ -454,7 +454,7 @@ class TreeView extends BaseView
             $urlEvent = $dispatcher->dispatch(
                 ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
-                    sprintf(
+                    \sprintf(
                         'act=paste&amp;into=%s::0',
                         $definition->getName()
                     )
@@ -468,7 +468,7 @@ class TreeView extends BaseView
 
             $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
 
-            $strRootPasteInto = $this->renderPasteRootButton($buttonEvent);
+            $strRootPasteInto = static::renderPasteRootButton($buttonEvent);
         } else {
             $strRootPasteInto = '';
         }
@@ -488,6 +488,8 @@ class TreeView extends BaseView
         $objTemplate->selectButtons    = $this->getSelectButtons();
         $objTemplate->intMode          = 6;
 
+        $this->formActionForSelect($objTemplate);
+
         // Add breadcrumb, if we have one.
         $strBreadcrumb = $this->breadcrumb();
         if ($strBreadcrumb != null) {
@@ -498,11 +500,34 @@ class TreeView extends BaseView
     }
 
     /**
+     * Add the form action url for input parameter action is select.
+     *
+     * @param ContaoBackendViewTemplate $objTemplate The template.
+     *
+     * @return void
+     */
+    protected function formActionForSelect(ContaoBackendViewTemplate $objTemplate)
+    {
+        if (!$objTemplate->select
+            || $this->getEnvironment()->getInputProvider()->getParameter('act') !== 'select'
+        ) {
+            return;
+        }
+
+        $actionUrlEvent = new AddToUrlEvent('select=properties');
+        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $actionUrlEvent);
+
+        $objTemplate->action = $actionUrlEvent->getUrl();
+    }
+
+    /**
      * {@inheritDoc}
      *
      * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
      *
      * @see \ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
+     *
+     * @return void
      */
     public function enforceModelRelationship($model)
     {
@@ -523,23 +548,23 @@ class TreeView extends BaseView
         $this->handleNodeStateChanges();
 
         $collection = $this->loadCollection();
-        $arrReturn  = array();
+        $arrReturn  = [];
 
-        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, array());
+        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, []);
         $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
 
         // A list with ignored panels.
-        $arrIgnoredPanels = array(
-            '\ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface',
-            '\ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface'
-        );
+        $arrIgnoredPanels = [
+            LimitElementInterface::class,
+            SortElementInterface::class
+        ];
 
         $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
-        $arrReturn['buttons']   = $this->generateHeaderButtons('tl_buttons');
+        $arrReturn['buttons']   = $this->generateHeaderButtons();
         $arrReturn['clipboard'] = $viewEvent->getResponse();
         $arrReturn['body']      = $this->viewTree($collection);
 
-        return implode("\n", $arrReturn);
+        return \implode("\n", $arrReturn);
     }
 
     /**
@@ -557,7 +582,7 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
-                header('Content-Type: text/html; charset=' . \Config::get('characterSet'));
+                \header('Content-Type: text/html; charset=' . Config::get('characterSet'));
                 echo $this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),
@@ -575,9 +600,7 @@ class TreeView extends BaseView
      * Handle ajax rendering of a sub tree.
      *
      * @param string $rootId       Id of the root node.
-     *
      * @param string $providerName Name of the data provider where the model is contained within.
-     *
      * @param int    $level        Level depth of the model in the whole tree.
      *
      * @return string
@@ -601,8 +624,34 @@ class TreeView extends BaseView
             default:
         }
 
-        $strHtml = $this->generateTreeView($collection, $treeClass);
+        return $this->generateTreeView($collection, $treeClass);
+    }
 
-        return $strHtml;
+    /**
+     * Get the the container of selections.
+     *
+     * @return array
+     */
+    private function getSelectContainer()
+    {
+        $inputProvider  = $this->getEnvironment()->getInputProvider();
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+
+        $sessionName = $dataDefinition->getName() . '.' . $inputProvider->getParameter('mode');
+        if (!$this->getEnvironment()->getSessionStorage()->has($sessionName)) {
+            return [];
+        }
+
+        $selectAction = $inputProvider->getParameter('select');
+        if (!$selectAction) {
+            return [];
+        }
+
+        $session = $this->getEnvironment()->getSessionStorage()->get($sessionName);
+        if (!\array_key_exists($selectAction, $session)) {
+            return [];
+        }
+
+        return $session[$selectAction];
     }
 }

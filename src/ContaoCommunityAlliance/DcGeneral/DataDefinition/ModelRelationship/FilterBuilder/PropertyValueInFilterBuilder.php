@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -46,7 +47,6 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
      * Create a new instance.
      *
      * @param string $property The property name to be compared.
-     *
      * @param mixed  $values   The value to be compared against.
      */
     public function __construct($property, $values)
@@ -72,7 +72,7 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
         $property = $array['property'];
 
         if (!(isset($values) && isset($property))) {
-            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . var_export($array, true));
+            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 
         return new static($property, $values);
@@ -85,11 +85,11 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
      */
     public function get()
     {
-        return array(
+        return [
             'property'  => $this->getProperty(),
             'operation' => 'IN',
             'values'    => $this->getValues()
-        );
+        ];
     }
 
     /**

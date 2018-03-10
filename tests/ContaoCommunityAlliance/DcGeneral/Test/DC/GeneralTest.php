@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,14 +13,15 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Test;
 
 use ContaoCommunityAlliance\Contao\EventDispatcher\EventDispatcherInitializer;
+use ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -44,7 +45,7 @@ class DC_GeneralTest extends TestCase
     public function testInstantiation()
     {
         define('TL_MODE', 'BE');
-        $_SESSION = array('BE_DATA' => array('DC_GENERAL_TL_FOO' => array()));
+        $_SESSION = ['BE_DATA' => ['DC_GENERAL_TL_FOO' => []]];
         require_once __DIR__ . '/../../../../../vendor/contao/core/system/helper/interface.php';
         $this->aliasContaoClass('Session');
         $this->aliasContaoClass('System');
@@ -53,10 +54,11 @@ class DC_GeneralTest extends TestCase
         $this->aliasContaoClass('DataContainer');
 
         $eventDispatcher = new EventDispatcher();
-        $container       = $GLOBALS['container'] = new \Pimple(array(
-            'event-dispatcher' => $eventDispatcher,
-            'translator'       => new StaticTranslator()
-        ));
+        $container       = $GLOBALS['container'] = new \Pimple([
+                'event-dispatcher' => $eventDispatcher,
+                'translator'       => new StaticTranslator()
+            ]
+        );
 
         $this->assertTrue($container['event-dispatcher'] instanceof EventDispatcher);
 
@@ -72,24 +74,20 @@ class DC_GeneralTest extends TestCase
 
         require_once __DIR__ . '/../../../../../contao/config/services.php';
 
-        $GLOBALS['TL_DCA']['tl_foo'] = array(
-            'config'          => array
-            (
+        $GLOBALS['TL_DCA']['tl_foo'] = [
+            'config'          => [
                 'dataContainer'    => 'General',
-            ),
-            'dca_config'   => array
-            (
-                'data_provider'  => array
-                (
-                    'tl_foo' => array
-                    (
-                        'source' => 'tl_foo',
-                        'class'        => 'ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider',
-                    )
-                ),
-            ),
+                ],
+            'dca_config'   => [
+                    'data_provider'  => [
+                    'tl_foo' => [
+                            'source' => 'tl_foo',
+                            'class'        => NoOpDataProvider::class,
+                        ]
+                    ],
+                ],
             'palettes' => []
-        );
+        ];
 
         $dataContainer = new \DC_General('tl_foo');
 

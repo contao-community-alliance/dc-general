@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -26,9 +27,9 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
@@ -58,7 +59,7 @@ class ShowHandler extends AbstractHandler
         $environment->getEventDispatcher()->dispatch(
             ContaoEvents::SYSTEM_LOG,
             new LogEvent(
-                sprintf(
+                \sprintf(
                     'Could not find ID %s in %s.',
                     'DC_General show()',
                     $modelId->getId(),
@@ -95,7 +96,7 @@ class ShowHandler extends AbstractHandler
             $label = $environment->getTranslator()->translate('MSC.' . $property->getName());
         }
 
-        if (is_array($label)) {
+        if (\is_array($label)) {
             $label = $label[0];
         }
 
@@ -110,7 +111,6 @@ class ShowHandler extends AbstractHandler
      * Convert a model to it's labels and human readable values.
      *
      * @param ModelInterface       $model       The model to display.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return array
@@ -122,8 +122,8 @@ class ShowHandler extends AbstractHandler
         $definition = $environment->getDataDefinition();
         $properties = $definition->getPropertiesDefinition();
         $palette    = $definition->getPalettesDefinition()->findPalette($model);
-        $values     = array();
-        $labels     = array();
+        $values     = [];
+        $labels     = [];
         // Show only allowed fields.
         foreach ($palette->getVisibleProperties($model) as $paletteProperty) {
             $property = $properties->getProperty($paletteProperty->getName());
@@ -142,10 +142,10 @@ class ShowHandler extends AbstractHandler
             $labels[$paletteProperty->getName()] = $this->getPropertyLabel($property);
         }
 
-        return array(
+        return [
             'labels' => $labels,
             'values' => $values
-        );
+        ];
     }
 
     /**
@@ -161,7 +161,7 @@ class ShowHandler extends AbstractHandler
         $headline   = $translator->translate(
             'MSC.showRecord',
             $model->getProviderName(),
-            array('ID ' . $model->getId())
+            ['ID ' . $model->getId()]
         );
 
         if ($headline !== 'MSC.showRecord') {
@@ -171,7 +171,7 @@ class ShowHandler extends AbstractHandler
         return $translator->translate(
             'MSC.showRecord',
             null,
-            array('ID ' . $model->getId())
+            ['ID ' . $model->getId()]
         );
     }
 
@@ -207,8 +207,8 @@ class ShowHandler extends AbstractHandler
             $template
                 ->set('languages', $environment->getController()->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
-                ->set('languageSubmit', specialchars($translator->translate('MSC.showSelected')))
-                ->set('backBT', specialchars($translator->translate('MSC.backBT')));
+                ->set('languageSubmit', \specialchars($translator->translate('MSC.showSelected')))
+                ->set('backBT', \specialchars($translator->translate('MSC.backBT')));
         } else {
             $template->set('languages', null);
         }

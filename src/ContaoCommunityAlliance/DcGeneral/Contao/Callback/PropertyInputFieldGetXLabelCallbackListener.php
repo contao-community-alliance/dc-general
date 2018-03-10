@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -40,16 +40,15 @@ class PropertyInputFieldGetXLabelCallbackListener extends AbstractReturningPrope
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
-        );
+        ];
     }
 
     /**
      * Update the wizard HTML string in the widget.
      *
      * @param BuildWidgetEvent $event The event being emitted.
-     *
      * @param string           $value The HTML for the wizard of the widget.
      *
      * @return void

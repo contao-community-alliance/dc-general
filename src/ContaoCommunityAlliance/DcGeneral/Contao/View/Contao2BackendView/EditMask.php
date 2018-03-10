@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,8 +17,8 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -32,14 +32,14 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
@@ -92,13 +92,6 @@ class EditMask
     protected $postFunction;
 
     /**
-     * The errors from the widgets.
-     *
-     * @var array
-     */
-    protected $errors = array();
-
-    /**
      * The rendered breadcrumb.
      *
      * @var string
@@ -109,15 +102,10 @@ class EditMask
      * Create the edit mask.
      *
      * @param BackendViewInterface $view          The view in use.
-     *
      * @param ModelInterface       $model         The model with the current data.
-     *
      * @param ModelInterface       $originalModel The data from the original data.
-     *
      * @param callable             $preFunction   The function to call before saving an item.
-     *
      * @param callable             $postFunction  The function to call after saving an item.
-     *
      * @param string               $breadcrumb    The rendered breadcrumb.
      */
     public function __construct($view, $model, $originalModel, $preFunction, $postFunction, $breadcrumb)
@@ -214,7 +202,6 @@ class EditMask
      * Ensure a property is defined in the data definition and raise an exception if it is unknown.
      *
      * @param string                        $property            The property name to check.
-     *
      * @param PropertiesDefinitionInterface $propertyDefinitions The property definitions.
      *
      * @return void
@@ -225,7 +212,7 @@ class EditMask
     {
         if (!$propertyDefinitions->hasProperty($property)) {
             throw new DcGeneralInvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'Property %s is mentioned in palette but not defined in propertyDefinition.',
                     $property
                 )
@@ -246,9 +233,9 @@ class EditMask
 
         if ($input->getValue('FORM_SUBMIT') == $this->getDataDefinition()->getName()) {
             $propertyValues = new PropertyValueBag();
-            $propertyNames  = array_intersect(
+            $propertyNames  = \array_intersect(
                 $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(),
-                $input->getValue('FORM_INPUTS')
+                (array) $input->getValue('FORM_INPUTS')
             );
 
             // Process input and update changed properties.
@@ -273,10 +260,7 @@ class EditMask
     protected function handlePrePersist()
     {
         if ($this->preFunction !== null) {
-            call_user_func_array(
-                $this->preFunction,
-                array($this->getEnvironment(), $this->model, $this->originalModel)
-            );
+            \call_user_func($this->preFunction, $this->getEnvironment(), $this->model, $this->originalModel);
         }
 
         $this->getEnvironment()->getEventDispatcher()->dispatch(
@@ -293,10 +277,7 @@ class EditMask
     protected function handlePostPersist()
     {
         if ($this->postFunction != null) {
-            call_user_func_array(
-                $this->postFunction,
-                array($this->getEnvironment(), $this->model, $this->originalModel)
-            );
+            \call_user_func($this->postFunction, $this->getEnvironment(), $this->model, $this->originalModel);
         }
 
         $event = new PostPersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
@@ -336,22 +317,22 @@ class EditMask
      */
     protected function getEditButtons()
     {
-        $buttons         = array();
+        $buttons         = [];
         $definition      = $this->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
 
-        $buttons['save'] = sprintf(
+        $buttons['save'] = \sprintf(
             '<input type="submit" name="save" id="save" class="tl_submit" accesskey="s" value="%s" />',
             $this->getButtonLabel('save')
         );
 
-        $buttons['saveNclose'] = sprintf(
+        $buttons['saveNclose'] = \sprintf(
             '<input type="submit" name="saveNclose" id="saveNclose" class="tl_submit" accesskey="c" value="%s" />',
             $this->getButtonLabel('saveNclose')
         );
 
         if (!$this->isPopup() && $basicDefinition->isCreatable()) {
-            $buttons['saveNcreate'] = sprintf(
+            $buttons['saveNcreate'] = \sprintf(
                 '<input type="submit" name="saveNcreate" id="saveNcreate" class="tl_submit" accesskey="n" ' .
                 ' value="%s" />',
                 $this->getButtonLabel('saveNcreate')
@@ -359,17 +340,17 @@ class EditMask
         }
 
         if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e')) {
-            $buttons['saveNedit'] = sprintf(
+            $buttons['saveNedit'] = \sprintf(
                 '<input type="submit" name="saveNedit" id="saveNedit" class="tl_submit" accesskey="e" value="%s" />',
                 $this->getButtonLabel('saveNedit')
             );
         } elseif (!$this->isPopup()
-            && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
-                || strlen($basicDefinition->getParentDataProvider())
-                || $basicDefinition->isSwitchToEditEnabled()
-            )
+                  && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
+                      || '' !== $basicDefinition->getParentDataProvider()
+                      || $basicDefinition->isSwitchToEditEnabled()
+                  )
         ) {
-            $buttons['saveNback'] = sprintf(
+            $buttons['saveNback'] = \sprintf(
                 '<input type="submit" name="saveNback" id="saveNback" class="tl_submit" accesskey="g" value="%s" />',
                 $this->getButtonLabel('saveNback')
             );
@@ -387,12 +368,12 @@ class EditMask
      * Build the field sets.
      *
      * @param ContaoWidgetManager $widgetManager  The widget manager in use.
-     *
      * @param PaletteInterface    $palette        The palette to use.
-     *
      * @param PropertyValueBag    $propertyValues The property values.
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function buildFieldSet($widgetManager, $palette, $propertyValues)
     {
@@ -402,15 +383,16 @@ class EditMask
         $propertyDefinitions = $definition->getPropertiesDefinition();
         $isAutoSubmit        = ($environment->getInputProvider()->getValue('SUBMIT_TYPE') === 'auto');
         $legendStates        = $this->getLegendStates();
+        $editInformation     = $GLOBALS['container']['dc-general.edit-information'];
 
-        $fieldSets = array();
+        $fieldSets = [];
         $first     = true;
         foreach ($palette->getLegends() as $legend) {
             $legendName = $translator->translate(
                 $legend->getName() . '_legend',
                 $definition->getName()
             );
-            $fields     = array();
+            $fields     = [];
             $properties = $legend->getProperties($this->model, $propertyValues);
 
             if (!$properties) {
@@ -428,12 +410,14 @@ class EditMask
                     && $propertyValues->hasPropertyValue($property->getName())
                     && $propertyValues->isPropertyValueInvalid($property->getName())
                 ) {
-                    $this->errors = array_merge(
-                        $this->errors,
-                        $propertyValues->getPropertyValueErrors($property->getName())
-                    );
                     // Force legend open on error.
                     $legendVisible = true;
+
+                    $editInformation->setModelError(
+                        $this->model,
+                        $propertyValues->getPropertyValueErrors($property->getName()),
+                        $property
+                    );
                 }
 
                 $fields[] = $widgetManager->renderWidget($property->getName(), $isAutoSubmit, $propertyValues);
@@ -441,7 +425,7 @@ class EditMask
 
             $fieldSet['label']   = $legendName;
             $fieldSet['class']   = $this->getLegendClass($first, $legendVisible);
-            $fieldSet['palette'] = implode('', $fields);
+            $fieldSet['palette'] = \implode('', $fields);
             $fieldSet['legend']  = $legend->getName();
             $fieldSets[]         = $fieldSet;
 
@@ -551,20 +535,20 @@ class EditMask
         $translator     = $this->getEnvironment()->getTranslator();
 
         if ($this->model->getId()) {
-            $headline = $translator->translate('editRecord', $definitionName, array($this->model->getId()));
+            $headline = $translator->translate('editRecord', $definitionName, [$this->model->getId()]);
 
             if ($headline !== 'editRecord') {
                 return $headline;
             }
-            return $translator->translate('MSC.editRecord', null, array($this->model->getId()));
+            return $translator->translate('MSC.editRecord', null, [$this->model->getId()]);
         }
 
-        $headline = $translator->translate('newRecord', $definitionName, array($this->model->getId()));
+        $headline = $translator->translate('newRecord', $definitionName, [$this->model->getId()]);
         if ($headline !== 'newRecord') {
             return $headline;
         }
 
-        return $translator->translate('MSC.editRecord', null, array(''));
+        return $translator->translate('MSC.editRecord', null, ['']);
     }
 
     /**
@@ -574,9 +558,10 @@ class EditMask
      */
     protected function doPersist()
     {
-        $environment   = $this->getEnvironment();
-        $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
-        $inputProvider = $environment->getInputProvider();
+        $environment     = $this->getEnvironment();
+        $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
+        $inputProvider   = $environment->getInputProvider();
+        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
 
         if (!$this->model->getMeta(ModelInterface::IS_CHANGED)) {
             return true;
@@ -627,7 +612,7 @@ class EditMask
             }
 
             // Save the model.
-            $dataProvider->save($this->model);
+            $dataProvider->save($this->model, $editInformation->uniformTime());
         }
 
         $this->handlePostPersist();
@@ -641,14 +626,17 @@ class EditMask
      * Check if all values are unique, but only for the fields which have the option enabled.
      *
      * @return bool True => everything is okay | False => One value is not unique.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function allValuesUnique()
     {
         // Init some vars.
-        $environment   = $this->getEnvironment();
-        $translator    = $environment->getTranslator();
-        $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
-        $propertyNames = $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
+        $translator      = $this->getEnvironment()->getTranslator();
+        $dataProvider    = $this->getEnvironment()->getDataProvider($this->model->getProviderName());
+        $propertyNames   = $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
+        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+
         // Run each and check the unique flag.
         foreach ($propertyNames as $propertyName) {
             $definition = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($propertyName);
@@ -656,10 +644,14 @@ class EditMask
             $value      = $this->model->getProperty($propertyName);
 
             // Check the flag and the value.
-            if (isset($extra['unique']) && $extra['unique'] && $value != '') {
+            if ($value != '' && $extra['unique'] && isset($extra['unique'])) {
                 // Check the database. If return true the value is already in the database.
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
-                    $this->errors[] = $translator->translate('not_unique', 'MSC', array($propertyName));
+                    $editInformation->setModelError(
+                        $this->model,
+                        [$translator->translate('not_unique', 'MSC', [$propertyName])],
+                        $definition
+                    );
 
                     return false;
                 }
@@ -679,6 +671,7 @@ class EditMask
      * @throws DcGeneralInvalidArgumentException If an unknown property is encountered in the palette.
      *
      * @SuppressWarnings(PHPMD.LongVariable)
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function execute()
     {
@@ -691,6 +684,7 @@ class EditMask
         $palettesDefinition      = $definition->getPalettesDefinition();
         $blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
         $blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
+        $editInformation         = $GLOBALS['container']['dc-general.edit-information'];
 
         $widgetManager = new ContaoWidgetManager($environment, $this->model);
 
@@ -721,7 +715,7 @@ class EditMask
 
         $fieldSets = $this->buildFieldSet($widgetManager, $palette, $propertyValues);
 
-        if ((!$blnIsAutoSubmit) && $blnSubmitted && empty($this->errors)) {
+        if ((!$blnIsAutoSubmit) && $blnSubmitted && !$editInformation->getModelError($this->model)) {
             if ($this->doPersist()) {
                 $this->handleSubmit($this->model);
             }
@@ -729,7 +723,7 @@ class EditMask
 
         $objTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
         $objTemplate->setData(
-            array(
+            [
                 'fieldsets'   => $fieldSets,
                 'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
                     $this->model->getId()
@@ -737,15 +731,15 @@ class EditMask
                 'subHeadline' => $this->getHeadline(),
                 'table'       => $definition->getName(),
                 'enctype'     => 'multipart/form-data',
-                'error'       => $this->errors,
+                'error'       => $editInformation->getFlatModelErrors($this->model),
                 'editButtons' => $this->getEditButtons(),
-                'noReload'    => (bool) $this->errors,
+                'noReload'    => $editInformation->hasAnyModelError(),
                 'breadcrumb'  => $this->breadcrumb
-            )
+            ]
         );
 
-        if (in_array(
-            'ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface',
+        if (\in_array(
+            MultiLanguageDataProviderInterface::class,
             class_implements(
                 $environment->getDataProvider(
                     $this->model->getProviderName()
@@ -753,15 +747,15 @@ class EditMask
             )
         )) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
-            $langsNative = array();
+            $langsNative = [];
             require TL_ROOT . '/system/config/languages.php';
 
             $objTemplate->set(
                 'languages',
                 $environment->getController()->getSupportedLanguages($this->model->getId())
             )
-            ->set('language', $dataProvider->getCurrentLanguage())
-            ->set('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()]);
+                ->set('language', $dataProvider->getCurrentLanguage())
+                ->set('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()]);
         } else {
             $objTemplate
                 ->set('languages', null)
@@ -781,25 +775,24 @@ class EditMask
      */
     protected function clearBackendStates()
     {
-        setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+        \setcookie('BE_PAGE_OFFSET', 0, 0, '/');
 
-        $_SESSION['TL_INFO']    = array();
-        $_SESSION['TL_ERROR']   = array();
-        $_SESSION['TL_CONFIRM'] = array();
+        $_SESSION['TL_INFO']    = [];
+        $_SESSION['TL_ERROR']   = [];
+        $_SESSION['TL_CONFIRM'] = [];
     }
 
     /**
      * Determine if the passed legend is visible or collapsed.
      *
      * @param LegendInterface $legend       The legend.
-     *
      * @param bool[]          $legendStates The states from the session.
      *
      * @return bool
      */
     private function isLegendVisible($legend, $legendStates)
     {
-        if (array_key_exists($legend->getName(), $legendStates)) {
+        if (\array_key_exists($legend->getName(), $legendStates)) {
             return $legendStates[$legend->getName()];
         }
 
@@ -815,14 +808,14 @@ class EditMask
     {
         $environment  = $this->getEnvironment();
         $definition   = $environment->getDataDefinition();
-        $legendStates = $environment->getSessionStorage()->get('LEGENDS') ?: array();
+        $legendStates = $environment->getSessionStorage()->get('LEGENDS') ?: [];
 
-        if (array_key_exists($definition->getName(), $legendStates)) {
+        if (\array_key_exists($definition->getName(), $legendStates)) {
             $legendStates = $legendStates[$definition->getName()];
 
             return $legendStates;
         } else {
-            $legendStates = array();
+            $legendStates = [];
 
             return $legendStates;
         }
@@ -832,19 +825,18 @@ class EditMask
      * Determine the class to use for a legend.
      *
      * @param bool $first   Flag if this is the first legend.
-     *
      * @param bool $visible Flag determining if the legend is visible.
      *
      * @return string
      */
     private function getLegendClass($first, $visible)
     {
-        $classes = array((($first) ? 'tl_tbox' : 'tl_box'));
+        $classes = [$first ? 'tl_tbox' : 'tl_box'];
 
         if (!$visible) {
             $classes[] = ' collapsed';
         }
 
-        return implode(' ', $classes);
+        return \implode(' ', $classes);
     }
 }

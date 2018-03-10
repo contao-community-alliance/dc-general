@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,17 +15,18 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -82,16 +83,16 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     protected function getPersistent()
     {
-        $arrValue = array();
+        $arrValue = [];
         if ($this->getSessionStorage()->has('sorting')) {
             $arrValue = $this->getSessionStorage()->get('sorting');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
-        return array();
+        return [];
     }
 
     /**
@@ -103,7 +104,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     protected function setPersistent($strProperty)
     {
-        $arrValue       = array();
+        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($this->getSessionStorage()->has('sorting')) {
@@ -111,8 +112,8 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         }
 
         if ($strProperty) {
-            if (!is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = array();
+            if (!\is_array($arrValue[$definitionName])) {
+                $arrValue[$definitionName] = [];
             }
             $arrValue[$definitionName] = $strProperty;
         } else {
@@ -131,7 +132,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             $input = $this->getInputProvider();
             $value = null;
 
-            if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_sort')) {
+            if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
                 $value = $input->getValue('tl_sort');
 
                 $this->setPersistent($value);
@@ -150,8 +151,8 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         $current = $objConfig->getSorting();
 
-        if (!is_array($current)) {
-            $current = array();
+        if (!\is_array($current)) {
+            $current = [];
         }
 
         if ($this->getSelectedDefinition()) {
@@ -167,7 +168,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     public function render(ViewTemplateInterface $objTemplate)
     {
-        $arrOptions = array();
+        $arrOptions = [];
         foreach ($this->getGroupAndSortingDefinition() as $information) {
             /** @var GroupAndSortingDefinitionInterface $information */
             $name       = $information->getName();
@@ -180,15 +181,15 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
                 $name = $information->getName();
             }
 
-            $arrOptions[] = array(
-                'value'      => specialchars($information->getName()),
+            $arrOptions[] = [
+                'value'      => \specialchars($information->getName()),
                 'attributes' => ($this->getSelected() == $information->getName()) ? ' selected' : '',
                 'content'    => $name
-            );
+            ];
         }
 
         // Sort by option values.
-        uksort($arrOptions, 'strcasecmp');
+        \uksort($arrOptions, '\strcasecmp');
 
         /** @noinspection PhpUndefinedFieldInspection */
         $objTemplate->options = $arrOptions;

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -77,7 +77,7 @@ class PasteHandler extends AbstractHandler
         $after         = $this->modelIdFromParameter($input, 'after');
         $into          = $this->modelIdFromParameter($input, 'into');
         $parentModelId = $this->modelIdFromParameter($input, 'pid');
-        $items         = array();
+        $items         = [];
 
         $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
@@ -85,6 +85,11 @@ class PasteHandler extends AbstractHandler
             $clipboard->remove($item);
         }
         $clipboard->saveTo($environment);
+
+        // If we use paste all handler don´t redirect yet.
+        if ($input->getParameter('pasteAll')) {
+            return;
+        }
 
         ViewHelpers::redirectHome($environment);
     }
@@ -150,7 +155,7 @@ class PasteHandler extends AbstractHandler
     {
         $filter = new Filter();
         $all    = $clipboard->fetch($filter);
-        return (1 === count($all)
+        return (1 === \count($all)
             && $all[0]->isCreate()
             && (null === $all[0]->getModelId())
             && $all[0]->getDataProviderName() === $provider);

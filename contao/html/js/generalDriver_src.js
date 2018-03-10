@@ -1,14 +1,24 @@
 /**
- * Class Backend
+ * This file is part of contao-community-alliance/dc-general.
+ *
+ * (c) 2013-2017 Contao Community Alliance.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
  *
  * Provide methods to handle back end tasks.
  * Special functions for DC_General
  *
- * @copyright  The MetaModels team.
+ * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2017 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @filesource
  */
 
 var BackendGeneral =
@@ -217,5 +227,195 @@ var BackendGeneral =
 		}
 
 		return false;
-	}
+    },
+
+    /**
+     * Display the message
+     *
+     * @param {string} message      The message text
+     * @param {boolean} loading     If display loading indicator.
+     * @param {string} messageClass The css class for the box.
+     *
+     * @returns {void}
+     */
+    displayMessage: function (message, loading, messageClass) {
+        var box = $('general_messageBox'),
+            overlay = $('general_messageOverlay'),
+            scroll = window.getScroll();
+
+        if (overlay === null) {
+            overlay = new Element('div', {
+                'id': 'general_messageOverlay'
+            }).inject($(document.body), 'bottom');
+        }
+
+        overlay.set({
+            'styles': {
+                'display': 'block',
+                'top': scroll.y + 'px'
+            }
+        });
+
+        if (box === null) {
+            box = new Element('div', {
+                'id': 'general_messageBox'
+            }).inject($(document.body), 'bottom');
+        }
+
+        box.set({
+            'html': message,
+            'styles': {
+                'display': 'block',
+                'top': (scroll.y + 100) + 'px'
+            }
+        });
+
+        if (messageClass) {
+            box.addClass(messageClass);
+        }
+
+        if (loading) {
+            box.addClass('loading');
+        }
+    },
+
+    /**
+     * Hide the message
+     *
+     * @returns {void}
+     */
+    hideMessage: function () {
+        var box = $('general_messageBox'),
+            overlay = $('general_messageOverlay');
+
+        if (overlay) {
+            overlay.setStyle('display', 'none');
+        }
+
+        if (box) {
+            box.setStyle('display', 'none');
+        }
+
+        overlay.remove();
+        box.remove();
+    },
+
+    /**
+     * Confirm if select an element or property for override/edit all.
+     *
+     * @param {object} submit    The DOM submit element.
+     * @param {string} selection The DOM name for selection.
+     * @param {string} message   The confirm message.
+     *
+     * @returns {boolean}
+     */
+    confirmSelectOverrideEditAll: function (submit, selection, message) {
+        submit.blur();
+
+        var form = submit.form;
+        var collection = form.elements[selection];
+
+        var isSelected = false;
+        $$(collection).each(function (element) {
+            if (isSelected || !element.checked) {
+                return true;
+            }
+
+            isSelected = true;
+        });
+
+        if (isSelected) {
+            if (submit.name === 'delete') {
+                return true;
+            }
+
+            submit.onclick = '';
+            submit.click();
+
+            return true;
+        }
+
+        this.displayMessage(message, false, 'box-small');
+
+        return false;
+    },
+
+    /**
+     * Confirm if select an element for delete all.
+     *
+     * @param {object} submit          The DOM submit element.
+     * @param {string} selection       The DOM name for selection.
+     * @param {string} message         The confirm message.
+     * @param {string} messageDelete   The confirm message for delete.
+     * @param {string} confirmOk       The confirm ok for delete.
+     * @param {string} confirmAbort    The confirm abort for delete.
+     *
+     * @returns {boolean}
+     */
+    confirmSelectDeleteAll: function (submit, selection, message, messageDelete, confirmOk, confirmAbort) {
+        submit.blur();
+
+        var isSelected = this.confirmSelectOverrideEditAll(submit, selection, message);
+
+        if (!isSelected) {
+            return false;
+        }
+
+        this.confirmDelete(submit, messageDelete, confirmOk, confirmAbort);
+
+        return true;
+    },
+
+    /**
+     * Confirm for delete.
+     *
+     * @param {object} submit       The DOM submit element.
+     * @param {string} message      The confirm message.
+     * @param {string} confirmOk    The text for the confirm button ok.
+     * @param {string} confirmAbort The text for the confirm button abort.
+     *
+     * @returns {boolean}
+     */
+    confirmDelete: function (submit, message, confirmOk, confirmAbort) {
+        var confirmContainer = new Element('div');
+
+        var confirmMessage = new Element('h2', {
+            'html': message,
+            'class': 'tl_info'
+        }).inject(confirmContainer, 'bottom');
+        var confirmSpace = new Element('p').inject(confirmContainer, 'bottom');
+
+        var submitContainer = new Element('div', {
+            'class': 'tl_submit_container'
+        }).inject(confirmContainer, 'bottom');
+
+        var confirmButtonOk = new Element('input', {
+            'id': submit.name + 'Ok',
+            'name': submit.name + 'Ok',
+            'value': confirmOk,
+            'type': 'submit',
+            'class': 'tl_submit'
+        }).inject(submitContainer, 'bottom');
+
+        var confirmButtonAbort = new Element('input', {
+            'id': submit.name + 'Abort',
+            'name': submit.name + 'Abort',
+            'value': confirmAbort,
+            'type': 'submit',
+            'class': 'tl_submit'
+        }).inject(submitContainer, 'bottom');
+
+        this.displayMessage(confirmContainer.get('html'), false, 'box-small');
+
+        $(confirmButtonOk.id).addEvent('click', function () {
+            submit.onclick = '';
+            submit.click();
+        });
+
+        $(confirmButtonAbort.id).addEvent('click', function () {
+            BackendGeneral.hideMessage();
+        });
+
+        return true;
+    }
 };

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -30,7 +31,7 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
      *
      * @var array
      */
-    protected $filterValues = array();
+    protected $filterValues = [];
 
     /**
      * {@inheritDoc}
@@ -59,6 +60,6 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
      */
     public function count()
     {
-        return count($this->filterValues);
+        return \count($this->filterValues);
     }
 }

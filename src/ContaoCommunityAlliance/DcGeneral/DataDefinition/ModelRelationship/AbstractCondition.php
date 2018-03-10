@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -34,7 +35,6 @@ abstract class AbstractCondition
      * Check if an AND condition filter matches.
      *
      * @param ModelInterface $model  The model to check the condition against.
-     *
      * @param array          $filter The filter rules to be applied.
      *
      * @return bool
@@ -54,7 +54,6 @@ abstract class AbstractCondition
      * Check if an AND condition filter matches.
      *
      * @param ModelInterface $model  The model to check the condition against.
-     *
      * @param array          $filter The filter rules to be applied.
      *
      * @return bool
@@ -74,7 +73,6 @@ abstract class AbstractCondition
      * Extract a condition value depending if it is a remote value or property.
      *
      * @param array          $condition The condition array.
-     *
      * @param ModelInterface $parent    The parent model.
      *
      * @return mixed
@@ -92,7 +90,6 @@ abstract class AbstractCondition
      * Check if the passed filter rules apply to the given model.
      *
      * @param ModelInterface $objParentModel The model to check the condition against.
-     *
      * @param array          $arrFilter      The condition filter to be applied.
      *
      * @return bool
@@ -118,7 +115,7 @@ abstract class AbstractCondition
                 return (self::getConditionValue($arrFilter, $objParentModel) < $arrFilter['value']);
 
             case 'IN':
-                return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+                return \in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
 
             case 'LIKE':
                 throw new DcGeneralRuntimeException('LIKE unsupported as of now.');
@@ -127,7 +124,7 @@ abstract class AbstractCondition
         }
 
         throw new DcGeneralRuntimeException(
-            'Error processing filter array - unknown operation ' . var_export($arrFilter, true),
+            'Error processing filter array - unknown operation ' . \var_export($arrFilter, true),
             1
         );
     }

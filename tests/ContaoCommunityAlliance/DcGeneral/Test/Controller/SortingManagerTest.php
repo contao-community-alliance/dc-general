@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -45,97 +46,97 @@ class SortingManagerTest extends TestCase
      */
     public function provideTestData()
     {
-        return array(
+        return [
             // Test with default gap, without previous model
-            array(
-                array(
+            [
+                [
                     1 => 128,
                     2 => 256,
                     3 => 384
-                ),
-                array(3),
+                ],
+                [3],
                 null,
-                array(3, 1, 2)
-            ),
+                [3, 1, 2]
+            ],
             // Test with minimum gap, without previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 4,
                     3 => 6
-                ),
-                array(3),
+                ],
+                [3],
                 null,
-                array(3, 1, 2)
-            ),
+                [3, 1, 2]
+            ],
             // Test with large gap, without previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 1280,
                     3 => 5560
-                ),
-                array(3),
+                ],
+                [3],
                 null,
-                array(3, 1, 2)
-            ),
+                [3, 1, 2]
+            ],
             // Test with default gap and with previous model
-            array(
-                array(
+            [
+                [
                     1 => 128,
                     2 => 256,
                     3 => 384
-                ),
-                array(3),
+                ],
+                [3],
                 1,
-                array(1,3,2)
-            ),
+                [1, 3, 2]
+            ],
             // Test with minimum gap and previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 4,
                     3 => 6
-                ),
-                array(3),
+                ],
+                [3],
                 1,
-                array(1,3,2)
-            ),
+                [1, 3, 2]
+            ],
             // Test with large gap, and previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 1280,
                     3 => 5560
-                ),
-                array(3),
+                ],
+                [3],
                 1,
-                array(1, 3, 2)
-            ),
+                [1, 3, 2]
+            ],
             // Test with multiple items being moved, no previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     2 => 1280,
                     3 => 5560
-                ),
-                array(3, 2),
+                ],
+                [3, 2],
                 null,
-                array(2, 3, 1)
-            ),
+                [2, 3, 1]
+            ],
             // Test with multiple items being moved, with previous model
-            array(
-                array(
+            [
+                [
                     1 => 2,
                     4 => 128,
                     2 => 1280,
                     3 => 5560,
-                ),
-                array(3, 2),
+                ],
+                [3, 2],
                 4,
-                array(1, 4, 2, 3)
-            ),
-        );
+                [1, 4, 2, 3]
+            ],
+        ];
     }
 
     /**
@@ -166,7 +167,7 @@ class SortingManagerTest extends TestCase
             $siblingCollection->push($model);
             $siblings[$id] = $model;
 
-            if (in_array($id, $resortingIds)) {
+            if (\in_array($id, $resortingIds)) {
                 $modelCollection->push($model);
             }
 
@@ -208,12 +209,12 @@ class SortingManagerTest extends TestCase
         $sortingManager = new SortingManager($modelCollection, $siblingCollection, 'sorting', $previousModel);
         $position       = $previousModel ? $previousModel->getProperty('sorting') : null;
         $affected       = $sortingManager->getResults()->getModelIds();
-        $ordered        = array();
+        $ordered        = [];
 
         foreach ($expectedOrder as $id) {
             // Only compare if previous model is given and not identical with test model.
             // Only test affected items as well.
-            if ($previousModel && $previousModel->getId() != $id && in_array($id, $affected)) {
+            if ($previousModel && $previousModel->getId() != $id && \in_array($id, $affected)) {
                 $this->assertGreaterThan($position, $siblings[$id]->getProperty('sorting'));
                 $this->assertGreaterThanOrEqual(2, ($siblings[$id]->getProperty('sorting') - $position));
                 $this->assertLessThanOrEqual(128, ($siblings[$id]->getProperty('sorting') - $position));
@@ -226,7 +227,7 @@ class SortingManagerTest extends TestCase
         }
 
         // Explicit compare the new order with expected order.
-        ksort($ordered);
-        $this->assertEquals(array_values($ordered), $expectedOrder);
+        \ksort($ordered);
+        $this->assertEquals(\array_values($ordered), $expectedOrder);
     }
 }

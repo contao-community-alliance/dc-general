@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2016 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,9 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2016 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -32,12 +33,9 @@ class PropertyLessThanFilterBuilder extends BaseComparingFilterBuilder
      * Create a new instance.
      *
      * @param string $property     The property name to be compared.
-     *
      * @param mixed  $value        The value to be compared against.
-     *
      * @param bool   $isRemote     Flag determining if the passed value is a remote property name (only valid if filter
      *                             is for parent child relationship and not for root elements).
-     *
      * @param bool   $isRemoteProp Flag determining if the passed value is a property or literal value (only valid when
      *                             $isRemote is true).
      */

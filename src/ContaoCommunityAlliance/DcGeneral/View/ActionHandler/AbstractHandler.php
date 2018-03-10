@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,9 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -25,8 +26,8 @@ use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
-use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -39,7 +40,7 @@ abstract class AbstractHandler
      *
      * @var ActionEvent
      */
-    private $event = null;
+    private $event;
 
     /**
      * Method to buffer the event and then process it.
@@ -88,7 +89,7 @@ abstract class AbstractHandler
     {
         if ($this->getEnvironment()->getDataDefinition()->getName() !== $modelId->getDataProviderName()) {
             throw new DcGeneralRuntimeException(
-                sprintf(
+                \sprintf(
                     'Not able to perform action. Environment is not prepared for model "%s"',
                     $modelId->getSerialized()
                 )
@@ -138,7 +139,7 @@ abstract class AbstractHandler
      *
      * @return void
      */
-    protected function callAction($actionName, $arguments = array())
+    protected function callAction($actionName, $arguments = [])
     {
         // Keep the event as we might get called recursively.
         $keepEvent = $this->event;

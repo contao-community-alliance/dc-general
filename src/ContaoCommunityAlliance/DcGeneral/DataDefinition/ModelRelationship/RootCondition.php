@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,9 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -115,7 +116,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
             foreach ($this->setOn as $rule) {
                 if (!($rule['property'] && isset($rule['value']))) {
                     throw new DcGeneralRuntimeException(
-                        'Error Processing root condition, you need to specify property and value: ' . var_export(
+                        'Error Processing root condition, you need to specify property and value: ' . \var_export(
                             $rule,
                             true
                         ),
@@ -147,12 +148,12 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
         }
 
         if ($this->getFilterArray()) {
-            return $this->checkCondition(
+            return static::checkCondition(
                 $objModel,
-                array(
+                [
                     'operation' => 'AND',
                     'children'  => $this->getFilterArray()
-                )
+                ]
             );
         }
 
@@ -172,7 +173,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     {
         if ($model->getProviderName() !== $this->sourceProvider) {
             throw new \InvalidArgumentException(
-                sprintf('provider name %s is not equal to %s', $model->getProviderName(), $this->getSourceName())
+                \sprintf('provider name %s is not equal to %s', $model->getProviderName(), $this->getSourceName())
             );
         }
     }

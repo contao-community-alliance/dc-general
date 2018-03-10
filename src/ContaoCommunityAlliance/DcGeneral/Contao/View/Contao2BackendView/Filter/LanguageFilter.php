@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,8 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -29,6 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -41,9 +42,9 @@ class LanguageFilter implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DcGeneralEvents::ACTION => array(array('handleAction', 500)),
-        );
+        return [
+            DcGeneralEvents::ACTION => [['handleAction', 500]],
+        ];
     }
 
     /**
@@ -74,33 +75,41 @@ class LanguageFilter implements EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         $dataProvider   = $environment->getDataProvider();
         $providerName   = $environment->getDataDefinition()->getName();
-        $modelId        = ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id'))
-            ? ModelId::fromSerialized($inputProvider->getParameter('id'))->getId()
-            : null;
+        $modelId        = $this->modelIdFromInput($inputProvider);
         $languages      = $environment->getController()->getSupportedLanguages($modelId);
 
         if (!$languages) {
             return;
         }
 
-        static::checkLanguageSubmit($environment);
+        // Exit out when not a multi language provider.
+        if (!($dataProvider instanceof MultiLanguageDataProviderInterface)) {
+            return;
+        }
+
+        // If a new item, we MUST reset to the fallback as that is the first language that has to be stored.
+        if (null === $modelId) {
+            $dataProvider->setCurrentLanguage($dataProvider->getFallbackLanguage(null)->getLocale());
+            return;
+        }
+
+        $this->checkLanguageSubmit($environment, $languages);
 
         // Load language from Session.
         $session = (array) $sessionStorage->get('dc_general');
-        /** @var MultiLanguageDataProviderInterface $dataProvider */
 
         // Try to get the language from session.
-        if (isset($session['ml_support'][$providerName][$modelId])) {
-            $currentLanguage = $session['ml_support'][$providerName][$modelId];
+        if (isset($session['ml_support'][$providerName])) {
+            $currentLanguage = $session['ml_support'][$providerName];
         } else {
             $currentLanguage = $GLOBALS['TL_LANGUAGE'];
         }
 
-        if (!array_key_exists($currentLanguage, $languages)) {
+        if (!\array_key_exists($currentLanguage, $languages)) {
             $currentLanguage = $dataProvider->getFallbackLanguage($modelId)->getLocale();
         }
 
-        $session['ml_support'][$providerName][$modelId] = $currentLanguage;
+        $session['ml_support'][$providerName] = $currentLanguage;
         $sessionStorage->set('dc_general', $session);
 
         $dataProvider->setCurrentLanguage($currentLanguage);
@@ -112,10 +121,11 @@ class LanguageFilter implements EventSubscriberInterface
      * If so, the value in the session will be updated and the page reloaded.
      *
      * @param EnvironmentInterface $environment The environment.
+     * @param array                $languages   The valid languages.
      *
      * @return void
      */
-    private function checkLanguageSubmit($environment)
+    private function checkLanguageSubmit($environment, $languages)
     {
         $sessionStorage = $environment->getSessionStorage();
         $inputProvider  = $environment->getInputProvider();
@@ -124,20 +134,32 @@ class LanguageFilter implements EventSubscriberInterface
             return;
         }
 
-        $modelId      = ($inputProvider->getParameter('id') && $inputProvider->getParameter('id'))
-            ? ModelId::fromSerialized($inputProvider->getParameter('id'))->getId()
-            : null;
-        $languages    = $environment->getController()->getSupportedLanguages($modelId);
         $providerName = $environment->getDataDefinition()->getName();
 
         // Get/Check the new language.
         if ($inputProvider->hasValue('language')
-            && array_key_exists($inputProvider->getValue('language'), $languages)
+            && \array_key_exists($inputProvider->getValue('language'), $languages)
         ) {
-            $session['ml_support'][$providerName][$modelId] = $inputProvider->getValue('language');
+            $session['ml_support'][$providerName] = $inputProvider->getValue('language');
             $sessionStorage->set('dc_general', $session);
         }
 
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+    }
+
+    /**
+     * Obtain the model id from the input provider.
+     *
+     * @param InputProviderInterface $inputProvider The input provider.
+     *
+     * @return mixed|null
+     */
+    private function modelIdFromInput(InputProviderInterface $inputProvider)
+    {
+        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
+            return ModelId::fromSerialized($inputProvider->getParameter('id'))->getId();
+        }
+
+        return null;
     }
 }

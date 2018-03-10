@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -50,7 +51,6 @@ interface PanelContainerInterface extends \IteratorAggregate, \Countable
      * Add a panel to the container.
      *
      * @param string         $strKey   Name of the panel.
-     *
      * @param PanelInterface $objPanel The panel to add.
      *
      * @return PanelContainerInterface
@@ -70,7 +70,6 @@ interface PanelContainerInterface extends \IteratorAggregate, \Countable
      * Initialize all panels and apply all restrictions to the given Config.
      *
      * @param ConfigInterface       $objConfig  The data config to be populated with the element values.
-     *
      * @param PanelElementInterface $objElement The element currently being initialized.
      *
      * @return PanelContainerInterface

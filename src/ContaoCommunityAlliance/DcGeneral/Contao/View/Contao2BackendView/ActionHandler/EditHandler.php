@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -23,9 +23,11 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
@@ -59,13 +61,12 @@ class EditHandler extends AbstractHandler
             return;
         }
 
-        $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
+        $inputProvider = $this->getEnvironment()->getInputProvider();
 
         $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
-        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
 
-        $view = $environment->getView();
+        $view = $this->getEnvironment()->getView();
         if (!$view instanceof BaseView) {
             return;
         }
@@ -79,6 +80,10 @@ class EditHandler extends AbstractHandler
 
         $clone = clone $model;
         $clone->setId($model->getId());
+
+        if ('select' !== $inputProvider->getParameter('act')) {
+            $this->handleGlobalCommands();
+        }
 
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
         $event->setResponse($editMask->execute());
@@ -104,7 +109,7 @@ class EditHandler extends AbstractHandler
         $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
         $this->getEvent()->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for edit model %s.
                 </div>',
@@ -146,7 +151,7 @@ class EditHandler extends AbstractHandler
             $model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
 
             if ($model === null) {
-                $message = sprintf(
+                $message = \sprintf(
                     'Could not load version %s of record ID %s from %s',
                     $modelVersion,
                     $modelId->getId(),
@@ -165,5 +170,23 @@ class EditHandler extends AbstractHandler
             $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
             $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
         }
+    }
+
+    /**
+     * Handle the globals commands
+     *
+     * @return void
+     */
+    protected function handleGlobalCommands()
+    {
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $globalCommands = $backendView->getGlobalCommands();
+
+        $globalCommands->clearCommands();
+
+        $backCommand = new BackCommand();
+        $backCommand->setDisabled(false);
+        $globalCommands->addCommand($backCommand);
     }
 }

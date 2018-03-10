@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2015 Contao Community Alliance.
+ * (c) 2013-2018 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,8 +13,9 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
- * @copyright  2013-2015 Contao Community Alliance.
- * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
+ * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @copyright  2013-2018 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
@@ -32,7 +33,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      *
      * @var ConditionInterface[]
      */
-    protected $conditions = array();
+    protected $conditions = [];
 
     /**
      * The conjunction mode.
@@ -45,10 +46,9 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      * Create a new condition chain.
      *
      * @param array  $conditions  The conditions to initialize the chain with (optional).
-     *
      * @param string $conjunction The conjunction this chain contains (defaults to AND).
      */
-    public function __construct(array $conditions = array(), $conjunction = self::AND_CONJUNCTION)
+    public function __construct(array $conditions = [], $conjunction = self::AND_CONJUNCTION)
     {
         $this->addConditions($conditions);
         $this->setConjunction($conjunction);
@@ -59,7 +59,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function clearConditions()
     {
-        $this->conditions = array();
+        $this->conditions = [];
         return $this;
     }
 
@@ -89,7 +89,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function addCondition(ConditionInterface $condition)
     {
-        $hash = spl_object_hash($condition);
+        $hash = \spl_object_hash($condition);
 
         $this->conditions[$hash] = $condition;
         return $this;
@@ -100,7 +100,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function removeCondition(ConditionInterface $condition)
     {
-        $hash = spl_object_hash($condition);
+        $hash = \spl_object_hash($condition);
         unset($this->conditions[$hash]);
         return $this;
     }
@@ -110,7 +110,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function getConditions()
     {
-        return array_values($this->conditions);
+        return \array_values($this->conditions);
     }
 
     /**
@@ -145,11 +145,11 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function __clone()
     {
-        $conditions = array();
+        $conditions = [];
         foreach ($this->conditions as $condition) {
             $bobaFett = clone $condition;
 
-            $conditions[spl_object_hash($bobaFett)] = $bobaFett;
+            $conditions[\spl_object_hash($bobaFett)] = $bobaFett;
         }
         $this->conditions = $conditions;
     }
