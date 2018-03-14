@@ -40,16 +40,15 @@ class ContainerGetBreadcrumbCallbackListener extends AbstractReturningCallbackLi
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             new DcCompat($event->getEnvironment())
-        );
+        ];
     }
 
     /**
      * Update the information in the event with the list of breadcrumb elements returned by the callback.
      *
      * @param GetBreadcrumbEvent $event The event being emitted.
-     *
      * @param array              $value The breadcrumb elements returned by the callback.
      *
      * @return void

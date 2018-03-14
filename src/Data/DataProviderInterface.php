@@ -120,20 +120,26 @@ interface DataProviderInterface
      * If the item does not have an Id yet, the save operation will add it as a new row to the database and
      * populate the Id of the model accordingly.
      *
-     * @param ModelInterface $objItem The model to save back.
+     * @param ModelInterface $objItem   The model to save back.
+     * @param int            $timestamp Optional parameter for use own timestamp.
+     *                                  This is useful if save a collection of models and all shall have
+     *                                  the same timestamp.
      *
      * @return ModelInterface The passed model.
      */
-    public function save(ModelInterface $objItem);
+    public function save(ModelInterface $objItem, $timestamp = 0);
 
     /**
      * Save a collection of items to the data provider.
      *
-     * @param CollectionInterface $objItems The collection containing all items to be saved.
+     * @param CollectionInterface $objItems  The collection containing all items to be saved.
+     * @param int                 $timestamp Optional parameter for use own timestamp.
+     *                                       This is useful if save a collection of models and all shall have
+     *                                       the same timestamp.
      *
      * @return void
      */
-    public function saveEach(CollectionInterface $objItems);
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0);
 
     /**
      * Delete an item.
@@ -152,7 +158,6 @@ interface DataProviderInterface
      * Save a new version of a model.
      *
      * @param ModelInterface $objModel    The model for which a new version shall be created.
-     *
      * @param string         $strUsername The username to attach to the version as creator.
      *
      * @return void
@@ -163,7 +168,6 @@ interface DataProviderInterface
      * Return a model based of the version information.
      *
      * @param mixed $mixID      The ID of the record.
-     *
      * @param mixed $mixVersion The ID of the version.
      *
      * @return ModelInterface
@@ -174,7 +178,6 @@ interface DataProviderInterface
      * Return a list with all versions for the model with the given Id.
      *
      * @param mixed   $mixID         The ID of the row.
-     *
      * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
      *                               returned.
      *
@@ -186,7 +189,6 @@ interface DataProviderInterface
      * Set a version as active.
      *
      * @param mixed $mixID      The ID of the model.
-     *
      * @param mixed $mixVersion The version number to set active.
      *
      * @return void
@@ -222,9 +224,7 @@ interface DataProviderInterface
      * Check if the value is unique in the data provider.
      *
      * @param string $strField The field in which to test.
-     *
      * @param mixed  $varNew   The value about to be saved.
-     *
      * @param int    $intId    The (optional) id of the item currently in scope - pass null for new items.
      *
      * Documentation:
@@ -247,7 +247,6 @@ interface DataProviderInterface
      * Check if two models have the same values in all properties.
      *
      * @param ModelInterface $objModel1 The first model to compare.
-     *
      * @param ModelInterface $objModel2 The second model to compare.
      *
      * @return boolean True - If both models are same, false if not.

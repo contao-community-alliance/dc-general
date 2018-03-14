@@ -114,9 +114,8 @@ class CopyHandler
             $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
-                    sprintf(
-                        'Table "%s" is not creatable',
-                        'DC_General - DefaultController - copy()',
+                    \sprintf(
+                        'Table "%s" is not creatable, DC_General - DefaultController - copy()',
                         $environment->getDataDefinition()->getName()
                     ),
                     __CLASS__ . '::delete()',
@@ -130,7 +129,30 @@ class CopyHandler
             );
         }
 
-        throw new NotCreatableException($modelId->getDataProviderName());
+        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+
+        $this->guardValidEnvironment($environment->getDataDefinition(), $modelId);
+        // We want a redirect here if not creatable.
+        $this->guardIsCreatable($environment, $modelId, true);
+
+        if ($this->isEditOnlyResponse()) {
+            return;
+        }
+
+        // Manual sorting mode. The ClipboardController should pick it up.
+        $manualSortingProperty = ViewHelpers::getManualSortingProperty($environment);
+        if ($manualSortingProperty && $environment->getDataProvider()->fieldExists($manualSortingProperty)) {
+            return;
+        }
+
+        $copiedModel = $this->copy($environment, $modelId);
+
+        // If edit several don´t redirect do home.
+        if ($environment->getInputProvider()->getParameter('act') === 'select') {
+            return;
+        }
+
+        $this->redirect($environment, ModelId::fromModel($copiedModel));
     }
 
     /**
@@ -241,7 +263,7 @@ class CopyHandler
 
         $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
-        return sprintf(
+        return \sprintf(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for copy model %s.
             </div>',

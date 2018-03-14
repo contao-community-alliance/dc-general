@@ -42,7 +42,7 @@ class FileTreeOrder extends AbstractWidget
      */
     protected function validator($inputValue)
     {
-        $inputValue = array_map('\Contao\StringUtil::uuidToBin', array_filter(explode(',', $inputValue)));
+        $inputValue = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $inputValue)));
 
         return $inputValue;
     }
@@ -66,9 +66,9 @@ class FileTreeOrder extends AbstractWidget
     protected function getSerializedValue()
     {
         if ($this->varValue === null) {
-            $this->varValue = array();
+            $this->varValue = [];
         }
 
-        return implode(',', array_map('\Contao\StringUtil::binToUuid', $this->varValue));
+        return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $this->varValue));
     }
 }

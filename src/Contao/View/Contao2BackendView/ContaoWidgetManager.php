@@ -28,13 +28,17 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use Contao\Backend;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\TemplateLoader;
+use Contao\Date;
+use Contao\Input;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -71,7 +75,6 @@ class ContaoWidgetManager
      * Create a new instance.
      *
      * @param EnvironmentInterface $environment The environment in use.
-     *
      * @param ModelInterface       $model       The model for which widgets shall be generated.
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
@@ -85,9 +88,7 @@ class ContaoWidgetManager
      * Encode a value from the widget to native data of the data provider via event.
      *
      * @param string           $property       The property.
-     *
      * @param mixed            $value          The value of the property.
-     *
      * @param PropertyValueBag $propertyValues The property value bag the property value originates from.
      *
      * @return mixed
@@ -110,7 +111,6 @@ class ContaoWidgetManager
      * Decode a value from native data of the data provider to the widget via event.
      *
      * @param string $property The property.
-     *
      * @param mixed  $value    The value of the property.
      *
      * @return mixed
@@ -153,7 +153,6 @@ class ContaoWidgetManager
      * Function for pre-loading the tiny mce.
      *
      * @param string $buffer The rendered widget as string.
-     *
      * @param Widget $widget The widget.
      *
      * @return string The widget.
@@ -161,8 +160,8 @@ class ContaoWidgetManager
     public function loadRichTextEditor($buffer, Widget $widget)
     {
         if ((null === $widget->rte)
-            || ((0 !== (strncmp($widget->rte, 'tiny', 4)))
-                && (0 !== strncmp($widget->rte, 'ace', 3)))
+            || ((0 !== (\strncmp($widget->rte, 'tiny', 4)))
+                && (0 !== \strncmp($widget->rte, 'ace', 3)))
         ) {
             return $buffer;
         }
@@ -170,7 +169,7 @@ class ContaoWidgetManager
         $backendAdapter        = $this->framework->getAdapter(Backend::class);
         $templateLoaderAdapter = $this->framework->getAdapter(TemplateLoader::class);
 
-        list($file, $type) = explode('|', $widget->rte);
+        list($file, $type) = \explode('|', $widget->rte);
 
         $templateName = 'be_' . $file;
         // This test if the rich text editor template exist.
@@ -181,7 +180,7 @@ class ContaoWidgetManager
             ->set('selector', 'ctrl_' . $widget->id)
             ->set('type', $type);
 
-        if (0 !== strncmp($widget->rte, 'tiny', 4)) {
+        if (0 !== \strncmp($widget->rte, 'tiny', 4)) {
             /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
             $template->set('language', $backendAdapter->getTinyMceLanguage());
         }
@@ -192,10 +191,42 @@ class ContaoWidgetManager
     }
 
     /**
+     * Get the unique id.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return string
+     */
+    protected function getUniqueId($propertyName)
+    {
+        $inputProvider  = $this->getEnvironment()->getInputProvider();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+
+        $selector = 'ctrl_' . $propertyName;
+
+        if ($inputProvider->getParameter('act') !== 'select'
+            || (false === $inputProvider->hasValue('edit') && false === $inputProvider->hasValue('edit_save'))
+        ) {
+            return $selector;
+        }
+
+        $modelId = ModelId::fromModel($this->model);
+        $fields  = $sessionStorage->get($modelId->getDataProviderName() . '.edit')['properties'];
+
+        $fieldId = new ModelId('property.' . $modelId->getDataProviderName(), $propertyName);
+        if (!\in_array($fieldId->getSerialized(), $fields)) {
+            return $selector;
+        }
+
+        $selector = 'ctrl_' . \str_replace('::', '____', $modelId->getSerialized()) . '_' . $propertyName;
+
+        return $selector;
+    }
+
+    /**
      * Retrieve the instance of a widget for the given property.
      *
      * @param string           $property    Name of the property for which the widget shall be retrieved.
-     *
      * @param PropertyValueBag $inputValues The input values to use (optional).
      *
      * @return Widget
@@ -232,7 +263,7 @@ class ContaoWidgetManager
         $dispatcher->dispatch($event::NAME, $event);
         if (!$event->getWidget()) {
             throw new DcGeneralRuntimeException(
-                sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
+                \sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
             );
         }
 
@@ -269,7 +300,7 @@ class ContaoWidgetManager
         return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
             draggable:false,
             toggle:$$("#toggle_' . $objWidget->id . '"),
-            format:"' . \Date::formatToJs($strFormat) . '",
+            format:"' . Date::formatToJs($strFormat) . '",
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
             useFadeInOut:!Browser.ie,
@@ -295,7 +326,7 @@ class ContaoWidgetManager
         $label       = $propInfo->getDescription();
         $widgetType  = $propInfo->getWidgetType();
 
-        if (!is_string($label) || !$GLOBALS['TL_CONFIG']['showHelp'] || $widgetType == 'password' || !strlen($label)) {
+        if ($widgetType == 'password' || !\is_string($label) || !$GLOBALS['TL_CONFIG']['showHelp'] || null === $label) {
             return '';
         }
 
@@ -306,9 +337,7 @@ class ContaoWidgetManager
      * Render the widget for the named property.
      *
      * @param string           $property     The name of the property for which the widget shall be rendered.
-     *
      * @param bool             $ignoreErrors Flag if the error property of the widget shall get cleared prior rendering.
-     *
      * @param PropertyValueBag $inputValues  The input values to use (optional).
      *
      * @return string
@@ -329,32 +358,15 @@ class ContaoWidgetManager
             throw new DcGeneralRuntimeException('No widget for property ' . $property);
         }
 
-        if ($ignoreErrors) {
-            // Clean the errors array and fix up the CSS class.
-            $reflection = new \ReflectionProperty(get_class($widget), 'arrErrors');
-            $reflection->setAccessible(true);
-            $reflection->setValue($widget, array());
-            $reflection = new \ReflectionProperty(get_class($widget), 'strClass');
-            $reflection->setAccessible(true);
-            $reflection->setValue($widget, str_replace('error', '', $reflection->getValue($widget)));
-        }
+        $this->cleanErrors($widget, $ignoreErrors);
 
-        if (!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
-            && $inputValues->isPropertyValueInvalid($property)
-        ) {
-            foreach ($inputValues->getPropertyValueErrors($property) as $error) {
-                $widget->addError($error);
-            }
-        }
+        $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
-        $strDatePicker = '';
-        if (!empty($propExtra['datepicker'])) {
-            $strDatePicker = $this->buildDatePicker($widget);
-        }
+        $strDatePicker = $this->getDatePicker($propExtra, $widget);
 
         $objTemplateFoo = new ContaoBackendViewTemplate('dcbe_general_field');
         $objTemplateFoo->setData(
-            array(
+            [
                 'strName'       => $property,
                 'strClass'      => $widget->tl_class,
                 'widget'        => $widget->parse(),
@@ -364,7 +376,7 @@ class ContaoWidgetManager
                 'blnUpdate'     => false,
                 'strHelp'       => $this->generateHelpText($property),
                 'strId'         => $widget->id
-            )
+            ]
         );
 
         $buffer = $objTemplateFoo->parse();
@@ -382,9 +394,9 @@ class ContaoWidgetManager
     {
         // @codingStandardsIgnoreStart - Remember current POST data and clear it.
         $post  = $_POST;
-        $_POST = array();
+        $_POST = [];
         // @codingStandardsIgnoreEnd
-        \Input::resetCache();
+        Input::resetCache();
 
         // Set all POST data, these get used within the Widget::validate() method.
         foreach ($propertyValues as $property => $propertyValue) {
@@ -392,7 +404,7 @@ class ContaoWidgetManager
         }
 
         // Now get and validate the widgets.
-        foreach (array_keys($propertyValues->getArrayCopy()) as $property) {
+        foreach (\array_keys($propertyValues->getArrayCopy()) as $property) {
             // NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
             // native data as in the model.
             // Therefore we do not need to decode them but MUST encode them.
@@ -419,7 +431,7 @@ class ContaoWidgetManager
         }
 
         $_POST = $post;
-        \Input::resetCache();
+        Input::resetCache();
     }
 
     /**
@@ -442,5 +454,70 @@ class ContaoWidgetManager
                 }
             }
         }
+    }
+
+    /**
+     * Clean errors for widget.
+     *
+     * @param Widget $widget       The widget.
+     * @param bool   $ignoreErrors The flag for errors cleared.
+     *
+     * @return void
+     */
+    protected function cleanErrors(Widget $widget, $ignoreErrors = false)
+    {
+        if ($ignoreErrors) {
+            // Clean the errors array and fix up the CSS class.
+            $reflection = new \ReflectionProperty(\get_class($widget), 'arrErrors');
+            $reflection->setAccessible(true);
+            $reflection->setValue($widget, []);
+            $reflection = new \ReflectionProperty(\get_class($widget), 'strClass');
+            $reflection->setAccessible(true);
+            $reflection->setValue($widget, \str_replace('error', '', $reflection->getValue($widget)));
+        }
+    }
+
+    /**
+     * Widget add error.
+     *
+     * @param string                         $property     The property.
+     * @param Widget                         $widget       The widget.
+     * @param PropertyValueBagInterface|null $inputValues  The input values.
+     * @param bool                           $ignoreErrors The for add error.
+     *
+     * @return void
+     */
+    protected function widgetAddError(
+        $property,
+        Widget $widget,
+        PropertyValueBagInterface $inputValues = null,
+        $ignoreErrors = false
+    ) {
+        if (!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
+            && $inputValues->isPropertyValueInvalid($property)
+        ) {
+            foreach ($inputValues->getPropertyValueErrors($property) as $error) {
+                $widget->addError($error);
+            }
+        }
+    }
+
+    /**
+     * Get the date picker, if the widget has one.
+     *
+     * @param array  $propExtra The extra data from the property.
+     * @param Widget $widget    The widget.
+     *
+     * @return string
+     */
+    protected function getDatePicker(array $propExtra, Widget $widget)
+    {
+        $strDatePicker = '';
+
+        if (!empty($propExtra['datepicker'])) {
+            $strDatePicker = $this->buildDatePicker($widget);
+        }
+
+        return $strDatePicker;
     }
 }

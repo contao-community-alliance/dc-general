@@ -21,10 +21,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition checking that the value of a property is false.
@@ -49,7 +49,6 @@ class PropertyFalseCondition implements PropertyConditionInterface
      * Create a new instance.
      *
      * @param string $propertyName The name of the property.
-     *
      * @param bool   $strict       Flag if the comparison shall be strict (type safe).
      */
     public function __construct($propertyName, $strict = false)

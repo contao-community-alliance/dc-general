@@ -45,8 +45,8 @@ class DcGeneralTest extends TestCase
      */
     public function testInstantiation()
     {
-        define('TL_MODE', 'BE');
-        $_SESSION = array('BE_DATA' => array('DC_GENERAL_TL_FOO' => array()));
+        \define('TL_MODE', 'BE');
+        $_SESSION = ['BE_DATA' => ['DC_GENERAL_TL_FOO' => []]];
         $this->aliasContaoClass('Session');
         $this->aliasContaoClass('System');
         $this->aliasContaoClass('Controller');
@@ -81,24 +81,20 @@ class DcGeneralTest extends TestCase
                 return null;
             });
 
-        $GLOBALS['TL_DCA']['tl_foo'] = array(
-            'config'          => array
-            (
+        $GLOBALS['TL_DCA']['tl_foo'] = [
+            'config'          => [
                 'dataContainer'    => 'General',
-            ),
-            'dca_config'   => array
-            (
-                'data_provider'  => array
-                (
-                    'tl_foo' => array
-                    (
-                        'source' => 'tl_foo',
-                        'class'  => NoOpDataProvider::class,
-                    )
-                ),
-            ),
+                ],
+            'dca_config'   => [
+                    'data_provider'  => [
+                    'tl_foo' => [
+                            'source' => 'tl_foo',
+                            'class'        => NoOpDataProvider::class,
+                        ]
+                    ],
+                ],
             'palettes' => []
-        );
+        ];
 
         $dataContainer = new \DC_General('tl_foo');
 

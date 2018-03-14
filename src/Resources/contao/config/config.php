@@ -1,5 +1,8 @@
 <?php
 
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
+
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
@@ -30,10 +33,12 @@ if (TL_MODE == 'BE') {
     $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 }
 
-$GLOBALS['BE_FFL']['DcGeneralTreePicker'] =
-    'ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker';
+$GLOBALS['BE_FFL']['DcGeneralTreePicker'] = TreePicker::class;
 
-$GLOBALS['TL_HOOKS']['executePostActions'] = array_merge((array) $GLOBALS['TL_HOOKS']['executePostActions'], array(
-    array('ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker', 'updateAjax'),
-    array('ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree', 'updateAjax')
-));
+$GLOBALS['TL_HOOKS']['executePostActions'] = \array_merge(
+    (array) $GLOBALS['TL_HOOKS']['executePostActions'],
+    [
+        [TreePicker::class, 'updateAjax'],
+        [FileTree::class, 'updateAjax']
+    ]
+);

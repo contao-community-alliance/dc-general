@@ -49,7 +49,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @var array
      */
-    private $attributes = null;
+    private $attributes;
 
     /**
      * Create a new instance.
@@ -123,7 +123,7 @@ class SessionStorage implements SessionStorageInterface
     public function replace(array $attributes)
     {
         $this->load();
-        $this->attributes = array_merge($this->attributes, $attributes);
+        $this->attributes = \array_merge($this->attributes, $attributes);
         $this->persist();
         return $this;
     }
@@ -145,7 +145,7 @@ class SessionStorage implements SessionStorageInterface
     public function clear()
     {
         $this->load();
-        $this->attributes = array();
+        $this->attributes = [];
         $this->persist();
     }
 

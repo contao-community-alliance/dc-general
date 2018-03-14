@@ -161,10 +161,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
             if (!($definition instanceof ExtendedDca)) {
                 throw new DcGeneralInvalidArgumentException(
-                    sprintf(
+                    \sprintf(
                         'Definition with name %s must be an instance of ExtendedDca but instance of %s encountered.',
                         ExtendedDca::NAME,
-                        get_class($definition)
+                        \get_class($definition)
                     )
                 );
             }
@@ -195,18 +195,15 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function isSpecialName($name)
     {
-        return in_array($name, array('default', 'root', 'parent'));
+        return \in_array($name, ['default', 'root', 'parent']);
     }
 
     /**
      * Parse a single data provider information and prepare the definition object for it.
      *
      * @param ContainerInterface              $container   The container where the data shall be stored.
-     *
      * @param DataProviderDefinitionInterface $providers   The data provider container.
-     *
      * @param array                           $information The information for the data provider to be parsed.
-     *
      * @param string|null                     $name        The name of the data provider to be used within the
      *                                                     container.
      *
@@ -281,7 +278,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         }
 
         // First check if we are using the "new" notation used in DcGeneral 0.9.
-        if (!is_array($this->getFromDca('dca_config/data_provider'))) {
+        if (!\is_array($this->getFromDca('dca_config/data_provider'))) {
             return;
         }
 
@@ -297,9 +294,9 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
             if ($providerInformation instanceof ContaoDataProviderInformation) {
                 $initializationData     = (array) $providerInformation->getInitializationData();
-                $baseInitializationData = array(
+                $baseInitializationData = [
                     'name' => $dataProviderDcaName,
-                );
+                ];
 
                 switch ((string) $dataProviderDcaName) {
                     case 'default':
@@ -325,7 +322,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 }
 
                 $providerInformation->setInitializationData(
-                    array_merge(
+                    \array_merge(
                         $baseInitializationData,
                         $dataProviderDca,
                         $initializationData
@@ -347,7 +344,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         $palettesDca = $this->getFromDca('palettes');
 
         // Skip while there is no extended palette definition.
-        if (!is_callable($palettesDca)) {
+        if (!\is_callable($palettesDca)) {
             return;
         }
 
@@ -358,14 +355,13 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             $container->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
         }
 
-        call_user_func($palettesDca, $palettesDefinition, $container);
+        $palettesDca($palettesDefinition, $container);
     }
 
     /**
      * Parse the root condition.
      *
      * @param ContainerInterface                   $container  The container where the data shall be stored.
-     *
      * @param ModelRelationshipDefinitionInterface $definition The relationship definition.
      *
      * @return void
@@ -400,7 +396,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 } else {
                     /** @var RootConditionInterface $relationship */
                     if ($relationship->getSetters()) {
-                        $setter = array_merge_recursive($mySetter, $relationship->getSetters());
+                        $setter = \array_merge_recursive($mySetter, $relationship->getSetters());
                     } else {
                         $setter = $mySetter;
                     }
@@ -443,8 +439,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                     $setter  = $childCondition['setOn'];
                     $inverse = $childCondition['inverse'];
                 } else {
-                    $setter  = array_merge_recursive((array) $childCondition['setOn'], $relationship->getSetters());
-                    $inverse = array_merge_recursive(
+                    $setter  = \array_merge_recursive((array) $childCondition['setOn'], $relationship->getSetters());
+                    $inverse = \array_merge_recursive(
                         (array) $childCondition['inverse'],
                         $relationship->getInverseFilterArray()
                     );
@@ -594,15 +590,15 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         }
 
         $childCondition->setFilterArray(
-            array_merge(
+            \array_merge(
                 $childCondition->getFilterArray(),
-                array(
-                    array(
+                [
+                    [
                         'local'        => $propertyName,
                         'remote_value' => $sourceProvider,
                         'operation'    => '='
-                    )
-                )
+                    ]
+                ]
             )
         );
 

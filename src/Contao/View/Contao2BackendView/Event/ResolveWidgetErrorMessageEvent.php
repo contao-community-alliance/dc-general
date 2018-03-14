@@ -44,7 +44,6 @@ class ResolveWidgetErrorMessageEvent extends AbstractEnvironmentAwareEvent
      * Create a new instance of the event.
      *
      * @param EnvironmentInterface $environment The environment in use.
-     *
      * @param string               $error       The error message.
      */
     public function __construct(EnvironmentInterface $environment, $error)

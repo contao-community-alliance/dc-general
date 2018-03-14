@@ -30,7 +30,6 @@ interface FilterOptionCollectionInterface extends \IteratorAggregate, \Countable
      * Append a key => value pair.
      *
      * @param string $filterKey   The key of the filter option. Needed for the system.
-     *
      * @param string $filterValue The readable value for humans.
      *
      * @return FilterOptionCollectionInterface

@@ -56,7 +56,6 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
      * Constructor.
      *
      * @param FactoryInterface $menuFactory The menu factory.
-     *
      * @param RouterInterface  $router      The router.
      */
     public function __construct(FactoryInterface $menuFactory, RouterInterface $router)
@@ -152,14 +151,13 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
      * Generates the URL for the picker.
      *
      * @param PickerConfig $config      The configuration.
-     *
      * @param bool         $ignoreValue Determine by get the route parameter the picker config ignore.
      *
      * @return string
      */
     private function generateUrl(PickerConfig $config, $ignoreValue)
     {
-        $params = array_merge(
+        $params = \array_merge(
             $this->getRouteParameters($ignoreValue ? null : $config),
             [
                 'popup'  => '1',

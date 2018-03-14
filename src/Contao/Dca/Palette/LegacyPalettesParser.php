@@ -50,20 +50,18 @@ class LegacyPalettesParser
      * Parse the palette and sub palette array and create a complete palette collection.
      *
      * @param array(string => string)         $palettes    The palettes from the DCA.
-     *
      * @param array(string => string)         $subpalettes The sub palettes from the DCA [optional].
-     *
      * @param PaletteCollectionInterface|null $collection  The palette collection to populate [optional].
      *
      * @return PaletteCollectionInterface
      */
-    public function parse(array $palettes, array $subpalettes = array(), PaletteCollectionInterface $collection = null)
+    public function parse(array $palettes, array $subpalettes = [], PaletteCollectionInterface $collection = null)
     {
         if (isset($palettes['__selector__'])) {
             $selectorFieldNames = $palettes['__selector__'];
             unset($palettes['__selector__']);
         } else {
-            $selectorFieldNames = array();
+            $selectorFieldNames = [];
         }
 
         $subPaletteProperties = $this->parseSubpalettes($subpalettes, $selectorFieldNames);
@@ -81,20 +79,17 @@ class LegacyPalettesParser
      *
      * @param array(string => string)    $palettes             The array of palettes, e.g.
      *                                                         <code>array('default' => '{title_legend},title')</code>.
-     *
      * @param array(string => string)    $subPaletteProperties Mapped array from subpalette [optional].
-     *
      * @param array                      $selectorFieldNames   List of names of the properties to be used as selector
      *                                                         [optional].
-     *
      * @param PaletteCollectionInterface $collection           The palette collection to populate [optional].
      *
      * @return PaletteCollectionInterface
      */
     public function parsePalettes(
         array $palettes,
-        array $subPaletteProperties = array(),
-        array $selectorFieldNames = array(),
+        array $subPaletteProperties = [],
+        array $selectorFieldNames = [],
         PaletteCollectionInterface $collection = null
     ) {
         if (!$collection) {
@@ -102,14 +97,14 @@ class LegacyPalettesParser
         }
 
         if (isset($palettes['__selector__'])) {
-            $selectorFieldNames = array_merge($selectorFieldNames, $palettes['__selector__']);
-            $selectorFieldNames = array_unique($selectorFieldNames);
+            $selectorFieldNames = \array_merge($selectorFieldNames, $palettes['__selector__']);
+            $selectorFieldNames = \array_unique($selectorFieldNames);
             unset($palettes['__selector__']);
         }
 
         foreach ($palettes as $selector => $fields) {
             // Fields list must be a string.
-            if (!is_string($fields)) {
+            if (!\is_string($fields)) {
                 continue;
             }
 
@@ -140,14 +135,10 @@ class LegacyPalettesParser
      * Parse a single palette.
      *
      * @param string                             $paletteSelector      The selector for the palette.
-     *
      * @param string                             $fields               The fields contained within the palette.
-     *
      * @param array(string => PropertyInterface) $subPaletteProperties The sub palette properties [optional].
-     *
      * @param array(string)                      $selectorFieldNames   The names of all properties being used as
      *                                                                 selectors [optional].
-     *
      * @param PaletteInterface                   $palette              The palette to be populated [optional].
      *
      * @return Palette
@@ -155,8 +146,8 @@ class LegacyPalettesParser
     public function parsePalette(
         $paletteSelector,
         $fields,
-        array $subPaletteProperties = array(),
-        array $selectorFieldNames = array(),
+        array $subPaletteProperties = [],
+        array $selectorFieldNames = [],
         PaletteInterface $palette = null
     ) {
         if (!$palette) {
@@ -169,8 +160,8 @@ class LegacyPalettesParser
 
         // We ignore the difference between field set (separated by ";") and fields (separated by ",").
         $fields = preg_split('~[;,]~', $fields);
-        $fields = array_map('trim', $fields);
-        $fields = array_filter($fields);
+        $fields = \array_map('trim', $fields);
+        $fields = \array_filter($fields);
 
         $legend = null;
 
@@ -183,7 +174,7 @@ class LegacyPalettesParser
                     $legend = new Legend($matches[1]);
                     $palette->addLegend($legend);
                 }
-                if (array_key_exists(3, $matches)) {
+                if (\array_key_exists(3, $matches)) {
                     $legend->setInitialVisibility(false);
                 }
             } else {
@@ -219,7 +210,6 @@ class LegacyPalettesParser
      * Parse the palette selector and create the corresponding condition.
      *
      * @param string $paletteSelector    Create the condition for the selector.
-     *
      * @param array  $selectorFieldNames The property names to be used as selectors.
      *
      * @return null|PaletteConditionInterface
@@ -231,9 +221,9 @@ class LegacyPalettesParser
         }
 
         // Legacy fallback, try to split on $selectors with optimistic suggestion of values.
-        if (strpos($paletteSelector, '|') === false) {
+        if (\strpos($paletteSelector, '|') === false) {
             foreach ($selectorFieldNames as $selectorFieldName) {
-                $paletteSelector = str_replace(
+                $paletteSelector = \str_replace(
                     $selectorFieldName,
                     '|' . $selectorFieldName . '|',
                     $paletteSelector
@@ -242,21 +232,21 @@ class LegacyPalettesParser
         }
 
         // Extended mode, split selectors and values with "|".
-        $paletteSelectorParts = explode('|', $paletteSelector);
-        $paletteSelectorParts = array_map('trim', $paletteSelectorParts);
-        $paletteSelectorParts = array_filter($paletteSelectorParts);
+        $paletteSelectorParts = \explode('|', $paletteSelector);
+        $paletteSelectorParts = \array_map('trim', $paletteSelectorParts);
+        $paletteSelectorParts = \array_filter($paletteSelectorParts);
 
         $condition = new PaletteConditionChain();
 
         foreach ($paletteSelectorParts as $paletteSelectorPart) {
             // The part is a property name (checkbox like selector).
-            if (in_array($paletteSelectorPart, $selectorFieldNames)) {
+            if (\in_array($paletteSelectorPart, $selectorFieldNames)) {
                 $condition->addCondition(
                     new PalettePropertyTrueCondition($paletteSelectorPart)
                 );
             } else {
                 // The part is a value (but which?) (select box like selector).
-                $orCondition = new PaletteConditionChain(array(), PaletteConditionChain::OR_CONJUNCTION);
+                $orCondition = new PaletteConditionChain([], PaletteConditionChain::OR_CONJUNCTION);
 
                 foreach ($selectorFieldNames as $selectorFieldName) {
                     $orCondition->addCondition(
@@ -279,27 +269,26 @@ class LegacyPalettesParser
      * Parse the sub palettes and return the properties for each selector property.
      *
      * @param array $subpalettes        The sub palettes to parse.
-     *
      * @param array $selectorFieldNames Names of the selector properties [optional].
      *
      * @return array(string => PropertyInterface[])
      */
-    public function parseSubpalettes(array $subpalettes, array $selectorFieldNames = array())
+    public function parseSubpalettes(array $subpalettes, array $selectorFieldNames = [])
     {
-        $properties = array();
+        $properties = [];
 
         foreach ($subpalettes as $subPaletteSelector => $childFields) {
             // Child fields list must be a string.
-            if (!is_string($childFields)) {
+            if (!\is_string($childFields)) {
                 continue;
             }
 
             $selectorFieldName = $this->createSubpaletteSelectorFieldName($subPaletteSelector, $selectorFieldNames);
 
-            $selectorProperty = array();
+            $selectorProperty = [];
             // For selectable sub selector.
             if (isset($properties[$selectorFieldName])
-                && (0 < substr_count($subPaletteSelector, '_'))
+                && (0 < \substr_count($subPaletteSelector, '_'))
             ) {
                 $selectorProperty = $properties[$selectorFieldName];
             }
@@ -319,11 +308,8 @@ class LegacyPalettesParser
      * Parse the list of sub palette fields into an array of properties.
      *
      * @param string $subPaletteSelector The selector in use.
-     *
      * @param string $childFields        List of the properties for the sub palette.
-     *
      * @param array  $selectorFieldNames List of the selector properties [optional].
-     *
      * @param array  $properties         List of the selector visible properties [optional].
      *
      * @return PropertyInterface[]
@@ -331,11 +317,11 @@ class LegacyPalettesParser
     public function parseSubpalette(
         $subPaletteSelector,
         $childFields,
-        array $selectorFieldNames = array(),
-        array $properties = array()
+        array $selectorFieldNames = [],
+        array $properties = []
     ) {
-        $childFields = explode(',', $childFields);
-        $childFields = array_map('trim', $childFields);
+        $childFields = \explode(',', $childFields);
+        $childFields = \array_map('trim', $childFields);
 
         $condition = $this->createSubpaletteCondition($subPaletteSelector, $selectorFieldNames);
 
@@ -361,22 +347,21 @@ class LegacyPalettesParser
      *         In this cases a checkbox sub palette is in place.
      *
      * @param string $subPaletteSelector The selector being evaluated.
-     *
      * @param array  $selectorFieldNames The names of the properties to be used as selectors [optional].
      *
      * @return string
      */
-    public function createSubpaletteSelectorFieldName($subPaletteSelector, array $selectorFieldNames = array())
+    public function createSubpaletteSelectorFieldName($subPaletteSelector, array $selectorFieldNames = [])
     {
-        $selectorValues     = explode('_', $subPaletteSelector);
-        $selectorFieldName  = array_shift($selectorValues);
-        $selectorValueCount = count($selectorValues);
+        $selectorValues     = \explode('_', $subPaletteSelector);
+        $selectorFieldName  = \array_shift($selectorValues);
+        $selectorValueCount = \count($selectorValues);
         while ($selectorValueCount) {
-            if (in_array($selectorFieldName, $selectorFieldNames)) {
+            if (\in_array($selectorFieldName, $selectorFieldNames)) {
                 break;
             }
-            $selectorFieldName .= '_' . array_shift($selectorValues);
-            $selectorValueCount = count($selectorValues);
+            $selectorFieldName .= '_' . \array_shift($selectorValues);
+            $selectorValueCount = \count($selectorValues);
         }
 
         return $selectorFieldName;
@@ -395,30 +380,29 @@ class LegacyPalettesParser
      *         In this cases a checkbox sub palette is in place.
      *
      * @param string $subPaletteSelector The selector being evaluated.
-     *
      * @param array  $selectorFieldNames The names of the properties to be used as selectors [optional].
      *
      * @return PropertyTrueCondition|PropertyValueCondition|null
      */
-    public function createSubpaletteCondition($subPaletteSelector, array $selectorFieldNames = array())
+    public function createSubpaletteCondition($subPaletteSelector, array $selectorFieldNames = [])
     {
         $condition = null;
 
         // Try to find a select value first (case 1).
-        $selectorValues     = explode('_', $subPaletteSelector);
-        $selectorFieldName  = array_shift($selectorValues);
-        $selectorValueCount = count($selectorValues);
+        $selectorValues     = \explode('_', $subPaletteSelector);
+        $selectorFieldName  = \array_shift($selectorValues);
+        $selectorValueCount = \count($selectorValues);
 
         while ($selectorValueCount) {
             if (empty($selectorValues)) {
                 break;
             }
 
-            if (in_array($selectorFieldName, $selectorFieldNames)) {
-                $condition = new PropertyValueCondition($selectorFieldName, implode('_', $selectorValues));
+            if (\in_array($selectorFieldName, $selectorFieldNames)) {
+                $condition = new PropertyValueCondition($selectorFieldName, \implode('_', $selectorValues));
                 break;
             }
-            $selectorFieldName .= '_' . array_shift($selectorValues);
+            $selectorFieldName .= '_' . \array_shift($selectorValues);
         }
 
         // If case 1 was not successful, try implicitly case 2 must apply.

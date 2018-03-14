@@ -48,12 +48,12 @@ class DCGE
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::SHOW_CHILDREN
      */
-    const TREE_VIEW_IS_OPEN = \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::SHOW_CHILDREN;
+    const TREE_VIEW_IS_OPEN = ModelInterface::SHOW_CHILDREN;
 
     /**
      * Child Collection.
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::CHILD_COLLECTIONS
      */
-    const TREE_VIEW_CHILD_COLLECTION = \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::CHILD_COLLECTIONS;
+    const TREE_VIEW_CHILD_COLLECTION = ModelInterface::CHILD_COLLECTIONS;
 }

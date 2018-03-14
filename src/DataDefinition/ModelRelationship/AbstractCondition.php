@@ -35,7 +35,6 @@ abstract class AbstractCondition
      * Check if an AND condition filter matches.
      *
      * @param ModelInterface $model  The model to check the condition against.
-     *
      * @param array          $filter The filter rules to be applied.
      *
      * @return bool
@@ -55,7 +54,6 @@ abstract class AbstractCondition
      * Check if an AND condition filter matches.
      *
      * @param ModelInterface $model  The model to check the condition against.
-     *
      * @param array          $filter The filter rules to be applied.
      *
      * @return bool
@@ -75,7 +73,6 @@ abstract class AbstractCondition
      * Extract a condition value depending if it is a remote value or property.
      *
      * @param array          $condition The condition array.
-     *
      * @param ModelInterface $parent    The parent model.
      *
      * @return mixed
@@ -93,7 +90,6 @@ abstract class AbstractCondition
      * Check if the passed filter rules apply to the given model.
      *
      * @param ModelInterface $objParentModel The model to check the condition against.
-     *
      * @param array          $arrFilter      The condition filter to be applied.
      *
      * @return bool
@@ -119,7 +115,7 @@ abstract class AbstractCondition
                 return (self::getConditionValue($arrFilter, $objParentModel) < $arrFilter['value']);
 
             case 'IN':
-                return in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+                return \in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
 
             case 'LIKE':
                 throw new DcGeneralRuntimeException('LIKE unsupported as of now.');
@@ -128,7 +124,7 @@ abstract class AbstractCondition
         }
 
         throw new DcGeneralRuntimeException(
-            'Error processing filter array - unknown operation ' . var_export($arrFilter, true),
+            'Error processing filter array - unknown operation ' . \var_export($arrFilter, true),
             1
         );
     }

@@ -32,7 +32,6 @@ abstract class AbstractReturningCallbackListener extends AbstractCallbackListene
      * Update the values in the event with the value returned by the callback.
      *
      * @param \Symfony\Component\EventDispatcher\Event $event The event being emitted.
-     *
      * @param mixed                                    $value The value returned by the callback.
      *
      * @return void

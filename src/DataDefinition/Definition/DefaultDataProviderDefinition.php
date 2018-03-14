@@ -36,7 +36,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      *
      * @var DataProviderInformationInterface[]
      */
-    protected $information = array();
+    protected $information = [];
 
     /**
      * {@inheritdoc}
@@ -79,7 +79,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
             $information = $information->getName();
         }
 
-        if (!is_string($information)) {
+        if (!\is_string($information)) {
             throw new DcGeneralInvalidArgumentException('Invalid value passed.');
         }
 
@@ -107,7 +107,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function hasInformation($information)
     {
-        return array_key_exists($this->makeName($information), $this->information);
+        return \array_key_exists($this->makeName($information), $this->information);
     }
 
     /**
@@ -123,7 +123,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function getProviderNames()
     {
-        return array_keys($this->information);
+        return \array_keys($this->information);
     }
 
     /**
@@ -139,7 +139,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function count()
     {
-        return count($this->information);
+        return \count($this->information);
     }
 
     /**

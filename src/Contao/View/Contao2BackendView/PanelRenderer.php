@@ -66,7 +66,6 @@ class PanelRenderer
      * Render a single panel element.
      *
      * @param PanelElementInterface $element  The element to render.
-     *
      * @param string                $cssClass The CSS class to use for this element (even, odd, first, last, ...).
      *
      * @return string
@@ -95,7 +94,6 @@ class PanelRenderer
      * Check if the current element is in the ignored list.
      *
      * @param PanelElementInterface $element       A panel Element.
-     *
      * @param string[]              $ignoredPanels A list with ignored elements.
      *
      * @return boolean True => Element is on the ignored list. | False => Nope not in the list.
@@ -119,7 +117,6 @@ class PanelRenderer
      * Calculate the correct CSS class for a panel element.
      *
      * @param int $index The index of the element in it's panel.
-     *
      * @param int $max   The index of the last element in the panel.
      *
      * @return string
@@ -136,16 +133,15 @@ class PanelRenderer
      * Render a panel.
      *
      * @param PanelInterface $panel         The panel to render.
-     *
      * @param string[]       $ignoredPanels Array of class names that shall be ignored.
      *
      * @return string
      */
     protected function renderPanelRow($panel, $ignoredPanels)
     {
-        $parsedElements = array();
+        $parsedElements = [];
         $index          = 0;
-        $max            = (count($panel) - 1);
+        $max            = (\count($panel) - 1);
         foreach ($panel as $element) {
             /** @var PanelElementInterface $element */
             // If the current class in the list of ignored panels go to the next one.
@@ -173,8 +169,13 @@ class PanelRenderer
      *
      * @return string
      */
-    public function render($ignoredPanels = array())
+    public function render($ignoredPanels = [])
     {
+        // If in edit/override all mode and list all properties, the panel filter isn´t in use.
+        if ('properties' === $this->getEnvironment()->getInputProvider()->getParameter('select')) {
+            return '';
+        }
+
         if ($this->view->getPanel() === null) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }
@@ -182,19 +183,19 @@ class PanelRenderer
         $environment = $this->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
 
-        $panels = array();
+        $panels = [];
         foreach ($this->view->getPanel() as $panel) {
             $panels[] = $this->renderPanelRow($panel, $ignoredPanels);
         }
 
-        if (count($panels)) {
+        if (\count($panels)) {
             $template   = new ContaoBackendViewTemplate('dcbe_general_panel');
             $themeEvent = new GetThemeEvent();
 
             $dispatcher->dispatch(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
 
             $template
-                ->set('action', ampersand($environment->getInputProvider()->getRequestUrl(), true))
+                ->set('action', \ampersand($environment->getInputProvider()->getRequestUrl(), true))
                 ->set('theme', $themeEvent->getTheme())
                 ->set('panel', $panels);
 

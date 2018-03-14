@@ -37,21 +37,21 @@ class Filter implements FilterInterface
      *
      * @var array
      */
-    private $expression = array();
+    private $expression = [];
 
     /**
      * The expression variables.
      *
      * @var array
      */
-    private $variables = array();
+    private $variables = [];
 
     /**
      * Pre-compiled expression.
      *
      * @var string
      */
-    private $compiled = null;
+    private $compiled;
 
     const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
@@ -184,8 +184,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::MODEL_IS_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::MODEL_IS_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $modelProviderName;
         $this->compiled     = null;
 
@@ -234,8 +234,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $modelProviderName;
         $this->compiled     = null;
 
@@ -284,8 +284,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::MODEL_IS_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::MODEL_IS_EXPRESSION, $index);
         $this->variables[]  = $modelId;
         $this->compiled     = null;
 
@@ -334,8 +334,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::MODEL_IS_NOT_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::MODEL_IS_NOT_EXPRESSION, $index);
         $this->variables[]  = $modelId;
         $this->compiled     = null;
 
@@ -384,8 +384,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::PARENT_IS_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::PARENT_IS_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $parentProviderName;
         $this->compiled     = null;
 
@@ -434,8 +434,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $parentProviderName;
         $this->compiled     = null;
 
@@ -527,8 +527,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::PARENT_IS_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::PARENT_IS_EXPRESSION, $index);
         $this->variables[]  = $parentModelId;
         $this->compiled     = null;
 
@@ -577,13 +577,13 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($parentModelIds as $parentModelId) {
-            $index             = count($this->variables);
-            $expression[]      = sprintf(self::PARENT_IS_EXPRESSION, $index);
+            $index             = \count($this->variables);
+            $expression[]      = \sprintf(self::PARENT_IS_EXPRESSION, $index);
             $this->variables[] = $parentModelId;
         }
-        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . \implode(' or ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -631,8 +631,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
         $this->variables[]  = $parentModelId;
         $this->compiled     = null;
 
@@ -681,13 +681,13 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($parentModelIds as $parentModelId) {
-            $index             = count($this->variables);
-            $expression[]      = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
+            $index             = \count($this->variables);
+            $expression[]      = \sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $parentModelId;
         }
-        $this->expression[] = '(' . implode(' and ', $expression) . ')';
+        $this->expression[] = '(' . \implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -735,8 +735,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::ACTION_IS_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::ACTION_IS_EXPRESSION, $index);
         $this->variables[]  = $action;
         $this->compiled     = null;
 
@@ -785,13 +785,13 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($actions as $action) {
-            $index             = count($this->variables);
-            $expression[]      = sprintf(self::ACTION_IS_EXPRESSION, $index);
+            $index             = \count($this->variables);
+            $expression[]      = \sprintf(self::ACTION_IS_EXPRESSION, $index);
             $this->variables[] = $action;
         }
-        $this->expression[] = '(' . implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . \implode(' or ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -839,8 +839,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
         $this->variables[]  = $action;
         $this->compiled     = null;
 
@@ -889,13 +889,13 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $expression = array();
+        $expression = [];
         foreach ($actions as $action) {
-            $index             = count($this->variables);
-            $expression[]      = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
+            $index             = \count($this->variables);
+            $expression[]      = \sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $action;
         }
-        $this->expression[] = '(' . implode(' and ', $expression) . ')';
+        $this->expression[] = '(' . \implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -943,8 +943,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = count($this->variables);
-        $this->expression[] = sprintf(self::SUB_FILTER, $index);
+        $index              = \count($this->variables);
+        $this->expression[] = \sprintf(self::SUB_FILTER, $index);
         $this->variables[]  = $filter;
         $this->compiled     = null;
 
@@ -962,11 +962,11 @@ EXPR;
         if (null === $this->compiled) {
             $language       = new ExpressionLanguage();
             $expression     = $this->getExpression();
-            $this->compiled = sprintf(
+            $this->compiled = \sprintf(
                 'return %s;',
                 $language->compile(
                     $expression,
-                    array('item', 'variables')
+                    ['item', 'variables']
                 )
             );
         }
@@ -986,7 +986,7 @@ EXPR;
      */
     public function getExpression()
     {
-        return $this->expression ? implode(' ', $this->expression) : 'true';
+        return $this->expression ? \implode(' ', $this->expression) : 'true';
     }
 
     /**

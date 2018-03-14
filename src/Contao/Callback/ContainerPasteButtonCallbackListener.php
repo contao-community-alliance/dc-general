@@ -40,7 +40,7 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             new DcCompat($event->getEnvironment(), $event->getModel()),
             $event->getModel()->getPropertiesAsArray(),
             $event->getEnvironment()->getDataDefinition()->getName(),
@@ -48,14 +48,13 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
             $event->getContainedModels(),
             $event->getPrevious() ? $event->getPrevious()->getId() : null,
             $event->getNext() ? $event->getNext()->getId() : null
-        );
+        ];
     }
 
     /**
      * Set the HTML code for the button.
      *
      * @param GetPasteButtonEvent $event The event being emitted.
-     *
      * @param string              $value The value returned by the callback.
      *
      * @return void

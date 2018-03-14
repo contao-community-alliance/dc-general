@@ -35,13 +35,12 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      *
      * @var null|string
      */
-    protected $operationName = null;
+    protected $operationName;
 
     /**
      * Set the restrictions for this callback.
      *
      * @param null|string $dataContainerName The name of the data container to limit execution on.
-     *
      * @param null|string $operationName     The name of the operation button to limit execution on.
      *
      * @return void
@@ -76,7 +75,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getHref(),
             $event->getLabel(),
             $event->getTitle(),
@@ -84,14 +83,13 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
             $event->getAttributes(),
             $event->getEnvironment()->getDataDefinition()->getName(),
             $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries()
-        );
+        ];
     }
 
     /**
      * Update the event with the information returned by the callback.
      *
      * @param GetGlobalButtonEvent $event The event being emitted.
-     *
      * @param string               $value The HTML representation of the button.
      *
      * @return void

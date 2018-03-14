@@ -30,7 +30,7 @@ class DefaultLanguageInformationCollection implements LanguageInformationCollect
      *
      * @var LanguageInformationInterface[]
      */
-    protected $languages = array();
+    protected $languages = [];
 
     /**
      * {@inheritDoc}
@@ -59,6 +59,6 @@ class DefaultLanguageInformationCollection implements LanguageInformationCollect
      */
     public function count()
     {
-        return count($this->languages);
+        return \count($this->languages);
     }
 }

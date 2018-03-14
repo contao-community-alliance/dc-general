@@ -31,7 +31,7 @@ class FormatModelLabelEvent extends AbstractModelAwareEvent
      *
      * @var array
      */
-    protected $label = null;
+    protected $label;
 
     /**
      * Returns the model label.

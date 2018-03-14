@@ -98,7 +98,6 @@ interface LegendInterface
      * Add all properties to this legend.
      *
      * @param array|PropertyInterface[] $properties The properties.
-     *
      * @param PropertyInterface         $before     The property before the passed properties shall be inserted
      *                                              (optional).
      *
@@ -110,7 +109,6 @@ interface LegendInterface
      * Add a property to this legend.
      *
      * @param PropertyInterface $property The property.
-     *
      * @param PropertyInterface $before   The property before the passed property shall be inserted (optional).
      *
      * @return LegendInterface
@@ -132,7 +130,6 @@ interface LegendInterface
      * @param ModelInterface|null $model If given, subpalettes will be evaluated depending on the model.
      *                                   If no model is given, all properties will be returned, including subpalette
      *                                   properties.
-     *
      * @param PropertyValueBag    $input If given, subpalettes will be evaluated depending on the input data.
      *                                   If no model and no input data is given, all properties will be returned,
      *                                   including subpalette properties.

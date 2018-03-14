@@ -26,11 +26,13 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -114,6 +116,10 @@ class EditHandler
         $clone = clone $model;
         $clone->setId($model->getId());
 
+        if ('select' !== $inputProvider->getParameter('act')) {
+            $this->handleGlobalCommands($environment);
+        }
+
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
 
         return $editMask->execute();
@@ -141,7 +147,7 @@ class EditHandler
         $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
         $event->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for edit model %s.
                 </div>',
@@ -183,7 +189,7 @@ class EditHandler
             $model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
 
             if ($model === null) {
-                $message = sprintf(
+                $message = \sprintf(
                     'Could not load version %s of record ID %s from %s',
                     $modelVersion,
                     $modelId->getId(),
@@ -202,5 +208,25 @@ class EditHandler
             $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
             $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
         }
+    }
+
+    /**
+     * Handle the globals commands
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return void
+     */
+    protected function handleGlobalCommands(EnvironmentInterface $environment)
+    {
+        $dataDefinition = $environment->getDataDefinition();
+        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $globalCommands = $backendView->getGlobalCommands();
+
+        $globalCommands->clearCommands();
+
+        $backCommand = new BackCommand();
+        $backCommand->setDisabled(false);
+        $globalCommands->addCommand($backCommand);
     }
 }

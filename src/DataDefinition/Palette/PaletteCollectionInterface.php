@@ -92,7 +92,6 @@ interface PaletteCollectionInterface
      * Find the palette matching model and input parameters.
      *
      * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     *
      * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PaletteInterface

@@ -53,7 +53,6 @@ class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
      * Create a new instance.
      *
      * @param EnvironmentInterface  $environment The environment to attach.
-     *
      * @param PanelElementInterface $element     The element for which a template shall get retrieved for.
      */
     public function __construct(EnvironmentInterface $environment, PanelElementInterface $element)

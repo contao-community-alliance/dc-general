@@ -37,13 +37,12 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      *
      * @var null|string
      */
-    protected $operationName = null;
+    protected $operationName;
 
     /**
      * Set the restrictions for this callback.
      *
      * @param null|string $dataContainerName The name of the data container to limit execution on.
-     *
      * @param null|string $operationName     The name of the operation button to limit execution on.
      *
      * @return void
@@ -80,7 +79,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     {
         $extra = $event->getCommand()->getExtra();
 
-        return array(
+        return [
             $event->getModel()->getPropertiesAsArray(),
             $this->buildHref($event->getCommand()),
             $event->getLabel(),
@@ -93,14 +92,13 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
             $event->isCircularReference(),
             $event->getPrevious() ? $event->getPrevious()->getId() : null,
             $event->getNext() ? $event->getNext()->getId() : null
-        );
+        ];
     }
 
     /**
      * Set the value in the event.
      *
      * @param GetOperationButtonEvent $event The event being emitted.
-     *
      * @param string                  $value The value returned by the callback.
      *
      * @return void
@@ -128,7 +126,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
         $strHref       = '';
 
         foreach ($arrParameters as $key => $value) {
-            $strHref .= sprintf('&%s=%s', $key, $value);
+            $strHref .= \sprintf('&%s=%s', $key, $value);
         }
 
         return $strHref;

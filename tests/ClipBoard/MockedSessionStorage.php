@@ -63,7 +63,6 @@ class MockedSessionStorage implements SessionStorageInterface
      * Sets an attribute.
      *
      * @param string $name  The attribute name.
-     *
      * @param mixed  $value The attribute value.
      *
      * @return MockedSessionStorage
@@ -122,7 +121,7 @@ class MockedSessionStorage implements SessionStorageInterface
      */
     public function clear()
     {
-        $this->values = array();
+        $this->values = [];
 
         return $this;
     }

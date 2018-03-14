@@ -61,15 +61,15 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @throws DcGeneralInvalidArgumentException When invalid children have been passed.
      */
-    public function __construct($children = array())
+    public function __construct($children = [])
     {
-        if (!is_array($children)) {
+        if (!\is_array($children)) {
             throw new DcGeneralInvalidArgumentException(
-                __CLASS__ . ' needs a valid child filter array ' . gettype($children) . 'given'
+                __CLASS__ . ' needs a valid child filter array ' . \gettype($children) . 'given'
             );
         }
 
-        $this->children = array();
+        $this->children = [];
 
         foreach ($children as $child) {
             $this->add($child);
@@ -83,7 +83,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
     public function __clone()
     {
         $children       = $this->children;
-        $this->children = array();
+        $this->children = [];
         foreach ($children as $child) {
             $bobaFett = clone $child;
             $bobaFett->setParent($this);
@@ -139,7 +139,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function valid()
     {
-        return ($this->index > -1) && ($this->index < count($this->children));
+        return ($this->index > -1) && ($this->index < \count($this->children));
     }
 
     /**
@@ -161,7 +161,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function first()
     {
-        $this->index = count($this->children) ? 0 : (-1);
+        $this->index = \count($this->children) ? 0 : (-1);
 
         if ($this->index === -1) {
             return null;
@@ -198,7 +198,6 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      * Set the element at a certain offset.
      *
      * @param mixed $offset The offset to assign the value to.
-     *
      * @param mixed $value  The value to set.
      *
      * @return FilterBuilderWithChildren The current builder.
@@ -299,14 +298,13 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      * Initialize an instance with the values from the given array.
      *
      * @param array         $array   The initialization array.
-     *
      * @param FilterBuilder $builder The builder instance.
      *
      * @return BaseFilterBuilder
      */
     public static function fromArray($array, $builder)
     {
-        $children = array();
+        $children = [];
         foreach ($array['children'] as $child) {
             $children[] = FilterBuilder::getBuilderFromArray($child, $builder);
         }
@@ -322,16 +320,16 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function get()
     {
-        $children = array();
+        $children = [];
         foreach ($this->children as $child) {
             /** @var BaseFilterBuilder $child */
             $children[] = $child->get();
         }
 
-        return array(
+        return [
             'operation' => $this->operation,
             'children'  => $children
-        );
+        ];
     }
 
     /**

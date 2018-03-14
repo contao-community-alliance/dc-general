@@ -42,7 +42,6 @@ class CreatePropertyConditionChainEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param PropertyConditionChain $conditionChain The property condition chain that has been created.
-     *
      * @param PaletteBuilder         $paletteBuilder The palette builder in use.
      */
     public function __construct(PropertyConditionChain $conditionChain, PaletteBuilder $paletteBuilder)

@@ -22,6 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\Definition;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
@@ -40,9 +41,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
     public function testSetGetRootCondition()
     {
         $definition = new DefaultModelRelationshipDefinition();
-        $root       = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface'
-        );
+        $root       = $this->getMockForAbstractClass(RootConditionInterface::class);
 
         $this->assertSame($definition, $definition->setRootCondition($root));
         $this->assertSame($root, $definition->getRootCondition());
@@ -151,7 +150,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         $definition = new DefaultModelRelationshipDefinition();
         $condition  = $this->mockChildCondition('parent', 'child');
         $root       = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface'
+            RootConditionInterface::class
         );
 
         $definition->addChildCondition($condition);
@@ -160,14 +159,11 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         $definition2 = clone $definition;
 
         $this->assertNotSame($root, $definition2->getRootCondition());
-        $this->assertInstanceOf(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface',
-            $definition2->getRootCondition()
-        );
+        $this->assertInstanceOf(RootConditionInterface::class, $definition2->getRootCondition());
 
         $this->assertNotSame($condition, $definition2->getChildCondition('parent', 'child'));
         $this->assertInstanceOf(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface',
+            ParentChildConditionInterface::class,
             $definition2->getChildCondition('parent', 'child')
         );
     }
@@ -182,9 +178,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
      */
     private function mockChildCondition($source, $destination)
     {
-        $condition = $this->getMockForAbstractClass(
-            'ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface'
-        );
+        $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
         $condition->method('getSourceName')->willReturn($source);
         $condition->method('getDestinationName')->willReturn($destination);
 

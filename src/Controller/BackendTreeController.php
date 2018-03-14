@@ -27,6 +27,7 @@ use Contao\Config;
 use Contao\CoreBundle\Picker\PickerInterface;
 use Contao\Environment;
 use Contao\StringUtil;
+use Contao\Validator;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
@@ -142,7 +143,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', ampersand($request->getUri()))
+            ->set('action', \ampersand($request->getUri()))
             ->set('value', $sessionBag->get($treeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
             ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb']);
@@ -187,7 +188,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             #->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', ampersand($request->getUri()))
+            ->set('action', \ampersand($request->getUri()))
             #->set('value', $sessionBag->get($treeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager']);
             #->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb']);
@@ -254,7 +255,7 @@ class BackendTreeController implements ContainerAwareInterface
         //$treeSelector->value = explode(',', $request->request->get('value'));
 
         $sessionBag = $this->container->get('session')->getBag('contao_backend');
-        $sessionBag->set($treeSelector->getSearchSessionKey(), explode(',', $request->request->get('value')));
+        $sessionBag->set($treeSelector->getSearchSessionKey(), \explode(',', $request->request->get('value')));
 
         $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
@@ -269,7 +270,7 @@ class BackendTreeController implements ContainerAwareInterface
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         $model->setProperty(
             $picker->getConfig()->getExtra('propertyName'),
-            explode(',', $request->request->get('value'))
+            \explode(',', $request->request->get('value'))
         );
 
         $widgetManager = new ContaoWidgetManager($general->getEnvironment(), $model);
@@ -295,18 +296,18 @@ class BackendTreeController implements ContainerAwareInterface
     {
         $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
-        if (\Validator::isInsecurePath($table = $modelId->getDataProviderName())) {
+        if (Validator::isInsecurePath($table = $modelId->getDataProviderName())) {
             throw new \InvalidArgumentException('The table name contains invalid characters');
         }
 
-        if (\Validator::isInsecurePath($field = $picker->getConfig()->getExtra('propertyName'))) {
+        if (Validator::isInsecurePath($field = $picker->getConfig()->getExtra('propertyName'))) {
             throw new \InvalidArgumentException('The field name contains invalid characters');
         }
 
         $sessionBag = $this->container->get('session')->getBag('contao_backend');
         // Define the current ID.
         // FIXME: this is really bad!
-        define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
+        \define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
 
         $factory             = new DcGeneralFactory();
         $this->itemContainer = $factory
@@ -333,7 +334,7 @@ class BackendTreeController implements ContainerAwareInterface
             Widget::getAttributesFromDca(
                 $information,
                 $field,
-                array_filter(explode(',', $picker->getConfig()->getValue())),
+                \array_filter(\explode(',', $picker->getConfig()->getValue())),
                 $field,
                 $table,
                 new DcCompat($this->itemContainer->getEnvironment())

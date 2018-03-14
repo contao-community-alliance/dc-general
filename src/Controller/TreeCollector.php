@@ -21,14 +21,14 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
-use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
@@ -70,11 +70,8 @@ class TreeCollector implements EnvironmentAwareInterface
      * Create a new instance.
      *
      * @param EnvironmentInterface    $environment The environment.
-     *
      * @param PanelContainerInterface $panel       The panel.
-     *
      * @param array                   $sorting     The sorting information.
-     *
      * @param TreeNodeStates          $states      The tree node states to use.
      */
     public function __construct(
@@ -123,7 +120,6 @@ class TreeCollector implements EnvironmentAwareInterface
      * Check the state of a model and set the metadata accordingly.
      *
      * @param ModelInterface $model The model of which the state shall be checked of.
-     *
      * @param int            $level The tree level the model is contained within.
      *
      * @return void
@@ -141,7 +137,6 @@ class TreeCollector implements EnvironmentAwareInterface
      * Retrieve the child data provider names for the passed parent provider.
      *
      * @param string                                    $parentProvider The name of the parent provider.
-     *
      * @param null|ModelRelationshipDefinitionInterface $relationships  The relationship information (optional).
      *
      * @return array
@@ -152,7 +147,7 @@ class TreeCollector implements EnvironmentAwareInterface
             $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
         }
 
-        $mySubTables = array();
+        $mySubTables = [];
         foreach ($relationships->getChildConditions($parentProvider) as $condition) {
             $mySubTables[] = $condition->getDestinationName();
         }
@@ -164,9 +159,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * Retrieve the children of a model (if any exist).
      *
      * @param DataProviderInterface         $dataProvider   The data provider.
-     *
      * @param ModelInterface                $model          The model.
-     *
      * @param ParentChildConditionInterface $childCondition The condition.
      *
      * @return CollectionInterface|null
@@ -188,7 +181,7 @@ class TreeCollector implements EnvironmentAwareInterface
         return $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                ->setSorting(array('sorting' => 'ASC'))
+                ->setSorting(['sorting' => 'ASC'])
                 ->setFilter(
                     FilterBuilder::fromArray()
                         ->getFilter()
@@ -202,14 +195,12 @@ class TreeCollector implements EnvironmentAwareInterface
      * This "renders" a model for tree view.
      *
      * @param ModelInterface $model     The model to render.
-     *
      * @param int            $intLevel  The current level in the tree hierarchy.
-     *
      * @param array          $subTables The names of data providers that shall be rendered "below" this item.
      *
      * @return void
      */
-    private function treeWalkModel(ModelInterface $model, $intLevel, $subTables = array())
+    private function treeWalkModel(ModelInterface $model, $intLevel, $subTables = [])
     {
         $environment   = $this->getEnvironment();
         $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
@@ -219,7 +210,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
         $providerName     = $model->getProviderName();
         $mySubTables      = $this->getChildProvidersOf($providerName, $relationships);
-        $childCollections = array();
+        $childCollections = [];
         foreach ($subTables as $subTable) {
             // Evaluate the child filter for this item.
             $childFilter = $relationships->getChildCondition($providerName, $subTable);
@@ -231,7 +222,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
             $dataProvider    = $environment->getDataProvider($subTable);
             $childCollection = $this->getChildrenOfModel($dataProvider, $model, $childFilter);
-            $hasChildren     = !!$childCollection;
+            $hasChildren     = (bool) $childCollection;
 
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
             if ($hasChildren && !$model->getMeta($model::SHOW_CHILDREN)) {
@@ -249,7 +240,7 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // If expanded, store children.
-        if ($model->getMeta($model::SHOW_CHILDREN) && count($childCollections) != 0) {
+        if ($model->getMeta($model::SHOW_CHILDREN) && \count($childCollections) != 0) {
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
@@ -260,7 +251,6 @@ class TreeCollector implements EnvironmentAwareInterface
      * Add the parent filtering to the given data config if any defined.
      *
      * @param ConfigInterface $config      The data config.
-     *
      * @param ModelInterface  $parentModel The parent model.
      *
      * @return void
@@ -280,7 +270,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
         if ($basicDefinition->getParentDataProvider() !== $parentModel->getProviderName()) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Parent provider mismatch: %s vs. %s',
                     $basicDefinition->getParentDataProvider(),
                     $parentModel->getProviderName()
@@ -297,7 +287,7 @@ class TreeCollector implements EnvironmentAwareInterface
             $filter     = $parentCondition->getFilter($parentModel);
 
             if ($baseFilter) {
-                $filter = array_merge($baseFilter, $filter);
+                $filter = \array_merge($baseFilter, $filter);
             }
 
             $config->setFilter($filter);
@@ -325,9 +315,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * Recursively retrieve a collection of all complete node hierarchy.
      *
      * @param array  $rootId       The ids of the root node.
-     *
      * @param int    $level        The level the items are residing on.
-     *
      * @param string $providerName The data provider from which the root element originates from.
      *
      * @return CollectionInterface
@@ -352,9 +340,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * Collect all items from real root - without root id.
      *
      * @param string         $providerName The data provider from which the root element originates from.
-     *
      * @param int            $level        The level in the tree.
-     *
      * @param ModelInterface $parentModel  The optional parent model (mode 4 parent).
      *
      * @return CollectionInterface
@@ -370,7 +356,7 @@ class TreeCollector implements EnvironmentAwareInterface
             $filter     = $rootCondition->getFilterArray();
 
             if ($baseFilter) {
-                $filter = array_merge($baseFilter, $filter);
+                $filter = \array_merge($baseFilter, $filter);
             }
 
             $rootConfig->setFilter($filter);

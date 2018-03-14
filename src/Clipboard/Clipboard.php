@@ -39,14 +39,14 @@ class Clipboard implements ClipboardInterface
      *
      * @var ItemInterface[]
      */
-    private $items = array();
+    private $items = [];
 
     /**
      * The item collection (indexed by model ids).
      *
      * @var ItemInterface[]
      */
-    private $itemsByModelId = array();
+    private $itemsByModelId = [];
 
     /**
      * {@inheritDoc}
@@ -56,7 +56,7 @@ class Clipboard implements ClipboardInterface
         $data = $objEnvironment->getSessionStorage()->get('CLIPBOARD');
 
         if ($data) {
-            $this->items = unserialize(base64_decode($data));
+            $this->items = \unserialize(\base64_decode($data));
             foreach ($this->items as $item) {
                 if ($modelId = $item->getModelId()) {
                     $this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()] = $item;
@@ -72,7 +72,7 @@ class Clipboard implements ClipboardInterface
      */
     public function saveTo($objEnvironment)
     {
-        $data = base64_encode(serialize($this->items));
+        $data = \base64_encode(\serialize($this->items));
         $objEnvironment->getSessionStorage()->set('CLIPBOARD', $data);
 
         return $this;
@@ -171,7 +171,7 @@ class Clipboard implements ClipboardInterface
      */
     public function fetch(FilterInterface $filter)
     {
-        $items = array();
+        $items = [];
 
         foreach ($this->items as $item) {
             if ($filter->accepts($item)) {
@@ -209,7 +209,7 @@ class Clipboard implements ClipboardInterface
      */
     public function clear()
     {
-        $this->items = array();
+        $this->items = [];
 
         return $this;
     }

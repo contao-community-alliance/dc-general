@@ -20,27 +20,28 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Callback;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
+use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 class AbstractCallbackListenerTest extends TestCase
 {
     protected function getCallback($value)
     {
-        return function () use($value) {
+        return function () use ($value) {
             throw new \Exception('The callback should not be executed as it is only mocked');
         };
     }
 
     public function abstractCallbackDataProvider()
     {
-        return array(
-            array(
-                'ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener',
-                'ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent'
-            ),
-        );
+        return [[
+                AbstractCallbackListener::class,
+                AbstractEnvironmentAwareEvent::class
+            ],
+        ];
     }
 
     protected function mockEnvironment($dataContainerName)
@@ -53,13 +54,7 @@ class AbstractCallbackListenerTest extends TestCase
 
     protected function mockEnvironmentEvent($class, $tablename)
     {
-        $event = $this->getMock(
-            $class,
-            array('getEnvironment'),
-            array(),
-            '',
-            false
-        );
+        $event = $this->getMock($class, ['getEnvironment'], [], '', false);
 
         $event
             ->expects($this->any())
@@ -74,14 +69,14 @@ class AbstractCallbackListenerTest extends TestCase
      */
     public function testExecution($listenerClass, $eventClass)
     {
-        $listener = $this->getMock($listenerClass, array('getArgs'), array($this->getCallback($listenerClass)));
+        $listener = $this->getMock($listenerClass, ['getArgs'], [$this->getCallback($listenerClass)]);
 
         $this->assertTrue(
             $listener->wantToExecute($this->mockEnvironmentEvent($eventClass, 'tablename')),
             $listenerClass
         );
 
-        $listener = $this->getMock($listenerClass, array('getArgs'), array($this->getCallback($listenerClass), array('tablename')));
+        $listener = $this->getMock($listenerClass, ['getArgs'], [$this->getCallback($listenerClass), ['tablename']]);
 
         $this->assertTrue(
             $listener->wantToExecute($this->mockEnvironmentEvent($eventClass, 'tablename')),

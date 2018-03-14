@@ -123,7 +123,6 @@ interface ListingConfigInterface
      * Set the label formatter.
      *
      * @param string                        $providerName The name of the data provider.
-     *
      * @param ModelFormatterConfigInterface $value        The model formatter to use.
      *
      * @return ListingConfigInterface

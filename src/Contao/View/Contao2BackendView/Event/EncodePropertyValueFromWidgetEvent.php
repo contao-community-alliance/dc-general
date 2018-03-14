@@ -61,9 +61,7 @@ class EncodePropertyValueFromWidgetEvent extends AbstractModelAwareEvent
      * Create a new model aware event.
      *
      * @param EnvironmentInterface      $environment    The environment.
-     *
      * @param ModelInterface            $model          The model attached to the event.
-     *
      * @param PropertyValueBagInterface $propertyValues The property value bag the property value originates from.
      */
     public function __construct(

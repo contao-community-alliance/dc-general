@@ -46,7 +46,6 @@ interface ViewTemplateInterface
      * Add the value to the template.
      *
      * @param string $name  Name of the value.
-     *
      * @param mixed  $value The value to add to the template.
      *
      * @return ViewTemplateInterface

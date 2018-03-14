@@ -23,6 +23,9 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\BackendTemplate;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
+use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
+use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
@@ -93,7 +96,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritdoc}
      */
-    public function translate($string, $domain = null, array $parameters = array(), $locale = null)
+    public function translate($string, $domain = null, array $parameters = [], $locale = null)
     {
         if ($this->translator) {
             return $this->translator->translate($string, $domain, $parameters, $locale);
@@ -105,12 +108,37 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritdoc}
      */
-    public function translatePluralized($string, $number, $domain = null, array $parameters = array(), $locale = null)
+    public function translatePluralized($string, $number, $domain = null, array $parameters = [], $locale = null)
     {
         if ($this->translator) {
             return $this->translator->translatePluralized($string, $number, $domain, $parameters, $locale);
         }
 
         return $string;
+    }
+
+    /**
+     * Get the back button.
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    public function getBackButton()
+    {
+        $container = $GLOBALS['container'];
+
+        $dataContainer  = $container['dc-general.data-definition-container'];
+        $dataDefinition = $dataContainer->getDefinition($this->table);
+
+        $environment = new DefaultEnvironment();
+        $environment->setDataDefinition($dataDefinition);
+        $environment->setTranslator($container['translator']);
+        $environment->setEventDispatcher($container['event-dispatcher']);
+        $environment->setInputProvider(new InputProvider());
+        $environment->setClipboard(new Clipboard());
+
+        $renderer = new GlobalButtonRenderer($environment);
+        return $renderer->render();
     }
 }

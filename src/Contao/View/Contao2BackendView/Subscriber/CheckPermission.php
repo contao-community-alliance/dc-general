@@ -57,14 +57,14 @@ class CheckPermission implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            BuildDataDefinitionEvent::NAME => array(
-                array('checkPermissionForProperties'),
-                array('checkPermissionIsCreatable', -1),
-                array('checkPermissionIsEditable', -1),
-                array('checkPermissionIsDeletable', -1)
-            )
-        );
+        return [
+            BuildDataDefinitionEvent::NAME => [
+                ['checkPermissionForProperties'],
+                ['checkPermissionIsCreatable', -1],
+                ['checkPermissionIsEditable', -1],
+                ['checkPermissionIsDeletable', -1]
+            ]
+        ];
     }
 
     /**
@@ -88,14 +88,16 @@ class CheckPermission implements EventSubscriberInterface
         foreach ($palettes as $palette) {
             foreach ($palette->getProperties() as $property) {
                 if (!$properties->hasProperty($name = $property->getName())) {
-                    trigger_error(
-                        sprintf(
+                    // @codingStandardsIgnoreStart
+                    @\trigger_error(
+                        \sprintf(
                             'Warning: unknown property "%s" in palette: %s',
                             $name,
                             $palette->getName()
                         ),
                         E_USER_WARNING
                     );
+                    // @codingStandardsIgnoreEnd
                     continue;
                 }
 
@@ -213,7 +215,6 @@ class CheckPermission implements EventSubscriberInterface
      * Disable command by action name.
      *
      * @param CommandCollectionInterface $commands   The commands collection.
-     *
      * @param string                     $actionName The action name.
      *
      * @return void
@@ -225,7 +226,7 @@ class CheckPermission implements EventSubscriberInterface
 
             $disableCommand = false;
 
-            if (array_key_exists('act', $parameters)
+            if (\array_key_exists('act', $parameters)
                 && $parameters['act'] === $actionName
             ) {
                 $disableCommand = true;

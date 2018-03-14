@@ -2,6 +2,8 @@ services:
     cca.dc-general.general_subsriber.fallback_reset_subscriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FallbackResetSubscriber
         public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
         tags:
             - { name: kernel.event_subscriber }
     cca.dc-general.general_subsriber.dynamic_parent_table_subscriber:

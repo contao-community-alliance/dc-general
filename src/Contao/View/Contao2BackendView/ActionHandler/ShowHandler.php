@@ -32,9 +32,9 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -93,9 +93,8 @@ class ShowHandler
         $environment->getEventDispatcher()->dispatch(
             ContaoEvents::SYSTEM_LOG,
             new LogEvent(
-                sprintf(
-                    'Could not find ID %s in %s.',
-                    'DC_General show()',
+                \sprintf(
+                    'Could not find ID %s in %s. DC_General show()',
                     $modelId->getId(),
                     $definition->getName()
                 ),
@@ -130,7 +129,7 @@ class ShowHandler
             $label = $environment->getTranslator()->translate('MSC.' . $property->getName());
         }
 
-        if (is_array($label)) {
+        if (\is_array($label)) {
             $label = $label[0];
         }
 
@@ -145,7 +144,6 @@ class ShowHandler
      * Convert a model to it's labels and human readable values.
      *
      * @param ModelInterface       $model       The model to display.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return array
@@ -157,8 +155,8 @@ class ShowHandler
         $definition = $environment->getDataDefinition();
         $properties = $definition->getPropertiesDefinition();
         $palette    = $definition->getPalettesDefinition()->findPalette($model);
-        $values     = array();
-        $labels     = array();
+        $values     = [];
+        $labels     = [];
         // Show only allowed fields.
         foreach ($palette->getVisibleProperties($model) as $paletteProperty) {
             $property = $properties->getProperty($paletteProperty->getName());
@@ -177,10 +175,10 @@ class ShowHandler
             $labels[$paletteProperty->getName()] = $this->getPropertyLabel($environment, $property);
         }
 
-        return array(
+        return [
             'labels' => $labels,
             'values' => $values
-        );
+        ];
     }
 
     /**
@@ -196,7 +194,7 @@ class ShowHandler
         $headline = $translator->translate(
             'MSC.showRecord',
             $model->getProviderName(),
-            array('ID ' . $model->getId())
+            ['ID ' . $model->getId()]
         );
 
         if ($headline !== 'MSC.showRecord') {
@@ -206,7 +204,7 @@ class ShowHandler
         return $translator->translate(
             'MSC.showRecord',
             null,
-            array('ID ' . $model->getId())
+            ['ID ' . $model->getId()]
         );
     }
 

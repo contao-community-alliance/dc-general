@@ -23,8 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
@@ -274,7 +274,7 @@ class DefaultEnvironment implements EnvironmentInterface
             $strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
         }
 
-        return (isset($this->arrDataProvider[$strSource]));
+        return isset($this->arrDataProvider[$strSource]);
     }
 
     /**
@@ -292,7 +292,7 @@ class DefaultEnvironment implements EnvironmentInterface
             return $this->arrDataProvider[$strSource];
         }
 
-        throw new DcGeneralRuntimeException(sprintf('Data provider %s not defined', $strSource));
+        throw new DcGeneralRuntimeException(\sprintf('Data provider %s not defined', $strSource));
     }
 
     /**

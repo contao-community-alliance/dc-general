@@ -38,21 +38,21 @@ class DefaultModel extends AbstractModel
      *
      * @var array
      */
-    protected $arrProperties = array();
+    protected $arrProperties = [];
 
     /**
      * The Id of this model.
      *
      * @var mixed
      */
-    protected $mixID = null;
+    protected $mixID;
 
     /**
      * The name of the corresponding data provider.
      *
      * @var string
      */
-    protected $strProviderName = null;
+    protected $strProviderName;
 
     /**
      * Copy this model, without the id.
@@ -89,7 +89,7 @@ class DefaultModel extends AbstractModel
             return $this->getID();
         }
 
-        if (array_key_exists($strPropertyName, $this->arrProperties)) {
+        if (\array_key_exists($strPropertyName, $this->arrProperties)) {
             return $this->arrProperties[$strPropertyName];
         }
 
@@ -148,7 +148,6 @@ class DefaultModel extends AbstractModel
      * This method is not interfaced and MUST only be used for initial values from the data provider.
      *
      * @param string $strPropertyName The property name to be set.
-     *
      * @param mixed  $varValue        The value to be set.
      *
      * @return void
@@ -162,7 +161,6 @@ class DefaultModel extends AbstractModel
      * Update the property value in the model.
      *
      * @param string $strPropertyName The property name to be set.
-     *
      * @param mixed  $varValue        The value to be set.
      *
      * @return void
@@ -184,8 +182,8 @@ class DefaultModel extends AbstractModel
      */
     public function setPropertiesAsArray($arrProperties)
     {
-        if (is_array($arrProperties)) {
-            if (array_key_exists('id', $arrProperties)) {
+        if (\is_array($arrProperties)) {
+            if (\array_key_exists('id', $arrProperties)) {
                 unset($arrProperties['id']);
             }
 
@@ -202,11 +200,7 @@ class DefaultModel extends AbstractModel
      */
     public function hasProperties()
     {
-        if (count($this->arrProperties) != 0) {
-            return true;
-        }
-
-        return false;
+        return \count($this->arrProperties) != 0;
     }
 
     /**
@@ -253,7 +247,7 @@ class DefaultModel extends AbstractModel
      */
     public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag)
     {
-        foreach (array_keys($this->arrProperties) as $name) {
+        foreach (\array_keys($this->arrProperties) as $name) {
             if (!$valueBag->hasPropertyValue($name)) {
                 continue;
             }
@@ -273,7 +267,7 @@ class DefaultModel extends AbstractModel
      */
     public function writeToPropertyValueBag(PropertyValueBagInterface $valueBag)
     {
-        foreach (array_keys($this->arrProperties) as $name) {
+        foreach (\array_keys($this->arrProperties) as $name) {
             if (!$valueBag->hasPropertyValue($name)) {
                 continue;
             }

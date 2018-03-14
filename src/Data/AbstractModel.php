@@ -33,7 +33,7 @@ abstract class AbstractModel implements ModelInterface
      *
      * @var array
      */
-    protected $arrMetaInformation = array();
+    protected $arrMetaInformation = [];
 
     /**
      * {@inheritdoc}

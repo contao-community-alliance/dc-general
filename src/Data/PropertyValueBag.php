@@ -36,14 +36,14 @@ class PropertyValueBag implements PropertyValueBagInterface
      *
      * @var array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * All properties that are marked as invalid and their error messages.
      *
      * @var array
      */
-    protected $errors = array();
+    protected $errors = [];
 
     /**
      * Create a new instance of a property bag.
@@ -54,7 +54,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function __construct($properties = null)
     {
-        if (is_array($properties) || $properties instanceof \Traversable) {
+        if (\is_array($properties) || $properties instanceof \Traversable) {
             foreach ($properties as $property => $value) {
                 $this->setPropertyValue($property, $value);
             }
@@ -88,7 +88,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function hasPropertyValue($property)
     {
-        return array_key_exists($property, $this->properties);
+        return \array_key_exists($property, $this->properties);
     }
 
     /**
@@ -164,8 +164,8 @@ class PropertyValueBag implements PropertyValueBagInterface
     {
         $this->requirePropertyValue($property);
 
-        if (!isset($this->errors[$property]) || !$append) {
-            $this->errors[$property] = array();
+        if (!$append || !isset($this->errors[$property])) {
+            $this->errors[$property] = [];
         }
 
         foreach ((array) $error as $singleError) {
@@ -191,7 +191,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function getInvalidPropertyNames()
     {
-        return array_keys($this->errors);
+        return \array_keys($this->errors);
     }
 
     /**
@@ -224,7 +224,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      */
     public function count()
     {
-        return count($this->properties);
+        return \count($this->properties);
     }
 
     /**

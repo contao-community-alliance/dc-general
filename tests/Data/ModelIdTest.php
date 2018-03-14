@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Data;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * This class tests the ModelId class.
@@ -33,16 +35,15 @@ class ModelIdTest extends TestCase
      * Mock a model instance which will return the given values.
      *
      * @param mixed $modelId      The value to use as model id.
-     *
      * @param mixed $dataProvider The value to use as data provider.
      *
-     * @return ModelInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject|ModelInterface
      */
     private function mockModel($modelId, $dataProvider)
     {
         $mock = $this
-            ->getMockBuilder('ContaoCommunityAlliance\DcGeneral\Data\ModelInterface')
-            ->setMethods(array('getId', 'getProviderName'))
+            ->getMockBuilder(ModelInterface::class)
+            ->setMethods(['getId', 'getProviderName'])
             ->getMockForAbstractClass();
         $mock
             ->expects($this->any())
@@ -63,22 +64,21 @@ class ModelIdTest extends TestCase
      */
     public function modelProvider()
     {
-        $exception = '\ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException';
-        return array(
-            array($this->mockModel(10, 'tl_page')),
-            array($this->mockModel(null, 'tl_page'), $exception),
-            array($this->mockModel(null, null), $exception),
-            array($this->mockModel(10, null), $exception),
-            array($this->mockModel(10, ''), $exception),
-            array($this->mockModel(10, 0), $exception),
-        );
+        $exception = DcGeneralInvalidArgumentException::class;
+        return [
+            [$this->mockModel(10, 'tl_page')],
+            [$this->mockModel(null, 'tl_page'), $exception],
+            [$this->mockModel(null, null), $exception],
+            [$this->mockModel(10, null), $exception],
+            [$this->mockModel(10, ''), $exception],
+            [$this->mockModel(10, 0), $exception],
+        ];
     }
 
     /**
      * Test that the ModelId class can not be instantiated with invalid values.
      *
      * @param ModelInterface $model     The model to instantiate from.
-     *
      * @param string|null    $exception The name of the expected exception class.
      *
      * @dataProvider modelProvider
@@ -104,20 +104,19 @@ class ModelIdTest extends TestCase
      */
     public function idProvider()
     {
-        $exception = '\ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException';
-        return array(
-            array('tl_page::1'),
-            array('tl_page:1', $exception),
-            array(':1', $exception),
-            array('1', $exception),
-        );
+        $exception = DcGeneralRuntimeException::class;
+        return [
+            ['tl_page::1'],
+            ['tl_page:1', $exception],
+            [':1', $exception],
+            ['1', $exception],
+        ];
     }
 
     /**
      * Test valid model ids.
      *
      * @param string      $testId    The id to test.
-     *
      * @param string|null $exception The name of the expected exception class.
      *
      * @dataProvider idProvider

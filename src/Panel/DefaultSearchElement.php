@@ -58,30 +58,29 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     protected function getPersistent()
     {
-        $arrValue = array();
+        $arrValue = [];
         if ($this->getSessionStorage()->has('search')) {
             $arrValue = $this->getSessionStorage()->get('search');
         }
 
-        if (array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
             return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
-        return array();
+        return [];
     }
 
     /**
      * Store the persistent value in the input provider.
      *
      * @param string $strProperty The property being searched on.
-     *
      * @param string $strValue    The value being searched for.
      *
      * @return void
      */
     protected function setPersistent($strProperty, $strValue)
     {
-        $arrValue       = array();
+        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($this->getSessionStorage()->has('search')) {
@@ -89,8 +88,8 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         }
 
         if (!empty($strValue)) {
-            if (!is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = array();
+            if (!\is_array($arrValue[$definitionName])) {
+                $arrValue[$definitionName] = [];
             }
 
             if ($strValue) {
@@ -116,7 +115,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         $value   = null;
         $field   = null;
 
-        if ($this->getPanel()->getContainer()->updateValues() && $input->hasValue('tl_field')) {
+        if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
             $field = $input->getValue('tl_field');
             $value = $input->getValue('tl_value');
 
@@ -137,25 +136,25 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         }
 
         $arrCurrent = $objConfig->getFilter();
-        if (!is_array($arrCurrent)) {
-            $arrCurrent = array();
+        if (!\is_array($arrCurrent)) {
+            $arrCurrent = [];
         }
 
         $objConfig->setFilter(
-            array_merge_recursive(
+            \array_merge_recursive(
                 $arrCurrent,
-                array(
-                    array(
+                [
+                    [
                         'operation' => 'AND',
-                        'children'  => array(
-                            array(
+                        'children'  => [
+                            [
                                 'operation' => 'LIKE',
                                 'property'  => $this->getSelectedProperty(),
-                                'value'     => sprintf('*%s*', $this->getValue())
-                            )
-                        )
-                    )
-                )
+                                'value'     => \sprintf('*%s*', $this->getValue())
+                            ]
+                        ]
+                    ]
+                ]
             )
         );
     }
@@ -165,7 +164,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     public function render(ViewTemplateInterface $objTemplate)
     {
-        $arrOptions = array();
+        $arrOptions = [];
 
         foreach ($this->getPropertyNames() as $field) {
             $arrLabel     = $this
@@ -174,12 +173,11 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
                 ->getPropertiesDefinition()
                 ->getProperty($field)
                 ->getLabel();
-            $arrOptions[] = array
-            (
-                'value'      => $field,
-                'content'    => is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
-                'attributes' => ($field == $this->getSelectedProperty()) ? ' selected' : ''
-            );
+            $arrOptions[] = [
+                    'value'      => $field,
+                    'content'    => \is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
+                    'attributes' => ($field == $this->getSelectedProperty()) ? ' selected' : ''
+                ];
         }
 
         $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));

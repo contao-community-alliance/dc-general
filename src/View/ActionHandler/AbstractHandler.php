@@ -42,7 +42,7 @@ abstract class AbstractHandler
      *
      * @var ActionEvent
      */
-    private $event = null;
+    private $event;
 
     /**
      * Method to buffer the event and then process it.
@@ -91,7 +91,7 @@ abstract class AbstractHandler
     {
         if ($this->getEnvironment()->getDataDefinition()->getName() !== $modelId->getDataProviderName()) {
             throw new DcGeneralRuntimeException(
-                sprintf(
+                \sprintf(
                     'Not able to perform action. Environment is not prepared for model "%s"',
                     $modelId->getSerialized()
                 )
@@ -141,7 +141,7 @@ abstract class AbstractHandler
      *
      * @return void
      */
-    protected function callAction($actionName, $arguments = array())
+    protected function callAction($actionName, $arguments = [])
     {
         // Keep the event as we might get called recursively.
         $keepEvent = $this->event;

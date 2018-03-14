@@ -49,13 +49,13 @@ class PageTree extends TreePicker
 
         if ('' === $inputValue) {
             if ($this->mandatory) {
-                $this->addError($translator->translate('mandatory', 'ERR', array($this->strLabel)));
+                $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
             }
 
             return '';
         }
 
-        $inputValue = explode(',', $inputValue);
+        $inputValue = \explode(',', $inputValue);
 
         return $this->multiple ? $inputValue : $inputValue[0];
     }
@@ -71,6 +71,6 @@ class PageTree extends TreePicker
             'fieldType' => $this->fieldType
         ];
 
-        return System::getContainer()->get('contao.picker.builder')->getUrl('page', $extra, implode(',', $this->value));
+        return System::getContainer()->get('contao.picker.builder')->getUrl('page', $extra, \implode(',', $this->value));
     }
 }

@@ -56,8 +56,6 @@ class ContainerOnLoadCallbackListener extends AbstractCallbackListener
      */
     public function getArgs($event)
     {
-        return array(
-            new DcCompat($event->getDcGeneral()->getEnvironment())
-        );
+        return [new DcCompat($event->getDcGeneral()->getEnvironment())];
     }
 }

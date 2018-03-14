@@ -43,7 +43,8 @@
     },
     "require-dev": {
        "phpcq/all-tasks": "^1.2",
-        "contao/manager-bundle": "^4.4"
+        "contao/manager-bundle": "^4.4",
+        "menatwork/contao-multicolumnwizard": "^3.3"
     },
     "autoload": {
         "classmap": [

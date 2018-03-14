@@ -71,7 +71,7 @@ class DcGeneralEvents
     /**
      * Triggered when a models relationship must be recalculated.
      *
-     * @see ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent
+     * @see \ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent
      */
     const ENFORCE_MODEL_RELATIONSHIP = 'dc-general.model.enforce-relationship';
 }

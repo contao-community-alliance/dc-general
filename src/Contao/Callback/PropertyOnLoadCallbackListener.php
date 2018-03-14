@@ -40,17 +40,16 @@ class PropertyOnLoadCallbackListener extends AbstractReturningPropertyCallbackLi
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getValue(),
             new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
-        );
+        ];
     }
 
     /**
      * Update the value in the event.
      *
      * @param DecodePropertyValueForWidgetEvent $event The event being emitted.
-     *
      * @param mixed                             $value The decoded value.
      *
      * @return void

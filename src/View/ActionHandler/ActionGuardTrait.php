@@ -46,7 +46,7 @@ trait ActionGuardTrait
     {
         if ($definition->getName() !== $modelId->getDataProviderName()) {
             throw new DcGeneralRuntimeException(
-                sprintf(
+                \sprintf(
                     'Not able to perform action. Environment is not prepared for model "%s"',
                     $modelId->getSerialized()
                 )

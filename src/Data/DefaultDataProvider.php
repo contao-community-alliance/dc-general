@@ -51,14 +51,14 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @var string
      */
-    protected $strSource = null;
+    protected $strSource;
 
     /**
      * The Database instance.
      *
      * @var Database
      */
-    protected $objDatabase = null;
+    protected $objDatabase;
 
     /**
      * The name of the id property.
@@ -79,7 +79,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @var IdGeneratorInterface
      */
-    protected $idGenerator = null;
+    protected $idGenerator;
 
     /**
      * Retrieve the name of the id property.
@@ -190,7 +190,7 @@ class DefaultDataProvider implements DataProviderInterface
 
             $this->objDatabase = $arrConfig['database'];
         } else {
-            $this->objDatabase = \Database::getInstance();
+            $this->objDatabase = Database::getInstance();
         }
 
         if (isset($arrConfig['idGenerator'])) {
@@ -248,10 +248,12 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getEmptyFilterOptionCollection()
     {
-        trigger_error(
+        // @codingStandardsIgnoreStart
+        @\trigger_error(
             'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
             E_USER_DEPRECATED
         );
+        // @codingStandardsIgnoreEnd
         return new DefaultFilterOptionCollection();
     }
 
@@ -263,9 +265,9 @@ class DefaultDataProvider implements DataProviderInterface
     public function delete($item)
     {
         $modelId = null;
-        if (is_numeric($item) || is_string($item)) {
+        if (\is_numeric($item) || \is_string($item)) {
             $modelId = $item;
-        } elseif (is_object($item) && $item instanceof ModelInterface && strlen($item->getId()) != 0) {
+        } elseif (\is_object($item) && $item instanceof ModelInterface && null !== $item->getId()) {
             $modelId = $item->getId();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
@@ -273,12 +275,12 @@ class DefaultDataProvider implements DataProviderInterface
 
         // Insert undo.
         $this->insertUndo(
-            sprintf(
+            \sprintf(
                 'DELETE FROM %1$s WHERE id = %2$s',
                 $this->strSource,
                 $modelId
             ),
-            sprintf(
+            \sprintf(
                 'SELECT * FROM %1$s WHERE id = %2$s',
                 $this->strSource,
                 $modelId
@@ -287,7 +289,7 @@ class DefaultDataProvider implements DataProviderInterface
         );
 
         $this->objDatabase
-            ->prepare(sprintf('DELETE FROM %s WHERE id=?', $this->strSource))
+            ->prepare(\sprintf('DELETE FROM %s WHERE id=?', $this->strSource))
             ->execute($modelId);
     }
 
@@ -320,7 +322,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function fetch(ConfigInterface $objConfig)
     {
         if ($objConfig->getId() != null) {
-            $query = sprintf(
+            $query = \sprintf(
                 'SELECT %s FROM %s WHERE id = ?',
                 DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
                 $this->strSource
@@ -330,10 +332,10 @@ class DefaultDataProvider implements DataProviderInterface
                 ->prepare($query)
                 ->execute($objConfig->getId());
         } else {
-            $arrParams = array();
+            $arrParams = [];
 
             // Build SQL.
-            $query = sprintf(
+            $query = \sprintf(
                 'SELECT %s FROM %s%s%s',
                 DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
                 $this->strSource,
@@ -360,9 +362,9 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fetchAll(ConfigInterface $objConfig)
     {
-        $arrParams = array();
+        $arrParams = [];
         // Build SQL.
-        $query = sprintf(
+        $query = \sprintf(
             'SELECT %s FROM %s%s%s',
             DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
             $this->strSource,
@@ -406,15 +408,15 @@ class DefaultDataProvider implements DataProviderInterface
         $arrProperties = $objConfig->getFields();
         $strProperty   = $arrProperties[0];
 
-        if (count($arrProperties) <> 1) {
+        if (\count($arrProperties) <> 1) {
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
 
-        $arrParams = array();
+        $arrParams = [];
 
         $objValues = $this->objDatabase
             ->prepare(
-                sprintf(
+                \sprintf(
                     'SELECT DISTINCT(%s) FROM %s %s',
                     $strProperty,
                     $this->strSource,
@@ -437,7 +439,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function getCount(ConfigInterface $objConfig)
     {
         $parameters = [];
-        $query      = sprintf(
+        $query      = \sprintf(
             'SELECT COUNT(*) AS count FROM %s%s',
             $this->strSource,
             DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $parameters)
@@ -476,7 +478,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function resetFallback($strField)
     {
         // @codingStandardsIgnoreStart
-        @trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
+        @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
         $this->objDatabase->query('UPDATE ' . $this->strSource . ' SET ' . $strField . ' = \'\'');
@@ -486,27 +488,29 @@ class DefaultDataProvider implements DataProviderInterface
      * Convert a model into a property array to be used in insert and update queries.
      *
      * @param ModelInterface $model The model to convert into an property array.
+     * @param int            $timestamp Optional the timestamp.
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function convertModelToDataPropertyArray(ModelInterface $model)
+    protected function convertModelToDataPropertyArray(ModelInterface $model, $timestamp = 0)
     {
-        $data = array();
-
+        $data = [];
         foreach ($model as $key => $value) {
             if ($key == $this->idProperty) {
                 continue;
             }
 
-            if (is_array($value)) {
-                $data[$key] = serialize($value);
+            if (\is_array($value)) {
+                $data[$key] = \serialize($value);
             } else {
                 $data[$key] = $value;
             }
         }
 
         if ($this->timeStampProperty) {
-            $data[$this->getTimeStampProperty()] = time();
+            $data[$this->getTimeStampProperty()] = $timestamp ?: \time();
         }
 
         return $data;
@@ -516,23 +520,24 @@ class DefaultDataProvider implements DataProviderInterface
      * Insert the model into the database.
      *
      * @param ModelInterface $model The model to insert into the database.
+     * @param int            $timestamp Optional the timestamp.
      *
      * @return void
      */
-    protected function insertModelIntoDatabase(ModelInterface $model)
+    protected function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0)
     {
-        $data = $this->convertModelToDataPropertyArray($model);
+        $data = $this->convertModelToDataPropertyArray($model, $timestamp);
         if ($this->getIdGenerator()) {
             $model->setId($this->getIdGenerator()->generate());
             $data[$this->idProperty] = $model->getId();
         }
 
         $insertResult = $this->objDatabase
-            ->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
+            ->prepare(\sprintf('INSERT INTO %s %%s', $this->strSource))
             ->set($data)
             ->execute();
 
-        if (!isset($data[$this->idProperty]) && strlen($insertResult->insertId)) {
+        if (null !== $insertResult->insertId && !isset($data[$this->idProperty])) {
             $model->setId((string) $insertResult->insertId);
         }
     }
@@ -540,16 +545,17 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * Update the model in the database.
      *
-     * @param ModelInterface $model The model to update the database.
+     * @param ModelInterface $model     The model to update the database.
+     * @param int            $timestamp Optional the timestamp.
      *
      * @return void
      */
-    protected function updateModelInDatabase($model)
+    protected function updateModelInDatabase($model, $timestamp = 0)
     {
-        $data = $this->convertModelToDataPropertyArray($model);
+        $data = $this->convertModelToDataPropertyArray($model, $timestamp);
 
         $this->objDatabase
-            ->prepare(sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
+            ->prepare(\sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
             ->set($data)
             ->execute($model->getId());
     }
@@ -557,7 +563,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function save(ModelInterface $objItem)
+    public function save(ModelInterface $objItem, $timestamp = 0)
     {
         if ($objItem->getId() === null || $objItem->getId() === '') {
             $this->insertModelIntoDatabase($objItem);
@@ -571,10 +577,10 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function saveEach(CollectionInterface $objItems)
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
     {
         foreach ($objItems as $value) {
-            $this->save($value);
+            $this->save($value, $timestamp);
         }
     }
 
@@ -599,9 +605,9 @@ class DefaultDataProvider implements DataProviderInterface
             return null;
         }
 
-        $arrData = deserialize($objVersion->data);
+        $arrData = \deserialize($objVersion->data);
 
-        if (!is_array($arrData) || count($arrData) == 0) {
+        if (!\is_array($arrData) || \count($arrData) == 0) {
             return null;
         }
 
@@ -622,7 +628,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Return a list with all versions for the row with the given Id.
      *
      * @param mixed   $mixID         The ID of the row.
-     *
      * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
      *                               returned.
      *
@@ -642,7 +647,7 @@ class DefaultDataProvider implements DataProviderInterface
             ->execute($this->strSource, $mixID)
             ->fetchAllAssoc();
 
-        if (count($arrVersion) == 0) {
+        if (\count($arrVersion) == 0) {
             return null;
         }
 
@@ -670,7 +675,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Save a new version of a row.
      *
      * @param ModelInterface $objModel    The model for which a new version shall be created.
-     *
      * @param string         $strUsername The username to attach to the version as creator.
      *
      * @return void
@@ -681,18 +685,18 @@ class DefaultDataProvider implements DataProviderInterface
             ->prepare('SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?')
             ->execute($objModel->getId(), $this->strSource);
 
-        $mixNewVersion = (intval($objCount->mycount) + 1);
+        $mixNewVersion = ((int) $objCount->mycount + 1);
         $mixData       = $objModel->getPropertiesAsArray();
 
         $mixData[$this->idProperty] = $objModel->getId();
 
-        $arrInsert              = array();
+        $arrInsert              = [];
         $arrInsert['pid']       = $objModel->getId();
         $arrInsert['tstamp']    = time();
         $arrInsert['version']   = $mixNewVersion;
         $arrInsert['fromTable'] = $this->strSource;
         $arrInsert['username']  = $strUsername;
-        $arrInsert['data']      = serialize($mixData);
+        $arrInsert['data']      = \serialize($mixData);
 
         $this->objDatabase->prepare('INSERT INTO tl_version %s')
             ->set($arrInsert)
@@ -705,7 +709,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Set a version as active.
      *
      * @param mixed $mixID      The ID of the row.
-     *
      * @param mixed $mixVersion The version number to set active.
      *
      * @return void
@@ -745,7 +748,6 @@ class DefaultDataProvider implements DataProviderInterface
      * Check if two models have the same values in all properties.
      *
      * @param ModelInterface $objModel1 The first model to compare.
-     *
      * @param ModelInterface $objModel2 The second model to compare.
      *
      * @return boolean True - If both models are same, false if not.
@@ -757,12 +759,12 @@ class DefaultDataProvider implements DataProviderInterface
                 continue;
             }
 
-            if (is_array($value)) {
-                if (!is_array($objModel2->getProperty($key))) {
+            if (\is_array($value)) {
+                if (!\is_array($objModel2->getProperty($key))) {
                     return false;
                 }
 
-                if (serialize($value) != serialize($objModel2->getProperty($key))) {
+                if (\serialize($value) != \serialize($objModel2->getProperty($key))) {
                     return false;
                 }
             } elseif ($value != $objModel2->getProperty($key)) {
@@ -779,9 +781,7 @@ class DefaultDataProvider implements DataProviderInterface
      * Currently this only supports delete queries.
      *
      * @param string $strSourceSQL The SQL used to perform the action to be undone.
-     *
      * @param string $strSaveSQL   The SQL query to retrieve the current entries.
-     *
      * @param string $strTable     The table to be affected by the action.
      *
      * @return void
@@ -795,12 +795,12 @@ class DefaultDataProvider implements DataProviderInterface
             ->fetchAllAssoc();
 
         // Check if we have a result.
-        if (count($arrResult) == 0) {
+        if (\count($arrResult) == 0) {
             return;
         }
 
         // Save information in array.
-        $arrSave = array();
+        $arrSave = [];
         foreach ($arrResult as $value) {
             $arrSave[$strTable][] = $value;
         }
@@ -815,12 +815,12 @@ class DefaultDataProvider implements DataProviderInterface
             )
             ->execute(
                 $objUser->id,
-                time(),
+                \time(),
                 $strTable,
                 $strPrefix .
                 $strSourceSQL,
-                count($arrSave[$strTable]),
-                serialize($arrSave)
+                \count($arrSave[$strTable]),
+                \serialize($arrSave)
             );
     }
 }

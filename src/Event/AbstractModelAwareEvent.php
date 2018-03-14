@@ -43,7 +43,6 @@ class AbstractModelAwareEvent extends AbstractEnvironmentAwareEvent implements M
      * Create a new model aware event.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelInterface       $model       The model attached to the event.
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)

@@ -225,7 +225,6 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also equals the given value.
      *
      * @param string $property The property name.
-     *
      * @param mixed  $value    The property value.
      *
      * @return PropertyEqualsFilterBuilder The newly created filter.
@@ -239,7 +238,6 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also equals the given value.
      *
      * @param string $property The property name.
-     *
      * @param mixed  $value    The property value.
      *
      * @return PropertyEqualsFilterBuilder The newly created filter.
@@ -253,9 +251,7 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also equals the given remote property.
      *
      * @param string $property       The name of the property.
-     *
      * @param string $remoteProperty The name of the remote property.
-     *
      * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
      *
      * @return PropertyEqualsFilterBuilder The newly created filter.
@@ -273,7 +269,6 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also is greater than the given value.
      *
      * @param string $property The property name.
-     *
      * @param mixed  $value    The property value.
      *
      * @return PropertyGreaterThanFilterBuilder The newly created filter.
@@ -287,9 +282,7 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also is greater than the given remote property.
      *
      * @param string $property       The name of the property.
-     *
      * @param string $remoteProperty The name of the remote property.
-     *
      * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
      *
      * @return PropertyGreaterThanFilterBuilder The newly created filter.
@@ -307,7 +300,6 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also is less than the given value.
      *
      * @param string $property The property name.
-     *
      * @param mixed  $value    The property value.
      *
      * @return PropertyLessThanFilterBuilder The newly created filter.
@@ -321,9 +313,7 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also is less than the given remote property.
      *
      * @param string $property       The name of the property.
-     *
      * @param string $remoteProperty The name of the remote property.
-     *
      * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
      *
      * @return PropertyLessThanFilterBuilder The newly created filter.
@@ -341,7 +331,6 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also is less than the given value.
      *
      * @param string $property The property name.
-     *
      * @param mixed  $value    The property value.
      *
      * @return PropertyValueInFilterBuilder The newly created filter.
@@ -355,7 +344,6 @@ abstract class BaseFilterBuilder
      * Ensure that the given property also is less than the given value.
      *
      * @param string $property The property name.
-     *
      * @param mixed  $value    The property value.
      *
      * @return PropertyValueInFilterBuilder The newly created filter.

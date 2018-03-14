@@ -27,11 +27,11 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
@@ -118,9 +118,7 @@ class ViewHelpers
      * Initialize the sorting from the panel. Fallback to default sorting if nothing given.
      *
      * @param PanelContainerInterface $panel         The current panel.
-     *
      * @param ConfigInterface         $dataConfig    The current config.
-     *
      * @param ListingConfigInterface  $listingConfig The listing config.
      *
      * @return void
@@ -129,7 +127,7 @@ class ViewHelpers
     {
         // Store default sorting start initializing the panel with an empty sorting.
         $sorting = $dataConfig->getSorting();
-        $dataConfig->setSorting(array());
+        $dataConfig->setSorting([]);
         $panel->initialize($dataConfig);
 
         // Restore default sorting if panel did not set any.
@@ -139,10 +137,10 @@ class ViewHelpers
 
         // Initialize sorting if not present yet.
         if (!$dataConfig->getSorting() && $listingConfig->getGroupAndSortingDefinition()->hasDefault()) {
-            $newSorting = array();
+            $newSorting = [];
             foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
-                $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
+                $newSorting[$information->getProperty()] = \strtoupper($information->getSortingMode());
             }
             $dataConfig->setSorting($newSorting);
         }
@@ -178,21 +176,19 @@ class ViewHelpers
             $groupLength = 0;
         }
 
-        return array(
+        return [
             'mode'     => $groupMode,
             'length'   => $groupLength,
             'property' => $firstSorting->getProperty(),
             'sorting'  => $sorting
-        );
+        ];
     }
 
     /**
      * Get for a field the readable value.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param PropertyInterface    $property    The property to be rendered.
-     *
      * @param ModelInterface       $model       The model from which the property value shall be retrieved from.
      *
      * @return mixed
@@ -232,7 +228,7 @@ class ViewHelpers
         if ($input->hasParameter('table') && $input->hasParameter('pid')) {
             if ($input->hasParameter('pid')) {
                 $event = new RedirectEvent(
-                    sprintf(
+                    \sprintf(
                         'contao/main.php?do=%s&table=%s&pid=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table'),
@@ -241,7 +237,7 @@ class ViewHelpers
                 );
             } else {
                 $event = new RedirectEvent(
-                    sprintf(
+                    \sprintf(
                         'contao/main.php?do=%s&table=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table')
@@ -250,7 +246,7 @@ class ViewHelpers
             }
         } else {
             $event = new RedirectEvent(
-                sprintf(
+                \sprintf(
                     'contao/main.php?do=%s',
                     $input->getParameter('do')
                 )

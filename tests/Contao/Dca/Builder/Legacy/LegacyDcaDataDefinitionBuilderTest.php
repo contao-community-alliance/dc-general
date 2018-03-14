@@ -40,18 +40,16 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      * Mocker callback for loading a dca.
      *
      * @param array           $dca
-     *
      * @param string          $eventName
-     *
      * @param Eventdispatcher $dispatcher
      *
-     * @return LegacyDcaDataDefinitionBuilder
+     * @return \PHPUnit_Framework_MockObject_MockObject|LegacyDcaDataDefinitionBuilder
      */
     public function mockBuilderWithDca($dca, $eventName, $dispatcher)
     {
-        $class = 'ContaoCommunityAlliance\\DcGeneral\\Contao\\Dca\\Builder\\Legacy\\LegacyDcaDataDefinitionBuilder';
+        $class = LegacyDcaDataDefinitionBuilder::class;
         $mock  = $this
-            ->getMock($class, array('loadDca', 'process'));
+            ->getMock($class, ['loadDca', 'process']);
 
         $mock
             ->expects($this->once())
@@ -93,16 +91,17 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         $dispatcher = new EventDispatcher();
         $container  = new DefaultContainer('tl_test');
         $event      = new BuildDataDefinitionEvent($container);
-        $builder    = $this->mockBuilderWithDca(
-            array(
-                'fields' => array(
-                    'testProperty' => array(
-                        'save_callback' => array(function () {
-                            return 'executed';
-                        })
-                    )
-                )
-            ),
+        $builder = $this->mockBuilderWithDca([
+                'fields' => [
+                    'testProperty' => [
+                        'save_callback' => [
+                            function () {
+                                return 'executed';
+                            }
+                        ]
+                    ]
+                ]
+            ],
             $event::NAME,
             $dispatcher
         );
@@ -118,7 +117,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         );
 
         $event->setProperty('testProperty');
-        $this->assertEquals(1, count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
+        $this->assertEquals(1, \count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
         foreach ($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME) as $listener) {
             /** @var AbstractCallbackListener $listener */
             $this->assertTrue($listener->wantToExecute($event));

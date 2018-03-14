@@ -39,7 +39,6 @@ class IdSerializer extends ModelId
      * Construct.
      *
      * @param string $dataProviderName The data provider name.
-     *
      * @param mixed  $modelId          The model id.
      */
     public function __construct($dataProviderName = '', $modelId = '')

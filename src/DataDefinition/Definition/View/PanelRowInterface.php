@@ -46,7 +46,6 @@ interface PanelRowInterface extends \IteratorAggregate
      * end of the list.
      *
      * @param ElementInformationInterface $element The element to add.
-     *
      * @param int                         $index   Target position for the element.
      *
      * @return PanelRowInterface

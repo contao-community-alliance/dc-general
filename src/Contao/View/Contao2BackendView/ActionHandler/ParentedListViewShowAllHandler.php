@@ -27,6 +27,7 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -52,7 +53,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     /**
      * {@inheritDoc}
      */
-    protected function wantToHandle($mode)
+    protected function wantToHandle($mode, Action $action)
     {
         return BasicDefinitionInterface::MODE_PARENTEDLIST === $mode;
     }
@@ -143,7 +144,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Render the header of the parent view with information from the parent table.
      *
      * @param ModelInterface       $parentModel The parent model.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return array
@@ -155,7 +155,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $add        = [];
         $properties = $environment->getParentDataDefinition()->getPropertiesDefinition();
         foreach ($this->getViewSection($definition)->getListingConfig()->getHeaderPropertyNames() as $field) {
-            $value = deserialize($parentModel->getProperty($field));
+            $value = \deserialize($parentModel->getProperty($field));
 
             if ($field == 'tstamp') {
                 $value = date(Config::get('datimFormat'), $value);
@@ -178,19 +178,21 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $add = $event->getAdditional();
         }
 
-        return array_map(function ($value) {
-            if (is_array($value)) {
-                return $value[0];
-            }
-            return $value;
-        }, $add);
+        return \array_map(
+            function ($value) {
+                if (\is_array($value)) {
+                    return $value[0];
+                }
+                return $value;
+            },
+            $add
+        );
     }
 
     /**
      * Translate a column name for use in parent model display section.
      *
      * @param string $field      The field name.
-     *
      * @param string $parentName The parent definition name.
      *
      * @return array|string
@@ -200,7 +202,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         if ($field === 'tstamp') {
             $lang = $this->translate('MSC.tstamp', 'contao_default');
         } else {
-            $lang = $this->translate(sprintf('%s.0', $field), $parentName);
+            $lang = $this->translate(\sprintf('%s.0', $field), $parentName);
         }
 
         return $lang;
@@ -210,9 +212,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Render a property of the parent model.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param PropertyInterface    $property    The property.
-     *
      * @param mixed                $value       The value to format.
      *
      * @return string
@@ -221,16 +221,16 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     {
         $evaluation = $property->getExtra();
 
-        if (is_array($value)) {
-            return implode(', ', $value);
+        if (\is_array($value)) {
+            return \implode(', ', $value);
         }
 
-        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
+        if (!$evaluation['multiple'] && $property->getWidgetType() == 'checkbox') {
             return !empty($value)
                 ? $this->translate('MSC.yes', 'contao_default')
                 : $this->translate('MSC.no', 'contao_default');
         }
-        if ($value && in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
+        if ($value && \in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
             $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
             $environment->getEventDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $event);
             return $event->getResult();
@@ -239,7 +239,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return $this->renderReference($value, $evaluation['reference']);
         }
         $options = $property->getOptions();
-        if ($evaluation['isAssociative'] || array_is_assoc($options)) {
+        if ($evaluation['isAssociative'] || \array_is_assoc($options)) {
             $value = $options[$value];
         }
 
@@ -250,14 +250,13 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Render a referenced value.
      *
      * @param mixed $value     The value to render.
-     *
      * @param array $reference The reference array.
      *
      * @return mixed
      */
     private function renderReference($value, $reference)
     {
-        if (is_array($reference[$value])) {
+        if (\is_array($reference[$value])) {
             return $reference[$value][0];
         }
 
@@ -268,7 +267,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Retrieve a list of html buttons to use in the top panel (submit area).
      *
      * @param ModelInterface       $parentModel The parent model.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return string
@@ -291,14 +289,13 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $headerButtons['pasteNew']   = $this->getHeaderPasteNewButton($parentModel, $environment);
         $headerButtons['pasteAfter'] = $this->getHeaderPasteTopButton($parentModel, $environment);
 
-        return implode(' ', $headerButtons);
+        return \implode(' ', $headerButtons);
     }
 
     /**
      * Retrieve a list of html buttons to use in the top panel (submit area).
      *
      * @param ModelInterface       $parentModel The parent model.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return null|string
@@ -311,7 +308,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             ->getDefinition(Contao2BackendViewDefinitionInterface::NAME)
             ->getModelCommands();
 
-        if (!$parentDefinition->getBasicDefinition()->isEditable() || !$commands->hasCommandNamed('edit')) {
+        if (!$commands->hasCommandNamed('edit') || !$parentDefinition->getBasicDefinition()->isEditable()) {
             return null;
         }
 
@@ -354,16 +351,16 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $href = '';
         foreach ($parameters as $key => $value) {
-            $href .= sprintf('&%s=%s', $key, $value);
+            $href .= \sprintf('&%s=%s', $key, $value);
         }
         /** @var AddToUrlEvent $urlAfter */
         $urlAfter = $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, new AddToUrlEvent($href));
 
-        return sprintf(
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlAfter->getUrl(),
             StringUtil::specialchars(
-                sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())
+                \sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())
             ),
             $imageEvent->getHtml()
         );
@@ -373,7 +370,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Retrieve the header button for paste new.
      *
      * @param ModelInterface       $parentModel The parent model.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return null|string
@@ -416,7 +412,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             )
         );
 
-        return sprintf(
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
             StringUtil::specialchars($this->translate('pastenew.0', $parentDefinition->getName())),
@@ -428,7 +424,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Retrieve the header button for paste new.
      *
      * @param ModelInterface       $parentModel The parent model.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return null|string
@@ -485,7 +480,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
                 )
             );
 
-            return sprintf(
+            return \sprintf(
                 '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
                 $urlEvent->getUrl(),
                 StringUtil::specialchars($this->translate('pasteafter.0', $definition->getName())),
@@ -510,9 +505,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Obtain the id of the grand parent (if any).
      *
      * @param ContainerInterface   $parentDefinition The parent definition.
-     *
      * @param ModelInterface       $parentModel      The parent model.
-     *
      * @param EnvironmentInterface $environment      The environment.
      *
      * @return false|null|string

@@ -63,9 +63,7 @@ class SelectHandler
      * SelectHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
-     *
      * @param DeleteHandler            $deleteHandler     The delete action handler.
-     *
      * @param CopyHandler              $copyHandler       The copy action handler.
      */
     public function __construct(
@@ -105,46 +103,53 @@ class SelectHandler
      * Handle the action.
      *
      * @param Action               $action      The action.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return void
      */
-    protected function process(Action $action, EnvironmentInterface $environment)
+    private function process(Action $action, EnvironmentInterface $environment)
     {
         $submitAction = $this->getSubmitAction($environment);
 
         if (!$submitAction) {
             $this->removeGlobalCommands($environment);
-
-            return;
         }
 
         $modelIds     = $this->getModelIds($environment, $action, $submitAction);
-        $actionMethod = sprintf('handle%sAllAction', ucfirst($submitAction));
+        $actionMethod = \sprintf('handle%sAllAction', \ucfirst($submitAction));
 
-        call_user_func(array($this, $actionMethod), $modelIds);
+        $this->{$actionMethod}($environment, $modelIds);
     }
 
     /**
      * Get the submit action name.
      *
      * @param EnvironmentInterface $environment The environment.
+     * @param boolean $regardSelectMode Regard the select mode parameter.
      *
      * @return string
      */
-    protected function getSubmitAction(EnvironmentInterface $environment)
+    private function getSubmitAction(EnvironmentInterface $environment, $regardSelectMode = false)
     {
-        $inputProvider = $environment->getInputProvider();
-        $actions       = array('delete', 'cut', 'copy', 'override', 'edit');
+        $actions       = ['delete', 'cut', 'copy', 'override', 'edit'];
 
         foreach ($actions as $action) {
-            if ($inputProvider->hasValue($action)) {
+            if ($environment->getInputProvider()->hasValue($action)
+                || $environment->getInputProvider()->hasValue($action . '_save')
+                || $environment->getInputProvider()->hasValue($action . '_saveNback')
+            ) {
+                $environment->getInputProvider()->setParameter('mode', $action);
+
                 return $action;
             }
         }
 
-        return null;
+        if ($regardSelectMode) {
+            return $environment->getInputProvider()->getParameter('mode') ?: null;
+        }
+
+        return $environment->getInputProvider()->getParameter('select') ?
+            'select' . \ucfirst($environment->getInputProvider()->getParameter('select')) : null;
     }
 
     /**
@@ -156,7 +161,7 @@ class SelectHandler
      *
      * @return void
      */
-    protected function removeGlobalCommands(EnvironmentInterface $environment)
+    private function removeGlobalCommands(EnvironmentInterface $environment)
     {
         /** @var Contao2BackendViewDefinitionInterface $view */
         $dataDefinition = $environment->getDataDefinition();
@@ -174,19 +179,17 @@ class SelectHandler
      * Get The model ids from the environment.
      *
      * @param EnvironmentInterface $environment  The environment.
-     *
      * @param Action               $action       The dcg action.
-     *
      * @param string               $submitAction The submit action name.
      *
      * @return ModelId[]
      */
-    protected function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
+    private function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
     {
-        $modelIds = (array) $environment->getInputProvider()->getValue('IDS');
+        $modelIds = (array) $environment->getInputProvider()->getValue('models');
 
         if (!empty($modelIds)) {
-            $modelIds = array_map(
+            $modelIds = \array_map(
                 function ($modelId) {
                     return ModelId::fromSerialized($modelId);
                 },
@@ -206,12 +209,11 @@ class SelectHandler
      * Handle the delete all action.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelId[]            $modelIds    The list of model ids.
      *
      * @return void
      */
-    protected function handleDeleteAllAction(EnvironmentInterface $environment, $modelIds)
+    private function handleDeleteAllAction(EnvironmentInterface $environment, $modelIds)
     {
         foreach ($modelIds as $modelId) {
             $this->deleteHandler->delete($environment, $modelId);
@@ -224,12 +226,11 @@ class SelectHandler
      * Handle the delete all action.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelId[]            $modelIds    The list of model ids.
      *
      * @return void
      */
-    protected function handleCutAllAction(EnvironmentInterface $environment, $modelIds)
+    private function handleCutAllAction(EnvironmentInterface $environment, $modelIds)
     {
         $clipboard = $environment->getClipboard();
         $parentId  = $this->getParentId($environment);
@@ -247,12 +248,11 @@ class SelectHandler
      * Handle the delete all action.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelIdInterface[]   $modelIds    The list of model ids.
      *
      * @return void
      */
-    protected function handleCopyAllAction(EnvironmentInterface $environment, $modelIds)
+    private function handleCopyAllAction(EnvironmentInterface $environment, $modelIds)
     {
         if (ViewHelpers::getManualSortingProperty($environment)) {
             $clipboard = $environment->getClipboard();
@@ -285,7 +285,7 @@ class SelectHandler
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function handleOverrideAllAction($modelIds)
+    private function handleOverrideAllAction($modelIds)
     {
         throw new DcGeneralRuntimeException('Action overrideAll is not implemented yet.');
     }
@@ -301,7 +301,7 @@ class SelectHandler
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function handleEditAllAction($modelIds)
+    private function handleEditAllAction($modelIds)
     {
         throw new DcGeneralRuntimeException('Action editAll is not implemented yet.');
     }
@@ -315,13 +315,12 @@ class SelectHandler
      *
      * @return ModelIdInterface|null
      */
-    protected function getParentId(EnvironmentInterface $environment)
+    private function getParentId(EnvironmentInterface $environment)
     {
         $parentIdRaw = $environment->getInputProvider()->getParameter('pid');
 
         if ($parentIdRaw) {
-            $parentId = ModelId::fromSerialized($parentIdRaw);
-            return $parentId;
+            return ModelId::fromSerialized($parentIdRaw);
         }
 
         return null;

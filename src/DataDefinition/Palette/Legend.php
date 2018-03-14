@@ -36,7 +36,7 @@ class Legend implements LegendInterface
      *
      * @var PaletteInterface|null
      */
-    protected $palette = null;
+    protected $palette;
 
     /**
      * The name of this legend.
@@ -57,7 +57,7 @@ class Legend implements LegendInterface
      *
      * @var PropertyInterface[]|array
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * Create a new instance.
@@ -130,7 +130,7 @@ class Legend implements LegendInterface
      */
     public function clearProperties()
     {
-        $this->properties = array();
+        $this->properties = [];
         return $this;
     }
 
@@ -162,23 +162,23 @@ class Legend implements LegendInterface
      */
     public function addProperty(PropertyInterface $property, PropertyInterface $before = null)
     {
-        $hash = spl_object_hash($property);
+        $hash = \spl_object_hash($property);
 
         if ($before) {
-            $beforeHash = spl_object_hash($before);
+            $beforeHash = \spl_object_hash($before);
 
             if (isset($this->properties[$beforeHash])) {
-                $hashes   = array_keys($this->properties);
-                $position = array_search($beforeHash, $hashes);
+                $hashes   = \array_keys($this->properties);
+                $position = \array_search($beforeHash, $hashes);
 
-                $this->properties = array_merge(
-                    array_slice($this->properties, 0, $position),
-                    array($hash => $property),
-                    array_slice($this->properties, $position)
+                $this->properties = \array_merge(
+                    \array_slice($this->properties, 0, $position),
+                    [$hash => $property],
+                    \array_slice($this->properties, $position)
                 );
             } else {
                 throw new DcGeneralInvalidArgumentException(
-                    sprintf(
+                    \sprintf(
                         'Property %s not contained in legend - can not add %s after it.',
                         $before->getName(),
                         $property->getName()
@@ -197,7 +197,7 @@ class Legend implements LegendInterface
      */
     public function removeProperty(PropertyInterface $property)
     {
-        $hash = spl_object_hash($property);
+        $hash = \spl_object_hash($property);
         unset($this->properties[$hash]);
         return $this;
     }
@@ -208,7 +208,7 @@ class Legend implements LegendInterface
     public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
         if ($model || $input) {
-            $selectedProperties = array();
+            $selectedProperties = [];
 
             foreach ($this->properties as $property) {
                 $condition = $property->getVisibleCondition();
@@ -221,7 +221,7 @@ class Legend implements LegendInterface
             return $selectedProperties;
         }
 
-        return array_values($this->properties);
+        return \array_values($this->properties);
     }
 
     /**
@@ -252,7 +252,7 @@ class Legend implements LegendInterface
         }
 
         throw new DcGeneralRuntimeException(
-            sprintf(
+            \sprintf(
                 'The legend %s does not contain a property named %s',
                 $this->getName(),
                 $propertyName
@@ -267,11 +267,11 @@ class Legend implements LegendInterface
     {
         $this->palette = null;
 
-        $properties = array();
+        $properties = [];
         foreach ($this->properties as $property) {
             $bobaFett = clone $property;
 
-            $properties[spl_object_hash($bobaFett)] = $bobaFett;
+            $properties[\spl_object_hash($bobaFett)] = $bobaFett;
         }
         $this->properties = $properties;
     }

@@ -32,3 +32,7 @@ $container->provideSymfonyService(
     'dc-general.data-definition-container',
     'cca.dc-general.data-definition-container'
 );
+$container->provideSymfonyService(
+    'dc-general.edit-information',
+    'cca.dc-general.edit-information'
+);

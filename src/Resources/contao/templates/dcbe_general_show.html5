@@ -1,6 +1,6 @@
 <?php if($this->languages): ?>
 <div class="tl_panel">
-<form action="<?php echo ampersand($this->Environment->request, true); ?>" id="language_switch" class="tl_form" method="post">
+<form action="<?php echo \ampersand($this->Environment->request, true); ?>" id="language_switch" class="tl_form" method="post">
 <div class="tl_formbody">
 <input type="hidden" name="FORM_SUBMIT" value="language_switch" />
 <input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
@@ -33,7 +33,7 @@
         </td>
         <td<?php echo (($count % 2) == 0) ? ' class="tl_bg"' : ''; ?>>
             <?php
-            if (!is_object($value) || method_exists($value, '__toString')) {
+            if (!\is_object($value) || \method_exists($value, '__toString')) {
                 echo $value;
             }
             else if ($value instanceof DateTime) {
@@ -41,7 +41,7 @@
             }
             else {
                 // TODO add hook for custom output
-                echo 'Object ' . get_class($value);
+                echo 'Object ' . \get_class($value);
             }
             ?>
         </td>

@@ -35,7 +35,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      *
      * @var PropertyInterface[]
      */
-    protected $properties = array();
+    protected $properties = [];
 
     /**
      * {@inheritdoc}
@@ -50,7 +50,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function getPropertyNames()
     {
-        return array_keys($this->properties);
+        return \array_keys($this->properties);
     }
 
     /**

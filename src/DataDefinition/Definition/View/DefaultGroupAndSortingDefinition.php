@@ -32,7 +32,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
      *
      * @var GroupAndSortingInformationInterface[]
      */
-    protected $information = array();
+    protected $information = [];
 
     /**
      * The name of the definition.
@@ -51,7 +51,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
         } else {
-            array_splice($this->information, $index, 0, array($information));
+            \array_splice($this->information, $index, 0, [$information]);
         }
 
         return $information;
@@ -63,7 +63,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     public function delete($index)
     {
         unset($this->information[$index]);
-        $this->information = array_values($this->information);
+        $this->information = \array_values($this->information);
 
         return $this;
     }
@@ -73,7 +73,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
      */
     public function getCount()
     {
-        return count($this->information);
+        return \count($this->information);
     }
 
     /**

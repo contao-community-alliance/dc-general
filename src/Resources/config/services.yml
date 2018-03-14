@@ -30,3 +30,7 @@ services:
             - "cca_dc_general_attributes"
         calls:
             - ["setName", ["cca_dc_general"]]
+
+    cca.dc-general.edit-information:
+        class: ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation
+        public: true

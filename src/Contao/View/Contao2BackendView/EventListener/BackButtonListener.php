@@ -50,11 +50,20 @@ class BackButtonListener
             return;
         }
 
-        $environment = $event->getEnvironment();
-        if (!('select' === $environment->getInputProvider()->getParameter('act')
-            || (null !== $environment->getParentDataDefinition()))
+        $environment   = $event->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
+
+        if (!('edit' === $inputProvider->getParameter('act')
+              || (null !== $inputProvider->getParameter('pid')
+                  || (null !== $inputProvider->getParameter('select'))))
         ) {
             $event->setHtml('');
+            return;
+        }
+
+        if (('select' === $inputProvider->getParameter('act'))
+            && ('models' !== $inputProvider->getParameter('select'))
+        ) {
             return;
         }
 

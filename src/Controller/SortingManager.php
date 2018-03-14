@@ -89,11 +89,8 @@ class SortingManager
      * Create a new instance.
      *
      * @param CollectionInterface $models        The collection containing the models to be inserted.
-     *
      * @param CollectionInterface $siblings      The collection containing the models that are siblings.
-     *
      * @param string              $sortedBy      The property that is used for sorting.
-     *
      * @param ModelInterface      $previousModel The model preceding the target position of the first model from the
      *                                           collection.
      */
@@ -230,7 +227,7 @@ class SortingManager
      */
     protected function getModelIds()
     {
-        $ids = array();
+        $ids = [];
 
         foreach ($this->models as $model) {
             /** @var ModelInterface $model */
@@ -265,7 +262,7 @@ class SortingManager
             do {
                 $this->marker = $this->siblingsCopy->shift();
 
-                if (in_array($this->marker->getId(), $ids)) {
+                if (\in_array($this->marker->getId(), $ids)) {
                     continue;
                 }
 
@@ -297,7 +294,7 @@ class SortingManager
         // If delta too narrow, we need to make room.
         // Prevent delta to exceed, also. Use minimum delta which is calculated as multiple of 128.
         if ($delta < 2 || $delta > 128) {
-            return (ceil($this->results->length() / 128) * 128);
+            return (\ceil($this->results->length() / 128) * 128);
         }
 
         return $delta;
@@ -336,7 +333,7 @@ class SortingManager
         if ($this->marker->getProperty($this->getSortingProperty()) <= $this->position) {
             do {
                 // Skip models about to be pasted.
-                if (in_array($this->marker->getId(), $ids)) {
+                if (\in_array($this->marker->getId(), $ids)) {
                     $this->marker = $this->siblingsCopy->shift();
                     continue;
                 }

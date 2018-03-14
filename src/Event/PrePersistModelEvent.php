@@ -44,9 +44,7 @@ class PrePersistModelEvent extends AbstractModelAwareEvent
      * Create a new model aware event.
      *
      * @param EnvironmentInterface $environment   The environment.
-     *
      * @param ModelInterface       $model         The model attached to the event.
-     *
      * @param ModelInterface|null  $originalModel The original state of the model (persistent in the data provider).
      */
     public function __construct(

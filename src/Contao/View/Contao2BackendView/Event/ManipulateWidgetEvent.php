@@ -44,7 +44,7 @@ class ManipulateWidgetEvent extends AbstractModelAwareEvent
     /**
      * The widget instance to manipulate.
      *
-     * @var \Widget
+     * @var Widget
      */
     protected $widget;
 
@@ -59,11 +59,8 @@ class ManipulateWidgetEvent extends AbstractModelAwareEvent
      * Create a new event.
      *
      * @param EnvironmentInterface $environment The environment in use.
-     *
      * @param ModelInterface       $model       The model for which the widget is created.
-     *
      * @param PropertyInterface    $property    The property information for which the widget is created.
-     *
      * @param Widget               $widget      The widget instance to manipulate.
      */
     public function __construct(
@@ -81,7 +78,7 @@ class ManipulateWidgetEvent extends AbstractModelAwareEvent
     /**
      * Retrieve the widget instance.
      *
-     * @return \Widget
+     * @return Widget
      */
     public function getWidget()
     {

@@ -79,15 +79,15 @@ class PickerCompatPopulator extends AbstractEventDrivenBackendEnvironmentPopulat
         $definition = $environment->getDataDefinition();
         $name       = $definition->getName();
         if (!isset($GLOBALS['TL_DCA'])) {
-            $GLOBALS['TL_DCA'] = array();
+            $GLOBALS['TL_DCA'] = [];
         }
 
         if (!isset($GLOBALS['TL_DCA'][$name])) {
-            $GLOBALS['TL_DCA'][$name] = array();
+            $GLOBALS['TL_DCA'][$name] = [];
         }
 
         if (!isset($GLOBALS['TL_DCA'][$name]['fields'])) {
-            $GLOBALS['TL_DCA'][$name]['fields'] = array();
+            $GLOBALS['TL_DCA'][$name]['fields'] = [];
         }
 
         $dca = &$GLOBALS['TL_DCA'][$name]['fields'];

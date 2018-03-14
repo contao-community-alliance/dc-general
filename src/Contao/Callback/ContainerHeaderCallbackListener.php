@@ -40,14 +40,13 @@ class ContainerHeaderCallbackListener extends AbstractReturningCallbackListener
      */
     public function getArgs($event)
     {
-        return array($event->getAdditional(), new DcCompat($event->getEnvironment()));
+        return [$event->getAdditional(), new DcCompat($event->getEnvironment())];
     }
 
     /**
      * Update the event with the information returned by the callback.
      *
      * @param GetParentHeaderEvent $event The event being emitted.
-     *
      * @param array                $value The additional information.
      *
      * @return void

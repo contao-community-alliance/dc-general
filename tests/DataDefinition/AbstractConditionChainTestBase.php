@@ -31,7 +31,7 @@ class AbstractConditionChainTestBase extends TestCase
 
         $this->assertNotSame($condition, $condition2);
 
-        $this->assertInstanceOf(get_class($condition), $condition2);
+        $this->assertInstanceOf(\get_class($condition), $condition2);
         $this->assertNotSame($condition, $condition2);
         $this->assertSame($condition->getConjunction(), $condition2->getConjunction());
 
@@ -41,21 +41,21 @@ class AbstractConditionChainTestBase extends TestCase
         $conditions  = $reflection->getValue($condition);
         $conditions2 = $reflection->getValue($condition2);
 
-        $this->assertSame(count($conditions), count($conditions2));
-        $this->assertSame(count($conditions), count(array_diff(array_keys($conditions), array_keys($conditions2))));
+        $this->assertSame(\count($conditions), \count($conditions2));
+        $this->assertSame(\count($conditions), \count(\array_diff(\array_keys($conditions), \array_keys($conditions2))));
 
-        reset($conditions);
-        reset($conditions2);
-        $subcondition  = current($conditions);
-        $subcondition2 = current($conditions2);
+        \reset($conditions);
+        \reset($conditions2);
+        $subcondition  = \current($conditions);
+        $subcondition2 = \current($conditions2);
 
         do {
-            $this->assertSame(get_class($subcondition), get_class($subcondition2));
+            $this->assertSame(\get_class($subcondition), \get_class($subcondition2));
 
-            next($conditions);
-            next($conditions2);
-            $subcondition  = current($conditions);
-            $subcondition2 = current($conditions2);
+            \next($conditions);
+            \next($conditions2);
+            $subcondition  = \current($conditions);
+            $subcondition2 = \current($conditions2);
         } while ($subcondition && $subcondition2);
     }
 }

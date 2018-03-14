@@ -1,4 +1,4 @@
-<?php if (count($this->elements) != 0): ?>
+<?php if (\count($this->elements) != 0): ?>
   <ul id="tl_breadcrumb">
     <?php $intCount = 0; foreach ($this->elements as $arrElement): ?>
       <li>

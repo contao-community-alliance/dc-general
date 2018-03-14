@@ -31,7 +31,7 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
      *
      * @var array
      */
-    protected $filterValues = array();
+    protected $filterValues = [];
 
     /**
      * {@inheritDoc}
@@ -60,6 +60,6 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
      */
     public function count()
     {
-        return count($this->filterValues);
+        return \count($this->filterValues);
     }
 }

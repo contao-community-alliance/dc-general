@@ -39,19 +39,18 @@ class ModelGroupCallbackListener extends AbstractReturningCallbackListener
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getGroupField(),
             $event->getGroupingMode(),
             $event->getValue(),
             $event->getModel()->getPropertiesAsArray()
-        );
+        ];
     }
 
     /**
      * Set the value in the event.
      *
      * @param GetGroupHeaderEvent $event The event being emitted.
-     *
      * @param string              $value The value returned by the callback.
      *
      * @return void

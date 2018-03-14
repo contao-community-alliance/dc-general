@@ -47,7 +47,6 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
      * Create a new instance.
      *
      * @param string $property The property name to be compared.
-     *
      * @param mixed  $values   The value to be compared against.
      */
     public function __construct($property, $values)
@@ -73,7 +72,7 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
         $property = $array['property'];
 
         if (!(isset($values) && isset($property))) {
-            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . var_export($array, true));
+            throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 
         return new static($property, $values);
@@ -86,11 +85,11 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
      */
     public function get()
     {
-        return array(
+        return [
             'property'  => $this->getProperty(),
             'operation' => 'IN',
             'values'    => $this->getValues()
-        );
+        ];
     }
 
     /**

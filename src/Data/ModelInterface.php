@@ -157,7 +157,6 @@ interface ModelInterface extends \IteratorAggregate
      * Update the property value in the model.
      *
      * @param string $strPropertyName The property name to be set.
-     *
      * @param mixed  $varValue        The value to be set.
      *
      * @return void
@@ -177,7 +176,6 @@ interface ModelInterface extends \IteratorAggregate
      * Update meta information in the model.
      *
      * @param string $strMetaName The meta information name.
-     *
      * @param mixed  $varValue    The meta information value to store.
      *
      * @return void

@@ -21,9 +21,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
-use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
@@ -35,10 +32,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleComma
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
-use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class handles toggle commands.
@@ -95,9 +91,7 @@ class ToggleHandler
      * Process the action.
      *
      * @param EnvironmentInterface   $environment  The environment.
-     *
      * @param ToggleCommandInterface $operation    The operation.
-     *
      * @param ModelIdInterface|null  $serializedId The model id.
      *
      * @return void
@@ -165,11 +159,11 @@ class ToggleHandler
 
         // TODO find a way for output the permission message.
         $event->setResponse(
-            sprintf(
+            \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for toggle %s.
                 </div>',
-                $this->getOperation()->getToggleProperty()
+                $this->getOperation($event->getAction(), $environment)->getToggleProperty()
             )
         );
 
@@ -204,7 +198,6 @@ class ToggleHandler
      * Retrieve the toggle operation being executed.
      *
      * @param Action               $action      The action.
-     *
      * @param EnvironmentInterface $environment The environment.
      *
      * @return ToggleCommandInterface
@@ -229,7 +222,6 @@ class ToggleHandler
      * Determine the new state from the input data.
      *
      * @param InputProviderInterface $inputProvider The input provider.
-     *
      * @param bool                   $isInverse     Flag if the state shall be evaluated as inverse toggler.
      *
      * @return string

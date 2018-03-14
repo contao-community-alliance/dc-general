@@ -42,17 +42,16 @@ class PropertyInputFieldCallbackListener extends AbstractReturningPropertyCallba
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             $event->getProperty(),
             new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
-        );
+        ];
     }
 
     /**
      * Update the widget in the event.
      *
      * @param BuildWidgetEvent $event The event being emitted.
-     *
      * @param Widget           $value The widget that has been constructed.
      *
      * @return void

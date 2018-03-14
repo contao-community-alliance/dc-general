@@ -46,7 +46,7 @@ class Action
      * @param string $name      The action name.
      * @param array  $arguments A set of action arguments.
      */
-    public function __construct($name, array $arguments = array())
+    public function __construct($name, array $arguments = [])
     {
         $this->name      = $name;
         $this->arguments = $arguments;

@@ -42,9 +42,7 @@ class DcGeneralExtension extends \Twig_Extension
      */
     public function getFilters()
     {
-        return array(
-            new \Twig_SimpleFilter('serializeModelId', array($this, 'serializeModelId')),
-        );
+        return [new \Twig_SimpleFilter('serializeModelId', [$this, 'serializeModelId']),];
     }
 
     /**

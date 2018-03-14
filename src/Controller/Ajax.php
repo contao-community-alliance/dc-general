@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use Contao\Ajax as ContaoAjax;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
@@ -71,7 +72,6 @@ abstract class Ajax implements EnvironmentAwareInterface
      * Compat wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
      *
      * @param string $key               The key to retrieve.
-     *
      * @param bool   $blnDecodeEntities Decode the entities.
      *
      * @return mixed
@@ -85,7 +85,6 @@ abstract class Ajax implements EnvironmentAwareInterface
      * Compatibility wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
      *
      * @param string $key               The key to retrieve.
-     *
      * @param bool   $blnDecodeEntities Decode the entities.
      *
      * @return mixed
@@ -117,7 +116,7 @@ abstract class Ajax implements EnvironmentAwareInterface
     protected function loadStructure()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), intval($this->getPost('level')));
+        echo $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), (int) $this->getPost('level'));
 
         $this->exitScript();
     }
@@ -132,7 +131,7 @@ abstract class Ajax implements EnvironmentAwareInterface
     protected function loadFileManager()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), intval($this->getPost('level')));
+        echo $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), (int) $this->getPost('level'));
 
         $this->exitScript();
     }
@@ -190,7 +189,7 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     public function executePostActions(DataContainerInterface $objDc)
     {
-        header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
+        \header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
         $this->objDc = $objDc;
 
@@ -204,30 +203,30 @@ abstract class Ajax implements EnvironmentAwareInterface
 
             // Load nodes of the page structure tree. Compatible between 2.X and 3.X.
             case 'loadStructure':
-                $this->loadStructure($objDc);
+                $this->loadStructure();
                 break;
 
             // Load nodes of the file manager tree.
             case 'loadFileManager':
-                $this->loadFileManager($objDc);
+                $this->loadFileManager();
                 break;
 
             // Load nodes of the page tree.
             case 'loadPagetree':
-                $this->loadPagetree($objDc);
+                $this->loadPagetree();
                 break;
 
             // Load nodes of the file tree.
             case 'loadFiletree':
-                $this->loadFiletree($objDc);
+                $this->loadFiletree();
                 break;
 
             // Reload the page/file picker.
             case 'reloadPagetree':
-                $this->reloadPagetree($objDc);
+                $this->reloadPagetree();
                 break;
             case 'reloadFiletree':
-                $this->reloadFiletree($objDc);
+                $this->reloadFiletree();
                 break;
 
             case 'setLegendState':
@@ -236,7 +235,7 @@ abstract class Ajax implements EnvironmentAwareInterface
 
             // Pass unknown actions to original Contao handler.
             default:
-                $ajax = new \Ajax($action);
+                $ajax = new ContaoAjax($action);
                 $ajax->executePreActions();
                 $ajax->executePostActions(new DcCompat($this->getEnvironment(), $this->getActiveModel()));
                 break;

@@ -42,7 +42,6 @@ class CreateDefaultPaletteConditionEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param DefaultPaletteCondition $paletteCondition The condition that has been created.
-     *
      * @param PaletteBuilder          $paletteBuilder   The palette builder creating the condition.
      */
     public function __construct(DefaultPaletteCondition $paletteCondition, PaletteBuilder $paletteBuilder)

@@ -22,9 +22,11 @@
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
 use Contao\System;
-use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
+use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
+use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
@@ -54,8 +56,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         $factory = new DcGeneralFactory();
         $factory->setEventDispatcher($environment->getEventDispatcher());
         $factory->setTranslator($environment->getTranslator());
-        $factory->setEnvironmentClassName(get_class($environment));
-        $factory->setContainerClassName(get_class($environment->getDataDefinition()));
+        $factory->setEnvironmentClassName(\get_class($environment));
+        $factory->setContainerClassName(\get_class($environment->getDataDefinition()));
         return $factory;
     }
 
@@ -80,7 +82,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @var string
      */
-    protected $environmentClassName = 'ContaoCommunityAlliance\DcGeneral\DefaultEnvironment';
+    protected $environmentClassName = DefaultEnvironment::class;
 
     /**
      * The name of the data container.
@@ -94,42 +96,42 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @var string
      */
-    protected $containerClassName = 'ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer';
+    protected $containerClassName = DefaultContainer::class;
 
     /**
      * The class name of the class to use as DcGeneral.
      *
      * @var string
      */
-    protected $dcGeneralClassName = 'ContaoCommunityAlliance\DcGeneral\DcGeneral';
+    protected $dcGeneralClassName = DcGeneral::class;
 
     /**
      * The event dispatcher to use.
      *
      * @var EventDispatcherInterface
      */
-    protected $eventDispatcher = null;
+    protected $eventDispatcher;
 
     /**
      * The translator that shall be used.
      *
      * @var TranslatorInterface
      */
-    protected $translator = null;
+    protected $translator;
 
     /**
      * The environment for the new instance.
      *
      * @var EnvironmentInterface
      */
-    protected $environment = null;
+    protected $environment;
 
     /**
      * The data definition container instance.
      *
      * @var ContainerInterface
      */
-    protected $dataContainer = null;
+    protected $dataContainer;
 
     /**
      * {@inheritdoc}

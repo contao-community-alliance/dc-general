@@ -48,7 +48,6 @@ abstract class AbstractCallbackListener
      * Create a new instance of the listener.
      *
      * @param array|callable $callback     The callback to call when invoked.
-     *
      * @param array|null     $restrictions The restrictions for the callback.
      */
     public function __construct($callback = null, $restrictions = null)
@@ -56,7 +55,7 @@ abstract class AbstractCallbackListener
         $this->callback = $callback;
 
         if ($restrictions) {
-            call_user_func_array(array($this, 'setRestrictions'), $restrictions);
+            \call_user_func_array([$this, 'setRestrictions'], $restrictions);
         }
     }
 

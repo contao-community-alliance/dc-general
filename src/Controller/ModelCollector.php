@@ -130,7 +130,6 @@ class ModelCollector
      * Fetch a certain model from its provider.
      *
      * @param string|ModelIdInterface $modelId      This is either the id of the model or a serialized id.
-     *
      * @param string|null             $providerName The name of the provider, if this is empty, the id will be
      *                                              deserialized and the provider name will get extracted from there.
      *
@@ -140,7 +139,7 @@ class ModelCollector
      */
     public function getModel($modelId, $providerName = null)
     {
-        if (is_string($modelId)) {
+        if (\is_string($modelId)) {
             try {
                 $modelId = ModelId::fromValues($providerName, $modelId);
             } catch (\Exception $swallow) {
@@ -149,7 +148,7 @@ class ModelCollector
         }
 
         if (!($modelId instanceof ModelIdInterface)) {
-            throw new \InvalidArgumentException('Invalid model id passed: ' . var_export($modelId, true));
+            throw new \InvalidArgumentException('Invalid model id passed: ' . \var_export($modelId, true));
         }
 
         $definition       = $this->environment->getDataDefinition();
@@ -175,7 +174,7 @@ class ModelCollector
             }
 
             // @codingStandardsIgnoreStart
-            @trigger_error
+            @\trigger_error
             (
                 'Only real property is allowed in the property definition.' .
                 'This will no longer be supported in the future.',
@@ -194,7 +193,6 @@ class ModelCollector
      * This recursively tries to load the parent from sub collections in sub providers.
      *
      * @param ModelInterface      $model  The model to search the parent for.
-     *
      * @param CollectionInterface $models The collection to search in.
      *
      * @return ModelInterface
@@ -246,9 +244,7 @@ class ModelCollector
      * Retrieve all siblings of a given model.
      *
      * @param ModelInterface   $model           The model for which the siblings shall be retrieved from.
-     *
      * @param string|null      $sortingProperty The property name to use for sorting.
-     *
      * @param ModelIdInterface $parentId        The (optional) parent id to use.
      *
      * @return CollectionInterface
@@ -275,11 +271,11 @@ class ModelCollector
         $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         if ($viewDefinition && $viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
             $listingConfig        = $viewDefinition->getListingConfig();
-            $sortingProperties    = array_keys((array) $listingConfig->getDefaultSortingFields());
-            $sortingPropertyIndex = array_search($sortingProperty, $sortingProperties);
+            $sortingProperties    = \array_keys((array) $listingConfig->getDefaultSortingFields());
+            $sortingPropertyIndex = \array_search($sortingProperty, $sortingProperties);
 
             if (false !== $sortingPropertyIndex && $sortingPropertyIndex > 0) {
-                $sortingProperties = array_slice($sortingProperties, 0, $sortingPropertyIndex);
+                $sortingProperties = \array_slice($sortingProperties, 0, $sortingPropertyIndex);
                 $filters           = $config->getFilter();
 
                 foreach ($sortingProperties as $propertyName) {
@@ -294,9 +290,7 @@ class ModelCollector
             }
         }
 
-        $siblings = $provider->fetchAll($config);
-
-        return $siblings;
+        return $provider->fetchAll($config);
     }
 
     /**
@@ -307,7 +301,6 @@ class ModelCollector
      * conditions.
      *
      * @param ModelInterface $model        The model to assemble children from.
-     *
      * @param string         $providerName The name of the data provider to fetch children from.
      *
      * @return array
@@ -338,7 +331,7 @@ class ModelCollector
                 }
 
                 // Head into recursion.
-                $ids = array_merge($ids, $this->collectChildrenOf($child, $providerName));
+                $ids = \array_merge($ids, $this->collectChildrenOf($child, $providerName));
             }
         }
 

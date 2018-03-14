@@ -44,9 +44,7 @@ class PreDuplicateModelEvent extends AbstractModelAwareEvent
      * Create a new instance.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelInterface       $model       The new model.
-     *
      * @param ModelInterface       $sourceModel The source model.
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model, ModelInterface $sourceModel)

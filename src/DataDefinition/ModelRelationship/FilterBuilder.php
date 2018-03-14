@@ -54,20 +54,19 @@ class FilterBuilder
      * Create a new instance.
      *
      * @param array $filter Optional base filter array.
-     *
      * @param bool  $isRoot Flag determining if the current filter is a root filter.
      *
      * @throws DcGeneralInvalidArgumentException When an invalid filter array has been passed.
      */
-    public function __construct($filter = array(), $isRoot = false)
+    public function __construct($filter = [], $isRoot = false)
     {
-        if (!is_array($filter)) {
+        if (!\is_array($filter)) {
             throw new DcGeneralInvalidArgumentException(
-                'FilterBuilder needs a valid filter array ' . gettype($filter) . 'given'
+                'FilterBuilder needs a valid filter array ' . \gettype($filter) . 'given'
             );
         }
 
-        $this->filters      = $this->getBuilderFromArray(array('operation' => 'AND', 'children' => $filter), $this);
+        $this->filters      = static::getBuilderFromArray(['operation' => 'AND', 'children' => $filter], $this);
         $this->isRootFilter = $isRoot;
     }
 
@@ -75,7 +74,6 @@ class FilterBuilder
      * Instantiate the correct builder class from a given filter array.
      *
      * @param array         $filter  The filter.
-     *
      * @param FilterBuilder $builder The builder instance.
      *
      * @return BaseFilterBuilder
@@ -114,7 +112,7 @@ class FilterBuilder
      *
      * @return FilterBuilder
      */
-    public static function fromArray($filter = array())
+    public static function fromArray($filter = [])
     {
         return new static($filter, false);
     }
@@ -126,7 +124,7 @@ class FilterBuilder
      *
      * @return FilterBuilder
      */
-    public static function fromArrayForRoot($filter = array())
+    public static function fromArrayForRoot($filter = [])
     {
         return new static($filter, true);
     }
@@ -153,7 +151,7 @@ class FilterBuilder
         $this->filters = new AndFilterBuilder();
         $this->filters->setBuilder($this);
 
-        $orFilter = new OrFilterBuilder(array($root));
+        $orFilter = new OrFilterBuilder([$root]);
         $this->filters->add($orFilter);
 
         return $orFilter;
@@ -208,7 +206,7 @@ class FilterBuilder
      */
     public static function isValidOperation($operation)
     {
-        return in_array($operation, array('AND', 'OR', '=', '>', '<', 'IN', 'LIKE'));
+        return \in_array($operation, ['AND', 'OR', '=', '>', '<', 'IN', 'LIKE']);
     }
 
     /**
@@ -222,7 +220,7 @@ class FilterBuilder
      */
     public function checkValidOperation($operation)
     {
-        if (!$this->isValidOperation($operation)) {
+        if (!static::isValidOperation($operation)) {
             throw new DcGeneralInvalidArgumentException(
                 'Invalid operation ' . $operation . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
             );

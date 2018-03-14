@@ -22,6 +22,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao;
 
+use Contao\Environment;
+use Contao\Input;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
@@ -36,7 +38,7 @@ class InputProvider implements InputProviderInterface
      */
     public function getParameter($strKey, $blnRaw = false)
     {
-        return \Input::getInstance()->get($strKey);
+        return Input::get($strKey);
     }
 
     /**
@@ -44,7 +46,7 @@ class InputProvider implements InputProviderInterface
      */
     public function setParameter($strKey, $varValue)
     {
-        \Input::getInstance()->setGet($strKey, $varValue);
+        Input::setGet($strKey, $varValue);
 
         return $this;
     }
@@ -54,7 +56,7 @@ class InputProvider implements InputProviderInterface
      */
     public function unsetParameter($strKey)
     {
-        \Input::getInstance()->setGet($strKey, null);
+        Input::setGet($strKey, null);
 
         return $this;
     }
@@ -64,7 +66,7 @@ class InputProvider implements InputProviderInterface
      */
     public function hasParameter($strKey)
     {
-        return (\Input::getInstance()->get($strKey) !== null);
+        return (Input::get($strKey) !== null);
     }
 
     /**
@@ -73,10 +75,10 @@ class InputProvider implements InputProviderInterface
     public function getValue($strKey, $blnRaw = false)
     {
         if ($blnRaw) {
-            return \Input::getInstance()->postRaw($strKey);
+            return Input::postRaw($strKey);
         }
 
-        return \Input::getInstance()->post($strKey);
+        return Input::post($strKey);
     }
 
     /**
@@ -84,7 +86,7 @@ class InputProvider implements InputProviderInterface
      */
     public function setValue($strKey, $varValue)
     {
-        \Input::getInstance()->setPost($strKey, $varValue);
+        Input::setPost($strKey, $varValue);
 
         return $this;
     }
@@ -94,7 +96,7 @@ class InputProvider implements InputProviderInterface
      */
     public function unsetValue($strKey)
     {
-        \Input::getInstance()->setPost($strKey, null);
+        Input::setPost($strKey, null);
 
         return $this;
     }
@@ -104,7 +106,7 @@ class InputProvider implements InputProviderInterface
      */
     public function hasValue($strKey)
     {
-        return (\Input::getInstance()->post($strKey) !== null);
+        return (Input::post($strKey) !== null);
     }
 
     /**
@@ -113,6 +115,6 @@ class InputProvider implements InputProviderInterface
     public function getRequestUrl()
     {
 
-        return \Environment::getInstance()->request;
+        return Environment::get('request');
     }
 }

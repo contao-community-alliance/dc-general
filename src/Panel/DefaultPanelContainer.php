@@ -41,7 +41,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      *
      * @var PanelInterface[]
      */
-    private $arrPanels = array();
+    private $arrPanels = [];
 
     /**
      * {@inheritdoc}
@@ -112,6 +112,6 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function count()
     {
-        return count($this->arrPanels);
+        return \count($this->arrPanels);
     }
 }

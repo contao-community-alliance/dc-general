@@ -21,9 +21,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 
 /**
  * A property contained within a palette.
@@ -52,11 +52,9 @@ interface PropertyInterface
      * @param ModelInterface|null $model  If given, sub palettes will be evaluated depending on the model.
      *                                    If no model is given, all properties will be returned, including sub palette
      *                                    properties.
-     *
      * @param PropertyValueBag    $input  If given, sub palettes will be evaluated depending on the input data.
      *                                    If no model and no input data is given, all properties will be returned,
      *                                    including sub palette properties.
-     *
      * @param LegendInterface     $legend The legend the property is assigned to.
      *
      * @return bool
@@ -73,11 +71,9 @@ interface PropertyInterface
      * @param ModelInterface|null $model  If given, sub palettes will be evaluated depending on the model.
      *                                    If no model is given, all properties will be returned, including sub palette
      *                                    properties.
-     *
      * @param PropertyValueBag    $input  If given, sub palettes will be evaluated depending on the input data.
      *                                    If no model and no input data is given, all properties will be returned,
      *                                    including sub palette properties.
-     *
      * @param LegendInterface     $legend The legend the property is assigned to.
      *
      * @return bool

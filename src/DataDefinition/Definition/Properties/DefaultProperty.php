@@ -135,7 +135,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
      *
      * @var array
      */
-    protected $extra = array();
+    protected $extra = [];
 
     /**
      * Flag if an empty value has been set.

@@ -14,6 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     binron <rtb@gmx.ch>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -116,10 +117,10 @@ class ButtonRenderer
             ->getModelCommands();
         $controller             = $environment->getController();
         $this->clipboardModels  = $controller->getModelsFromClipboardItems($this->clipboardItems);
-        $this->circularModelIds = array();
+        $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems = array_filter($this->clipboardItems, function ($item) {
+        $cutItems = \array_filter($this->clipboardItems, function ($item) {
             /** @var ItemInterface $item */
             return $item->getAction() === $item::CUT;
         });
@@ -155,9 +156,7 @@ class ButtonRenderer
      * Render the operation buttons for the passed model.
      *
      * @param ModelInterface $model    The model to render the buttons for.
-     *
      * @param ModelInterface $previous The previous model in the collection.
-     *
      * @param ModelInterface $next     The next model in the collection.
      *
      * @return void
@@ -170,13 +169,13 @@ class ButtonRenderer
         $modelId = ModelId::fromModel($model)->getSerialized();
 
         if ($this->clipboardItems) {
-            $isCircular = in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
+            $isCircular = \in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
         } else {
             $isCircular = false;
         }
         $childIds = $this->getChildIds($model);
 
-        $buttons = array();
+        $buttons = [];
         foreach ($this->commands->getCommands() as $command) {
             $buttons[$command->getName()] =
                 $this->buildCommand($command, $model, $previous, $next, $isCircular, $childIds);
@@ -188,8 +187,8 @@ class ButtonRenderer
 
         // Add paste into/after icons.
         if ($this->hasPasteButtons()) {
-            $urlAfter = $this->addToUrl(sprintf('act=paste&after=%s&', $modelId));
-            $urlInto  = $this->addToUrl(sprintf('act=paste&into=%s&', $modelId));
+            $urlAfter = $this->addToUrl(\sprintf('act=paste&after=%s&', $modelId));
+            $urlInto  = $this->addToUrl(\sprintf('act=paste&into=%s&', $modelId));
 
 
             $buttonEvent = new GetPasteButtonEvent($this->environment);
@@ -214,7 +213,7 @@ class ButtonRenderer
 
         $model->setMeta(
             $model::OPERATION_BUTTONS,
-            implode(' ', $buttons)
+            \implode(' ', $buttons)
         );
     }
 
@@ -264,16 +263,11 @@ class ButtonRenderer
      * Render a command button.
      *
      * @param CommandInterface $command             The command to render the button for.
-     *
      * @param ModelInterface   $model               The model to which the command shall get applied.
-     *
      * @param ModelInterface   $previous            The previous model in the collection.
-     *
      * @param ModelInterface   $next                The next model in the collection.
-     *
      * @param bool             $isCircularReference Determinator if there exists a circular reference between the model
      *                                              and the model(s) contained in the clipboard.
-     *
      * @param string[]         $childIds            The ids of all child models.
      *
      * @return string
@@ -284,10 +278,10 @@ class ButtonRenderer
         $attributes = '';
 
         if (!empty($extra['attributes'])) {
-            $attributes .= sprintf($extra['attributes'], $model->getID());
+            $attributes .= \sprintf($extra['attributes'], $model->getID());
         }
         $label = $this->getCommandLabel($command);
-        $title = sprintf($this->translate($command->getDescription()), $model->getID());
+        $title = \sprintf($this->translate($command->getDescription()), $model->getID());
         $icon  = $extra['icon'];
 
         if ($command instanceof ToggleCommandInterface) {
@@ -295,7 +289,7 @@ class ButtonRenderer
                 ? $extra['icon_disabled']
                 : 'invisible.svg';
 
-            $attributes .= sprintf(
+            $attributes .= \sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
                 $icon,
                 $iconDisabled
@@ -326,21 +320,22 @@ class ButtonRenderer
 
         if (null !== ($html = $buttonEvent->getHtml())) {
             // If the event created a button, use it.
-            return trim($html);
+            return \trim($html);
         }
 
         if ($buttonEvent->isDisabled()) {
             return $this->renderImageAsHtml(
-                substr_replace($icon, '_1', strrpos($icon, '.'), 0),
+                \substr_replace($icon, '_1', \strrpos($icon, '.'), 0),
                 $buttonEvent->getLabel()
             );
         }
 
-        return sprintf(
-            ' <a href="%s" title="%s" %s>%s</a>',
+        return \sprintf(
+            ' <a class="%s" href="%s" title="%s" %s>%s</a>',
+            $command->getName(),
             $buttonEvent->getHref(),
             StringUtil::specialchars($buttonEvent->getTitle()),
-            ltrim($buttonEvent->getAttributes()),
+            \ltrim($buttonEvent->getAttributes()),
             $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
         );
     }
@@ -355,10 +350,10 @@ class ButtonRenderer
     private function getChildIds(ModelInterface $model)
     {
         if (null === ($childCollections = $model->getMeta($model::CHILD_COLLECTIONS))) {
-            return array();
+            return [];
         }
 
-        $result = array(ModelId::fromModel($model)->getSerialized());
+        $result = [ModelId::fromModel($model)->getSerialized()];
         foreach ($childCollections as $collection) {
             foreach ($collection as $child) {
                 $result += $this->getChildIds($child);
@@ -388,7 +383,7 @@ class ButtonRenderer
         }
         if (($command instanceof CutCommandInterface) || ($command instanceof CopyCommandInterface)) {
             // Cut & copy need some special information.
-            $parameters        = array();
+            $parameters        = [];
             $parameters['act'] = $command->getName();
 
             $inputProvider = $this->environment->getInputProvider();
@@ -423,8 +418,8 @@ class ButtonRenderer
      */
     private function renderPasteNewFor($modelId)
     {
-        $label = sprintf($this->translate('pastenew.1'), ModelId::fromSerialized($modelId)->getId());
-        return sprintf(
+        $label = \sprintf($this->translate('pastenew.1'), ModelId::fromSerialized($modelId)->getId());
+        return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
             StringUtil::specialchars($label),
@@ -451,12 +446,12 @@ class ButtonRenderer
         }
 
         if ('pasteinto.1' !== ($opDesc = $this->translate('pasteinto.1'))) {
-            $title = sprintf($opDesc, $event->getModel()->getId());
+            $title = \sprintf($opDesc, $event->getModel()->getId());
         } else {
-            $title = sprintf('%s id %s', $label, $event->getModel()->getId());
+            $title = \sprintf('%s id %s', $label, $event->getModel()->getId());
         }
 
-        return sprintf(
+        return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefInto(),
             StringUtil::specialchars($title),
@@ -483,12 +478,12 @@ class ButtonRenderer
         }
 
         if ('pasteafter.1' !== ($opDesc = $this->translate('pasteafter.1'))) {
-            $title = sprintf($opDesc, $event->getModel()->getId());
+            $title = \sprintf($opDesc, $event->getModel()->getId());
         } else {
-            $title = sprintf('%s id %s', $label, $event->getModel()->getId());
+            $title = \sprintf('%s id %s', $label, $event->getModel()->getId());
         }
 
-        return sprintf(
+        return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefAfter(),
             StringUtil::specialchars($title),
@@ -539,9 +534,7 @@ class ButtonRenderer
      * Render an image as HTML string.
      *
      * @param string $src        The image path.
-     *
      * @param string $alt        An optional alt attribute.
-     *
      * @param string $attributes A string of other attributes.
      *
      * @return string
@@ -576,7 +569,6 @@ class ButtonRenderer
      * Determine the toggle state of a toggle command.
      *
      * @param ToggleCommandInterface $command The toggle command.
-     *
      * @param ModelInterface         $model   The model in scope.
      *
      * @return bool
@@ -593,7 +585,7 @@ class ButtonRenderer
                 $dataProvider
                     ->getEmptyConfig()
                     ->setId($model->getId())
-                    ->setFields(array($command->getToggleProperty()))
+                    ->setFields([$command->getToggleProperty()])
             );
             $dataProvider->setCurrentLanguage($language);
         } else {
@@ -611,7 +603,6 @@ class ButtonRenderer
      * Calculate the href for a command.
      *
      * @param CommandInterface $command The command.
-     *
      * @param ModelInterface   $model   The current model.
      *
      * @return string
@@ -622,7 +613,7 @@ class ButtonRenderer
         $parameters = $this->calculateParameters($command, $modelId);
         $href       = '';
         foreach ($parameters as $key => $value) {
-            $href .= sprintf('&%s=%s', $key, $value);
+            $href .= \sprintf('&%s=%s', $key, $value);
         }
 
         return $this->addToUrl($href);
@@ -637,13 +628,13 @@ class ButtonRenderer
      */
     private function getCommandLabel(CommandInterface $command)
     {
-        if (!strlen($label = $command->getLabel())) {
+        if (null === $label = $command->getLabel()) {
             $label = $command->getName();
         }
 
         $label = $this->translate($label);
 
-        if (is_array($label)) {
+        if (\is_array($label)) {
             $label = $label[0];
 
             return $label;

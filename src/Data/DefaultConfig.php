@@ -34,14 +34,14 @@ class DefaultConfig implements ConfigInterface
      *
      * @var mixed
      */
-    protected $mixId = null;
+    protected $mixId;
 
     /**
      * The ids to be retrieved.
      *
      * @var array
      */
-    protected $arrIds = array();
+    protected $arrIds = [];
 
     /**
      * Flag determining if only the ids shall get fetched or models.
@@ -71,21 +71,21 @@ class DefaultConfig implements ConfigInterface
      *
      * @var array|null
      */
-    protected $arrFilter = null;
+    protected $arrFilter;
 
     /**
      * The properties to use for sorting.
      *
      * @var array(string => string)
      */
-    protected $arrSorting = array();
+    protected $arrSorting = [];
 
     /**
      * The properties to retrieve.
      *
      * @var array|null
      */
-    protected $arrFields = null;
+    protected $arrFields;
 
     /**
      * Miscellaneous arbitrary data stored in the config.
@@ -95,7 +95,7 @@ class DefaultConfig implements ConfigInterface
      * @see set
      * @see get
      */
-    protected $arrData = array();
+    protected $arrData = [];
 
     /**
      * Create object.
@@ -343,7 +343,6 @@ class DefaultConfig implements ConfigInterface
      * Set the additional information.
      *
      * @param string $strKey   The name of the information to retrieve.
-     *
      * @param mixed  $varValue The value to store.
      *
      * @return ConfigInterface

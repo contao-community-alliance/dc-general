@@ -32,13 +32,18 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -94,9 +99,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            DcGeneralEvents::ACTION => array('handleAction', -100),
-        );
+        return [
+            DcGeneralEvents::ACTION => ['handleAction', -100],
+        ];
     }
 
     /**
@@ -125,19 +130,22 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         switch ($name) {
+            case 'showAll':
             case 'select':
-                // If no redirect happens, we want to display the showAll action.
-                $name = 'showAll';
-            // No break here.
+            $handler = new SelectHandler(
+                $this->scopeDeterminator,
+                new DeleteHandler($this->scopeDeterminator),
+                new CopyHandler($this->scopeDeterminator)
+            );
+            $handler->handleEvent($event);
+            break;
             case 'create':
-            case 'paste':
             case 'move':
             case 'undo':
             case 'edit':
-            case 'showAll':
-                $response = call_user_func_array(
-                    array($this, $name),
-                    array_merge(array($action), $action->getArguments())
+                $response = \call_user_func_array(
+                    [$this, $name],
+                    \array_merge([$action], $action->getArguments())
                 );
                 $event->setResponse($response);
                 break;
@@ -185,7 +193,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Translate a string via the translator.
      *
      * @param string      $path    The path within the translation where the string can be found.
-     *
      * @param string|null $section The section from which the translation shall be retrieved.
      *
      * @return string
@@ -218,9 +225,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Add the value to the template.
      *
      * @param string    $name     Name of the value.
-     *
      * @param mixed     $value    The value to add to the template.
-     *
      * @param Template $template The template to add the value to.
      *
      * @return BaseView
@@ -274,18 +279,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * Return the formatted value for use in group headers as string.
      *
      * @param string         $field       The name of the property to format.
-     *
      * @param ModelInterface $model       The model from which the value shall be taken from.
-     *
      * @param string         $groupMode   The grouping mode in use.
-     *
      * @param int            $groupLength The length of the value to use for grouping (only used when grouping mode is
      *                                    ListingConfigInterface::GROUP_CHAR).
      *
      * @return string
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     public function formatCurrentValue($field, ModelInterface $model, $groupMode, $groupLength)
     {
@@ -311,46 +310,86 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $definition      = $this->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
-        $buttons         = array();
+        $buttons         = [];
+
+        $confirmMessage = \htmlentities(
+            \sprintf(
+                '<h2 class="tl_error">%s</h2>' .
+                '<p></p>' .
+                '<div class="tl_submit_container">' .
+                '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
+                '</div>',
+                StringUtil::specialchars($this->translate('MSC.nothingSelect')),
+                'tl_submit',
+                StringUtil::specialchars($this->translate('MSC.close')),
+                'this.blur(); BackendGeneral.hideMessage(); return false;'
+            )
+        );
+        $onClick        = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'models[]\', \''
+                          . $confirmMessage . '\'); return false;';
+
+        $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
 
         if ($basicDefinition->isDeletable()) {
-            $buttons['delete'] = sprintf(
-                '<input ' .
-                'type="submit"' .
-                'name="delete"' .
-                'id="delete"' .
-                'class="tl_submit"' .
-                'accesskey="d"' .
-                'onclick="return confirm(\'%s\')"' .
-                'value="%s" />',
+            $onClickDelete = \sprintf(
+                'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
+                'models[]',
+                $confirmMessage,
                 StringUtil::specialchars($this->translate('MSC.delAllConfirm')),
-                StringUtil::specialchars($this->translate('MSC.deleteSelected'))
+                StringUtil::specialchars($this->translate('MSC.confirmOk')),
+                StringUtil::specialchars($this->translate('MSC.confirmAbort'))
+            );
+
+            $buttons['delete'] = \sprintf(
+                $input,
+                'delete',
+                'delete',
+                'd',
+                StringUtil::specialchars($this->translate('MSC.deleteSelected')),
+                $onClickDelete
             );
         }
 
-        if ($basicDefinition->isEditable()) {
-            $buttons['cut'] = sprintf(
-                '<input type="submit" name="cut" id="cut" class="tl_submit" accesskey="x" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.moveSelected'))
+        $sortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+        if ($sortingProperty && $basicDefinition->isEditable()) {
+            $buttons['cut'] = \sprintf(
+                $input,
+                'cut',
+                'cut',
+                's',
+                StringUtil::specialchars($this->translate('MSC.moveSelected')),
+                $onClick
             );
         }
 
         if ($basicDefinition->isCreatable()) {
-            $buttons['copy'] = sprintf(
-                '<input type="submit" name="copy" id="copy" class="tl_submit" accesskey="c" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.copySelected'))
+            $buttons['copy'] = \sprintf(
+                $input,
+                'copy',
+                'copy',
+                'c',
+                StringUtil::specialchars($this->translate('MSC.copySelected')),
+                $onClick
             );
         }
 
         if ($basicDefinition->isEditable()) {
-            $buttons['override'] = sprintf(
-                '<input type="submit" name="override" id="override" class="tl_submit" accesskey="v" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.overrideSelected'))
+            $buttons['override'] = \sprintf(
+                $input,
+                'override',
+                'override',
+                'v',
+                StringUtil::specialchars($this->translate('MSC.overrideSelected')),
+                $onClick
             );
 
-            $buttons['edit'] = sprintf(
-                '<input type="submit" name="edit" id="edit" class="tl_submit" accesskey="s" value="%s">',
-                StringUtil::specialchars($this->translate('MSC.editSelected'))
+            $buttons['edit'] = \sprintf(
+                $input,
+                'edit',
+                'edit',
+                's',
+                StringUtil::specialchars($this->translate('MSC.editSelected')),
+                $onClick
             );
         }
 
@@ -370,7 +409,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function isMultiLanguage($mixId)
     {
-        return count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
+        return \count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
     }
 
     /**
@@ -401,11 +440,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         // Redefine the parameter id if this isn´t model id conform.
         if (true === ($input->hasParameter('id'))
-            && (false === stripos($input->getParameter('id'), '::'))
+            && (false === \stripos($input->getParameter('id'), '::'))
         ) {
             $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
             $input->setParameter('id', $modelId->getSerialized());
         }
+
+        $this->addAjaxPropertyForEditAll();
 
         $handler = new Ajax3X();
         $handler->executePostActions(new DcCompat($this->getEnvironment()));
@@ -414,7 +455,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      *
-     * @throws \RuntimeException This method os not in use anymore.
+     * @throws \RuntimeException This method is not in use anymore.
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -426,7 +467,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      *
-     * @throws \RuntimeException This method os not in use anymore.
+     * @throws \RuntimeException This method is not in use anymore.
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -440,7 +481,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * NOTE: This method redirects the user to the listing and therefore the script will be ended.
      *
-     * @throws \RuntimeException If the is any error.
+     * @throws \RuntimeException This method is not in use anymore.
      */
     public function delete(Action $action)
     {
@@ -456,7 +497,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        return vsprintf($this->notImplMsg, 'move - Mode');
+        return \vsprintf($this->notImplMsg, 'move - Mode');
     }
 
     /**
@@ -468,7 +509,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        return vsprintf($this->notImplMsg, 'undo - Mode');
+        return \vsprintf($this->notImplMsg, 'undo - Mode');
     }
 
     /**
@@ -498,7 +539,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $this->edit($action);
         }
 
-        return sprintf(
+        return \sprintf(
             $this->notImplMsg,
             'showAll - Mode ' . $this->environment->getDataDefinition()->getBasicDefinition()->getMode()
         );
@@ -524,7 +565,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return string
      */
-    protected function panel($ignoredPanels = array())
+    protected function panel($ignoredPanels = [])
     {
         $renderer = new PanelRenderer($this);
         return $renderer->render($ignoredPanels);
@@ -546,7 +587,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $arrReturn = $event->getElements();
 
-        if (!is_array($arrReturn) || count($arrReturn) == 0) {
+        if (!\is_array($arrReturn) || \count($arrReturn) == 0) {
             return null;
         }
 
@@ -556,5 +597,86 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->addToTemplate('elements', $arrReturn, $objTemplate);
 
         return $objTemplate->parse();
+    }
+
+    /**
+     * Add the ajax property for edit all mode.
+     *
+     * @return void
+     */
+    private function addAjaxPropertyForEditAll()
+    {
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+
+        if (('select' !== $inputProvider->getParameter('act'))
+            && ('edit' !== $inputProvider->getParameter('select'))
+            && ('edit' !== $inputProvider->getParameter('mode'))
+        ) {
+            return;
+        }
+
+        $originalProperty = $this->findOriginalPropertyByModelId($inputProvider->getValue('name'));
+        if (null === $originalProperty) {
+            return;
+        }
+
+        $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+
+        $propertyClass = \get_class($originalProperty);
+
+        $property = new $propertyClass($inputProvider->getValue('name'));
+        $property->setLabel($originalProperty->getLabel());
+        $property->setDescription($originalProperty->getDescription());
+        $property->setDefaultValue($originalProperty->getDefaultValue());
+        $property->setExcluded($originalProperty->isExcluded());
+        $property->setSearchable($originalProperty->isSearchable());
+        $property->setFilterable($originalProperty->isFilterable());
+        $property->setWidgetType($originalProperty->getWidgetType());
+        $property->setExplanation($originalProperty->getExplanation());
+        $property->setExtra($originalProperty->getExtra());
+
+        $propertiesDefinition->addProperty($property);
+    }
+
+    /**
+     * Find the original property by the modelId.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return PropertyInterface|null
+     */
+    private function findOriginalPropertyByModelId($propertyName)
+    {
+        if (null === $propertyName) {
+            return null;
+        }
+
+        $inputProvider  = $this->getEnvironment()->getInputProvider();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+
+        $selectAction = $inputProvider->getParameter('select');
+
+        $session = $sessionStorage->get($this->getEnvironment()->getDataDefinition()->getName() . '.' . $selectAction);
+
+        $originalPropertyName = null;
+        foreach ($session['models'] as $modelId) {
+            if (null !== $originalPropertyName) {
+                break;
+            }
+
+            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
+            if ($propertyNamePrefix !== \substr($propertyName, 0, \strlen($propertyNamePrefix))) {
+                continue;
+            }
+
+            $originalPropertyName = \substr($propertyName, \strlen($propertyNamePrefix));
+        }
+
+        $propertiesDefinition = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+        if (!$propertiesDefinition->hasProperty($originalPropertyName)) {
+            return null;
+        }
+
+        return $propertiesDefinition->getProperty($originalPropertyName);
     }
 }

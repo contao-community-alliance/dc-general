@@ -80,10 +80,12 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function getEmptyFilterOptionCollection()
     {
-        trigger_error(
+        // @codingStandardsIgnoreStart
+        @\trigger_error(
             'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
             E_USER_DEPRECATED
         );
+        // @codingStandardsIgnoreEnd
         return new DefaultFilterOptionCollection();
     }
 
@@ -122,17 +124,17 @@ class NoOpDataProvider implements DataProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function save(ModelInterface $objItem)
+    public function save(ModelInterface $objItem, $timestamp = 0)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function saveEach(CollectionInterface $objItems)
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
     {
         foreach ($objItems as $objItem) {
-            $this->save($objItem);
+            $this->save($objItem, $timestamp);
         }
     }
 
@@ -187,7 +189,7 @@ class NoOpDataProvider implements DataProviderInterface
     public function resetFallback($strField)
     {
         // @codingStandardsIgnoreStart
-        @trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
+        @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
     }
 
@@ -215,11 +217,11 @@ class NoOpDataProvider implements DataProviderInterface
         $arrProperties1 = $objModel1->getPropertiesAsArray();
         $arrProperties2 = $objModel2->getPropertiesAsArray();
 
-        $arrKeys = array_merge(array_keys($arrProperties1), array_keys($arrProperties2));
-        $arrKeys = array_unique($arrKeys);
+        $arrKeys = \array_merge(\array_keys($arrProperties1), \array_keys($arrProperties2));
+        $arrKeys = \array_unique($arrKeys);
         foreach ($arrKeys as $strKey) {
-            if (!array_key_exists($strKey, $arrProperties1) ||
-                !array_key_exists($strKey, $arrProperties2) ||
+            if (!\array_key_exists($strKey, $arrProperties1) ||
+                !\array_key_exists($strKey, $arrProperties2) ||
                 $arrProperties1[$strKey] != $arrProperties2[$strKey]
             ) {
                 return false;

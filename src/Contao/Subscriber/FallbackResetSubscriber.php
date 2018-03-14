@@ -13,6 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -20,6 +21,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Subscriber;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
@@ -32,6 +35,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class FallbackResetSubscriber implements EventSubscriberInterface
 {
+    use RequestScopeDeterminatorAwareTrait;
+
+    /**
+     * FallbackResetSubscriber constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
+     */
+    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    {
+        $this->scopeDeterminator = $scopeDeterminator;
+    }
+
     /**
      * Returns an array of event names this subscriber wants to listen to.
      *
@@ -52,10 +67,10 @@ class FallbackResetSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            PostPersistModelEvent::NAME => array('handlePostPersistModelEvent', -200),
-            PostDuplicateModelEvent::NAME => array('handlePostDuplicateModelEvent', -200)
-        );
+        return [
+            PostPersistModelEvent::NAME => ['handlePostPersistModelEvent', -200],
+            PostDuplicateModelEvent::NAME => ['handlePostDuplicateModelEvent', -200]
+        ];
     }
 
     /**
@@ -95,17 +110,17 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         $dataProvider = $event->getEnvironment()->getDataProvider($model->getProviderName());
         $properties   = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
 
-        foreach (array_keys($model->getPropertiesAsArray()) as $propertyName) {
+        foreach (\array_keys($model->getPropertiesAsArray()) as $propertyName) {
             if (!$properties->hasProperty($propertyName)) {
                 continue;
             }
             $property = $properties->getProperty($propertyName);
             $extra    = (array) $property->getExtra();
-            if (array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
+            if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
                 // BC Layer - use old reset fallback methodology until it get's removed.
                 if (null === ($config = $this->determineFilterConfig($event))) {
                     // @codingStandardsIgnoreStart
-                    @trigger_error(
+                    @\trigger_error(
                         'DataProviderInterface::resetFallback is deprecated - ' .
                         'Please specify proper parent child relationship',
                         E_USER_DEPRECATED
@@ -113,6 +128,11 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                     // @codingStandardsIgnoreEnd
 
                     $dataProvider->resetFallback($propertyName);
+                }
+
+                // If value is empty, no need to reset the fallback.
+                if (!$model->getProperty($propertyName)) {
+                    continue;
                 }
 
                 $models = $dataProvider->fetchAll($config);
@@ -161,7 +181,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         }
 
         // Trigger BC layer in handleFallback().
-        if ($root === null && count($relationship->getChildConditions()) == 0) {
+        if ($root === null && \count($relationship->getChildConditions()) == 0) {
             return null;
         }
 

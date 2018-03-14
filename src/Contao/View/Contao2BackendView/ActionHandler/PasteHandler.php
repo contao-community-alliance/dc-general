@@ -75,7 +75,9 @@ class PasteHandler
         }
 
         $response = $this->process($event->getEnvironment());
-        $event->setResponse($response);
+        if ($response) {
+            $event->setResponse($response);
+        }
     }
 
     /**
@@ -83,7 +85,7 @@ class PasteHandler
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return string
+     * @return string|null
      */
     protected function process(EnvironmentInterface $environment)
     {
@@ -109,7 +111,7 @@ class PasteHandler
         $after         = $this->modelIdFromParameter($input, 'after');
         $into          = $this->modelIdFromParameter($input, 'into');
         $parentModelId = $this->modelIdFromParameter($input, 'pid');
-        $items         = array();
+        $items         = [];
 
         $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
@@ -117,6 +119,11 @@ class PasteHandler
             $clipboard->remove($item);
         }
         $clipboard->saveTo($environment);
+
+        // If we use paste all handler don´t redirect yet.
+        if ($input->getParameter('pasteAll')) {
+            return null;
+        }
 
         ViewHelpers::redirectHome($environment);
     }
@@ -154,7 +161,6 @@ class PasteHandler
      * This is needed, as the destination is otherwise undefined.
      *
      * @param BasicDefinitionInterface $definition The current definition.
-     *
      * @param InputProviderInterface   $input      The input provider.
      *
      * @return bool
@@ -177,7 +183,6 @@ class PasteHandler
      * Test if the current paste action is a simple paste for the passed data provider.
      *
      * @param ClipboardInterface $clipboard The clipboard instance.
-     *
      * @param string             $provider  The provider name.
      *
      * @return bool
@@ -186,7 +191,7 @@ class PasteHandler
     {
         $filter = new Filter();
         $all    = $clipboard->fetch($filter);
-        return (1 === count($all)
+        return (1 === \count($all)
                 && $all[0]->isCreate()
                 && (null === $all[0]->getModelId())
                 && $all[0]->getDataProviderName() === $provider);
@@ -196,7 +201,6 @@ class PasteHandler
      * Obtain the parameter with the given name from the input provider if it exists.
      *
      * @param InputProviderInterface $input The input provider.
-     *
      * @param string                 $name  The parameter to retrieve.
      *
      * @return ModelId|null

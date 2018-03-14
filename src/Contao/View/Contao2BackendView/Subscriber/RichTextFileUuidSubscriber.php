@@ -68,15 +68,15 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            EncodePropertyValueFromWidgetEvent::NAME => array(
-                array('convertFileSourceToUuid')
-            ),
+        return [
+            EncodePropertyValueFromWidgetEvent::NAME => [
+                ['convertFileSourceToUuid']
+            ],
 
-            DecodePropertyValueForWidgetEvent::NAME => array(
-                array('convertUuidToFileSource')
-            )
-        );
+            DecodePropertyValueForWidgetEvent::NAME => [
+                ['convertUuidToFileSource']
+            ]
+        ];
     }
 
     /**
@@ -99,8 +99,8 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
         $property             = $propertiesDefinition->getProperty($event->getProperty());
 
 
-        if (!array_key_exists('rte', $property->getExtra())
-            || strpos($property->getExtra()['rte'], 'tiny') !== 0
+        if (!\array_key_exists('rte', $property->getExtra())
+            || \strpos($property->getExtra()['rte'], 'tiny') !== 0
         ) {
             return;
         }
@@ -130,8 +130,8 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
         $property             = $propertiesDefinition->getProperty($event->getProperty());
 
 
-        if (!array_key_exists('rte', $property->getExtra())
-            || strpos($property->getExtra()['rte'], 'tiny') !== 0
+        if (!\array_key_exists('rte', $property->getExtra())
+            || \strpos($property->getExtra()['rte'], 'tiny') !== 0
         ) {
             return;
         }

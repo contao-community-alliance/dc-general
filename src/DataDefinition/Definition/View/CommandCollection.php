@@ -36,14 +36,14 @@ class CommandCollection implements CommandCollectionInterface
      *
      * @var CommandInterface[]
      */
-    protected $commands = array();
+    protected $commands = [];
 
     /**
      * {@inheritdoc}
      */
     public function clearCommands()
     {
-        $this->commands = array();
+        $this->commands = [];
 
         return $this;
     }
@@ -90,7 +90,7 @@ class CommandCollection implements CommandCollectionInterface
      */
     public function hasCommand(CommandInterface $command)
     {
-        $hash = spl_object_hash($command);
+        $hash = \spl_object_hash($command);
 
         return isset($this->commands[$hash]);
     }
@@ -116,23 +116,23 @@ class CommandCollection implements CommandCollectionInterface
      */
     public function addCommand(CommandInterface $command, CommandInterface $before = null)
     {
-        $hash = spl_object_hash($command);
+        $hash = \spl_object_hash($command);
 
         if ($before) {
-            $beforeHash = spl_object_hash($before);
+            $beforeHash = \spl_object_hash($before);
 
             if (isset($this->commands[$beforeHash])) {
-                $hashes   = array_keys($this->commands);
-                $position = array_search($beforeHash, $hashes);
+                $hashes   = \array_keys($this->commands);
+                $position = \array_search($beforeHash, $hashes);
 
-                $this->commands = array_merge(
-                    array_slice($this->commands, 0, $position),
-                    array($hash => $command),
-                    array_slice($this->commands, $position)
+                $this->commands = \array_merge(
+                    \array_slice($this->commands, 0, $position),
+                    [$hash => $command],
+                    \array_slice($this->commands, $position)
                 );
             } else {
                 throw new DcGeneralInvalidArgumentException(
-                    sprintf(
+                    \sprintf(
                         'Command %s not contained command collection - can not add %s after it.',
                         $before->getName(),
                         $command->getName()
@@ -151,7 +151,7 @@ class CommandCollection implements CommandCollectionInterface
      */
     public function removeCommand(CommandInterface $command)
     {
-        $hash = spl_object_hash($command);
+        $hash = \spl_object_hash($command);
         unset($this->commands[$hash]);
 
         return $this;

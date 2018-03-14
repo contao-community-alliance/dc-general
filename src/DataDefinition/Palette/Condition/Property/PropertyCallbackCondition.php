@@ -57,7 +57,7 @@ class PropertyCallbackCondition implements PropertyConditionInterface
         PropertyInterface $property = null,
         LegendInterface $legend = null
     ) {
-        return call_user_func($this->callback, $model, $input, $property, $legend);
+        return \call_user_func($this->callback, $model, $input, $property, $legend);
     }
 
     /**

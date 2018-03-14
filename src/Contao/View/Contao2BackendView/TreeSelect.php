@@ -97,7 +97,7 @@ class TreeSelect
         // @codingStandardsIgnoreStart - We need POST access here.
         if ($_POST && Environment::get('isAjaxRequest')) // @codingStandardsIgnoreEnd
         {
-            $ajax = new Ajax(\Input::post('action'));
+            $ajax = new Ajax(Input::post('action'));
             $ajax->executePreActions();
         }
 
@@ -105,7 +105,7 @@ class TreeSelect
         $strField = Input::get('field');
 
         // Define the current ID.
-        define('CURRENT_ID', ($strTable ? Session::getInstance()->get('CURRENT_ID') : Input::get('id')));
+        \define('CURRENT_ID', ($strTable ? Session::getInstance()->get('CURRENT_ID') : Input::get('id')));
 
         $dispatcher = $GLOBALS['container']['event-dispatcher'];
 
@@ -122,7 +122,7 @@ class TreeSelect
         $information = (array) $GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
 
         if (!isset($information['eval'])) {
-            $information['eval'] = array();
+            $information['eval'] = [];
         }
 
         // Merge with the information from the data container.
@@ -134,14 +134,14 @@ class TreeSelect
             ->getProperty($strField);
         $extra    = $property->getExtra();
 
-        $information['eval'] = array_merge($extra, $information['eval']);
+        $information['eval'] = \array_merge($extra, $information['eval']);
 
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $objTreeSelector */
         $objTreeSelector = new $GLOBALS['BE_FFL']['DcGeneralTreePicker'](
             Widget::getAttributesFromDca(
                 $information,
                 $strField,
-                array_filter(explode(',', Input::get('value'))),
+                \array_filter(\explode(',', Input::get('value'))),
                 $strField,
                 $strTable,
                 new DcCompat($this->itemContainer->getEnvironment())
@@ -166,7 +166,7 @@ class TreeSelect
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $objTreeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', ampersand(Environment::get('request')))
+            ->set('action', \ampersand(Environment::get('request')))
             ->set('value', Session::getInstance()->get($objTreeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
             ->set('breadcrumb', $GLOBALS['TL_DCA'][$objTreeSelector->foreignTable]['list']['sorting']['breadcrumb'])
@@ -175,7 +175,7 @@ class TreeSelect
         // Add the manager link.
         if ($objTreeSelector->managerHref) {
             $template
-                ->set('managerHref', 'contao/main.php?' . ampersand($objTreeSelector->managerHref) . '&amp;popup=1');
+                ->set('managerHref', 'contao/main.php?' . \ampersand($objTreeSelector->managerHref) . '&amp;popup=1');
         }
 
         // Prevent debug output at all cost.

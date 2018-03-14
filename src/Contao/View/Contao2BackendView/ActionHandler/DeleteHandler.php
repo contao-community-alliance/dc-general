@@ -95,9 +95,7 @@ class DeleteHandler
      * Check if is it allowed to delete a record.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelIdInterface     $modelId     The model id.
-     *
      * @param bool                 $redirect    If true it redirects to error page instead of throwing an exception.
      *
      * @return void
@@ -114,9 +112,8 @@ class DeleteHandler
             $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
-                    sprintf(
-                        'Table "%s" is not deletable',
-                        'DC_General - DefaultController - delete()',
+                    \sprintf(
+                        'Table "%s" is not deletable DC_General - DefaultController - delete()',
                         $environment->getDataDefinition()->getName()
                     ),
                     __CLASS__ . '::delete()',
@@ -137,7 +134,6 @@ class DeleteHandler
      * Fetch the model.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelIdInterface     $modelId     The model id.
      *
      * @return ModelInterface
@@ -162,7 +158,6 @@ class DeleteHandler
      * Delete an model.
      *
      * @param EnvironmentInterface $environment Environment.
-     *
      * @param ModelIdInterface     $modelId     The model id.
      *
      * @return void
@@ -236,7 +231,7 @@ class DeleteHandler
             return true;
         }
 
-        return sprintf(
+        return \sprintf(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for delete model %s.
             </div>',
@@ -248,7 +243,6 @@ class DeleteHandler
      * Delete all deep models.
      *
      * @param EnvironmentInterface $environment Environment.
-     *
      * @param ModelIdInterface     $modelId     The Model Id.
      *
      * @return void

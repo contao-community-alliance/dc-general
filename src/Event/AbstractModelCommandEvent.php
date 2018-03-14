@@ -41,9 +41,7 @@ abstract class AbstractModelCommandEvent extends AbstractCommandEvent implements
      * Create a new instance.
      *
      * @param CommandInterface     $command     The command.
-     *
      * @param ModelInterface       $model       The model.
-     *
      * @param EnvironmentInterface $environment The environment.
      */
     public function __construct(CommandInterface $command, ModelInterface $model, EnvironmentInterface $environment)

@@ -1,8 +1,8 @@
-<input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= implode(',', array_keys($this->values)) ?>">
+<input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= \implode(',', \array_keys($this->values)) ?>">
 
 <?php $this->block('select-container'); ?>
 <div class="selector_container">
-	<?php if ($this->hasOrder && count($this->values)): ?>
+	<?php if ($this->hasOrder && \count($this->values)): ?>
 		<p class="sort_hint">
 			<?= $this->dragItemsHint ?>
 		</p>
@@ -28,7 +28,7 @@
 		e.preventDefault();
 		Backend.openModalSelector({
 			"id": "tl_select",
-			"title": "<?= \Contao\StringUtil::specialchars(str_replace("'", "\\''", implode(' ', (array) $this->label))) ?>",
+			"title": "<?= \Contao\StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
 			"url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
 			"callback": function(table, value) {
 				new Request.Contao({

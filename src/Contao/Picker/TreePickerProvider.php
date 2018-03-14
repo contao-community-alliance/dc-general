@@ -76,19 +76,19 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
                 $attributes['fieldType'] = $fieldType;
             }
 
-            if (is_array($rootNodes = $config->getExtra('rootNodes'))) {
+            if (\is_array($rootNodes = $config->getExtra('rootNodes'))) {
                 $attributes['rootNodes'] = $rootNodes;
             }
 
             if ($value) {
-                $attributes['value'] = array_map('intval', explode(',', $value));
+                $attributes['value'] = \array_map('intval', \explode(',', $value));
             }
 
             return $attributes;
         }
 
-        if ($value && false !== strpos($value, '{{link_url::')) {
-            $attributes['value'] = str_replace(['{{link_url::', '}}'], '', $value);
+        if ($value && false !== \strpos($value, '{{link_url::')) {
+            $attributes['value'] = \str_replace(['{{link_url::', '}}'], '', $value);
         }
 
         return $attributes;

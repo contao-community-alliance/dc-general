@@ -38,8 +38,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -86,14 +86,14 @@ class Subscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array
-        (
-            DcGeneralEvents::ACTION                => array('initializePanels', 10),
-            GetPanelElementTemplateEvent::NAME     => array('getPanelElementTemplate', -1),
-            ResolveWidgetErrorMessageEvent::NAME   => array('resolveWidgetErrorMessage', -1),
+        return
+            [
+            DcGeneralEvents::ACTION                => ['initializePanels', 10],
+            GetPanelElementTemplateEvent::NAME     => ['getPanelElementTemplate', -1],
+            ResolveWidgetErrorMessageEvent::NAME   => ['resolveWidgetErrorMessage', -1],
             RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
             'contao-twig.init'                     => 'initTwig',
-        );
+            ];
     }
 
     /**
@@ -145,14 +145,14 @@ class Subscriber implements EventSubscriberInterface
 
         if ($error instanceof \Exception) {
             $event->setError($error->getMessage());
-        } elseif (is_object($error)) {
-            if (method_exists($error, '__toString')) {
+        } elseif (\is_object($error)) {
+            if (\method_exists($error, '__toString')) {
                 $event->setError((string) $error);
             } else {
-                $event->setError(sprintf('[%s]', get_class($error)));
+                $event->setError(\sprintf('[%s]', \get_class($error)));
             }
-        } elseif (!is_string($error)) {
-            $event->setError(sprintf('[%s]', gettype($error)));
+        } elseif (!\is_string($error)) {
+            $event->setError(\sprintf('[%s]', \gettype($error)));
         }
     }
 
@@ -160,9 +160,7 @@ class Subscriber implements EventSubscriberInterface
      * Fetch the options for a certain property.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelInterface       $model       The model.
-     *
      * @param PropertyInterface    $property    The property.
      *
      * @return array
@@ -183,11 +181,8 @@ class Subscriber implements EventSubscriberInterface
      * Decode a value from native data of the data provider to the widget via event.
      *
      * @param EnvironmentInterface $environment The environment.
-     *
      * @param ModelInterface       $model       The model.
-     *
      * @param string               $property    The property.
-     *
      * @param mixed                $value       The value of the property.
      *
      * @return mixed
@@ -199,7 +194,7 @@ class Subscriber implements EventSubscriberInterface
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventDispatcher()->dispatch(sprintf('%s', $event::NAME), $event);
+        $environment->getEventDispatcher()->dispatch(\sprintf('%s', $event::NAME), $event);
 
         return $event->getValue();
     }
@@ -208,9 +203,7 @@ class Subscriber implements EventSubscriberInterface
      * Render a timestamp using the given format.
      *
      * @param EventDispatcherInterface $dispatcher The Event dispatcher.
-     *
      * @param string                   $dateFormat The date format to use.
-     *
      * @param int                      $timeStamp  The timestamp.
      *
      * @return string
@@ -257,7 +250,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             self::renderArrayReadable($event, $value);
 
             return;
@@ -275,8 +268,8 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($property->getWidgetType() == 'checkbox' && !$extra['multiple']) {
-            $map = array(false => 'no', true => 'yes');
+        if (!$extra['multiple'] && $property->getWidgetType() == 'checkbox') {
+            $map = [false => 'no', true => 'yes'];
             $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
 
             return;
@@ -337,10 +330,10 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!in_array(
+        if (!\in_array(
             $event->getAction()->getName(),
-            array('copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show')
-        )) {
+            ['copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show'])
+        ) {
             return;
         }
 
@@ -348,9 +341,9 @@ class Subscriber implements EventSubscriberInterface
         $definition  = $environment->getDataDefinition();
         $view        = $environment->getView();
 
-        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
-            || !$view instanceof BaseView
+        if (!$view instanceof BaseView
             || !$view->getPanel()
+            || !$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
         ) {
             return;
         }
@@ -395,9 +388,7 @@ class Subscriber implements EventSubscriberInterface
      * Render a foreign key reference.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $extra The extra data from the property.
-     *
      * @param mixed                            $value The value to format.
      *
      * @return void
@@ -413,7 +404,6 @@ class Subscriber implements EventSubscriberInterface
      * Render an array as readable property value.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $value The array to render.
      *
      * @return void
@@ -421,24 +411,21 @@ class Subscriber implements EventSubscriberInterface
     private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, $value)
     {
         foreach ($value as $kk => $vv) {
-            if (is_array($vv)) {
-                $vals       = array_values($vv);
+            if (\is_array($vv)) {
+                $vals       = \array_values($vv);
                 $value[$kk] = $vals[0] . ' (' . $vals[1] . ')';
             }
         }
 
-        $event->setRendered(implode(', ', $value));
+        $event->setRendered(\implode(', ', $value));
     }
 
     /**
      * Render a timestamp.
      *
      * @param RenderReadablePropertyValueEvent $event      The event to store the value to.
-     *
      * @param array                            $extra      The extra data from the property.
-     *
      * @param EventDispatcherInterface         $dispatcher The event dispatcher.
-     *
      * @param int                              $value      The value to format.
      *
      * @return void
@@ -460,24 +447,22 @@ class Subscriber implements EventSubscriberInterface
      * Render a referenced value.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $extra The extra data from the property.
-     *
      * @param string                           $value The value to format.
      *
      * @return void
      */
     private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if (!is_array($extra['reference'])) {
+        if (!\is_array($extra['reference'])) {
             return;
         }
 
-        if (!array_key_exists($value, $extra['reference'])) {
+        if (!\array_key_exists($value, $extra['reference'])) {
             return;
         }
 
-        if (is_array($extra['reference'][$value])) {
+        if (\is_array($extra['reference'][$value])) {
             $event->setRendered($extra['reference'][$value][0]);
 
             return;
@@ -490,9 +475,7 @@ class Subscriber implements EventSubscriberInterface
      * Render a string if not allow html or preserve tags is given.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     *
      * @param array                            $extra The extra data from the property.
-     *
      * @param string                           $value The value to format.
      *
      * @return void
@@ -503,7 +486,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->setRendered(nl2br_html5(StringUtil::specialchars($value)));
+        $event->setRendered(\nl2br_html5(StringUtil::specialchars($value)));
     }
 
     /**
@@ -525,7 +508,7 @@ class Subscriber implements EventSubscriberInterface
             }
         }
 
-        if (array_is_assoc($options)) {
+        if (\array_is_assoc($options)) {
             $event->setRendered($options[$value]);
         }
     }

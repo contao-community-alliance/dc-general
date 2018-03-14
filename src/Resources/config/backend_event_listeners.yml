@@ -141,6 +141,40 @@ services:
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
+    cca.dc-general.backend_listener.list_show_all_properties_handler:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllPropertiesHandler
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+            - "@translator"
+            - "@cca.translator.contao_translator"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
+
+    cca.dc-general.backend_listener.edit_all_handler:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditAllHandler
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.action, method: handleEvent}
+
+    cca.dc-general.backend_listener.override_all_handler:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\OverrideAllHandler
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.action, method: handleEvent}
+
+    cca.dc-general.backend_listener.paste_all_handler:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteAllHandler
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.action, method: handleEvent}
+
     cca.dc-general.backend_listener.backend_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener
         public: true

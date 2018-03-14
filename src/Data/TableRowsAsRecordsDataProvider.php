@@ -61,10 +61,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
         parent::setBaseConfig($arrConfig);
 
         if (!$arrConfig['group_column']) {
-            throw new DcGeneralException(
-                'ContaoCommunityAlliance\DcGeneral\Data\TableRowsAsRecordsDriver needs a grouping column.',
-                1
-            );
+            throw new DcGeneralException(__CLASS__ . ' needs a grouping column.', 1);
         }
         $this->strGroupCol = $arrConfig['group_column'];
 
@@ -89,7 +86,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     protected function youShouldNotCallMe($strMethod)
     {
         throw new DcGeneralException(
-            sprintf(
+            \sprintf(
                 'Error, %s not available, as the data provider is intended for edit mode only.',
                 $strMethod
             ),
@@ -133,7 +130,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             );
         }
 
-        $strQuery = sprintf(
+        $strQuery = \sprintf(
             'SELECT %s FROM %s WHERE %s=?',
             DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
             $this->strSource,
@@ -194,9 +191,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param string $strField Unused.
-     *
      * @param mixed  $varNew   Unused.
-     *
      * @param int    $intId    Unused.
      *
      * @return void
@@ -237,7 +232,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * When rows with duplicate ids are encountered (like from MCW for example), the dupes are inserted as new rows.
      *
      * @param ModelInterface $objItem   The model to save.
-     *
+     * @param int            $timestamp Optional the timestamp.
      * @param bool           $recursive Ignored as not relevant in this data provider.
      *
      * @return ModelInterface The passed Model.
@@ -247,32 +242,35 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function save(ModelInterface $objItem, $recursive = false)
+    public function save(ModelInterface $objItem, $timestamp = 0, $recursive = false)
     {
+        if (!\is_int($timestamp)) {
+            throw new DcGeneralException('The parameter for this method has been change!');
+        }
         $arrData = $objItem->getProperty('rows');
-        if (!($objItem->getID() && $arrData)) {
+        if (!($arrData && $objItem->getID())) {
             throw new DcGeneralException('invalid input data in model.', 1);
         }
 
-        $arrKeep = array();
+        $arrKeep = [];
         foreach ($arrData as $arrRow) {
             $arrSQL = $arrRow;
 
             // Update all.
-            $intId = intval($arrRow['id']);
+            $intId = (int) $arrRow['id'];
 
             // Always unset id.
             unset($arrSQL['id']);
 
             // Work around the fact that multicolumnwizard does not clear any hidden fields when copying a dataset.
             // therefore we do consider any dupe as new dataset and save it accordingly.
-            if (in_array($intId, $arrKeep)) {
+            if (\in_array($intId, $arrKeep)) {
                 $intId = 0;
             }
 
             if ($intId > 0) {
                 $this->objDatabase
-                    ->prepare(sprintf('UPDATE %s %%s WHERE id=? AND %s=?', $this->strSource, $this->strGroupCol))
+                    ->prepare(\sprintf('UPDATE %s %%s WHERE id=? AND %s=?', $this->strSource, $this->strGroupCol))
                     ->set($arrSQL)
                     ->execute($intId, $objItem->getId());
                 $arrKeep[] = $intId;
@@ -280,7 +278,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
                 // Force group col value.
                 $arrSQL[$this->strGroupCol] = $objItem->getId();
                 $arrKeep[]                  = $this->objDatabase
-                    ->prepare(sprintf('INSERT INTO %s %%s', $this->strSource))
+                    ->prepare(\sprintf('INSERT INTO %s %%s', $this->strSource))
                     ->set($arrSQL)
                     ->execute()
                     ->insertId;
@@ -289,11 +287,11 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
         // House keeping, kill the rest.
         $this->objDatabase
             ->prepare(
-                sprintf(
+                \sprintf(
                     'DELETE FROM  %s WHERE %s=? AND id NOT IN (%s)',
                     $this->strSource,
                     $this->strGroupCol,
-                    implode(',', $arrKeep)
+                    \implode(',', $arrKeep)
                 )
             )
             ->execute($objItem->getId());
@@ -303,7 +301,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param CollectionInterface $objItems Unused.
+     * @param CollectionInterface $objItems  Unused.
+     * @param int                 $timestamp Optional the timestamp.
      *
      * @return void
      *
@@ -311,7 +310,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function saveEach(CollectionInterface $objItems)
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -327,14 +326,13 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      */
     public function fieldExists($strField)
     {
-        return in_array($strField, array('tstamp'));
+        return 'tstamp' === $strField;
     }
 
     /**
      * Unsupported in this data provider, throws an Exception.
      *
      * @param mixed $mixID      Unused.
-     *
      * @param mixed $mixVersion Unused.
      *
      * @return void
@@ -352,7 +350,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Return null as versioning is not supported in this data provider.
      *
      * @param mixed   $mixID         Unused.
-     *
      * @param boolean $blnOnlyActive Unused.
      *
      * @return null
@@ -369,7 +366,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param ModelInterface $objModel    Unused.
-     *
      * @param string         $strUsername Unused.
      *
      * @return void
@@ -387,7 +383,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param mixed $mixID      Unused.
-     *
      * @param mixed $mixVersion Unused.
      *
      * @return void
@@ -421,7 +416,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param ModelInterface $objModel1 Unused.
-     *
      * @param ModelInterface $objModel2 Unused.
      *
      * @return void
@@ -439,9 +433,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * Unsupported in this data provider, throws an Exception.
      *
      * @param string $strSourceSQL Unused.
-     *
      * @param string $strSaveSQL   Unused.
-     *
      * @param string $strTable     Unused.
      *
      * @return void

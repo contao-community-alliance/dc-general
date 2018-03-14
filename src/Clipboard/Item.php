@@ -40,9 +40,7 @@ class Item extends AbstractItem
      * Create a new instance.
      *
      * @param string                $action   The action being performed.
-     *
      * @param ModelIdInterface|null $parentId The id of the parent model (null for no parent).
-     *
      * @param ModelIdInterface|null $modelId  The id of the model the action covers (may be null for "create" only).
      *
      * @throws \InvalidArgumentException When the action is not one of create, cut, copy or deep copy.

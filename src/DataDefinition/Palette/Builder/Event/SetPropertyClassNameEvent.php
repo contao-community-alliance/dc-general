@@ -41,7 +41,6 @@ class SetPropertyClassNameEvent extends BuilderEvent
      * Create a new instance.
      *
      * @param string         $propertyClassName The class name.
-     *
      * @param PaletteBuilder $paletteBuilder    The palette builder in use.
      */
     public function __construct($propertyClassName, PaletteBuilder $paletteBuilder)

@@ -51,7 +51,6 @@ interface PanelContainerInterface extends \IteratorAggregate, \Countable
      * Add a panel to the container.
      *
      * @param string         $strKey   Name of the panel.
-     *
      * @param PanelInterface $objPanel The panel to add.
      *
      * @return PanelContainerInterface
@@ -71,7 +70,6 @@ interface PanelContainerInterface extends \IteratorAggregate, \Countable
      * Initialize all panels and apply all restrictions to the given Config.
      *
      * @param ConfigInterface       $objConfig  The data config to be populated with the element values.
-     *
      * @param PanelElementInterface $objElement The element currently being initialized.
      *
      * @return PanelContainerInterface

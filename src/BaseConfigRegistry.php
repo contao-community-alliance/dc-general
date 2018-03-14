@@ -21,10 +21,10 @@
 namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -72,7 +72,6 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      * Add the filter for the item with the given id from the parent data provider to the given config.
      *
      * @param ModelIdInterface $idParent The id of the parent item.
-     *
      * @param ConfigInterface  $config   The config to add the filter to.
      *
      * @return ConfigInterface
@@ -112,17 +111,10 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
                 $arrFilter     = $condition->getFilter($objParent);
 
                 if ($arrBaseFilter) {
-                    $arrFilter = array_merge($arrBaseFilter, $arrFilter);
+                    $arrFilter = \array_merge($arrBaseFilter, $arrFilter);
                 }
 
-                $config->setFilter(
-                    array(
-                        array(
-                            'operation' => 'AND',
-                            'children'  => $arrFilter,
-                        )
-                    )
-                );
+                $config->setFilter([['operation' => 'AND', 'children'  => $arrFilter,]]);
             }
         }
 

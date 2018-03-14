@@ -40,22 +40,21 @@ class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallback
      */
     public function getArgs($event)
     {
-        return array(
+        return [
             new DcCompat($event->getEnvironment()),
             $event->getEnvironment()->getDataProvider()->getEmptyModel()->getPropertiesAsArray(),
             $event->getEnvironment()->getDataDefinition()->getName(),
             false,
-            array(),
+            [],
             null,
             null
-        );
+        ];
     }
 
     /**
      * Set the HTML code for the button.
      *
      * @param GetPasteRootButtonEvent $event The event being emitted.
-     *
      * @param string                  $value The value returned by the callback.
      *
      * @return void

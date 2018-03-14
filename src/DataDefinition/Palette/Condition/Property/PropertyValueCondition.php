@@ -21,10 +21,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition checking that the value of a property is the same as a passed value.
@@ -56,9 +56,7 @@ class PropertyValueCondition implements PropertyConditionInterface
      * Create a new instance.
      *
      * @param string $propertyName  The name of the property.
-     *
      * @param mixed  $propertyValue The value of the property to match.
-     *
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
      */
     public function __construct($propertyName = '', $propertyValue = null, $strict = false)

@@ -28,9 +28,9 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Patchwork\Utf8;
@@ -118,11 +118,16 @@ class GetGroupHeaderSubscriber
      *
      * @return string
      */
-    protected function formatGroupHeader($environment, $model, $property, $groupingMode, $groupingLength)
-    {
+    protected function formatGroupHeader(
+        EnvironmentInterface $environment,
+        ModelInterface $model,
+        PropertyInterface $property,
+        $groupingMode,
+        $groupingLength
+    ) {
         $evaluation = $property->getExtra();
 
-        if ($property->getWidgetType() == 'checkbox' && !$evaluation['multiple']) {
+        if (!$evaluation['multiple'] && $property->getWidgetType() == 'checkbox') {
             return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
         }
         if ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {
@@ -133,14 +138,14 @@ class GetGroupHeaderSubscriber
 
         if (isset($evaluation['reference'])) {
             $remoteNew = $evaluation['reference'][$value];
-        } elseif (array_is_assoc($property->getOptions())) {
+        } elseif (\array_is_assoc($property->getOptions())) {
             $options   = $property->getOptions();
             $remoteNew = $options[$value];
         } else {
             $remoteNew = $value;
         }
 
-        if (is_array($remoteNew)) {
+        if (\is_array($remoteNew)) {
             $remoteNew = $remoteNew[0];
         }
 
@@ -161,8 +166,8 @@ class GetGroupHeaderSubscriber
     private function formatCheckboxOptionLabel($value)
     {
         return ($value != '')
-            ? ucfirst($this->translator->translate('MSC.yes'))
-            : ucfirst($this->translator->translate('MSC.no'));
+            ? \ucfirst($this->translator->translate('MSC.yes'))
+            : \ucfirst($this->translator->translate('MSC.no'));
     }
 
     /**
@@ -176,8 +181,13 @@ class GetGroupHeaderSubscriber
      *
      * @return string
      */
-    private function formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model)
-    {
+    private function formatByGroupingMode(
+        $groupingMode,
+        $groupingLength,
+        EnvironmentInterface $environment,
+        PropertyInterface $property,
+        ModelInterface $model
+    ) {
         switch ($groupingMode) {
             case GroupAndSortingInformationInterface::GROUP_CHAR:
                 return $this->formatByCharGrouping(
@@ -213,7 +223,7 @@ class GetGroupHeaderSubscriber
             return '-';
         }
 
-        return ucfirst(Utf8::substr($value, 0, $groupingLength ?: null));
+        return \ucfirst(Utf8::substr($value, 0, $groupingLength ?: null));
     }
 
     /**

@@ -46,3 +46,11 @@ services:
             - "@cca.dc-general.scope-matcher"
         tags:
             - { name: kernel.event_subscriber }
+
+    cca.dc-general.backend_subscriber.edit_all_handler:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\EditAllHandlerSubscriber
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_subscriber }

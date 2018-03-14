@@ -26,12 +26,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Test;
 /**
  * Base TestCase class.
  */
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     protected function aliasContaoClass($class)
     {
-        if (!class_exists($class)) {
-            class_alias('\\Contao\\' . $class, $class);
+        if (!\class_exists($class)) {
+            \class_alias('\\Contao\\' . $class, $class);
         }
     }
 }

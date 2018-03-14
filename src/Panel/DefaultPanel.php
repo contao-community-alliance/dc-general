@@ -47,7 +47,7 @@ class DefaultPanel implements PanelInterface
      */
     public function __construct()
     {
-        $this->arrElements = array();
+        $this->arrElements = [];
     }
 
     /**
@@ -111,6 +111,6 @@ class DefaultPanel implements PanelInterface
      */
     public function count()
     {
-        return count($this->arrElements);
+        return \count($this->arrElements);
     }
 }

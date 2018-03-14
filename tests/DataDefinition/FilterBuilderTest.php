@@ -29,12 +29,12 @@ class FilterBuilderTest extends TestCase
     {
         $builder = new FilterBuilder();
 
-        $this->assertEquals(array(), $builder->getAllAsArray());
+        $this->assertEquals([], $builder->getAllAsArray());
     }
 
     public function testNoOp()
     {
-        $filter = array(array('operation' => '=', 'property' => 'prop', 'value' => '1'));
+        $filter = [['operation' => '=', 'property' => 'prop', 'value' => '1']];
 
         $builder = new FilterBuilder($filter, true);
 
@@ -43,11 +43,8 @@ class FilterBuilderTest extends TestCase
 
     public function testAddAnd()
     {
-        $filter = array(array('operation' => '=', 'property' => 'prop', 'value' => '1'));
-        $result = array_merge(
-            $filter,
-            array(array('operation' => '=', 'property' => 'prop2', 'value' => '2'))
-        );
+        $filter = [['operation' => '=', 'property' => 'prop', 'value' => '1']];
+        $result = \array_merge($filter, [['operation' => '=', 'property' => 'prop2', 'value' => '2']]);
 
         $builder = new FilterBuilder($filter, true);
 

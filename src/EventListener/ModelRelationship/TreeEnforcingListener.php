@@ -83,11 +83,8 @@ class TreeEnforcingListener
      * Handle paste into.
      *
      * @param ModelId             $into          The id of the new parenting model.
-     *
      * @param RelationshipManager $relationships The relationship manager.
-     *
      * @param ModelCollector      $collector     The model collector.
-     *
      * @param ModelInterface      $model         The model.
      *
      * @return void
@@ -112,11 +109,8 @@ class TreeEnforcingListener
      * Handle paste after.
      *
      * @param ModelId             $after         The id of the sibling model.
-     *
      * @param RelationshipManager $relationships The relationship manager.
-     *
      * @param ModelCollector      $collector     The model collector.
-     *
      * @param ModelInterface      $model         The model.
      *
      * @return void

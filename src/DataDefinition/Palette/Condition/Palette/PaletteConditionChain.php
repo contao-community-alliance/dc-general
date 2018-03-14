@@ -43,7 +43,7 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
 
         foreach ($this->conditions as $condition) {
             if (!($condition instanceof PaletteConditionInterface)) {
-                throw new DcGeneralRuntimeException('Invalid condition in chain: ' . get_class($condition));
+                throw new DcGeneralRuntimeException('Invalid condition in chain: ' . \get_class($condition));
             }
 
             $conditionCount = $condition->getMatchCount($model, $input);

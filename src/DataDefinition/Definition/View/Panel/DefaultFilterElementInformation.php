@@ -40,7 +40,7 @@ class DefaultFilterElementInformation implements FilterElementInformationInterfa
      */
     public function getName()
     {
-        return sprintf('filter[%s]', $this->getPropertyName());
+        return \sprintf('filter[%s]', $this->getPropertyName());
     }
 
     /**

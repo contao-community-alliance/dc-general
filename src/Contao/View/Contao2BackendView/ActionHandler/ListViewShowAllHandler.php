@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -35,7 +36,7 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
     /**
      * {@inheritDoc}
      */
-    protected function wantToHandle($mode)
+    protected function wantToHandle($mode, Action $action)
     {
         return BasicDefinitionInterface::MODE_FLAT === $mode;
     }
@@ -81,6 +82,6 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function getEmptyHeader()
     {
-        return array('' => '');
+        return ['' => ''];
     }
 }

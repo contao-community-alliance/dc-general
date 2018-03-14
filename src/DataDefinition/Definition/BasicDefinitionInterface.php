@@ -132,7 +132,6 @@ interface BasicDefinitionInterface extends DefinitionInterface
      * Set the additional filters to be used for retrieving elements for the view.
      *
      * @param string $dataProvider The name of the data provider for which additional filters shall be passed.
-     *
      * @param array  $filter       Array of filter rules.
      *
      * @return BasicDefinitionInterface
