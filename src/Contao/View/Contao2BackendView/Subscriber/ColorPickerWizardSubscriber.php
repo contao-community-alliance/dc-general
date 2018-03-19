@@ -32,7 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 /**
  * Widget Builder to append color picker wizards to Contao backend widgets.
  *
- * // Fixme: The isn´t an subscriber.
+ * // Fixme: The isn´t an subscriber. Or must call this as event?
  */
 class ColorPickerWizardSubscriber
 {

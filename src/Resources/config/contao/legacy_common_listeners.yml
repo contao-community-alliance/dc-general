@@ -1,0 +1,18 @@
+services:
+    cca.dc-general.general_listener.legacy_dca.data_defintion_builder:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder
+        public: true
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.factory.build-data-definition
+                method: process
+                priority: 100
+
+    cca.dc-general.general_listener.extended_legacy_dca.data_definition_builder:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\ExtendedLegacyDcaDataDefinitionBuilder
+        public: true
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.factory.build-data-definition
+                method: process
+                priority: 101

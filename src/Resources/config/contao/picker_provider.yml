@@ -8,4 +8,4 @@ services:
         calls:
             - [setTokenStorage, ["@security.token_storage"]]
         tags:
-            - { name: contao.picker_provider }
+            -   name: contao.picker_provider

@@ -1,0 +1,18 @@
+services:
+    cca.dc-general.general_listener.parent_definiton_populator:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ParentDefinitionPopulator
+        public: true
+        tags:
+            - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process }
+
+    cca.dc-general.general_listener.data_provider_populator:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\DataProviderPopulator
+        public: true
+        tags:
+            - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process, priority: 100 }
+
+    cca.dc-general.general_listener.hard_coded_populator:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator
+        public: true
+        tags:
+            - { name: kernel.event_listener, event: dc-general.factory.populate-environment, method: process, priority: -100 }

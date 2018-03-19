@@ -35,16 +35,35 @@ use Symfony\Component\DependencyInjection\Loader;
 class CcaDcGeneralExtension extends Extension
 {
     /**
+     * The configuration files.
+     *
+     * @var string[]
+     */
+    private $files = [
+        'contao/backend_event_listeners.yml',
+        'contao/button_backend_listeners.yml',
+        'contao/event_common_subscribers.yml',
+        'contao/handler_backend_listeners.yml',
+        'contao/handler_multiple_backend_listeners.yml',
+        'contao/legacy_backend_listeners.yml',
+        'contao/legacy_common_listeners.yml',
+        'contao/picker_provider.yml',
+        'contao/populater_backend_listeners.yml',
+        'contao/populater_common_listeners.yml',
+        'contao/widget_backend_listeners.yml',
+        'backend_event_subscribers.yml',
+        'event_listeners.yml',
+        'services.yml'
+    ];
+
+    /**
      * {@inheritDoc}
      */
     public function load(array $configs, ContainerBuilder $container)
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-        $loader->load('backend_event_listeners.yml');
-        $loader->load('backend_event_subscribers.yml');
-        $loader->load('event_listeners.yml');
-        $loader->load('event_subscribers.yml');
-        $loader->load('picker_provider.yml');
-        $loader->load('services.yml');
+        foreach ($this->files as $file) {
+            $loader->load($file);
+        }
     }
 }

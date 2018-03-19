@@ -1,0 +1,27 @@
+services:
+    cca.dc-general.backend_listener.format_model_label_subscriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscriber
+        public: true
+        calls:
+            - method: setScopeDeterminator
+              arguments:
+                  - "@cca.dc-general.scope-matcher"
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.format_model_label
+                method: handleFormatModelLabel
+
+    cca.dc-general.backend_listener.get_group_header_subscriber:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber
+        public: true
+        arguments:
+            - "@event_dispatcher"
+            - "@cca.translator.contao_translator"
+        calls:
+            - method: setScopeDeterminator
+              arguments:
+                  - "@cca.dc-general.scope-matcher"
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-group-header
+                method: handle
