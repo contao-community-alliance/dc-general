@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractPropertyOverrideEditAllHandler;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
  * The class handle the "overrideAll" commands.
@@ -37,6 +38,7 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractPropertyOverrid
 class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 {
     use RequestScopeDeterminatorAwareTrait;
+    use CallActionTrait;
 
     /**
      * OverrideAllHandler constructor.
@@ -61,6 +63,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $response = $this->process($event->getAction(), $event->getEnvironment());
         if (false !== $response) {
             $event->setResponse($response);
+            $event->stopPropagation();
         }
     }
 
@@ -126,7 +129,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      *
      * @return void
      *
-     * Fixme Can i remove this
+     * Fixme can remove this?
      */
     protected function handleInvalidPropertyValueBag(
         PropertyValueBagInterface $propertyValueBag = null,

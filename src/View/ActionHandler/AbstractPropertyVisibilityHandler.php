@@ -651,7 +651,7 @@ abstract class AbstractPropertyVisibilityHandler
         $intersectModel = $dataProvider->getEmptyModel();
 
         $defaultPalette      = null;
-        $legendPropertyNames = $this->getLegendPropertyNames($intersectModel, $defaultPalette);
+        $legendPropertyNames = $this->getLegendPropertyNames($intersectModel, $defaultPalette, $environment);
 
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         foreach ($session['intersectValues'] as $intersectProperty => $intersectValue) {

@@ -118,8 +118,9 @@ abstract class AbstractListShowAllHandler
             return;
         }
 
-        $response = $this->process($event->getAction(), $event->getEnvironment());
-        $event->setResponse($response);
+        if ($response = $this->process($event->getAction(), $event->getEnvironment())) {
+            $event->setResponse($response);
+        }
     }
 
     /**
@@ -303,7 +304,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return CollectionInterface
      */
-    private function loadCollection(EnvironmentInterface $environment)
+    protected function loadCollection(EnvironmentInterface $environment)
     {
         $dataProvider = $environment->getDataProvider();
         $dataConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
@@ -494,7 +495,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return string[]
      */
-    private function getSelectButtons(EnvironmentInterface $environment)
+    protected function getSelectButtons(EnvironmentInterface $environment)
     {
         $definition      = $environment->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();

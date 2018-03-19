@@ -169,7 +169,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         foreach (\array_keys($propertyValueBag->getArrayCopy()) as $propertyName) {
             $clonePropertyValueBag->resetPropertyValueErrors($propertyName);
 
-            if ($this->ensurePropertyVisibleInModel(action, $propertyName, $model, $environment)) {
+            if ($this->ensurePropertyVisibleInModel($action, $propertyName, $model, $environment)) {
                 if (!\array_key_exists($propertyName, $sessionProperties)
                 ) {
                     $clonePropertyValueBag->setPropertyValue($propertyName, $model->getProperty($propertyName));
@@ -351,8 +351,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $inputProvider->setParameter('id', ModelId::fromModel($model)->getSerialized());
 
-        // TODO implement call action trait.
-        $this->callAction('edit');
+        $this->callAction($environment, 'edit');
 
         $inputProvider->unsetParameter('id');
 
@@ -511,14 +510,19 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             $translator->translate('MSC.save')
         );
 
-        $buttons['saveNclose'] = \sprintf(
+        $buttons['save'] .= '&nbsp;';
+
+        $buttons['save'] .= \sprintf(
             '<input type="submit" name="%s_saveNback" id="%s_saveNback" class="tl_submit" accesskey="c" value="%s" />',
             $mode,
             $mode,
             $translator->translate('MSC.saveNback')
         );
 
-        return $buttons;
+        $submitButtonTemplate = new ContaoBackendViewTemplate('dc_general_submit_button');
+        $submitButtonTemplate->setData($buttons);
+
+        return \preg_replace('/(\s\s+|\t|\n)/', '', $submitButtonTemplate->parse());
     }
 
     /**

@@ -19,7 +19,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
-use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
@@ -31,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
  * Action handler for paste all action.
@@ -40,6 +40,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 class PasteAllHandler
 {
     use RequestScopeDeterminatorAwareTrait;
+    use CallActionTrait;
 
     /**
      * The copied model is available by paste mode copy.
@@ -72,24 +73,22 @@ class PasteAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || $event->getAction()->getName() !== 'paste'
-            || $event->getEnvironment()->getInputProvider()->getParameter('pasteAll')
+            || 'pasteAll' !== $event->getAction()->getName()
         ) {
             return;
         }
 
-        $this->process($event->getAction(), $event->getEnvironment());
+        $this->process($event->getEnvironment());
     }
 
     /**
      * Process the paste all handler.
      *
-     * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
      *
      * @return void
      */
-    private function process(Action $action, EnvironmentInterface $environment)
+    private function process(EnvironmentInterface $environment)
     {
         $collection = $this->getCollection($environment);
 
@@ -105,12 +104,14 @@ class PasteAllHandler
         foreach ($collection as $collectionItem) {
             $this->setParameterForPaste($collectionItem, $environment);
 
-            $this->callAction($action->getName());
+            $this->callAction($environment, 'paste');
 
             $clipboardItem = $collectionItem['item'];
             $environment->getClipboard()->removeById($clipboardItem->getModelId());
         }
         $environment->getClipboard()->saveTo($environment);
+
+        $environment->getInputProvider()->unsetParameter('pasteAll');
 
         ViewHelpers::redirectHome($environment);
     }

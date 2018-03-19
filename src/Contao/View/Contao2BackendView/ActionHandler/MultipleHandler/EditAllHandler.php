@@ -17,7 +17,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
+namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
@@ -40,6 +40,11 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 {
     use RequestScopeDeterminatorAwareTrait;
 
+    /**
+     * EditAllHandler constructor.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator
+     */
     public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {
         $this->scopeDeterminator = $scopeDeterminator;
@@ -58,6 +63,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $response = $this->process($event->getAction(), $event->getEnvironment());
         if (false !== $response) {
             $event->setResponse($response);
+            $event->stopPropagation();
         }
     }
 

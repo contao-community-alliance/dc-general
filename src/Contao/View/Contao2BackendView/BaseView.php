@@ -131,14 +131,20 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         switch ($name) {
             case 'showAll':
+                $response = call_user_func_array(
+                    array($this, $name),
+                    array_merge(array($action), $action->getArguments())
+                );
+                $event->setResponse($response);
+                break;
+
             case 'select':
-            $handler = new SelectHandler(
-                $this->scopeDeterminator,
-                new DeleteHandler($this->scopeDeterminator),
-                new CopyHandler($this->scopeDeterminator)
-            );
-            $handler->handleEvent($event);
-            break;
+                $handler = new SelectHandler(
+                    $this->scopeDeterminator
+                );
+                $handler->handleEvent($event);
+                break;
+
             case 'create':
             case 'move':
             case 'undo':
@@ -149,6 +155,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 );
                 $event->setResponse($response);
                 break;
+
             case 'show':
                 $handler = new ShowHandler($this->scopeDeterminator);
                 $handler->handleEvent($event);

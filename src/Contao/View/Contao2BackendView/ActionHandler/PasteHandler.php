@@ -126,6 +126,8 @@ class PasteHandler
         }
 
         ViewHelpers::redirectHome($environment);
+
+        return null;
     }
 
     /**

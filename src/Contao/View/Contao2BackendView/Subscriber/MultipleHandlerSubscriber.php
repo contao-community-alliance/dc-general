@@ -31,14 +31,14 @@ use MenAtWork\MultiColumnWizard\Event\GetOptionsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * The edit all handler subscriber.
+ * The multiple handler subscriber provides functions for edit/override all.
  */
-class EditAllHandlerSubscriber implements EventSubscriberInterface
+class MultipleHandlerSubscriber implements EventSubscriberInterface
 {
     use RequestScopeDeterminatorAwareTrait;
 
     /**
-     * EditAllHandlerSubscriber constructor.
+     * MultipleHandlerSubscriber constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
      */
@@ -68,7 +68,10 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            DcGeneralEvents::ACTION => ['prepareGlobalAllButton', 9999],
+            DcGeneralEvents::ACTION => [
+                ['prepareGlobalAllButton', 9999],
+                ['deactivateGlobalButton', 9999]
+            ],
             GetOptionsEvent::NAME   => ['handleOriginalOptions', 9999],
             BuildWidgetEvent::NAME  => ['handleOriginalWidget', 9999]
         ];
@@ -96,6 +99,39 @@ class EditAllHandlerSubscriber implements EventSubscriberInterface
 
             $parameters = $allCommand->getParameters();
             $parameters->offsetSet('select', 'models');
+        }
+    }
+
+    /**
+     * Deactivate global button their are not useful.
+     *
+     * @param ActionEvent $event The event.
+     *
+     * @return void
+     */
+    public function deactivateGlobalButton(ActionEvent $event)
+    {
+        $allowedAction = ['selectModelAll', 'selectPropertyAll', 'editAll', 'overrideAll'];
+        if (!$this->scopeDeterminator->currentScopeIsBackend()
+            || !\in_array($event->getAction()->getName(), $allowedAction)) {
+            return;
+        }
+
+        $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $globalCommands = $backendView->getGlobalCommands();
+
+        $allowedButton = ['close_all_button'];
+        if ('selectModelAll' !== $event->getAction()->getName()) {
+            $allowedButton[] = 'back_button';
+        }
+
+        foreach ($globalCommands->getCommands() as $command) {
+            if (\in_array($command->getName(), $allowedButton)) {
+                continue;
+            }
+
+            $command->setDisabled(true);
         }
     }
 

@@ -41,7 +41,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 /**
  * This class handles the rendering of list view "showAllProperties" actions.
  */
-class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
+class SelectPropertyAllHandler extends AbstractListShowAllHandler
 {
     use RequestScopeDeterminatorAwareTrait;
 
@@ -58,16 +58,15 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ('showAll' !== $event->getAction()->getName())
-            || ('properties' !== $event->getAction()->getArguments()['select'])
+            || 'selectPropertyAll' !== $event->getAction()->getName()
         ) {
-            return;
+            return null;
         }
 
         $response = $this->process($event->getAction(), $event->getEnvironment());
         if (false !== $response) {
             $event->setResponse($response);
-            $event->stopPropagation();
+            //$event->stopPropagation();
         }
     }
 
@@ -110,7 +109,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
      *
      * @throws DcGeneralRuntimeException When no source has been defined.
      */
-    protected function getPropertyDataProvider(EnvironmentInterface $environment)
+    private function getPropertyDataProvider(EnvironmentInterface $environment)
     {
         $providerName = 'property.' . $environment->getDataDefinition()->getName();
 
@@ -130,7 +129,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
      *
      * @return void
      */
-    protected function setPropertyLabelFormatter($providerName, EnvironmentInterface $environment)
+    private function setPropertyLabelFormatter($providerName, EnvironmentInterface $environment)
     {
         $properties = $environment->getDataDefinition()->getPropertiesDefinition();
 
@@ -160,7 +159,7 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
      *
      * @return CollectionInterface
      */
-    protected function getCollection(DataProviderInterface $dataProvider, EnvironmentInterface $environment)
+    private function getCollection(DataProviderInterface $dataProvider, EnvironmentInterface $environment)
     {
         $properties = $environment->getDataDefinition()->getPropertiesDefinition();
         $collection = $dataProvider->getEmptyCollection();
@@ -383,7 +382,6 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
      */
     protected function getSelectButtons(EnvironmentInterface $environment)
     {
-
         $languageDomain  = 'contao_' . $environment->getDataDefinition()->getName();
 
         $continueName = '';
@@ -432,7 +430,10 @@ class ListViewShowAllPropertiesHandler extends AbstractListShowAllHandler
      * @param Action $action The action.
      *
      * @return mixed
+     *
+     * @deprecated Remove
      */
+    // Fixme can remove this ?
     protected function wantToHandle($mode, Action $action)
     {
         $arguments = $action->getArguments();

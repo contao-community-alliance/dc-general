@@ -92,8 +92,6 @@ services:
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
-            - "@cca.dc-general.backend_listener.delete_handler"
-            - "@cca.dc-general.backend_listener.copy_handler"
         tags:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
@@ -142,7 +140,7 @@ services:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     cca.dc-general.backend_listener.list_show_all_properties_handler:
-        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllPropertiesHandler
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler\SelectPropertyAllHandler
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
@@ -152,7 +150,7 @@ services:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
 
     cca.dc-general.backend_listener.edit_all_handler:
-        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\EditAllHandler
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler\EditAllHandler
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
@@ -160,7 +158,7 @@ services:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent}
 
     cca.dc-general.backend_listener.override_all_handler:
-        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\OverrideAllHandler
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler\OverrideAllHandler
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
@@ -168,7 +166,15 @@ services:
             - { name: kernel.event_listener, event: dc-general.action, method: handleEvent}
 
     cca.dc-general.backend_listener.paste_all_handler:
-        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\PasteAllHandler
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler\PasteAllHandler
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            - { name: kernel.event_listener, event: dc-general.action, method: handleEvent}
+
+    cca.dc-general.backend_listener.select_model_all_handler:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler\SelectModelAllHandler
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"

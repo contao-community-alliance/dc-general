@@ -210,7 +210,13 @@ class DeleteHandler
         $this->deepDelete($environment, $modelId);
         $this->delete($environment, $modelId);
 
+        if ('delete' === $environment->getInputProvider()->getParameter('mode')) {
+            return null;
+        }
+
         ViewHelpers::redirectHome($environment);
+
+        return null;
     }
 
     /**
