@@ -21,8 +21,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Subscriber;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
-use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
@@ -35,18 +33,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class FallbackResetSubscriber implements EventSubscriberInterface
 {
-    use RequestScopeDeterminatorAwareTrait;
-
-    /**
-     * FallbackResetSubscriber constructor.
-     *
-     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
-     */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
-        $this->scopeDeterminator = $scopeDeterminator;
-    }
-
     /**
      * Returns an array of event names this subscriber wants to listen to.
      *
