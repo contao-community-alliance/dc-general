@@ -15,6 +15,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -626,7 +627,7 @@ class TreePicker extends Widget
         return System::getContainer()->get('router')->generate(
             'cca_dc_general_tree_update',
             [
-                'picker' => $configPicker->cloneForCurrent($request->query->get('context'))->urlEncode()
+                'picker' => $configPicker->cloneForCurrent((string) $request->query->get('context'))->urlEncode()
             ],
             UrlGenerator::ABSOLUTE_URL
         );
