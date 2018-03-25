@@ -20,8 +20,10 @@ services:
         class: ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage
         public: true
         arguments:
+            - "@cca.dc-general.scope-matcher"
             - ""
             - "@session"
+            - "%cca.dc-general.session.database_keys%"
 
     cca.dc-general.session_attribute:
         class: Contao\CoreBundle\Session\Attribute\ArrayAttributeBag
