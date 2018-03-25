@@ -73,10 +73,8 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     {
         if (!$environment->getSessionStorage()) {
             $sessionStorage = \System::getContainer()->get('cca.dc-general.session');
-            $environment->setSessionStorage(
-                $sessionStorage
-                    ->createInstance('DC_GENERAL_' . \strtoupper($environment->getDataDefinition()->getName()))
-            );
+            $sessionStorage->setScope('DC_GENERAL_' . \strtoupper($environment->getDataDefinition()->getName()));
+            $environment->setSessionStorage($sessionStorage);
             // @codingStandardsIgnoreStart
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
             // @codingStandardsIgnoreEnd
