@@ -22,6 +22,9 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use Contao\Ajax as ContaoAjax;
+use Contao\BackendUser;
+use Contao\Database;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
@@ -273,6 +276,16 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     protected function exitScript()
     {
+        // TODO START give the response back or use own entry point for ajax call.
+        // The problem is the session will be update by event kernel.response.
+        $session = System::getContainer()->get('session');
+        $sessionBag = $session->getBag('contao_backend')->all();
+
+        $user = BackendUser::getInstance();
+
+        Database::getInstance()->prepare('UPDATE tl_user SET session=? WHERE id=?')
+            ->execute(\serialize($sessionBag), $user->id);
+        // TODO END
         exit;
     }
 }
