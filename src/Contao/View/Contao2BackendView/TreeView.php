@@ -66,7 +66,7 @@ class TreeView extends BaseView
      */
     protected function getToggleId()
     {
-        return $this->getEnvironment()->getDataDefinition()->getName() . '_tree';
+        return 'tree';
     }
 
     /**
