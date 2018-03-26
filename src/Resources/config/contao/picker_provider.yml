@@ -1,4 +1,15 @@
 services:
+    cca.picker.page_picker_provider:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Picker\PagePickerProvider
+        public: false
+        arguments:
+            - "@knp_menu.factory"
+            - "@router"
+        calls:
+            - [setTokenStorage, ["@security.token_storage"]]
+        tags:
+            -   name: contao.picker_provider
+
     cca.picker.tree_picker_provider:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Picker\TreePickerProvider
         public: false
