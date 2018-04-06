@@ -430,6 +430,9 @@ class TreePicker extends Widget
             case 'orderField':
                 return $this->orderField;
 
+            case 'dataContainer':
+                return $this->dataContainer;
+
             default:
         }
         return parent::__get($strKey);
