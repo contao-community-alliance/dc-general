@@ -28,11 +28,13 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
@@ -378,6 +380,9 @@ class SelectHandler extends AbstractHandler
 
         $values = [];
         foreach ($collection->getIterator() as $model) {
+            $widgetManager    = new ContaoWidgetManager($this->getEnvironment(), $model);
+            $propertyValueBag = new PropertyValueBag();
+
             $modelValues = \array_intersect_key($model->getPropertiesAsArray(), $session['intersectProperties']);
             foreach ($modelValues as $modelProperty => $modelValue) {
                 if (1 === $collection->count()) {
@@ -386,7 +391,7 @@ class SelectHandler extends AbstractHandler
                     continue;
                 }
 
-                $values[$modelProperty][] = $modelValue;
+                $values[$modelProperty][] = $widgetManager->decodeValue($modelProperty, $modelValue);
             }
         }
 
@@ -400,7 +405,9 @@ class SelectHandler extends AbstractHandler
                 continue;
             }
 
-            $intersectValues[$propertyName] = $value;
+            $propertyValueBag->setPropertyValue($propertyName, $value);
+
+            $intersectValues[$propertyName] = $widgetManager->encodeValue($propertyName, $value, $propertyValueBag);
         }
 
         return $intersectValues;
