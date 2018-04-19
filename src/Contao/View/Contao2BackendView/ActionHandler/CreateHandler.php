@@ -27,6 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 
@@ -102,6 +103,7 @@ class CreateHandler
      */
     protected function process(EnvironmentInterface $environment)
     {
+        $inputProvider      = $environment->getInputProvider();
         $definition         = $environment->getDataDefinition();
         $dataProvider       = $environment->getDataProvider();
         $propertyDefinition = $definition->getPropertiesDefinition();
@@ -124,7 +126,31 @@ class CreateHandler
             return false;
         }
 
+        // Initial for save the model in two steps.
+        if ($inputProvider->hasValue('save')
+            || $inputProvider->hasValue('saveNclose')
+            || $inputProvider->hasValue('saveNcreate')
+            || $inputProvider->hasValue('saveNback')
+        ) {
+            $inputProvider->setValue('doNotSubmit', true);
+        }
+
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
+        $response = $editMask->execute();
+        if (!$inputProvider->hasValue('doNotSubmit')) {
+            return $response;
+        }
+
+        // Save the model step two. So as example alias or combined values work.
+        if ($inputProvider->hasValue('doNotSubmit')) {
+            $inputProvider->setValue('doNotSubmit', false);
+        }
+
+        $modelId       = ModelId::fromModel($model);
+        $newModel      = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        $originalModel = clone $newModel;
+
+        $editMask = new EditMask($view, $newModel, $originalModel, null, null, $view->breadcrumb());
         return $editMask->execute();
     }
 
