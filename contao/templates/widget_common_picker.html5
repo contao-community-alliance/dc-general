@@ -20,6 +20,8 @@
 	</a>
 	</p>
 <?php if ($this->hasOrder): ?>
+	<?php $this->block('sort'); ?>
 	<script>Backend.makeMultiSrcSortable("sort_<?php echo $this->id ?>", "ctrl_<?php echo $this->orderId ?>")</script>
+	<?php $this->endblock(); ?>
 <?php endif; ?>
 </div>
