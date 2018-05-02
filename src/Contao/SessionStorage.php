@@ -65,13 +65,13 @@ class SessionStorage implements SessionStorageInterface
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
      * @param string                   $key               The key to use for storage.
-     * @param SessionInterface|null    $session           The symfony session.
+     * @param SessionInterface         $session           The symfony session.
      * @param array                    $databaseKeys      The database keys for store session data in the database.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator = null,
         $key = '',
-        SessionInterface $session = null,
+        SessionInterface $session,
         array $databaseKeys = []
     ) {
         $this->key = (string) $key;
@@ -232,14 +232,10 @@ class SessionStorage implements SessionStorageInterface
         );
 
         if ($determineDatabase) {
-            $filter = \array_intersect_key($this->attributes, \array_flip($databaseAttributes));
-
-            return $filter;
+            return \array_intersect_key($this->attributes, \array_flip($databaseAttributes));
         }
 
-        $filter =  \array_diff_key($this->attributes, \array_flip($databaseAttributes));
-
-        return $filter;
+        return \array_diff_key($this->attributes, \array_flip($databaseAttributes));
     }
 
     /**

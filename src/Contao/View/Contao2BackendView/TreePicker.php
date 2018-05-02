@@ -1327,7 +1327,7 @@ class TreePicker extends Widget
 
         $tableName      = \explode('____', $this->getEnvironment()->getInputProvider()->getValue('name'))[0];
         $sessionKey     = 'DC_GENERAL_' . \strtoupper($tableName);
-        $sessionStorage = new SessionStorage($sessionKey);
+        $sessionStorage = new SessionStorage($sessionKey, $this->getEnvironment()->getSessionStorage());
 
         $selectAction = $this->getEnvironment()->getInputProvider()->getParameter('select');
 
