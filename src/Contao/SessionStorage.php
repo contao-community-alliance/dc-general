@@ -30,8 +30,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 class SessionStorage implements SessionStorageInterface
 {
-    use RequestScopeDeterminatorAwareTrait;
-
     /**
      * The session key.
      *
@@ -63,21 +61,18 @@ class SessionStorage implements SessionStorageInterface
     /**
      * Create a new instance.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
-     * @param string                   $key               The key to use for storage.
-     * @param SessionInterface         $session           The symfony session.
-     * @param array                    $databaseKeys      The database keys for store session data in the database.
+     * @param string           $key          The key to use for storage.
+     * @param SessionInterface $session      The symfony session.
+     * @param array            $databaseKeys The database keys for store session data in the database.
      */
     public function __construct(
-        RequestScopeDeterminator $scopeDeterminator = null,
         $key = '',
         SessionInterface $session,
         array $databaseKeys = []
     ) {
         $this->key = (string) $key;
 
-        $this->session           = $session;
-        $this->scopeDeterminator = $scopeDeterminator;
+        $this->session = $session;
 
         if (!\count($databaseKeys)) {
             return;
@@ -107,7 +102,7 @@ class SessionStorage implements SessionStorageInterface
      */
     public function createInstance($key)
     {
-        return new self($this->scopeDeterminator, $key, $this->session, $this->databaseKeys);
+        return new self($key, $this->session, $this->databaseKeys);
     }
 
     /**
