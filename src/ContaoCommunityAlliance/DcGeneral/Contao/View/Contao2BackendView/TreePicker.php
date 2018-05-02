@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
 use ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
@@ -447,11 +448,26 @@ class TreePicker extends Widget
      */
     protected function validator($varInput)
     {
-        if (!($this->alwaysSave || Input::post($this->strName . '_save'))) {
+        if (!(($this->alwaysSave) || (Input::post($this->name)))) {
             $this->blnSubmitInput = false;
         }
 
-        return parent::validator($varInput);
+        $convertValue = $this->convertValue($varInput);
+
+        if (empty($convertValue) && $this->mandatory) {
+            $translator = $this->getEnvironment()->getTranslator();
+
+            $message = empty($this->label)
+                ? $translator->translate('ERR.mdtryNoLabel')
+                : \sprintf(
+                    $translator->translate('ERR.mandatory'),
+                    $this->strLabel
+                );
+
+            $this->addError($message);
+        }
+
+        return $convertValue;
     }
 
     /**
