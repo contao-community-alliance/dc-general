@@ -40,6 +40,8 @@ class DefaultConfig implements ConfigInterface
      * The ids to be retrieved.
      *
      * @var array
+     *
+     * @deprecated This is deprecated since 2.1 and will be removed in 3.0.
      */
     protected $arrIds = [];
 
@@ -148,6 +150,11 @@ class DefaultConfig implements ConfigInterface
      */
     public function getIds()
     {
+        @\trigger_error(
+            'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.',
+            E_NOTICE
+        );
+
         return $this->arrIds;
     }
 
@@ -160,6 +167,13 @@ class DefaultConfig implements ConfigInterface
      */
     public function setIds($arrIds)
     {
+        @\trigger_error(
+            'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0. 
+            Use set filter 
+            $dataConfig->setFilter([[\'operation\' => \'IN\', \'property\' => \'id\', \'values\' => [4,3,2,1]]]).',
+            E_NOTICE
+        );
+
         $this->arrIds = $arrIds;
 
         return $this;

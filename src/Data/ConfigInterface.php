@@ -57,6 +57,8 @@ interface ConfigInterface
      * Get list of specific ids to be retrieved.
      *
      * @return array
+     *
+     * @deprecated This is deprecated since 2.1 and will be removed in 3.0.
      */
     public function getIds();
 
@@ -66,6 +68,10 @@ interface ConfigInterface
      * @param array $arrIds The list of ids to be retrieved.
      *
      * @return ConfigInterface
+     *
+     * @deprecated This is deprecated since 2.1 and will be removed in 3.0.
+     *             Use set filter
+     *             $dataConfig->setFilter([['operation' => 'IN', 'property' => 'id', 'values' => [4,3,2,1]]]).
      */
     public function setIds($arrIds);
 
