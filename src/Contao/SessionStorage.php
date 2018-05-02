@@ -127,7 +127,7 @@ class SessionStorage implements SessionStorageInterface
     {
         $this->load();
 
-        return $this->attributes[$name];
+        return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
     }
 
     /**
