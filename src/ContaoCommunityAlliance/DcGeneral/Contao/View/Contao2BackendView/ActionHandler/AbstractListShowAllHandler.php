@@ -272,29 +272,8 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             /** @var ModelInterface $model */
             $index++;
 
-            // Add the group header.
-            if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
-                $remoteNew = $this->renderGroupHeader(
-                    $grouping['property'],
-                    $model,
-                    $grouping['mode'],
-                    $grouping['length']
-                );
+            $this->addGroupHeader($grouping, $model, $groupClass, $remoteCur, $eoCount);
 
-                $model->setMeta(
-                    $model::GROUP_VALUE,
-                    [
-                        'class' => $groupClass,
-                        'value' => $remoteNew
-                    ]
-                );
-                // Add the group header if it differs from the last header.
-                if (($remoteNew != $remoteCur) || ($remoteCur === null)) {
-                    $eoCount    = -1;
-                    $groupClass = 'tl_folder_list';
-                    $remoteCur  = $remoteNew;
-                }
-            }
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
             }
@@ -311,6 +290,43 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             $model->setMeta($model::CSS_ROW_CLASS, \implode(' ', $cssClasses));
 
             $this->renderModel($model);
+        }
+    }
+
+    /**
+     * Add the group header information to the model.
+     *
+     * @param array          $grouping   The grouping information.
+     * @param ModelInterface $model      The model.
+     * @param string         $groupClass The group class.
+     * @param mixed          $remoteCur  The current remote.
+     * @param integer        $eoCount    The row even odd counter.
+     *
+     * @return void
+     */
+    private function addGroupHeader(array $grouping, ModelInterface $model, &$groupClass, &$remoteCur = null, &$eoCount)
+    {
+        if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
+            $remoteNew = $this->renderGroupHeader(
+                $grouping['property'],
+                $model,
+                $grouping['mode'],
+                $grouping['length']
+            );
+
+            $model->setMeta(
+                $model::GROUP_VALUE,
+                [
+                    'class' => $groupClass,
+                    'value' => $remoteNew
+                ]
+            );
+            // Add the group header if it differs from the last header.
+            if (($remoteNew != $remoteCur) || ($remoteCur === null)) {
+                $eoCount    = -1;
+                $groupClass = 'tl_folder_list';
+                $remoteCur  = $remoteNew;
+            }
         }
     }
 
@@ -391,7 +407,6 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
 
         return $event->getValue();
     }
-
 
     /**
      * Retrieve a list of html buttons to use in the bottom panel (submit area) when in select mode.
