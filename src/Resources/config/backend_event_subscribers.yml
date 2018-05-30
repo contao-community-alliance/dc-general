@@ -39,14 +39,6 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    cca.dc-general.backend_subsriber.dynmaic_parent_table:
-        class: ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\DynamicParentTableSubscriber
-        public: true
-        arguments:
-            - "@cca.dc-general.scope-matcher"
-        tags:
-            - { name: kernel.event_subscriber }
-
     cca.dc-general.backend_subscriber.multiple_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\MultipleHandlerSubscriber
         public: true
