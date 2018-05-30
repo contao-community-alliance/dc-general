@@ -38,17 +38,18 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -285,31 +286,9 @@ class DefaultController implements ControllerInterface
         }
         $environment = $this->getEnvironment();
         $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
-        foreach ($propertyValues as $property => $value) {
-            try {
-                if (!$properties->hasProperty($property)) {
-                    continue;
-                }
-                $extra = $properties->getProperty($property)->getExtra();
-                // Don´t save value if isset property readonly.
-                if (empty($extra['readonly'])) {
-                    $model->setProperty($property, $value);
-                }
-                if (empty($extra)) {
-                    continue;
-                }
-                // If always save is true, we need to mark the model as changed.
-                if (!empty($extra['alwaysSave'])) {
-                    // Set property to generate alias or combined values.
-                    if (!empty($extra['readonly'])) {
-                        $model->setProperty($property, '');
-                    }
-                    $model->setMeta($model::IS_CHANGED, true);
-                }
-            } catch (\Exception $exception) {
-                $propertyValues->markPropertyValueAsInvalid($property, $exception->getMessage());
-            }
-        }
+
+        ModelManipulator::updateModelFromPropertyBag($properties, $model, $propertyValues);
+
         return $this;
     }
 

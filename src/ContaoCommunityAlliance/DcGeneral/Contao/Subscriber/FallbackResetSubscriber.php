@@ -14,6 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -22,6 +23,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Subscriber;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
@@ -99,8 +101,8 @@ class FallbackResetSubscriber implements EventSubscriberInterface
             if (!$properties->hasProperty($propertyName)) {
                 continue;
             }
-
-            $extra = (array) $properties->getProperty($propertyName)->getExtra();
+            $property = $properties->getProperty($propertyName);
+            $extra    = (array) $property->getExtra();
             if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
                 // BC Layer - use old reset fallback methodology until it get's removed.
                 if (null === ($config = $this->determineFilterConfig($event))) {
@@ -126,7 +128,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                     if ($model->getId() === $resetModel->getId()) {
                         continue;
                     }
-                    $resetModel->setProperty($propertyName, null);
+                    $resetModel->setProperty($propertyName, ModelManipulator::sanitizeValue($property, null));
                     $dataProvider->save($resetModel);
                 }
             }

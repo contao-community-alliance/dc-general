@@ -447,11 +447,26 @@ class TreePicker extends Widget
      */
     protected function validator($varInput)
     {
-        if (!($this->alwaysSave || Input::post($this->strName . '_save'))) {
+        if (!(($this->alwaysSave) || (Input::post($this->name)))) {
             $this->blnSubmitInput = false;
         }
 
-        return parent::validator($varInput);
+        $convertValue = $this->convertValue($varInput);
+
+        if (empty($convertValue) && $this->mandatory) {
+            $translator = $this->getEnvironment()->getTranslator();
+
+            $message = empty($this->label)
+                ? $translator->translate('ERR.mdtryNoLabel')
+                : \sprintf(
+                    $translator->translate('ERR.mandatory'),
+                    $this->strLabel
+                );
+
+            $this->addError($message);
+        }
+
+        return $convertValue;
     }
 
     /**
@@ -575,13 +590,14 @@ class TreePicker extends Widget
 
         $popupUrl = 'system/modules/dc-general/backend/generaltree.php?' .
                     \sprintf(
-                        'do=%s&amp;table=%s&amp;field=%s&amp;act=%s&amp;id=%s&amp;value=%s&amp;rt=%s',
+                        'do=%s&amp;table=%s&amp;field=%s&amp;act=%s&amp;id=%s&amp;value=%s&amp;%srt=%s',
                         Input::get('do'),
                         $this->strTable,
                         $field,
                         $action,
                         $environment->getInputProvider()->getParameter('id'),
                         \implode(',', \array_keys($values)),
+                        $additionalUrlParameter,
                         REQUEST_TOKEN
                     );
 
@@ -592,8 +608,6 @@ class TreePicker extends Widget
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
             ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', [$this->sourceName]))
-            ->set('changeSelection', $translator->translate('MSC.changeSelection'))
-            ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
             ->set('fieldType', $this->fieldType)
             ->set('values', $values)
             ->set('popupUrl', $popupUrl);
@@ -619,8 +633,15 @@ class TreePicker extends Widget
             return;
         }
 
-        $template->set('hasOrder', true);
-        $template->set('orderId', $this->orderField);
+        $translator = $this->getEnvironment()->getTranslator();
+
+        $template
+            ->set('hasOrder', true)
+            ->set('orderId', $this->orderField)
+            ->set('orderName', $this->orderName)
+            ->set('orderValue', \implode(',', (array) $this->value))
+            ->set('changeSelection', $translator->translate('MSC.changeSelection'))
+            ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'));
     }
 
     /**

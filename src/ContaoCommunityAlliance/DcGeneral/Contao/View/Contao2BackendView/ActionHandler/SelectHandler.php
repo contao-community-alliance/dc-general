@@ -298,6 +298,8 @@ class SelectHandler extends AbstractHandler
      * Set the intersect properties to the session.
      *
      * @param CollectionInterface $collection The collection of models.
+     *
+     * @return void
      */
     private function setIntersectProperties(CollectionInterface $collection)
     {
@@ -314,6 +316,8 @@ class SelectHandler extends AbstractHandler
      * Set the intersect properties to the session.
      *
      * @param CollectionInterface $collection The collection of models.
+     *
+     * @return void
      */
     private function setIntersectValues(CollectionInterface $collection)
     {
@@ -367,7 +371,7 @@ class SelectHandler extends AbstractHandler
     /**
      * Collect the intersect values from the model collection.
      *
-     * @param CollectionInterface $collection
+     * @param CollectionInterface $collection The model collection.
      *
      * @return array
      */
@@ -416,7 +420,7 @@ class SelectHandler extends AbstractHandler
     /**
      * Get the unique value from a array. The value will return if the all values in the array the same.
      *
-     * @param array $values
+     * @param array $values The values.
      *
      * @return string|array|null
      */
