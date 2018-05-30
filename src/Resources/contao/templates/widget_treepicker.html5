@@ -1,1 +1,9 @@
 <?php $this->extend('widget_common_picker'); ?>
+
+<?php if ($this->hasOrder): ?>
+    <?php $this->block('sort'); ?>
+    <input type="hidden" name="<?= $this->orderName; ?>" id="ctrl_<?= $this->orderId ?>" value="<?= \implode(',', \array_keys($this->values)); ?>">
+    <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>")</script>
+    <?php $this->endblock(); ?>
+<?php endif; ?>
+

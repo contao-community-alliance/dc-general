@@ -284,10 +284,23 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $visibleModel = $dataProvider->getEmptyModel();
         $visibleModel->setId($editModel->getId());
 
+        $widgetManager    = new ContaoWidgetManager($this->getEnvironment(), $editModel);
+        $propertyValueBag = new PropertyValueBag();
+
         foreach (\array_keys($selectProperties) as $visiblePropertyName) {
             $visiblePropertyValue = $editModel->getProperty($visiblePropertyName);
 
-            $visibleModel->setProperty($visiblePropertyName, $visiblePropertyValue);
+            // FIXME: Is this here the right value for set in the property value bag?
+            $propertyValueBag->setPropertyValue($visiblePropertyName, $visiblePropertyValue);
+
+            $visibleModel->setProperty(
+                $visiblePropertyName,
+                $widgetManager->encodeValue(
+                    $visiblePropertyName,
+                    $widgetManager->decodeValue($visiblePropertyName, $visiblePropertyValue),
+                    $propertyValueBag
+                )
+            );
         }
 
         return $visibleModel;

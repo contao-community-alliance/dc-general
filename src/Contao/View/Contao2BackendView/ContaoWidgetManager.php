@@ -123,7 +123,7 @@ class ContaoWidgetManager
         $event
             ->setProperty($property)
             ->setValue($value);
-        $environment->getEventDispatcher()->dispatch(EncodePropertyValueFromWidgetEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(DecodePropertyValueForWidgetEvent::NAME, $event);
 
         return $event->getValue();
     }

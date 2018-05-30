@@ -135,6 +135,15 @@ class CreateHandler
             $inputProvider->setValue('doNotSubmit', true);
         }
 
+        // Initial for save the model in two steps.
+        if ($inputProvider->hasValue('save')
+            || $inputProvider->hasValue('saveNclose')
+            || $inputProvider->hasValue('saveNcreate')
+            || $inputProvider->hasValue('saveNback')
+        ) {
+            $inputProvider->setValue('doNotSubmit', true);
+        }
+
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
         $response = $editMask->execute();
         if (!$inputProvider->hasValue('doNotSubmit')) {
