@@ -528,28 +528,23 @@ class TreePicker extends Widget
      */
     private function sortValues($values)
     {
-        $model = $this->dataContainer->getModel();
-        if (!($this->orderField && \is_array($model->getProperty($this->orderField)))) {
+        if (!($this->orderField && \is_array($this->{$this->orderField}))) {
             return $values;
         }
-
         /** @var array $orderValues */
-        $orderValues = $model->getProperty($this->orderField);
+        $orderValues = $this->{$this->orderField};
         $arrNew      = [];
-
         foreach ($orderValues as $i) {
             if (isset($values[$i])) {
                 $arrNew[$i] = $values[$i];
                 unset($values[$i]);
             }
         }
-
         if (!empty($values)) {
             foreach ($values as $k => $v) {
                 $arrNew[$k] = $v;
             }
         }
-
         return $arrNew;
     }
 
