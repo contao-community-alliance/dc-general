@@ -66,7 +66,7 @@ class SessionStorage implements SessionStorageInterface
      * @param array            $databaseKeys The database keys for store session data in the database.
      */
     public function __construct(
-        $key = '',
+        $key,
         SessionInterface $session,
         array $databaseKeys = []
     ) {
