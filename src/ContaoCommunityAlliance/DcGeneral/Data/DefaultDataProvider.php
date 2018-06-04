@@ -275,12 +275,12 @@ class DefaultDataProvider implements DataProviderInterface
         // Insert undo.
         $this->insertUndo(
             \sprintf(
-                'DELETE FROM %1$s WHERE id = %2$s',
+                'DELETE FROM %1$s WHERE %1$s.id = %2$s',
                 $this->strSource,
                 $modelId
             ),
             \sprintf(
-                'SELECT * FROM %1$s WHERE id = %2$s',
+                'SELECT * FROM %1$s WHERE %1$s.id = %2$s',
                 $this->strSource,
                 $modelId
             ),
@@ -288,7 +288,7 @@ class DefaultDataProvider implements DataProviderInterface
         );
 
         $this->objDatabase
-            ->prepare(\sprintf('DELETE FROM %s WHERE id=?', $this->strSource))
+            ->prepare(\sprintf('DELETE FROM %1s WHERE %1$s.id=?', $this->strSource))
             ->execute($modelId);
     }
 
@@ -457,8 +457,13 @@ class DefaultDataProvider implements DataProviderInterface
     public function isUniqueValue($strField, $varNew, $intId = null)
     {
         $objUnique = $this->objDatabase
-            ->prepare('SELECT * FROM ' . $this->strSource . ' WHERE ' . $strField . ' = ? ')
-            ->execute($varNew);
+            ->prepare(
+                \sprintf(
+                    'SELECT %1$s.* FROM %1$s WHERE %1$s.%2$s = ? ',
+                    $this->strSource,
+                    $strField
+                )
+            )->execute($varNew);
 
         if ($objUnique->numRows == 0) {
             return true;
@@ -493,7 +498,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function convertModelToDataPropertyArray(ModelInterface $model, $timestamp = 0)
+    private function convertModelToDataPropertyArray(ModelInterface $model, $timestamp = 0)
     {
         $data = [];
         foreach ($model as $key => $value) {
@@ -502,14 +507,14 @@ class DefaultDataProvider implements DataProviderInterface
             }
 
             if (\is_array($value)) {
-                $data[$key] = \serialize($value);
+                $data[$this->strSource . '.' . $key] = \serialize($value);
             } else {
-                $data[$key] = $value;
+                $data[$this->strSource . '.' . $key] = $value;
             }
         }
 
         if ($this->timeStampProperty) {
-            $data[$this->getTimeStampProperty()] = $timestamp ?: \time();
+            $data[$this->strSource . '.' . $this->getTimeStampProperty()] = $timestamp ?: \time();
         }
 
         return $data;
@@ -523,7 +528,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @return void
      */
-    protected function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0)
+    private function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0)
     {
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
         if ($this->getIdGenerator()) {
@@ -549,7 +554,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @return void
      */
-    protected function updateModelInDatabase($model, $timestamp = 0)
+    private function updateModelInDatabase($model, $timestamp = 0)
     {
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
 
@@ -597,8 +602,18 @@ class DefaultDataProvider implements DataProviderInterface
     public function getVersion($mixID, $mixVersion)
     {
         $objVersion = $this->objDatabase
-            ->prepare('SELECT * FROM tl_version WHERE pid=? AND version=? AND fromTable=?')
-            ->execute($mixID, $mixVersion, $this->strSource);
+            ->prepare(
+                'SELECT
+                    tl_version.*
+                    FROM
+                    tl_version
+                WHERE
+                    tl_version.pid=?
+                    AND
+                    tl_version.version=?
+                    AND
+                    tl_version.fromTable=?'
+            )->execute($mixID, $mixVersion, $this->strSource);
 
         if ($objVersion->numRows == 0) {
             return null;
@@ -634,11 +649,21 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getVersions($mixID, $blnOnlyActive = false)
     {
-        $sql = 'SELECT tstamp, version, username, active FROM tl_version WHERE fromTable = ? AND pid = ?';
+        $sql = 'SELECT
+                    tl_version.tstamp,
+                    tl_version.version,
+                    tl_version.username,
+                    tl_version.active
+                    FROM
+                    tl_version
+                WHERE
+                    tl_version.fromTable = ?
+                    AND
+                    tl_version.pid = ?';
         if ($blnOnlyActive) {
-            $sql .= ' AND active = 1';
+            $sql .= ' AND tl_version.active = 1';
         } else {
-            $sql .= ' ORDER BY version DESC';
+            $sql .= ' ORDER BY tl_version.version DESC';
         }
 
         $arrVersion = $this->objDatabase
@@ -681,8 +706,16 @@ class DefaultDataProvider implements DataProviderInterface
     public function saveVersion(ModelInterface $objModel, $strUsername)
     {
         $objCount = $this->objDatabase
-            ->prepare('SELECT count(*) as mycount FROM tl_version WHERE pid=? AND fromTable = ?')
-            ->execute($objModel->getId(), $this->strSource);
+            ->prepare(
+                'SELECT
+                    count(*) as mycount
+                    FROM
+                    tl_version
+                WHERE
+                    tl_version.pid=?
+                    AND
+                    tl_version.fromTable = ?'
+            )->execute($objModel->getId(), $this->strSource);
 
         $mixNewVersion = ((int) $objCount->mycount + 1);
         $mixData       = $objModel->getPropertiesAsArray();
@@ -690,12 +723,12 @@ class DefaultDataProvider implements DataProviderInterface
         $mixData[$this->idProperty] = $objModel->getId();
 
         $arrInsert              = [];
-        $arrInsert['pid']       = $objModel->getId();
-        $arrInsert['tstamp']    = time();
-        $arrInsert['version']   = $mixNewVersion;
-        $arrInsert['fromTable'] = $this->strSource;
-        $arrInsert['username']  = $strUsername;
-        $arrInsert['data']      = \serialize($mixData);
+        $arrInsert['tl_version.pid']       = $objModel->getId();
+        $arrInsert['tl_version.tstamp']    = \time();
+        $arrInsert['tl_version.version']   = $mixNewVersion;
+        $arrInsert['tl_version.fromTable'] = $this->strSource;
+        $arrInsert['tl_version.username']  = $strUsername;
+        $arrInsert['tl_version.data']      = \serialize($mixData);
 
         $this->objDatabase->prepare('INSERT INTO tl_version %s')
             ->set($arrInsert)
@@ -715,12 +748,30 @@ class DefaultDataProvider implements DataProviderInterface
     public function setVersionActive($mixID, $mixVersion)
     {
         $this->objDatabase
-            ->prepare('UPDATE tl_version SET active=\'\' WHERE pid = ? AND fromTable = ?')
-            ->execute($mixID, $this->strSource);
+            ->prepare(
+                'UPDATE
+                    tl_version
+                    SET
+                    tl_version.active=\'\'
+                WHERE
+                    tl_version.pid = ?
+                    AND
+                    tl_version.fromTable = ?'
+            )->execute($mixID, $this->strSource);
 
         $this->objDatabase
-            ->prepare('UPDATE tl_version SET active = 1 WHERE pid = ? AND version = ? AND fromTable = ?')
-            ->execute($mixID, $mixVersion, $this->strSource);
+            ->prepare(
+                'UPDATE
+                    tl_version
+                    SET
+                    tl_version.active = 1
+                WHERE
+                    tl_version.pid = ?
+                    AND
+                    tl_version.version = ?
+                    AND
+                    tl_version.fromTable = ?'
+            )->execute($mixID, $mixVersion, $this->strSource);
     }
 
     /**
@@ -733,8 +784,18 @@ class DefaultDataProvider implements DataProviderInterface
     public function getActiveVersion($mixID)
     {
         $objVersionID = $this->objDatabase
-            ->prepare('SELECT version FROM tl_version WHERE pid = ? AND fromTable = ? AND active = 1')
-            ->execute($mixID, $this->strSource);
+            ->prepare(
+                'SELECT
+                    tl_version.version
+                    FROM
+                    tl_version
+                    WHERE
+                        tl_version.pid = ?
+                        AND
+                        tl_version.fromTable = ?
+                        AND
+                        tl_version.active = 1'
+            )->execute($mixID, $this->strSource);
 
         if ($objVersionID->numRows == 0) {
             return null;
@@ -810,7 +871,11 @@ class DefaultDataProvider implements DataProviderInterface
         // Write into undo.
         $this->objDatabase
             ->prepare(
-                'INSERT INTO tl_undo (pid, tstamp, fromTable, query, affectedRows, data) VALUES (?, ?, ?, ?, ?, ?)'
+                'INSERT INTO
+                    tl_undo
+                    (tl_undo.pid, tl_undo.tstamp, tl_undo.fromTable, tl_undo.query, tl_undo.affectedRows, tl_undo.data)
+                    VALUES
+                    (?, ?, ?, ?, ?, ?)'
             )
             ->execute(
                 $objUser->id,
