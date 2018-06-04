@@ -22,11 +22,11 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subsc
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\BooleanCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
-use ReflectionObject;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -107,7 +107,7 @@ class CheckPermission implements EventSubscriberInterface
 
         $this->disableCommandByActionName($modelCommands, 'edit');
         $this->disableCommandByActionName($modelCommands, 'cut');
-        $this->disablePropertyCommands($modelCommands);
+        $this->disableToggleCommand($modelCommands);
     }
 
     /**
@@ -211,18 +211,16 @@ class CheckPermission implements EventSubscriberInterface
     }
 
     /**
-     * Disable property commands.
-     * If a property command find, disable this. (e.g. toggle visibility)
+     * Disable the toggle command.
      *
      * @param CommandCollectionInterface $commands The commands collection.
      *
      * @return void
      */
-    private function disablePropertyCommands(CommandCollectionInterface $commands)
+    private function disableToggleCommand(CommandCollectionInterface $commands)
     {
         foreach ($commands->getCommands() as $command) {
-            $reflectionObject = new ReflectionObject($command);
-            if (!$reflectionObject->hasProperty('property')) {
+            if (!($command instanceof ToggleCommandInterface)) {
                 continue;
             }
 
