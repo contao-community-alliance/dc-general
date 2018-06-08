@@ -608,6 +608,8 @@ class TreePicker extends Widget
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
             ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', [$this->sourceName]))
+            ->set('changeSelection', $translator->translate('MSC.changeSelection'))
+            ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
             ->set('fieldType', $this->fieldType)
             ->set('values', $values)
             ->set('popupUrl', $popupUrl);
