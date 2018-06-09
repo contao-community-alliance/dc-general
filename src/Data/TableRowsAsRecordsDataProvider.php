@@ -71,6 +71,26 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     }
 
     /**
+     * Get the property name that shall get updated with the current grouping when saving to the database.
+     *
+     * @return string
+     */
+    public function getGroupColumnProperty()
+    {
+        return $this->strGroupCol;
+    }
+
+    /**
+     * Get the property name that shall get updated with the current sorting when saving to the database.
+     *
+     * @return string
+     */
+    public function getSortingColumnProperty()
+    {
+        return $this->strSortCol;
+    }
+
+    /**
      * Exception throwing convenience method.
      *
      * Convenience method in this data provider that simply throws an Exception stating that the passed method name
