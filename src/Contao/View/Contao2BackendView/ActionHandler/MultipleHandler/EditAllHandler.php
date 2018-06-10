@@ -27,11 +27,13 @@ use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractPropertyOverrideEditAllHandler;
+use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
  * The class handle the "editAll" commands.
@@ -39,6 +41,7 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractPropertyOverrid
 class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 {
     use RequestScopeDeterminatorAwareTrait;
+    use CallActionTrait;
 
     /**
      * EditAllHandler constructor.
@@ -284,7 +287,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $visibleModel = $dataProvider->getEmptyModel();
         $visibleModel->setId($editModel->getId());
 
-        $widgetManager    = new ContaoWidgetManager($this->getEnvironment(), $editModel);
+        $widgetManager    = new ContaoWidgetManager($environment, $editModel);
         $propertyValueBag = new PropertyValueBag();
 
         foreach (\array_keys($selectProperties) as $visiblePropertyName) {

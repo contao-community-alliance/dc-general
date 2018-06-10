@@ -167,9 +167,8 @@ class SelectHandler
 
                 $regardSelectMode = true;
                 return true;
-            }
-            ,
-            ['delete', 'copy', 'cut']
+            },
+            ['edit_save', 'edit_saveNback', 'delete', 'copy', 'cut']
         );
 
         return $regardSelectMode;
