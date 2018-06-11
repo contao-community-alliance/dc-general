@@ -19,7 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 
 /**
  * This interface is for collect some information from the edit model, and provide some useful stuff for edit/override

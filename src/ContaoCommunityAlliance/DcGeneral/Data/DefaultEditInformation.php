@@ -19,7 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 
 /**
  * This class is the base implementation for EditInformationInterface.
