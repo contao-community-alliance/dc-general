@@ -416,7 +416,7 @@ class EditMask
                     $editInformation->setModelError(
                         $this->model,
                         $propertyValues->getPropertyValueErrors($property->getName()),
-                        $property
+                        $propertyDefinitions->getProperty($property->getName())
                     );
                 }
 
