@@ -112,7 +112,8 @@ abstract class AbstractListShowAllHandler
 
         $basic = $event->getEnvironment()->getDataDefinition()->getBasicDefinition();
 
-        if (($event->getAction()->getName() !== 'showAll')
+        if (null !== $event->getResponse()
+            || ($event->getAction()->getName() !== 'showAll')
             || !$this->wantToHandle($basic->getMode(), $event->getAction())
         ) {
             return;
