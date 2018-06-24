@@ -117,7 +117,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * @throws DcGeneralRuntimeException If the parent view requirements are not fulfilled - either no data provider
      *                                   defined or no parent model id given.
      */
-    private function loadParentModel(EnvironmentInterface $environment)
+    protected function loadParentModel(EnvironmentInterface $environment)
     {
         $pidDetails = ModelId::fromSerialized($environment->getInputProvider()->getParameter('pid'));
 
