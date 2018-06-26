@@ -417,7 +417,7 @@ class EditMask
             unset($editButtons['save']);
         }
 
-        if (!\count($editButtons)) {
+        if (\count($editButtons)) {
             $submitButtons['buttonGroup'] = $editButtons;
         }
 
