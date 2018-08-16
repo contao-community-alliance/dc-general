@@ -31,11 +31,11 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class SessionStorage implements SessionStorageInterface
 {
     /**
-     * The session key.
+     * The session scope.
      *
      * @var string
      */
-    private $key;
+    private $scope;
 
     /**
      * The symfony session.
@@ -45,38 +45,67 @@ class SessionStorage implements SessionStorageInterface
     private $session;
 
     /**
+     * The database keys for store session data in the database.
+     *
+     * @var array
+     */
+    private $databaseKeys = [];
+
+    /**
      * The attribute storage.
      *
      * @var array
      */
-    private $attributes;
+    private $attributes = [];
 
     /**
      * Create a new instance.
      *
-     * @param string           $key     The key to use for storage.
-     *
-     * @param SessionInterface $session The symfony session.
+     * @param SessionInterface $session      The symfony session.
+     * @param array            $databaseKeys The database keys for store session data in the database.
      */
-    public function __construct($key = '', SessionInterface $session = null)
-    {
-        $this->key = (string) $key;
+    public function __construct(
+        SessionInterface $session,
+        array $databaseKeys = []
+    ) {
+        $this->session = $session;
 
-        if (null !== $session) {
-            $this->session = $session;
+        if (!\count($databaseKeys)) {
+            return;
+        }
+
+        foreach ($databaseKeys as $index => $databaseKeyItems) {
+            foreach ((array) $databaseKeyItems as $databaseKey) {
+                if (('common' === $index)
+                    || (0 === \strpos($index, 'DC_GENERAL_'))
+                ) {
+                    $this->databaseKeys[$index][] = $databaseKey;
+
+                    continue;
+                }
+
+                $this->databaseKeys['DC_GENERAL_' . \strtoupper($index)][] = $databaseKey;
+            }
         }
     }
 
     /**
-     * Create new instance of his self.
+     * Set the scope name of this session storage.
      *
-     * @param string $key The session key.
+     * @param string $scope The session scope name.
      *
-     * @return SessionStorage
+     * @return void
      */
-    public function createInstance($key)
+    public function setScope($scope)
     {
-        return new self($key, $this->session);
+        if ($this->scope) {
+            // @codingStandardsIgnoreStart
+            \trigger_error('The scope can not be change! Use a new session storage.', E_USER_ERROR);
+            // @codingStandardsIgnoreEnd
+            return;
+        }
+
+        $this->scope = $scope;
     }
 
     /**
@@ -85,6 +114,7 @@ class SessionStorage implements SessionStorageInterface
     public function has($name)
     {
         $this->load();
+
         return isset($this->attributes[$name]);
     }
 
@@ -94,6 +124,7 @@ class SessionStorage implements SessionStorageInterface
     public function get($name)
     {
         $this->load();
+
         return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
     }
 
@@ -156,10 +187,17 @@ class SessionStorage implements SessionStorageInterface
      */
     private function load()
     {
-        if (null === $this->attributes) {
-            $sessionBag       = $this->session->getBag($this->getSessionBagKey());
-            $this->attributes = (array) $sessionBag->get($this->key);
+        if (\count($this->attributes)) {
+            return;
         }
+
+        $sessionBag         = $this->session->getBag($this->getSessionBagKey());
+        $databaseSessionBag = $this->session->getBag($this->getDatabaseSessionBagKey());
+
+        $this->attributes = \array_merge(
+            (array) $sessionBag->get($this->getScope()),
+            (array) $databaseSessionBag->get($this->getScope())
+        );
     }
 
     /**
@@ -170,7 +208,49 @@ class SessionStorage implements SessionStorageInterface
     private function persist()
     {
         $sessionBag = $this->session->getBag($this->getSessionBagKey());
-        $sessionBag->set($this->key, $this->attributes);
+        $sessionBag->set($this->getScope(), $this->filterAttributes());
+
+        $databaseSessionBag = $this->session->getBag($this->getDatabaseSessionBagKey());
+        $databaseSessionBag->set($this->getScope(), $this->filterAttributes(true));
+    }
+
+    /**
+     * Filter the attributes.
+     *
+     * @param bool $determineDatabase Determine for filter database session attributes.
+     *                                If is false, this filter non database attributes.
+     *
+     * @return array
+     */
+    private function filterAttributes($determineDatabase = false)
+    {
+        $databaseAttributes = \array_merge(
+            (array) $this->databaseKeys['common'],
+            (array) $this->databaseKeys[$this->getScope()]
+        );
+
+        if ($determineDatabase) {
+            return \array_intersect_key($this->attributes, \array_flip($databaseAttributes));
+        }
+
+        return \array_diff_key($this->attributes, \array_flip($databaseAttributes));
+    }
+
+    /**
+     * Get the scope for this session storage.
+     *
+     * @return string|null
+     */
+    private function getScope()
+    {
+        if (!$this->scope) {
+            // @codingStandardsIgnoreStart
+            \trigger_error('The scope for this session storage is not defined!', E_USER_ERROR);
+            // @codingStandardsIgnoreEnd
+            return null;
+        }
+
+        return $this->scope;
     }
 
     /**
@@ -181,5 +261,15 @@ class SessionStorage implements SessionStorageInterface
     private function getSessionBagKey()
     {
         return 'cca_dc_general';
+    }
+
+    /**
+     * Get the session bag key for database session.
+     *
+     * @return string
+     */
+    private function getDatabaseSessionBagKey()
+    {
+        return 'contao_backend';
     }
 }

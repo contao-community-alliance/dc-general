@@ -25,8 +25,12 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
+use Contao\BackendUser;
+use Contao\Database;
 use Contao\StringUtil;
 use Contao\Config;
+use Contao\System;
+use Contao\User;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -62,7 +66,7 @@ class TreeView extends BaseView
      */
     protected function getToggleId()
     {
-        return $this->getEnvironment()->getDataDefinition()->getName() . '_tree';
+        return 'tree';
     }
 
     /**
@@ -584,12 +588,24 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
+                // TODO load sub as route (entry point).
                 \header('Content-Type: text/html; charset=' . Config::get('characterSet'));
                 echo $this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),
                     $input->getValue('level')
                 );
+
+                // TODO START give the response back or use own entry point for ajax call.
+                // The problem is the session will be update by event kernel.response.
+                $session = System::getContainer()->get('session');
+                $sessionBag = $session->getBag('contao_backend')->all();
+
+                $user = BackendUser::getInstance();
+
+                Database::getInstance()->prepare('UPDATE tl_user SET tl_user.session=? WHERE tl_user.id=?')
+                    ->execute(\serialize($sessionBag), $user->id);
+                // TODO END
                 exit;
 
             default:
