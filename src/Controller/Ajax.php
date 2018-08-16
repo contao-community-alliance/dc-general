@@ -283,7 +283,7 @@ abstract class Ajax implements EnvironmentAwareInterface
 
         $user = BackendUser::getInstance();
 
-        Database::getInstance()->prepare('UPDATE tl_user SET session=? WHERE id=?')
+        Database::getInstance()->prepare('UPDATE tl_user SET tl_user.session=? WHERE tl_user.id=?')
             ->execute(\serialize($sessionBag), $user->id);
         // TODO END
         exit;
