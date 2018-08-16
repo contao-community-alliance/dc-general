@@ -16,6 +16,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -23,6 +24,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Image;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -325,8 +327,15 @@ class ButtonRenderer
         }
 
         if ($buttonEvent->isDisabled()) {
+            $iconDisabledSuffix = '_1';
+
+            // Check wheter icon is part of contao
+            if ($icon !== Image::getPath($icon)) {
+                $iconDisabledSuffix = '_';
+            }
+
             return $this->renderImageAsHtml(
-                \substr_replace($icon, '_1', \strrpos($icon, '.'), 0),
+                \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0),
                 $buttonEvent->getLabel()
             );
         }
