@@ -1,0 +1,21 @@
+parameters:
+    # The database keys for the session is for save the key value in the database.
+    # This is useful for if come back and some settings have back.
+    #
+    # The common area is for provide in all tables.
+    # You can define keys for work by once table you will use as area name the table name.
+    # table_foo:
+    #     - foo_key
+    #     - bar_key
+    #
+    # The keys can you extend with the dependency injection in the build process from the symfony container.
+    cca.dc-general.session.database_keys:
+        common:
+            - LEGENDS
+            - CLIPBOARD
+            - tree
+            - sorting
+            - search
+            - limit
+            - filter
+            - dc_general

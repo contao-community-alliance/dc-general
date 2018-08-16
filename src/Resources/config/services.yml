@@ -16,12 +16,16 @@ services:
         class: ContaoCommunityAlliance\DcGeneral\DefaultEnvironment
         public: false
 
+    cca.dc-general.session_factory:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Factory\SessionStorageFactory
+        arguments:
+            - "@service_container"
+        public: true
+
     cca.dc-general.session:
         class: ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage
+        factory: cca.dc-general.session_factory:createService
         public: true
-        arguments:
-            - ""
-            - "@session"
 
     cca.dc-general.session_attribute:
         class: Contao\CoreBundle\Session\Attribute\ArrayAttributeBag

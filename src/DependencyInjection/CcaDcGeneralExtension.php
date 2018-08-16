@@ -52,6 +52,7 @@ class CcaDcGeneralExtension extends Extension
         'contao/populater_common_listeners.yml',
         'contao/widget_backend_listeners.yml',
         'backend_event_subscribers.yml',
+        'config.yml',
         'event_listeners.yml',
         'services.yml'
     ];
