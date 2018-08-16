@@ -432,6 +432,13 @@ class EditMask
             $first = false;
         }
 
+        // Check if input mask has visible properties.
+        if (!$fieldSets) {
+            // @codingStandardsIgnoreStart
+            \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
+            // @codingStandardsIgnoreEnd
+        }
+
         return $fieldSets;
     }
 
@@ -707,6 +714,13 @@ class EditMask
 
         // Pass 1: Get the palette for the values stored in the model.
         $palette = $palettesDefinition->findPalette($this->model);
+
+        // Check if input mask has visible properties.
+        if (!$fieldSets) {
+            // @codingStandardsIgnoreStart
+            \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
+            // @codingStandardsIgnoreEnd
+        }
 
         $propertyValues = $this->processInput($widgetManager);
         if ($blnSubmitted && $propertyValues) {
