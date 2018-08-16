@@ -33,7 +33,6 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -1327,7 +1326,7 @@ class TreePicker extends Widget
 
         $tableName      = \explode('____', $this->getEnvironment()->getInputProvider()->getValue('name'))[0];
         $sessionKey     = 'DC_GENERAL_' . \strtoupper($tableName);
-        $sessionStorage = System::getContainer()->get('cca.dc-general.session')->createInstance($sessionKey);
+        $sessionStorage = System::getContainer()->get('cca.dc-general.session')->setScope($sessionKey);
 
         $selectAction = $this->getEnvironment()->getInputProvider()->getParameter('select');
 
