@@ -716,7 +716,7 @@ class EditMask
         $palette = $palettesDefinition->findPalette($this->model);
 
         // Check if input mask has visible properties.
-        if (!$fieldSets) {
+        if (!\count($palette->getProperties($this->model))) {
             // @codingStandardsIgnoreStart
             \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
             // @codingStandardsIgnoreEnd
