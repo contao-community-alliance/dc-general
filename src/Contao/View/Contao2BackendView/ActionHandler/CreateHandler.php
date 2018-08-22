@@ -138,7 +138,7 @@ class CreateHandler
         }
 
         if ('select' !== $inputProvider->getParameter('act')) {
-            $this->handleGlobalCommands();
+            $this->handleGlobalCommands($environment);
         }
 
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
@@ -187,11 +187,13 @@ class CreateHandler
     /**
      * Handle the globals commands
      *
+     * @param EnvironmentInterface $environment The environment.
+     *
      * @return void
      */
-    protected function handleGlobalCommands()
+    protected function handleGlobalCommands(EnvironmentInterface $environment)
     {
-        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+        $dataDefinition = $environment->getDataDefinition();
         $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         $globalCommands = $backendView->getGlobalCommands();
 
