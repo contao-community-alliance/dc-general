@@ -22,10 +22,12 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractHandler;
 
 /**
@@ -94,6 +96,10 @@ class CreateHandler extends AbstractHandler
             $inputProvider->setValue('doNotSubmit', true);
         }
 
+        if ('select' !== $inputProvider->getParameter('act')) {
+            $this->handleGlobalCommands();
+        }
+
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
         $response = $editMask->execute();
         if (!$inputProvider->hasValue('doNotSubmit')) {
@@ -140,5 +146,23 @@ class CreateHandler extends AbstractHandler
         );
 
         return false;
+    }
+
+    /**
+     * Handle the globals commands
+     *
+     * @return void
+     */
+    protected function handleGlobalCommands()
+    {
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $globalCommands = $backendView->getGlobalCommands();
+
+        $globalCommands->clearCommands();
+
+        $backCommand = new BackCommand();
+        $backCommand->setDisabled(false);
+        $globalCommands->addCommand($backCommand);
     }
 }
