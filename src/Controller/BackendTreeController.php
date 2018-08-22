@@ -191,7 +191,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('action', \ampersand($request->getUri()))
             #->set('value', $sessionBag->get($treeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager']);
-            #->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb']);
+        #->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb']);
 
         return $template->getResponse();
     }
@@ -272,10 +272,17 @@ class BackendTreeController implements ContainerAwareInterface
             $model = $dataProvider->getEmptyModel();
         }
 
-        $model->setProperty(
-            $picker->getConfig()->getExtra('propertyName'),
-            \explode(',', $request->request->get('value'))
-        );
+        $values = [];
+        // Clean keys the have empty value.
+        foreach (\explode(',', $request->request->get('value')) as $value) {
+            if (empty($value)) {
+                continue;
+            }
+
+            $values[] = $value;
+        }
+
+        $model->setProperty($picker->getConfig()->getExtra('propertyName'), $values);
 
         $widgetManager = new ContaoWidgetManager($general->getEnvironment(), $model);
         $buffer        = $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false);
