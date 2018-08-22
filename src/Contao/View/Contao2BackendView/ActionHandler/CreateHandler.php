@@ -24,10 +24,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 
@@ -135,13 +137,8 @@ class CreateHandler
             $inputProvider->setValue('doNotSubmit', true);
         }
 
-        // Initial for save the model in two steps.
-        if ($inputProvider->hasValue('save')
-            || $inputProvider->hasValue('saveNclose')
-            || $inputProvider->hasValue('saveNcreate')
-            || $inputProvider->hasValue('saveNback')
-        ) {
-            $inputProvider->setValue('doNotSubmit', true);
+        if ('select' !== $inputProvider->getParameter('act')) {
+            $this->handleGlobalCommands();
         }
 
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
@@ -185,5 +182,23 @@ class CreateHandler
             </div>',
             $dataDefinition->getName()
         );
+    }
+
+    /**
+     * Handle the globals commands
+     *
+     * @return void
+     */
+    protected function handleGlobalCommands()
+    {
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $globalCommands = $backendView->getGlobalCommands();
+
+        $globalCommands->clearCommands();
+
+        $backCommand = new BackCommand();
+        $backCommand->setDisabled(false);
+        $globalCommands->addCommand($backCommand);
     }
 }
