@@ -267,7 +267,11 @@ class BackendTreeController implements ContainerAwareInterface
             ->createDcGeneral();
 
         $dataProvider = $general->getEnvironment()->getDataProvider();
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+
+        if (!($model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId())))) {
+            $model = $dataProvider->getEmptyModel();
+        }
+
         $model->setProperty(
             $picker->getConfig()->getExtra('propertyName'),
             \explode(',', $request->request->get('value'))
