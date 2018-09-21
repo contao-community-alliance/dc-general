@@ -31,7 +31,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\DataProviderPopulator
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ExtendedLegacyDcaPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\ParentDefinitionPopulator;
-use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Subscriber\FormatModelLabelSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CreateHandler;
@@ -99,11 +98,7 @@ if ('BE' === TL_MODE) {
             [
                 [new BackendViewPopulator(), 'process'],
                 BackendViewPopulator::PRIORITY
-            ],
-            [
-                [new PickerCompatPopulator(), 'process'],
-                PickerCompatPopulator::PRIORITY
-            ],
+            ]
         ]
     );
 

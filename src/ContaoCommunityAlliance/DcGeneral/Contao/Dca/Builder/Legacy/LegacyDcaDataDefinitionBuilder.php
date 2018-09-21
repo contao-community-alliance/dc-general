@@ -1389,6 +1389,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 $definition->addProperty($property);
             }
 
+            // Some extensions create invalid DCA information and the DCA must therefore be validated.
+            if (!\is_array($propInfo)) {
+                continue;
+            }
+
             $this->parseSingleProperty($property, $propInfo);
 
             $extra = $property->getExtra();

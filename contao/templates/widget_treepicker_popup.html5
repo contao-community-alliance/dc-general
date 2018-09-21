@@ -33,7 +33,7 @@
 						id="check_all_<?php echo $this->id ?>_0"
 						class="tl_checkbox"
 						value=""
-						onclick="Backend.toggleCheckboxGroup(this, '<?php echo $this->name ?>')" />
+						onclick="Backend.toggleCheckboxes(this)" />
 				<?php endif; ?>
 			</div>
 			<div style="clear:both;"></div>
