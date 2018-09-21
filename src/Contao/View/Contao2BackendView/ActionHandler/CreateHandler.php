@@ -15,6 +15,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -28,7 +29,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -105,7 +105,6 @@ class CreateHandler
      */
     protected function process(EnvironmentInterface $environment)
     {
-        $inputProvider      = $environment->getInputProvider();
         $definition         = $environment->getDataDefinition();
         $dataProvider       = $environment->getDataProvider();
         $propertyDefinition = $definition->getPropertiesDefinition();
@@ -128,35 +127,7 @@ class CreateHandler
             return false;
         }
 
-        // Initial for save the model in two steps.
-        if ($inputProvider->hasValue('save')
-            || $inputProvider->hasValue('saveNclose')
-            || $inputProvider->hasValue('saveNcreate')
-            || $inputProvider->hasValue('saveNback')
-        ) {
-            $inputProvider->setValue('doNotSubmit', true);
-        }
-
-        if ('select' !== $inputProvider->getParameter('act')) {
-            $this->handleGlobalCommands($environment);
-        }
-
         $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
-        $response = $editMask->execute();
-        if (!$inputProvider->hasValue('doNotSubmit')) {
-            return $response;
-        }
-
-        // Save the model step two. So as example alias or combined values work.
-        if ($inputProvider->hasValue('doNotSubmit')) {
-            $inputProvider->setValue('doNotSubmit', false);
-        }
-
-        $modelId       = ModelId::fromModel($model);
-        $newModel      = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        $originalModel = clone $newModel;
-
-        $editMask = new EditMask($view, $newModel, $originalModel, null, null, $view->breadcrumb());
         return $editMask->execute();
     }
 

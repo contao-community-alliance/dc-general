@@ -15,6 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -109,9 +110,12 @@ class LanguageFilter implements EventSubscriberInterface
             return;
         }
 
-        // If a new item, we MUST reset to the fallback as that is the first language that has to be stored.
+        // If a new item, we MUST reset to the fallback as that is the first language that has to be stored
+        // and set this language to session.
         if (null === $modelId) {
             $dataProvider->setCurrentLanguage($dataProvider->getFallbackLanguage(null)->getLocale());
+            $session['ml_support'][$providerName] = $dataProvider->getCurrentLanguage();
+            $sessionStorage->set('dc_general', $session);
             return;
         }
 

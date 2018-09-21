@@ -566,10 +566,6 @@ class EditMask
         $dispatcher    = $environment->getEventDispatcher();
         $inputProvider = $environment->getInputProvider();
 
-        if ($inputProvider->hasValue('doNotSubmit') && $inputProvider->getValue('doNotSubmit')) {
-            return;
-        }
-
         if ($inputProvider->hasValue('save')) {
             $newUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($model)->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);

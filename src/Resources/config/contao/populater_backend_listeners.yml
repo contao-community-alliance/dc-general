@@ -9,14 +9,3 @@ services:
                 event: dc-general.factory.populate-environment
                 method: process
                 priority: 100
-
-    cca.dc-general.backend_listener.picker_compat_populator:
-        class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\PickerCompatPopulator
-        public: true
-        arguments:
-            - "@cca.dc-general.scope-matcher"
-        tags:
-            -   name: kernel.event_listener
-                event: dc-general.factory.populate-environment
-                method: process
-                priority: -10000
