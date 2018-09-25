@@ -276,7 +276,7 @@ class FileTree extends AbstractWidget
                 continue;
             }
             if (false !== ($icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads))) {
-                $icons[] = ['uuid' => $model->uuid, 'image' => $icon];
+                $icons[\md5($model->uuid)] = ['uuid' => $model->uuid, 'image' => $icon];
             }
         }
     }
@@ -393,14 +393,15 @@ class FileTree extends AbstractWidget
             $ordered = [];
 
             foreach ($this->orderFieldValue as $uuid) {
-                if (isset($icons[$uuid])) {
-                    $ordered[$uuid] = $icons[$uuid];
-                    unset($icons[$uuid]);
+                $iconKey = \md5($uuid);
+                if (isset($icons[$iconKey])) {
+                    $ordered[$iconKey] = $icons[$iconKey];
+                    unset($icons[$iconKey]);
                 }
             }
 
             foreach ($icons as $uuid => $icon) {
-                $ordered[$uuid] = $icon;
+                $ordered[\md5($uuid)] = $icon;
             }
 
             $icons = $ordered;
