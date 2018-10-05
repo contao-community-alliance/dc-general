@@ -158,13 +158,32 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         if (\is_array($callbacks) && (\count($callbacks) == 2) && !\is_array($callbacks[0])) {
             $callbacks = [$callbacks];
         }
-
         foreach ((array) $callbacks as $callback) {
+            if ($this->isCallbackBlacklisted($callback, $listener)) {
+                continue;
+            }
+
             $dispatcher->addListener(
                 $eventName,
                 new $listener($callback, $arguments)
             );
         }
+    }
+
+    /**
+     * Check if callback is blacklisted.
+     *
+     * @param mixed $callback The callback.
+     * @param string $listener The listener class.
+     *
+     * @return bool
+     */
+    private function isCallbackBlacklisted($callback, $listener)
+    {
+        return ((ContainerOnLoadCallbackListener::class === $listener)
+                && \is_array($callback)
+                && ('checkPermission' === $callback[1])
+                && (0 === strpos($callback[0], 'tl_')));
     }
 
     /**
