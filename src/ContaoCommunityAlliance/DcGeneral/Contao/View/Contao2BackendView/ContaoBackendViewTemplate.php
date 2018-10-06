@@ -78,6 +78,14 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritDoc}
      */
+    public function getData()
+    {
+        return parent::getData();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function set($name, $value)
     {
         $this->$name = $value;
@@ -140,5 +148,21 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
 
         $renderer = new GlobalButtonRenderer($environment);
         return $renderer->render();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function parse()
+    {
+        return parent::parse();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function output()
+    {
+        parent::output();
     }
 }

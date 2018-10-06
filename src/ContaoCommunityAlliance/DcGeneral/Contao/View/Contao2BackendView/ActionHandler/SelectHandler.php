@@ -33,6 +33,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Prepa
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
@@ -64,9 +65,9 @@ class SelectHandler extends AbstractHandler
         $submitAction = $this->getSubmitAction(true);
 
         $this->removeGlobalCommands();
-        $this->handleSessionBySelectAction();
 
         if ('models' === $this->getSelectAction()) {
+            $this->handleSessionBySelectAction();
             $this->handleBySelectActionModels();
 
             return;
@@ -76,6 +77,7 @@ class SelectHandler extends AbstractHandler
         $this->clearClipboardBySubmitAction();
 
         if ('properties' === $this->getSelectAction()) {
+            $this->handleSessionBySelectAction();
             $collection = $this->getSelectCollection();
             $this->setIntersectProperties($collection);
             $this->setIntersectValues($collection);
@@ -100,17 +102,10 @@ class SelectHandler extends AbstractHandler
      */
     private function getSubmitAction($regardSelectMode = false)
     {
-        $actions = ['delete', 'cut', 'copy', 'override', 'edit'];
+        if ($actionName = $this->findActionModeName()) {
+            $this->getEnvironment()->getInputProvider()->setParameter('mode', $actionName);
 
-        foreach ($actions as $action) {
-            if ($this->getEnvironment()->getInputProvider()->hasValue($action)
-                || $this->getEnvironment()->getInputProvider()->hasValue($action . '_save')
-                || $this->getEnvironment()->getInputProvider()->hasValue($action . '_saveNback')
-            ) {
-                $this->getEnvironment()->getInputProvider()->setParameter('mode', $action);
-
-                return $action;
-            }
+            return $actionName;
         }
 
         if ($regardSelectMode) {
@@ -118,6 +113,55 @@ class SelectHandler extends AbstractHandler
         }
 
         return null;
+    }
+
+    /**
+     * Find the action mode name.
+     *
+     * @return null|string
+     */
+    private function findActionModeName()
+    {
+        $actions = $this->getInputActionList();
+
+        $actionModeName = null;
+        foreach ($actions as $action) {
+            if (!$this->getEnvironment()->getInputProvider()->hasValue($action)) {
+                continue;
+            }
+
+            $actionModeName = preg_replace('/(_save|_saveNback)$/', '', $action);
+
+            break;
+        }
+
+        return $actionModeName;
+    }
+
+    /**
+     * Get the list of all input actions.
+     *
+     * @return array
+     */
+    private function getInputActionList()
+    {
+        $actions = ['delete', 'cut', 'copy', 'override', 'edit'];
+
+        return array_merge(
+            $actions,
+            array_map(
+                function ($action) {
+                    return $action . '_save';
+                },
+                $actions
+            ),
+            array_map(
+                function ($action) {
+                    return $action . '_saveNback';
+                },
+                $actions
+            )
+        );
     }
 
     /**
@@ -137,10 +181,6 @@ class SelectHandler extends AbstractHandler
      */
     private function handleBySelectActionModels()
     {
-        if ('models' !== $this->getSelectAction()) {
-            return;
-        }
-
         $this->clearClipboard();
         $this->handleGlobalCommands();
 
@@ -158,10 +198,6 @@ class SelectHandler extends AbstractHandler
      */
     private function handleBySelectActionProperties()
     {
-        if ('properties' !== $this->getSelectAction()) {
-            return;
-        }
-
         $this->handleGlobalCommands();
 
         $arguments           = $this->getEvent()->getAction()->getArguments();
@@ -180,25 +216,11 @@ class SelectHandler extends AbstractHandler
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
 
-        switch ($this->getSelectAction()) {
-            case 'properties':
-                if ($inputProvider->hasValue('models')) {
-                    $models = $this->getModelIds($this->getEvent()->getAction(), $this->getSubmitAction());
+        $values = $inputProvider->hasValue('models')
+            ? $this->getModelIds($this->getEvent()->getAction(), $this->getSubmitAction())
+            : $inputProvider->getValue('properties');
 
-                    $this->handleSessionOverrideEditAll($models, 'models');
-                }
-
-                break;
-
-            case 'edit':
-                if ($inputProvider->hasValue('properties')) {
-                    $this->handleSessionOverrideEditAll($inputProvider->getValue('properties'), 'properties');
-                }
-
-                break;
-
-            default:
-        }
+        $this->handleSessionOverrideEditAll($values, $this->getSelectAction());
     }
 
     /**
@@ -482,15 +504,7 @@ class SelectHandler extends AbstractHandler
             return;
         }
 
-        switch ($submitAction) {
-            case 'copy':
-            case 'cut':
-                $parameter = 'source';
-                break;
-
-            default:
-                $parameter = 'id';
-        }
+        $parameter = \in_array($submitAction, ['copy', 'cut']) ? 'source' : 'id';
 
         $modelIds = $this->getModelIds($this->getEvent()->getAction(), $submitAction);
 
@@ -618,7 +632,7 @@ class SelectHandler extends AbstractHandler
      * @param Action $action       The dcg action.
      * @param string $submitAction The submit action name.
      *
-     * @return ModelId[]
+     * @return ModelIdInterface[]
      */
     private function getModelIds(Action $action, $submitAction)
     {
@@ -666,16 +680,12 @@ class SelectHandler extends AbstractHandler
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-        if ($basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
-        } else {
-            $filter->andHasNoParent();
-        }
+
+        $basicDefinition->getParentDataProvider()
+            ? $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider())
+            : $filter->andHasNoParent();
 
         $items = $this->getEnvironment()->getClipboard()->fetch($filter);
-        if (\count($items) < 1) {
-            return;
-        }
 
         foreach ($items as $item) {
             $this->getEnvironment()->getClipboard()->remove($item);

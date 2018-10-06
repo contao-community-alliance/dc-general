@@ -103,13 +103,7 @@ class FileSelect
         $template       = new BackendTemplate('be_picker');
         $template->main = '';
 
-        // Ajax request.
-        // @codingStandardsIgnoreStart - We need POST access here.
-        if ($_POST && Environment::get('isAjaxRequest')) // @codingStandardsIgnoreEnd
-        {
-            $ajax = new Ajax(Input::post('action'));
-            $ajax->executePreActions();
-        }
+        $this->runAjaxRequest();
 
         $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
         $propertyName = $inputProvider->getParameter('field');
@@ -237,5 +231,21 @@ class FileSelect
         // Prevent debug output at all cost.
         $GLOBALS['TL_CONFIG']['debugMode'] = false;
         $template->output();
+    }
+
+    /**
+     * Run the ajax request if is determine for run.
+     */
+    private function runAjaxRequest()
+    {
+        // Ajax request.
+        // @codingStandardsIgnoreStart - We need POST access here.
+        if (!($_POST && Environment::get('isAjaxRequest'))) // @codingStandardsIgnoreEnd
+        {
+            return;
+        }
+
+        $ajax = new Ajax(Input::post('action'));
+        $ajax->executePreActions();
     }
 }

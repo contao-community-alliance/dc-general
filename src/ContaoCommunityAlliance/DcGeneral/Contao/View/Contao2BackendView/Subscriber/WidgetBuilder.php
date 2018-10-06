@@ -390,32 +390,78 @@ class WidgetBuilder implements EnvironmentAwareInterface
             );
         }
 
-        $environment  = $this->getEnvironment();
-        $dispatcher   = $environment->getEventDispatcher();
-        $propertyName = $property->getName();
-        $propExtra    = $property->getExtra();
-        $defName      = $environment->getDataDefinition()->getName();
-        $strClass     = $this->getWidgetClass($property);
+        $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        $class       = $this->getWidgetClass($property);
 
-        $event = new DecodePropertyValueForWidgetEvent($environment, $model);
+        $prepareAttributes = $this->prepareWidgetAttributes($model, $property);
+
+        $widget = new $class($prepareAttributes, new DcCompat($environment, $model, $property->getName()));
+        // OH: what is this? source: DataContainer 232.
+        $widget->currentRecord = $model->getId();
+
+        $widget->xlabel .= $this->getXLabel($property);
+
+        $event = new ManipulateWidgetEvent($environment, $model, $property, $widget);
+        $dispatcher->dispatch(ManipulateWidgetEvent::NAME, $event);
+
+        return $widget;
+    }
+
+    /**
+     * Decode the value for the widget.
+     *
+     * @param ModelInterface    $model    The model.
+     * @param PropertyInterface $property The property name.
+     *
+     * @return mixed
+     */
+    private function valueToWidget(ModelInterface $model, PropertyInterface $property)
+    {
+        $event = new DecodePropertyValueForWidgetEvent($this->getEnvironment(), $model);
         $event
-            ->setProperty($propertyName)
-            ->setValue($model->getProperty($propertyName));
+            ->setProperty($property)
+            ->setValue($model->getProperty($property->getName()));
 
-        $dispatcher->dispatch($event::NAME, $event);
-        $varValue = $event->getValue();
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $value = $event->getValue();
 
-        if (\is_numeric($varValue)
+        $propExtra = $property->getExtra();
+
+        if (\is_numeric($value)
             && empty($propExtra['mandatory'])
             && (isset($propExtra['rgxp']) && \in_array($propExtra['rgxp'], ['date', 'time', 'datim']))
-            && $varValue == 0
+            && $value == 0
         ) {
-            $varValue = '';
+            $value = '';
         }
 
-        $propExtra['required'] = ($varValue == '') && !empty($propExtra['mandatory']);
+        return $value;
+    }
 
-        $arrConfig = [
+    /**
+     * Prepare the attributes for the widget.
+     *
+     * @param ModelInterface    $model    The model.
+     * @param PropertyInterface $property The property for the widget.
+     *
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    private function prepareWidgetAttributes(ModelInterface $model, PropertyInterface $property)
+    {
+        $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        $defName     = $environment->getDataDefinition()->getName();
+
+        $propExtra = $property->getExtra();
+
+        $value = $this->valueToWidget($model, $property);
+
+        $propExtra['required'] = ($value === '') && !empty($propExtra['mandatory']);
+
+        $widgetConfig = [
             'inputType' => $property->getWidgetType(),
             'label'     => [
                 $property->getLabel(),
@@ -427,41 +473,32 @@ class WidgetBuilder implements EnvironmentAwareInterface
         ];
 
         if (isset($propExtra['reference'])) {
-            $arrConfig['reference'] = $propExtra['reference'];
+            $widgetConfig['reference'] = $propExtra['reference'];
         }
 
         $event = new GetAttributesFromDcaEvent(
-            $arrConfig,
+            $widgetConfig,
             $property->getName(),
-            $varValue,
-            $propertyName,
+            $value,
+            $property->getName(),
             $defName,
-            new DcCompat($environment, $model, $propertyName)
+            new DcCompat($environment, $model, $property->getName())
         );
 
         $dispatcher->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
-        $arrPrepared = $event->getResult();
+        $prepareAttributes = $event->getResult();
 
-        if ($arrConfig['inputType'] == 'checkbox'
-            && $arrConfig['eval']['submitOnChange']
+        if ($widgetConfig['inputType'] === 'checkbox'
+            && $widgetConfig['eval']['submitOnChange']
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && \is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
-            && \array_key_exists($propertyName, $GLOBALS['TL_DCA'][$defName]['subpalettes'])
+            && \array_key_exists($property->getName(), $GLOBALS['TL_DCA'][$defName]['subpalettes'])
         ) {
             // We have to override the onclick, do not append to it as Contao adds it's own code here in
             // Widget::getAttributesFromDca() which kills our sub palette handling!
-            $arrPrepared['onclick'] = "Backend.autoSubmit('" . $defName . "');";
+            $prepareAttributes['onclick'] = "Backend.autoSubmit('" . $defName . "');";
         }
 
-        $objWidget = new $strClass($arrPrepared, new DcCompat($environment, $model, $propertyName));
-        // OH: what is this? source: DataContainer 232.
-        $objWidget->currentRecord = $model->getId();
-
-        $objWidget->xlabel .= $this->getXLabel($property);
-
-        $event = new ManipulateWidgetEvent($environment, $model, $property, $objWidget);
-        $dispatcher->dispatch(ManipulateWidgetEvent::NAME, $event);
-
-        return $objWidget;
+        return $prepareAttributes;
     }
 }

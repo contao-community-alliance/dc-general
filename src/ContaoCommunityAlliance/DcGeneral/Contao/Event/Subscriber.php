@@ -67,14 +67,13 @@ class Subscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return
-            [
+        return [
             DcGeneralEvents::ACTION                => ['initializePanels', 10],
             GetPanelElementTemplateEvent::NAME     => ['getPanelElementTemplate', -1],
             ResolveWidgetErrorMessageEvent::NAME   => ['resolveWidgetErrorMessage', -1],
             RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
             'contao-twig.init'                     => 'initTwig',
-            ];
+        ];
     }
 
     /**
@@ -202,9 +201,8 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        $dispatcher = $event->getEnvironment()->getEventDispatcher();
-        $property   = $event->getProperty();
-        $value      = self::decodeValue(
+        $property = $event->getProperty();
+        $value    = self::decodeValue(
             $event->getEnvironment(),
             $event->getModel(),
             $event->getProperty()->getName(),
@@ -213,57 +211,19 @@ class Subscriber implements EventSubscriberInterface
 
         $extra = $property->getExtra();
 
-        if (isset($extra['foreignKey'])) {
-            self::renderForeignKeyReadable($event, $extra, $value);
+        self::renderForeignKeyReadable($event, $extra, $value);
+        self::renderArrayReadable($event, $value);
+        self::renderTimestampReadable($event, $extra, $value);
+        self::renderDateTimePropertyIsTstamp($event, $property, $value);
+        self::renderSimpleCheckbox($event, $property, $extra, $value);
+        self::renderTextAreaReadable($event, $property, $extra, $value);
+        self::renderReferenceReadable($event, $extra, $value);
 
+        if ($event->getRendered() !== null) {
             return;
         }
 
-        if (\is_array($value)) {
-            self::renderArrayReadable($event, $value);
-
-            return;
-        }
-        if (isset($extra['rgxp'])) {
-            self::renderTimestampReadable($event, $extra, $dispatcher, $value);
-
-            return;
-        }
-
-        if ($property->getName() == 'tstamp') {
-            // Date and time format.
-            $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
-
-            return;
-        }
-
-        if (!$extra['multiple'] && $property->getWidgetType() == 'checkbox') {
-            $map = [false => 'no', true => 'yes'];
-            $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
-
-            return;
-        }
-
-        if ($property->getWidgetType() == 'textarea') {
-            self::renderTextAreaReadable($event, $extra, $value);
-
-            return;
-        }
-
-        if (isset($extra['reference'])) {
-            self::renderReferenceReadable($event, $extra, $value);
-
-            return;
-        }
-
-        if ($value instanceof \DateTime) {
-            $event->setRendered(
-                self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat'), $value->getTimestamp())
-            );
-
-            return;
-        }
-
+        self::renderDateTimeValueInstance($event, $value);
         self::renderOptionValueReadable($event, $property, $value);
     }
 
@@ -358,6 +318,10 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
+        if ((null !== $event->getRendered()) || !isset($extra['foreignKey'])) {
+            return;
+        }
+
         // Not yet impl.
     }
 
@@ -371,6 +335,10 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, $value)
     {
+        if ((null !== $event->getRendered()) || !\is_array($value)) {
+            return;
+        }
+
         foreach ($value as $kk => $vv) {
             if (\is_array($vv)) {
                 $vals       = \array_values($vv);
@@ -384,24 +352,89 @@ class Subscriber implements EventSubscriberInterface
     /**
      * Render a timestamp.
      *
-     * @param RenderReadablePropertyValueEvent $event      The event to store the value to.
-     * @param array                            $extra      The extra data from the property.
-     * @param EventDispatcherInterface         $dispatcher The event dispatcher.
-     * @param int                              $value      The value to format.
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     * @param array                            $extra The extra data from the property.
+     * @param int                              $value The value to format.
      *
      * @return void
      */
-    private static function renderTimestampReadable(
-        RenderReadablePropertyValueEvent $event,
-        $extra,
-        $dispatcher,
-        $value
-    ) {
-        if ($extra['rgxp'] == 'date' || $extra['rgxp'] == 'time' || $extra['rgxp'] == 'datim') {
-            $event->setRendered(
-                self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
-            );
+    private static function renderTimestampReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    {
+        if ((null !== $event->getRendered())
+            || !isset($extra['rgxp'])
+            || !($extra['rgxp'] === 'date' || $extra['rgxp'] === 'time' || $extra['rgxp'] === 'datim')
+        ) {
+            return;
         }
+
+        $dispatcher = $event->getEnvironment()->getEventDispatcher();
+
+        $event->setRendered(
+            self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
+        );
+    }
+
+    /**
+     * Render date time when property is tstamp.
+     *
+     * @param RenderReadablePropertyValueEvent $event    The event to store the value to.
+     * @param PropertyInterface                $property The property for render it.
+     * @param int                              $value    The value to format.
+     *
+     * @return void
+     */
+    private static function renderDateTimePropertyIsTstamp(RenderReadablePropertyValueEvent $event, $property, $value)
+    {
+        if ((null !== $event->getRendered()) || ($property->getName() !== 'tstamp')) {
+            return;
+        }
+
+        $dispatcher = $event->getEnvironment()->getEventDispatcher();
+
+        // Date and time format.
+        $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
+    }
+
+    /**
+     * Render for simple checkobx
+     *
+     * @param RenderReadablePropertyValueEvent $event    The event to store the value to.
+     * @param PropertyInterface                $property The property for render it.
+     * @param array                            $extra    The extra data from the property.
+     * @param int                              $value    The value to format.
+     *
+     * @return void
+     */
+    private static function renderSimpleCheckbox(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
+    {
+        if ((null !== $event->getRendered()) || !(!$extra['multiple'] && $property->getWidgetType() === 'checkbox')) {
+            return;
+        }
+
+        $map = [false => 'no', true => 'yes'];
+
+        $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
+    }
+
+    /**
+     * Render datetime if the value is instance of datetime .
+     *
+     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
+     * @param int                              $value The value to format.
+     *
+     * @return void
+     */
+    private static function renderDateTimeValueInstance($event, $value)
+    {
+        if (!($value instanceof \DateTime)) {
+            return;
+        }
+
+        $dispatcher = $event->getEnvironment()->getEventDispatcher();
+
+        $event->setRendered(
+            self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat'), $value->getTimestamp())
+        );
     }
 
     /**
@@ -415,11 +448,10 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if (!\is_array($extra['reference'])) {
-            return;
-        }
-
-        if (!\array_key_exists($value, $extra['reference'])) {
+        if ((null !== $event->getRendered())
+            || !isset($extra['reference'])
+            || !\is_array($extra['reference'])
+            || !\array_key_exists($value, $extra['reference'])) {
             return;
         }
 
@@ -435,15 +467,18 @@ class Subscriber implements EventSubscriberInterface
     /**
      * Render a string if not allow html or preserve tags is given.
      *
-     * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     * @param array                            $extra The extra data from the property.
-     * @param string                           $value The value to format.
+     * @param RenderReadablePropertyValueEvent $event    The event to store the value to.
+     * @param PropertyInterface                $property The property for render it.
+     * @param array                            $extra    The extra data from the property.
+     * @param string                           $value    The value to format.
      *
      * @return void
      */
-    private static function renderTextAreaReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    private static function renderTextAreaReadable(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
     {
-        if (empty($extra['allowHtml']) && empty($extra['preserveTags'])) {
+        if ((null !== $event->getRendered())
+            || ($property->getWidgetType() !== 'textarea')
+            || (empty($extra['allowHtml']) && empty($extra['preserveTags']))) {
             return;
         }
 

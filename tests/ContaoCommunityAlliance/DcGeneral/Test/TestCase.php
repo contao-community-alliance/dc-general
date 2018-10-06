@@ -23,6 +23,12 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test;
 
+use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\BackendTemplate;
+use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Config;
+use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Controller;
+use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Template;
+use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\ContaoTwig;
+
 /**
  * Base TestCase class.
  */
@@ -33,5 +39,79 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         if (!\class_exists($class)) {
             \class_alias('\\Contao\\' . $class, $class);
         }
+    }
+
+    /**
+     * Initialize the contao backend template.
+     *
+     * @return void
+     */
+    protected static function initializeContaoBackendTemplate()
+    {
+        if (class_exists(\Contao\BackendTemplate::class, false)) {
+            return;
+        }
+
+        class_alias(BackendTemplate::class, \Contao\BackendTemplate::class);
+        class_alias(BackendTemplate::class, \BackendTemplate::class);
+    }
+
+    /**
+     * Initialize the contao config.
+     *
+     * @return void
+     */
+    protected static function initializeContaoConfig()
+    {
+        if (class_exists(\Contao\Config::class, false)) {
+            return;
+        }
+
+        class_alias(Config::class, \Contao\Config::class);
+        class_alias(Config::class, \Config::class);
+    }
+
+    /**
+     * Initialize the contao controller.
+     *
+     * @return void
+     */
+    protected static function initializeContaoController()
+    {
+        if (class_exists(\Contao\Controller::class, false)) {
+            return;
+        }
+
+        class_alias(Controller::class, \Contao\Controller::class);
+        class_alias(Controller::class, \Controller::class);
+    }
+
+    /**
+     * Initialize the contao twig.
+     *
+     * @return void
+     */
+    protected static function initializeContaoTwig()
+    {
+        if (class_exists(\ContaoTwig::class, false)) {
+            return;
+        }
+
+        class_alias(ContaoTwig::class, \ContaoTwig::class);
+    }
+
+    /**
+     * Initialize the contao template.
+     *
+     * @return void
+     */
+    protected static function initializeContaoTemplate()
+    {
+        if (class_exists(\Contao\Template::class, false)) {
+            return;
+        }
+
+        class_alias(Template::class, \Contao\Template::class);
+        class_alias(Template::class, \Template::class);
     }
 }
