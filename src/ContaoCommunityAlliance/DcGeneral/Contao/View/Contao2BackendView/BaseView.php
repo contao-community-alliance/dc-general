@@ -36,6 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSe
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -47,6 +48,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class BaseView.
  *
  * This class is the base class for the different backend view mode sub classes.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class BaseView implements BackendViewInterface, EventSubscriberInterface
 {
@@ -91,7 +94,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return void
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
@@ -109,29 +111,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $action = $event->getAction();
         $name   = $action->getName();
 
-        switch ($name) {
-            case 'select':
-                // If no redirect happens, we want to display the showAll action.
-                $name = 'showAll';
-                // No break here.
-            case 'create':
-            case 'move':
-            case 'undo':
-            case 'edit':
-            case 'showAll':
-                $response = \call_user_func_array(
-                    [$this, $name],
-                    \array_merge([$action], $action->getArguments())
-                );
-                $event->setResponse($response);
-                break;
-            case 'show':
-                $handler = new ShowHandler();
-                $handler->handleEvent($event);
-                break;
+        if ('show' === $name) {
+            $handler = new ShowHandler();
+            $handler->handleEvent($event);
 
-            default:
+            return;
         }
+
+        if (!\in_array($name, ['select', 'create', 'move', 'undo', 'edit', 'showAll'])) {
+            return;
+        }
+
+        $response = \call_user_func_array(
+            // No redirect happens for select, we want to display the showAll action.
+            [$this, ('select' === $name) ? 'showAll' : $name],
+            \array_merge([$action], $action->getArguments())
+        );
+        $event->setResponse($response);
     }
 
     /**
@@ -200,8 +196,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Add the value to the template.
      *
-     * @param string    $name     Name of the value.
-     * @param mixed     $value    The value to add to the template.
+     * @param string   $name     Name of the value.
+     * @param mixed    $value    The value to add to the template.
      * @param Template $template The template to add the value to.
      *
      * @return BaseView
@@ -553,7 +549,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $arrReturn = $event->getElements();
 
-        if (!\is_array($arrReturn) || \count($arrReturn) == 0) {
+        if (!\is_array($arrReturn) || !\count($arrReturn)) {
             return null;
         }
 
