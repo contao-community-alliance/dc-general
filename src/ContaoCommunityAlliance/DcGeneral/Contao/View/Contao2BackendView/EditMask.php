@@ -53,6 +53,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * This class manages the displaying of the edit/create mask containing the widgets.
  *
  * It also handles the persisting of the model.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class EditMask
 {
@@ -562,6 +564,8 @@ class EditMask
      * Handle the persisting of the currently loaded model.
      *
      * @return bool True means everything is okay, False error.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function doPersist()
     {
@@ -752,10 +756,24 @@ class EditMask
             ]
         );
 
+        $this->executeMultiLanguage($objTemplate);
+
+        return $objTemplate->parse();
+    }
+
+    /**
+     * Execute the multi language support.
+     *
+     * @param ContaoBackendViewTemplate $template The template.
+     *
+     * @return void
+     */
+    private function executeMultiLanguage(ContaoBackendViewTemplate $template)
+    {
         if (\in_array(
             MultiLanguageDataProviderInterface::class,
             class_implements(
-                $environment->getDataProvider(
+                $this->getEnvironment()->getDataProvider(
                     $this->model->getProviderName()
                 )
             )
@@ -764,19 +782,17 @@ class EditMask
             $langsNative = [];
             require TL_ROOT . '/system/config/languages.php';
 
-            $objTemplate->set(
+            $template->set(
                 'languages',
-                $environment->getController()->getSupportedLanguages($this->model->getId())
+                $this->getEnvironment()->getController()->getSupportedLanguages($this->model->getId())
             )
                 ->set('language', $dataProvider->getCurrentLanguage())
                 ->set('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()]);
         } else {
-            $objTemplate
+            $template
                 ->set('languages', null)
                 ->set('languageHeadline', '');
         }
-
-        return $objTemplate->parse();
     }
 
     /**
