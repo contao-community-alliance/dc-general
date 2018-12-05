@@ -95,7 +95,7 @@ class DefaultController implements ControllerInterface
      * @var string
      */
     protected $notImplMsg =
-        '<divstyle="text-align:center; font-weight:bold; padding:40px;">
+        '<div style="text-align:center; font-weight:bold; padding:40px;">
         The function/view &quot;%s&quot; is not implemented.<br />Please
         <a
             target="_blank"
