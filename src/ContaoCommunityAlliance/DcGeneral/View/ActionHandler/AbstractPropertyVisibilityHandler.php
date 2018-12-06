@@ -26,12 +26,15 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionChainInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 
 /**
  * This abstract visibility handler provide methods for the visibility of properties.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
 {
@@ -88,19 +91,35 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
     {
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
 
-        $excludeProperty = false;
-        if (1 === \count($palettesDefinition->getPalettes())) {
-            return $excludeProperty;
+        if (\count($palettesDefinition->getPalettes()) === 1) {
+            return false;
         }
 
+        return $this->analyzeExcludeProperty($property, $palettesDefinition);
+    }
+
+    /**
+     * Analyze property for exclude.
+     *
+     * @param PropertyInterface           $property           The prooperty.
+     * @param PalettesDefinitionInterface $palettesDefinition The palettes definition.
+     *
+     * @return bool
+     */
+    private function analyzeExcludeProperty(
+        PropertyInterface $property,
+        PalettesDefinitionInterface $palettesDefinition
+    ) {
         $defaultPalette    = $palettesDefinition->findPalette();
         $defaultProperties = $defaultPalette->getProperties();
-        $emptyModel        = $this->getIntersectionModel();
 
         if (empty($defaultProperties)) {
-            return $excludeProperty;
+            return false;
         }
 
+        $emptyModel = $this->getIntersectionModel();
+
+        $excludeProperty = false;
         foreach ($defaultProperties as $defaultProperty) {
             if ($property->getName() !== $defaultProperty->getName()) {
                 continue;
@@ -115,7 +134,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             }
 
             $paletteCounter = 0;
-            if (null === $event->getOptions()) {
+            if ($event->getOptions() === null) {
                 continue;
             }
             foreach (\array_keys($event->getOptions()) as $paletteName) {
@@ -225,13 +244,13 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             }
 
             $paletteSelectorProperty = $propertiesDefinition->getProperty($defaultProperty->getName());
-            if (null === $paletteSelectorProperty->getOptions()) {
+            if ($paletteSelectorProperty->getOptions() === null) {
                 continue;
             }
 
             $invisibleProperty = $this->matchPaletteProperty($property, $intersectModel, $defaultProperty);
 
-            if (true === $invisibleProperty) {
+            if ($invisibleProperty === true) {
                 continue;
             }
 
@@ -268,7 +287,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             $invisibleProperty =
                 $this->invisiblePaletteProperty($property, $intersectModel, $selectorProperty, $paletteName);
 
-            if (true === $invisibleProperty) {
+            if ($invisibleProperty === true) {
                 continue;
             }
 
@@ -305,7 +324,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
                 continue;
             }
 
-            if (false === $searchProperty->getVisibleCondition()->match($intersectModel)) {
+            if ($searchProperty->getVisibleCondition()->match($intersectModel) === false) {
                 continue;
             }
 
@@ -586,10 +605,10 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $legendPropertyNames = $this->getLegendPropertyNames($intersectModel, $defaultPalette);
 
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
-        foreach ($session['intersectValues'] as $intersectProperty => $intersectValue) {
+        foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
             if (($idProperty === $intersectProperty)
                 || !$propertiesDefinition->hasProperty($intersectProperty)
-                || (false === $this->useIntersectValue($intersectProperty, $legendPropertyNames, $defaultPalette))
+                || ($this->useIntersectValue($intersectProperty, $legendPropertyNames, $defaultPalette) === false)
             ) {
                 continue;
             }
@@ -632,7 +651,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         }
 
         if ($defaultPalette
-            && (false === $useIntersectValue)
+            && ($useIntersectValue === false)
             && \in_array($intersectPropertyName, $legendPropertyNames)
         ) {
             $useIntersectValue = true;
@@ -651,7 +670,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
      */
     private function intersectModelSetPrimaryId($intersectModel, $idProperty)
     {
-        if (null !== $intersectModel->getId()) {
+        if ($intersectModel->getId() !== null) {
             return;
         }
 
@@ -673,7 +692,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $dataDefinition       = $this->getEnvironment()->getDataDefinition();
         $parentDataDefinition = $this->getEnvironment()->getParentDataDefinition();
 
-        if (null === $parentDataDefinition) {
+        if ($parentDataDefinition === null) {
             return;
         }
 
@@ -691,7 +710,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             break;
         }
 
-        if (null !== $parentField) {
+        if ($parentField !== null) {
             $intersectModel->setProperty(
                 $parentField,
                 ModelId::fromSerialized($this->getEnvironment()->getInputProvider()->getParameter('pid'))
@@ -714,7 +733,7 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
         $palettesDefinition = $this->getEnvironment()->getDataDefinition()->getPalettesDefinition();
 
         $legendPropertyNames = [];
-        if ($inputProvider->hasValue('FORM_INPUTS') && 1 === \count($palettesDefinition->getPalettes())) {
+        if ($inputProvider->hasValue('FORM_INPUTS') && \count($palettesDefinition->getPalettes()) === 1) {
             return $legendPropertyNames;
         }
 
