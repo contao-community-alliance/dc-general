@@ -39,6 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
@@ -105,8 +106,7 @@ class FileSelect
 
         $this->runAjaxRequest();
 
-        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
-        $propertyName = $inputProvider->getParameter('field');
+        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
         // Define the current ID.
         define(
@@ -115,85 +115,9 @@ class FileSelect
                 ? Session::getInstance()->get('CURRENT_ID') : $inputProvider->getParameter('id'))
         );
 
-        $dispatcher = $GLOBALS['container']['event-dispatcher'];
+        $this->setupItemContainer($modelId);
 
-        $translator = new TranslatorChain();
-        $translator->add(new LangArrayTranslator($dispatcher));
-
-        $factory             = new DcGeneralFactory();
-        $this->itemContainer = $factory
-            ->setContainerName($modelId->getDataProviderName())
-            ->setTranslator($translator)
-            ->setEventDispatcher($dispatcher)
-            ->createDcGeneral();
-
-        $information = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
-
-        if (!isset($information['eval'])) {
-            $information['eval'] = [];
-        }
-
-        // Merge with the information from the data container.
-        $property = $this
-            ->itemContainer
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getPropertiesDefinition()
-            ->getProperty($propertyName);
-        $extra    = $property->getExtra();
-
-        $information['eval'] = \array_merge($extra, $information['eval']);
-
-        Session::getInstance()->set('filePickerRef', Environment::get('request'));
-
-        $fileSelectorValues = [];
-        foreach (\array_filter(\explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
-            // Can be a UUID or a path
-            if (Validator::isStringUuid($v)) {
-                $fileSelectorValues[$k] = StringUtil::uuidToBin($v);
-            }
-        }
-
-        $activeModel = null;
-        if (Database::getInstance()->tableExists($modelId->getDataProviderName())) {
-            $dataProvider = $this->itemContainer->getEnvironment()->getDataProvider();
-
-            $activeModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        }
-        $combat = new DcCompat($this->itemContainer->getEnvironment(), $activeModel, $propertyName);
-
-        if (\is_array($GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'])) {
-            $callbacks = $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'];
-            foreach ($callbacks as $callback) {
-                if (\is_array($callback)) {
-                    $fileSelectorValues =
-                        Callbacks::callArgs($callback, [$fileSelectorValues, $combat]);
-                } elseif (\is_callable($callback)) {
-                    $fileSelectorValues = $callback($fileSelectorValues, $combat);
-                }
-            }
-        }
-
-        /** @var FileSelector $fileSelector */
-        $fileSelector = new $GLOBALS['BE_FFL']['fileSelector'](
-            Widget::getAttributesFromDca(
-                $information,
-                $propertyName,
-                $fileSelectorValues,
-                $propertyName,
-                $modelId->getDataProviderName(),
-                $combat
-            ),
-            $combat
-        );
-        if (isset($information['eval']['extensions'])) {
-            $fileSelector->extensions = $information['eval']['extensions'];
-        }
-
-        // AJAX request.
-        if (isset($ajax)) {
-            $ajax->executePostActions($combat);
-        }
+        $fileSelector = $this->prepareFileSelector($modelId);
 
         $template->main        = $fileSelector->generate();
         $template->theme       = Backend::getTheme();
@@ -234,7 +158,148 @@ class FileSelect
     }
 
     /**
+     * Get the active model.
+     *
+     * @param ModelIdInterface $modelId The model identifier.
+     *
+     * @return \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface|null
+     */
+    private function getActiveModel(ModelIdInterface $modelId)
+    {
+        if (!Database::getInstance()->tableExists($modelId->getDataProviderName())) {
+            return null;
+        }
+        $dataProvider = $this->itemContainer->getEnvironment()->getDataProvider();
+
+        return $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+    }
+
+    /**
+     * Prepare the file selector.
+     *
+     * @param ModelIdInterface $modelId The model identifier.
+     *
+     * @return FileSelector
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    private function prepareFileSelector(ModelIdInterface $modelId)
+    {
+        $inputProvider = $this->itemContainer->getEnvironment()->getInputProvider();
+        $propertyName  = $inputProvider->getParameter('field');
+        $information   = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
+
+        if (!isset($information['eval'])) {
+            $information['eval'] = [];
+        }
+
+        // Merge with the information from the data container.
+        $property = $this
+            ->itemContainer
+            ->getEnvironment()
+            ->getDataDefinition()
+            ->getPropertiesDefinition()
+            ->getProperty($propertyName);
+        $extra    = $property->getExtra();
+
+        $information['eval'] = \array_merge($extra, $information['eval']);
+
+        Session::getInstance()->set('filePickerRef', Environment::get('request'));
+
+        $combat = new DcCompat($this->itemContainer->getEnvironment(), $this->getActiveModel($modelId), $propertyName);
+
+        /** @var FileSelector $fileSelector */
+        $fileSelector = new $GLOBALS['BE_FFL']['fileSelector'](
+            Widget::getAttributesFromDca(
+                $information,
+                $propertyName,
+                $this->prepareValuesForFileSelector($propertyName, $modelId, $combat),
+                $propertyName,
+                $modelId->getDataProviderName(),
+                $combat
+            ),
+            $combat
+        );
+        if (isset($information['eval']['extensions'])) {
+            $fileSelector->extensions = $information['eval']['extensions'];
+        }
+
+        // AJAX request.
+        if (isset($ajax)) {
+            $ajax->executePostActions($combat);
+        }
+
+        return $fileSelector;
+    }
+
+    /**
+     * Prepare the values for the file selector.
+     *
+     * @param string           $propertyName The property name.
+     * @param ModelIdInterface $modelId      The model identifier.
+     * @param DcCompat         $combat       The data container compatibility.
+     *
+     * @return array
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    private function prepareValuesForFileSelector($propertyName, ModelIdInterface $modelId, DcCompat $combat)
+    {
+        $inputProvider = $this->itemContainer->getEnvironment()->getInputProvider();
+
+        $fileSelectorValues = [];
+        foreach (\array_filter(\explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
+            // Can be a UUID or a path
+            if (Validator::isStringUuid($v)) {
+                $fileSelectorValues[$k] = StringUtil::uuidToBin($v);
+            }
+        }
+
+        if (\is_array($GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'])) {
+            $callbacks = $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'];
+            foreach ($callbacks as $callback) {
+                if (\is_array($callback)) {
+                    $fileSelectorValues =
+                        Callbacks::callArgs($callback, [$fileSelectorValues, $combat]);
+                } elseif (\is_callable($callback)) {
+                    $fileSelectorValues = $callback($fileSelectorValues, $combat);
+                }
+            }
+        }
+
+        return $fileSelectorValues;
+    }
+
+    /**
+     * Setup the item container.
+     *
+     * @param ModelIdInterface $modelId The model identifier.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    private function setupItemContainer(ModelIdInterface $modelId)
+    {
+        $dispatcher = $GLOBALS['container']['event-dispatcher'];
+
+        $translator = new TranslatorChain();
+        $translator->add(new LangArrayTranslator($dispatcher));
+
+        $factory             = new DcGeneralFactory();
+        $this->itemContainer = $factory
+            ->setContainerName($modelId->getDataProviderName())
+            ->setTranslator($translator)
+            ->setEventDispatcher($dispatcher)
+            ->createDcGeneral();
+    }
+
+    /**
      * Run the ajax request if is determine for run.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     *
+     * @return void
      */
     private function runAjaxRequest()
     {
