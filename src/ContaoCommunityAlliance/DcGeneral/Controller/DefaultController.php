@@ -38,18 +38,18 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -65,6 +65,10 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
  * This class serves as main controller class in dc general.
  *
  * It holds various methods for data manipulation and retrieval that is non view related.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class DefaultController implements ControllerInterface
 {
@@ -760,50 +764,168 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $parentModelId = null,
         array &$items = []
     ) {
-        $environment    = $this->getEnvironment();
-        $dataDefinition = $environment->getDataDefinition();
-        $manualSorting  = ViewHelpers::getManualSortingProperty($environment);
-
         /** @var DefaultCollection|ModelInterface[] $models */
+        $models = $this->createModelCollectionFromActions($actions, $items);
+
+        $this->triggerPrePasteModel($models);
+
+        $this->processPasteAfter($models, $after);
+        $this->processPasteInto($models, $into);
+        $this->processPasteTopWithoutReference($models, $after, $into, $parentModelId);
+        $this->processPasteTopAfterModel($models, $parentModelId);
+
+        if ($models->count()) {
+            throw new DcGeneralRuntimeException('Invalid parameters.');
+        }
+
+        return $models;
+    }
+
+    /**
+     * Process paste the collection of models after the a model.
+     *
+     * @param CollectionInterface $models The collection of models.
+     * @param ModelIdInterface    $after  The paste after model.
+     *
+     * @return void
+     */
+    private function processPasteAfter(CollectionInterface $models, ModelIdInterface $after = null)
+    {
+        if ($models->count() && $after && $after->getId()) {
+            $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+
+            $this->pasteAfter($this->modelCollector->getModel($after), $models, $manualSorting);
+
+            $this->triggerPostPasteModel($models);
+            $this->clearModelCollection($models);
+        }
+    }
+
+    /**
+     * Process paste the collection of models into the a model.
+     *
+     * @param CollectionInterface $models The collection of models.
+     * @param ModelIdInterface    $into   The paste into model.
+     *
+     * @return void
+     */
+    private function processPasteInto(CollectionInterface $models, ModelIdInterface $into = null)
+    {
+        if ($models->count() && $into && $into->getId()) {
+            $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+
+            $this->pasteInto($this->modelCollector->getModel($into), $models, $manualSorting);
+
+            $this->triggerPostPasteModel($models);
+            $this->clearModelCollection($models);
+        }
+    }
+
+    /**
+     * Process paste the content of the clipboard onto the top after a model without reference.
+     *
+     * @param CollectionInterface $models The collection of models.
+     * @param ModelIdInterface    $after  The previous model id.
+     * @param ModelIdInterface    $into   The hierarchical parent model id.
+     * @param ModelIdInterface    $parent The parent model id.
+     *
+     * @return void
+     */
+    private function processPasteTopWithoutReference(
+        CollectionInterface $models,
+        ModelIdInterface $after = null,
+        ModelIdInterface $into = null,
+        ModelIdInterface $parent = null
+    ) {
+        if ($models->count() && (($after && (int) $after->getId() === 0) || ($into && (int) $into->getId() === 0))) {
+            $manualSorting  = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+            $dataDefinition = $this->getEnvironment()->getDataDefinition();
+
+            if ($dataDefinition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
+                $this->relationshipManager->setAllRoot($models);
+            }
+
+            $this->pasteTop($models, $manualSorting, $parent);
+
+            $this->triggerPostPasteModel($models);
+            $this->clearModelCollection($models);
+        }
+    }
+
+    /**
+     * Process paste the content of the clipboard onto the top after a model.
+     *
+     * @param CollectionInterface $models The collection of models.
+     * @param ModelIdInterface    $parent The parent model id.
+     *
+     * @return void
+     */
+    private function processPasteTopAfterModel(CollectionInterface $models, ModelIdInterface $parent = null)
+    {
+        if ($parent && $models->count()) {
+            $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+
+            if ($manualSorting) {
+                $this->pasteTop($models, $manualSorting, $parent);
+
+                return;
+            }
+
+            $dataProvider = $this->getEnvironment()->getDataProvider();
+            $dataProvider->saveEach($models);
+
+            $this->triggerPostPasteModel($models);
+            $this->clearModelCollection($models);
+        }
+    }
+
+    /**
+     * Create the model collection from the internal models in the action collection.
+     *
+     * @param array $actions The actions collection.
+     * @param array $items   Write-back clipboard items.
+     *
+     * @return DefaultCollection
+     */
+    private function createModelCollectionFromActions(array $actions, array &$items)
+    {
         $models = new DefaultCollection();
         foreach ($actions as $action) {
             $models->push($action['model']);
             $items[] = $action['item'];
         }
 
-        // Trigger for each model the pre persist event.
-        foreach ($models as $model) {
-            $event = new PrePasteModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-        }
-
-        if ($after && $after->getId()) {
-            $this->pasteAfter($this->modelCollector->getModel($after), $models, $manualSorting);
-        } elseif ($into && $into->getId()) {
-            $this->pasteInto($this->modelCollector->getModel($into), $models, $manualSorting);
-        } elseif (($after && $after->getId() == '0') || ($into && $into->getId() == '0')) {
-            if ($dataDefinition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
-                $this->relationshipManager->setAllRoot($models);
-            }
-            $this->pasteTop($models, $manualSorting, $parentModelId);
-        } elseif ($parentModelId) {
-            if ($manualSorting) {
-                $this->pasteTop($models, $manualSorting, $parentModelId);
-            } else {
-                $dataProvider = $environment->getDataProvider();
-                $dataProvider->saveEach($models);
-            }
-        } else {
-            throw new DcGeneralRuntimeException('Invalid parameters.');
-        }
-
-        // Trigger for each model the past persist event.
-        foreach ($models as $model) {
-            $event = new PostPasteModelEvent($environment, $model);
-            $environment->getEventDispatcher()->dispatch($event::NAME, $event);
-        }
-
         return $models;
+    }
+
+    /**
+     * Trigger for each model the pre persist event.
+     *
+     * @param CollectionInterface $collection The collection of models.
+     *
+     * @return void
+     */
+    private function triggerPrePasteModel(CollectionInterface $collection)
+    {
+        foreach ($collection as $model) {
+            $event = new PrePasteModelEvent($this->getEnvironment(), $model);
+            $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        }
+    }
+
+    /**
+     * Trigger for each model the past persist event.
+     *
+     * @param CollectionInterface $collection The collection of models.
+     *
+     * @return void
+     */
+    private function triggerPostPasteModel(CollectionInterface $collection)
+    {
+        foreach ($collection as $model) {
+            $event = new PostPasteModelEvent($this->getEnvironment(), $model);
+            $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        }
     }
 
     /**
@@ -961,6 +1083,20 @@ class DefaultController implements ControllerInterface
         $newList     = $sortManager->getResults();
 
         $environment->getDataProvider($newList->get(0)->getProviderName())->saveEach($newList);
+    }
+
+    /**
+     * Clear the collection of the models after insert.
+     *
+     * @param CollectionInterface $models The collection of models.
+     *
+     * @return void
+     */
+    private function clearModelCollection(CollectionInterface $models)
+    {
+        foreach ($models as $model) {
+            $models->remove($model);
+        }
     }
 
     /**
