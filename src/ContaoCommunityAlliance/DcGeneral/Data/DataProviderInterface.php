@@ -139,7 +139,7 @@ interface DataProviderInterface
      *
      * @return void
      */
-    public function saveEach(CollectionInterface $objItems, $timestamp);
+    public function saveEach(CollectionInterface $objItems, $timestamp = 0);
 
     /**
      * Delete an item.
