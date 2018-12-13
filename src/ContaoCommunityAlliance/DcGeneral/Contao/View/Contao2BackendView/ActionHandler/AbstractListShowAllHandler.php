@@ -269,10 +269,10 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         // Run each model.
         $index = 0;
         foreach ($collection as $model) {
-            /** @var ModelInterface $model */
             $index++;
 
-            $this->addGroupHeader($grouping, $model, $groupClass, $eoCount, $remoteCur);
+            /** @var ModelInterface $model */
+            $this->addGroupHeader((array) $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
