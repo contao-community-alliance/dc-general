@@ -780,6 +780,8 @@ class EditMask
             )
         )) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
+            $dataProvider = $this->getEnvironment()->getDataProvider();
+
             $langsNative = [];
             require TL_ROOT . '/system/config/languages.php';
 
