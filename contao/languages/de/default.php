@@ -32,3 +32,4 @@ $GLOBALS['TL_LANG']['MSC']['select_property_info']        = 'Die Eigenschaft "%s
 $GLOBALS['TL_LANG']['MSC']['select_parent_property_info'] = 'Die Äbhängige Eigenschaft "%s" muss ausgwählt sein, damit man die Eigenschaft "%s" bearbeiten kann.';
 $GLOBALS['TL_LANG']['MSC']['edit_all_select_properties']  = 'Eigenschaften auswählen';
 $GLOBALS['TL_LANG']['MSC']['no_properties_available']     = 'Bitte überprüfen Sie die ausgewählten Eigenschaften!';
+$GLOBALS['TL_LANG']['MSC']['select_models']               = 'Elemente auswählen';
