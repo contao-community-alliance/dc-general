@@ -1104,7 +1104,7 @@ class TreePicker extends Widget
      *
      * @param ModelFormatterConfigInterface $formatter    The model formatter.
      * @param array                         $arguments    The model label arguments.
-     * @param array                         $firstSorting The first sorting.
+     * @param string|bool                   $firstSorting The first sorting.
      * @param array                         $labelList    The label list.
      *
      * @return void
@@ -1112,7 +1112,7 @@ class TreePicker extends Widget
     private function prepareLabelWithDisplayedProperties(
         ModelFormatterConfigInterface $formatter,
         array $arguments,
-        array $firstSorting,
+        $firstSorting,
         array &$labelList
     ) {
         $definition = $this->getEnvironment()->getDataDefinition();
