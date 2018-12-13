@@ -269,7 +269,6 @@ class TreePicker extends Widget
 
         $this->handleInputNameForEditAll();
 
-        // TODO handle input name by event.
         $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
                   '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
 
@@ -686,7 +685,7 @@ class TreePicker extends Widget
         $tree = '';
         foreach ($this->getRootIds() as $pid) {
             $collection = $this->loadCollection($pid);
-            $tree       .= $this->generateTreeView($collection, 'tree');
+            $tree      .= $this->generateTreeView($collection, 'tree');
         }
 
         $template->set('tree', $tree);

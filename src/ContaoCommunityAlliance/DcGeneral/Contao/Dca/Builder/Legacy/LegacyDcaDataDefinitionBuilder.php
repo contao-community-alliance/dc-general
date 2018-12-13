@@ -173,7 +173,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     /**
      * Check if callback is blacklisted.
      *
-     * @param mixed $callback The callback.
+     * @param mixed  $callback The callback.
      * @param string $listener The listener class.
      *
      * @return bool
@@ -1323,6 +1323,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 case 'sql':
                     $this->determineEmptyValueFromSql($property, $value);
+                    break;
 
                 default:
             }

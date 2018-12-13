@@ -272,7 +272,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
             /** @var ModelInterface $model */
             $index++;
 
-            $this->addGroupHeader($grouping, $model, $groupClass, $remoteCur, $eoCount);
+            $this->addGroupHeader($grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
@@ -299,12 +299,13 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
      * @param array          $grouping   The grouping information.
      * @param ModelInterface $model      The model.
      * @param string         $groupClass The group class.
-     * @param mixed          $remoteCur  The current remote.
      * @param integer        $eoCount    The row even odd counter.
+     *
+     * @param mixed          $remoteCur  The current remote.
      *
      * @return void
      */
-    private function addGroupHeader(array $grouping, ModelInterface $model, &$groupClass, &$remoteCur = null, &$eoCount)
+    private function addGroupHeader(array $grouping, ModelInterface $model, &$groupClass, &$eoCount, &$remoteCur = null)
     {
         if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
             $remoteNew = $this->renderGroupHeader(

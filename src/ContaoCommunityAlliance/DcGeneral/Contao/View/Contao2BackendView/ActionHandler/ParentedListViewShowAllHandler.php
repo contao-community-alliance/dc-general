@@ -423,7 +423,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
             $filter->andParentIsFromProvider($parentDataProviderName);
         } else {
-            // FIXME: how can we ever end up here?
             $filter->andHasNoParent();
         }
 

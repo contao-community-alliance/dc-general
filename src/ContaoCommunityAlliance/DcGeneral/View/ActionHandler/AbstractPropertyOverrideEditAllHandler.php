@@ -316,7 +316,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return;
         }
 
-        // FIXME If restore version works by dcg, then must implement here as well.
         $clone = clone $model;
         $clone->setId($model->getId());
 

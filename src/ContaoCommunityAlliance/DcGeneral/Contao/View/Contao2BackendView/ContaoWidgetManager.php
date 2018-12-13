@@ -134,9 +134,11 @@ class ContaoWidgetManager
     {
         try {
             return $this->getWidget($property) !== null;
+            // @codingStandardsIgnoreStart
         } catch (\Exception $e) {
             // Fall though and return false.
         }
+        // @codingStandardsIgnoreEnd
         return false;
     }
 
