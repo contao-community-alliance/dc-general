@@ -420,7 +420,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
     {
         $event = new DecodePropertyValueForWidgetEvent($this->getEnvironment(), $model);
         $event
-            ->setProperty($property)
+            ->setProperty($property->getName())
             ->setValue($model->getProperty($property->getName()));
 
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
