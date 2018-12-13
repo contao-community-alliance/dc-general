@@ -68,10 +68,6 @@ class DefaultEditInformation implements EditInformationInterface
      */
     public function getModelError(ModelInterface $model)
     {
-        if (!$model->getId()) {
-            return null;
-        }
-
         $modelId = ModelId::fromModel($model);
 
         if (!isset($this->modelErrors[$modelId->getSerialized()])) {
