@@ -53,7 +53,7 @@ class PropertyVisibleCondition implements PropertyConditionInterface
      *
      * @param string $propertyName The property name.
      *
-     * @return PropertyValueCondition
+     * @return PropertyVisibleCondition
      */
     public function setPropertyName($propertyName)
     {
