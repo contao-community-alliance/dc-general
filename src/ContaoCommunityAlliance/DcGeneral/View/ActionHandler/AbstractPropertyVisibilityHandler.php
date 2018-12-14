@@ -129,14 +129,11 @@ abstract class AbstractPropertyVisibilityHandler extends AbstractHandler
             $event->setPropertyName($property->getName());
             $event->setOptions($property->getOptions());
             $this->getEnvironment()->getEventDispatcher()->dispatch(GetPropertyOptionsEvent::NAME, $event);
-            if (0 > \count($event->getOptions())) {
+            if (($event->getOptions() === null) || (0 > \count($event->getOptions()))) {
                 continue;
             }
 
             $paletteCounter = 0;
-            if ($event->getOptions() === null) {
-                continue;
-            }
             foreach (\array_keys($event->getOptions()) as $paletteName) {
                 $palettesDefinition->hasPaletteByName($paletteName) ? ++$paletteCounter : null;
             }
