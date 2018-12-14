@@ -115,7 +115,7 @@ abstract class AbstractCondition
                 return (self::getConditionValue($arrFilter, $objParentModel) < $arrFilter['value']);
 
             case 'IN':
-                return \in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['value']);
+                return \in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['values']);
 
             case 'LIKE':
                 throw new DcGeneralRuntimeException('LIKE unsupported as of now.');

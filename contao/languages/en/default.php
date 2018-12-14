@@ -34,3 +34,4 @@ $GLOBALS['TL_LANG']['MSC']['select_property_info']        = 'You must select the
 $GLOBALS['TL_LANG']['MSC']['select_parent_property_info'] = 'You must select the parent property "%s" for edit the property "%s".';
 $GLOBALS['TL_LANG']['MSC']['edit_all_select_properties']  = 'Select properties';
 $GLOBALS['TL_LANG']['MSC']['no_properties_available']     = 'Please check your selected properties!';
+$GLOBALS['TL_LANG']['MSC']['select_models']               = 'Select models';

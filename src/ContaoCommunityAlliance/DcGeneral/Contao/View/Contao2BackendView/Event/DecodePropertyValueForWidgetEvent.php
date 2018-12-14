@@ -12,7 +12,6 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
@@ -22,6 +21,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event;
 
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * Class DecodePropertyValueForWidgetEvent.
@@ -53,9 +53,15 @@ class DecodePropertyValueForWidgetEvent extends AbstractModelAwareEvent
      * @param string $property The name of the property.
      *
      * @return DecodePropertyValueForWidgetEvent
+     *
+     * @throws DcGeneralInvalidArgumentException Throws an exception if the property name is not a string.
      */
     public function setProperty($property)
     {
+        if (!\is_string($property)) {
+            throw new DcGeneralInvalidArgumentException('Only property name as string allowed.');
+        }
+
         $this->property = $property;
 
         return $this;

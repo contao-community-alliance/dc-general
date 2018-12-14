@@ -109,7 +109,6 @@ class PasteHandler extends AbstractHandler
             return true;
         }
 
-        // TODO find a way for output the permission message.
         $this->getEvent()->setResponse(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for paste a model.

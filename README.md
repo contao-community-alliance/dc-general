@@ -1,11 +1,12 @@
+[![Build Status](https://travis-ci.org/contao-community-alliance/dc-general.png)](https://travis-ci.org/contao-community-alliance/dc-general)
+[![Latest Version tagged](http://img.shields.io/github/tag/contao-community-alliance/dc-general.svg)](https://github.com/contao-community-alliance/dc-general/tags)
+[![Latest Version on Packagist](http://img.shields.io/packagist/v/contao-community-alliance/dc-general.svg)](https://packagist.org/packages/contao-community-alliance/dc-general)
+[![Installations via composer per month](http://img.shields.io/packagist/dm/contao-community-alliance/dc-general.svg)](https://packagist.org/packages/contao-community-alliance/dc-general)
+
 DC_General
 ==========
 
 Universal data container for Contao.
-
-The present version here is about to become version 2.0.0 and has since
-undergone major refactoring, splitting up huge code bloats and introducing
-even more abstraction and therefore may be considered a total rewrite.
 
 We hope that ultimatively this driver will become the de facto standard
 driver for Contao extensions in the future, once proven to be stable enough.

@@ -36,6 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSe
 use ContaoCommunityAlliance\DcGeneral\Controller\Ajax3X;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -47,6 +48,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Class BaseView.
  *
  * This class is the base class for the different backend view mode sub classes.
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class BaseView implements BackendViewInterface, EventSubscriberInterface
 {
@@ -91,7 +94,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return void
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
@@ -99,9 +101,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 
-        if ($event->getEnvironment()->getDataDefinition()->getName()
-            !== $this->environment->getDataDefinition()->getName()
-            || $event->getResponse() !== null
+        if ($event->getResponse() !== null
+            || $event->getEnvironment()->getDataDefinition()->getName()
+               !== $this->environment->getDataDefinition()->getName()
         ) {
             return;
         }
@@ -109,29 +111,23 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $action = $event->getAction();
         $name   = $action->getName();
 
-        switch ($name) {
-            case 'select':
-                // If no redirect happens, we want to display the showAll action.
-                $name = 'showAll';
-                // No break here.
-            case 'create':
-            case 'move':
-            case 'undo':
-            case 'edit':
-            case 'showAll':
-                $response = \call_user_func_array(
-                    [$this, $name],
-                    \array_merge([$action], $action->getArguments())
-                );
-                $event->setResponse($response);
-                break;
-            case 'show':
-                $handler = new ShowHandler();
-                $handler->handleEvent($event);
-                break;
+        if ('show' === $name) {
+            $handler = new ShowHandler();
+            $handler->handleEvent($event);
 
-            default:
+            return;
         }
+
+        if (!\in_array($name, ['select', 'create', 'move', 'undo', 'edit', 'showAll'])) {
+            return;
+        }
+
+        $response = \call_user_func_array(
+            // No redirect happens for select, we want to display the showAll action.
+            [$this, ('select' === $name) ? 'showAll' : $name],
+            \array_merge([$action], $action->getArguments())
+        );
+        $event->setResponse($response);
     }
 
     /**
@@ -200,8 +196,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Add the value to the template.
      *
-     * @param string    $name     Name of the value.
-     * @param mixed     $value    The value to add to the template.
+     * @param string   $name     Name of the value.
+     * @param mixed    $value    The value to add to the template.
      * @param Template $template The template to add the value to.
      *
      * @return BaseView
@@ -284,93 +280,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function getSelectButtons()
     {
-        $definition      = $this->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
-        $buttons         = [];
-
-        $confirmMessage = \htmlentities(
-            \sprintf(
-                '<h2 class="tl_error">%s</h2>' .
-                '<p></p>' .
-                '<div class="tl_submit_container">' .
-                '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
-                '</div>',
-                \specialchars($this->translate('MSC.nothingSelect')),
-                'tl_submit',
-                \specialchars($this->translate('MSC.close')),
-                'this.blur(); BackendGeneral.hideMessage(); return false;'
-            )
-        );
-        $onClick        = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'models[]\', \''
-                          . $confirmMessage . '\'); return false;';
-
-        $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
-
-        if ($basicDefinition->isDeletable()) {
-            $onClickDelete = \sprintf(
-                'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
-                'models[]',
-                $confirmMessage,
-                \specialchars($this->translate('MSC.delAllConfirm')),
-                \specialchars($this->translate('MSC.confirmOk')),
-                \specialchars($this->translate('MSC.confirmAbort'))
-            );
-
-            $buttons['delete'] = \sprintf(
-                $input,
-                'delete',
-                'delete',
-                'd',
-                \specialchars($this->translate('MSC.deleteSelected')),
-                $onClickDelete
-            );
-        }
-
-        $sortingProperty = ViewHelpers::getManualSortingProperty($this->getEnvironment());
-        if ($sortingProperty && $basicDefinition->isEditable()) {
-            $buttons['cut'] = \sprintf(
-                $input,
-                'cut',
-                'cut',
-                's',
-                \specialchars($this->translate('MSC.moveSelected')),
-                $onClick
-            );
-        }
-
-        if ($basicDefinition->isCreatable()) {
-            $buttons['copy'] = \sprintf(
-                $input,
-                'copy',
-                'copy',
-                'c',
-                \specialchars($this->translate('MSC.copySelected')),
-                $onClick
-            );
-        }
-
-        if ($basicDefinition->isEditable()) {
-            $buttons['override'] = \sprintf(
-                $input,
-                'override',
-                'override',
-                'v',
-                \specialchars($this->translate('MSC.overrideSelected')),
-                $onClick
-            );
-
-            $buttons['edit'] = \sprintf(
-                $input,
-                'edit',
-                'edit',
-                's',
-                \specialchars($this->translate('MSC.editSelected')),
-                $onClick
-            );
-        }
-
         $event = new GetSelectModeButtonsEvent($this->getEnvironment());
-        $event->setButtons($buttons);
+        $event->setButtons([]);
         $this->getEnvironment()->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
 
         return $event->getButtons();
@@ -553,7 +464,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $arrReturn = $event->getElements();
 
-        if (!\is_array($arrReturn) || \count($arrReturn) == 0) {
+        if (!\is_array($arrReturn) || !\count($arrReturn)) {
             return null;
         }
 

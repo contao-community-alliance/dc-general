@@ -206,7 +206,7 @@ class DefaultModel extends AbstractModel
     /**
      * Get an iterator for this model's property values.
      *
-     * @return \IteratorAggregate
+     * @return \ArrayIterator
      */
     public function getIterator()
     {

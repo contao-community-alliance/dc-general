@@ -1,5 +1,7 @@
 <?php
 
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\SelectModeButtonsListener;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\GetGroupHeaderSubscriber;
@@ -84,6 +86,9 @@ $result = [
     DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP => [
         [new TreeEnforcingListener(), 'process'],
         [new ParentEnforcingListener(), 'process'],
+    ],
+    GetSelectModeButtonsEvent::NAME => [
+        [new SelectModeButtonsListener(), 'handleEvent']
     ]
 ];
 

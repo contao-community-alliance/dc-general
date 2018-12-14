@@ -49,7 +49,7 @@ class CheckPermissionTest extends TestCase
 
         $this->assertCount(1, $events);
         $this->assertEquals([BuildDataDefinitionEvent::NAME], \array_keys($events));
-        $this->assertEquals('checkPermissionForProperties', $events[BuildDataDefinitionEvent::NAME]);
+        $this->assertCount(4, $events[BuildDataDefinitionEvent::NAME]);
     }
 
     /**
@@ -88,7 +88,7 @@ class CheckPermissionTest extends TestCase
             [$property11, $property12, $propertyNotExist]
         );
         $palette2->expects($this->once())->method('getProperties')->willReturn([$property21, $property22]);
-        $properties->expects($this->exactly(5))->method('getProperty')->willReturnCallback(
+        $properties->expects($this->exactly(4))->method('getProperty')->willReturnCallback(
             function ($name) {
                 switch ($name) {
                     case 'property11':
@@ -103,6 +103,11 @@ class CheckPermissionTest extends TestCase
                 }
 
                 return null;
+            }
+        );
+        $properties->expects($this->exactly(5))->method('hasProperty')->willReturnCallback(
+            function ($name) {
+                return \in_array($name, ['property11', 'property12', 'property21', 'property22']);
             }
         );
 

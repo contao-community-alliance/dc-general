@@ -23,6 +23,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Test;
 use ContaoCommunityAlliance\Contao\EventDispatcher\EventDispatcherInitializer;
 use ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider;
 use ContaoCommunityAlliance\DcGeneral\DC_General;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -30,6 +31,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * Test the main wrapper class \DC_General that it can be instantiated by Contao.
  *
  * @SuppressWarnings(PHPMD.CamelCaseClassName)
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\DefaultEnvironment::setParentDataDefinition
  */
 // @codingStandardsIgnoreStart
 class DC_GeneralTest extends TestCase
@@ -45,7 +48,7 @@ class DC_GeneralTest extends TestCase
     public function testInstantiation()
     {
         define('TL_MODE', 'BE');
-        $_SESSION = ['BE_DATA' => ['DC_GENERAL_TL_FOO' => []]];
+        $_SESSION = ['BE_DATA' => ['DC_GENERAL_TL_FOO' => [], 'DC_GENERAL_TL_BAR' => []]];
         require_once __DIR__ . '/../../../../../vendor/contao/core/system/helper/interface.php';
         $this->aliasContaoClass('Session');
         $this->aliasContaoClass('System');
@@ -60,7 +63,7 @@ class DC_GeneralTest extends TestCase
             ]
         );
 
-        $this->assertTrue($container['event-dispatcher'] instanceof EventDispatcher);
+        $this->assertInstanceOf(EventDispatcher::class, $container['event-dispatcher']);
 
         $initializer = new EventDispatcherInitializer();
         $initializer->addListeners(
@@ -75,24 +78,56 @@ class DC_GeneralTest extends TestCase
         require_once __DIR__ . '/../../../../../contao/config/services.php';
 
         $GLOBALS['TL_DCA']['tl_foo'] = [
-            'config'          => [
-                'dataContainer'    => 'General',
+            'config'     => [
+                'dataContainer' => 'General'
+            ],
+            'dca_config' => [
+                'data_provider' => [
+                    'default' => [
+                        'source' => 'tl_foo',
+                        'class'  => NoOpDataProvider::class
+                    ]
                 ],
-            'dca_config'   => [
-                    'data_provider'  => [
-                    'tl_foo' => [
-                            'source' => 'tl_foo',
-                            'class'        => NoOpDataProvider::class,
-                        ]
-                    ],
-                ],
-            'palettes' => []
+            ],
+            'palettes'   => []
         ];
 
-        $dataContainer = new \DC_General('tl_foo');
+        $GLOBALS['TL_DCA']['tl_bar'] = [
+            'config'     => [
+                'dataContainer' => 'General',
+            ],
+            'dca_config' => [
+                'data_provider' => [
+                    'default' => [
+                        'source' => 'tl_bar',
+                        'class'  => NoOpDataProvider::class
+                    ],
+                    'parent' => [
+                        'source' => 'tl_foo',
+                        'class'  => NoOpDataProvider::class
+                    ]
+                ],
+            ],
+            'palettes'   => []
+        ];
 
-        $this->assertTrue($dataContainer instanceof \DC_General);
-        $this->assertTrue($dataContainer instanceof DC_General);
+        $dataContainerFoo = new \DC_General('tl_foo');
+
+        $dataContainerBar = new \DC_General('tl_bar');
+
+        $this->assertInstanceOf(
+            EnvironmentInterface::class,
+            $dataContainerBar->getEnvironment()->setParentDataDefinition(
+                $dataContainerFoo->getEnvironment()->getDataDefinition()
+            )
+        );
+
+
+        $this->assertInstanceOf(\DC_General::class, $dataContainerFoo);
+        $this->assertInstanceOf(DC_General::class, $dataContainerFoo);
+
+        $this->assertInstanceOf(\DC_General::class, $dataContainerBar);
+        $this->assertInstanceOf(DC_General::class, $dataContainerBar);
     }
 }
 // @codingStandardsIgnoreEnd

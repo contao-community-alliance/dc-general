@@ -569,7 +569,7 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function save(ModelInterface $objItem, $timestamp = 0)
     {
-        if ($objItem->getId() === null || $objItem->getId() === '') {
+        if (\in_array($objItem->getId(), [null, ''])) {
             $this->insertModelIntoDatabase($objItem);
         } else {
             $this->updateModelInDatabase($objItem);
@@ -722,13 +722,14 @@ class DefaultDataProvider implements DataProviderInterface
 
         $mixData[$this->idProperty] = $objModel->getId();
 
-        $arrInsert              = [];
-        $arrInsert['tl_version.pid']       = $objModel->getId();
-        $arrInsert['tl_version.tstamp']    = \time();
-        $arrInsert['tl_version.version']   = $mixNewVersion;
-        $arrInsert['tl_version.fromTable'] = $this->strSource;
-        $arrInsert['tl_version.username']  = $strUsername;
-        $arrInsert['tl_version.data']      = \serialize($mixData);
+        $arrInsert = [
+            'tl_version.pid'       => $objModel->getId(),
+            'tl_version.tstamp'    => \time(),
+            'tl_version.version'   => $mixNewVersion,
+            'tl_version.fromTable' => $this->strSource,
+            'tl_version.username'  => $strUsername,
+            'tl_version.data'      => \serialize($mixData)
+        ];
 
         $this->objDatabase->prepare('INSERT INTO tl_version %s')
             ->set($arrInsert)

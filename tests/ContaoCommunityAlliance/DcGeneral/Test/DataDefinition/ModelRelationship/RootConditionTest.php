@@ -37,7 +37,7 @@ class RootConditionTest extends TestCase
     public function testMatchesForChildFromOtherProvider()
     {
         $model = new DefaultModel();
-        $model->setId(1);
+        $model->setID(1);
         $model->setProviderName('test2-provider');
         $model->setProperty('pid', 0);
 
