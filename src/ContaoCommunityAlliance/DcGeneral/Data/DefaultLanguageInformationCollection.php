@@ -45,7 +45,7 @@ class DefaultLanguageInformationCollection implements LanguageInformationCollect
     /**
      * Get a iterator for this collection.
      *
-     * @return \IteratorAggregate
+     * @return \ArrayIterator
      */
     public function getIterator()
     {

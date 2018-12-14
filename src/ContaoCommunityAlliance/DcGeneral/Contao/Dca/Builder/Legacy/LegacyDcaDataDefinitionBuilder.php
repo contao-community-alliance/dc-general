@@ -158,13 +158,32 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         if (\is_array($callbacks) && (\count($callbacks) == 2) && !\is_array($callbacks[0])) {
             $callbacks = [$callbacks];
         }
-
         foreach ((array) $callbacks as $callback) {
+            if ($this->isCallbackBlacklisted($callback, $listener)) {
+                continue;
+            }
+
             $dispatcher->addListener(
                 $eventName,
                 new $listener($callback, $arguments)
             );
         }
+    }
+
+    /**
+     * Check if callback is blacklisted.
+     *
+     * @param mixed  $callback The callback.
+     * @param string $listener The listener class.
+     *
+     * @return bool
+     */
+    private function isCallbackBlacklisted($callback, $listener)
+    {
+        return ((ContainerOnLoadCallbackListener::class === $listener)
+                && \is_array($callback)
+                && ('checkPermission' === $callback[1])
+                && (0 === strpos($callback[0], 'tl_')));
     }
 
     /**
@@ -1304,6 +1323,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 case 'sql':
                     $this->determineEmptyValueFromSql($property, $value);
+                    break;
 
                 default:
             }
@@ -1397,7 +1417,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $this->parseSingleProperty($property, $propInfo);
 
             $extra = $property->getExtra();
-            if ($extra['orderField']
+            if (isset($extra['orderField'])
                 && \array_key_exists($extra['orderField'], (array) $this->getFromDca('fields'))
             ) {
                 if (!$definition->hasProperty($extra['orderField'])) {

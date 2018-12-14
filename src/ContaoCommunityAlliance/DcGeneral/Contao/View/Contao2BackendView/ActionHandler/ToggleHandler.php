@@ -124,7 +124,6 @@ class ToggleHandler extends AbstractHandler
             return true;
         }
 
-        // TODO find a way for output the permission message.
         $this->getEvent()->setResponse(
             \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">

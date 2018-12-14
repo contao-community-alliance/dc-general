@@ -34,6 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
@@ -48,6 +49,10 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
 /**
  * Provide methods to handle input field "tableTree".
+ *
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class TreePicker extends Widget
 {
@@ -264,9 +269,8 @@ class TreePicker extends Widget
 
         $this->handleInputNameForEditAll();
 
-        // TODO handle input name by event.
         $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
-            '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
+                  '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
 
         if (null !== $label && $GLOBALS['TL_CONFIG']['showHelp']) {
             $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
@@ -823,18 +827,8 @@ class TreePicker extends Widget
             if ($blnHasChild && !$objModel->getMeta($objModel::SHOW_CHILDREN)) {
                 break;
             } elseif ($blnHasChild) {
-                foreach ($objChildCollection as $objChildModel) {
-                    // Let the child know about it's parent.
-                    $objModel->setMeta($objModel::PARENT_ID, $objModel->getId());
-                    $objModel->setMeta($objModel::PARENT_PROVIDER_NAME, $objModel->getProviderName());
+                $this->treeWalkChildCollection($objChildCollection, $objModel, $intLevel);
 
-                    $mySubTables = [];
-                    foreach ($relationships->getChildConditions($objModel->getProviderName()) as $condition) {
-                        $mySubTables[] = $condition->getDestinationName();
-                    }
-
-                    $this->treeWalkModel($objChildModel, ($intLevel + 1), $mySubTables);
-                }
                 $arrChildCollections[] = $objChildCollection;
 
                 // Speed up, if collapsed, one item is enough to break as we have some children.
@@ -853,6 +847,33 @@ class TreePicker extends Widget
     }
 
     /**
+     * Walk in the child collection for the tree.
+     *
+     * @param CollectionInterface $childCollection The child collection.
+     * @param ModelInterface      $model           The model to render.
+     * @param int                 $level           The current level in the tree hierarchy.
+     *
+     * @return void
+     */
+    private function treeWalkChildCollection(CollectionInterface $childCollection, ModelInterface $model, $level)
+    {
+        $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
+
+        foreach ($childCollection as $objChildModel) {
+            // Let the child know about it's parent.
+            $model->setMeta($model::PARENT_ID, $model->getId());
+            $model->setMeta($model::PARENT_PROVIDER_NAME, $model->getProviderName());
+
+            $mySubTables = [];
+            foreach ($relationships->getChildConditions($model->getProviderName()) as $condition) {
+                $mySubTables[] = $condition->getDestinationName();
+            }
+
+            $this->treeWalkModel($objChildModel, ($level + 1), $mySubTables);
+        }
+    }
+
+    /**
      * Recursively retrieve a collection of all complete node hierarchy.
      *
      * @param array  $rootId       The ids of the root node.
@@ -864,7 +885,6 @@ class TreePicker extends Widget
     public function getTreeCollectionRecursive($rootId, $intLevel = 0, $providerName = null)
     {
         $environment      = $this->getEnvironment();
-        $inputProvider    = $environment->getInputProvider();
         $definition       = $environment->getDataDefinition();
         $dataDriver       = $environment->getDataProvider($providerName);
         $objTableTreeData = $dataDriver->getEmptyCollection();
@@ -872,43 +892,8 @@ class TreePicker extends Widget
         $relationships    = $definition->getModelRelationshipDefinition();
 
         if (!$rootId) {
-            $objRootCondition = $definition->getModelRelationshipDefinition()->getRootCondition();
-
-            if ($objRootCondition) {
-                $arrBaseFilter = $objRootConfig->getFilter();
-                $arrFilter     = $objRootCondition->getFilterArray();
-
-                if ($arrBaseFilter) {
-                    $arrFilter = \array_merge($arrBaseFilter, $arrFilter);
-                }
-
-                $objRootConfig->setFilter($arrFilter);
-            }
-
-            if ($inputProvider->hasParameter('orderProperty') && $inputProvider->hasParameter('sortDirection')) {
-                $orderProperty = $inputProvider->getParameter('orderProperty');
-                $sortDirection = $inputProvider->getParameter('sortDirection');
-
-                $objRootConfig->setSorting([$orderProperty => $sortDirection]);
-            }
-
-            // Fetch all root elements.
-            $objRootCollection = $dataDriver->fetchAll($objRootConfig);
-
-            if ($objRootCollection->length() > 0) {
-                $mySubTables = [];
-                foreach ($relationships->getChildConditions(
-                    $objRootCollection->get(0)->getProviderName()
-                ) as $condition) {
-                    $mySubTables[] = $condition->getDestinationName();
-                }
-
-                foreach ($objRootCollection as $objRootModel) {
-                    /** @var ModelInterface $objRootModel */
-                    $objTableTreeData->push($objRootModel);
-                    $this->treeWalkModel($objRootModel, ($intLevel + 1), $mySubTables);
-                }
-            }
+            $this->prepareFilterForRootCondition();
+            $this->pushRootModelToTreeCollection($dataDriver, $objTableTreeData, $intLevel);
 
             return $objTableTreeData;
         }
@@ -927,6 +912,74 @@ class TreePicker extends Widget
         $objRootCollection->push($objRootModel);
 
         return $objRootCollection;
+    }
+
+    /**
+     * Prepare filter if has root condition.
+     *
+     * @return void
+     */
+    private function prepareFilterForRootCondition()
+    {
+        $definition    = $this->getEnvironment()->getDataDefinition();
+        $rootCondition = $definition->getModelRelationshipDefinition()->getRootCondition();
+
+        if (!$rootCondition) {
+            return;
+        }
+
+        $baseConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
+        $baseFilter = $baseConfig->getFilter();
+        $filter     = $rootCondition->getFilterArray();
+
+        if ($baseFilter) {
+            $filter = \array_merge($baseFilter, $filter);
+        }
+
+        $baseConfig->setFilter($filter);
+    }
+
+    /**
+     * Push root model to the tree collection.
+     *
+     * @param DataProviderInterface $dataProvider   The data provider.
+     * @param CollectionInterface   $treeCollection The tree collection.
+     * @param int                   $level          The level the items are residing on.
+     *
+     * @return void
+     */
+    private function pushRootModelToTreeCollection(
+        DataProviderInterface $dataProvider,
+        CollectionInterface $treeCollection,
+        $level
+    ) {
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        $baseConfig    = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
+        $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
+
+        if ($inputProvider->hasParameter('orderProperty') && $inputProvider->hasParameter('sortDirection')) {
+            $orderProperty = $inputProvider->getParameter('orderProperty');
+            $sortDirection = $inputProvider->getParameter('sortDirection');
+
+            $baseConfig->setSorting([$orderProperty => $sortDirection]);
+        }
+
+        // Fetch all root elements.
+        $collection = $dataProvider->fetchAll($baseConfig);
+        if (!$collection->count()) {
+            return;
+        }
+
+        $mySubTables = [];
+        foreach ($relationships->getChildConditions($collection->get(0)->getProviderName()) as $condition) {
+            $mySubTables[] = $condition->getDestinationName();
+        }
+
+        foreach ($collection as $model) {
+            /** @var ModelInterface $model */
+            $treeCollection->push($model);
+            $this->treeWalkModel($model, ($level + 1), $mySubTables);
+        }
     }
 
     /**
@@ -1022,64 +1075,108 @@ class TreePicker extends Widget
         $firstSorting = \reset($sorting);
         $formatter    = $this->getFormatter($model, $treeMode);
 
-        $args = [];
+        $arguments = [];
         foreach ($formatter->getPropertyNames() as $propertyName) {
             if ($properties->hasProperty($propertyName)) {
-                $args[$propertyName] = (string) $model->getProperty($propertyName);
+                $arguments[$propertyName] = (string) $model->getProperty($propertyName);
             } else {
-                $args[$propertyName] = '-';
+                $arguments[$propertyName] = '-';
             }
         }
 
         $event = new ModelToLabelEvent($this->getEnvironment(), $model);
         $event
-            ->setArgs($args)
+            ->setArgs($arguments)
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        $arrLabel = [];
+        $labelList = [];
+        $this->prepareLabelWithDisplayedProperties($formatter, $event->getArgs(), $firstSorting, $labelList);
+        $this->prepareLabelWithOutDisplayedProperties($formatter, $event->getArgs(), $event->getLabel(), $labelList);
 
-        // Add columns.
-        if ($listing->getShowColumns()) {
-            $fields = $formatter->getPropertyNames();
-            $args   = $event->getArgs();
+        return $labelList;
+    }
 
-            if (!\is_array($args)) {
-                $arrLabel[] = [
-                    'colspan' => \count($fields),
-                    'class'   => 'tl_file_list col_1',
-                    'content' => $args
-                ];
-            } else {
-                foreach ($fields as $j => $propertyName) {
-                    $arrLabel[] = [
-                        'colspan' => 1,
-                        'class'   => 'tl_file_list col_' . $j . (($propertyName == $firstSorting) ? ' ordered_by' : ''),
-                        'content' => ($args[$propertyName] != '') ? $args[$propertyName] : '-'
-                    ];
-                }
-            }
-        } else {
-            if (!\is_array($event->getArgs())) {
-                $string = $event->getArgs();
-            } else {
-                $string = \vsprintf($event->getLabel(), $event->getArgs());
-            }
-
-            if ($formatter->getMaxLength() !== null && \strlen($string) > $formatter->getMaxLength()) {
-                $string = \substr($string, 0, $formatter->getMaxLength());
-            }
-
-            $arrLabel[] = [
-                'colspan' => null,
-                'class'   => 'tl_file_list',
-                'content' => $string
-            ];
+    /**
+     * Prepare labels for display with properties.
+     *
+     * @param ModelFormatterConfigInterface $formatter    The model formatter.
+     * @param array                         $arguments    The model label arguments.
+     * @param string|bool                   $firstSorting The first sorting.
+     * @param array                         $labelList    The label list.
+     *
+     * @return void
+     */
+    private function prepareLabelWithDisplayedProperties(
+        ModelFormatterConfigInterface $formatter,
+        array $arguments,
+        $firstSorting,
+        array &$labelList
+    ) {
+        $definition = $this->getEnvironment()->getDataDefinition();
+        $listing    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
+        if (!$listing->getShowColumns()) {
+            return;
         }
 
-        return $arrLabel;
+        $fieldList = $formatter->getPropertyNames();
+
+        if (!\is_array($arguments)) {
+            $labelList[] = [
+                'colspan' => \count($fieldList),
+                'class'   => 'tl_file_list col_1',
+                'content' => $arguments
+            ];
+        } else {
+            foreach ($fieldList as $j => $propertyName) {
+                $labelList[] = [
+                    'colspan' => 1,
+                    'class'   => 'tl_file_list col_' . $j . (($propertyName === $firstSorting) ? ' ordered_by' : ''),
+                    'content' => ($arguments[$propertyName] !== '') ? $arguments[$propertyName] : '-'
+                ];
+            }
+        }
+    }
+
+    /**
+     * Prepare labels for display without properties.
+     *
+     * @param ModelFormatterConfigInterface $formatter The model formatter.
+     * @param array                         $arguments The model label arguments.
+     * @param string                        $label     The label for format.
+     * @param array                         $labelList The label list.
+     *
+     * @return void
+     */
+    private function prepareLabelWithOutDisplayedProperties(
+        ModelFormatterConfigInterface $formatter,
+        array $arguments,
+        $label,
+        array &$labelList
+    ) {
+        $definition = $this->getEnvironment()->getDataDefinition();
+        $listing    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
+        if ($listing->getShowColumns()) {
+            return;
+        }
+
+        if (!\is_array($arguments)) {
+            $string = $arguments;
+        } else {
+            $string = \vsprintf($label, $arguments);
+        }
+
+        if (($maxLength = $formatter->getMaxLength() !== null) && \strlen($string) > $maxLength) {
+            $string = \substr($string, 0, $maxLength);
+        }
+
+        $labelList[] = [
+            'colspan' => null,
+            'class'   => 'tl_file_list',
+            'content' => $string
+        ];
     }
 
     /**

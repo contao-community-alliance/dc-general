@@ -194,52 +194,43 @@ abstract class Ajax implements EnvironmentAwareInterface
         $this->objDc = $objDc;
 
         $action = $this->getEnvironment()->getInputProvider()->getValue('action');
-        switch ($action) {
-            case 'toggleFeatured':
+
+        if (\in_array(
+            $action,
+            [
                 // This is impossible to handle generically in DcGeneral.
-            case 'toggleSubpalette':
+                'toggleFeatured',
                 // DcGeneral handles sub palettes differently.
-                return;
-
-            // Load nodes of the page structure tree. Compatible between 2.X and 3.X.
-            case 'loadStructure':
-                $this->loadStructure();
-                break;
-
-            // Load nodes of the file manager tree.
-            case 'loadFileManager':
-                $this->loadFileManager();
-                break;
-
-            // Load nodes of the page tree.
-            case 'loadPagetree':
-                $this->loadPagetree();
-                break;
-
-            // Load nodes of the file tree.
-            case 'loadFiletree':
-                $this->loadFiletree();
-                break;
-
-            // Reload the page/file picker.
-            case 'reloadPagetree':
-                $this->reloadPagetree();
-                break;
-            case 'reloadFiletree':
-                $this->reloadFiletree();
-                break;
-
-            case 'setLegendState':
-                $this->setLegendState();
-                break;
-
-            // Pass unknown actions to original Contao handler.
-            default:
-                $ajax = new ContaoAjax($action);
-                $ajax->executePreActions();
-                $ajax->executePostActions(new DcCompat($this->getEnvironment(), $this->getActiveModel()));
-                break;
+                'toggleSubpalette'
+            ]
+        )) {
+            return;
         }
+
+        if (\in_array(
+            $action,
+            [
+                // Load nodes of the page structure tree. Compatible between 2.X and 3.X.
+                'loadStructure',
+                // Load nodes of the file manager tree.
+                'loadFileManager',
+                // Load nodes of the page tree.
+                'loadPagetree',
+                // Load nodes of the file tree.
+                'loadFiletree',
+                // Reload the page/file picker.
+                'reloadPagetree',
+                'reloadFiletree',
+                'setLegendState'
+            ]
+        )) {
+            $this->{$action}();
+            return;
+        }
+
+        $ajax = new ContaoAjax($action);
+        $ajax->executePreActions();
+        $ajax->executePostActions(new DcCompat($this->getEnvironment(), $this->getActiveModel()));
     }
 
     /**

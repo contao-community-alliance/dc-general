@@ -18,7 +18,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Isaak <andy.jared@googlemail.com>
- * @author     Oliver Hoff <oliver@hofff.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
