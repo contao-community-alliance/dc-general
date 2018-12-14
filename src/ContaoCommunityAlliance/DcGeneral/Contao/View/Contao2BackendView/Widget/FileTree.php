@@ -500,9 +500,16 @@ class FileTree extends AbstractWidget
         $this->dataContainer = $dataContainer;
         $this->setUp();
 
-        $environment   = $this->dataContainer->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-        $propertyName  = $inputProvider->getValue('name');
+        $environment    = $this->dataContainer->getEnvironment();
+        $dataDefinition = $environment->getDataDefinition();
+        $inputProvider  = $environment->getInputProvider();
+        $propertyName   = $inputProvider->getValue('name');
+        $property       = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($propertyName);
+        $extra          = $property->getExtra();
+        $information    = (array) $GLOBALS['TL_DCA'][$dataContainer->getName()]['fields'][$propertyName];
+
+        // Merge with the information from the data container.
+        $information['eval'] = \array_merge($extra, (array) $information['eval']);
 
         $combat = new DcCompat($environment, null, $propertyName);
 
@@ -512,11 +519,11 @@ class FileTree extends AbstractWidget
         /** @var \FileSelector $widget */
         $widget = new $widgetClass(
             $widgetClass::getAttributesFromDca(
-                $GLOBALS['TL_DCA'][$environment->getDataDefinition()->getName()]['fields'][$propertyName],
+                $information,
                 $combat->field,
                 null,
                 $propertyName,
-                $environment->getDataDefinition()->getName(),
+                $dataDefinition->getName(),
                 $combat
             )
         );

@@ -102,7 +102,7 @@ class FileSelect
         $template       = new BackendTemplate('be_picker');
         $template->main = '';
 
-        $this->runAjaxRequest();
+        $ajax = $this->runAjaxRequest();
 
         $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
@@ -115,7 +115,7 @@ class FileSelect
 
         $this->setupItemContainer($modelId);
 
-        $fileSelector = $this->prepareFileSelector($modelId);
+        $fileSelector = $this->prepareFileSelector($modelId, $ajax);
 
         $template->main        = $fileSelector->generate();
         $template->theme       = Backend::getTheme();
@@ -176,12 +176,13 @@ class FileSelect
      * Prepare the file selector.
      *
      * @param ModelIdInterface $modelId The model identifier.
+     * @param Ajax             $ajax    The ajax request.
      *
      * @return FileSelector
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    private function prepareFileSelector(ModelIdInterface $modelId)
+    private function prepareFileSelector(ModelIdInterface $modelId, Ajax $ajax = null)
     {
         $inputProvider = $this->itemContainer->getEnvironment()->getInputProvider();
         $propertyName  = $inputProvider->getParameter('field');
@@ -200,7 +201,7 @@ class FileSelect
             ->getProperty($propertyName);
         $extra    = $property->getExtra();
 
-        $information['eval'] = \array_merge($extra, $information['eval']);
+        $information['eval'] = \array_merge($extra, (array) $information['eval']);
 
         Session::getInstance()->set('filePickerRef', Environment::get('request'));
 
@@ -218,12 +219,9 @@ class FileSelect
             ),
             $combat
         );
-        if (isset($information['eval']['extensions'])) {
-            $fileSelector->extensions = $information['eval']['extensions'];
-        }
 
         // AJAX request.
-        if (isset($ajax)) {
+        if ($ajax) {
             $ajax->executePostActions($combat);
         }
 
@@ -297,7 +295,7 @@ class FileSelect
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      *
-     * @return void
+     * @return Ajax|null
      */
     private function runAjaxRequest()
     {
@@ -305,10 +303,12 @@ class FileSelect
         // @codingStandardsIgnoreStart - We need POST access here.
         if (!($_POST && Environment::get('isAjaxRequest'))) // @codingStandardsIgnoreEnd
         {
-            return;
+            return null;
         }
 
         $ajax = new Ajax(Input::post('action'));
         $ajax->executePreActions();
+
+        return $ajax;
     }
 }
