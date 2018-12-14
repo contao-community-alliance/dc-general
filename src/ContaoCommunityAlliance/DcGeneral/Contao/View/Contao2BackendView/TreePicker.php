@@ -1168,8 +1168,8 @@ class TreePicker extends Widget
             $string = \vsprintf($label, $arguments);
         }
 
-        if ($formatter->getMaxLength() !== null && \strlen($string) > $formatter->getMaxLength()) {
-            $string = \substr($string, 0, $formatter->getMaxLength());
+        if (($maxLength = $formatter->getMaxLength() !== null) && \strlen($string) > $maxLength) {
+            $string = \substr($string, 0, $maxLength);
         }
 
         $labelList[] = [

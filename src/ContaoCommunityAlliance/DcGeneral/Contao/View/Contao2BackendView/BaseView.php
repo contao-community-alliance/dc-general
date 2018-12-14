@@ -101,9 +101,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 
-        if ($event->getEnvironment()->getDataDefinition()->getName()
-            !== $this->environment->getDataDefinition()->getName()
-            || $event->getResponse() !== null
+        if ($event->getResponse() !== null
+            || $event->getEnvironment()->getDataDefinition()->getName()
+               !== $this->environment->getDataDefinition()->getName()
         ) {
             return;
         }

@@ -428,10 +428,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $propExtra = $property->getExtra();
 
-        if (\is_numeric($value)
+        if ((int) $value === 0
+            && \is_numeric($value)
             && empty($propExtra['mandatory'])
             && (isset($propExtra['rgxp']) && \in_array($propExtra['rgxp'], ['date', 'time', 'datim']))
-            && $value == 0
         ) {
             $value = '';
         }

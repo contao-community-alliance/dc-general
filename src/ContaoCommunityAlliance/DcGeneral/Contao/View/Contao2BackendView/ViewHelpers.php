@@ -225,14 +225,14 @@ class ViewHelpers
     {
         $input = $environment->getInputProvider();
 
-        if ($input->hasParameter('table') && $input->hasParameter('pid')) {
-            if ($input->hasParameter('pid')) {
+        if (($paramTable = $input->hasParameter('table')) && ($paramPid = $input->hasParameter('pid'))) {
+            if ($paramPid) {
                 $event = new RedirectEvent(
                     \sprintf(
                         'contao/main.php?do=%s&table=%s&pid=%s',
                         $input->getParameter('do'),
-                        $input->getParameter('table'),
-                        $input->getParameter('pid')
+                        $paramTable,
+                        $paramPid
                     )
                 );
             } else {
@@ -240,7 +240,7 @@ class ViewHelpers
                     \sprintf(
                         'contao/main.php?do=%s&table=%s',
                         $input->getParameter('do'),
-                        $input->getParameter('table')
+                        $paramTable
                     )
                 );
             }

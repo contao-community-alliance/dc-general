@@ -666,12 +666,12 @@ class DefaultController implements ControllerInterface
         if ($item->isCreate()) {
             // create new model
             $model = $this->createEmptyModelWithDefaults();
-        } elseif ($item->isCopy() || $item->isDeepCopy()) {
+        } elseif ($item->isCopy() || $isDeepCopy = $item->isDeepCopy()) {
             // copy model
             $model       = $this->modelCollector->getModel(ModelId::fromModel($model));
             $clonedModel = $this->doCloneAction($model);
 
-            if ($item->isDeepCopy()) {
+            if (isset($isDeepCopy) && $isDeepCopy) {
                 $deepCopyList[] = [
                     'origin' => $model,
                     'model'  => $clonedModel,
@@ -792,7 +792,7 @@ class DefaultController implements ControllerInterface
      */
     private function processPasteAfter(CollectionInterface $models, ModelIdInterface $after = null)
     {
-        if ($models->count() && $after && $after->getId()) {
+        if ($after && $models->count() && $after->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
 
             $this->pasteAfter($this->modelCollector->getModel($after), $models, $manualSorting);
@@ -812,7 +812,7 @@ class DefaultController implements ControllerInterface
      */
     private function processPasteInto(CollectionInterface $models, ModelIdInterface $into = null)
     {
-        if ($models->count() && $into && $into->getId()) {
+        if ($into && $models->count() && $into->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
 
             $this->pasteInto($this->modelCollector->getModel($into), $models, $manualSorting);

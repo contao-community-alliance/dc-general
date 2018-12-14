@@ -318,7 +318,7 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if ((null !== $event->getRendered()) || !isset($extra['foreignKey'])) {
+        if (!isset($extra['foreignKey']) || (null !== $event->getRendered())) {
             return;
         }
 
@@ -335,7 +335,7 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, $value)
     {
-        if ((null !== $event->getRendered()) || !\is_array($value)) {
+        if (!\is_array($value) || (null !== $event->getRendered())) {
             return;
         }
 
@@ -360,10 +360,9 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderTimestampReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if ((null !== $event->getRendered())
-            || !isset($extra['rgxp'])
+        if (!isset($extra['rgxp'])
             || !($extra['rgxp'] === 'date' || $extra['rgxp'] === 'time' || $extra['rgxp'] === 'datim')
-        ) {
+            || (null !== $event->getRendered())) {
             return;
         }
 
@@ -448,10 +447,10 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if ((null !== $event->getRendered())
-            || !isset($extra['reference'])
+        if (!\array_key_exists($value, $extra['reference'])
             || !\is_array($extra['reference'])
-            || !\array_key_exists($value, $extra['reference'])) {
+            || !isset($extra['reference'])
+            || (null !== $event->getRendered())) {
             return;
         }
 
@@ -476,9 +475,9 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderTextAreaReadable(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
     {
-        if ((null !== $event->getRendered())
-            || ($property->getWidgetType() !== 'textarea')
-            || (empty($extra['allowHtml']) && empty($extra['preserveTags']))) {
+        if ((empty($extra['allowHtml']) && empty($extra['preserveTags']))
+            || (null !== $event->getRendered())
+            || ($property->getWidgetType() !== 'textarea')) {
             return;
         }
 

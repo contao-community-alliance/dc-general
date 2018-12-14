@@ -569,7 +569,7 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function save(ModelInterface $objItem, $timestamp = 0)
     {
-        if ($objItem->getId() === null || $objItem->getId() === '') {
+        if (\in_array($objItem->getId(), [null, ''])) {
             $this->insertModelIntoDatabase($objItem);
         } else {
             $this->updateModelInDatabase($objItem);
