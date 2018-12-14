@@ -65,9 +65,9 @@ class SelectHandler extends AbstractHandler
         $submitAction = $this->getSubmitAction(true);
 
         $this->removeGlobalCommands();
+        $this->handleSessionBySelectAction();
 
         if ('models' === $this->getSelectAction()) {
-            $this->handleSessionBySelectAction();
             $this->handleBySelectActionModels();
 
             return;
@@ -77,7 +77,6 @@ class SelectHandler extends AbstractHandler
         $this->clearClipboardBySubmitAction();
 
         if ('properties' === $this->getSelectAction()) {
-            $this->handleSessionBySelectAction();
             $collection = $this->getSelectCollection();
             $this->setIntersectProperties($collection);
             $this->setIntersectValues($collection);
@@ -220,7 +219,13 @@ class SelectHandler extends AbstractHandler
             ? $this->getModelIds($this->getEvent()->getAction(), $this->getSubmitAction())
             : $inputProvider->getValue('properties');
 
-        $this->handleSessionOverrideEditAll($values, $this->getSelectAction());
+        if (!$values) {
+            return;
+        }
+
+        $index = $inputProvider->hasValue('models') ? 'models' : 'properties';
+
+        $this->handleSessionOverrideEditAll($values, $index);
     }
 
     /**
