@@ -55,7 +55,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage  = $this->getEnvironment()->getSessionStorage();
         $eventDispatcher = $this->getEnvironment()->getEventDispatcher();
 
-        if (!$inputProvider->hasValue($this->getMode() . '_saveNback')) {
+        if (($inputProvider->getValue('SUBMIT_TYPE') === 'auto')
+            || !$inputProvider->hasValue($this->getMode() . '_saveNback')) {
             return;
         }
 
@@ -307,8 +308,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputProvider   = $this->getEnvironment()->getInputProvider();
         $editInformation = $GLOBALS['container']['dc-general.edit-information'];
 
-        $this->handleUnsetInputValueSubmitType($model);
-
         $inputValues = $this->handleInputValues($model);
 
         $view = $this->getEnvironment()->getView();
@@ -343,27 +342,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                 }
             }
         }
-    }
-
-    /**
-     * Handle unset the input value submit type.
-     *
-     * @param ModelInterface $model The model.
-     *
-     * @return void
-     */
-    private function handleUnsetInputValueSubmitType(ModelInterface $model)
-    {
-        $inputProvider  = $this->getEnvironment()->getInputProvider();
-        $editProperties = $this->getEditPropertiesByModelId(ModelId::fromModel($model));
-
-        if ($editProperties
-            && !$inputProvider->hasValue('SUBMIT_TYPE')
-        ) {
-            return;
-        }
-
-        $inputProvider->unsetValue('SUBMIT_TYPE');
     }
 
     /**
