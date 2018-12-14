@@ -37,7 +37,7 @@ class ParentChildConditionTest extends TestCase
     public function testMatchesForChildFromOtherProvider()
     {
         $parent = new DefaultModel();
-        $parent->setId(1);
+        $parent->setID(1);
         $parent->setProviderName('test-provider');
 
         $child = new DefaultModel();
@@ -68,7 +68,7 @@ class ParentChildConditionTest extends TestCase
     public function testMatchesForParentFromOtherProvider()
     {
         $parent = new DefaultModel();
-        $parent->setId(1);
+        $parent->setID(1);
         $parent->setProviderName('test2-provider');
 
         $child = new DefaultModel();
@@ -99,7 +99,7 @@ class ParentChildConditionTest extends TestCase
     public function testMatchesForNoParentProvider()
     {
         $parent = new DefaultModel();
-        $parent->setId(1);
+        $parent->setID(1);
         $parent->setProviderName('test2-provider');
 
         $child = new DefaultModel();
@@ -129,7 +129,7 @@ class ParentChildConditionTest extends TestCase
     public function testMatchesForNoDestinationProvider()
     {
         $parent = new DefaultModel();
-        $parent->setId(1);
+        $parent->setID(1);
         $parent->setProviderName('test2-provider');
 
         $child = new DefaultModel();
@@ -159,7 +159,7 @@ class ParentChildConditionTest extends TestCase
     public function testMatches()
     {
         $parent = new DefaultModel();
-        $parent->setId(1);
+        $parent->setID(1);
 
         $child = new DefaultModel();
         $child->setPropertyRaw('pid', 1);
@@ -185,11 +185,11 @@ class ParentChildConditionTest extends TestCase
     public function testMatchesRemoteValue()
     {
         $parent = new DefaultModel();
-        $parent->setId(1);
+        $parent->setID(1);
 
         $child = new DefaultModel();
         $child->setPropertyRaw('pid', 1);
-        $child->setId(2);
+        $child->setID(2);
 
         $condition = new ParentChildCondition();
         $condition->setFilterArray([

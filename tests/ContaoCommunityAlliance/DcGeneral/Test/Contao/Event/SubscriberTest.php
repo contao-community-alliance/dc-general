@@ -541,7 +541,6 @@ class SubscriberTest extends TestCase
         $dataConfig = DefaultConfig::init();
         $dataConfig->setSorting([1, 2]);
         $baseConfigRegistry
-            ->expects($this->any())
             ->method('getBaseConfig')
             ->willReturn($dataConfig);
 
@@ -553,12 +552,10 @@ class SubscriberTest extends TestCase
 
         $panel = $this->getMockBuilder(DefaultPanelContainer::class)->setMethods(['initialize'])->getMock();
         $view
-            ->expects($this->any())
             ->method('getPanel')
             ->willReturn($panel);
 
         $panel
-            ->expects($this->any())
             ->method('initialize')
             ->will(
                 $this->returnCallback(

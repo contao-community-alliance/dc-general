@@ -1417,7 +1417,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $this->parseSingleProperty($property, $propInfo);
 
             $extra = $property->getExtra();
-            if ($extra['orderField']
+            if (isset($extra['orderField'])
                 && \array_key_exists($extra['orderField'], (array) $this->getFromDca('fields'))
             ) {
                 if (!$definition->hasProperty($extra['orderField'])) {

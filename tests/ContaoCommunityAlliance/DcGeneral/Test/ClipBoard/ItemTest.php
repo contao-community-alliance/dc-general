@@ -28,9 +28,9 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
- * Class Test the items.
+ * Test for Item
  *
- * @package ContaoCommunityAlliance\DcGeneral\Test\ClipBoard
+ * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\Item::equals
  */
 class ItemTest extends TestCase
 {
@@ -43,7 +43,11 @@ class ItemTest extends TestCase
      */
     public function testItemRequiresModelId()
     {
-        $this->setExpectedException('InvalidArgumentException');
+        if (\method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException('InvalidArgumentException');
+        } else {
+            $this->expectException('InvalidArgumentException');
+        }
 
         new Item(ItemInterface::CREATE, null, null);
     }

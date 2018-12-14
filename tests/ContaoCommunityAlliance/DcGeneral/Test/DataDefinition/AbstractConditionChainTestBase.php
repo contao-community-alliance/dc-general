@@ -41,8 +41,8 @@ class AbstractConditionChainTestBase extends TestCase
         $conditions  = $reflection->getValue($condition);
         $conditions2 = $reflection->getValue($condition2);
 
-        $this->assertSame(\count($conditions), \count($conditions2));
-        $this->assertSame(\count($conditions), \count(\array_diff(\array_keys($conditions), \array_keys($conditions2))));
+        $this->assertCount(\count($conditions), $conditions2);
+        $this->assertCount(\count($conditions), \array_diff(\array_keys($conditions), \array_keys($conditions2)));
 
         \reset($conditions);
         \reset($conditions2);

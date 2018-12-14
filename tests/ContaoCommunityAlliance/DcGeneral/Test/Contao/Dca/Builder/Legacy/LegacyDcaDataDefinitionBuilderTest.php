@@ -33,6 +33,16 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This class tests the legacy data definition builder.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::loadDca
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::process
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::build
+ * @covers \ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent::getContainer
+ * @covers \ContaoCommunityAlliance\DcGeneral\DefaultEnvironment::setDataDefinition
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::setProperty
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::setValue
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::getValue
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener::wantToExecute
  */
 class LegacyDcaDataDefinitionBuilderTest extends TestCase
 {
@@ -48,8 +58,11 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
     public function mockBuilderWithDca($dca, $eventName, $dispatcher)
     {
         $class = LegacyDcaDataDefinitionBuilder::class;
-        $mock  = $this
-            ->getMock($class, ['loadDca', 'process']);
+
+        $mock = $this
+            ->getMockBuilder($class)
+            ->setMethods(['loadDca', 'process'])
+            ->getMock();
 
         $mock
             ->expects($this->once())
@@ -91,7 +104,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         $dispatcher = new EventDispatcher();
         $container  = new DefaultContainer('tl_test');
         $event      = new BuildDataDefinitionEvent($container);
-        $builder = $this->mockBuilderWithDca([
+        $builder    = $this->mockBuilderWithDca([
                 'fields' => [
                     'testProperty' => [
                         'save_callback' => [
@@ -117,7 +130,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         );
 
         $event->setProperty('testProperty');
-        $this->assertEquals(1, \count($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME)));
+        $this->assertCount(1, $dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME));
         foreach ($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME) as $listener) {
             /** @var AbstractCallbackListener $listener */
             $this->assertTrue($listener->wantToExecute($event));
