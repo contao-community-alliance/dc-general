@@ -3,10 +3,22 @@ services:
         class: ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
         public: true
         tags:
-            - { name: kernel.event_listener, event: dc-general.model.enforce-relationship, method: process }
+            -   name: kernel.event_listener
+                event: dc-general.model.enforce-relationship
+                method: process
 
     cca.dc-general.general_listener.parent_enforcing:
         class: ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\ParentEnforcingListener
         public: true
         tags:
-            - { name: kernel.event_listener, event: dc-general.model.enforce-relationship, method: process }
+            -   name: kernel.event_listener
+                event: dc-general.model.enforce-relationship
+                method: process
+
+    cca.dc-general.general_listener.select_mode_buttons:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\SelectModeButtonsListener
+        public: true
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-select-mode-buttons
+                method: handleEvent

@@ -78,6 +78,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * The palette builder is used to build palette collections, palettes, legends, properties and conditions.
  *
  * @SuppressWarnings(PHPMD.LongVariable)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  */
 class PaletteBuilder
 {

@@ -147,7 +147,6 @@ class PasteHandler
             return true;
         }
 
-        // TODO find a way for output the permission message.
         $event->setResponse(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for paste a model.

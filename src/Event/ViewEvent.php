@@ -103,7 +103,7 @@ class ViewEvent extends AbstractActionAwareEvent
      *
      * @param string $response The response.
      *
-     * @return ActionEvent
+     * @return ViewEvent
      */
     public function setResponse($response)
     {

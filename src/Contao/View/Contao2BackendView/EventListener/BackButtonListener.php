@@ -53,7 +53,6 @@ class BackButtonListener
         $environment   = $event->getEnvironment();
         $inputProvider = $environment->getInputProvider();
 
-        //if (!('edit' === $inputProvider->getParameter('act')
         if (!(\in_array($inputProvider->getParameter('act'), ['edit', 'create'])
               || (null !== $inputProvider->getParameter('pid')
                   || (null !== $inputProvider->getParameter('select'))))

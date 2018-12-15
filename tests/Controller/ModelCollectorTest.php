@@ -61,10 +61,11 @@ class ModelCollectorTest extends TestCase
         $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
         $environment->method('getDataDefinition')->willReturn($definition);
 
-        $this->setExpectedException(
-            DcGeneralRuntimeException::class,
-            'No root condition specified for hierarchical mode.'
-        );
+        if (\method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException(DcGeneralRuntimeException::class);
+        } else {
+            $this->expectException(DcGeneralRuntimeException::class);
+        }
 
         new ModelCollector($environment);
     }
@@ -125,11 +126,11 @@ class ModelCollectorTest extends TestCase
         $collector = new ModelCollector($environment);
 
         // Test with parent definition
-        if (false !== \stripos($modelId, '::')) {
+        if (false !== \strpos(\is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
             $parentPropertiesDefinition = $this->mockPropertiesDefinition();
             $parentPropertiesDefinition->method('getPropertyNames')->willReturn(['test-parent-property']);
             $parentDataDefinition = $this->mockDefinitionContainer();
-            $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized($modelId)->getDataProviderName());
+            $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized(\is_object($modelId) ? $modelId->getSerialized() : $modelId)->getDataProviderName());
             $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentPropertiesDefinition);
 
             $environment->method('getParentDataDefinition')->willReturn($parentDataDefinition);
@@ -159,7 +160,11 @@ class ModelCollectorTest extends TestCase
 
         $collector = new ModelCollector($environment);
 
-        $this->setExpectedException('InvalidArgumentException', 'Invalid model id passed: ');
+        if (\method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException('InvalidArgumentException');
+        } else {
+            $this->expectException('InvalidArgumentException');
+        }
 
         $collector->getModel(new \DateTime());
     }
@@ -178,7 +183,7 @@ class ModelCollectorTest extends TestCase
         $basicDefinition->method('getRootDataProvider')->willReturn('root-provider');
         $relationships = $this->mockRelationshipDefinition();
         $definition    = $this->mockDefinitionContainer();
-        $relationships->expects($this->any())->method('getRootCondition')->willReturn($rootCondition);
+        $relationships->method('getRootCondition')->willReturn($rootCondition);
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
         $rootCondition->method('getFilterArray')->willReturn([['local' => 'pid', 'remote' => 'id']]);
@@ -199,7 +204,7 @@ class ModelCollectorTest extends TestCase
         $collection = $this->getMockForAbstractClass(CollectionInterface::class);
 
         $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
-        $model->expects($this->any())->method('getProviderName')->willReturn('root-provider');
+        $model->method('getProviderName')->willReturn('root-provider');
         $provider->expects($this->once())->method('fetchAll')->with($config)->willReturn($collection);
         $environment->method('getDataProvider')->with('root-provider')->willReturn($provider);
 

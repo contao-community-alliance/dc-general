@@ -35,6 +35,28 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
+/**
+ * Test for AbstractReturningPropertyCallbackListenerTest
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener::wantToExecute
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent::getEnvironment
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent::getProperty
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener::wantToExecute
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::getEnvironment
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::getProperty
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOptionsCallbackListener::wantToExecute
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent::getEnvironment
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent::getPropertyName
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener::wantToExecute
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent::getEnvironment
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent::getProperty
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener::wantToExecute
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getEnvironment
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getProperty
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener::wantToExecute
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getEnvironment
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getProperty
+ */
 class AbstractReturningPropertyCallbackListenerTest extends TestCase
 {
     protected function getCallback($value)
@@ -55,23 +77,29 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
     protected function mockPropertyEvent($class, $tablename, $propertyName)
     {
         if (\method_exists($class, 'getProperty')) {
-            $event = $this->getMock($class, ['getEnvironment', 'getProperty'], [], '', false);
+            $event = $this
+                ->getMockBuilder($class)
+                ->setMethods(['getEnvironment', 'getProperty'])
+                ->disableOriginalConstructor()
+                ->getMock();
+
             $event
-                ->expects($this->any())
                 ->method('getProperty')
-                ->will($this->returnValue($propertyName));
+                ->willReturn($propertyName);
         } else {
-            $event = $this->getMock($class, ['getEnvironment', 'getPropertyName'], [], '', false);
+            $event = $this
+                ->getMockBuilder($class)
+                ->setMethods(['getEnvironment', 'getPropertyName'])
+                ->disableOriginalConstructor()
+                ->getMock();
             $event
-                ->expects($this->any())
                 ->method('getPropertyName')
-                ->will($this->returnValue($propertyName));
+                ->willReturn($propertyName);
         }
 
         $event
-            ->expects($this->any())
             ->method('getEnvironment')
-            ->will($this->returnValue($this->mockEnvironment($tablename)));
+            ->willReturn($this->mockEnvironment($tablename));
 
         return $event;
     }

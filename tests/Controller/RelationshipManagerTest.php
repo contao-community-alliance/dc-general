@@ -91,7 +91,11 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(DcGeneralRuntimeException::class, 'No root condition defined');
+        if (\method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException(DcGeneralRuntimeException::class);
+        } else {
+            $this->expectException(DcGeneralRuntimeException::class);
+        }
 
         $manager->isRoot($this->mockModel());
     }
@@ -150,7 +154,11 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(DcGeneralRuntimeException::class, 'No root condition defined');
+        if (\method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException(DcGeneralRuntimeException::class);
+        } else {
+            $this->expectException(DcGeneralRuntimeException::class);
+        }
 
         $manager->setRoot($this->mockModel());
     }
@@ -195,8 +203,8 @@ class RelationshipManagerTest extends TestCase
         $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
         $condition->expects($this->once())->method('applyTo')->with($model);
 
-        $model->expects($this->any())->method('getProviderName')->willReturn('child');
-        $parent->expects($this->any())->method('getProviderName')->willReturn('parent');
+        $model->method('getProviderName')->willReturn('child');
+        $parent->method('getProviderName')->willReturn('parent');
 
         $relationships = $this->mockRelationship();
         $relationships
@@ -221,8 +229,8 @@ class RelationshipManagerTest extends TestCase
     {
         $model  = $this->mockModel();
         $parent = $this->mockModel();
-        $model->expects($this->any())->method('getProviderName')->willReturn('child');
-        $parent->expects($this->any())->method('getProviderName')->willReturn('parent');
+        $model->method('getProviderName')->willReturn('child');
+        $parent->method('getProviderName')->willReturn('parent');
 
         $relationships = $this->mockRelationship();
         $relationships
@@ -233,7 +241,11 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(DcGeneralRuntimeException::class, 'No condition defined from parent to child');
+        if (\method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException(DcGeneralRuntimeException::class);
+        } else {
+            $this->expectException(DcGeneralRuntimeException::class);
+        }
 
         $manager->setParent($model, $parent);
     }
@@ -284,8 +296,8 @@ class RelationshipManagerTest extends TestCase
         );
         $condition->expects($this->once())->method('copyFrom')->with($model, $source);
 
-        $model->expects($this->any())->method('getProviderName')->willReturn('child');
-        $source->expects($this->any())->method('getProviderName')->willReturn('child');
+        $model->method('getProviderName')->willReturn('child');
+        $source->method('getProviderName')->willReturn('child');
 
         $relationships = $this->mockRelationship();
         $relationships
@@ -310,8 +322,8 @@ class RelationshipManagerTest extends TestCase
     {
         $model  = $this->mockModel();
         $source = $this->mockModel();
-        $model->expects($this->any())->method('getProviderName')->willReturn('child');
-        $source->expects($this->any())->method('getProviderName')->willReturn('child');
+        $model->method('getProviderName')->willReturn('child');
+        $source->method('getProviderName')->willReturn('child');
 
         $relationships = $this->mockRelationship();
         $relationships
@@ -322,10 +334,11 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        $this->setExpectedException(
-            DcGeneralRuntimeException::class,
-            'No condition defined from parent to child'
-        );
+        if (\method_exists($this, 'setExpectedException')) {
+            $this->setExpectedException(DcGeneralRuntimeException::class);
+        } else {
+            $this->expectException(DcGeneralRuntimeException::class);
+        }
 
         $manager->setSameParent($model, $source, 'parent');
     }
@@ -345,9 +358,9 @@ class RelationshipManagerTest extends TestCase
         $collection = new DefaultCollection();
         $collection->push($model1);
         $collection->push($model2);
-        $model1->expects($this->any())->method('getProviderName')->willReturn('child');
-        $model2->expects($this->any())->method('getProviderName')->willReturn('child');
-        $source->expects($this->any())->method('getProviderName')->willReturn('child');
+        $model1->method('getProviderName')->willReturn('child');
+        $model2->method('getProviderName')->willReturn('child');
+        $source->method('getProviderName')->willReturn('child');
 
         $manager = $this
             ->getMockBuilder(RelationshipManager::class)

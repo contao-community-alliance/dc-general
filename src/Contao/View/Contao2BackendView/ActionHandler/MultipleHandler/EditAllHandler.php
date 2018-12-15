@@ -293,7 +293,6 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         foreach (\array_keys($selectProperties) as $visiblePropertyName) {
             $visiblePropertyValue = $editModel->getProperty($visiblePropertyName);
 
-            // FIXME: Is this here the right value for set in the property value bag?
             $propertyValueBag->setPropertyValue($visiblePropertyName, $visiblePropertyValue);
 
             $visibleModel->setProperty(

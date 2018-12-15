@@ -28,6 +28,12 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * This class tests the ModelId class.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::getId
+ * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::getProviderName
+ * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelId::fromModel
+ * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelId::fromSerialized
+ * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelId::getSerialized
  */
 class ModelIdTest extends TestCase
 {
@@ -46,13 +52,11 @@ class ModelIdTest extends TestCase
             ->setMethods(['getId', 'getProviderName'])
             ->getMockForAbstractClass();
         $mock
-            ->expects($this->any())
             ->method('getId')
-            ->will($this->returnValue($modelId));
+            ->willReturn($modelId);
         $mock
-            ->expects($this->any())
             ->method('getProviderName')
-            ->will($this->returnValue($dataProvider));
+            ->willReturn($dataProvider);
 
         return $mock;
     }
@@ -67,7 +71,7 @@ class ModelIdTest extends TestCase
         $exception = DcGeneralInvalidArgumentException::class;
         return [
             [$this->mockModel(10, 'tl_page')],
-            [$this->mockModel(null, 'tl_page'), $exception],
+            [$this->mockModel(null, 'tl_page')],
             [$this->mockModel(null, null), $exception],
             [$this->mockModel(10, null), $exception],
             [$this->mockModel(10, ''), $exception],
@@ -88,7 +92,11 @@ class ModelIdTest extends TestCase
     public function testInstantiationFromModel($model, $exception = null)
     {
         if (null !== $exception) {
-            $this->setExpectedException($exception);
+            if (\method_exists($this, 'setExpectedException')) {
+                $this->setExpectedException($exception);
+            } else {
+                $this->expectException($exception);
+            }
         }
 
         $modelId = ModelId::fromModel($model);
@@ -126,7 +134,11 @@ class ModelIdTest extends TestCase
     public function testValidIds($testId, $exception = null)
     {
         if (null !== $exception) {
-            $this->setExpectedException($exception);
+            if (\method_exists($this, 'setExpectedException')) {
+                $this->setExpectedException($exception);
+            } else {
+                $this->expectException($exception);
+            }
         }
 
         $this->assertEquals($testId, ModelId::fromSerialized($testId)->getSerialized());

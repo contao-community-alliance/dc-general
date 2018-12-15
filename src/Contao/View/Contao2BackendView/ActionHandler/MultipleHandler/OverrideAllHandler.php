@@ -22,6 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -266,13 +267,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
             $widget = $widgetManager->getWidget($property->getName(), $propertyValues);
 
-            $widgetModel = null;
-            if ($widget->dataContainer) {
-                $widgetModel = $widget->dataContainer->getModel();
-            }
-            if (!$widgetModel) {
-                $widgetModel = $widget->getModel();
-            }
+            $widgetModel = $this->getModelFromWidget($widget);
 
             if (!$this->ensurePropertyVisibleInModel($action, $property->getName(), $widgetModel, $environment)) {
                 $fieldSet['palette'] .=
@@ -308,6 +303,22 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $renderInformation->offsetSet('fieldsets', [$fieldSet]);
         $renderInformation->offsetSet('error', $errors);
+    }
+
+    /**
+     * Get the model from the widget.
+     *
+     * @param Widget $widget The widget the contains the model.
+     *
+     * @return ModelInterface
+     */
+    private function getModelFromWidget(Widget $widget)
+    {
+        if ($widget->dataContainer) {
+            return $widget->dataContainer->getModel();
+        }
+
+        return $widget->getModel();
     }
 
     /**

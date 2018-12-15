@@ -60,7 +60,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage  = $environment->getSessionStorage();
         $eventDispatcher = $environment->getEventDispatcher();
 
-        if (!$inputProvider->hasValue($this->getMode($action) . '_saveNback')) {
+        if (($inputProvider->getValue('SUBMIT_TYPE') === 'auto')
+            || !$inputProvider->hasValue($this->getMode($action) . '_saveNback')) {
             return;
         }
 
@@ -336,8 +337,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputProvider   = $environment->getInputProvider();
         $editInformation = $GLOBALS['container']['dc-general.edit-information'];
 
-        $this->handleUnsetInputValueSubmitType($action, $model, $environment);
-
         $inputValues = $this->handleInputValues($action, $model, $environment);
 
         $view = $environment->getView();
@@ -345,7 +344,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return;
         }
 
-        // FIXME If restore version works by dcg, then must implement here as well.
         $clone = clone $model;
         $clone->setId($model->getId());
 
@@ -373,32 +371,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                 }
             }
         }
-    }
-
-    /**
-     * Handle unset the input value submit type.
-     *
-     * @param Action               $action      The action.
-     * @param ModelInterface       $model       The model.
-     * @param EnvironmentInterface $environment The environment.
-     *
-     * @return void
-     */
-    private function handleUnsetInputValueSubmitType(
-        Action $action,
-        ModelInterface $model,
-        EnvironmentInterface $environment
-    ) {
-        $inputProvider  = $environment->getInputProvider();
-        $editProperties = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
-
-        if ($editProperties
-            && !$inputProvider->hasValue('SUBMIT_TYPE')
-        ) {
-            return;
-        }
-
-        $inputProvider->unsetValue('SUBMIT_TYPE');
     }
 
     /**

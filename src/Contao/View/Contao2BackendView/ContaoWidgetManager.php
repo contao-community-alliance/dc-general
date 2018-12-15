@@ -143,9 +143,11 @@ class ContaoWidgetManager
     {
         try {
             return $this->getWidget($property) !== null;
+            // @codingStandardsIgnoreStart
         } catch (\Exception $e) {
             // Fall though and return false.
         }
+        // @codingStandardsIgnoreEnd
         return false;
     }
 
@@ -326,7 +328,11 @@ class ContaoWidgetManager
         $label       = $propInfo->getDescription();
         $widgetType  = $propInfo->getWidgetType();
 
-        if ($widgetType == 'password' || !\is_string($label) || !$GLOBALS['TL_CONFIG']['showHelp'] || null === $label) {
+        if (null === $label
+            || $widgetType === 'password'
+            || !\is_string($label)
+            || !$GLOBALS['TL_CONFIG']['showHelp']
+        ) {
             return '';
         }
 

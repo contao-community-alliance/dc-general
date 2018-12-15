@@ -26,12 +26,17 @@ use ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Test the main wrapper class \DC_General that it can be instantiated by Contao.
+ *
+ * @SuppressWarnings(PHPMD.CamelCaseClassName)
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\DefaultEnvironment::setParentDataDefinition
  */
 class DcGeneralTest extends TestCase
 {
@@ -46,7 +51,7 @@ class DcGeneralTest extends TestCase
     public function testInstantiation()
     {
         \define('TL_MODE', 'BE');
-        $_SESSION = ['BE_DATA' => ['DC_GENERAL_TL_FOO' => []]];
+        $_SESSION = ['BE_DATA' => ['DC_GENERAL_TL_FOO' => [], 'DC_GENERAL_TL_BAR' => []]];
         $this->aliasContaoClass('Session');
         $this->aliasContaoClass('System');
         $this->aliasContaoClass('Controller');
@@ -82,23 +87,55 @@ class DcGeneralTest extends TestCase
             });
 
         $GLOBALS['TL_DCA']['tl_foo'] = [
-            'config'          => [
-                'dataContainer'    => 'General',
+            'config'     => [
+                'dataContainer' => 'General'
+            ],
+            'dca_config' => [
+                'data_provider' => [
+                    'default' => [
+                        'source' => 'tl_foo',
+                        'class'  => NoOpDataProvider::class
+                    ]
                 ],
-            'dca_config'   => [
-                    'data_provider'  => [
-                    'tl_foo' => [
-                            'source' => 'tl_foo',
-                            'class'        => NoOpDataProvider::class,
-                        ]
-                    ],
-                ],
-            'palettes' => []
+            ],
+            'palettes'   => []
         ];
 
-        $dataContainer = new \DC_General('tl_foo');
+        $GLOBALS['TL_DCA']['tl_bar'] = [
+            'config'     => [
+                'dataContainer' => 'General',
+            ],
+            'dca_config' => [
+                'data_provider' => [
+                    'default' => [
+                        'source' => 'tl_bar',
+                        'class'  => NoOpDataProvider::class
+                    ],
+                    'parent' => [
+                        'source' => 'tl_foo',
+                        'class'  => NoOpDataProvider::class
+                    ]
+                ],
+            ],
+            'palettes'   => []
+        ];
 
-        $this->assertTrue($dataContainer instanceof \DC_General);
-        $this->assertTrue($dataContainer instanceof General);
+        $dataContainerFoo = new \DC_General('tl_foo');
+
+        $dataContainerBar = new \DC_General('tl_bar');
+
+        $this->assertInstanceOf(
+            EnvironmentInterface::class,
+            $dataContainerBar->getEnvironment()->setParentDataDefinition(
+                $dataContainerFoo->getEnvironment()->getDataDefinition()
+            )
+        );
+
+
+        $this->assertInstanceOf(\DC_General::class, $dataContainerFoo);
+        $this->assertInstanceOf(General::class, $dataContainerFoo);
+
+        $this->assertInstanceOf(\DC_General::class, $dataContainerBar);
+        $this->assertInstanceOf(General::class, $dataContainerBar);
     }
 }

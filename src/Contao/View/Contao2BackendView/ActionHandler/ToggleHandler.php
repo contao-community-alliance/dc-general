@@ -157,7 +157,6 @@ class ToggleHandler
             return true;
         }
 
-        // TODO find a way for output the permission message.
         $event->setResponse(
             \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">

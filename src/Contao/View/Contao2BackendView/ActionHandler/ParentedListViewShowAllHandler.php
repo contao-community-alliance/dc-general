@@ -226,19 +226,12 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return \implode(', ', $value);
         }
 
-        if (!$evaluation['multiple'] && $property->getWidgetType() == 'checkbox') {
-            return !empty($value)
-                ? $this->translate('MSC.yes', 'contao_default')
-                : $this->translate('MSC.no', 'contao_default');
-        }
-        if ($value && \in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
-            $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $event);
-            return $event->getResult();
-        }
-        if (isset($evaluation['reference'][$value])) {
-            return $this->renderReference($value, $evaluation['reference']);
-        }
+        $isRendered = false;
+
+        $value = $this->renderForCheckbox($property, $value, $isRendered);
+        $value = $this->renderForDateTime($environment, $property, $value, $isRendered);
+        $value = $this->renderReference($value, $evaluation['reference'], $isRendered);
+
         $options = $property->getOptions();
         if ($evaluation['isAssociative'] || \array_is_assoc($options)) {
             $value = $options[$value];
@@ -248,15 +241,71 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     }
 
     /**
-     * Render a referenced value.
+     * Render for checkbox.
      *
-     * @param mixed $value     The value to render.
-     * @param array $reference The reference array.
+     * @param PropertyInterface $property   The property.
+     * @param mixed             $value      The value.
+     * @param boolean           $isRendered Determine if is rendered.
      *
      * @return mixed
      */
-    private function renderReference($value, $reference)
+    private function renderForCheckbox(PropertyInterface $property, $value, &$isRendered)
     {
+        $evaluation = $property->getExtra();
+
+        if ((true === $isRendered) || $evaluation['multiple'] || !('checkbox' === $property->getWidgetType())) {
+            return $value;
+        }
+
+        $isRendered = true;
+
+        return !empty($value)
+            ? $this->translate('MSC.yes', 'contao_default')
+            : $this->translate('MSC.no', 'contao_default');
+    }
+
+    /**
+     * Render for date time.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     * @param PropertyInterface $property   The property.
+     * @param mixed             $value      The value.
+     * @param boolean           $isRendered Determine if is rendered.
+     *
+     * @return mixed
+     */
+    private function renderForDateTime(EnvironmentInterface $environment, PropertyInterface $property, $value, &$isRendered)
+    {
+        $evaluation = $property->getExtra();
+
+        if ((true === $isRendered) || !$value || !\in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
+            return $value;
+        }
+
+        $isRendered = true;
+
+        $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $event);
+        return $event->getResult();
+    }
+
+    /**
+     * Render a referenced value.
+     *
+     * @param mixed   $value      The value to render.
+     * @param array   $reference  The reference array.
+     * @param boolean $isRendered Determine if is rendered.
+     *
+     * @return mixed
+     */
+    private function renderReference($value, $reference, &$isRendered)
+    {
+        if ((true === $isRendered) || !isset($reference[$value])) {
+            return $value;
+        }
+
+        $isRendered = true;
+
         if (\is_array($reference[$value])) {
             return $reference[$value][0];
         }
@@ -388,7 +437,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
             $filter->andParentIsFromProvider($parentDataProviderName);
         } else {
-            // FIXME: how can we ever end up here?
             $filter->andHasNoParent();
         }
 

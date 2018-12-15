@@ -135,7 +135,7 @@ class PanelRenderer
      * @param PanelInterface $panel         The panel to render.
      * @param string[]       $ignoredPanels Array of class names that shall be ignored.
      *
-     * @return string
+     * @return array
      */
     protected function renderPanelRow($panel, $ignoredPanels)
     {

@@ -274,8 +274,8 @@ abstract class AbstractListShowAllHandler
     {
         $definition = $environment->getDataDefinition();
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
-        // TODO translate sub headline.
-        $template->set('subHeadline', 'Elemente auswählen');
+
+        $template->set('subHeadline', $this->translate('MSC.select_models', 'contao_default'));
         $template->set('tableName', null !== $definition->getName() ? $definition->getName() : 'none');
         $template->set('select', 'select' === $environment->getInputProvider()->getParameter('act'));
         $template->set('action', \ampersand(Environment::get('request'), true));
@@ -359,33 +359,11 @@ abstract class AbstractListShowAllHandler
         // Run each model.
         $index = 0;
         foreach ($collection as $model) {
-            /** @var ModelInterface $model */
             $index++;
 
-            // Add the group header.
-            if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
-                $remoteNew = $this->renderGroupHeader(
-                    $grouping['property'],
-                    $model,
-                    $grouping['mode'],
-                    $grouping['length'],
-                    $environment
-                );
+            /** @var ModelInterface $model */
+            $this->addGroupHeader($environment,(array) $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
-                $model->setMeta(
-                    $model::GROUP_VALUE,
-                    [
-                        'class' => $groupClass,
-                        'value' => $remoteNew
-                    ]
-                );
-                // Add the group header if it differs from the last header.
-                if (($remoteNew != $remoteCur) || ($remoteCur === null)) {
-                    $eoCount    = -1;
-                    $groupClass = 'tl_folder_list';
-                    $remoteCur  = $remoteNew;
-                }
-            }
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
             }
@@ -402,6 +380,52 @@ abstract class AbstractListShowAllHandler
             $model->setMeta($model::CSS_ROW_CLASS, \implode(' ', $cssClasses));
 
             $this->renderModel($model, $environment);
+        }
+    }
+
+    /**
+     * Add the group header information to the model.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     * @param array                $grouping    The grouping information.
+     * @param ModelInterface       $model       The model.
+     * @param string               $groupClass  The group class.
+     * @param integer              $eoCount     The row even odd counter.
+     * @param mixed                $remoteCur   The current remote.
+     *
+     * @return void
+     */
+    private function addGroupHeader(
+        EnvironmentInterface $environment,
+        array $grouping,
+        ModelInterface $model,
+        &$groupClass,
+        &$eoCount,
+        &$remoteCur = null
+    )
+    {
+        if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
+            $remoteNew = $this->renderGroupHeader(
+                $grouping['property'],
+                $model,
+                $grouping['mode'],
+                $grouping['length'],
+                $environment
+                );
+
+            $model->setMeta(
+                $model::GROUP_VALUE,
+                [
+                    'class' => $groupClass,
+                    'value' => $remoteNew
+                ]
+            );
+            // Add the group header if it differs from the last header.
+            if (($remoteNew != $remoteCur) || ($remoteCur === null)) {
+                $eoCount    = -1;
+                $groupClass = 'tl_folder_list';
+                $remoteCur  = $remoteNew;
+            }
         }
     }
 
@@ -489,7 +513,6 @@ abstract class AbstractListShowAllHandler
         return $event->getValue();
     }
 
-
     /**
      * Retrieve a list of html buttons to use in the bottom panel (submit area) when in select mode.
      *
@@ -499,94 +522,8 @@ abstract class AbstractListShowAllHandler
      */
     protected function getSelectButtons(EnvironmentInterface $environment)
     {
-        $definition      = $environment->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
-        $languageDomain  = 'contao_' . $definition->getName();
-        $buttons         = [];
-
-        $confirmMessage = \htmlentities(
-            \sprintf(
-                '<h2 class="tl_error">%s</h2>' .
-                '<p></p>' .
-                '<div class="tl_submit_container">' .
-                '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
-                '</div>',
-                StringUtil::specialchars($this->translate('MSC.nothingSelect', $languageDomain)),
-                'tl_submit',
-                StringUtil::specialchars($this->translate('MSC.close', $languageDomain)),
-                'this.blur(); BackendGeneral.hideMessage(); return false;'
-            )
-        );
-        $onClick        = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'models[]\', \''
-                          . $confirmMessage . '\'); return false;';
-
-        $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
-
-        if ($basicDefinition->isDeletable()) {
-            $onClickDelete = \sprintf(
-                'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
-                'models[]',
-                $confirmMessage,
-                StringUtil::specialchars($this->translate('MSC.delAllConfirm', $languageDomain)),
-                StringUtil::specialchars($this->translate('MSC.confirmOk', $languageDomain)),
-                StringUtil::specialchars($this->translate('MSC.confirmAbort', $languageDomain))
-            );
-
-            $buttons['delete'] = \sprintf(
-                $input,
-                'delete',
-                'delete',
-                'd',
-                StringUtil::specialchars($this->translate('MSC.deleteSelected', $languageDomain)),
-                $onClickDelete
-            );
-        }
-
-        $sortingProperty = ViewHelpers::getManualSortingProperty($environment);
-        if ($sortingProperty && $basicDefinition->isEditable()) {
-            $buttons['cut'] = \sprintf(
-                $input,
-                'cut',
-                'cut',
-                's',
-                StringUtil::specialchars($this->translate('MSC.moveSelected', $languageDomain)),
-                $onClick
-            );
-        }
-
-        if ($basicDefinition->isCreatable()) {
-            $buttons['copy'] = \sprintf(
-                $input,
-                'copy',
-                'copy',
-                'c',
-                StringUtil::specialchars($this->translate('MSC.copySelected', $languageDomain)),
-                $onClick
-            );
-        }
-
-        if ($basicDefinition->isEditable()) {
-            $buttons['override'] = \sprintf(
-                $input,
-                'override',
-                'override',
-                'v',
-                StringUtil::specialchars($this->translate('MSC.overrideSelected', $languageDomain)),
-                $onClick
-            );
-
-            $buttons['edit'] = \sprintf(
-                $input,
-                'edit',
-                'edit',
-                's',
-                StringUtil::specialchars($this->translate('MSC.editSelected', $languageDomain)),
-                $onClick
-            );
-        }
-
         $event = new GetSelectModeButtonsEvent($environment);
-        $event->setButtons($buttons);
+        $event->setButtons([]);
         $environment->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
 
         return $event->getButtons();
