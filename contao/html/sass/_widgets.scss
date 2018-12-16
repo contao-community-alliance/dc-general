@@ -1,0 +1,4 @@
+/* hide hint until new picker is created */
+form[id^=mm_] .sort_hint {
+    display: none;
+}
