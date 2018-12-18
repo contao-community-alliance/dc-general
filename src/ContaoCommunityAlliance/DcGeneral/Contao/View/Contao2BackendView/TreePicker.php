@@ -1345,7 +1345,7 @@ class TreePicker extends Widget
         $session = $sessionStorage->get($tableName . '.' . $selectAction);
 
         $originalPropertyName = null;
-        foreach ($session['models'] as $modelId) {
+        foreach ((array) $session['models'] as $modelId) {
             if (null !== $originalPropertyName) {
                 break;
             }
