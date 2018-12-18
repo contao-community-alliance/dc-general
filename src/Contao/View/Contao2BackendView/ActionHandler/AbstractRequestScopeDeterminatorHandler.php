@@ -11,14 +11,13 @@
  * This project is provided in good faith and hope to be usable by anyone.
  *
  * @package    contao-community-alliance/dc-general
- * @author     Christopher Boelter <christopher@boelter.eu>
- * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
+
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;

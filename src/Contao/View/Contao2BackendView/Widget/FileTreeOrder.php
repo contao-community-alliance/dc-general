@@ -15,7 +15,6 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @author     Sven Baumann <baumann.sv@gmail.com>
  * @copyright  2013-2018 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
