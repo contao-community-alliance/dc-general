@@ -27,7 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use MenAtWork\MultiColumnWizard\Event\GetOptionsEvent;
+use MenAtWork\MultiColumnWizardBundle\Event\GetOptionsEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
