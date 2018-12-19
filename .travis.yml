@@ -1,11 +1,14 @@
 dist: xenial
 
-services:
-    -
+addons:
+  apt:
+    packages:
+      - ant-optional
 
 language: php
 
 php:
+    - "7.3"
     - "7.2"
     - "7.1"
     - "7.0"
@@ -15,9 +18,7 @@ env:
     - CONTAO_VERSION=~3.5.5
 
 before_install:
-    - sudo apt-get update
-    - sudo apt-get install ant
-    - ant -version
+    - echo "memory_limit = -1" > travis.php.ini && phpenv config-add travis.php.ini
 
 install:
     - echo "memory_limit = -1" > travis.php.ini && phpenv config-add travis.php.ini

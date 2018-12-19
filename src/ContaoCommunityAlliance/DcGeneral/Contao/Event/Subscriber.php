@@ -448,9 +448,8 @@ class Subscriber implements EventSubscriberInterface
     private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
         if (!isset($extra['reference'])
-            || !\is_array($extra['reference'])
-            || !\array_key_exists($value, $extra['reference'])
-            || ($event->getRendered() !== null)) {
+            || !\array_key_exists($value, (array) $extra['reference'])
+            || (null !== $event->getRendered())) {
             return;
         }
 
