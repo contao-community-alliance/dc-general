@@ -164,25 +164,7 @@ class ModelCollector
             throw new \InvalidArgumentException('Invalid provider name ' . $modelId->getDataProviderName());
         }
 
-        $properties = [];
-        // Filter real properties from the property definition.
-        foreach ($propertyDefinition->getPropertyNames() as $propertyName) {
-            if ($dataProvider->fieldExists($propertyName)) {
-                $properties[] = $propertyName;
-
-                continue;
-            }
-
-            // @codingStandardsIgnoreStart
-            @\trigger_error
-            (
-                'Only real property is allowed in the property definition.' .
-                'This will no longer be supported in the future.',
-                E_DEPRECATED
-            );
-            // @codingStandardsIgnoreEnd
-        }
-        $config->setId($modelId->getId())->setFields($properties);
+        $config->setId($modelId->getId())->setFields($propertyDefinition->getPropertyNames());
 
         return $dataProvider->fetch($config);
     }
