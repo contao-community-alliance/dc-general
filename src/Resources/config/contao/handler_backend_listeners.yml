@@ -55,7 +55,9 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
-            - { name: kernel.event_listener, event: dc-general.action, method: handleEvent }
+            -   name: kernel.event_listener
+                event: dc-general.action
+                method: handleEvent
 
     cca.dc-general.backend_listener.list_view_show_all_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ListViewShowAllHandler

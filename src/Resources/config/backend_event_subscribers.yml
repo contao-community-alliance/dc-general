@@ -5,7 +5,7 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
-            - { name: kernel.event_subscriber }
+            -   name: kernel.event_subscriber
 
     cca.dc-general.backend_subsriber.clipboard_controller:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Controller\ClipboardController
@@ -13,7 +13,7 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
-            - { name: kernel.event_subscriber }
+            -   name: kernel.event_subscriber
 
     cca.dc-general.backend_subsriber.language_filter:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter\LanguageFilter
@@ -21,7 +21,7 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
-            - { name: kernel.event_subscriber }
+            -   name: kernel.event_subscriber
 
     cca.dc-general.backend_subsriber.rich_text_file_uuid_subsriber:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\RichTextFileUuidSubscriber
@@ -29,7 +29,7 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
-            - { name: kernel.event_subscriber }
+            -   name: kernel.event_subscriber
 
     cca.dc-general.backend_subsriber.check_permission:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission
@@ -37,7 +37,7 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
-            - { name: kernel.event_subscriber }
+            -   name: kernel.event_subscriber
 
     cca.dc-general.backend_subscriber.multiple_handler:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\MultipleHandlerSubscriber
@@ -45,4 +45,4 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
         tags:
-            - { name: kernel.event_subscriber }
+            -   name: kernel.event_subscriber
