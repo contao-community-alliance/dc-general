@@ -384,15 +384,6 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     {
         $languageDomain  = 'contao_' . $environment->getDataDefinition()->getName();
 
-        $continueName = '';
-        foreach (['override', 'edit'] as $subAction) {
-            if (!$environment->getInputProvider()->hasValue($subAction)) {
-                continue;
-            }
-
-            $continueName = $subAction;
-        }
-
         $confirmMessage = \htmlentities(
             \sprintf(
                 '<h2 class="tl_error">%s</h2>' .
@@ -411,6 +402,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
 
         $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
 
+        $continueName        = $environment->getInputProvider()->getParameter('mode');
         $buttons['continue'] = \sprintf(
             $input,
             $continueName,
