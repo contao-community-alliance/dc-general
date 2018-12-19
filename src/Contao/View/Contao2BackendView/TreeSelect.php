@@ -31,8 +31,9 @@ use Contao\Input;
 use Contao\Session;
 use Contao\StringUtil;
 use Contao\System;
-use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
@@ -135,18 +136,23 @@ class TreeSelect
 
         $information['eval'] = \array_merge($extra, $information['eval']);
 
+        $property->setExtra(\array_merge($property->getExtra(), $information['eval']));
+
+        $environment   = $this->itemContainer->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
+        $dataProvider  = $environment->getDataProvider();
+
+        $model = $dataProvider->getEmptyModel();
+        if ($inputProvider->getParameter('id')) {
+            $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+            $model   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        }
+
+        $builder = new WidgetBuilder($this->itemContainer->getEnvironment());
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $objTreeSelector */
-        $objTreeSelector = new $GLOBALS['BE_FFL']['DcGeneralTreePicker'](
-            Widget::getAttributesFromDca(
-                $information,
-                $strField,
-                \array_filter(\explode(',', Input::get('value'))),
-                $strField,
-                $strTable,
-                new DcCompat($this->itemContainer->getEnvironment())
-            ),
-            new DcCompat($this->itemContainer->getEnvironment())
-        );
+        $objTreeSelector        = $builder->buildWidget($property, $model);
+        $objTreeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
+
         // AJAX request.
         if (isset($ajax)) {
             $objTreeSelector->generateAjax();

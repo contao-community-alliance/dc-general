@@ -296,9 +296,7 @@ class ModelCollector
     /**
      * Scan for children of a given model.
      *
-     * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
-     * (or originating table of the model, if no provider name has been given) for all levels and parent child
-     * conditions.
+     * This method returns all models with child recursion.
      *
      * @param ModelInterface $model        The model to assemble children from.
      * @param string         $providerName The name of the data provider to fetch children from.
@@ -306,6 +304,39 @@ class ModelCollector
      * @return array
      */
     public function collectChildrenOf(ModelInterface $model, $providerName = '')
+    {
+        return $this->internalCollectChildrenOf($model, $providerName, true);
+    }
+
+    /**
+     * Scan for children of a given model.
+     *
+     * This method returns all models without child recursion.
+     *
+     * @param ModelInterface $model        The model to assemble children from.
+     * @param string         $providerName The name of the data provider to fetch children from.
+     *
+     * @return array
+     */
+    public function collectDirectChildrenOf(ModelInterface $model, $providerName = '')
+    {
+        return $this->internalCollectChildrenOf($model, $providerName, false);
+    }
+
+    /**
+     * Scan for children of a given model.
+     *
+     * This method is ready for mixed hierarchy and will return all children and grandchildren for the given table
+     * (or originating table of the model, if no provider name has been given) for all levels and parent child
+     * conditions.
+     *
+     * @param ModelInterface $model        The model to assemble children from.
+     * @param string         $providerName The name of the data provider to fetch children from.
+     * @param bool           $recursive    Determine for recursive sampling. For models with included child models.
+     *
+     * @return array
+     */
+    private function internalCollectChildrenOf(ModelInterface $model, $providerName = '', $recursive = false)
     {
         if ('' === $providerName) {
             $providerName = $model->getProviderName();
@@ -330,6 +361,9 @@ class ModelCollector
                     $ids[] = $child->getId();
                 }
 
+                if ($recursive === false) {
+                    continue;
+                }
                 // Head into recursion.
                 $ids = \array_merge($ids, $this->collectChildrenOf($child, $providerName));
             }
