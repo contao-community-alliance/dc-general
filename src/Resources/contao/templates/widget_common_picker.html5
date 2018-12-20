@@ -27,7 +27,7 @@
 	$("ft_<?= $this->name ?>").addEvent("click", function(e) {
 		e.preventDefault();
 		Backend.openModalSelector({
-			"id": "tl_select",
+			"id": "tl_listing",
 			"title": "<?= \Contao\StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
 			"url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
 			"callback": function(table, value) {
