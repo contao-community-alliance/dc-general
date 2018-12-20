@@ -36,6 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Controller;
 use http\Exception\BadQueryStringException;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -124,8 +125,7 @@ class BackendTreeController implements ContainerAwareInterface
         }
         $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
 
-        // FIXME What can id do for define contao constants e.g. TL_ASSETS_URL.
-        new BackendMain();
+        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
 
         $treeSelector = $this->prepareTreeSelector($picker);
 
