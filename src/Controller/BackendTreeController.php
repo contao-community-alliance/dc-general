@@ -33,6 +33,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBacke
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use http\Exception\BadQueryStringException;
@@ -251,7 +252,6 @@ class BackendTreeController implements ContainerAwareInterface
         $ajax->executePreActions();
 
         $treeSelector = $this->prepareTreeSelector($picker);
-        //$treeSelector->value = explode(',', $request->request->get('value'));
 
         $sessionBag = $this->container->get('session')->getBag('contao_backend');
         $sessionBag->set($treeSelector->getSearchSessionKey(), \explode(',', $request->request->get('value')));
@@ -281,7 +281,9 @@ class BackendTreeController implements ContainerAwareInterface
             $values[] = $value;
         }
 
-        $model->setProperty($picker->getConfig()->getExtra('propertyName'), $values);
+        $propertyValues = new PropertyValueBag();
+        $propertyValues->setPropertyValue($picker->getConfig()->getExtra('propertyName'), $values);
+        $general->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
 
         $widgetManager = new ContaoWidgetManager($general->getEnvironment(), $model);
         $buffer        = $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false);
