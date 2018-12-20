@@ -286,7 +286,7 @@ class BackendTreeController implements ContainerAwareInterface
         $general->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
 
         $widgetManager = new ContaoWidgetManager($general->getEnvironment(), $model);
-        $buffer        = $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false);
+        $buffer        = $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false, $propertyValues);
 
         $response = new Response($buffer);
         $response->headers->set('Content-Type', 'txt/html' . '; charset=' . Config::get('characterSet'));
