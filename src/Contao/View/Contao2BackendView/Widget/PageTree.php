@@ -110,6 +110,8 @@ class PageTree extends TreePicker
             'fieldType' => $this->fieldType
         ];
 
-        return System::getContainer()->get('contao.picker.builder')->getUrl('page', $extra, \implode(',', $this->value));
+        return System::getContainer()
+            ->get('contao.picker.builder')
+            ->getUrl('page', $extra, \implode(',', ($this->value ?? [])));
     }
 }
