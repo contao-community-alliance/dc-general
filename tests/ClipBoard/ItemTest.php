@@ -43,11 +43,7 @@ class ItemTest extends TestCase
      */
     public function testItemRequiresModelId()
     {
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException('InvalidArgumentException');
-        } else {
-            $this->expectException('InvalidArgumentException');
-        }
+        $this->expectException('InvalidArgumentException');
 
         new Item(ItemInterface::CREATE, null, null);
     }

@@ -76,11 +76,7 @@ class CommandCollectionTest extends TestCase
         $command2 = new Command();
         $command2->setName('test2');
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(DcGeneralInvalidArgumentException::class);
-        } else {
-            $this->expectException(DcGeneralInvalidArgumentException::class);
-        }
+        $this->expectException(DcGeneralInvalidArgumentException::class);
 
         $collection->addCommand($command2, $command1);
 
@@ -148,11 +144,7 @@ class CommandCollectionTest extends TestCase
         $command3 = new Command();
         $command3->setName('test3');
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(DcGeneralInvalidArgumentException::class);
-        } else {
-            $this->expectException(DcGeneralInvalidArgumentException::class);
-        }
+        $this->expectException(DcGeneralInvalidArgumentException::class);
 
         $collection->addCommands([$command1, $command2], $command3);
 

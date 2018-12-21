@@ -92,11 +92,7 @@ class ModelIdTest extends TestCase
     public function testInstantiationFromModel($model, $exception = null)
     {
         if (null !== $exception) {
-            if (\method_exists($this, 'setExpectedException')) {
-                $this->setExpectedException($exception);
-            } else {
-                $this->expectException($exception);
-            }
+            $this->expectException($exception);
         }
 
         $modelId = ModelId::fromModel($model);
@@ -134,11 +130,7 @@ class ModelIdTest extends TestCase
     public function testValidIds($testId, $exception = null)
     {
         if (null !== $exception) {
-            if (\method_exists($this, 'setExpectedException')) {
-                $this->setExpectedException($exception);
-            } else {
-                $this->expectException($exception);
-            }
+            $this->expectException($exception);
         }
 
         $this->assertEquals($testId, ModelId::fromSerialized($testId)->getSerialized());

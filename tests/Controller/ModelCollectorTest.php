@@ -61,11 +61,7 @@ class ModelCollectorTest extends TestCase
         $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
         $environment->method('getDataDefinition')->willReturn($definition);
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(DcGeneralRuntimeException::class);
-        } else {
-            $this->expectException(DcGeneralRuntimeException::class);
-        }
+        $this->expectException(DcGeneralRuntimeException::class);
 
         new ModelCollector($environment);
     }
@@ -160,11 +156,7 @@ class ModelCollectorTest extends TestCase
 
         $collector = new ModelCollector($environment);
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException('InvalidArgumentException');
-        } else {
-            $this->expectException('InvalidArgumentException');
-        }
+        $this->expectException('InvalidArgumentException');
 
         $collector->getModel(new \DateTime());
     }

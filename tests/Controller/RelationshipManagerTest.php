@@ -91,11 +91,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(DcGeneralRuntimeException::class);
-        } else {
-            $this->expectException(DcGeneralRuntimeException::class);
-        }
+        $this->expectException(DcGeneralRuntimeException::class);
 
         $manager->isRoot($this->mockModel());
     }
@@ -154,11 +150,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(DcGeneralRuntimeException::class);
-        } else {
-            $this->expectException(DcGeneralRuntimeException::class);
-        }
+         $this->expectException(DcGeneralRuntimeException::class);
 
         $manager->setRoot($this->mockModel());
     }
@@ -241,11 +233,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(DcGeneralRuntimeException::class);
-        } else {
-            $this->expectException(DcGeneralRuntimeException::class);
-        }
+         $this->expectException(DcGeneralRuntimeException::class);
 
         $manager->setParent($model, $parent);
     }
@@ -334,11 +322,7 @@ class RelationshipManagerTest extends TestCase
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
-        if (\method_exists($this, 'setExpectedException')) {
-            $this->setExpectedException(DcGeneralRuntimeException::class);
-        } else {
-            $this->expectException(DcGeneralRuntimeException::class);
-        }
+        $this->expectException(DcGeneralRuntimeException::class);
 
         $manager->setSameParent($model, $source, 'parent');
     }
