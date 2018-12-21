@@ -33,7 +33,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
     protected function aliasContaoClass($class)
     {
-        if (!\class_exists($class)) {
+        if (!\class_exists($class) && !\class_exists('\\Contao\\' . $class)) {
             \class_alias('\\Contao\\' . $class, $class);
         }
     }

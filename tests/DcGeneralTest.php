@@ -69,13 +69,11 @@ class DcGeneralTest extends TestCase
 
         $mockDefinitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
         $mockDefinitionContainer
-            ->expects($this->once())
             ->method('hasDefinition')
             ->willReturn(false);
 
         System::setContainer($container = $this->getMockForAbstractClass(ContainerInterface::class));
         $container
-            ->expects($this->any())
             ->method('get')
             ->willReturnCallback(function ($name) use ($eventDispatcher, $mockDefinitionContainer) {
                 switch ($name) {

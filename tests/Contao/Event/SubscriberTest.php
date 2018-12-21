@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinition;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\Twig\DcGeneralExtension;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
@@ -68,8 +69,8 @@ class SubscriberTest extends TestCase
     {
         $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
         \define('TL_ROOT', __DIR__ . '/../../../../../../vendor/contao/core');
-        require __DIR__ . '/../../../../../../vendor/contao/core/system/config/default.php';
-        require __DIR__ . '/../../../../../../vendor/contao/core/system/helper/functions.php';
+        require __DIR__ . '/../../../../../../vendor/contao/core-bundle/src/Resources/contao/config/default.php';
+        require __DIR__ . '/../../../../../../vendor/contao/core-bundle/src/Resources/contao/helper/functions.php';
 
 
         self::initializeContaoConfig();
@@ -122,7 +123,9 @@ class SubscriberTest extends TestCase
             $event->setTemplate(new ContaoBackendViewTemplate($excepted));
         }
 
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'getPanelElementTemplate']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'getPanelElementTemplate']);
         $dispatcher->dispatch($event::NAME, $event);
 
         $this->assertSame($excepted, $event->getTemplate()->getName());
@@ -156,7 +159,8 @@ class SubscriberTest extends TestCase
         $dispatcher = new EventDispatcher();
         $event      = new ResolveWidgetErrorMessageEvent(new DefaultEnvironment(), $error);
 
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'resolveWidgetErrorMessage']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'resolveWidgetErrorMessage']);
         $dispatcher->dispatch($event::NAME, $event);
 
         $this->assertSame($excepted, $event->getError());
@@ -175,7 +179,9 @@ class SubscriberTest extends TestCase
 
         $event->setRendered('foo');
 
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'renderReadablePropertyValue']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
         $dispatcher->dispatch($event::NAME, $event);
 
         $this->assertSame('foo', $event->getRendered());
@@ -189,8 +195,10 @@ class SubscriberTest extends TestCase
             ['foreignKey' => 'testForeignKey']
         );
 
+        $scopeDeterminator = $this->mockScopeDeterminator();
+
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'renderReadablePropertyValue']);
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
         $dispatcher->dispatch($event::NAME, $event);
 
         $this->assertSame('testValue', $event->getValue());
@@ -212,8 +220,9 @@ class SubscriberTest extends TestCase
     {
         $event = $this->setupRenderReadablePropertyValueEvent($values, 'testProperty');
 
-        $dispatcher = $event->getEnvironment()->getEventDispatcher();
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'renderReadablePropertyValue']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $dispatcher        = $event->getEnvironment()->getEventDispatcher();
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
         $dispatcher->dispatch($event::NAME, $event);
 
         $this->assertSame($values, $event->getValue());
@@ -252,7 +261,8 @@ class SubscriberTest extends TestCase
 
         $event = $this->setupRenderReadablePropertyValueEvent($dateTime, 'testProperty');
 
-        $subscriber        = new Subscriber();
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $subscriber        = new Subscriber($scopeDeterminator);
         $parseDateListener = $this->mockParseDateEventListener($this->once());
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
@@ -280,8 +290,9 @@ class SubscriberTest extends TestCase
         $event = $this->setupRenderReadablePropertyValueEvent($value, 'testProperty');
         $event->getProperty()->setWidgetType('checkbox');
 
-        $dispatcher = $event->getEnvironment()->getEventDispatcher();
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'renderReadablePropertyValue']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $dispatcher        = $event->getEnvironment()->getEventDispatcher();
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
         $dispatcher->dispatch($event::NAME, $event);
 
         $this->assertSame($value, $event->getValue());
@@ -319,8 +330,9 @@ class SubscriberTest extends TestCase
         $event = $this->setupRenderReadablePropertyValueEvent($value, $propertyName, $propertyExtra);
         $event->getProperty()->setWidgetType($widgetType);
 
-        $dispatcher = $event->getEnvironment()->getEventDispatcher();
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'renderReadablePropertyValue']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $dispatcher        = $event->getEnvironment()->getEventDispatcher();
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
         $dispatcher->dispatch($event::NAME, $event);
 
         if (null === $excepted) {
@@ -367,8 +379,9 @@ class SubscriberTest extends TestCase
     {
         $event = $this->setupRenderReadablePropertyValueEvent($value, $propertyName, $propertyExtra);
 
-        $dispatcher = $event->getEnvironment()->getEventDispatcher();
-        $dispatcher->addListener($event::NAME, [new Subscriber(), 'renderReadablePropertyValue']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $dispatcher        = $event->getEnvironment()->getEventDispatcher();
+        $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
         $dispatcher->dispatch($event::NAME, $event);
 
         $this->assertSame($value, $event->getValue());
@@ -406,7 +419,8 @@ class SubscriberTest extends TestCase
             $event->getProperty()->setOptions($propertyOptions);
         }
 
-        $subscriber        = new Subscriber();
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $subscriber        = new Subscriber($scopeDeterminator);
         $parseDateListener = $this->mockParseDateEventListener($this->never());
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
@@ -432,13 +446,17 @@ class SubscriberTest extends TestCase
 
     public function testInitTwig()
     {
+        $this->markTestSkipped('The Contao twig extention we not using at time. We show for replace this.');
+        return;
+
         $dispatcher = new EventDispatcher();
 
         $contaoTwig = \ContaoTwig::getInstance();
 
         $event = new \ContaoTwigInitializeEvent($contaoTwig);
 
-        $dispatcher->addListener('contao-twig.init', [new Subscriber(), 'initTwig']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $dispatcher->addListener('contao-twig.init', [new Subscriber($scopeDeterminator), 'initTwig']);
         $dispatcher->dispatch('contao-twig.init', $event);
 
         $environment = $contaoTwig->getEnvironment();
@@ -450,78 +468,78 @@ class SubscriberTest extends TestCase
     public function initializePanelsDataProvider()
     {
         return [
-            ['select', NonBaseView::class, [1, 2]],
-            ['select', BaseView::class, [1, 2]],
-            ['select', ListView::class, [1, 2]],
-            ['select', ParentView::class, [1, 2]],
-            ['select', TreeView::class, [1, 2]],
+            ['select', NonBaseView::class, [], [1, 2]],
+            ['select', BaseView::class, [$this->mockScopeDeterminator()], [1, 2]],
+            ['select', ListView::class, [$this->mockScopeDeterminator()], [1, 2]],
+            ['select', ParentView::class, [$this->mockScopeDeterminator()], [1, 2]],
+            ['select', TreeView::class, [$this->mockScopeDeterminator()], [1, 2]],
 
-            ['copy', NonBaseView::class, [1, 2]],
-            ['copy', BaseView::class, [3, 4]],
-            ['copy', ListView::class, [3, 4]],
-            ['copy', ParentView::class, [3, 4]],
-            ['copy', TreeView::class, [3, 4]],
+            ['copy', NonBaseView::class, [], [1, 2]],
+            ['copy', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['copy', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['copy', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['copy', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['create', NonBaseView::class, [1, 2]],
-            ['create', BaseView::class, [3, 4]],
-            ['create', ListView::class, [3, 4]],
-            ['create', ParentView::class, [3, 4]],
-            ['create', TreeView::class, [3, 4]],
+            ['create', NonBaseView::class, [], [1, 2]],
+            ['create', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['create', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['create', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['create', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['paste', NonBaseView::class, [1, 2]],
-            ['paste', BaseView::class, [3, 4]],
-            ['paste', ListView::class, [3, 4]],
-            ['paste', ParentView::class, [3, 4]],
-            ['paste', TreeView::class, [3, 4]],
+            ['paste', NonBaseView::class, [], [1, 2]],
+            ['paste', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['paste', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['paste', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['paste', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['delete', NonBaseView::class, [1, 2]],
-            ['delete', BaseView::class, [3, 4]],
-            ['delete', ListView::class, [3, 4]],
-            ['delete', ParentView::class, [3, 4]],
-            ['delete', TreeView::class, [3, 4]],
+            ['delete', NonBaseView::class, [], [1, 2]],
+            ['delete', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['delete', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['delete', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['delete', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['move', NonBaseView::class, [1, 2]],
-            ['move', BaseView::class, [3, 4]],
-            ['move', ListView::class, [3, 4]],
-            ['move', ParentView::class, [3, 4]],
-            ['move', TreeView::class, [3, 4]],
+            ['move', NonBaseView::class, [], [1, 2]],
+            ['move', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['move', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['move', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['move', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['undo', NonBaseView::class, [1, 2]],
-            ['undo', BaseView::class, [3, 4]],
-            ['undo', ListView::class, [3, 4]],
-            ['undo', ParentView::class, [3, 4]],
-            ['undo', TreeView::class, [3, 4]],
+            ['undo', NonBaseView::class, [], [1, 2]],
+            ['undo', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['undo', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['undo', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['undo', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['edit', NonBaseView::class, [1, 2]],
-            ['edit', BaseView::class, [3, 4]],
-            ['edit', ListView::class, [3, 4]],
-            ['edit', ParentView::class, [3, 4]],
-            ['edit', TreeView::class, [3, 4]],
+            ['edit', NonBaseView::class, [], [1, 2]],
+            ['edit', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['edit', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['edit', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['edit', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['toggle', NonBaseView::class, [1, 2]],
-            ['toggle', BaseView::class, [3, 4]],
-            ['toggle', ListView::class, [3, 4]],
-            ['toggle', ParentView::class, [3, 4]],
-            ['toggle', TreeView::class, [3, 4]],
+            ['toggle', NonBaseView::class, [], [1, 2]],
+            ['toggle', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['toggle', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['toggle', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['toggle', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['showAll', NonBaseView::class, [1, 2]],
-            ['showAll', BaseView::class, [3, 4]],
-            ['showAll', ListView::class, [3, 4]],
-            ['showAll', ParentView::class, [3, 4]],
-            ['showAll', TreeView::class, [3, 4]],
+            ['showAll', NonBaseView::class, [], [1, 2]],
+            ['showAll', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['showAll', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['showAll', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['showAll', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
 
-            ['show', NonBaseView::class, [1, 2]],
-            ['show', BaseView::class, [3, 4]],
-            ['show', ListView::class, [3, 4]],
-            ['show', ParentView::class, [3, 4]],
-            ['show', TreeView::class, [3, 4]],
+            ['show', NonBaseView::class, [], [1, 2]],
+            ['show', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['show', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['show', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['show', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
         ];
     }
 
     /**
      * @dataProvider initializePanelsDataProvider
      */
-    public function testInitializePanels($actionName, $viewClass, $excepted)
+    public function testInitializePanels($actionName, $viewClass, $constructor, $excepted)
     {
         $dispatcher = new EventDispatcher();
 
@@ -547,7 +565,11 @@ class SubscriberTest extends TestCase
         $backendView = new Contao2BackendViewDefinition();
         $dataDefinition->setDefinition(Contao2BackendViewDefinitionInterface::NAME, $backendView);
 
-        $view = $this->getMockBuilder($viewClass)->setMethods(['getPanel'])->getMock();
+        $view = $this
+            ->getMockBuilder($viewClass)
+            ->setConstructorArgs($constructor)
+            ->setMethods(['getPanel'])
+            ->getMock();
         $environment->setView($view);
 
         $panel = $this->getMockBuilder(DefaultPanelContainer::class)->setMethods(['initialize'])->getMock();
@@ -565,7 +587,8 @@ class SubscriberTest extends TestCase
                 )
             );
 
-        $dispatcher->addListener(DcGeneralEvents::ACTION, [new Subscriber(), 'initializePanels']);
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $dispatcher->addListener(DcGeneralEvents::ACTION, [new Subscriber($scopeDeterminator), 'initializePanels']);
         $dispatcher->dispatch(DcGeneralEvents::ACTION, $event);
 
         $this->assertArraySubset($dataConfig->getSorting(), $excepted);
@@ -573,7 +596,8 @@ class SubscriberTest extends TestCase
 
     public function testGetConfig()
     {
-        $subscriber = new Subscriber();
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $subscriber        = new Subscriber($scopeDeterminator);
 
         $this->assertInstanceOf(Config::class, Subscriber::getConfig());
         $this->assertInstanceOf(Config::class, $subscriber::getConfig());
@@ -581,7 +605,8 @@ class SubscriberTest extends TestCase
 
     public function testSetConfig()
     {
-        $subscriber = new Subscriber();
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $subscriber        = new Subscriber($scopeDeterminator);
 
         $subscriber::setConfig(Config::getInstance());
 
@@ -592,7 +617,8 @@ class SubscriberTest extends TestCase
     {
         $event = $this->setupRenderReadablePropertyValueEvent($time, $propertyName, $extra);
 
-        $subscriber        = new Subscriber();
+        $scopeDeterminator = $this->mockScopeDeterminator();
+        $subscriber        = new Subscriber($scopeDeterminator);
         $parseDateListener = $this->mockParseDateEventListener(
             (isset($extra['rgxp']) && $extra['rgxp'] === 'non-format') ? $this->never() : $this->once()
         );
@@ -686,5 +712,20 @@ class SubscriberTest extends TestCase
             );
 
         return $listener;
+    }
+
+    private function mockScopeDeterminator()
+    {
+        $scopeDeterminator = $this
+            ->getMockBuilder(RequestScopeDeterminator::class)
+            ->setMethods(['currentScopeIsBackend'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $scopeDeterminator
+            ->method('currentScopeIsBackend')
+            ->willReturn(true);
+
+        return $scopeDeterminator;
     }
 }

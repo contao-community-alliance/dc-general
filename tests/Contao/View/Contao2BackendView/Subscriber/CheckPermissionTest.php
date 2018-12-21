@@ -52,7 +52,7 @@ class CheckPermissionTest extends TestCase
         $this->assertCount(1, $events);
         $this->assertEquals([BuildDataDefinitionEvent::NAME], array_keys($events));
         $this->assertCount(4, $events[BuildDataDefinitionEvent::NAME]);
-        $this->assertCount(4, $events[BuildDataDefinitionEvent::NAME][0][0]);
+        $this->assertEquals('checkPermissionForProperties', $events[BuildDataDefinitionEvent::NAME][0][0]);
         $this->assertEquals('checkPermissionIsCreatable', $events[BuildDataDefinitionEvent::NAME][1][0]);
         $this->assertEquals('checkPermissionIsEditable', $events[BuildDataDefinitionEvent::NAME][2][0]);
         $this->assertEquals('checkPermissionIsDeletable', $events[BuildDataDefinitionEvent::NAME][3][0]);
