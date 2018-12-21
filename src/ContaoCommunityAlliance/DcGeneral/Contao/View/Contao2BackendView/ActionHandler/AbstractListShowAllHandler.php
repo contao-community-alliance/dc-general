@@ -38,10 +38,14 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -86,6 +90,7 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
         $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $clipboard);
 
         $result              = [];
+        $result['language']  = $this->languageSwitcher($this->getEnvironment());
         $result['panel']     = $this->panel();
         $result['buttons']   = $this->generateHeaderButtons();
         $result['clipboard'] = $clipboard->getResponse();
@@ -95,9 +100,35 @@ abstract class AbstractListShowAllHandler extends AbstractEnvironmentAwareHandle
     }
 
     /**
+     * Execute the multi language support.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string
+     */
+    private function languageSwitcher(EnvironmentInterface $environment)
+    {
+        $template = new ContaoBackendViewTemplate('dcbe_general_language_selector');
+
+        $dataProvider = $environment->getDataProvider();
+        if (!$dataProvider instanceof MultiLanguageDataProviderInterface) {
+            return '';
+        }
+
+        /** @var MultiLanguageDataProviderInterface $dataProvider */
+
+        $template
+            ->set('languages', $environment->getController()->getSupportedLanguages(null))
+            ->set('language', $dataProvider->getCurrentLanguage())
+            ->set('submit', $this->translate('MSC.showSelected', 'contao_default'))
+            ->set('REQUEST_TOKEN', REQUEST_TOKEN);
+        return $template->parse();
+    }
+
+    /**
      * Retrieve the view section for this view.
      *
-     * @return Contao2BackendViewDefinitionInterface
+     * @return DefinitionInterface|Contao2BackendViewDefinitionInterface
      */
     protected function getViewSection()
     {
