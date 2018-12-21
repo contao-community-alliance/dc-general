@@ -42,8 +42,10 @@ use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
@@ -565,12 +567,39 @@ class TreeView extends BaseView
             SortElementInterface::class
         ];
 
+        $arrReturn['language']  = $this->languageSwitcher($this->environment);
         $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
         $arrReturn['buttons']   = $this->generateHeaderButtons();
         $arrReturn['clipboard'] = $viewEvent->getResponse();
         $arrReturn['body']      = $this->viewTree($collection);
 
         return \implode("\n", $arrReturn);
+    }
+
+    /**
+     * Execute the multi language support.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string
+     */
+    private function languageSwitcher(EnvironmentInterface $environment)
+    {
+        $template = new ContaoBackendViewTemplate('dcbe_general_language_selector');
+
+        $dataProvider = $environment->getDataProvider();
+        if (!$dataProvider instanceof MultiLanguageDataProviderInterface) {
+            return '';
+        }
+
+        /** @var MultiLanguageDataProviderInterface $dataProvider */
+
+        $template
+            ->set('languages', $environment->getController()->getSupportedLanguages(null))
+            ->set('language', $dataProvider->getCurrentLanguage())
+            ->set('submit', $this->environment->getTranslator()->translate('MSC.showSelected'))
+            ->set('REQUEST_TOKEN', REQUEST_TOKEN);
+        return $template->parse();
     }
 
     /**

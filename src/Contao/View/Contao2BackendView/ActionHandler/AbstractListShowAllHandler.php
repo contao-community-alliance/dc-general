@@ -45,6 +45,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
@@ -159,12 +160,39 @@ abstract class AbstractListShowAllHandler
         $environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $clipboard);
 
         $result              = [];
+        $result['language']  = $this->languageSwitcher($environment);
         $result['panel']     = $this->panel($environment);
         $result['buttons']   = $this->generateHeaderButtons($environment);
         $result['clipboard'] = $clipboard->getResponse();
         $result['body']      = $template->parse();
 
         return \implode("\n", $result);
+    }
+
+    /**
+     * Execute the multi language support.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string
+     */
+    private function languageSwitcher(EnvironmentInterface $environment)
+    {
+        $template = new ContaoBackendViewTemplate('dcbe_general_language_selector');
+
+        $dataProvider = $environment->getDataProvider();
+        if (!$dataProvider instanceof MultiLanguageDataProviderInterface) {
+            return '';
+        }
+
+        /** @var MultiLanguageDataProviderInterface $dataProvider */
+
+        $template
+            ->set('languages', $environment->getController()->getSupportedLanguages(null))
+            ->set('language', $dataProvider->getCurrentLanguage())
+            ->set('submit', $this->translator->trans('MSC.showSelected', [], 'contao_default'))
+            ->set('REQUEST_TOKEN', REQUEST_TOKEN);
+        return $template->parse();
     }
 
     /**

@@ -238,7 +238,7 @@ class ShowHandler
             $template
                 ->set('languages', $environment->getController()->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
-                ->set('languageSubmit', StringUtil::specialchars($translator->translate('MSC.showSelected')))
+                ->set('languageSubmit', $translator->translate('MSC.showSelected'))
                 ->set('backBT', StringUtil::specialchars($translator->translate('MSC.backBT')));
         } else {
             $template->set('languages', null);

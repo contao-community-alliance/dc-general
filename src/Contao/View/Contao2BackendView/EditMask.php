@@ -852,6 +852,7 @@ class EditMask
                 $this->getEnvironment()->getController()->getSupportedLanguages($this->model->getId())
             )
                 ->set('language', $dataProvider->getCurrentLanguage())
+                ->set('languageSubmit', $this->environment->getTranslator()->translate('MSC.showSelected'))
                 ->set('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()]);
         } else {
             $template
