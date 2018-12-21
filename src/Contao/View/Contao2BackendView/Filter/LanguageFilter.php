@@ -79,20 +79,21 @@ class LanguageFilter implements EventSubscriberInterface
             return;
         }
 
-        $this->checkLanguage($event->getEnvironment());
+        $this->checkLanguage($event->getEnvironment(), 'create' === $event->getAction()->getName());
     }
 
     /**
      * Check if the data provider is multi language and prepare the data provider with the selected language.
      *
-     * @param EnvironmentInterface $environment The environment.
+     * @param EnvironmentInterface $environment     The environment.
+     * @param bool                 $resetToFallback Flag if the language must be reset to the fallback.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    private function checkLanguage($environment)
+    private function checkLanguage($environment, $resetToFallback)
     {
         $inputProvider  = $environment->getInputProvider();
         $sessionStorage = $environment->getSessionStorage();
@@ -112,7 +113,7 @@ class LanguageFilter implements EventSubscriberInterface
 
         // If a new item, we MUST reset to the fallback as that is the first language that has to be stored
         // and set this language to session.
-        if (null === $modelId) {
+        if (null === $modelId && $resetToFallback) {
             $dataProvider->setCurrentLanguage($dataProvider->getFallbackLanguage(null)->getLocale());
             $session['ml_support'][$providerName] = $dataProvider->getCurrentLanguage();
             $sessionStorage->set('dc_general', $session);
