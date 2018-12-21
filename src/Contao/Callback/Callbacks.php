@@ -84,7 +84,8 @@ class Callbacks
                 ))),
                 $message
             ),
-            0
+            0,
+            $e
         );
     }
 
