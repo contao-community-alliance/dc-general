@@ -23,23 +23,16 @@ $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalDriver.css';
 </div>
 <?php endif; ?>
 
-<?php if($this->language): ?>
-<div class="tl_panel tl_language_panel">
-<form action="<?php echo \ampersand($this->Environment->request, true); ?>" id="language_switch" class="tl_form" method="post">
-<div class="tl_formbody">
-<input type="hidden" name="FORM_SUBMIT" value="language_switch" />
-<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
-<select name="language" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
-<?php foreach($this->languages as $langCode => $languageName): ?>
-	<option value="<?php echo $langCode; ?>"<?php if($langCode == $this->language): ?> selected="selected"<?php endif; ?>>
-            <?php echo $languageName; ?>
-	</option>
-<?php endforeach; ?>
-</select> <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?php echo \specialchars($GLOBALS['TL_LANG']['MSC']['editSelected']); ?>" />
-</div>
-</form>
-</div>
-<?php endif; ?>
+<?php
+$this->insert(
+    'dcbe_general_language_selector',
+    [
+        'language' => $this->language,
+        'languages' => $this->languages,
+        'request'   => $this->Environment->request,
+        'submit'    => $this->languageSubmit,
+        'REQUEST_TOKEN' => REQUEST_TOKEN,
+    ]) ?>
 
 <?php echo $this->getBackButton(); ?>
 
