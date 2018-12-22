@@ -321,26 +321,33 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fetch(ConfigInterface $objConfig)
     {
-        if ($objConfig->getId() != null) {
+        $internalConfig = $this->prefixDataProviderProperties($objConfig);
+        if ($internalConfig->getId() != null) {
             $query = \sprintf(
-                'SELECT %s FROM %s WHERE id = ?',
-                DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
+                'SELECT %1$s FROM %2$s WHERE %2$s.id = ?',
+                DefaultDataProviderSqlUtils::buildFieldQuery(
+                    $internalConfig,
+                    $this->strSource . '.' . $this->idProperty
+                ),
                 $this->strSource
             );
 
             $dbResult = $this->objDatabase
                 ->prepare($query)
-                ->execute($objConfig->getId());
+                ->execute($internalConfig->getId());
         } else {
             $arrParams = [];
 
             // Build SQL.
             $query = \sprintf(
                 'SELECT %s FROM %s%s%s',
-                DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
+                DefaultDataProviderSqlUtils::buildFieldQuery(
+                    $internalConfig,
+                    $this->strSource . '.' . $this->idProperty
+                ),
                 $this->strSource,
-                DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $arrParams),
-                DefaultDataProviderSqlUtils::buildSortingQuery($objConfig)
+                DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $arrParams),
+                DefaultDataProviderSqlUtils::buildSortingQuery($internalConfig)
             );
 
             // Execute db query.
@@ -362,26 +369,27 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fetchAll(ConfigInterface $objConfig)
     {
-        $arrParams = [];
+        $internalConfig = $this->prefixDataProviderProperties($objConfig);
+        $arrParams      = [];
         // Build SQL.
         $query = \sprintf(
             'SELECT %s FROM %s%s%s',
-            DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
+            DefaultDataProviderSqlUtils::buildFieldQuery($internalConfig, $this->strSource . '.' . $this->idProperty),
             $this->strSource,
-            DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $arrParams),
-            DefaultDataProviderSqlUtils::buildSortingQuery($objConfig)
+            DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $arrParams),
+            DefaultDataProviderSqlUtils::buildSortingQuery($internalConfig)
         );
 
         // Execute db query.
         $objDatabaseQuery = $this->objDatabase->prepare($query);
 
-        if ($objConfig->getAmount() != 0) {
-            $objDatabaseQuery->limit($objConfig->getAmount(), $objConfig->getStart());
+        if ($internalConfig->getAmount() != 0) {
+            $objDatabaseQuery->limit($internalConfig->getAmount(), $internalConfig->getStart());
         }
 
         $dbResult = $objDatabaseQuery->execute($arrParams);
 
-        if ($objConfig->getIdOnly()) {
+        if ($internalConfig->getIdOnly()) {
             return $dbResult->fetchEach($this->idProperty);
         }
 
@@ -405,8 +413,9 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getFilterOptions(ConfigInterface $objConfig)
     {
-        $arrProperties = $objConfig->getFields();
-        $strProperty   = $arrProperties[0];
+        $internalConfig = $this->prefixDataProviderProperties($objConfig);
+        $arrProperties  = $objConfig->getFields();
+        $strProperty    = $arrProperties[0];
 
         if (\count($arrProperties) <> 1) {
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
@@ -417,10 +426,10 @@ class DefaultDataProvider implements DataProviderInterface
         $objValues = $this->objDatabase
             ->prepare(
                 \sprintf(
-                    'SELECT DISTINCT(%s) FROM %s %s',
+                    'SELECT DISTINCT(%2$s.%1$s) FROM %2$s %3$s',
                     $strProperty,
                     $this->strSource,
-                    DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $arrParams)
+                    DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $arrParams)
                 )
             )
             ->execute($arrParams);
@@ -438,11 +447,12 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getCount(ConfigInterface $objConfig)
     {
-        $parameters = [];
-        $query      = \sprintf(
+        $internalConfig = $this->prefixDataProviderProperties($objConfig);
+        $parameters     = [];
+        $query          = \sprintf(
             'SELECT COUNT(*) AS count FROM %s%s',
             $this->strSource,
-            DefaultDataProviderSqlUtils::buildWhereQuery($objConfig, $parameters)
+            DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $parameters)
         );
 
         $objCount = $this->objDatabase
@@ -483,16 +493,113 @@ class DefaultDataProvider implements DataProviderInterface
     public function resetFallback($strField)
     {
         // @codingStandardsIgnoreStart
-        @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
+        @\trigger_error(
+            __CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually',
+            E_USER_DEPRECATED
+        );
         // @codingStandardsIgnoreEnd
 
         $this->objDatabase->query('UPDATE ' . $this->strSource . ' SET ' . $strField . ' = \'\'');
     }
 
     /**
+     * Prefix the data provider properties.
+     *
+     * @param ConfigInterface $config The config.
+     *
+     * @return ConfigInterface
+     */
+    private function prefixDataProviderProperties(ConfigInterface $config)
+    {
+        $internalConfig = clone $config;
+        $this->sortingPrefixer($internalConfig);
+
+        if (null !== ($filter = $internalConfig->getFilter())) {
+            $this->filterPrefixer($filter);
+            $internalConfig->setFilter($filter);
+        }
+
+        if (null !== ($fields = $internalConfig->getFields())) {
+            $this->fieldPrefixer($fields);
+            $internalConfig->setFields($fields);
+        }
+
+        return $internalConfig;
+    }
+
+    /**
+     * The config sorting prefixer.
+     *
+     * @param ConfigInterface $config The config.
+     *
+     * @return void
+     */
+    private function sortingPrefixer(ConfigInterface $config)
+    {
+        $sorting = [];
+        foreach ($config->getSorting() as $property => $value) {
+            if (0 === \strpos($property, $this->strSource . '.')) {
+                $sorting[$property] = $value;
+
+                continue;
+            }
+
+            if (!$this->fieldExists($property)) {
+                continue;
+            }
+
+            $sorting[$this->strSource . '.' . $property] = $value;
+        }
+        $config->setSorting($sorting);
+    }
+
+    /**
+     * The filter prefixer.
+     *
+     * @param array $filter The filter setting.
+     *
+     * @return void
+     */
+    private function filterPrefixer(array &$filter)
+    {
+        foreach ($filter as &$child) {
+            if (\array_key_exists('property', $child)
+                && (false === \strpos($child['property'], $this->strSource . '.'))
+                && $this->fieldExists($child['property'])
+            ) {
+                $child['property'] = $this->strSource . '.' . $child['property'];
+            }
+
+            if (\array_key_exists('children', $child)) {
+                $this->filterPrefixer($child['children']);
+            }
+        }
+    }
+
+    /**
+     * The field prefixer.
+     *
+     * @param array $fields The fields.
+     *
+     * @return void
+     */
+    private function fieldPrefixer(array &$fields)
+    {
+        foreach ($fields as $index => $property) {
+            if (0 === \strpos($property, $this->strSource . '.')
+                || !$this->fieldExists($property)
+            ) {
+                continue;
+            }
+
+            $fields[$index] = $this->strSource . '.' . $property;
+        }
+    }
+
+    /**
      * Convert a model into a property array to be used in insert and update queries.
      *
-     * @param ModelInterface $model The model to convert into an property array.
+     * @param ModelInterface $model     The model to convert into an property array.
      * @param int            $timestamp Optional the timestamp.
      *
      * @return array
@@ -524,7 +631,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * Insert the model into the database.
      *
-     * @param ModelInterface $model The model to insert into the database.
+     * @param ModelInterface $model     The model to insert into the database.
      * @param int            $timestamp Optional the timestamp.
      *
      * @return void

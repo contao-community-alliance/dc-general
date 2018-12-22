@@ -69,8 +69,8 @@ class SubscriberTest extends TestCase
     {
         $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
         \define('TL_ROOT', __DIR__ . '/../../../../../../vendor/contao/core');
-        require __DIR__ . '/../../../../../../vendor/contao/core-bundle/src/Resources/contao/config/default.php';
-        require __DIR__ . '/../../../../../../vendor/contao/core-bundle/src/Resources/contao/helper/functions.php';
+        require __DIR__ . '/../../../vendor/contao/core-bundle/src/Resources/contao/config/default.php';
+        require __DIR__ . '/../../../vendor/contao/core-bundle/src/Resources/contao/helper/functions.php';
 
 
         self::initializeContaoConfig();

@@ -30,7 +30,6 @@ use Contao\Database;
 use Contao\StringUtil;
 use Contao\Config;
 use Contao\System;
-use Contao\User;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;

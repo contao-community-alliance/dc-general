@@ -47,6 +47,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -200,7 +201,7 @@ abstract class AbstractListShowAllHandler
      *
      * @param ContainerInterface $definition Data container definition.
      *
-     * @return Contao2BackendViewDefinitionInterface
+     * @return DefinitionInterface|Contao2BackendViewDefinitionInterface
      */
     protected function getViewSection(ContainerInterface $definition)
     {
