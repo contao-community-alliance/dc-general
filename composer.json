@@ -43,7 +43,8 @@
         "ext-json": "*"
     },
     "require-dev": {
-       "phpcq/all-tasks": "^1.2",
+        "phpcq/all-tasks": "^1.2",
+        "friendsofphp/php-cs-fixer": "^2.13",
         "contao/manager-bundle": "^4.4",
         "menatwork/contao-multicolumnwizard-bundle": "^3.4.0@beta"
     },
@@ -66,5 +67,8 @@
             "dev-master": "2.0.x-dev",
             "dev-feature/contao4": "2.1.x-dev"
         }
+    },
+    "scripts": {
+        "php-cs-fixer": "php-cs-fixer fix --rules=@PSR2"
     }
 }
