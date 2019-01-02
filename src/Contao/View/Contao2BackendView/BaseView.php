@@ -363,18 +363,21 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $input = $this->environment->getInputProvider();
 
-        // Redefine the parameter id if this isn´t model id conform.
-        if (true === ($input->hasParameter('id'))
-            && (false === \stripos($input->getParameter('id'), '::'))
-        ) {
-            $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
-            $input->setParameter('id', $modelId->getSerialized());
+        if (true === ($input->hasParameter('id'))) {
+            // Redefine the parameter id if this isn´t model id conform.
+            if (false === \strpos($input->getParameter('id'), '::')) {
+                $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
+                $input->setParameter('id', $modelId->getSerialized());
+            }
+            $modelId      = ModelId::fromSerialized($input->getParameter('id'));
+            $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+            $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         }
 
         $this->addAjaxPropertyForEditAll();
 
         $handler = new Ajax3X();
-        $handler->executePostActions(new DcCompat($this->getEnvironment()));
+        $handler->executePostActions(new DcCompat($this->getEnvironment(), ($model ?? null)));
     }
 
     /**
