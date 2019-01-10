@@ -152,6 +152,7 @@ class DcCompat extends General
 
                 if (('pid' === $idParameter)
                     || !$inputProvider->hasParameter('pid')
+                    || !$inputProvider->getParameter('pid')
                 ) {
                     return null;
                 }
