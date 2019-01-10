@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2018 Contao Community Alliance.
+ * (c) 2013-2019 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2018 Contao Community Alliance.
+ * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -21,7 +21,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use Contao\Backend;
-use Contao\BackendMain;
 use Contao\Config;
 use Contao\CoreBundle\Picker\PickerInterface;
 use Contao\Environment;
@@ -36,7 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
-use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Controller;
 use http\Exception\BadQueryStringException;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -254,7 +252,10 @@ class BackendTreeController implements ContainerAwareInterface
         $treeSelector = $this->prepareTreeSelector($picker);
 
         $sessionBag = $this->container->get('session')->getBag('contao_backend');
-        $sessionBag->set($treeSelector->getSearchSessionKey(), \explode(',', $request->request->get('value')));
+        $sessionBag->set(
+            $treeSelector->getSearchSessionKey(),
+            $treeSelector->widgetToValue($request->request->get('value'))
+        );
 
         $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
@@ -271,22 +272,31 @@ class BackendTreeController implements ContainerAwareInterface
             $model = $dataProvider->getEmptyModel();
         }
 
-        $values = [];
-        // Clean keys the have empty value.
-        foreach (\explode(',', $request->request->get('value')) as $value) {
-            if (empty($value)) {
-                continue;
+        $widgetValue = $treeSelector->widgetToValue($request->request->get('value'));
+        if (\is_array($widgetValue)) {
+            $values = [];
+            // Clean keys the have empty value.
+            foreach ($widgetValue as $index => $value) {
+                if (empty($value)
+                    // The first key entry has the value on, if the checkbox for all checked.
+                    || ((0 === $index) && ('on' === $value))
+                ) {
+                    continue;
+                }
+
+                $values[] = $value;
             }
 
-            $values[] = $value;
+            $widgetValue = $values;
         }
 
         $propertyValues = new PropertyValueBag();
-        $propertyValues->setPropertyValue($picker->getConfig()->getExtra('propertyName'), $values);
+        $propertyValues->setPropertyValue($picker->getConfig()->getExtra('propertyName'), $widgetValue);
         $general->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
 
         $widgetManager = new ContaoWidgetManager($general->getEnvironment(), $model);
-        $buffer        = $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false, $propertyValues);
+        $buffer        =
+            $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false, $propertyValues);
 
         $response = new Response($buffer);
         $response->headers->set('Content-Type', 'txt/html' . '; charset=' . Config::get('characterSet'));

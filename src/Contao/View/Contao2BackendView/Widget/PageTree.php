@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2018 Contao Community Alliance.
+ * (c) 2013-2019 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2018 Contao Community Alliance.
+ * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -49,17 +49,12 @@ class PageTree extends TreePicker
     {
         $translator = $this->getEnvironment()->getTranslator();
 
-        if ('' === $inputValue) {
-            if ($this->mandatory) {
-                $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
-            }
-
-            return '';
+        $widgetValue = $this->widgetToValue($inputValue);
+        if ((null === $widgetValue) && $this->mandatory) {
+            $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
         }
 
-        $inputValue = \explode(',', $inputValue);
-
-        return $this->multiple ? $inputValue : $inputValue[0];
+        return $widgetValue;
     }
 
     /**
@@ -113,6 +108,6 @@ class PageTree extends TreePicker
 
         return System::getContainer()
             ->get('contao.picker.builder')
-            ->getUrl('page', $extra, \implode(',', ($this->value ?? [])));
+            ->getUrl('page', $extra);
     }
 }

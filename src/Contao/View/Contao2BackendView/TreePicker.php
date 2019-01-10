@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2018 Contao Community Alliance.
+ * (c) 2013-2019 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2018 Contao Community Alliance.
+ * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,7 +26,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use Contao\Backend;
 use Contao\CoreBundle\Picker\PickerConfig;
 use Contao\System;
-use Contao\Input;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -263,6 +262,7 @@ class TreePicker extends Widget
             return '';
         }
 
+        die('reloadGeneralTreePicker');
         $this->setUp($dataContainer);
         $environment = $this->dataContainer->getEnvironment();
         $this->value = $environment->getInputProvider()->getValue('value');
@@ -372,7 +372,7 @@ class TreePicker extends Widget
                 break;
 
             case 'value':
-                $this->varValue = $this->convertValue($varValue);
+                $this->varValue = $this->widgetToValue($varValue);
                 break;
 
             default:
@@ -392,13 +392,17 @@ class TreePicker extends Widget
      */
     private function convertValue($varValue)
     {
-        if (empty($varValue) || \is_array($varValue)) {
+        if (empty($varValue)) {
+            return null;
+        }
+
+        if (\is_array($varValue)) {
             return $varValue;
         }
 
         switch ($this->fieldType) {
             case 'radio':
-                return [$varValue];
+                return $varValue;
             case 'checkbox':
                 $delimiter = (\stripos($varValue, "\t") !== false) ? "\t" : ',';
 
@@ -457,13 +461,9 @@ class TreePicker extends Widget
      */
     protected function validator($varInput)
     {
-        if (!(($this->alwaysSave) || (Input::post($this->name)))) {
-            $this->blnSubmitInput = false;
-        }
+        $convertValue = $this->widgetToValue($varInput);
 
-        $convertValue = $this->convertValue($varInput);
-
-        if (empty($convertValue) && $this->mandatory) {
+        if ((null === $convertValue) && $this->mandatory) {
             $translator = $this->getEnvironment()->getTranslator();
 
             $message = empty($this->label)
@@ -489,6 +489,10 @@ class TreePicker extends Widget
         $values     = [];
         $value      = $this->varValue;
         $idProperty = $this->idProperty ?: 'id';
+
+        if ('radio' === $this->fieldType && !empty($value)) {
+            $value = (array) $value;
+        }
 
         if (\is_array($value) && !empty($value)) {
             $environment = $this->getEnvironment();
@@ -626,6 +630,38 @@ class TreePicker extends Widget
     }
 
     /**
+     * Convert the value from widget for internal process.
+     *
+     * @param mixed $value The widget value.
+     *
+     * @return null|string|array
+     */
+    public function widgetToValue($value)
+    {
+        return $this->convertValue($value);
+    }
+
+    /**
+     * Convert the value for the widget.
+     *
+     * @param mixed $value The input value.
+     *
+     * @return string
+     */
+    public function valueToWidget($value)
+    {
+        if (!\in_array($this->fieldType, ['radio', 'checkbox'])) {
+            throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
+        }
+
+        if (null === $value) {
+            return '';
+        }
+
+        return ('radio' === $this->fieldType) ? $value : \implode(',', $value);
+    }
+
+    /**
      * Generate the update url.
      *
      * @return string
@@ -643,7 +679,7 @@ class TreePicker extends Widget
                 'orderField'   => $this->orderField,
                 'propertyName' => $this->name
             ],
-            $this->value ? \implode(',', $this->value) : ''
+            $this->valueToWidget($this->value)
         );
 
         return System::getContainer()->get('router')->generate(
