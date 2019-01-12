@@ -17,6 +17,8 @@
  * @filesource
  */
 
+namespace ContaoCommunityAlliance\DcGeneral\Test;
+
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;

@@ -17,6 +17,8 @@
  * @filesource
  */
 
+namespace ContaoCommunityAlliance\DcGeneral\Test;
+
 use ContaoCommunityAlliance\DcGeneral\CcaDcGeneralBundle;
 use ContaoCommunityAlliance\DcGeneral\DependencyInjection\Compiler\AddSessionBagsPass;
 use PHPUnit\Framework\TestCase;

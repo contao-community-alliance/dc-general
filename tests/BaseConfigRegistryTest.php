@@ -17,6 +17,8 @@
  * @filesource
  */
 
+namespace ContaoCommunityAlliance\DcGeneral\Test;
+
 use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
 use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;

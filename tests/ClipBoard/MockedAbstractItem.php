@@ -18,7 +18,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Test\ClipBoard;
+namespace ContaoCommunityAlliance\DcGeneral\Test\Clipboard;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\AbstractItem;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;

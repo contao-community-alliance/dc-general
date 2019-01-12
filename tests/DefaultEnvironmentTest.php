@@ -17,6 +17,8 @@
  * @filesource
  */
 
+namespace ContaoCommunityAlliance\DcGeneral\Test;
+
 use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;

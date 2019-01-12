@@ -18,7 +18,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Test\ClipBoard;
+namespace ContaoCommunityAlliance\DcGeneral\Test\Clipboard;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
