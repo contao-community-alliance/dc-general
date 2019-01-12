@@ -53,6 +53,9 @@
         "classmap": [
             "contao-compat/DC_General.php"
         ],
+        "files": [
+            "src/deprecated-autoload.php"
+        ],
         "psr-4": {
             "ContaoCommunityAlliance\\DcGeneral\\": "src/"
         }

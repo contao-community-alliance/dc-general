@@ -10,8 +10,8 @@ services:
                 event: dc-general.view.contao2backend.build-widget
                 method: handleEvent
 
-    cca.dc-general.backend_listener.color_picker_wizard_subscriber:
-        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber
+    cca.dc-general.backend_listener.color_picker_wizard:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\ColorPickerWizardListener
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"

@@ -18,7 +18,7 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
+namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
 use Contao\StringUtil;
 use Contao\Widget;
@@ -31,10 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * Widget Builder to append color picker wizards to Contao backend widgets.
- *
- * // Fixme: The isn´t an subscriber. Or must call this as event?
  */
-class ColorPickerWizardSubscriber
+class ColorPickerWizardListener
 {
     /**
      * The request mode determinator.
@@ -44,7 +42,7 @@ class ColorPickerWizardSubscriber
     private $scopeDeterminator;
 
     /**
-     * ColorPickerWizardSubscriber constructor.
+     * ColorPickerWizardListener constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
      */
