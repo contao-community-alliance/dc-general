@@ -159,7 +159,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @return DefaultDataProvider
      *
-     * @throws \RuntimeException When already an id generator has been set on the instance.
+     * @throws DcGeneralRuntimeException When already an id generator has been set on the instance.
      */
     public function enableDefaultUuidGenerator()
     {
@@ -176,6 +176,7 @@ class DefaultDataProvider implements DataProviderInterface
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException When no source has been defined.
+     * @throws DcGeneralRuntimeException For invalid database connection.
      */
     public function setBaseConfig(array $config)
     {
@@ -187,10 +188,12 @@ class DefaultDataProvider implements DataProviderInterface
         // CHANGE TO CONNECTION START
         // This is the fallback for deprecated contao database. This code block will dropped.
         if (isset($config['database'])) {
+            // @codingStandardsIgnoreStart
             @trigger_error(
                 'Config key database is deprecated use instead connection. Fallback will be dropped.',
                 E_USER_DEPRECATED
             );
+            // @codingStandardsIgnoreEnd
 
             if (!isset($config['connection'])) {
                 $config['connection'] = $config['database'];
@@ -201,11 +204,13 @@ class DefaultDataProvider implements DataProviderInterface
 
         if (isset($config['connection'])) {
             if ($config['connection'] instanceof Database) {
-                @trigger_error(
+                // @codingStandardsIgnoreStart
+                @\trigger_error(
                     '"' . __METHOD__ . '" now accepts doctrine instances - ' .
                     'passing Contao database instances is deprecated.',
                     E_USER_DEPRECATED
                 );
+                // @codingStandardsIgnoreEnd
                 $reflection = new \ReflectionProperty(Database::class, 'resConnection');
                 $reflection->setAccessible(true);
 
@@ -213,7 +218,6 @@ class DefaultDataProvider implements DataProviderInterface
             }
         }
         // CHANGE TO CONNECTION END
-
         if (isset($config['connection'])) {
             if (!($config['connection'] instanceof Connection)) {
                 throw new DcGeneralRuntimeException('Invalid database connection.');
@@ -221,10 +225,12 @@ class DefaultDataProvider implements DataProviderInterface
 
             $this->connection = $config['connection'];
         } else {
+            // @codingStandardsIgnoreStart
             @\trigger_error(
                 'You should pass a doctrine database connection to "' . __METHOD__ . '".',
                 E_USER_DEPRECATED
             );
+            // @codingStandardsIgnoreEnd
 
             $this->connection = System::getContainer()->get('database_connection');
         }
@@ -433,7 +439,7 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder->select("DISTINCT($property)");
+        $queryBuilder->select('DISTINCT(' . $property . ')');
         $queryBuilder->from($this->source);
         DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
 
@@ -455,7 +461,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function getCount(ConfigInterface $config)
     {
         $internalConfig = $this->prefixDataProviderProperties($config);
-        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder   = $this->connection->createQueryBuilder();
         $queryBuilder->select('COUNT(*) AS count');
         $queryBuilder->from($this->source, 'sourceTable');
         DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
@@ -748,9 +754,9 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * Return a list with all versions for the row with the given Id.
      *
-     * @param mixed   $mixID         The ID of the row.
-     * @param boolean $onlyActive    If true, only active versions will get returned, if false all version will get
-     *                               returned.
+     * @param mixed   $mixID      The ID of the row.
+     * @param boolean $onlyActive If true, only active versions will get returned, if false all version will get
+     *                            returned.
      *
      * @return CollectionInterface
      */

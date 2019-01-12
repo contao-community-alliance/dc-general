@@ -37,7 +37,7 @@ class SelectModelAllHandler
     /**
      * SelectModelAllHandler constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator.
+     * @param RequestScopeDeterminator $scopeDeterminator The scope determinator.
      */
     public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {

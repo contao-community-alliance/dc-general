@@ -295,7 +295,7 @@ class BackendTreeController implements ContainerAwareInterface
             $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false, $propertyValues);
 
         $response = new Response($buffer);
-        $response->headers->set('Content-Type', 'txt/html' . '; charset=' . Config::get('characterSet'));
+        $response->headers->set('Content-Type', 'txt/html; charset=' . Config::get('characterSet'));
 
         $ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
 

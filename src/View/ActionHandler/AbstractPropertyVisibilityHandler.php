@@ -675,14 +675,11 @@ abstract class AbstractPropertyVisibilityHandler
 
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
+            $useIntersectValue = $this
+                ->useIntersectValue($intersectProperty, $legendPropertyNames, $defaultPalette, $environment);
             if (($idProperty === $intersectProperty)
                 || !$propertiesDefinition->hasProperty($intersectProperty)
-                || (false === $this->useIntersectValue(
-                        $intersectProperty,
-                        $legendPropertyNames,
-                        $defaultPalette,
-                        $environment
-                    ))
+                || (false === $useIntersectValue)
             ) {
                 continue;
             }

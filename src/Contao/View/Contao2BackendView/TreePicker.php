@@ -567,7 +567,6 @@ class TreePicker extends Widget
      */
     public function generate()
     {
-        // FIXME: needs to get properly transported to the response.
         $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();

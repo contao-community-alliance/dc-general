@@ -513,7 +513,7 @@ abstract class AbstractListShowAllHandler
      * @param string               $field       The name of the property to format.
      * @param ModelInterface       $model       The model from which the value shall be taken from.
      * @param string               $groupMode   The grouping mode in use.
-     * @param int                  $groupLength The length of the value to use for grouping (only used when grouping
+     * @param int                  $groupLength The length of the value to use for grouping (only used when grouping.
      * @param EnvironmentInterface $environment The environment.
      *
      * @return string

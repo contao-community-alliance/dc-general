@@ -120,7 +120,8 @@ interface DataProviderInterface
      * If the item does not have an Id yet, the save operation will add it as a new row to the database and
      * populate the Id of the model accordingly.
      *
-     * @param ModelInterface $item The model to save back.* @param int            $timestamp Optional parameter for use own timestamp.
+     * @param ModelInterface $item      The model to save back.
+     * @param int            $timestamp Optional parameter for use own timestamp.
      *                                  This is useful if save a collection of models and all shall have
      *                                  the same timestamp.
      *
@@ -131,7 +132,8 @@ interface DataProviderInterface
     /**
      * Save a collection of items to the data provider.
      *
-     * @param CollectionInterface $items The collection containing all items to be saved.* @param int                 $timestamp Optional parameter for use own timestamp.
+     * @param CollectionInterface $items     The collection containing all items to be saved.
+     * @param int                 $timestamp Optional parameter for use own timestamp.
      *                                       This is useful if save a collection of models and all shall have
      *                                       the same timestamp.
      *
@@ -175,9 +177,9 @@ interface DataProviderInterface
     /**
      * Return a list with all versions for the model with the given Id.
      *
-     * @param mixed   $mixID         The ID of the row.
-     * @param boolean $onlyActive    If true, only active versions will get returned, if false all version will get
-     *                               returned.
+     * @param mixed   $mixID      The ID of the row.
+     * @param boolean $onlyActive If true, only active versions will get returned, if false all version will get
+     *                            returned.
      *
      * @return CollectionInterface
      */

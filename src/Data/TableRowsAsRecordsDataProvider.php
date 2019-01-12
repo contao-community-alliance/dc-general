@@ -316,7 +316,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param CollectionInterface $items Unused.
+     * @param CollectionInterface $items     Unused.
      * @param int                 $timestamp Optional the timestamp.
      *
      * @return void

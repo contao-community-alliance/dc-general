@@ -33,9 +33,7 @@ class DefaultDataProviderDBalUtils
      * Returns all values from $objConfig->getFields() as comma separated list.
      *
      * @param ConfigInterface $config       The configuration to use.
-     *
      * @param string          $idProperty   The name of the id property.
-     *
      * @param QueryBuilder    $queryBuilder The query builder.
      *
      * @return void
@@ -66,12 +64,11 @@ class DefaultDataProviderDBalUtils
      * Add the WHERE clause for a configuration.
      *
      * @param ConfigInterface $config       The configuration to use.
-     *
      * @param QueryBuilder    $queryBuilder The query builder.
      *
      * @return void
-     * @internal param array $parameters The query parameters will get stored into this array.
      *
+     * @internal param array $parameters The query parameters will get stored into this array.
      */
     public static function addWhere($config, QueryBuilder $queryBuilder)
     {
@@ -82,7 +79,6 @@ class DefaultDataProviderDBalUtils
      * Add the order by part of a query.
      *
      * @param ConfigInterface $config       The configuration to use.
-     *
      * @param QueryBuilder    $queryBuilder The query builder.
      *
      * @return void
@@ -113,12 +109,11 @@ class DefaultDataProviderDBalUtils
      * Build the WHERE conditions via calculateSubfilter().
      *
      * @param ConfigInterface $config       The configuration to use.
-     *
      * @param QueryBuilder    $queryBuilder The query builder.
      *
      * @return string The combined conditions.
-     * @internal param array $parameters The query parameters will get stored into this array.
      *
+     * @internal param array $parameters The query parameters will get stored into this array.
      */
     private static function addFilter($config, QueryBuilder $queryBuilder)
     {
@@ -162,8 +157,10 @@ class DefaultDataProviderDBalUtils
      *
      * @return string The combined WHERE conditions.
      *
-     * @internal param array $parameters The query parameters will get stored into this array.
+     * @throws DcGeneralRuntimeException If the sub filter has a sub filter.
+     * @throws DcGeneralRuntimeException If the sub filter has a no filter.
      *
+     * @internal param array $parameters The query parameters will get stored into this array.
      */
     private static function calculateSubFilter($filter, QueryBuilder $queryBuilder)
     {
@@ -207,10 +204,11 @@ class DefaultDataProviderDBalUtils
      * Build an AND or OR query.
      *
      * @param array        $operation    The operation to convert.
-     * @param QueryBuilder $queryBuilder The query builder
+     * @param QueryBuilder $queryBuilder The query builder.
+     *
+     * @return void
      *
      * @internal param array $params The parameter array for the resulting query.
-     *
      */
     private static function filterAndOr($operation, QueryBuilder $queryBuilder)
     {
@@ -231,12 +229,11 @@ class DefaultDataProviderDBalUtils
      * Build the sub query for a comparing operator like =,<,>.
      *
      * @param array        $operation    The operation to apply.
-     *
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string
-     * @internal param array $params The parameters of the entire query.
      *
+     * @internal param array $params The parameters of the entire query.
      */
     private static function filterComparing($operation, QueryBuilder $queryBuilder)
     {
@@ -254,8 +251,8 @@ class DefaultDataProviderDBalUtils
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string
-     * @internal param array $params The parameters of the entire query.
      *
+     * @internal param array $params The parameters of the entire query.
      */
     private static function filterInOrNotInList($operation, QueryBuilder $queryBuilder)
     {
@@ -271,13 +268,12 @@ class DefaultDataProviderDBalUtils
      *
      * The searched value may contain the wildcards '*' and '?' which will get converted to proper SQL.
      *
-     * @param array        $operation The operation to apply.
-     *
-     * @param QueryBuilder $queryBuilder
+     * @param array        $operation    The operation to apply.
+     * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string
-     * @internal param array $params The parameters of the entire query.
      *
+     * @internal param array $params The parameters of the entire query.
      */
     private static function filterLikeOrNotLike($operation, QueryBuilder $queryBuilder)
     {
@@ -293,13 +289,12 @@ class DefaultDataProviderDBalUtils
      *
      * The searched value may contain the wildcards '*' and '?' which will get converted to proper SQL.
      *
-     * @param array        $operation The operation to apply.
-     *
-     * @param QueryBuilder $queryBuilder
+     * @param array        $operation    The operation to apply.
+     * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string
-     * @internal param array $params The parameters of the entire query.
      *
+     * @internal param array $params The parameters of the entire query.
      */
     private static function filterIsNullOrIsNotNull($operation, QueryBuilder $queryBuilder)
     {
