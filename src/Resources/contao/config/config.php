@@ -27,7 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
 /**
  * JS
  */
-if (TL_MODE == 'BE') {
+if (defined('TL_MODE') && TL_MODE === 'BE') {
     $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/generalDriver_src.js';
     $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 }
