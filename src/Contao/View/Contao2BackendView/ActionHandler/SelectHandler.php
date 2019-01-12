@@ -123,14 +123,35 @@ class SelectHandler
      */
     private function getSubmitAction(EnvironmentInterface $environment, $regardSelectMode = false)
     {
-        $actions = ['delete', 'cut', 'copy', 'override', 'edit'];
-
         if (!$regardSelectMode
             && $environment->getInputProvider()->hasParameter('select')
             && !$environment->getInputProvider()->hasValue('properties')
         ) {
             return 'select' . \ucfirst($environment->getInputProvider()->getParameter('select'));
         }
+
+        if (null !== ($action = $this->determineAction($environment))) {
+            return $action;
+        }
+
+        if ($regardSelectMode) {
+            return $environment->getInputProvider()->getParameter('mode') ?: null;
+        }
+
+        return $environment->getInputProvider()->getParameter('select') ?
+            'select' . \ucfirst($environment->getInputProvider()->getParameter('select')) : null;
+    }
+
+    /**
+     * Determine the action.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string|null
+     */
+    private function determineAction(EnvironmentInterface $environment)
+    {
+        $actions = ['delete', 'cut', 'copy', 'override', 'edit'];
 
         foreach ($actions as $action) {
             if ($environment->getInputProvider()->hasValue($action)
@@ -142,13 +163,7 @@ class SelectHandler
                 return $action;
             }
         }
-
-        if ($regardSelectMode) {
-            return $environment->getInputProvider()->getParameter('mode') ?: null;
-        }
-
-        return $environment->getInputProvider()->getParameter('select') ?
-            'select' . \ucfirst($environment->getInputProvider()->getParameter('select')) : null;
+        return null;
     }
 
     /**

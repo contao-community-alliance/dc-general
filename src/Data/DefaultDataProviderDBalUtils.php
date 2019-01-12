@@ -168,36 +168,114 @@ class DefaultDataProviderDBalUtils
             throw new DcGeneralRuntimeException('Error Processing sub filter: ' . var_export($filter, true), 1);
         }
 
-        switch ($filter['operation']) {
-            case 'AND':
-            case 'OR':
-                static::filterAndOr($filter, $queryBuilder);
+        if (null !== ($rule = static::determineFilterAndOr($filter, $queryBuilder))) {
+            return $rule;
+        }
 
-                return '';
-            case '=':
-            case '>':
-            case '>=':
-            case '<':
-            case '<=':
-            case '<>':
-                return static::filterComparing($filter, $queryBuilder);
+        if (null !== ($rule = static::determineFilterComparing($filter, $queryBuilder))) {
+            return $rule;
+        }
 
-            case 'IN':
-            case 'NOT IN':
-                return static::filterInOrNotInList($filter, $queryBuilder);
+        if (null !== ($rule = static::determineFilterInOrNotInList($filter, $queryBuilder))) {
+            return $rule;
+        }
 
-            case 'LIKE':
-            case 'NOT LIKE':
-                return static::filterLikeOrNotLike($filter, $queryBuilder);
+        if (null !== ($rule = static::determineFilterLikeOrNotLike($filter, $queryBuilder))) {
+            return $rule;
+        }
 
-            case 'IS NULL':
-            case 'IS NOT NULL':
-                return static::filterIsNullOrIsNotNull($filter, $queryBuilder);
-
-            default:
+        if (null !== ($rule = static::determineFilterIsNullOrIsNotNull($filter, $queryBuilder))) {
+            return $rule;
         }
 
         throw new DcGeneralRuntimeException('Error processing filter array ' . var_export($filter, true), 1);
+    }
+
+    /**
+     * Determine sql filter for and/or.
+     *
+     * @param array        $filter       The query filter.
+     * @param QueryBuilder $queryBuilder The query builder.
+     *
+     * @return string|null
+     */
+    private function determineFilterAndOr(array $filter, QueryBuilder $queryBuilder)
+    {
+        if (!\in_array($filter['operation'], ['AND', 'OR'])) {
+            return null;
+        }
+
+        static::filterAndOr($filter, $queryBuilder);
+
+        return '';
+    }
+
+    /**
+     * Determine sql filter for comparing.
+     *
+     * @param array        $filter       The query filter.
+     * @param QueryBuilder $queryBuilder The query builder.
+     *
+     * @return string|null
+     */
+    private function determineFilterComparing(array $filter, QueryBuilder $queryBuilder)
+    {
+        if (!\in_array($filter['operation'], ['=', '>', '>=', '<', '<=', '<>'])) {
+            return null;
+        }
+
+        return static::filterComparing($filter, $queryBuilder);
+    }
+
+    /**
+     * Determine sql filter for in or not in list.
+     *
+     * @param array        $filter       The query filter.
+     * @param QueryBuilder $queryBuilder The query builder.
+     *
+     * @return string|null
+     */
+    private function determineFilterInOrNotInList(array $filter, QueryBuilder $queryBuilder)
+    {
+        if (!\in_array($filter['operation'], ['IN', 'NOT IN'])) {
+            return null;
+        }
+
+        return static::filterInOrNotInList($filter, $queryBuilder);
+    }
+
+    /**
+     * Determine sql filter for like or not like.
+     *
+     * @param array        $filter       The query filter.
+     * @param QueryBuilder $queryBuilder The query builder.
+     *
+     * @return string|null
+     */
+    private function determineFilterLikeOrNotLike(array $filter, QueryBuilder $queryBuilder)
+    {
+        if (!\in_array($filter['operation'], ['LIKE', 'NOT LIKE'])) {
+            return null;
+        }
+
+        return static::filterLikeOrNotLike($filter, $queryBuilder);
+    }
+
+    /**
+     * Determine sql filter for is null or is not null.
+     *
+     * @param array        $filter       The query filter.
+     * @param QueryBuilder $queryBuilder The query builder.
+     *
+     * @return string|null
+     */
+    private function determineFilterIsNullOrIsNotNull(array $filter, QueryBuilder $queryBuilder)
+    {
+        if (!\in_array($filter['operation'], ['IS NULL', 'IS NOT NULL'])) {
+            return null;
+        }
+
+        return static::filterIsNullOrIsNotNull($filter, $queryBuilder);
     }
 
     /**
