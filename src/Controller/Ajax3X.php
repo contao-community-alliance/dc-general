@@ -24,6 +24,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use Contao\CoreBundle\Exception\ResponseException;
 use Contao\Dbafs;
 use Contao\StringUtil;
 use Contao\Widget;
@@ -33,6 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidge
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
@@ -119,9 +121,10 @@ class Ajax3X extends Ajax
         $objWidget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
         $objWidget->value = $this->getTreeValue('page', $input->getValue('value'));
 
-        echo $objWidget->generateAjax($ajaxId, $field, $level);
 
-        $this->exitScript();
+        $response = new Response($objWidget->generateAjax($ajaxId, $field, $level));
+
+        throw new ResponseException($response);
     }
 
     /**
@@ -152,12 +155,12 @@ class Ajax3X extends Ajax
         $objWidget->value = $this->getTreeValue($field, $input->getValue('value'));
         // Load a particular node.
         if ($folder != '') {
-            echo $objWidget->generateAjax($folder, $field, $level);
+            $response = new Response($objWidget->generateAjax($folder, $field, $level));
         } else {
-            echo $objWidget->generate();
+            $response = new Response($objWidget->generate());
         }
 
-        $this->exitScript();
+        throw new ResponseException($response);
     }
 
     /**
@@ -210,9 +213,8 @@ class Ajax3X extends Ajax
                 TL_ERROR
             );
             $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::SYSTEM_LOG, $event);
-            \header('HTTP/1.1 400 Bad Request');
-            echo 'Bad Request';
-            $this->exitScript();
+
+            throw new ResponseException(new Response(Response::$statusTexts[400], 400));
         }
 
         return $model;
@@ -233,7 +235,7 @@ class Ajax3X extends Ajax
 
         $this->generateWidget($this->getWidget($fieldName, $serializedId, $value));
 
-        $this->exitScript();
+        throw new ResponseException(new Response(''));
     }
 
     /**
@@ -268,7 +270,7 @@ class Ajax3X extends Ajax
         $states[$table][$legend] = $state;
         $session->set('LEGENDS', $states);
 
-        $this->exitScript();
+        throw new ResponseException(new Response(''));
     }
 
     /**

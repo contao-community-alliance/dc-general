@@ -24,6 +24,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
+use Contao\CoreBundle\Exception\ResponseException;
 use Contao\CoreBundle\Picker\PickerConfig;
 use Contao\System;
 use Contao\Widget;
@@ -48,6 +49,7 @@ use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
@@ -262,7 +264,6 @@ class TreePicker extends Widget
             return '';
         }
 
-        die('reloadGeneralTreePicker');
         $this->setUp($dataContainer);
         $environment = $this->dataContainer->getEnvironment();
         $this->value = $environment->getInputProvider()->getValue('value');
@@ -282,8 +283,7 @@ class TreePicker extends Widget
             $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
         }
 
-        echo $result;
-        exit;
+        throw new ResponseException(new Response($result));
     }
 
     /**

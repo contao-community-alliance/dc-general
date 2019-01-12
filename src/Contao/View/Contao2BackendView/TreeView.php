@@ -26,6 +26,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
 use Contao\BackendUser;
+use Contao\CoreBundle\Exception\ResponseException;
 use Contao\Database;
 use Contao\StringUtil;
 use Contao\Config;
@@ -52,6 +53,7 @@ use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforc
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class TreeView.
@@ -616,25 +618,14 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
-                // TODO load sub as route (entry point).
-                \header('Content-Type: text/html; charset=' . Config::get('characterSet'));
-                echo $this->ajaxTreeView(
+
+                $response = new Response($this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),
                     $input->getValue('level')
-                );
+                ));
 
-                // TODO START give the response back or use own entry point for ajax call.
-                // The problem is the session will be update by event kernel.response.
-                $session = System::getContainer()->get('session');
-                $sessionBag = $session->getBag('contao_backend')->all();
-
-                $user = BackendUser::getInstance();
-
-                Database::getInstance()->prepare('UPDATE tl_user SET tl_user.session=? WHERE tl_user.id=?')
-                    ->execute(\serialize($sessionBag), $user->id);
-                // TODO END
-                exit;
+                throw new ResponseException($response);
 
             default:
         }

@@ -24,6 +24,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
 use Contao\Config;
+use Contao\CoreBundle\Exception\ResponseException;
 use Contao\DataContainer;
 use Contao\Environment;
 use Contao\File;
@@ -34,6 +35,7 @@ use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * File tree widget being compatible with the dc general.
@@ -548,7 +550,6 @@ class FileTree extends AbstractWidget
             $buffer = $widget->generate();
         }
 
-        echo $buffer;
-        exit;
+        throw new ResponseException(new Response($buffer));
     }
 }

@@ -23,12 +23,14 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use Contao\Ajax as ContaoAjax;
 use Contao\BackendUser;
+use Contao\CoreBundle\Exception\ResponseException;
 use Contao\Database;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class Ajax - General purpose Ajax handler for "executePostActions" as we can not use the default Contao
@@ -119,9 +121,11 @@ abstract class Ajax implements EnvironmentAwareInterface
     protected function loadStructure()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), (int) $this->getPost('level'));
+        $response = new Response(
+            $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), (int) $this->getPost('level'))
+        );
 
-        $this->exitScript();
+        throw new ResponseException($response);
     }
 
     /**
@@ -134,9 +138,11 @@ abstract class Ajax implements EnvironmentAwareInterface
     protected function loadFileManager()
     {
         // Method ajaxTreeView is in TreeView.php - watch out!
-        echo $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), (int) $this->getPost('level'));
+        $response = new Response(
+            $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), (int) $this->getPost('level'))
+        );
 
-        $this->exitScript();
+        throw new ResponseException($response);
     }
 
     /**
@@ -263,11 +269,12 @@ abstract class Ajax implements EnvironmentAwareInterface
      *
      * @return void
      *
+     * @deprecated Deperecated since 2.1 and where remove in 3.0. Use own response exit.
+     *
      * @SuppressWarnings(PHPMD.ExitExpression) - The whole purpose of the method is the exit expression.
      */
     protected function exitScript()
     {
-        // TODO START give the response back or use own entry point for ajax call.
         // The problem is the session will be update by event kernel.response.
         $session = System::getContainer()->get('session');
         $sessionBag = $session->getBag('contao_backend')->all();
@@ -276,7 +283,7 @@ abstract class Ajax implements EnvironmentAwareInterface
 
         Database::getInstance()->prepare('UPDATE tl_user SET tl_user.session=? WHERE tl_user.id=?')
             ->execute(\serialize($sessionBag), $user->id);
-        // TODO END
+
         exit;
     }
 }
