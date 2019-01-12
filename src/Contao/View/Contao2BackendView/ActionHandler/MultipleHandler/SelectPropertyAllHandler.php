@@ -66,7 +66,6 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $response = $this->process($event->getAction(), $event->getEnvironment());
         if (false !== $response) {
             $event->setResponse($response);
-            //$event->stopPropagation();
         }
     }
 
@@ -124,8 +123,8 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     /**
      * Set the label formatter for property data provider to the listing configuration.
      *
-     * @param string $providerName The provider name.
-     * @param EnvironmentInterface $environment The environment.
+     * @param string               $providerName The provider name.
+     * @param EnvironmentInterface $environment  The environment.
      *
      * @return void
      */
@@ -257,7 +256,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     /**
      * Is property allowed by intersect properties.
      *
-     * @param PropertyInterface    $property    The property
+     * @param PropertyInterface    $property    The property.
      * @param EnvironmentInterface $environment The environment.
      *
      * @return bool
@@ -331,8 +330,8 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     /**
      * Prepare the template.
      *
-     * @param EnvironmentInterface $environment The environment.
-     * @param ContaoBackendViewTemplate $template The template to populate.
+     * @param ContaoBackendViewTemplate $template    The template to populate.
+     * @param EnvironmentInterface      $environment The environment.
      *
      * @return void
      */
@@ -340,7 +339,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     {
         $inputProvider = $environment->getInputProvider();
 
-        $languageDomain  = 'contao_' . $environment->getDataDefinition()->getName();
+        $languageDomain = 'contao_' . $environment->getDataDefinition()->getName();
 
         $this->getViewSection($environment->getDataDefinition())->getListingConfig()->setShowColumns(false);
 
@@ -382,7 +381,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     protected function getSelectButtons(EnvironmentInterface $environment)
     {
-        $languageDomain  = 'contao_' . $environment->getDataDefinition()->getName();
+        $languageDomain = 'contao_' . $environment->getDataDefinition()->getName();
 
         $confirmMessage = \htmlentities(
             \sprintf(
@@ -422,10 +421,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      * @param Action $action The action.
      *
      * @return mixed
-     *
-     * @deprecated Remove
      */
-    // Fixme can remove this ?
     protected function wantToHandle($mode, Action $action)
     {
         $arguments = $action->getArguments();

@@ -117,6 +117,8 @@ abstract class Ajax implements EnvironmentAwareInterface
      * This method exits the script!
      *
      * @return void
+     *
+     * @throws ResponseException Throws a response exception.
      */
     protected function loadStructure()
     {
@@ -134,6 +136,8 @@ abstract class Ajax implements EnvironmentAwareInterface
      * This method exits the script!
      *
      * @return void
+     *
+     * @throws ResponseException Throws a response exception.
      */
     protected function loadFileManager()
     {
@@ -279,7 +283,7 @@ abstract class Ajax implements EnvironmentAwareInterface
         @\trigger_error('Use own response exit!', E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
-        $session = System::getContainer()->get('session');
+        $session    = System::getContainer()->get('session');
         $sessionBag = $session->getBag('contao_backend')->all();
 
         $user = BackendUser::getInstance();

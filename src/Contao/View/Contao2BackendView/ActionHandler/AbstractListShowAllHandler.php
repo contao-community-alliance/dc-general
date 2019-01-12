@@ -391,7 +391,7 @@ abstract class AbstractListShowAllHandler
             $index++;
 
             /** @var ModelInterface $model */
-            $this->addGroupHeader($environment,(array) $grouping, $model, $groupClass, $eoCount, $remoteCur);
+            $this->addGroupHeader($environment, (array) $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
@@ -431,8 +431,7 @@ abstract class AbstractListShowAllHandler
         &$groupClass,
         &$eoCount,
         &$remoteCur = null
-    )
-    {
+    ) {
         if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
             $remoteNew = $this->renderGroupHeader(
                 $grouping['property'],
@@ -440,7 +439,7 @@ abstract class AbstractListShowAllHandler
                 $grouping['mode'],
                 $grouping['length'],
                 $environment
-                );
+            );
 
             $model->setMeta(
                 $model::GROUP_VALUE,
@@ -681,6 +680,8 @@ abstract class AbstractListShowAllHandler
     /**
      * Get the the container of selections.
      *
+     * @param EnvironmentInterface $environment The Environment.
+     *
      * @return array
      */
     private function getSelectContainer(EnvironmentInterface $environment)
@@ -710,7 +711,8 @@ abstract class AbstractListShowAllHandler
     /**
      * Is the collection empty, the disable the edit/override all button.
      *
-     * @param CollectionInterface $collection The collection.
+     * @param CollectionInterface  $collection  The collection.
+     * @param EnvironmentInterface $environment The Environment.
      *
      * @return void
      */

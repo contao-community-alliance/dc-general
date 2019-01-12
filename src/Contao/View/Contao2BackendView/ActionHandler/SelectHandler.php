@@ -114,8 +114,8 @@ class SelectHandler
     /**
      * Get the submit action name.
      *
-     * @param EnvironmentInterface $environment The environment.
-     * @param boolean $regardSelectMode Determine regard the select mode parameter.
+     * @param EnvironmentInterface $environment      The environment.
+     * @param boolean              $regardSelectMode Determine regard the select mode parameter.
      *
      * @return string
      */
@@ -259,7 +259,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return void
+     * @return null
      */
     private function handleDeleteAllAction(EnvironmentInterface $environment, Action $action)
     {
@@ -521,6 +521,8 @@ class SelectHandler
      *
      * @param CollectionInterface  $collection  The collection of models.
      * @param EnvironmentInterface $environment The environment.
+     *
+     * @return void
      */
     private function setIntersectProperties(CollectionInterface $collection, EnvironmentInterface $environment)
     {
@@ -539,6 +541,8 @@ class SelectHandler
      *
      * @param CollectionInterface  $collection  The collection of models.
      * @param EnvironmentInterface $environment The environment.
+     *
+     * @return void
      */
     private function setIntersectValues(CollectionInterface $collection, EnvironmentInterface $environment)
     {
@@ -593,7 +597,7 @@ class SelectHandler
     /**
      * Collect the intersect values from the model collection.
      *
-     * @param CollectionInterface  $collection
+     * @param CollectionInterface  $collection  The collection.
      * @param EnvironmentInterface $environment The environment.
      *
      * @return array
@@ -664,7 +668,7 @@ class SelectHandler
     /**
      * Get the unique value from a array. The value will return if the all values in the array the same.
      *
-     * @param array $values
+     * @param array $values The values.
      *
      * @return string|array|null
      */
@@ -693,7 +697,7 @@ class SelectHandler
      *
      * @param array                $collection  The collection.
      * @param string               $index       The session index for the collection.
-     * @param EnvironmentInterface $environment The environment,
+     * @param EnvironmentInterface $environment The environment.
      *
      * @return array The collection.
      */

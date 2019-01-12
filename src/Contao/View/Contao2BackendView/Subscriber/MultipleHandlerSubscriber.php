@@ -192,7 +192,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     public function handleOriginalWidget(BuildWidgetEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            ||'select' !== $event->getEnvironment()->getInputProvider()->getParameter('act')
+            || 'select' !== $event->getEnvironment()->getInputProvider()->getParameter('act')
             || 'edit' !== $event->getEnvironment()->getInputProvider()->getParameter('select')
         ) {
             return;

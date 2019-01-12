@@ -69,7 +69,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
      */
     public function getDcaAttributes(PickerConfig $config)
     {
-        $value = $config->getValue();
+        $value      = $config->getValue();
         $attributes = ['fieldType' => 'radio'];
 
         if ('page' === $config->getContext()) {
@@ -96,8 +96,8 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             return $attributes;
         }
 
-        if ($value && false !== \strpos ($value, '{{link_url::')) {
-            $attributes['value'] = \str_replace (['{{link_url::', '}}'], '', $value);
+        if ($value && false !== \strpos($value, '{{link_url::')) {
+            $attributes['value'] = \str_replace(['{{link_url::', '}}'], '', $value);
         }
 
         return $attributes;

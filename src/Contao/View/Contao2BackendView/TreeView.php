@@ -608,6 +608,8 @@ class TreeView extends BaseView
      *
      * @return void
      *
+     * @throws ResponseException Throws a response exception.
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.ExitExpression)
@@ -618,7 +620,6 @@ class TreeView extends BaseView
 
         switch ($input->getValue('action')) {
             case 'DcGeneralLoadSubTree':
-
                 $response = new Response($this->ajaxTreeView(
                     $input->getValue('id'),
                     $input->getValue('providerName'),

@@ -88,6 +88,8 @@ class Ajax3X extends Ajax
     /**
      * {@inheritDoc}
      *
+     * @throws ResponseException Throws a response exception.
+     *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
@@ -129,6 +131,8 @@ class Ajax3X extends Ajax
 
     /**
      * {@inheritDoc}
+     *
+     * @throws ResponseException Throws a response exception.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -198,6 +202,8 @@ class Ajax3X extends Ajax
      * @param string $serializedId The serialized id.
      *
      * @return ModelInterface
+     *
+     * @throws ResponseException Throws a response exception.
      */
     protected function getModelFromSerializedId($serializedId)
     {
@@ -224,6 +230,8 @@ class Ajax3X extends Ajax
      * Reload the file tree.
      *
      * @return void
+     *
+     * @throws ResponseException Throws a response exception.
      */
     protected function reloadTree()
     {
@@ -256,6 +264,8 @@ class Ajax3X extends Ajax
 
     /**
      * {@inheritDoc}
+     *
+     * @throws ResponseException Throws a response exception.
      */
     protected function setLegendState()
     {

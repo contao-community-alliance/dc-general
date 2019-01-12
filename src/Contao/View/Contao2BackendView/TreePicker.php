@@ -257,6 +257,8 @@ class TreePicker extends Widget
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.ExitExpression)
+     *
+     * @throws ResponseException Throws a response exception.
      */
     public function updateAjax($ajaxAction, $dataContainer)
     {
@@ -568,9 +570,9 @@ class TreePicker extends Widget
         // FIXME: needs to get properly transported to the response.
         $GLOBALS['TL_JAVASCRIPT'][] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 
-        $environment   = $this->getEnvironment();
-        $translator    = $environment->getTranslator();
-        $template      = new ContaoBackendViewTemplate('widget_treepicker');
+        $environment = $this->getEnvironment();
+        $translator  = $environment->getTranslator();
+        $template    = new ContaoBackendViewTemplate('widget_treepicker');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
         $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
@@ -647,6 +649,8 @@ class TreePicker extends Widget
      * @param mixed $value The input value.
      *
      * @return string
+     *
+     * @throws \RuntimeException Throws an exception, if unknown field type encountered.
      */
     public function valueToWidget($value)
     {
@@ -1213,7 +1217,6 @@ class TreePicker extends Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        // Fixme: find a way to use the route of cca_dc_general_tree_breadcrumb.
         $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $labelList = [];

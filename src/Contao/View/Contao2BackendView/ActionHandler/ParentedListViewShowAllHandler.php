@@ -268,14 +268,18 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      * Render for date time.
      *
      * @param EnvironmentInterface $environment The environment.
-     * @param PropertyInterface $property   The property.
-     * @param mixed             $value      The value.
-     * @param boolean           $isRendered Determine if is rendered.
+     * @param PropertyInterface    $property    The property.
+     * @param mixed                $value       The value.
+     * @param boolean              $isRendered  Determine if is rendered.
      *
      * @return mixed
      */
-    private function renderForDateTime(EnvironmentInterface $environment, PropertyInterface $property, $value, &$isRendered)
-    {
+    private function renderForDateTime(
+        EnvironmentInterface $environment,
+        PropertyInterface $property,
+        $value,
+        &$isRendered
+    ) {
         $evaluation = $property->getExtra();
 
         if ((true === $isRendered) || !$value || !\in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {

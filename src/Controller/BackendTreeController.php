@@ -184,12 +184,9 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('language', $GLOBALS['TL_LANGUAGE'])
             ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
-            #->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
             ->set('action', \ampersand($request->getUri()))
-            #->set('value', $sessionBag->get($treeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager']);
-        #->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb']);
 
         return $template->getResponse();
     }
@@ -218,7 +215,7 @@ class BackendTreeController implements ContainerAwareInterface
         $buffer = $treeSelector->generateAjax();
 
         $response = new Response($buffer);
-        $response->headers->set('Content-Type', 'txt/html' . '; charset=' . Config::get('characterSet'));
+        $response->headers->set('Content-Type', 'txt/html; charset=' . Config::get('characterSet'));
 
         return $response;
     }
@@ -245,7 +242,6 @@ class BackendTreeController implements ContainerAwareInterface
         }
         $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
 
-        // Fixme: If we must call the executive pre action?
         $ajax = new \Contao\Ajax($request->request->get('action'));
         $ajax->executePreActions();
 
@@ -300,8 +296,9 @@ class BackendTreeController implements ContainerAwareInterface
 
         $response = new Response($buffer);
         $response->headers->set('Content-Type', 'txt/html' . '; charset=' . Config::get('characterSet'));
-        // Fixme: If we must call the executive post action?
-        #$ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
+
+        $ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
+
         return $response;
     }
 
@@ -328,7 +325,6 @@ class BackendTreeController implements ContainerAwareInterface
 
         $sessionBag = $this->container->get('session')->getBag('contao_backend');
         // Define the current ID.
-        // FIXME: this is really bad!
         \define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
 
         $factory             = new DcGeneralFactory();

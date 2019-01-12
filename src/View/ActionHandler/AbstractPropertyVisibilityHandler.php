@@ -677,12 +677,12 @@ abstract class AbstractPropertyVisibilityHandler
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
             if (($idProperty === $intersectProperty)
                 || !$propertiesDefinition->hasProperty($intersectProperty)
-                || ($this->useIntersectValue(
+                || (false === $this->useIntersectValue(
                         $intersectProperty,
                         $legendPropertyNames,
                         $defaultPalette,
                         $environment
-                    ) === false)
+                    ))
             ) {
                 continue;
             }

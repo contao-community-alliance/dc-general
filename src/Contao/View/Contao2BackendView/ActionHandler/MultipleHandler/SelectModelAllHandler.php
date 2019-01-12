@@ -37,7 +37,7 @@ class SelectModelAllHandler
     /**
      * SelectModelAllHandler constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator
+     * @param RequestScopeDeterminator $scopeDeterminator.
      */
     public function __construct(RequestScopeDeterminator $scopeDeterminator)
     {
@@ -49,7 +49,7 @@ class SelectModelAllHandler
      *
      * @param ActionEvent $event The event.
      *
-     * @return void
+     * @return null
      */
     public function handleEvent(ActionEvent $event)
     {
@@ -67,7 +67,7 @@ class SelectModelAllHandler
     /**
      * Process the event.
      *
-     * @param Action $action The action.
+     * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
      *
      * @return string
@@ -76,7 +76,7 @@ class SelectModelAllHandler
     {
         $arguments           = $action->getArguments();
         $arguments['mode']   = $environment->getInputProvider()->getParameter('mode');
-        $arguments['select']   = $environment->getInputProvider()->getParameter('select');
+        $arguments['select'] = $environment->getInputProvider()->getParameter('select');
 
         return $this->callAction($environment, 'showAll', $arguments);
     }

@@ -19,10 +19,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
-use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -130,13 +130,17 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      *
      * @return void
      *
-     * Fixme can remove this?
+     * @deprecated Deprecated since 2.1 and where remove in 3.0.
      */
     protected function handleInvalidPropertyValueBag(
         PropertyValueBagInterface $propertyValueBag = null,
         ModelInterface $model = null,
         EnvironmentInterface $environment
     ) {
+        // @codingStandardsIgnoreStart
+        @\trigger_error('This function where remove in 3.0. ' . __CLASS__  . '::' . __FUNCTION__, E_USER_DEPRECATED);
+        // @codingStandardsIgnoreEnd
+
         if ((null === $propertyValueBag)
             || (null === $model)
         ) {

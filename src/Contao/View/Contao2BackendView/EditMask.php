@@ -326,7 +326,6 @@ class EditMask
         $definition      = $this->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
 
-        // Fixme: Creating buttons via an event?
         $buttonTemplate = new ContaoBackendViewTemplate('dc_general_button');
 
         $buttonTemplate->setData(

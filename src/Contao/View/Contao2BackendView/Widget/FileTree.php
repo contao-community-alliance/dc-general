@@ -440,7 +440,6 @@ class FileTree extends AbstractWidget
             $extras['path'] = (string) $this->path;
         }
 
-        // Fixme get the allowed extensions
         if ($this->extensions) {
             $extras['extensions'] = (string) $this->extensions;
         }
@@ -497,6 +496,8 @@ class FileTree extends AbstractWidget
      * @param DataContainer $dataContainer The data container to use.
      *
      * @return string
+     *
+     * @throws ResponseException Throws a response exception.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)

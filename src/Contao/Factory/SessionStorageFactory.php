@@ -37,7 +37,7 @@ class SessionStorageFactory
     /**
      * SessionStorageFactory constructor.
      *
-     * @param ContainerInterface $container
+     * @param ContainerInterface $container The container.
      */
     public function __construct(ContainerInterface $container)
     {
