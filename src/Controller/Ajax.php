@@ -275,7 +275,10 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     protected function exitScript()
     {
-        // The problem is the session will be update by event kernel.response.
+        // @codingStandardsIgnoreStart
+        @\trigger_error('Use own response exit!', E_USER_DEPRECATED);
+        // @codingStandardsIgnoreEnd
+
         $session = System::getContainer()->get('session');
         $sessionBag = $session->getBag('contao_backend')->all();
 
