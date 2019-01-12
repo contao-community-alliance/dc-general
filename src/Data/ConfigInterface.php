@@ -136,7 +136,7 @@ interface ConfigInterface
     /**
      * Get the list with filter options.
      *
-     * @return array
+     * @return null|array
      */
     public function getFilter();
 
@@ -172,7 +172,7 @@ interface ConfigInterface
     /**
      * Get the list of fields to be retrieved.
      *
-     * @return array
+     * @return null|array
      */
     public function getFields();
 
