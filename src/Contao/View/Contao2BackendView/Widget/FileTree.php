@@ -420,11 +420,9 @@ class FileTree extends AbstractWidget
     /**
      * Generate the adjust selection link.
      *
-     * @param array $values The selected files (string uuids).
-     *
      * @return string
      */
-    private function generateLink($values)
+    private function generateLink()
     {
         $extras = array('fieldType' => $this->fieldType);
 
@@ -478,7 +476,7 @@ class FileTree extends AbstractWidget
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)
             ->set('orderId', $this->orderId)
-            ->set('link', $this->generateLink($values))
+            ->set('link', $this->generateLink())
             ->set('label', $this->label)
             ->parse();
 
