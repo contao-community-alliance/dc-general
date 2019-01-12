@@ -75,6 +75,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * @param EnvironmentInterface $environment The enviroment.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     private function process(Action $action, EnvironmentInterface $environment)
     {

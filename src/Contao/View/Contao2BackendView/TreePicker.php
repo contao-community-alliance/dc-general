@@ -485,6 +485,8 @@ class TreePicker extends Widget
      * Render the current values for listing.
      *
      * @return array
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function renderItemsPlain()
     {
@@ -700,6 +702,8 @@ class TreePicker extends Widget
      * @param ModelInterface $model The model.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function generateBreadCrumbUrl(ModelInterface $model)
     {

@@ -319,6 +319,9 @@ class EditMask
      * Retrieve a list of html buttons to use in the bottom panel (submit area).
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function getEditButtons()
     {

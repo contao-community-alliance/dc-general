@@ -76,6 +76,8 @@ class ContaoWidgetManager
      *
      * @param EnvironmentInterface $environment The environment in use.
      * @param ModelInterface       $model       The model for which widgets shall be generated.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
     {

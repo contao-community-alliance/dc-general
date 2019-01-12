@@ -45,6 +45,8 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
  * Class SelectController.
  *
  * This class handles multiple actions.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class SelectHandler
 {
@@ -212,6 +214,9 @@ class SelectHandler
      * @param Action               $action      The action.
      *
      * @return null|string
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function handleSelectModelsAllAction(EnvironmentInterface $environment, Action $action)
     {
@@ -232,6 +237,8 @@ class SelectHandler
      * @param Action               $action      The action.
      *
      * @return null|string
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function handleSelectPropertiesAllAction(EnvironmentInterface $environment, Action $action)
     {
@@ -260,6 +267,8 @@ class SelectHandler
      * @param Action               $action      The action.
      *
      * @return null
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function handleDeleteAllAction(EnvironmentInterface $environment, Action $action)
     {
@@ -286,6 +295,8 @@ class SelectHandler
      * @param Action               $action      The action.
      *
      * @return null
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function handleCutAllAction(EnvironmentInterface $environment, Action $action)
     {
@@ -309,6 +320,8 @@ class SelectHandler
      * @param Action               $action      The action.
      *
      * @return null
+     *
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function handleCopyAllAction(EnvironmentInterface $environment, Action $action)
     {
@@ -334,6 +347,7 @@ class SelectHandler
      * @return string
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function handleEditAllAction(EnvironmentInterface $environment, Action $action)
     {
@@ -356,6 +370,7 @@ class SelectHandler
      * @return string
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
     private function handleOverrideAllAction(EnvironmentInterface $environment, Action $action)
     {

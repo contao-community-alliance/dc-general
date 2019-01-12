@@ -177,6 +177,9 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws DcGeneralRuntimeException When no source has been defined.
      * @throws DcGeneralRuntimeException For invalid database connection.
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function setBaseConfig(array $config)
     {

@@ -115,6 +115,8 @@ class BackendTreeController implements ContainerAwareInterface
      * @return Response
      *
      * @throws \InvalidArgumentException No picker was given here.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     private function runBackendTree(Request $request)
     {
@@ -157,6 +159,8 @@ class BackendTreeController implements ContainerAwareInterface
      * @return Response
      *
      * @throws \InvalidArgumentException No picker was given here.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     private function runBackendTreeBreadCrumb(Request $request)
     {
@@ -229,6 +233,8 @@ class BackendTreeController implements ContainerAwareInterface
      *
      * @throws BadRequestHttpException This request isn`t from type ajax.
      * @throws BadQueryStringException No picker was given here.
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function runBackendTreeUpdate(Request $request)
     {
@@ -310,6 +316,8 @@ class BackendTreeController implements ContainerAwareInterface
      * @return TreePicker
      *
      * @throws \InvalidArgumentException If invalid characters in the data provider name or property name.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     private function prepareTreeSelector(PickerInterface $picker)
     {
