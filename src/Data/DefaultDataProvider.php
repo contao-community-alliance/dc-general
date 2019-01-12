@@ -31,9 +31,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
 
 use Contao\BackendUser;
 use Contao\Database;
-use Contao\Database\Result;
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Doctrine\DBAL\Connection;
 
 /**
  * Class DefaultDataProvider.
@@ -51,14 +52,14 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @var string
      */
-    protected $strSource;
+    protected $source;
 
     /**
      * The Database instance.
      *
-     * @var Database
+     * @var Connection
      */
-    protected $objDatabase;
+    protected $connection;
 
     /**
      * The name of the id property.
@@ -163,10 +164,10 @@ class DefaultDataProvider implements DataProviderInterface
     public function enableDefaultUuidGenerator()
     {
         if ($this->idGenerator) {
-            throw new \RuntimeException('Error: already an id generator set on database provider.');
+            throw new DcGeneralRuntimeException('Error: already an id generator set on database provider.');
         }
 
-        $this->setIdGenerator(new DatabaseUuidIdGenerator($this->objDatabase));
+        $this->setIdGenerator(new DatabaseUuidIdGenerator($this->connection));
 
         return $this;
     }
@@ -176,40 +177,75 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws DcGeneralRuntimeException When no source has been defined.
      */
-    public function setBaseConfig(array $arrConfig)
+    public function setBaseConfig(array $config)
     {
         // Check configuration.
-        if (!isset($arrConfig['source'])) {
+        if (!isset($config['source'])) {
             throw new DcGeneralRuntimeException('Missing table name.');
         }
 
-        if (isset($arrConfig['database'])) {
-            if (!($arrConfig['database'] instanceof Database)) {
-                throw new DcGeneralRuntimeException('Invalid database.');
+        // CHANGE TO CONNECTION START
+        // This is the fallback for deprecated contao database. This code block will dropped.
+        if (isset($config['database'])) {
+            @trigger_error(
+                'Config key database is deprecated use instead connection. Fallback will be dropped.',
+                E_USER_DEPRECATED
+            );
+
+            if (!isset($config['connection'])) {
+                $config['connection'] = $config['database'];
             }
 
-            $this->objDatabase = $arrConfig['database'];
-        } else {
-            $this->objDatabase = Database::getInstance();
+            unset($config['database']);
         }
 
-        if (isset($arrConfig['idGenerator'])) {
-            if ($arrConfig['idGenerator'] instanceof IdGeneratorInterface) {
-                $idGenerator = $arrConfig['idGenerator'];
+        if (isset($config['connection'])) {
+            if ($config['connection'] instanceof Database) {
+                @trigger_error(
+                    '"' . __METHOD__ . '" now accepts doctrine instances - ' .
+                    'passing Contao database instances is deprecated.',
+                    E_USER_DEPRECATED
+                );
+                $reflection = new \ReflectionProperty(Database::class, 'resConnection');
+                $reflection->setAccessible(true);
+
+                $config['connection'] = $reflection->getValue($config['connection']);
+            }
+        }
+        // CHANGE TO CONNECTION END
+
+        if (isset($config['connection'])) {
+            if (!($config['connection'] instanceof Connection)) {
+                throw new DcGeneralRuntimeException('Invalid database connection.');
+            }
+
+            $this->connection = $config['connection'];
+        } else {
+            @\trigger_error(
+                'You should pass a doctrine database connection to "' . __METHOD__ . '".',
+                E_USER_DEPRECATED
+            );
+
+            $this->connection = System::getContainer()->get('database_connection');
+        }
+
+        if (isset($config['idGenerator'])) {
+            if ($config['idGenerator'] instanceof IdGeneratorInterface) {
+                $idGenerator = $config['idGenerator'];
                 $this->setIdGenerator($idGenerator);
             }
         }
 
-        $this->strSource = $arrConfig['source'];
+        $this->source = $config['source'];
 
-        if (isset($arrConfig['timeStampProperty'])) {
-            $this->setTimeStampProperty($arrConfig['timeStampProperty']);
-        } elseif ($this->objDatabase->fieldExists('tstamp', $this->strSource)) {
+        if (isset($config['timeStampProperty'])) {
+            $this->setTimeStampProperty($config['timeStampProperty']);
+        } elseif ($this->fieldExists('tstamp')) {
             $this->setTimeStampProperty('tstamp');
         }
 
-        if (isset($arrConfig['idProperty'])) {
-            $this->setIdProperty($arrConfig['idProperty']);
+        if (isset($config['idProperty'])) {
+            $this->setIdProperty($config['idProperty']);
         }
     }
 
@@ -226,9 +262,9 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getEmptyModel()
     {
-        $objModel = new DefaultModel();
-        $objModel->setProviderName($this->strSource);
-        return $objModel;
+        $model = new DefaultModel();
+        $model->setProviderName($this->source);
+        return $model;
     }
 
     /**
@@ -277,133 +313,108 @@ class DefaultDataProvider implements DataProviderInterface
         $this->insertUndo(
             \sprintf(
                 'DELETE FROM %1$s WHERE %1$s.id = %2$s',
-                $this->strSource,
+                $this->source,
                 $modelId
             ),
             \sprintf(
                 'SELECT * FROM %1$s WHERE %1$s.id = %2$s',
-                $this->strSource,
+                $this->source,
                 $modelId
             ),
-            $this->strSource
+            $this->source
         );
 
-        $this->objDatabase
-            ->prepare(\sprintf('DELETE FROM %1s WHERE %1$s.id=?', $this->strSource))
-            ->execute($modelId);
+        $this->connection->delete($this->source, [$this->source . '.id' => $modelId]);
     }
 
     /**
      * Create a model from a database result.
      *
-     * @param Result $dbResult The database result to create a model from.
+     * @param array $result The database result to create a model from.
      *
      * @return ModelInterface
      */
-    protected function createModelFromDatabaseResult($dbResult)
+    protected function createModelFromDatabaseResult(array $result)
     {
-        $objModel = $this->getEmptyModel();
+        $model = $this->getEmptyModel();
 
-        /** @var \Contao\Database\Result $dbResult */
-        foreach ($dbResult->row() as $key => $value) {
+        foreach ($result as $key => $value) {
             if ($key == $this->idProperty) {
-                $objModel->setIdRaw($value);
+                $model->setIdRaw($value);
             }
 
-            $objModel->setPropertyRaw($key, StringUtil::deserialize($value));
+            $model->setPropertyRaw($key, StringUtil::deserialize($value));
         }
 
-        return $objModel;
+        return $model;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function fetch(ConfigInterface $objConfig)
+    public function fetch(ConfigInterface $config)
     {
-        $internalConfig = $this->prefixDataProviderProperties($objConfig);
-        if ($internalConfig->getId() != null) {
-            $query = \sprintf(
-                'SELECT %1$s FROM %2$s WHERE %2$s.id = ?',
-                DefaultDataProviderSqlUtils::buildFieldQuery(
-                    $internalConfig,
-                    $this->strSource . '.' . $this->idProperty
-                ),
-                $this->strSource
-            );
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->from($this->source, 'sourceTable');
+        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
 
-            $dbResult = $this->objDatabase
-                ->prepare($query)
-                ->execute($internalConfig->getId());
-        } else {
-            $arrParams = [];
-
-            // Build SQL.
-            $query = \sprintf(
-                'SELECT %s FROM %s%s%s',
-                DefaultDataProviderSqlUtils::buildFieldQuery(
-                    $internalConfig,
-                    $this->strSource . '.' . $this->idProperty
-                ),
-                $this->strSource,
-                DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $arrParams),
-                DefaultDataProviderSqlUtils::buildSortingQuery($internalConfig)
-            );
-
-            // Execute db query.
-            $dbResult = $this->objDatabase
-                ->prepare($query)
-                ->limit(1, 0)
-                ->execute($arrParams);
+        if (null !== $config->getId()) {
+            $queryBuilder->where('sourceTable.id=:id');
+            $queryBuilder->setParameter(':id', $config->getId());
         }
 
-        if ($dbResult->numRows == 0) {
+        if (null === $config->getId()) {
+            DefaultDataProviderDBalUtils::addWhere($config, $queryBuilder);
+            DefaultDataProviderDBalUtils::addSorting($config, $queryBuilder);
+
+            $queryBuilder->setMaxResults(1);
+            $queryBuilder->setFirstResult(0);
+        }
+
+        $statement = $queryBuilder->execute();
+        if (0 === $statement->rowCount()) {
             return null;
         }
 
-        return $this->createModelFromDatabaseResult($dbResult);
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $this->createModelFromDatabaseResult($result);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function fetchAll(ConfigInterface $objConfig)
+    public function fetchAll(ConfigInterface $config)
     {
-        $internalConfig = $this->prefixDataProviderProperties($objConfig);
-        $arrParams      = [];
-        // Build SQL.
-        $query = \sprintf(
-            'SELECT %s FROM %s%s%s',
-            DefaultDataProviderSqlUtils::buildFieldQuery($internalConfig, $this->strSource . '.' . $this->idProperty),
-            $this->strSource,
-            DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $arrParams),
-            DefaultDataProviderSqlUtils::buildSortingQuery($internalConfig)
-        );
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->from($this->source, 'sourceTable');
+        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
+        DefaultDataProviderDBalUtils::addWhere($config, $queryBuilder);
+        DefaultDataProviderDBalUtils::addSorting($config, $queryBuilder);
 
-        // Execute db query.
-        $objDatabaseQuery = $this->objDatabase->prepare($query);
-
-        if ($internalConfig->getAmount() != 0) {
-            $objDatabaseQuery->limit($internalConfig->getAmount(), $internalConfig->getStart());
+        if ($config->getAmount() != 0) {
+            $queryBuilder->setMaxResults($config->getAmount());
+            $queryBuilder->setFirstResult($config->getStart());
         }
 
-        $dbResult = $objDatabaseQuery->execute($arrParams);
+        $collection = $this->getEmptyCollection();
 
-        if ($internalConfig->getIdOnly()) {
-            return $dbResult->fetchEach($this->idProperty);
+        $statement = $queryBuilder->execute();
+        if (0 === $statement->rowCount()) {
+            return $collection;
         }
 
-        $objCollection = $this->getEmptyCollection();
-
-        if ($dbResult->numRows == 0) {
-            return $objCollection;
+        if ($config->getIdOnly()) {
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
         }
 
-        while ($dbResult->next()) {
-            $objCollection->push($this->createModelFromDatabaseResult($dbResult));
+        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        foreach ($result as $item) {
+            $collection->push($this->createModelFromDatabaseResult($item));
         }
 
-        return $objCollection;
+        return $collection;
     }
 
     /**
@@ -411,76 +422,68 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws DcGeneralRuntimeException If improper values have been passed (i.e. not exactly one field requested).
      */
-    public function getFilterOptions(ConfigInterface $objConfig)
+    public function getFilterOptions(ConfigInterface $config)
     {
-        $internalConfig = $this->prefixDataProviderProperties($objConfig);
-        $arrProperties  = $objConfig->getFields();
-        $strProperty    = $arrProperties[0];
+        $internalConfig = $this->prefixDataProviderProperties($config);
+        $properties     = $internalConfig->getFields();
+        $property       = $properties[0];
 
-        if (\count($arrProperties) <> 1) {
+        if (\count($properties) <> 1) {
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
 
-        $arrParams = [];
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select("DISTINCT($property)");
+        $queryBuilder->from($this->source);
+        DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
 
-        $objValues = $this->objDatabase
-            ->prepare(
-                \sprintf(
-                    'SELECT DISTINCT(%2$s.%1$s) FROM %2$s %3$s',
-                    $strProperty,
-                    $this->strSource,
-                    DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $arrParams)
-                )
-            )
-            ->execute($arrParams);
+        $statement = $queryBuilder->execute();
 
-        $objCollection = new DefaultFilterOptionCollection();
-        while ($objValues->next()) {
-            $objCollection->add($objValues->$strProperty, $objValues->$strProperty);
+        $values = $statement->fetchAll(\PDO::FETCH_OBJ);
+
+        $collection = new DefaultFilterOptionCollection();
+        foreach ($values as $value) {
+            $collection->add($value->$property, $value->$property);
         }
 
-        return $objCollection;
+        return $collection;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCount(ConfigInterface $objConfig)
+    public function getCount(ConfigInterface $config)
     {
-        $internalConfig = $this->prefixDataProviderProperties($objConfig);
-        $parameters     = [];
-        $query          = \sprintf(
-            'SELECT COUNT(*) AS count FROM %s%s',
-            $this->strSource,
-            DefaultDataProviderSqlUtils::buildWhereQuery($internalConfig, $parameters)
-        );
+        $internalConfig = $this->prefixDataProviderProperties($config);
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('COUNT(*) AS count');
+        $queryBuilder->from($this->source, 'sourceTable');
+        DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
 
-        $objCount = $this->objDatabase
-            ->prepare($query)
-            ->execute($parameters);
+        $statement = $queryBuilder->execute();
 
-        return $objCount->count;
+        return $statement->fetch(\PDO::FETCH_COLUMN);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function isUniqueValue($strField, $varNew, $intId = null)
+    public function isUniqueValue($field, $new, $primaryId = null)
     {
-        $objUnique = $this->objDatabase
-            ->prepare(
-                \sprintf(
-                    'SELECT %1$s.* FROM %1$s WHERE %1$s.%2$s = ? ',
-                    $this->strSource,
-                    $strField
-                )
-            )->execute($varNew);
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*');
+        $queryBuilder->from($this->source, 'sourceTable');
+        $queryBuilder->where($queryBuilder->expr()->eq('sourceTable.' . $field, ':' . $field));
+        $queryBuilder->setParameter(':' . $field, $new);
 
-        if ($objUnique->numRows == 0) {
+        $statement = $queryBuilder->execute();
+        $unique    = $statement->fetch(\PDO::FETCH_OBJ);
+
+        if (0 === $statement->rowCount()) {
             return true;
         }
 
-        if (($objUnique->numRows == 1) && ($objUnique->id == $intId)) {
+        if ((1 === $statement->rowCount()) && ($unique->id === $primaryId)) {
             return true;
         }
 
@@ -490,7 +493,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function resetFallback($strField)
+    public function resetFallback($field)
     {
         // @codingStandardsIgnoreStart
         @\trigger_error(
@@ -499,7 +502,7 @@ class DefaultDataProvider implements DataProviderInterface
         );
         // @codingStandardsIgnoreEnd
 
-        $this->objDatabase->query('UPDATE ' . $this->strSource . ' SET ' . $strField . ' = \'\'');
+        $this->connection->query('UPDATE ' . $this->source . ' SET ' . $field . ' = \'\'')->execute();
     }
 
     /**
@@ -615,14 +618,14 @@ class DefaultDataProvider implements DataProviderInterface
             }
 
             if (\is_array($value)) {
-                $data[$this->strSource . '.' . $key] = \serialize($value);
+                $data[$this->source . '.' . $key] = \serialize($value);
             } else {
-                $data[$this->strSource . '.' . $key] = $value;
+                $data[$this->source . '.' . $key] = $value;
             }
         }
 
         if ($this->timeStampProperty) {
-            $data[$this->strSource . '.' . $this->getTimeStampProperty()] = $timestamp ?: \time();
+            $data[$this->source . '.' . $this->getTimeStampProperty()] = $timestamp ?: \time();
         }
 
         return $data;
@@ -644,13 +647,12 @@ class DefaultDataProvider implements DataProviderInterface
             $data[$this->idProperty] = $model->getId();
         }
 
-        $insertResult = $this->objDatabase
-            ->prepare(\sprintf('INSERT INTO %s %%s', $this->strSource))
-            ->set($data)
-            ->execute();
+        $this->connection->insert($this->source, $data);
 
-        if (null !== $insertResult->insertId && !isset($data[$this->idProperty])) {
-            $model->setId((string) $insertResult->insertId);
+        $insertId = $this->connection->lastInsertId($this->source);
+
+        if (('' !== $insertId) && !isset($data[$this->idProperty])) {
+            $model->setId($insertId);
         }
     }
 
@@ -666,32 +668,29 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
 
-        $this->objDatabase
-            ->prepare(\sprintf('UPDATE %s %%s WHERE id=?', $this->strSource))
-            ->set($data)
-            ->execute($model->getId());
+        $this->connection->update($this->source, $data, ['id' => $model->getId()]);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function save(ModelInterface $objItem, $timestamp = 0)
+    public function save(ModelInterface $item, $timestamp = 0)
     {
-        if (\in_array($objItem->getId(), [null, ''])) {
-            $this->insertModelIntoDatabase($objItem);
+        if (\in_array($item->getId(), [null, ''])) {
+            $this->insertModelIntoDatabase($item);
         } else {
-            $this->updateModelInDatabase($objItem);
+            $this->updateModelInDatabase($item);
         }
 
-        return $objItem;
+        return $item;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
+    public function saveEach(CollectionInterface $items, $timestamp = 0)
     {
-        foreach ($objItems as $value) {
+        foreach ($items as $value) {
             $this->save($value, $timestamp);
         }
     }
@@ -699,9 +698,11 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function fieldExists($strField)
+    public function fieldExists($columnName)
     {
-        return $this->objDatabase->fieldExists($strField, $this->strSource);
+        $tableDetails = $this->connection->getSchemaManager()->listTableDetails($this->source);
+
+        return $tableDetails->hasColumn($columnName);
     }
 
     /**
@@ -709,141 +710,132 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getVersion($mixID, $mixVersion)
     {
-        $objVersion = $this->objDatabase
-            ->prepare(
-                'SELECT
-                    tl_version.*
-                    FROM
-                    tl_version
-                WHERE
-                    tl_version.pid=?
-                    AND
-                    tl_version.version=?
-                    AND
-                    tl_version.fromTable=?'
-            )->execute($mixID, $mixVersion, $this->strSource);
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->from('tl_version', 'sourceTable');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->setParameter(':pid', $mixID);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.version', ':version'));
+        $queryBuilder->setParameter(':version', $mixVersion);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.fromTable', ':fromTable'));
+        $queryBuilder->setParameter(':fromTable', $this->source);
 
-        if ($objVersion->numRows == 0) {
+        $statement = $queryBuilder->execute();
+        if (0 === $statement->rowCount()) {
             return null;
         }
 
-        $arrData = \deserialize($objVersion->data);
+        $version = $statement->fetch(\PDO::FETCH_OBJ);
 
-        if (!\is_array($arrData) || \count($arrData) == 0) {
+        $data = \deserialize($version->data);
+
+        if (!\is_array($data) || \count($data) == 0) {
             return null;
         }
 
-        $objModel = $this->getEmptyModel();
-        $objModel->setID($mixID);
-        foreach ($arrData as $key => $value) {
+        $model = $this->getEmptyModel();
+        $model->setID($mixID);
+        foreach ($data as $key => $value) {
             if ($key == $this->idProperty) {
                 continue;
             }
 
-            $objModel->setProperty($key, $value);
+            $model->setProperty($key, $value);
         }
 
-        return $objModel;
+        return $model;
     }
 
     /**
      * Return a list with all versions for the row with the given Id.
      *
      * @param mixed   $mixID         The ID of the row.
-     * @param boolean $blnOnlyActive If true, only active versions will get returned, if false all version will get
+     * @param boolean $onlyActive    If true, only active versions will get returned, if false all version will get
      *                               returned.
      *
      * @return CollectionInterface
      */
-    public function getVersions($mixID, $blnOnlyActive = false)
+    public function getVersions($mixID, $onlyActive = false)
     {
-        $sql = 'SELECT
-                    tl_version.tstamp,
-                    tl_version.version,
-                    tl_version.username,
-                    tl_version.active
-                    FROM
-                    tl_version
-                WHERE
-                    tl_version.fromTable = ?
-                    AND
-                    tl_version.pid = ?';
-        if ($blnOnlyActive) {
-            $sql .= ' AND tl_version.active = 1';
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select(['tstamp', 'version', 'username', 'active']);
+        $queryBuilder->from('tl_version', 'sourceTable');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.formTable', ':formTable'));
+        $queryBuilder->setParameter(':formTable', $this->source);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->setParameter(':pid', $mixID);
+
+        if ($onlyActive) {
+            $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.active', ':active'));
+            $queryBuilder->setParameter(':active', '1');
         } else {
-            $sql .= ' ORDER BY tl_version.version DESC';
+            $queryBuilder->orderBy('sourceTable.version', 'DESC');
         }
 
-        $arrVersion = $this->objDatabase
-            ->prepare($sql)
-            ->execute($this->strSource, $mixID)
-            ->fetchAllAssoc();
-
-        if (\count($arrVersion) == 0) {
+        $statement = $queryBuilder->execute();
+        if (0 === $statement->rowCount()) {
             return null;
         }
 
-        $objCollection = $this->getEmptyCollection();
+        $versions = $statement->fetch(\PDO::FETCH_ASSOC);
 
-        foreach ($arrVersion as $versionValue) {
-            $objReturn = $this->getEmptyModel();
-            $objReturn->setId($mixID);
+        $collection = $this->getEmptyCollection();
+
+        foreach ($versions as $versionValue) {
+            $model = $this->getEmptyModel();
+            $model->setId($mixID);
 
             foreach ($versionValue as $key => $value) {
                 if ($key == $this->idProperty) {
                     continue;
                 }
 
-                $objReturn->setProperty($key, $value);
+                $model->setProperty($key, $value);
             }
 
-            $objCollection->push($objReturn);
+            $collection->push($model);
         }
 
-        return $objCollection;
+        return $collection;
     }
 
     /**
      * Save a new version of a row.
      *
-     * @param ModelInterface $objModel    The model for which a new version shall be created.
-     * @param string         $strUsername The username to attach to the version as creator.
+     * @param ModelInterface $model    The model for which a new version shall be created.
+     * @param string         $username The username to attach to the version as creator.
      *
      * @return void
      */
-    public function saveVersion(ModelInterface $objModel, $strUsername)
+    public function saveVersion(ModelInterface $model, $username)
     {
-        $objCount = $this->objDatabase
-            ->prepare(
-                'SELECT
-                    count(*) as mycount
-                    FROM
-                    tl_version
-                WHERE
-                    tl_version.pid=?
-                    AND
-                    tl_version.fromTable = ?'
-            )->execute($objModel->getId(), $this->strSource);
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('COUNT(*) AS count');
+        $queryBuilder->from('tl_version', 'sourceTable');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->setParameter(':pid', $model->getId());
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.fromTable', ':fromTable'));
+        $queryBuilder->setParameter(':fromTable', $this->source);
 
-        $mixNewVersion = ((int) $objCount->mycount + 1);
-        $mixData       = $objModel->getPropertiesAsArray();
+        $statement = $queryBuilder->execute();
+        $count     = $statement->fetch(\PDO::FETCH_COLUMN);
 
-        $mixData[$this->idProperty] = $objModel->getId();
+        $mixNewVersion = ((int) $count + 1);
+        $mixData       = $model->getPropertiesAsArray();
 
-        $arrInsert = [
-            'tl_version.pid'       => $objModel->getId(),
+        $mixData[$this->idProperty] = $model->getId();
+
+        $insert = [
+            'tl_version.pid'       => $model->getId(),
             'tl_version.tstamp'    => \time(),
             'tl_version.version'   => $mixNewVersion,
-            'tl_version.fromTable' => $this->strSource,
-            'tl_version.username'  => $strUsername,
+            'tl_version.fromTable' => $this->source,
+            'tl_version.username'  => $username,
             'tl_version.data'      => \serialize($mixData)
         ];
 
-        $this->objDatabase->prepare('INSERT INTO tl_version %s')
-            ->set($arrInsert)
-            ->execute();
+        $this->connection->insert('tl_version', $insert);
 
-        $this->setVersionActive($objModel->getId(), $mixNewVersion);
+        $this->setVersionActive($model->getId(), $mixNewVersion);
     }
 
     /**
@@ -856,31 +848,14 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function setVersionActive($mixID, $mixVersion)
     {
-        $this->objDatabase
-            ->prepare(
-                'UPDATE
-                    tl_version
-                    SET
-                    tl_version.active=\'\'
-                WHERE
-                    tl_version.pid = ?
-                    AND
-                    tl_version.fromTable = ?'
-            )->execute($mixID, $this->strSource);
+        $updateValues = ['tl_version.pid' => $mixID, 'tl_version.fromTable' => $this->source];
 
-        $this->objDatabase
-            ->prepare(
-                'UPDATE
-                    tl_version
-                    SET
-                    tl_version.active = 1
-                WHERE
-                    tl_version.pid = ?
-                    AND
-                    tl_version.version = ?
-                    AND
-                    tl_version.fromTable = ?'
-            )->execute($mixID, $mixVersion, $this->strSource);
+        // Set version inactive.
+        $this->connection->update('tl_version', ['tl_version.active' => ''], $updateValues);
+
+        // Set version active.
+        $updateValues['version'] = $mixVersion;
+        $this->connection->update('tl_version', ['tl_version.active' => 1], $updateValues);
     }
 
     /**
@@ -892,51 +867,50 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getActiveVersion($mixID)
     {
-        $objVersionID = $this->objDatabase
-            ->prepare(
-                'SELECT
-                    tl_version.version
-                    FROM
-                    tl_version
-                    WHERE
-                        tl_version.pid = ?
-                        AND
-                        tl_version.fromTable = ?
-                        AND
-                        tl_version.active = 1'
-            )->execute($mixID, $this->strSource);
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select(['select']);
+        $queryBuilder->from('tl_version', 'sourceTable');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->setParameter(':pid', $mixID);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.fromTable', ':fromTable'));
+        $queryBuilder->setParameter(':fromTable', $this->source);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.active', ':active'));
+        $queryBuilder->setParameter(':active', 1);
 
-        if ($objVersionID->numRows == 0) {
+        $statement = $queryBuilder->execute();
+        if (0 === $statement->rowCount()) {
             return null;
         }
 
-        return $objVersionID->version;
+        $version = $statement->fetch(\PDO::FETCH_OBJ);
+
+        return $version->version;
     }
 
     /**
      * Check if two models have the same values in all properties.
      *
-     * @param ModelInterface $objModel1 The first model to compare.
-     * @param ModelInterface $objModel2 The second model to compare.
+     * @param ModelInterface $firstModel  The first model to compare.
+     * @param ModelInterface $secondModel The second model to compare.
      *
      * @return boolean True - If both models are same, false if not.
      */
-    public function sameModels($objModel1, $objModel2)
+    public function sameModels($firstModel, $secondModel)
     {
-        foreach ($objModel1 as $key => $value) {
+        foreach ($firstModel as $key => $value) {
             if ($key == $this->idProperty) {
                 continue;
             }
 
             if (\is_array($value)) {
-                if (!\is_array($objModel2->getProperty($key))) {
+                if (!\is_array($secondModel->getProperty($key))) {
                     return false;
                 }
 
-                if (\serialize($value) != \serialize($objModel2->getProperty($key))) {
+                if (\serialize($value) != \serialize($secondModel->getProperty($key))) {
                     return false;
                 }
-            } elseif ($value != $objModel2->getProperty($key)) {
+            } elseif ($value != $secondModel->getProperty($key)) {
                 return false;
             }
         }
@@ -949,51 +923,44 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * Currently this only supports delete queries.
      *
-     * @param string $strSourceSQL The SQL used to perform the action to be undone.
-     * @param string $strSaveSQL   The SQL query to retrieve the current entries.
-     * @param string $strTable     The table to be affected by the action.
+     * @param string $sourceSQL The SQL used to perform the action to be undone.
+     * @param string $saveSQL   The SQL query to retrieve the current entries.
+     * @param string $table     The table to be affected by the action.
      *
      * @return void
      */
-    protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
+    protected function insertUndo($sourceSQL, $saveSQL, $table)
     {
         // Load row.
-        $arrResult = $this->objDatabase
-            ->prepare($strSaveSQL)
-            ->execute()
-            ->fetchAllAssoc();
+        $statement = $this->connection->query($saveSQL);
 
         // Check if we have a result.
-        if (\count($arrResult) == 0) {
+        if (0 === $statement->rowCount()) {
             return;
         }
 
+        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+
         // Save information in array.
-        $arrSave = [];
-        foreach ($arrResult as $value) {
-            $arrSave[$strTable][] = $value;
+        $parameters = [];
+        foreach ($result as $value) {
+            $parameters[$table][] = $value;
         }
 
-        $strPrefix = '<span style="color:#b3b3b3; padding-right:3px;">(DC General)</span>';
-        $objUser   = BackendUser::getInstance();
+        $prefix = '<span style="color:#b3b3b3; padding-right:3px;">(DC General)</span>';
+        $user   = BackendUser::getInstance();
 
         // Write into undo.
-        $this->objDatabase
-            ->prepare(
-                'INSERT INTO
-                    tl_undo
-                    (tl_undo.pid, tl_undo.tstamp, tl_undo.fromTable, tl_undo.query, tl_undo.affectedRows, tl_undo.data)
-                    VALUES
-                    (?, ?, ?, ?, ?, ?)'
-            )
-            ->execute(
-                $objUser->id,
-                \time(),
-                $strTable,
-                $strPrefix .
-                $strSourceSQL,
-                \count($arrSave[$strTable]),
-                \serialize($arrSave)
-            );
+        $this->connection->insert(
+            'tl_undo',
+            [
+                'tl_undo.pid'          => $user->id,
+                'tl_undo.tstamp'       => \time(),
+                'tl_undo.fromTable'    => $table,
+                'tl_undo.query'        => $prefix . $sourceSQL,
+                'tl_undo.affectedRows' => \count($parameters[$table]),
+                'tl_undo.data'         => \serialize($parameters)
+            ]
+        );
     }
 }

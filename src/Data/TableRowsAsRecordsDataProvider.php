@@ -50,23 +50,23 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Set base config with source and other necessary parameter.
      *
-     * @param array $arrConfig The configuration to use.
+     * @param array $config The configuration to use.
      *
      * @return void
      *
      * @throws DcGeneralException When no source has been defined.
      */
-    public function setBaseConfig(array $arrConfig)
+    public function setBaseConfig(array $config)
     {
-        parent::setBaseConfig($arrConfig);
+        parent::setBaseConfig($config);
 
-        if (!$arrConfig['group_column']) {
+        if (!$config['group_column']) {
             throw new DcGeneralException(__CLASS__ . ' needs a grouping column.', 1);
         }
-        $this->strGroupCol = $arrConfig['group_column'];
+        $this->strGroupCol = $config['group_column'];
 
-        if ($arrConfig['sort_column']) {
-            $this->strSortCol = $arrConfig['sort_column'];
+        if ($config['sort_column']) {
+            $this->strSortCol = $config['sort_column'];
         }
     }
 
@@ -135,50 +135,46 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * This data provider only supports retrieving by id so use $objConfig->setId() to populate the config with an Id.
      *
-     * @param ConfigInterface $objConfig The configuration to use.
+     * @param ConfigInterface $config The configuration to use.
      *
      * @return ModelInterface
      *
      * @throws DcGeneralException If config object does not contain an Id.
      */
-    public function fetch(ConfigInterface $objConfig)
+    public function fetch(ConfigInterface $config)
     {
-        if (!$objConfig->getId()) {
+        if (!$config->getId()) {
             throw new DcGeneralException(
                 'Error, no id passed, TableRowsAsRecordsDriver is only intended for edit mode.',
                 1
             );
         }
 
-        $strQuery = \sprintf(
-            'SELECT %s FROM %s WHERE %s=?',
-            DefaultDataProviderSqlUtils::buildFieldQuery($objConfig, $this->idProperty),
-            $this->strSource,
-            $this->strGroupCol
-        );
+        $queryBuilder = $this->connection->createQueryBuilder();
+        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
+        $queryBuilder->from($this->source);
+        $queryBuilder->where($queryBuilder->expr()->eq($this->strGroupCol, ':' . $this->strGroupCol));
+        $queryBuilder->setParameter($this->strGroupCol, $config->getId());
 
         if ($this->strSortCol) {
-            $strQuery .= ' ORDER BY ' . $this->strSortCol;
+            $queryBuilder->orderBy($this->strSortCol, 'ASC');
         }
 
-        $objResult = $this->objDatabase
-            ->prepare($strQuery)
-            ->execute($objConfig->getId());
+        $statement = $queryBuilder->execute();
 
-        $objModel = $this->getEmptyModel();
-        if ($objResult->numRows) {
-            $objModel->setPropertyRaw('rows', $objResult->fetchAllAssoc());
+        $model = $this->getEmptyModel();
+        $model->setID($config->getId());
+        if (0 < $statement->rowCount()) {
+            $model->setPropertyRaw('rows', $statement->fetchAll(\PDO::FETCH_ASSOC));
         }
 
-        $objModel->setID($objConfig->getId());
-
-        return $objModel;
+        return $model;
     }
 
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param ConfigInterface $objConfig Unused.
+     * @param ConfigInterface $config Unused.
      *
      * @return void
      *
@@ -186,7 +182,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function fetchAll(ConfigInterface $objConfig)
+    public function fetchAll(ConfigInterface $config)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -194,7 +190,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param ConfigInterface $objConfig Unused.
+     * @param ConfigInterface $config Unused.
      *
      * @return void
      *
@@ -202,7 +198,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getCount(ConfigInterface $objConfig)
+    public function getCount(ConfigInterface $config)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -210,9 +206,9 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param string $strField Unused.
-     * @param mixed  $varNew   Unused.
-     * @param int    $intId    Unused.
+     * @param string $field     Unused.
+     * @param mixed  $new       Unused.
+     * @param int    $primaryId Unused.
      *
      * @return void
      *
@@ -220,7 +216,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function isUniqueValue($strField, $varNew, $intId = null)
+    public function isUniqueValue($field, $new, $primaryId = null)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -228,7 +224,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param string $strField Unused.
+     * @param string $field Unused.
      *
      * @return void
      *
@@ -236,7 +232,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function resetFallback($strField)
+    public function resetFallback($field)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -251,7 +247,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * When rows with duplicate ids are encountered (like from MCW for example), the dupes are inserted as new rows.
      *
-     * @param ModelInterface $objItem   The model to save.
+     * @param ModelInterface $item      The model to save.
      * @param int            $timestamp Optional the timestamp.
      * @param bool           $recursive Ignored as not relevant in this data provider.
      *
@@ -262,66 +258,65 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function save(ModelInterface $objItem, $timestamp = 0, $recursive = false)
+    public function save(ModelInterface $item, $timestamp = 0, $recursive = false)
     {
         if (!\is_int($timestamp)) {
             throw new DcGeneralException('The parameter for this method has been change!');
         }
-        $arrData = $objItem->getProperty('rows');
-        if (!($arrData && $objItem->getID())) {
+        $data = $item->getProperty('rows');
+        if (!($data && $item->getId())) {
             throw new DcGeneralException('invalid input data in model.', 1);
         }
 
-        $arrKeep = [];
-        foreach ($arrData as $arrRow) {
-            $arrSQL = $arrRow;
+        $keep = [];
+        foreach ($data as $row) {
+            $sqlData = $row;
 
             // Update all.
-            $intId = (int) $arrRow['id'];
+            $intId = (int) $row['id'];
 
             // Always unset id.
-            unset($arrSQL['id']);
+            unset($sqlData['id']);
 
             // Work around the fact that multicolumnwizard does not clear any hidden fields when copying a dataset.
             // therefore we do consider any dupe as new dataset and save it accordingly.
-            if (\in_array($intId, $arrKeep)) {
+            if (\in_array($intId, $keep)) {
                 $intId = 0;
             }
 
             if ($intId > 0) {
-                $this->objDatabase
-                    ->prepare(\sprintf('UPDATE %s %%s WHERE id=? AND %s=?', $this->strSource, $this->strGroupCol))
-                    ->set($arrSQL)
-                    ->execute($intId, $objItem->getId());
-                $arrKeep[] = $intId;
+                $this->connection->update(
+                    $this->source,
+                    $sqlData,
+                    ['id' => $intId, $this->strGroupCol => $item->getId()]
+                );
+                $keep[] = $intId;
             } else {
                 // Force group col value.
-                $arrSQL[$this->strGroupCol] = $objItem->getId();
-                $arrKeep[]                  = $this->objDatabase
-                    ->prepare(\sprintf('INSERT INTO %s %%s', $this->strSource))
-                    ->set($arrSQL)
-                    ->execute()
-                    ->insertId;
+                $sqlData[$this->strGroupCol] = $item->getId();
+
+                $this->connection->insert($this->source, $sqlData);
+
+                $keep[] = $this->connection->lastInsertId($this->source);
             }
         }
+
         // House keeping, kill the rest.
-        $this->objDatabase
-            ->prepare(
-                \sprintf(
-                    'DELETE FROM  %s WHERE %s=? AND id NOT IN (%s)',
-                    $this->strSource,
-                    $this->strGroupCol,
-                    \implode(',', $arrKeep)
-                )
-            )
-            ->execute($objItem->getId());
-        return $objItem;
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->delete($this->source);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq($this->strGroupCol, ':' . $this->strGroupCol));
+        $queryBuilder->setParameter(':' . $this->strGroupCol, $item->getId());
+        $queryBuilder->andWhere($queryBuilder->expr()->notIn('id', $keep));
+
+        $queryBuilder->execute();
+
+        return $item;
     }
 
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param CollectionInterface $objItems  Unused.
+     * @param CollectionInterface $items Unused.
      * @param int                 $timestamp Optional the timestamp.
      *
      * @return void
@@ -330,7 +325,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function saveEach(CollectionInterface $objItems, $timestamp = 0)
+    public function saveEach(CollectionInterface $items, $timestamp = 0)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -340,13 +335,13 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * This data provider only returns true for the tstamp property.
      *
-     * @param string $strField The name of the property to check.
+     * @param string $columnName The name of the property to check.
      *
      * @return boolean
      */
-    public function fieldExists($strField)
+    public function fieldExists($columnName)
     {
-        return 'tstamp' === $strField;
+        return 'tstamp' === $columnName;
     }
 
     /**
@@ -369,14 +364,14 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Return null as versioning is not supported in this data provider.
      *
-     * @param mixed   $mixID         Unused.
-     * @param boolean $blnOnlyActive Unused.
+     * @param mixed   $mixID      Unused.
+     * @param boolean $onlyActive Unused.
      *
      * @return null
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getVersions($mixID, $blnOnlyActive = false)
+    public function getVersions($mixID, $onlyActive = false)
     {
         // Sorry, versioning not supported.
         return null;
@@ -385,8 +380,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param ModelInterface $objModel    Unused.
-     * @param string         $strUsername Unused.
+     * @param ModelInterface $model    Unused.
+     * @param string         $username Unused.
      *
      * @return void
      *
@@ -394,7 +389,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function saveVersion(ModelInterface $objModel, $strUsername)
+    public function saveVersion(ModelInterface $model, $username)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -435,8 +430,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param ModelInterface $objModel1 Unused.
-     * @param ModelInterface $objModel2 Unused.
+     * @param ModelInterface $firstModel  Unused.
+     * @param ModelInterface $secondModel Unused.
      *
      * @return void
      *
@@ -444,7 +439,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function sameModels($objModel1, $objModel2)
+    public function sameModels($firstModel, $secondModel)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
@@ -452,9 +447,9 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     /**
      * Unsupported in this data provider, throws an Exception.
      *
-     * @param string $strSourceSQL Unused.
-     * @param string $strSaveSQL   Unused.
-     * @param string $strTable     Unused.
+     * @param string $sourceSQL Unused.
+     * @param string $saveSQL   Unused.
+     * @param string $table     Unused.
      *
      * @return void
      *
@@ -462,7 +457,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    protected function insertUndo($strSourceSQL, $strSaveSQL, $strTable)
+    protected function insertUndo($sourceSQL, $saveSQL, $table)
     {
         $this->youShouldNotCallMe(__METHOD__);
     }
