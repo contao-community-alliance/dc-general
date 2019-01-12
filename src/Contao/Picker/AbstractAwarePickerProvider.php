@@ -25,6 +25,7 @@ use Contao\CoreBundle\Picker\PickerProviderInterface;
 use Knp\Menu\FactoryInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Provides the own cca routing.
@@ -53,15 +54,24 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     private $tokenStorage;
 
     /**
+     * The translator.
+     *
+     * @var TranslatorInterface
+     */
+    private $translator;
+
+    /**
      * Constructor.
      *
-     * @param FactoryInterface $menuFactory The menu factory.
-     * @param RouterInterface  $router      The router.
+     * @param FactoryInterface    $menuFactory The menu factory.
+     * @param RouterInterface     $router      The router.
+     * @param TranslatorInterface $translator  The translator.
      */
-    public function __construct(FactoryInterface $menuFactory, RouterInterface $router)
+    public function __construct(FactoryInterface $menuFactory, RouterInterface $router, TranslatorInterface $translator)
     {
         $this->menuFactory = $menuFactory;
         $this->router      = $router;
+        $this->translator  = $translator;
     }
 
     /**
@@ -82,7 +92,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
         return $this->menuFactory->createItem(
             $name,
             [
-                'label'          => $GLOBALS['TL_LANG']['MSC'][$name] ?: $name,
+                'label'          => $this->translator->trans('TL_LANG.MSC.' . $name, [], 'contao_default'),
                 'linkAttributes' => ['class' => $name],
                 'current'        => $this->isCurrent($config),
                 'uri'            => $this->generateUrl($config, true),
