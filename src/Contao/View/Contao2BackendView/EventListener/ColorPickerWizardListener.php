@@ -89,7 +89,7 @@ class ColorPickerWizardListener
         $dispatcher = $environment->getEventDispatcher();
         $translator = $environment->getTranslator();
         $propExtra  = $propInfo->getExtra();
-        $assetsPath = 'assets/mootools/colorpicker/' . $GLOBALS['TL_ASSETS']['COLORPICKER'] . '/images/';
+        $assetsPath = 'assets/colorpicker/images/';
 
         if (\is_array($propExtra) && \array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
             $pickerText = $translator->translate('colorpicker', 'MSC');
