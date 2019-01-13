@@ -175,10 +175,12 @@ class SelectHandler
      */
     private function regardSelectMode(EnvironmentInterface $environment)
     {
+        $inputProvider = $environment->getInputProvider();
+
         $regardSelectMode = false;
         \array_map(
-            function ($value) use ($environment, &$regardSelectMode) {
-                if (!$environment->getInputProvider()->hasValue($value)) {
+            function ($value) use ($inputProvider, &$regardSelectMode) {
+                if (!$inputProvider->hasValue($value)) {
                     return false;
                 }
 
@@ -187,6 +189,12 @@ class SelectHandler
             },
             ['edit_save', 'edit_saveNback', 'override_save', 'override_saveNback', 'delete', 'copy', 'cut']
         );
+
+        if (('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
+            && ('edit' === $inputProvider->getParameter('select'))
+        ) {
+            return true;
+        }
 
         return $regardSelectMode;
     }
