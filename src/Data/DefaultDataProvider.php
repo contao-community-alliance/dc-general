@@ -188,39 +188,8 @@ class DefaultDataProvider implements DataProviderInterface
             throw new DcGeneralRuntimeException('Missing table name.');
         }
 
-        // CHANGE TO CONNECTION START
-        // This is the fallback for deprecated contao database. This code block will dropped.
-        if (isset($config['database'])) {
-            // @codingStandardsIgnoreStart
-            @trigger_error(
-                'Config key database is deprecated use instead connection. Fallback will be dropped.',
-                E_USER_DEPRECATED
-            );
-            // @codingStandardsIgnoreEnd
+        $this->fallbackFromDatabaseToConnection($config);
 
-            if (!isset($config['connection'])) {
-                $config['connection'] = $config['database'];
-            }
-
-            unset($config['database']);
-        }
-
-        if (isset($config['connection'])) {
-            if ($config['connection'] instanceof Database) {
-                // @codingStandardsIgnoreStart
-                @\trigger_error(
-                    '"' . __METHOD__ . '" now accepts doctrine instances - ' .
-                    'passing Contao database instances is deprecated.',
-                    E_USER_DEPRECATED
-                );
-                // @codingStandardsIgnoreEnd
-                $reflection = new \ReflectionProperty(Database::class, 'resConnection');
-                $reflection->setAccessible(true);
-
-                $config['connection'] = $reflection->getValue($config['connection']);
-            }
-        }
-        // CHANGE TO CONNECTION END
         if (isset($config['connection'])) {
             if (!($config['connection'] instanceof Connection)) {
                 throw new DcGeneralRuntimeException('Invalid database connection.');
@@ -235,7 +204,7 @@ class DefaultDataProvider implements DataProviderInterface
             );
             // @codingStandardsIgnoreEnd
 
-            $this->connection = System::getContainer()->get('database_connection');
+            $this->connection = $this->getDefaultConnection();
         }
 
         if (isset($config['idGenerator'])) {
@@ -971,5 +940,56 @@ class DefaultDataProvider implements DataProviderInterface
                 'tl_undo.data'         => \serialize($parameters)
             ]
         );
+    }
+
+    /**
+     * Get the default connection for the database.
+     *
+     * @return Connection
+     */
+    protected function getDefaultConnection()
+    {
+        return System::getContainer()->get('database_connection');
+    }
+
+    /**
+     * This is a fallback for get the connection instead of the old database.
+     *
+     * @param array $config The configuration.
+     *
+     * @return void
+     *
+     * @deprecated This method is deprecated sinde 2.1 and where removed in 3.0. The old database never used in future.
+     */
+    private function fallbackFromDatabaseToConnection(array &$config)
+    {
+        if (isset($config['database'])) {
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Config key database is deprecated use instead connection. Fallback will be dropped.',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+
+            if (!isset($config['connection'])) {
+                $config['connection'] = $config['database'];
+            }
+
+            unset($config['database']);
+        }
+
+        if (isset($config['connection']) && $config['connection'] instanceof Database) {
+            // @codingStandardsIgnoreStart
+            @\trigger_error(
+                '"' . __METHOD__ . '" now accepts doctrine instances - ' .
+                'passing Contao database instances is deprecated.',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+            $reflection = new \ReflectionProperty(Database::class, 'resConnection');
+            $reflection->setAccessible(true);
+
+            $config['connection'] = $reflection->getValue($config['connection']);
+        }
     }
 }

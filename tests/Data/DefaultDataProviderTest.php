@@ -26,7 +26,11 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider;
 use ContaoCommunityAlliance\DcGeneral\Data\IdGeneratorInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * This class tests the DefaultDataProvider class.
@@ -41,10 +45,19 @@ class DefaultDataProviderTest extends TestCase
     private function mockDatabase()
     {
         return $this
-            ->getMockBuilder('Contao\Database')
+            ->getMockBuilder(Database::class)
             ->disableOriginalConstructor()
             ->setMethods(['__destruct', 'listFields'])
             ->getMockForAbstractClass();
+    }
+
+    private function mockConnection()
+    {
+        return $this
+            ->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getSchemaManager'])
+            ->getMock();
     }
 
     /**
@@ -54,18 +67,150 @@ class DefaultDataProviderTest extends TestCase
      */
     private function mockDefaultProvider()
     {
-        $database = $this->mockDatabase();
-        $database->method('listFields')->willReturn([]);
+        $schemaTable = $this
+            ->getMockBuilder(Table::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['hasColumn'])
+            ->getMock();
+        $schemaTable->method('hasColumn')->willReturn(false);
+
+        $schemaManager = $this
+            ->getMockBuilder(AbstractSchemaManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['listTableDetails'])
+            ->getMockForAbstractClass();
+        $schemaManager->method('listTableDetails')->willReturn($schemaTable);
+
+        $connection = $this->mockConnection();
+        $connection->method('getSchemaManager')->willReturn($schemaManager);
+        //$database->method('listFields')->willReturn([]);
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig([
-                'source'   => 'tl_something',
-                'database' => $database,
+        $dataProvider->setBaseConfig(
+            [
+                'source'     => 'tl_something',
+                'connection' => $connection
             ]
         );
 
         return $dataProvider;
+    }
+
+    public function testSetBaseConfigNoSource()
+    {
+        $dataProvider = new DefaultDataProvider();
+
+        try {
+            $dataProvider->setBaseConfig([]);
+        } catch (\Exception $exception) {
+            $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
+            $this->assertSame($exception->getMessage(), 'Missing table name.');
+        }
+    }
+
+    public function testSetBaseConfigDeprecatedDatabase()
+    {
+        $dataProvider = new DefaultDataProvider();
+        $database     = $this->mockDatabase();
+
+        $schemaTable = $this
+            ->getMockBuilder(Table::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['hasColumn'])
+            ->getMock();
+        $schemaTable->method('hasColumn')->willReturn(false);
+
+        $schemaManager = $this
+            ->getMockBuilder(AbstractSchemaManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['listTableDetails'])
+            ->getMockForAbstractClass();
+        $schemaManager->method('listTableDetails')->willReturn($schemaTable);
+
+        $connection = $this->mockConnection();
+        $connection->method('getSchemaManager')->willReturn($schemaManager);
+
+        $reflection = new \ReflectionProperty(Database::class, 'resConnection');
+        $reflection->setAccessible(true);
+
+        $reflection->setValue($database, $connection);
+
+        $dataProvider->setBaseConfig(
+            [
+                'source'   => 'tl_dummy',
+                'database' => $database
+            ]
+        );
+
+        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
+        $reflection->setAccessible(true);
+        $this->assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
+
+        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'source');
+        $reflection->setAccessible(true);
+        $this->assertSame('tl_dummy', $reflection->getValue($dataProvider));
+
+        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'idProperty');
+        $reflection->setAccessible(true);
+        $this->assertSame('id', $reflection->getValue($dataProvider));
+
+        $this->assertFalse($dataProvider->getTimeStampProperty());
+        $this->assertNull($dataProvider->getIdGenerator());
+    }
+
+    public function testSetBaseConfigInvalidConnection()
+    {
+        $dataProvider = new DefaultDataProvider();
+
+        try {
+            $dataProvider->setBaseConfig(
+                [
+                    'source'   => 'tl_dummy',
+                    'database' => '\Invalid\Connection'
+                ]
+            );
+        } catch (\Exception $exception) {
+            $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
+            $this->assertSame($exception->getMessage(), 'Invalid database connection.');
+        }
+    }
+
+    public function testSetBaseConfigForGetDefaultConnection()
+    {
+        $schemaTable = $this
+            ->getMockBuilder(Table::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['hasColumn'])
+            ->getMock();
+        $schemaTable->method('hasColumn')->willReturn(false);
+
+        $schemaManager = $this
+            ->getMockBuilder(AbstractSchemaManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['listTableDetails'])
+            ->getMockForAbstractClass();
+        $schemaManager->method('listTableDetails')->willReturn($schemaTable);
+
+        $connection = $this->mockConnection();
+        $connection->method('getSchemaManager')->willReturn($schemaManager);
+
+        $dataProvider = $this
+            ->getMockBuilder(DefaultDataProvider::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getDefaultConnection'])
+            ->getMock();
+        $dataProvider->method('getDefaultConnection')->willReturn($connection);
+
+        $dataProvider->setBaseConfig(
+            [
+                'source'   => 'tl_dummy'
+            ]
+        );
+
+        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
+        $reflection->setAccessible(true);
+        $this->assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
     }
 
     /**
@@ -75,41 +220,27 @@ class DefaultDataProviderTest extends TestCase
      */
     public function testSetBaseConfig()
     {
-        $database = $this->mockDatabase();
-        $database->method('listFields')->willReturn([
-                [
-                    'name' => 'idField',
-                    'type' => 'field',
-                ],
-                [
-                    'name' => 'lastChanged',
-                    'type' => 'field',
-                ],
-                [
-                    'name' => 'idField',
-                    'type' => 'index',
-                ],
-            ]
-        );
+        $connection = $this->mockConnection();
 
         $idGenerator = $this->getMockForAbstractClass(IdGeneratorInterface::class);
 
         $dataProvider = new DefaultDataProvider();
 
-        $dataProvider->setBaseConfig([
+        $dataProvider->setBaseConfig(
+            [
                 'source'            => 'tl_something',
-                'database'          => $database,
+                'connection'        => $connection,
                 'idProperty'        => 'idField',
                 'timeStampProperty' => 'lastChanged',
                 'idGenerator'       => $idGenerator
             ]
         );
 
-        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'objDatabase');
+        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
         $reflection->setAccessible(true);
 
         $this->assertEquals('tl_something', $dataProvider->getEmptyModel()->getProviderName());
-        $this->assertEquals($database, $reflection->getValue($dataProvider));
+        $this->assertEquals($connection, $reflection->getValue($dataProvider));
         $this->assertEquals('idField', $dataProvider->getIdProperty());
         $this->assertEquals('lastChanged', $dataProvider->getTimeStampProperty());
         $this->assertSame($idGenerator, $dataProvider->getIdGenerator());
@@ -146,5 +277,13 @@ class DefaultDataProviderTest extends TestCase
     {
         $provider = $this->mockDefaultProvider();
         $this->assertInstanceOf(CollectionInterface::class, $provider->getEmptyCollection());
+    }
+
+    /**
+     * @covers \ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider::getDefaultConnection
+     */
+    public function testGetDefaultConnection()
+    {
+        $this->markTestSkipped('This method is not testable.');
     }
 }
