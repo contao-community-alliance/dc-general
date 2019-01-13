@@ -146,7 +146,7 @@ class BaseConfigRegistryTest extends TestCase
         $basicDefinition->setParentDataProvider('unexpectedDataProvider');
         try {
             $configRegistry->getBaseConfig($unexpectedModelId);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
             $this->assertSame(
                 'Unexpected parent provider parentId (expected unexpectedDataProvider)',
@@ -159,7 +159,7 @@ class BaseConfigRegistryTest extends TestCase
         $basicDefinition->setParentDataProvider('parentId');
         try {
             $configRegistry->getBaseConfig($itemNotFoundModelId);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
             $this->assertSame(
                 'Parent item parentId::Iml0ZW0tbm90LWZvdW5kIg== not found in parentId',
