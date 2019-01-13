@@ -675,11 +675,14 @@ abstract class AbstractPropertyVisibilityHandler
 
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
-            $useIntersectValue = $this
-                ->useIntersectValue($intersectProperty, $legendPropertyNames, $defaultPalette, $environment);
             if (($idProperty === $intersectProperty)
                 || !$propertiesDefinition->hasProperty($intersectProperty)
-                || (false === $useIntersectValue)
+                || (false === $this->useIntersectValue(
+                    $intersectProperty,
+                    $legendPropertyNames,
+                    $environment,
+                    $defaultPalette
+                ))
             ) {
                 continue;
             }
@@ -704,16 +707,17 @@ abstract class AbstractPropertyVisibilityHandler
      *
      * @param string                $intersectPropertyName The intersect property name.
      * @param array                 $legendPropertyNames   The legend names.
-     * @param PaletteInterface|null $defaultPalette        The default palette.
      * @param EnvironmentInterface  $environment           The environment.
+     *
+     * @param PaletteInterface|null $defaultPalette        The default palette.
      *
      * @return bool
      */
     private function useIntersectValue(
         $intersectPropertyName,
         array $legendPropertyNames,
-        PaletteInterface $defaultPalette = null,
-        EnvironmentInterface $environment
+        EnvironmentInterface $environment,
+        PaletteInterface $defaultPalette = null
     ) {
         $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
         $useIntersectValue    = (bool) $defaultPalette;
