@@ -27,7 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 /**
  * Mocked abstract item to test its methods.
  *
- * @package ContaoCommunityAlliance\DcGeneral\Test\ClipBoard
+ * @package ContaoCommunityAlliance\DcGeneral\Test\Clipboard
  */
 class MockedAbstractItem extends AbstractItem
 {

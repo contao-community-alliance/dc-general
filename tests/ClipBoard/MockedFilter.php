@@ -26,7 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 /**
  * Mocked Filter class returns just a predefined value.
  *
- * @package ContaoCommunityAlliance\DcGeneral\Test\ClipBoard
+ * @package ContaoCommunityAlliance\DcGeneral\Test\Clipboard
  */
 class MockedFilter implements FilterInterface
 {

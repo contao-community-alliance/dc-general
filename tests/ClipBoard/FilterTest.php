@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 /**
  * Test for the Filter.
  *
- * @package ContaoCommunityAlliance\DcGeneral\Test\ClipBoard
+ * @package ContaoCommunityAlliance\DcGeneral\Test\Clipboard
  */
 class FilterTest extends TestCase
 {
