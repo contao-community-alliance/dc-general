@@ -3,6 +3,14 @@
 [![Latest Version on Packagist](http://img.shields.io/packagist/v/contao-community-alliance/dc-general.svg)](https://packagist.org/packages/contao-community-alliance/dc-general)
 [![Installations via composer per month](http://img.shields.io/packagist/dm/contao-community-alliance/dc-general.svg)](https://packagist.org/packages/contao-community-alliance/dc-general)
 
+Important
+=========
+
+The further development for Contao version less than 4 has been discontinued.
+
+Errors will still be fixed.
+
+
 DC_General
 ==========
 
