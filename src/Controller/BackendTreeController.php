@@ -248,9 +248,6 @@ class BackendTreeController implements ContainerAwareInterface
         }
         $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
 
-        $ajax = new \Contao\Ajax($request->request->get('action'));
-        $ajax->executePreActions();
-
         $treeSelector = $this->prepareTreeSelector($picker);
 
         $sessionBag = $this->container->get('session')->getBag('contao_backend');
@@ -302,8 +299,6 @@ class BackendTreeController implements ContainerAwareInterface
 
         $response = new Response($buffer);
         $response->headers->set('Content-Type', 'txt/html; charset=' . Config::get('characterSet'));
-
-        $ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
 
         return $response;
     }
