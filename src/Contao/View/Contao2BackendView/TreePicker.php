@@ -36,6 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -1047,18 +1048,18 @@ class TreePicker extends Widget
     /**
      * Prepare filter if has root condition.
      *
-     * @return void
+     * @return ConfigInterface
      */
     private function prepareFilterForRootCondition()
     {
         $definition    = $this->getEnvironment()->getDataDefinition();
         $rootCondition = $definition->getModelRelationshipDefinition()->getRootCondition();
 
+        $baseConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
         if (!$rootCondition) {
-            return;
+            return $baseConfig;
         }
 
-        $baseConfig = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
         $baseFilter = $baseConfig->getFilter();
         $filter     = $rootCondition->getFilterArray();
 
@@ -1067,6 +1068,8 @@ class TreePicker extends Widget
         }
 
         $baseConfig->setFilter($filter);
+
+        return $baseConfig;
     }
 
     /**
@@ -1084,7 +1087,7 @@ class TreePicker extends Widget
         $level
     ) {
         $inputProvider = $this->getEnvironment()->getInputProvider();
-        $baseConfig    = $this->getEnvironment()->getBaseConfigRegistry()->getBaseConfig();
+        $baseConfig    = $this->prepareFilterForRootCondition();
         $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
 
         if ($inputProvider->hasParameter('orderProperty') && $inputProvider->hasParameter('sortDirection')) {
