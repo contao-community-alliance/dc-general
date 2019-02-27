@@ -21,7 +21,10 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * Class Callbacks.
@@ -79,9 +82,13 @@ class Callbacks
         throw new DcGeneralRuntimeException(
             \sprintf(
                 'Execute callback %s failed - Exception message: %s',
-                (\is_array($callback) ? \implode('::', $callback) : (\is_string($callback) ? $callback : \get_class(
-                    $callback
-                ))),
+                (\is_array($callback)
+                    ? \implode('::', $callback)
+                    : (\is_string($callback)
+                        ? $callback
+                        : \get_class(
+                            $callback
+                        ))),
                 $message
             ),
             0,
@@ -101,6 +108,11 @@ class Callbacks
     protected static function evaluateCallback($callback)
     {
         if (\is_array($callback) && \count($callback) == 2 && \is_string($callback[0]) && \is_string($callback[1])) {
+            $serviceCallback = static::evaluateServiceCallback($callback);
+            if ($serviceCallback[0] !== $callback[0]) {
+                return $serviceCallback;
+            }
+
             $class = new \ReflectionClass($callback[0]);
 
             // Ff the method is static, do not create an instance.
@@ -129,6 +141,45 @@ class Callbacks
                 $constructor->setAccessible(true);
                 $constructor->invoke($callback[0]);
             }
+        }
+
+        return $callback;
+    }
+
+    /**
+     * Evaluate the callback from the service container.
+     *
+     * @param array $callback The callback.
+     *
+     * @return array
+     *
+     * @throws ServiceNotFoundException When service is not public or removed.
+     */
+    private static function evaluateServiceCallback($callback)
+    {
+        $container = System::getContainer();
+
+        if ($container->has($callback[0])
+            && ((false !== \strpos($callback[0], '\\')) || !\class_exists($callback[0]))
+        ) {
+            $callback[0] = $container->get($callback[0]);
+
+            return $callback;
+        }
+
+        if ($container instanceof Container && isset($container->getRemovedIds()[$callback[0]])) {
+            throw new ServiceNotFoundException(
+                $callback[0],
+                null,
+                null,
+                [],
+                sprintf(
+                    'The "%s" service or alias has been removed or inlined when the container was compiled. ' .
+                    'You should either make it public, ' .
+                    'or stop using the container directly and use dependency injection instead.',
+                    $callback[0]
+                )
+            );
         }
 
         return $callback;
