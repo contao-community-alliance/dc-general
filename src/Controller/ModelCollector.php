@@ -165,10 +165,11 @@ class ModelCollector
         }
 
         $properties = [];
+
         // Filter real properties from the property definition.
         foreach ($propertyDefinition->getPropertyNames() as $propertyName) {
             if ($dataProvider->fieldExists($propertyName)) {
-                $properties[] = 'sourceTable.' . $propertyName;
+                $properties[] = $propertyName;
 
                 continue;
             }
