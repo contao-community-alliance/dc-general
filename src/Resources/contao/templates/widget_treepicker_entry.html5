@@ -14,7 +14,7 @@ $model = $this->objModel; ?>
 				href="<?= $this->toggleUrl ?>"
 				title="<?= $this->toggleTitle ?>"
 				onclick="<?= $this->toggleScript ?>">
-				<img src="<?= TL_ASSETS_URL ?>system/themes/<?= $this->theme ?>/icons/<?= ($model->getMeta($model::SHOW_CHILDREN)) ? 'folMinus.svg' : 'folPlus.svg' ?>"
+				<img src="system/themes/<?= $this->theme ?>/icons/<?= ($model->getMeta($model::SHOW_CHILDREN)) ? 'folMinus.svg' : 'folPlus.svg' ?>"
 				     width="18"
 				     height="18"
 				     alt=""

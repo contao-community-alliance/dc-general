@@ -153,7 +153,7 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $titleIcon = TL_ASSETS_URL . 'system/themes/flexible/icons/pagemounts.svg';
+    protected $titleIcon = 'system/themes/flexible/icons/pagemounts.svg';
 
     /**
      * The title to display.
