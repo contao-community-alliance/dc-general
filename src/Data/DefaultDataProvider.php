@@ -333,11 +333,11 @@ class DefaultDataProvider implements DataProviderInterface
     public function fetch(ConfigInterface $config)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder->from($this->source, 'sourceTable');
+        $queryBuilder->from($this->source);
         DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
 
         if (null !== $config->getId()) {
-            $queryBuilder->where('sourceTable.id=:id');
+            $queryBuilder->where($this->source . '.id=:id');
             $queryBuilder->setParameter(':id', $config->getId());
         }
 
@@ -365,7 +365,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function fetchAll(ConfigInterface $config)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder->from($this->source, 'sourceTable');
+        $queryBuilder->from($this->source);
         DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
         DefaultDataProviderDBalUtils::addWhere($config, $queryBuilder);
         DefaultDataProviderDBalUtils::addSorting($config, $queryBuilder);
@@ -435,7 +435,7 @@ class DefaultDataProvider implements DataProviderInterface
         $internalConfig = $this->prefixDataProviderProperties($config);
         $queryBuilder   = $this->connection->createQueryBuilder();
         $queryBuilder->select('COUNT(*) AS count');
-        $queryBuilder->from($this->source, 'sourceTable');
+        $queryBuilder->from($this->source);
         DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
 
         $statement = $queryBuilder->execute();
@@ -450,8 +450,8 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('*');
-        $queryBuilder->from($this->source, 'sourceTable');
-        $queryBuilder->where($queryBuilder->expr()->eq('sourceTable.' . $field, ':' . $field));
+        $queryBuilder->from($this->source);
+        $queryBuilder->where($queryBuilder->expr()->eq($this->source . '.' . $field, ':' . $field));
         $queryBuilder->setParameter(':' . $field, $new);
 
         $statement = $queryBuilder->execute();
@@ -689,12 +689,12 @@ class DefaultDataProvider implements DataProviderInterface
     public function getVersion($mixID, $mixVersion)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder->from('tl_version', 'sourceTable');
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->from('tl_version');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $mixID);
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.version', ':version'));
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.version', ':version'));
         $queryBuilder->setParameter(':version', $mixVersion);
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.fromTable', ':fromTable'));
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
         $queryBuilder->setParameter(':fromTable', $this->source);
 
         $statement = $queryBuilder->execute();
@@ -736,17 +736,17 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select(['tstamp', 'version', 'username', 'active']);
-        $queryBuilder->from('tl_version', 'sourceTable');
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.formTable', ':formTable'));
+        $queryBuilder->from('tl_version');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.formTable', ':formTable'));
         $queryBuilder->setParameter(':formTable', $this->source);
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $mixID);
 
         if ($onlyActive) {
-            $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.active', ':active'));
+            $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.active', ':active'));
             $queryBuilder->setParameter(':active', '1');
         } else {
-            $queryBuilder->orderBy('sourceTable.version', 'DESC');
+            $queryBuilder->orderBy('tl_version.version', 'DESC');
         }
 
         $statement = $queryBuilder->execute();
@@ -788,10 +788,10 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('COUNT(*) AS count');
-        $queryBuilder->from('tl_version', 'sourceTable');
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->from('tl_version');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $model->getId());
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.fromTable', ':fromTable'));
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
         $queryBuilder->setParameter(':fromTable', $this->source);
 
         $statement = $queryBuilder->execute();
@@ -847,12 +847,12 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select(['select']);
-        $queryBuilder->from('tl_version', 'sourceTable');
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.pid', ':pid'));
+        $queryBuilder->from('tl_version');
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $mixID);
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.fromTable', ':fromTable'));
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
         $queryBuilder->setParameter(':fromTable', $this->source);
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('sourceTable.active', ':active'));
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.active', ':active'));
         $queryBuilder->setParameter(':active', 1);
 
         $statement = $queryBuilder->execute();
