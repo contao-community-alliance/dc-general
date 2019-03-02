@@ -42,6 +42,9 @@
         "symfony/expression-language": "^3.3 || ^4.0",
         "ext-json": "*"
     },
+    "conflict": {
+        "menatwork/contao-multicolumnwizard": "<3.4.0"
+    },
     "require-dev": {
         "phpcq/all-tasks": "^1.2",
         "friendsofphp/php-cs-fixer": "^2.13",
