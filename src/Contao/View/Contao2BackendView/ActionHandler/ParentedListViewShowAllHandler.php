@@ -156,7 +156,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $add        = [];
         $properties = $environment->getParentDataDefinition()->getPropertiesDefinition();
         foreach ($this->getViewSection($definition)->getListingConfig()->getHeaderPropertyNames() as $field) {
-            $value = \deserialize($parentModel->getProperty($field));
+            $value = StringUtil::deserialize($parentModel->getProperty($field));
 
             if ($field == 'tstamp') {
                 $value = date(Config::get('datimFormat'), $value);

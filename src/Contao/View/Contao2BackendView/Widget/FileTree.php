@@ -221,7 +221,7 @@ class FileTree extends AbstractWidget
 
         // support serialized values.
         if (!\is_array($value)) {
-            $value = \deserialize($value, true);
+            $value = StringUtil::deserialize($value, true);
         }
 
         $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
@@ -296,7 +296,7 @@ class FileTree extends AbstractWidget
         static $allowedDownload;
 
         if ($allowedDownload === null) {
-            $allowedDownload = \trimsplit(',', \strtolower(Config::get('allowedDownload')));
+            $allowedDownload = StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload')));
         }
 
         return \in_array($extension, $allowedDownload);

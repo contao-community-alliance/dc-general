@@ -181,7 +181,7 @@ class Ajax3X extends Ajax
     {
         // Convert the selected values.
         if ($varValue != '') {
-            $varValue = \trimsplit("\t", $varValue);
+            $varValue = StringUtil::trimsplit("\t", $varValue);
 
             // Automatically add resources to the DBAFS.
             if ($strType == 'file') {

@@ -19,6 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 
@@ -48,9 +49,9 @@ class SelectModeButtonsListener
                 '<div class="tl_submit_container">' .
                 '<input type="submit" name="close" class="%s" value="%s" onclick="%s">' .
                 '</div>',
-                \specialchars($translator->translate('MSC.nothingSelect', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.nothingSelect', 'contao_default')),
                 'tl_submit',
-                \specialchars($translator->translate('MSC.close', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.close', 'contao_default')),
                 'this.blur(); BackendGeneral.hideMessage(); return false;'
             )
         );
@@ -64,9 +65,9 @@ class SelectModeButtonsListener
                 'BackendGeneral.confirmSelectDeleteAll(this, \'%s\', \'%s\', \'%s\', \'%s\', \'%s\'); return false;',
                 'models[]',
                 $confirmMessage,
-                \specialchars($translator->translate('MSC.delAllConfirm', 'contao_default')),
-                \specialchars($translator->translate('MSC.confirmOk', 'contao_default')),
-                \specialchars($translator->translate('MSC.confirmAbort', 'contao_default'))
+                StringUtil::specialchars($translator->translate('MSC.delAllConfirm', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.confirmOk', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.confirmAbort', 'contao_default'))
             );
 
             $buttons['delete'] = \sprintf(
@@ -74,7 +75,7 @@ class SelectModeButtonsListener
                 'delete',
                 'delete',
                 'd',
-                \specialchars($translator->translate('MSC.deleteSelected', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.deleteSelected', 'contao_default')),
                 $onClickDelete
             );
         }
@@ -86,7 +87,7 @@ class SelectModeButtonsListener
                 'cut',
                 'cut',
                 's',
-                \specialchars($translator->translate('MSC.moveSelected', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.moveSelected', 'contao_default')),
                 $onClick
             );
         }
@@ -97,7 +98,7 @@ class SelectModeButtonsListener
                 'copy',
                 'copy',
                 'c',
-                \specialchars($translator->translate('MSC.copySelected', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.copySelected', 'contao_default')),
                 $onClick
             );
         }
@@ -108,7 +109,7 @@ class SelectModeButtonsListener
                 'override',
                 'override',
                 'v',
-                \specialchars($translator->translate('MSC.overrideSelected', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.overrideSelected', 'contao_default')),
                 $onClick
             );
 
@@ -117,7 +118,7 @@ class SelectModeButtonsListener
                 'edit',
                 'edit',
                 's',
-                \specialchars($translator->translate('MSC.editSelected', 'contao_default')),
+                StringUtil::specialchars($translator->translate('MSC.editSelected', 'contao_default')),
                 $onClick
             );
         }

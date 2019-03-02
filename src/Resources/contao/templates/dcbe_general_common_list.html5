@@ -124,7 +124,7 @@ if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
     </table>
 <?php if ($this->sortable) : ?>
 <script>
-var table = document.getElementById('table_<?= $this->tableName ?>_<?= standardize($groupValue) ?>');
+var table = document.getElementById('table_<?= $this->tableName ?>_<?= \Contao\StringUtil::standardize($groupValue) ?>');
 var SortableTableDnD = new GeneralTableDnD();
 SortableTableDnD.init(table);
 </script>

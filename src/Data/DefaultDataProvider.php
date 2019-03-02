@@ -704,7 +704,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $version = $statement->fetch(\PDO::FETCH_OBJ);
 
-        $data = \deserialize($version->data);
+        $data = StringUtil::deserialize($version->data);
 
         if (!\is_array($data) || \count($data) == 0) {
             return null;

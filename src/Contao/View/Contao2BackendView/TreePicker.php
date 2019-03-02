@@ -26,6 +26,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use Contao\Backend;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\CoreBundle\Picker\PickerConfig;
+use Contao\StringUtil;
 use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -409,7 +410,7 @@ class TreePicker extends Widget
             case 'checkbox':
                 $delimiter = (\stripos($varValue, "\t") !== false) ? "\t" : ',';
 
-                return \trimsplit($delimiter, $varValue);
+                return StringUtil::trimsplit($delimiter, $varValue);
             default:
         }
         throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
@@ -812,7 +813,7 @@ class TreePicker extends Widget
             ->set('fieldType', $this->fieldType)
             ->set('resetSelected', $translator->translate('MSC.resetSelected'))
             ->set('selectAll', $translator->translate('MSC.selectAll'))
-            ->set('values', \deserialize($this->varValue, true));
+            ->set('values', StringUtil::deserialize($this->varValue, true));
 
         // Create Tree Render with custom root points.
         $tree = '';
