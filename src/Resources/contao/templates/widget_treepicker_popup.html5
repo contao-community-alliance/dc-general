@@ -1,3 +1,10 @@
+<?php
+
+// Add tree view stylesheet
+$GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalTreeView.css';
+
+?>
+
 <div class="tl_listing_container tree_view unselectable" id="tl_listing">
 <ul class="tl_listing treepicker_popup tree_view picker_selector <?php echo $this->class; ?>" id="<?php echo $this->id ?>">
 	<li class="tl_folder_top">

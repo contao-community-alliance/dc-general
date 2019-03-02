@@ -22,7 +22,7 @@ $model = $this->objModel; ?>
 			</a>
 		<?php endif; ?>
 		<?php $arrLabels = $model->getMeta($model::LABEL_VALUE); ?>
-		<?= $arrLabels[0]['content'] ?>
+        <div class="tl_pagetree_content" style="margin-left: 0"><?= $arrLabels[0]['content'] ?></div>
 	</div>
 	<div class="tl_right">
 		<?php /*if($this->minLevel && !$this->itemTable): */ ?>
