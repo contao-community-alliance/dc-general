@@ -180,15 +180,14 @@ class TreeCollector implements EnvironmentAwareInterface
             return null;
         }
 
-        $sourceTable = $this->getEnvironment()->getDataDefinition()->getName();
         return $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                ->setSorting([$sourceTable . '.sorting' => 'ASC'])
+                ->setSorting(['sorting' => 'ASC'])
                 ->setFilter(
                     FilterBuilder::fromArray()
                         ->getFilter()
-                        ->andPropertyValueIn($sourceTable . '.id', $childIds)
+                        ->andPropertyValueIn('id', $childIds)
                         ->getAllAsArray()
                 )
         );
