@@ -24,7 +24,7 @@ before_install:
 install:
     - travis_retry composer self-update && composer --version
     - travis_retry composer require $CONTAO_VERSION --no-update
-    - travis_retry composer update --prefer-dist --dev --no-interaction
+    - travis_retry composer update --prefer-dist --no-interaction
 
 script: ant -keep-going
 
