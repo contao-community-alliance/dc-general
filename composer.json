@@ -50,7 +50,7 @@
         "friendsofphp/php-cs-fixer": "^2.13",
         "phpunit/phpunit": "^7.5",
         "contao/manager-plugin": "^2.2",
-        "menatwork/contao-multicolumnwizard-bundle": "^3.4.0@beta"
+        "menatwork/contao-multicolumnwizard-bundle": "^3.4"
     },
     "autoload": {
         "classmap": [
