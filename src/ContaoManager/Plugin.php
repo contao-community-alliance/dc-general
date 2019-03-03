@@ -48,8 +48,6 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
                 ->setLoadAfter(
                     [
                         ContaoCoreBundle::class,
-                        ContaoManagerBundle::class,
-                        CcaUrlBuilderBundle::class,
                         CcaDependencyInjectionBundle::class,
                         CcaEventsContaoBindingsBundle::class
                     ]
