@@ -1,0 +1,63 @@
+<input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= \implode(',', \array_keys($this->values)) ?>">
+
+<?php $this->block('select-container'); ?>
+<div class="selector_container">
+	<?php if ($this->hasOrder && \count($this->values)): ?>
+		<p class="sort_hint">
+			<?= $this->dragItemsHint ?>
+		</p>
+	<?php endif; ?>
+
+	<ul id="sort_<?= $this->id ?>"<?php if ($this->hasOrder): ?> class="sortable"<?php endif; ?>>
+		<?php foreach ($this->values as $k=>$v): ?>
+			<li data-id="<?= $k ?>"><?= $v ?></li>
+		<?php endforeach; ?>
+	</ul>
+</div>
+<?php $this->endblock(); ?>
+
+<?php $this->block('modal-button'); ?>
+<p>
+	<a id="ft_<?= $this->name ?>" href="<?= $this->popupUrl ?>" class="tl_submit"><?= $this->changeSelection ?></a>
+</p>
+<?php $this->endblock(); ?>
+
+<?php $this->block('modal-script'); ?>
+<script>
+	$("ft_<?= $this->name ?>").addEvent("click", function(e) {
+		e.preventDefault();
+		Backend.openModalSelector({
+			"id": "tl_listing",
+			"title": "<?= \Contao\StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
+			"url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
+			"callback": function(table, value) {
+				new Request.Contao({
+					url: "<?= $this->updateUrl ?>" + location.search.replace('?', '&'),
+					evalScripts: false,
+					onSuccess: function(txt, json) {
+						var element = new Element("div", {html: json.content});
+						var replace = $("ctrl_<?= $this->id ?>").getParent("div");
+						replace.getChildren().destroy();
+						replace.set("html", element.getElement(".widget").get('html'));
+						json.javascript && Browser.exec(json.javascript);
+					}
+				}).post({
+					<?php $this->block('modal-script-post'); ?>
+					"action":"DcGeneralLoadSubTree",
+					"name":"<?= $this->id ?>",
+					"providerName":"<?= $this->providerName ?>",
+					"value":value.join(","),
+					"REQUEST_TOKEN":"<?= REQUEST_TOKEN ?>"
+					<?php $this->endblock(); ?>
+				});
+			}
+		});
+	});
+</script>
+<?php $this->endblock(); ?>
+
+<?php $this->block('multi-source-script'); ?>
+<?php if ($this->hasOrder): ?>
+	<script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
+<?php endif; ?>
+<?php $this->endblock(); ?>

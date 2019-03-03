@@ -1,0 +1,67 @@
+<?php
+
+use Contao\StringUtil;
+
+/** @var \ContaoCommunityAlliance\DcGeneral\EnvironmentInterface $environment */
+$environment     = $this->environment;
+$eventDispatcher = $environment->getEventDispatcher();
+
+// pre render the clipboard icon
+$event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
+    'clipboard.svg'
+);
+$eventDispatcher->dispatch(
+    \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
+    $event
+);
+$clipboardIcon = $event->getHtml();
+
+// pre render the action icons
+$icons = [];
+foreach ($this->options as $id => $row) {
+    /** @var \ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface $item */
+    $item = $row['item'];
+
+    if (!isset($icons[$item->getAction()])) {
+        $icon = $item->getAction();
+
+        if ('create' === $icon) {
+            $icon = 'new';
+        } elseif ('deepcopy' === $icon) {
+            $icon = 'copychilds';
+        }
+
+        $item  = $row['item'];
+        $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent(
+            $icon . '.svg'
+        );
+        $eventDispatcher->dispatch(
+            \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
+            $event
+        );
+        $icons[$item->getAction()] = $event->getHtml();
+    }
+}
+if (\count($this->options)):
+    ?>
+    <div class="tl_listing_container" id="dcg_clipboard">
+        <ul>
+            <?php foreach ($this->options as $id => $row): ?>
+                <li title="ID <?php echo StringUtil::specialchars($item->getClipboardId()) ?>">
+                    <?php $item = $row['item']; ?>
+                    <?php echo $icons[$item->getAction()] ?>
+                    <?php echo $row['label'] ?>
+                    <a href="<?php echo \str_replace('%id%', $id, $this->clearItemUrl) ?>">
+                        <?php echo $clipboardIcon ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <a href="<?php echo $this->clearUrl ?>" class="btn-clear"
+           title="<?php echo StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) ?>">
+            <img src="bundles/ccadcgeneral/images/clear-clipboard.svg" width="24" height="24">
+        </a>
+    </div>
+    <?php
+endif;
+?>

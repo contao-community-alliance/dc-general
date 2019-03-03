@@ -1,0 +1,41 @@
+<div>
+<input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>">
+
+<div class="selector_container">
+    <?php if ($this->hasOrder && \count($this->icons) > 1): ?>
+        <p class="sort_hint"><?= $this->translate('dragItemsHint', 'MSC') ?></p>
+    <?php endif; ?>
+    <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
+        <?php foreach ($this->icons as $icon): ?>
+        <li data-id="<?= \Contao\StringUtil::binToUuid($icon['uuid']); ?>">
+            <?= $icon['image'] ?>
+        </li>
+        <?php endforeach; ?>
+    </ul>
+<p>
+    <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('changeSelection', 'MSC') ?></a>
+</p>
+</div>
+<script>
+    $("ft_<?= $this->name ?>").addEvent("click", function(e) {
+        e.preventDefault();
+        Backend.openModalSelector({
+            "id": "tl_listing",
+            "title": "<?= \Contao\StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
+            "url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
+            "callback": function(table, value) {
+                new Request.Contao({
+                    evalScripts: false,
+                    onSuccess: function(txt, json) {
+                        $("ctrl_<?= $this->id ?>").getParent("div").set("html", json.content);
+                        json.javascript && Browser.exec(json.javascript);
+                    }
+                }).post({"action":"reloadFiletree", "name":"<?= $this->id ?>", "value":value.join("\t"), "REQUEST_TOKEN":"<?= REQUEST_TOKEN ?>"});
+            }
+        });
+    });
+</script>
+<?php if ($this->hasOrder): ?>
+    <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
+<?php endif; ?>
+</div>

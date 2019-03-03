@@ -1,0 +1,5 @@
+<div class="tl_submit_panel tl_subpanel <?php echo $this->rowClass; ?>">
+	<input type="image" name="filter" id="filter" src="system/themes/flexible/images/reload.gif" class="tl_img_submit"
+		   title="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>"
+		   alt="<?php echo $GLOBALS['TL_LANG']['MSC']['apply']; ?>">
+</div>

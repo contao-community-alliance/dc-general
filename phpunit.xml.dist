@@ -13,7 +13,7 @@
 >
     <testsuites>
         <testsuite name="dc-general test suite">
-            <directory>./tests/ContaoCommunityAlliance/DcGeneral/</directory>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
 
@@ -25,7 +25,7 @@
 
     <filter>
         <whitelist>
-            <directory>./src/ContaoCommunityAlliance/DcGeneral/</directory>
+            <directory>./src/</directory>
         </whitelist>
     </filter>
     <logging>

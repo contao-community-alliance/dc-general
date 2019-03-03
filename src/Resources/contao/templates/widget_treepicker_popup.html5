@@ -1,0 +1,51 @@
+<?php
+
+// Add tree view stylesheet
+$GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalTreeView.css';
+
+?>
+
+<div class="tl_listing_container tree_view unselectable" id="tl_listing">
+<ul class="tl_listing treepicker_popup tree_view picker_selector <?php echo $this->class; ?>" id="<?php echo $this->id ?>">
+	<li class="tl_folder_top">
+		<div class="tl_left">
+			<?php echo $this->icon . $this->title; ?>
+		</div>
+		<div class="tl_right">&nbsp;</div>
+		<div style="clear:both;"></div>
+	</li>
+	<li
+		class="parent" id="<?php echo $this->id ?>_parent">
+	<ul>
+		<?php echo $this->tree ?>
+		<li class="tl_folder">
+			<div class="tl_left">&nbsp;</div>
+			<div class="tl_right">
+				<?php if ($this->fieldType == 'radio'): ?>
+					<label
+						for="ctrl_<?php echo $this->id ?>_0"
+						class="tl_change_selected"><?php echo $this->resetSelected; ?></label>
+					<input type="radio"
+						name="<?php echo $this->name ?>"
+						id="ctrl_<?php echo $this->id ?>_0"
+						class="tl_tree_radio"
+						value=""
+						onfocus="Backend.getScrollOffset();" />
+				<?php elseif ($this->fieldType == 'checkbox'): ?>
+					<label
+						for="check_all_<?php echo $this->id ?>_0"
+						class="tl_change_selected"><?php echo $this->selectAll; ?></label>
+					<input
+						type="checkbox"
+						id="check_all_<?php echo $this->id ?>_0"
+						class="tl_checkbox"
+						value=""
+						onclick="Backend.toggleCheckboxes(this)" />
+				<?php endif; ?>
+			</div>
+			<div style="clear:both;"></div>
+		</li>
+	</ul>
+	</li>
+</ul>
+</div>

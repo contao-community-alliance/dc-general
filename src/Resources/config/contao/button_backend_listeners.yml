@@ -1,0 +1,24 @@
+services:
+    cca.dc-general.backend_listener.backend_button_listener:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener
+        public: true
+        calls:
+            - method: setScopeDeterminator
+              arguments:
+                  - "@cca.dc-general.scope-matcher"
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-global-button
+                method: handle
+
+    cca.dc-general.backend_listener.create_model_button_listener:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\CreateModelButtonListener
+        public: true
+        calls:
+            - method: setScopeDeterminator
+              arguments:
+                  - "@cca.dc-general.scope-matcher"
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-global-button
+                method: handle

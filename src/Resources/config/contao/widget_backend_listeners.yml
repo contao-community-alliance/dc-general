@@ -1,0 +1,21 @@
+services:
+    cca.dc-general.backend_listener.widget_builder:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder
+        public: true
+        arguments:
+            - "@cca.dc-general.environment"
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.build-widget
+                method: handleEvent
+
+    cca.dc-general.backend_listener.color_picker_wizard:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\ColorPickerWizardListener
+        public: true
+        arguments:
+            - "@cca.dc-general.scope-matcher"
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.build-widget
+                method: handleEvent

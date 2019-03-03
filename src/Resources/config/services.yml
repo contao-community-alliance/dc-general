@@ -1,0 +1,35 @@
+services:
+    cca.dc-general.scope-matcher:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator
+        public: true
+        arguments:
+          - "@contao.routing.scope_matcher"
+          - "@request_stack"
+
+    cca.dc-general.data-definition-container:
+        class: ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
+        public: true
+
+    # FIXME: this is so horribly wrong! - We must get rid of this again.
+    # This is only used in event listeners, we must refactor them to proper services.
+    cca.dc-general.environment:
+        class: ContaoCommunityAlliance\DcGeneral\DefaultEnvironment
+        public: false
+
+    cca.dc-general.session_factory:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\Factory\SessionStorageFactory
+        arguments:
+            - "@service_container"
+        public: true
+
+    cca.dc-general.session_attribute:
+        class: Contao\CoreBundle\Session\Attribute\ArrayAttributeBag
+        public: false
+        arguments:
+            - "cca_dc_general_attributes"
+        calls:
+            - ["setName", ["cca_dc_general"]]
+
+    cca.dc-general.edit-information:
+        class: ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation
+        public: true
