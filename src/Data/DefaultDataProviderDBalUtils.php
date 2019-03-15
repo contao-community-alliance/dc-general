@@ -315,11 +315,13 @@ class DefaultDataProviderDBalUtils
      */
     private static function filterComparing($operation, QueryBuilder $queryBuilder)
     {
-        $queryBuilder->setParameter(':' . $operation['property'], $operation['value']);
-
         return $queryBuilder
             ->expr()
-            ->comparison($operation['property'], $operation['operation'], ':' . $operation['property']);
+            ->comparison(
+                $operation['property'],
+                $operation['operation'],
+                $queryBuilder->createNamedParameter($operation['value'])
+            );
     }
 
     /**
