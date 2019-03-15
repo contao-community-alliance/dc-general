@@ -519,7 +519,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $sorting = [];
         foreach ($config->getSorting() as $property => $value) {
-            if (0 === \strpos($property, $this->strSource . '.')) {
+            if (0 === \strpos($property, $this->source . '.')) {
                 $sorting[$property] = $value;
 
                 continue;
@@ -529,7 +529,7 @@ class DefaultDataProvider implements DataProviderInterface
                 continue;
             }
 
-            $sorting[$this->strSource . '.' . $property] = $value;
+            $sorting[$this->source . '.' . $property] = $value;
         }
         $config->setSorting($sorting);
     }
@@ -545,10 +545,10 @@ class DefaultDataProvider implements DataProviderInterface
     {
         foreach ($filter as &$child) {
             if (\array_key_exists('property', $child)
-                && (false === \strpos($child['property'], $this->strSource . '.'))
+                && (false === \strpos($child['property'], $this->source . '.'))
                 && $this->fieldExists($child['property'])
             ) {
-                $child['property'] = $this->strSource . '.' . $child['property'];
+                $child['property'] = $this->source . '.' . $child['property'];
             }
 
             if (\array_key_exists('children', $child)) {
@@ -567,13 +567,13 @@ class DefaultDataProvider implements DataProviderInterface
     private function fieldPrefixer(array &$fields)
     {
         foreach ($fields as $index => $property) {
-            if (0 === \strpos($property, $this->strSource . '.')
+            if (0 === \strpos($property, $this->source . '.')
                 || !$this->fieldExists($property)
             ) {
                 continue;
             }
 
-            $fields[$index] = $this->strSource . '.' . $property;
+            $fields[$index] = $this->source . '.' . $property;
         }
     }
 
