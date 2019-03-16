@@ -95,6 +95,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      */
     public function testCallbackParsing()
     {
+        $this->loadContaoInterface();
         $this->aliasContaoClass('Session');
         $this->aliasContaoClass('System');
         $this->aliasContaoClass('Controller');
@@ -104,7 +105,8 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         $dispatcher = new EventDispatcher();
         $container  = new DefaultContainer('tl_test');
         $event      = new BuildDataDefinitionEvent($container);
-        $builder    = $this->mockBuilderWithDca([
+        $builder    = $this->mockBuilderWithDca(
+            [
                 'fields' => [
                     'testProperty' => [
                         'save_callback' => [

@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test;
 
+use Contao\CoreBundle\ContaoCoreBundle;
 use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\BackendTemplate;
 use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Config;
 use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Controller;
@@ -31,6 +32,13 @@ use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\ContaoTwig;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
+    protected function loadContaoInterface()
+    {
+        // We need the Contao interfaces - sadly they are excluded from classmap. :/
+        $reflection = new \ReflectionClass(ContaoCoreBundle::class);
+        require_once \dirname($reflection->getFileName()) . '/Resources/contao/helper/interface.php';
+    }
+
     protected function aliasContaoClass($class)
     {
         if (\class_exists($class) && !\class_exists('\\Contao\\' . $class, false)) {
