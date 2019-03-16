@@ -19,20 +19,24 @@
  * @filesource
  */
 
+declare(strict_types=1);
+
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Twig;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
 /**
  * Extension for twig template engine.
  */
-class DcGeneralExtension extends \Twig_Extension
+class DcGeneralExtension extends AbstractExtension
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'dc-general';
     }
@@ -40,9 +44,9 @@ class DcGeneralExtension extends \Twig_Extension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
-        return [new \Twig_SimpleFilter('serializeModelId', [$this, 'serializeModelId']),];
+        return [new TwigFilter('serializeModelId', [$this, 'serializeModelId'])];
     }
 
     /**
@@ -52,7 +56,7 @@ class DcGeneralExtension extends \Twig_Extension
      *
      * @return string
      */
-    public function serializeModelId(ModelInterface $model)
+    public function serializeModelId(ModelInterface $model): string
     {
         return ModelId::fromModel($model)->getSerialized();
     }
