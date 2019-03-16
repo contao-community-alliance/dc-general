@@ -1,0 +1,43 @@
+<?php $this->insert(
+    'dcbe_general_language_selector',
+    [
+        'language'      => $this->currentLanguage,
+        'languages'     => $this->languages,
+        'request'       => $this->Environment->request,
+        'submit'        => $this->languageSubmit,
+        'REQUEST_TOKEN' => REQUEST_TOKEN,
+    ]) ?>
+
+<div id="tl_buttons">
+    <a href="<?php echo $this->getReferer(true); ?>" class="header_back" title="<?php echo $this->backBT; ?>" accesskey="b" onclick="Backend.getScrollOffset();">
+        <?php echo $GLOBALS['TL_LANG']['MSC']['backBT'] ?>
+    </a>
+</div>
+
+<h2 class="sub_headline"><?php echo $this->headline ?></h2>
+
+<table class="tl_show">
+<?php $count = 0; ?>
+<?php foreach($this->arrFields as $key => $value): ?>
+    <tr>
+        <td<?php echo (($count % 2) == 0) ? ' class="tl_bg"' : ''; ?>>
+            <span class="tl_label"> <?php echo $this->arrLabels[$key]; ?> : </span>
+        </td>
+        <td<?php echo (($count % 2) == 0) ? ' class="tl_bg"' : ''; ?>>
+            <?php
+            if (!\is_object($value) || \method_exists($value, '__toString')) {
+                echo $value;
+            }
+            else if ($value instanceof DateTime) {
+                echo $value->format($GLOBALS['TL_CONFIG']['datimFormat']);
+            }
+            else {
+                // TODO add hook for custom output
+                echo 'Object ' . \get_class($value);
+            }
+            ?>
+        </td>
+    </tr>
+<?php $count++; ?>
+<?php endforeach; ?>
+</table>
