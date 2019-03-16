@@ -15,6 +15,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -107,8 +108,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return;
         }
 
-        $builder = new static($event->getEnvironment());
-        $widget  = $builder->buildWidget($event->getProperty(), $event->getModel());
+        $widget = (new static($event->getEnvironment()))->buildWidget($event->getProperty(), $event->getModel());
 
         $event->setWidget($widget);
     }
@@ -157,9 +157,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * @param PropertyInterface $propInfo The property for which the X label shall be generated.
      * @param ModelInterface    $model    The model.
      *
-     * @return string
+     * @return array
      */
-    protected function getOptionsForWidget($propInfo, $model)
+    protected function getOptionsForWidget($propInfo, $model): ?array
     {
         if (!$this->isGetOptionsAllowed($propInfo)) {
             return null;
@@ -185,9 +185,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @param PropertyInterface $property The bag with all information.
      *
-     * @return bool True => allowed to get options | False => don't get options.
+     * @return bool True => allowed to get options | False => doesn't get options.
      */
-    private function isGetOptionsAllowed(PropertyInterface $property)
+    private function isGetOptionsAllowed(PropertyInterface $property): bool
     {
         $propExtra = $property->getExtra();
         $strClass  = $this->getWidgetClass($property);
@@ -200,18 +200,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return true;
         }
 
-        $reflection = new \ReflectionClass($strClass);
         // Check the class.
-        if (CheckBox::class !== $reflection->getName()) {
+        if (CheckBox::class !== (new \ReflectionClass($strClass))->getName()) {
             return true;
         }
 
         // Check if multiple is active.
-        if (\array_key_exists('multiple', $propExtra) && (true === $propExtra['multiple'])) {
-            return true;
-        }
-
-        return false;
+        return \array_key_exists('multiple', $propExtra) && (true === $propExtra['multiple']);
     }
 
     /**
