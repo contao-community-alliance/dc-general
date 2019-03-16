@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\CheckBox;
 use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -199,8 +200,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return true;
         }
 
+        $reflection = new \ReflectionClass($strClass);
         // Check the class.
-        if ('CheckBox' !== $strClass) {
+        if (CheckBox::class !== $reflection->getName()) {
             return true;
         }
 
