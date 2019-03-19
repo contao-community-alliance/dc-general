@@ -201,7 +201,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         // Check the class.
-        if (CheckBox::class !== (new \ReflectionClass($strClass))->getName()) {
+        if (in_array(CheckBox::class, class_parents($strClass))) {
             return true;
         }
 
