@@ -358,7 +358,8 @@ class ModelCollector
 
             foreach ($provider->fetchAll($config) as $child) {
                 /** @var ModelInterface $child */
-                if ($child->getProviderName() === $providerName) {
+
+                if (!$recursive && $child->getProviderName() === $providerName) {
                     $ids[] = $child->getId();
                 }
 
