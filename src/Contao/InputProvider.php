@@ -34,19 +34,21 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 class InputProvider implements InputProviderInterface
 {
     /**
+     * The parameter raw has no function.
+     *
      * {@inheritDoc}
      */
-    public function getParameter($strKey, $blnRaw = false)
+    public function getParameter($key, $raw = false)
     {
-        return Input::get($strKey);
+        return Input::get($key);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setParameter($strKey, $varValue)
+    public function setParameter($key, $value)
     {
-        Input::setGet($strKey, $varValue);
+        Input::setGet($key, $value);
 
         return $this;
     }
@@ -54,9 +56,9 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function unsetParameter($strKey)
+    public function unsetParameter($key)
     {
-        Input::setGet($strKey, null);
+        Input::setGet($key, null);
 
         return $this;
     }
@@ -64,29 +66,29 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function hasParameter($strKey)
+    public function hasParameter($key)
     {
-        return (Input::get($strKey) !== null);
+        return (null !== Input::get($key));
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getValue($strKey, $blnRaw = false)
+    public function getValue($key, $raw = false)
     {
-        if ($blnRaw) {
-            return Input::postRaw($strKey);
+        if ($raw) {
+            return Input::postRaw($key);
         }
 
-        return Input::post($strKey);
+        return Input::post($key);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setValue($strKey, $varValue)
+    public function setValue($key, $value)
     {
-        Input::setPost($strKey, $varValue);
+        Input::setPost($key, $value);
 
         return $this;
     }
@@ -94,9 +96,9 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function unsetValue($strKey)
+    public function unsetValue($key)
     {
-        Input::setPost($strKey, null);
+        Input::setPost($key, null);
 
         return $this;
     }
@@ -104,9 +106,9 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
-    public function hasValue($strKey)
+    public function hasValue($key)
     {
-        return (Input::post($strKey) !== null);
+        return (null !== Input::post($key));
     }
 
     /**
@@ -114,7 +116,6 @@ class InputProvider implements InputProviderInterface
      */
     public function getRequestUrl()
     {
-
         return Environment::get('request');
     }
 }
