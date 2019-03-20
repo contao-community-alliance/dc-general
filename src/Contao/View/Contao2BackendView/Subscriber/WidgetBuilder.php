@@ -199,7 +199,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         // Check the class.
-        if (in_array(CheckBox::class, class_parents($widgetClass))) {
+        if (false === \in_array(CheckBox::class, class_parents($widgetClass), true)) {
             return true;
         }
 
