@@ -37,7 +37,9 @@ class AddSessionBagsPass implements CompilerPassInterface
             return;
         }
 
-        $session = $container->findDefinition('session');
-        $session->addMethodCall('registerBag', [new Reference('cca.dc-general.session_attribute')]);
+        $container->findDefinition('session')->addMethodCall(
+            'registerBag',
+            [new Reference('cca.dc-general.session_attribute')]
+        );
     }
 }

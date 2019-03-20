@@ -78,7 +78,7 @@ class GetGroupHeaderSubscriber
      */
     public function handle(GetGroupHeaderEvent $event)
     {
-        if ($event->getValue() !== null || !$this->scopeDeterminator->currentScopeIsBackend()) {
+        if ((null !== $event->getValue()) || !$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
@@ -102,7 +102,7 @@ class GetGroupHeaderSubscriber
             $event->getGroupingLength()
         );
 
-        if ($value !== null) {
+        if (null !== $value) {
             $event->setValue($value);
         }
     }
@@ -127,10 +127,10 @@ class GetGroupHeaderSubscriber
     ) {
         $evaluation = $property->getExtra();
 
-        if (!$evaluation['multiple'] && $property->getWidgetType() == 'checkbox') {
+        if (!$evaluation['multiple'] && ('checkbox' === $property->getWidgetType())) {
             return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
         }
-        if ($groupingMode != GroupAndSortingInformationInterface::GROUP_NONE) {
+        if (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingMode) {
             return $this->formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model);
         }
 
@@ -165,7 +165,7 @@ class GetGroupHeaderSubscriber
      */
     private function formatCheckboxOptionLabel($value)
     {
-        return ($value != '')
+        return ('' !== $value)
             ? \ucfirst($this->translator->translate('MSC.yes'))
             : \ucfirst($this->translator->translate('MSC.no'));
     }
@@ -196,13 +196,13 @@ class GetGroupHeaderSubscriber
                 );
 
             case GroupAndSortingInformationInterface::GROUP_DAY:
-                return $this->formatByDayGrouping($model->getProperty($property->getName()));
+                return $this->formatByDayGrouping((int) $model->getProperty($property->getName()));
 
             case GroupAndSortingInformationInterface::GROUP_MONTH:
-                return $this->formatByMonthGrouping($model->getProperty($property->getName()));
+                return $this->formatByMonthGrouping((int) $model->getProperty($property->getName()));
 
             case GroupAndSortingInformationInterface::GROUP_YEAR:
-                return $this->formatByYearGrouping($model->getProperty($property->getName()));
+                return $this->formatByYearGrouping((int) $model->getProperty($property->getName()));
 
             default:
                 return ViewHelpers::getReadableFieldValue($environment, $property, $model);
@@ -219,7 +219,7 @@ class GetGroupHeaderSubscriber
      */
     private function formatByCharGrouping($value, $groupingLength)
     {
-        if ('' == $value) {
+        if ('' === $value) {
             return '-';
         }
 
@@ -229,14 +229,14 @@ class GetGroupHeaderSubscriber
     /**
      * Render a grouping header for day.
      *
-     * @param string $value The value.
+     * @param int $value The value.
      *
      * @return string
      */
     private function formatByDayGrouping($value)
     {
         $value = $this->getTimestamp($value);
-        if ('' == $value) {
+        if ('' === $value) {
             return '-';
         }
         $event = new ParseDateEvent($value, Config::get('dateFormat'));
@@ -248,14 +248,14 @@ class GetGroupHeaderSubscriber
     /**
      * Render a grouping header for month.
      *
-     * @param string $value The value.
+     * @param int $value The value.
      *
      * @return string
      */
     private function formatByMonthGrouping($value)
     {
         $value = $this->getTimestamp($value);
-        if ('' == $value) {
+        if ('' === $value) {
             return '-';
         }
         $event = new ParseDateEvent($value, 'F Y');
@@ -267,14 +267,14 @@ class GetGroupHeaderSubscriber
     /**
      * Render a grouping header for year.
      *
-     * @param string $value The value.
+     * @param int $value The value.
      *
      * @return string
      */
     private function formatByYearGrouping($value)
     {
         $value = $this->getTimestamp($value);
-        if ('' == $value) {
+        if ('' === $value) {
             return '-';
         }
 
@@ -290,10 +290,6 @@ class GetGroupHeaderSubscriber
      */
     private function getTimestamp($value)
     {
-        if ($value instanceof \DateTime) {
-            $value = $value->getTimestamp();
-            return $value;
-        }
-        return $value;
+        return ($value instanceof \DateTime) ? $value->getTimestamp() : $value;
     }
 }

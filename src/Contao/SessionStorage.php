@@ -99,7 +99,7 @@ class SessionStorage implements SessionStorageInterface
     {
         if ($this->scope) {
             // @codingStandardsIgnoreStart
-            \trigger_error('The scope can not be change! Use a new session storage.', E_USER_ERROR);
+            @\trigger_error('The scope can not be change! Use a new session storage.', E_USER_ERROR);
             // @codingStandardsIgnoreEnd
             return;
         }
@@ -124,7 +124,7 @@ class SessionStorage implements SessionStorageInterface
     {
         $this->load();
 
-        return isset($this->attributes[$name]) ? $this->attributes[$name] : null;
+        return ($this->attributes[$name] ?? null);
     }
 
     /**
@@ -244,7 +244,7 @@ class SessionStorage implements SessionStorageInterface
     {
         if (!$this->scope) {
             // @codingStandardsIgnoreStart
-            \trigger_error('The scope for this session storage is not defined!', E_USER_ERROR);
+            @\trigger_error('The scope for this session storage is not defined!', E_USER_ERROR);
             // @codingStandardsIgnoreEnd
             return null;
         }

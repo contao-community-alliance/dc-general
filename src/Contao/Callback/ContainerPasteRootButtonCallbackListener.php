@@ -61,7 +61,7 @@ class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallback
      */
     public function update($event, $value)
     {
-        if ($value === null) {
+        if (null === $value) {
             return;
         }
 

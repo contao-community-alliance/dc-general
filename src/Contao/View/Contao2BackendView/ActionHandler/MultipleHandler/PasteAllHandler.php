@@ -73,7 +73,7 @@ class PasteAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || 'pasteAll' !== $event->getAction()->getName()
+            || ('pasteAll' !== $event->getAction()->getName())
         ) {
             return;
         }
@@ -97,7 +97,10 @@ class PasteAllHandler
             return;
         }
 
-        $environment->getInputProvider()->setParameter('pasteAll', true);
+        $inputProvider = $environment->getInputProvider();
+        $clipboard     = $environment->getClipboard();
+
+        $inputProvider->setParameter('pasteAll', true);
 
         $this->addDispatchDuplicateModel($environment);
 
@@ -107,11 +110,11 @@ class PasteAllHandler
             $this->callAction($environment, 'paste');
 
             $clipboardItem = $collectionItem['item'];
-            $environment->getClipboard()->removeById($clipboardItem->getModelId());
+            $clipboard->removeById($clipboardItem->getModelId());
         }
-        $environment->getClipboard()->saveTo($environment);
+        $clipboard->saveTo($environment);
 
-        $environment->getInputProvider()->unsetParameter('pasteAll');
+        $inputProvider->unsetParameter('pasteAll');
 
         ViewHelpers::redirectHome($environment);
     }
@@ -149,9 +152,8 @@ class PasteAllHandler
     {
         $dataDefinition = $environment->getDataDefinition();
         $relationShip   = $dataDefinition->getModelRelationshipDefinition();
-        $childCondition = $relationShip->getChildCondition($dataDefinition->getName(), $dataDefinition->getName());
 
-        if (!$childCondition) {
+        if (!$relationShip->getChildCondition($dataDefinition->getName(), $dataDefinition->getName())) {
             return $this->getFlatCollection($environment);
         }
 
@@ -169,27 +171,20 @@ class PasteAllHandler
     {
         $inputProvider = $environment->getInputProvider();
 
-        $clipboardItems = $this->getClipboardItems($environment);
-
         $previousItem = null;
-
-        $collection = [];
-        foreach ($clipboardItems as $clipboardItem) {
-            if ($clipboardItem->getAction() === 'create') {
+        $collection   = [];
+        foreach ($this->getClipboardItems($environment) as $clipboardItem) {
+            if ('create' === $clipboardItem->getAction()) {
                 continue;
             }
-
-            $modelId = $clipboardItem->getModelId();
-
             $pasteAfter =
                 $previousItem ? $previousItem->getModelId()->getSerialized() : $inputProvider->getParameter('after');
-            $item       = [
+
+            $collection[$clipboardItem->getModelId()->getSerialized()] = [
                 'item'       => $clipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => 'after'
             ];
-
-            $collection[$modelId->getSerialized()] = $item;
 
             $previousItem = $clipboardItem;
         }
@@ -229,13 +224,12 @@ class PasteAllHandler
             $pasteMode  = $previousItem ? 'after' : $originalPasteMode;
             $pasteAfter =
                 $previousItem ? $previousItem->getModelId()->getSerialized() : $inputProvider->getParameter($pasteMode);
-            $item       = [
+
+            $collection[$modelId->getSerialized()] = [
                 'item'       => $clipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => $pasteMode
             ];
-
-            $collection[$modelId->getSerialized()] = $item;
 
             $previousItem = $clipboardItem;
 
@@ -312,18 +306,16 @@ class PasteAllHandler
         foreach ($subClipboardItems as $subClipboardItem) {
             $modelId = $subClipboardItem->getModelId();
 
-            $pasteMode  = $intoItem ? 'after' : 'into';
             $pasteAfter =
                 $intoItem ? $intoItem->getModelId()->getSerialized() : $previousModelId->getSerialized();
-            $item       = [
-                'item'       => $subClipboardItem,
-                'pasteAfter' => $pasteAfter,
-                'pasteMode'  => $pasteMode
-            ];
 
             $intoItem = $subClipboardItem;
 
-            $collection[$modelId->getSerialized()] = $item;
+            $collection[$modelId->getSerialized()] = [
+                'item'       => $subClipboardItem,
+                'pasteAfter' => $pasteAfter,
+                'pasteMode'  => $intoItem ? 'after' : 'into'
+            ];
 
             $model          =
                 $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));

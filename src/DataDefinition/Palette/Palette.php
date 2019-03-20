@@ -76,13 +76,12 @@ class Palette implements PaletteInterface
      */
     public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
-        $properties = [];
-
+        $properties = [[]];
         foreach ($this->legends as $legend) {
-            $properties = \array_merge($properties, $legend->getProperties($model, $input));
+            $properties[] = $legend->getProperties($model, $input);
         }
 
-        return $properties;
+        return \array_merge(...$properties);
     }
 
     /**
@@ -91,7 +90,6 @@ class Palette implements PaletteInterface
     public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
         $properties = [];
-
         foreach ($this->getLegends() as $legend) {
             foreach ($legend->getProperties($model, $input) as $property) {
                 if ($property->isVisible($model, $input, $legend)) {
@@ -109,7 +107,6 @@ class Palette implements PaletteInterface
     public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null)
     {
         $properties = [];
-
         foreach ($this->getLegends() as $legend) {
             foreach ($legend->getProperties($model, $input) as $property) {
                 if ($property->isEditable($model, $input, $legend)) {
@@ -158,8 +155,7 @@ class Palette implements PaletteInterface
      */
     public function setLegends(array $legends)
     {
-        $this->clearLegends();
-        $this->addLegends($legends);
+        $this->clearLegends()->addLegends($legends);
 
         return $this;
     }
@@ -182,7 +178,7 @@ class Palette implements PaletteInterface
     public function hasLegend($name)
     {
         foreach ($this->legends as $legend) {
-            if ($legend->getName() == $name) {
+            if ($name === $legend->getName()) {
                 return true;
             }
         }
@@ -195,8 +191,7 @@ class Palette implements PaletteInterface
      */
     public function containsLegend(LegendInterface $legend)
     {
-        $hash = \spl_object_hash($legend);
-        return isset($this->legends[$hash]);
+        return isset($this->legends[\spl_object_hash($legend)]);
     }
 
     /**
@@ -211,16 +206,7 @@ class Palette implements PaletteInterface
         if ($before) {
             $beforeHash = \spl_object_hash($before);
 
-            if (isset($this->legends[$beforeHash])) {
-                $hashes   = \array_keys($this->legends);
-                $position = \array_search($beforeHash, $hashes);
-
-                $this->legends = \array_merge(
-                    \array_slice($this->legends, 0, $position),
-                    [$hash => $legend],
-                    \array_slice($this->legends, $position)
-                );
-            } else {
+            if (!isset($this->legends[$beforeHash])) {
                 throw new DcGeneralInvalidArgumentException(
                     \sprintf(
                         'Legend %s not contained in palette - can not add %s after it.',
@@ -229,9 +215,21 @@ class Palette implements PaletteInterface
                     )
                 );
             }
-        } else {
-            $this->legends[$hash] = $legend;
+
+            $hashes   = \array_keys($this->legends);
+            $position = \array_search($beforeHash, $hashes);
+
+            $this->legends = \array_merge(
+                \array_slice($this->legends, 0, $position),
+                [$hash => $legend],
+                \array_slice($this->legends, $position)
+            );
+
+            $legend->setPalette($this);
+            return $this;
         }
+
+        $this->legends[$hash] = $legend;
 
         $legend->setPalette($this);
         return $this;
@@ -242,8 +240,7 @@ class Palette implements PaletteInterface
      */
     public function removeLegend(LegendInterface $legend)
     {
-        $hash = \spl_object_hash($legend);
-        unset($this->legends[$hash]);
+        unset($this->legends[\spl_object_hash($legend)]);
 
         return $this;
     }
@@ -256,7 +253,7 @@ class Palette implements PaletteInterface
     public function getLegend($name)
     {
         foreach ($this->legends as $legend) {
-            if ($legend->getName() == $name) {
+            if ($name === $legend->getName()) {
                 return $legend;
             }
         }
@@ -304,7 +301,7 @@ class Palette implements PaletteInterface
         }
         $this->legends = $legends;
 
-        if ($this->condition !== null) {
+        if (null !== $this->condition) {
             $this->condition = clone $this->condition;
         }
     }

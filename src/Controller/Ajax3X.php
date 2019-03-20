@@ -57,7 +57,7 @@ class Ajax3X extends Ajax
         $property       = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($fieldName);
         $propertyValues = new PropertyValueBag();
 
-        if ($serializedId !== null) {
+        if (null !== $serializedId) {
             $model = $this->getModelFromSerializedId($serializedId);
         } else {
             $dataProvider = $environment->getDataProvider();
@@ -69,7 +69,7 @@ class Ajax3X extends Ajax
         // Process input and update changed properties.
         $treeType      = \substr($property->getWidgetType(), 0, 4);
         $propertyValue = $this->getTreeValue($treeType, $propertyValue);
-        if (($treeType == 'file') || ($treeType == 'page')) {
+        if (('file' === $treeType) || ('page' === $treeType)) {
             $extra = $property->getExtra();
             if (\is_array($propertyValue) && !isset($extra['multiple'])) {
                 $propertyValue = $propertyValue[0];
@@ -103,12 +103,12 @@ class Ajax3X extends Ajax
         $level       = (int) $input->getValue('level');
         $rootId      = $input->getValue('id');
 
-        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
+        $ajaxId   = \preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
         $ajaxKey  = \str_replace('_' . $ajaxId, '', $rootId);
         $ajaxName = null;
-        if ($input->getValue('act') == 'editAll') {
-            $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
-            $ajaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
+        if ('editAll' === $input->getValue('act')) {
+            $ajaxKey  = \preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
+            $ajaxName = \preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
 
         $nodes          = $session->get($ajaxKey);
@@ -119,12 +119,12 @@ class Ajax3X extends Ajax
         $arrData['id']       = $ajaxName ?: $rootId;
         $arrData['name']     = $name;
 
-        /** @var \PageSelector $objWidget */
-        $objWidget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
-        $objWidget->value = $this->getTreeValue('page', $input->getValue('value'));
+        /** @var \PageSelector $widget */
+        $widget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
+        $widget->value = $this->getTreeValue('page', $input->getValue('value'));
 
 
-        $response = new Response($objWidget->generateAjax($ajaxId, $field, $level));
+        $response = new Response($widget->generateAjax($ajaxId, $field, $level));
 
         throw new ResponseException($response);
     }
@@ -153,15 +153,15 @@ class Ajax3X extends Ajax
             $arrData
         );
 
-        /** @var \FileSelector $objWidget */
-        $objWidget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
+        /** @var \FileSelector $widget */
+        $widget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
 
-        $objWidget->value = $this->getTreeValue($field, $input->getValue('value'));
+        $widget->value = $this->getTreeValue($field, $input->getValue('value'));
         // Load a particular node.
-        if ($folder != '') {
-            $response = new Response($objWidget->generateAjax($folder, $field, $level));
+        if ('' !== $folder) {
+            $response = new Response($widget->generateAjax($folder, $field, $level));
         } else {
-            $response = new Response($objWidget->generate());
+            $response = new Response($widget->generate());
         }
 
         throw new ResponseException($response);
@@ -172,26 +172,26 @@ class Ajax3X extends Ajax
      *
      * If the type is "file", the file names will automatically be added to the Dbafs and converted to file id.
      *
-     * @param string $strType  Either "page" or "file".
-     * @param string $varValue The value as comma separated list.
+     * @param string $type  Either "page" or "file".
+     * @param string $value The value as comma separated list.
      *
      * @return string The value array.
      */
-    protected function getTreeValue($strType, $varValue)
+    protected function getTreeValue($type, $value)
     {
         // Convert the selected values.
-        if ($varValue != '') {
-            $varValue = StringUtil::trimsplit("\t", $varValue);
+        if ('' !== $value) {
+            $value = StringUtil::trimsplit("\t", $value);
 
             // Automatically add resources to the DBAFS.
-            if ($strType == 'file') {
-                foreach ($varValue as $k => $v) {
-                    $varValue[$k] = StringUtil::binToUuid(Dbafs::addResource(\urldecode($v))->uuid);
+            if ('file' === $type) {
+                foreach ($value as $k => $v) {
+                    $value[$k] = StringUtil::binToUuid(Dbafs::addResource(\urldecode($v))->uuid);
                 }
             }
         }
 
-        return $varValue;
+        return $value;
     }
 
     /**
@@ -211,7 +211,7 @@ class Ajax3X extends Ajax
         $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
         $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
-        if ($model === null) {
+        if (null === $model) {
             $event = new LogEvent(
                 'A record with the ID "' . $serializedId . '" does not exist in "' .
                 $this->getEnvironment()->getDataDefinition()->getName() . '"',
@@ -235,13 +235,11 @@ class Ajax3X extends Ajax
      */
     protected function reloadTree()
     {
-        $environment  = $this->getEnvironment();
-        $input        = $environment->getInputProvider();
+        $input        = $this->getEnvironment()->getInputProvider();
         $serializedId = ($input->hasParameter('id') && $input->getParameter('id')) ? $input->getParameter('id') : null;
-        $fieldName    = $this->getFieldName();
         $value        = $input->hasValue('value') ? $input->getValue('value', true) : null;
 
-        $this->generateWidget($this->getWidget($fieldName, $serializedId, $value));
+        $this->generateWidget($this->getWidget($this->getFieldName(), $serializedId, $value));
 
         throw new ResponseException(new Response(''));
     }
@@ -271,13 +269,10 @@ class Ajax3X extends Ajax
     {
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
-        $table       = $input->getValue('table');
-        $legend      = $input->getValue('legend');
-        $state       = (bool) $input->getValue('state');
         $session     = $environment->getSessionStorage();
         $states      = $session->get('LEGENDS');
 
-        $states[$table][$legend] = $state;
+        $states[$input->getValue('table')][$input->getValue('legend')] = (bool) $input->getValue('state');
         $session->set('LEGENDS', $states);
 
         throw new ResponseException(new Response(''));
@@ -307,9 +302,7 @@ class Ajax3X extends Ajax
         $dataDefinition = $environment->getDataDefinition();
         $sessionStorage = $environment->getSessionStorage();
 
-        $selectAction = $inputProvider->getParameter('select');
-
-        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $selectAction);
+        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('select'));
 
         $originalPropertyName = null;
         foreach ($session['models'] as $modelId) {
@@ -318,7 +311,7 @@ class Ajax3X extends Ajax
             }
 
             $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
-            if ($propertyNamePrefix !== \substr($fieldName, 0, \strlen($propertyNamePrefix))) {
+            if (0 !== strpos($fieldName, $propertyNamePrefix)) {
                 continue;
             }
 
@@ -352,13 +345,9 @@ class Ajax3X extends Ajax
             return;
         }
 
-        $dataProvider = $environment->getDataProvider();
-
-        $model = $dataProvider->getEmptyModel();
+        $model = $environment->getDataProvider()->getEmptyModel();
         $model->setProperty($widget->name, $widget->value);
 
-        $widgetBuilder = new ContaoWidgetManager($environment, $model);
-
-        echo $widgetBuilder->getWidget($inputProvider->getValue('name'))->generate();
+        echo (new ContaoWidgetManager($environment, $model))->getWidget($inputProvider->getValue('name'))->generate();
     }
 }

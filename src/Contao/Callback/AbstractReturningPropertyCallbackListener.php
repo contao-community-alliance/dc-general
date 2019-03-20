@@ -67,15 +67,13 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
     {
         if (\method_exists($event, 'getPropertyName')) {
             $property = $event->getPropertyName();
+        } elseif ($event->getProperty() instanceof PropertyInterface) {
+            $property = $event->getProperty()->getName();
         } else {
-            if ($event->getProperty() instanceof PropertyInterface) {
-                $property = $event->getProperty()->getName();
-            } else {
-                $property = $event->getProperty();
-            }
+            $property = $event->getProperty();
         }
 
         return parent::wantToExecute($event)
-            && (empty($this->propertyName) || ($property == $this->propertyName));
+            && (empty($this->propertyName) || ($this->propertyName === $property));
     }
 }

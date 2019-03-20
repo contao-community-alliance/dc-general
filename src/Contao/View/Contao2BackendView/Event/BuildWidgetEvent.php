@@ -37,7 +37,7 @@ class BuildWidgetEvent extends AbstractModelAwareEvent
     /**
      * The name of the event.
      */
-    const NAME = 'dc-general.view.contao2backend.build-widget';
+    public const NAME = 'dc-general.view.contao2backend.build-widget';
 
     /**
      * The property for which a widget shall get instantiated.

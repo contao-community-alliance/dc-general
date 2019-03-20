@@ -64,7 +64,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     {
         return parent::wantToExecute($event)
         && (empty($this->operationName)
-            || ($event->getKey() == $this->operationName)
+            || ($this->operationName === $event->getKey())
         );
     }
 
@@ -84,7 +84,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
             $this->buildHref($event->getCommand()),
             $event->getLabel(),
             $event->getTitle(),
-            isset($extra['icon']) ? $extra['icon'] : null,
+            ($extra['icon'] ?? null),
             $event->getAttributes(),
             $event->getEnvironment()->getDataDefinition()->getName(),
             $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries(),
@@ -105,7 +105,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
      */
     public function update($event, $value)
     {
-        if ($value === null) {
+        if (null === $value) {
             return;
         }
 

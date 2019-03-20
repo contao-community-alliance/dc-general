@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class RenderReadablePropertyValueEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.render-readable-property-value';
+    public const NAME = 'dc-general.view.contao2backend.render-readable-property-value';
 
     /**
      * The property that shall be transformed.

@@ -96,7 +96,7 @@ class TreeEnforcingListener
         ModelInterface $model
     ) {
         // If we have a null, it means insert into the tree root.
-        if (0 == $into->getId()) {
+        if (0 === $into->getId()) {
             $relationships->setRoot($model);
             return;
         }

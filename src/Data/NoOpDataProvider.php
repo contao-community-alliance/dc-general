@@ -59,11 +59,7 @@ class NoOpDataProvider implements DataProviderInterface
     public function getEmptyModel()
     {
         $model = new DefaultModel();
-        $model->setProviderName(
-            (isset($this->arrBaseConfig['name'])
-                ? $this->arrBaseConfig['name']
-                : $this->arrBaseConfig['source'])
-        );
+        $model->setProviderName(($this->arrBaseConfig['name'] ?? $this->arrBaseConfig['source']));
         return $model;
     }
 
@@ -214,15 +210,14 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function sameModels($firstModel, $secondModel)
     {
-        $arrProperties1 = $firstModel->getPropertiesAsArray();
-        $arrProperties2 = $secondModel->getPropertiesAsArray();
+        $firstProperties  = $firstModel->getPropertiesAsArray();
+        $secondProperties = $secondModel->getPropertiesAsArray();
 
-        $arrKeys = \array_merge(\array_keys($arrProperties1), \array_keys($arrProperties2));
-        $arrKeys = \array_unique($arrKeys);
-        foreach ($arrKeys as $strKey) {
-            if (!\array_key_exists($strKey, $arrProperties1) ||
-                !\array_key_exists($strKey, $arrProperties2) ||
-                $arrProperties1[$strKey] != $arrProperties2[$strKey]
+        $propertyNames = \array_unique(\array_merge(\array_keys($firstProperties), \array_keys($secondProperties)));
+        foreach ($propertyNames as $propertyName) {
+            if (!\array_key_exists($propertyName, $firstProperties) ||
+                !\array_key_exists($propertyName, $secondProperties) ||
+                $firstProperties[$propertyName] !== $secondProperties[$propertyName]
             ) {
                 return false;
             }

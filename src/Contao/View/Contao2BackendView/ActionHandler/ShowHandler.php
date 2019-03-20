@@ -66,9 +66,7 @@ class ShowHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        $environment = $event->getEnvironment();
-
-        $response = $this->process($event->getAction(), $environment);
+        $response = $this->process($event->getAction(), $event->getEnvironment());
         $event->setResponse($response);
     }
 
@@ -81,29 +79,30 @@ class ShowHandler
      */
     protected function getModel(EnvironmentInterface $environment)
     {
-        $definition   = $environment->getDataDefinition();
         $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $objDBModel   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
-        if ($objDBModel) {
-            return $objDBModel;
+        if ($model) {
+            return $model;
         }
 
-        $environment->getEventDispatcher()->dispatch(
+        $eventDispatcher = $environment->getEventDispatcher();
+
+        $eventDispatcher->dispatch(
             ContaoEvents::SYSTEM_LOG,
             new LogEvent(
                 \sprintf(
                     'Could not find ID %s in %s. DC_General show()',
                     $modelId->getId(),
-                    $definition->getName()
+                    $environment->getDataDefinition()->getName()
                 ),
                 __CLASS__ . '::' . __FUNCTION__,
                 TL_ERROR
             )
         );
 
-        $environment->getEventDispatcher()->dispatch(
+        $eventDispatcher->dispatch(
             ContaoEvents::CONTROLLER_REDIRECT,
             new RedirectEvent('contao/main.php?act=error')
         );
@@ -121,12 +120,11 @@ class ShowHandler
      */
     protected function getPropertyLabel(EnvironmentInterface $environment, PropertyInterface $property)
     {
-        $definition = $environment->getDataDefinition();
+        $translator = $environment->getTranslator();
 
-        $label = $environment->getTranslator()->translate($property->getLabel(), $definition->getName());
-
+        $label = $translator->translate($property->getLabel(), $environment->getDataDefinition()->getName());
         if (!$label) {
-            $label = $environment->getTranslator()->translate('MSC.' . $property->getName());
+            $label = $translator->translate('MSC.' . $property->getName());
         }
 
         if (\is_array($label)) {
@@ -159,9 +157,7 @@ class ShowHandler
         $labels     = [];
         // Show only allowed fields.
         foreach ($palette->getVisibleProperties($model) as $paletteProperty) {
-            $property = $properties->getProperty($paletteProperty->getName());
-
-            if (!$property) {
+            if (!($property = $properties->getProperty($paletteProperty->getName()))) {
                 throw new DcGeneralRuntimeException('Unable to retrieve property ' . $paletteProperty->getName());
             }
 
@@ -197,7 +193,7 @@ class ShowHandler
             ['ID ' . $model->getId()]
         );
 
-        if ($headline !== 'MSC.showRecord') {
+        if ('MSC.showRecord' !== $headline) {
             return $headline;
         }
 
@@ -227,10 +223,9 @@ class ShowHandler
         $translator   = $environment->getTranslator();
         $model        = $this->getModel($environment);
         $data         = $this->convertModel($model, $environment);
-        $headline     = $this->getHeadline($translator, $model);
-        $template     = new ContaoBackendViewTemplate('dcbe_general_show');
 
-        $template->set('headline', $headline)
+        $template = (new ContaoBackendViewTemplate('dcbe_general_show'))
+            ->set('headline', $this->getHeadline($translator, $model))
             ->set('arrFields', $data['values'])
             ->set('arrLabels', $data['labels']);
 

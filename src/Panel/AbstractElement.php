@@ -89,9 +89,9 @@ abstract class AbstractElement implements PanelElementInterface
     /**
      * {@inheritDoc}
      */
-    public function setPanel(PanelInterface $objPanel)
+    public function setPanel(PanelInterface $panel)
     {
-        $this->objPanel = $objPanel;
+        $this->objPanel = $panel;
 
         return $this;
     }

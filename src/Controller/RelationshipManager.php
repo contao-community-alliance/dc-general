@@ -72,7 +72,7 @@ class RelationshipManager
      */
     public function isRoot(ModelInterface $model)
     {
-        if ($this->mode !== BasicDefinitionInterface::MODE_HIERARCHICAL) {
+        if (BasicDefinitionInterface::MODE_HIERARCHICAL !== $this->mode) {
             return false;
         }
 
@@ -95,7 +95,7 @@ class RelationshipManager
      */
     public function setRoot(ModelInterface $model)
     {
-        if ($this->mode !== BasicDefinitionInterface::MODE_HIERARCHICAL) {
+        if (BasicDefinitionInterface::MODE_HIERARCHICAL !== $this->mode) {
             return;
         }
 

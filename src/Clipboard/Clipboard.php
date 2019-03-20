@@ -51,12 +51,12 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
-    public function loadFrom($objEnvironment)
+    public function loadFrom($environment)
     {
-        $data = $objEnvironment->getSessionStorage()->get('CLIPBOARD');
+        $data = $environment->getSessionStorage()->get('CLIPBOARD');
 
         if ($data) {
-            $this->items = \unserialize(\base64_decode($data));
+            $this->items = \unserialize(\base64_decode($data), ['allowed_classes' => true]);
             foreach ($this->items as $item) {
                 if ($modelId = $item->getModelId()) {
                     $this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()] = $item;
@@ -70,10 +70,10 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
-    public function saveTo($objEnvironment)
+    public function saveTo($environment)
     {
         $data = \base64_encode(\serialize($this->items));
-        $objEnvironment->getSessionStorage()->set('CLIPBOARD', $data);
+        $environment->getSessionStorage()->set('CLIPBOARD', $data);
 
         return $this;
     }

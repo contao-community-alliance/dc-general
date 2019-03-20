@@ -124,7 +124,7 @@ class PropertyTrueCondition extends AbstractWeightAwarePaletteCondition
             return false;
         }
 
-        return ($this->strict ? ($value === true) : $value) ? $this->getWeight() : false;
+        return ($this->strict ? (true === $value) : $value) ? $this->getWeight() : false;
     }
 
     /**

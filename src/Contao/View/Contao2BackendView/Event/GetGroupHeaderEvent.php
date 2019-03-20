@@ -35,7 +35,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class GetGroupHeaderEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-group-header';
+    public const NAME = 'dc-general.view.contao2backend.get-group-header';
 
     /**
      * The current property to be rendered for the group header.

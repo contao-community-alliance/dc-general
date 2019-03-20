@@ -139,8 +139,7 @@ class Legend implements LegendInterface
      */
     public function setProperties(array $properties)
     {
-        $this->clearProperties();
-        $this->addProperties($properties);
+        $this->clearProperties()->addProperties($properties);
         return $this;
     }
 
@@ -167,16 +166,7 @@ class Legend implements LegendInterface
         if ($before) {
             $beforeHash = \spl_object_hash($before);
 
-            if (isset($this->properties[$beforeHash])) {
-                $hashes   = \array_keys($this->properties);
-                $position = \array_search($beforeHash, $hashes);
-
-                $this->properties = \array_merge(
-                    \array_slice($this->properties, 0, $position),
-                    [$hash => $property],
-                    \array_slice($this->properties, $position)
-                );
-            } else {
+            if (!isset($this->properties[$beforeHash])) {
                 throw new DcGeneralInvalidArgumentException(
                     \sprintf(
                         'Property %s not contained in legend - can not add %s after it.',
@@ -185,9 +175,20 @@ class Legend implements LegendInterface
                     )
                 );
             }
-        } else {
-            $this->properties[$hash] = $property;
+
+            $hashes   = \array_keys($this->properties);
+            $position = \array_search($beforeHash, $hashes);
+
+            $this->properties = \array_merge(
+                \array_slice($this->properties, 0, $position),
+                [$hash => $property],
+                \array_slice($this->properties, $position)
+            );
+
+            return $this;
         }
+
+        $this->properties[$hash] = $property;
 
         return $this;
     }
@@ -197,8 +198,7 @@ class Legend implements LegendInterface
      */
     public function removeProperty(PropertyInterface $property)
     {
-        $hash = \spl_object_hash($property);
-        unset($this->properties[$hash]);
+        unset($this->properties[\spl_object_hash($property)]);
         return $this;
     }
 
@@ -230,7 +230,7 @@ class Legend implements LegendInterface
     public function hasProperty($propertyName)
     {
         foreach ($this->properties as $property) {
-            if ($property->getName() == $propertyName) {
+            if ($propertyName === $property->getName()) {
                 return true;
             }
         }
@@ -246,7 +246,7 @@ class Legend implements LegendInterface
     public function getProperty($propertyName)
     {
         foreach ($this->properties as $property) {
-            if ($property->getName() == $propertyName) {
+            if ($propertyName === $property->getName()) {
                 return $property;
             }
         }

@@ -64,7 +64,7 @@ class PasteHandler
             return;
         }
 
-        if ($event->getAction()->getName() !== 'paste') {
+        if ('paste' !== $event->getAction()->getName()) {
             return;
         }
 
@@ -74,8 +74,7 @@ class PasteHandler
             return;
         }
 
-        $response = $this->process($event->getEnvironment());
-        if ($response) {
+        if (false !== ($response = $this->process($event->getEnvironment()))) {
             $event->setResponse($response);
         }
     }
@@ -106,14 +105,13 @@ class PasteHandler
             return $this->callAction($environment, 'create');
         }
 
-        $controller    = $environment->getController();
         $source        = $this->modelIdFromParameter($input, 'source');
         $after         = $this->modelIdFromParameter($input, 'after');
         $into          = $this->modelIdFromParameter($input, 'into');
         $parentModelId = $this->modelIdFromParameter($input, 'pid');
         $items         = [];
 
-        $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
+        $environment->getController()->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
         foreach ($items as $item) {
             $clipboard->remove($item);
@@ -139,11 +137,7 @@ class PasteHandler
      */
     private function checkPermission(ActionEvent $event)
     {
-        $environment     = $event->getEnvironment();
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
-
-        if (true === $basicDefinition->isEditable()) {
+        if (true === $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditable()) {
             return true;
         }
 
@@ -190,9 +184,9 @@ class PasteHandler
      */
     private function isSimpleCreatePaste(ClipboardInterface $clipboard, $provider)
     {
-        $filter = new Filter();
-        $all    = $clipboard->fetch($filter);
-        return (1 === \count($all)
+        $all = $clipboard->fetch(new Filter());
+
+        return ((1 === \count($all))
                 && $all[0]->isCreate()
                 && (null === $all[0]->getModelId())
                 && $all[0]->getDataProviderName() === $provider);

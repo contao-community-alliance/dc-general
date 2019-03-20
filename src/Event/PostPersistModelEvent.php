@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class PostPersistModelEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.model.post-persist';
+    public const NAME = 'dc-general.model.post-persist';
 
     /**
      * The original model attached to the event.

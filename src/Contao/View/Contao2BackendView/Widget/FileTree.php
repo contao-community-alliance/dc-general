@@ -117,7 +117,7 @@ class FileTree extends AbstractWidget
         parent::__construct($attributes, $dataContainer);
 
         $this->allowedDownload =
-            $attributes['allowedDownload'] ?? StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload')));
+            ($attributes['allowedDownload'] ?? StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload'))));
 
         $this->setUp();
     }
@@ -247,11 +247,11 @@ class FileTree extends AbstractWidget
      */
     protected function validator($inputValue)
     {
-        $translator = $this->getEnvironment()->getTranslator();
-
-        if ($inputValue == '') {
+        if ('' === $inputValue) {
             if ($this->mandatory) {
-                $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
+                $this->addError(
+                    $this->getEnvironment()->getTranslator()->translate('mandatory', 'ERR', [$this->strLabel])
+                );
             }
 
             return '';
@@ -280,7 +280,7 @@ class FileTree extends AbstractWidget
 
         foreach ($collection->getModels() as $model) {
             // File system and database seem not in sync
-            if (!\file_exists(TL_ROOT . '/' . $model->path)) {
+            if (!\defined('TL_ROOT') && !\file_exists(TL_ROOT . '/' . $model->path)) {
                 continue;
             }
 
@@ -334,14 +334,14 @@ class FileTree extends AbstractWidget
      */
     protected function renderIcon($model, $imagesOnly = false, $downloads = false)
     {
-        if ($model->type === 'folder') {
+        if ('folder' === $model->type) {
             if ($imagesOnly || $downloads) {
                 return false;
             }
 
             return Image::getHtml('folderC.svg') . ' ' . $model->path;
         }
-        $file = new File($model->path, true);
+        $file = new File($model->path);
         $info = $this->renderFileInfo($file);
 
         if ($imagesOnly && !$file->isImage) {
@@ -377,7 +377,7 @@ class FileTree extends AbstractWidget
         $image = $this->placeholderImage;
 
         if ($file->isSvgImage
-            || $file->height <= Config::get('gdMaxImgHeight') && $file->width <= Config::get('gdMaxImgWidth')
+            || (($file->height <= Config::get('gdMaxImgHeight')) && ($file->width <= Config::get('gdMaxImgWidth')))
         ) {
             $width  = \min($file->width, $this->thumbnailWidth);
             $height = \min($file->height, $this->thumbnailHeight);
@@ -400,7 +400,7 @@ class FileTree extends AbstractWidget
      */
     private function applySorting($icons)
     {
-        if ($this->orderField != '' && \is_array($this->orderFieldValue)) {
+        if (('' !== $this->orderField) && \is_array($this->orderFieldValue)) {
             $ordered = [];
 
             foreach ($this->orderFieldValue as $uuid) {
@@ -428,7 +428,7 @@ class FileTree extends AbstractWidget
      */
     private function generateLink()
     {
-        $extras = array('fieldType' => $this->fieldType);
+        $extras = ['fieldType' => $this->fieldType];
 
         if ($this->files) {
             $extras['files'] = (bool) $this->files;
@@ -470,8 +470,7 @@ class FileTree extends AbstractWidget
             }
         }
 
-        $template = new ContaoBackendViewTemplate($this->subTemplate);
-        $buffer   = $template
+        $content = (new ContaoBackendViewTemplate($this->subTemplate))
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('name', $this->strName)
             ->set('id', $this->strId)
@@ -484,11 +483,7 @@ class FileTree extends AbstractWidget
             ->set('label', $this->label)
             ->parse();
 
-        if (!Environment::get('isAjaxRequest')) {
-            $buffer = '<div>' . $buffer . '</div>';
-        }
-
-        return $buffer;
+        return !Environment::get('isAjaxRequest') ? '<div>' . $content . '</div>' : $content;
     }
 
     /**
@@ -507,7 +502,7 @@ class FileTree extends AbstractWidget
      */
     public function updateAjax($ajaxAction, DataContainer $dataContainer)
     {
-        if ($ajaxAction !== 'loadFiletree') {
+        if ('loadFiletree' !== $ajaxAction) {
             return '';
         }
 
@@ -518,12 +513,13 @@ class FileTree extends AbstractWidget
         $dataDefinition = $environment->getDataDefinition();
         $inputProvider  = $environment->getInputProvider();
         $propertyName   = $inputProvider->getValue('name');
-        $property       = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($propertyName);
-        $extra          = $property->getExtra();
         $information    = (array) $GLOBALS['TL_DCA'][$dataContainer->getName()]['fields'][$propertyName];
 
         // Merge with the information from the data container.
-        $information['eval'] = \array_merge($extra, (array) $information['eval']);
+        $information['eval'] = \array_merge(
+            $dataDefinition->getPropertiesDefinition()->getProperty($propertyName)->getExtra(),
+            (array) $information['eval']
+        );
 
         $combat = new DcCompat($environment, null, $propertyName);
 
@@ -544,15 +540,15 @@ class FileTree extends AbstractWidget
 
         // Load a particular node
         if ('' !== $inputProvider->getValue('folder', true)) {
-            $buffer = $widget->generateAjax(
+            $content = $widget->generateAjax(
                 $inputProvider->getValue('folder', true),
                 $inputProvider->getValue('field'),
                 (int) $inputProvider->getValue('level')
             );
         } else {
-            $buffer = $widget->generate();
+            $content = $widget->generate();
         }
 
-        throw new ResponseException(new Response($buffer));
+        throw new ResponseException(new Response($content));
     }
 }

@@ -330,8 +330,7 @@ class BackendTreeController implements ContainerAwareInterface
         // Define the current ID.
         \define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
 
-        $factory             = new DcGeneralFactory();
-        $this->itemContainer = $factory
+        $this->itemContainer = (new DcGeneralFactory())
             ->setContainerName($modelId->getDataProviderName())
             ->setTranslator($this->container->get('cca.translator.contao_translator'))
             ->setEventDispatcher($this->container->get('event_dispatcher'))

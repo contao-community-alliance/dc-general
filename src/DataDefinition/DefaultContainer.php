@@ -91,9 +91,7 @@ class DefaultContainer implements ContainerInterface
      */
     public function setDefinitions(array $definitions)
     {
-        $this
-            ->clearDefinitions()
-            ->addDefinitions($definitions);
+        $this->clearDefinitions()->addDefinitions($definitions);
 
         return $this;
     }
@@ -289,9 +287,7 @@ class DefaultContainer implements ContainerInterface
     {
         $definitions = [];
         foreach ($this->definitions as $name => $definition) {
-            $bobaFett = clone $definition;
-
-            $definitions[$name] = $bobaFett;
+            $definitions[$name] = clone $definition;
         }
         $this->definitions = $definitions;
     }

@@ -88,14 +88,13 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     public function createMenuItem(PickerConfig $config)
     {
         $name = $this->getName();
-
         return $this->menuFactory->createItem(
             $name,
             [
                 'label'          => $this->translator->trans('TL_LANG.MSC.' . $name, [], 'contao_default'),
                 'linkAttributes' => ['class' => $name],
                 'current'        => $this->isCurrent($config),
-                'uri'            => $this->generateUrl($config, true),
+                'uri'            => $this->generateUrl($config, true)
             ]
         );
     }

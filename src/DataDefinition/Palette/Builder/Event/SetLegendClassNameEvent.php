@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetLegendClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-legend-class-name';
+    public const NAME = 'dc-general.data-definition.palette.builder.set-legend-class-name';
 
     /**
      * The class name.

@@ -47,12 +47,12 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
     protected function determineTemplate($groupingInformation)
     {
         if (isset($groupingInformation['mode'])
-            && ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)
+            && (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingInformation['mode'])
         ) {
             return $this->getTemplate('dcbe_general_grouping');
         }
 
-        if (isset($groupingInformation['property']) && ($groupingInformation['property'] != '')) {
+        if (isset($groupingInformation['property']) && ('' !== $groupingInformation['property'])) {
             return $this->getTemplate('dcbe_general_listView_sorting');
         }
 
@@ -71,8 +71,9 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
         $pasteButton = $this->renderPasteTopButton($environment, $groupAndSortingDefinition);
 
         parent::renderTemplate($template, $environment);
-        $template->set('header', $pasteButton ? $this->getEmptyHeader() : null);
-        $template->set('headerButtons', $this->renderPasteTopButton($environment, $groupAndSortingDefinition));
+        $template
+            ->set('header', $pasteButton ? $this->getEmptyHeader() : null)
+            ->set('headerButtons', $this->renderPasteTopButton($environment, $groupAndSortingDefinition));
     }
 
     /**

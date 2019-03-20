@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionIn
  */
 class FinishPaletteCollectionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.finish-palette-collection';
+    public const NAME = 'dc-general.data-definition.palette.builder.finish-palette-collection';
 
     /**
      * The palette collection.

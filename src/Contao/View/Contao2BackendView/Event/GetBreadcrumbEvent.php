@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  */
 class GetBreadcrumbEvent extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-breadcrumb';
+    public const NAME = 'dc-general.view.contao2backend.get-breadcrumb';
 
     /**
      * The breadcrumb elements to be displayed in the backend.

@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class PreDuplicateModelEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.model.pre-duplicate';
+    public const NAME = 'dc-general.model.pre-duplicate';
 
     /**
      * The source model.

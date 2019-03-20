@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class CreateDcGeneralEvent extends Event
 {
-    const NAME = 'dc-general.factory.create-dc-general';
+    public const NAME = 'dc-general.factory.create-dc-general';
 
     /**
      * The instance that has been created.

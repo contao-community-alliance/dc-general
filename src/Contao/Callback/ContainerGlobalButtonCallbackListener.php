@@ -62,7 +62,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
     {
         return parent::wantToExecute($event)
             && (empty($this->operationName)
-                || ($event->getKey() == $this->operationName)
+                || ($this->operationName === $event->getKey())
             );
     }
 
@@ -96,7 +96,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
      */
     public function update($event, $value)
     {
-        if ($value === null) {
+        if (null === $value) {
             return;
         }
 

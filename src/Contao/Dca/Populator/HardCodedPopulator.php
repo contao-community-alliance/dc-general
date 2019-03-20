@@ -38,7 +38,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEn
  */
 class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    const PRIORITY = -100;
+    public const PRIORITY = -100;
 
     /**
      * Create a controller instance in the environment if none has been defined yet.
@@ -59,10 +59,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
         @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
-        $controller = new DefaultController();
-
-        $controller->setEnvironment($environment);
-        $environment->setController($controller);
+        $environment->setController((new DefaultController())->setEnvironment($environment));
     }
 
     /**

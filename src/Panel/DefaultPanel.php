@@ -61,9 +61,9 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
-    public function setContainer(PanelContainerInterface $objContainer)
+    public function setContainer(PanelContainerInterface $container)
     {
-        $this->objContainer = $objContainer;
+        $this->objContainer = $container;
 
         return $this;
     }
@@ -71,10 +71,10 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
-    public function addElement($strKey, $objElement)
+    public function addElement($panelName, $element)
     {
-        $this->arrElements[$strKey] = $objElement;
-        $objElement->setPanel($this);
+        $this->arrElements[$panelName] = $element;
+        $element->setPanel($this);
 
         return $this;
     }
@@ -82,19 +82,19 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
-    public function getElement($strKey)
+    public function getElement($elementName)
     {
-        return isset($this->arrElements[$strKey]) ? $this->arrElements[$strKey] : null;
+        return ($this->arrElements[$elementName] ?? null);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
     {
-        /** @var PanelElementInterface $objThisElement */
-        foreach ($this as $objThisElement) {
-            $objThisElement->initialize($objConfig, $objElement);
+        /** @var PanelElementInterface $currentElement */
+        foreach ($this as $currentElement) {
+            $currentElement->initialize($config, $element);
         }
     }
 

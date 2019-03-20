@@ -71,7 +71,7 @@ class ClipboardController implements EventSubscriberInterface
     {
         return [
             DcGeneralEvents::ACTION => ['handleAction'],
-            DcGeneralEvents::VIEW   => ['handleView'],
+            DcGeneralEvents::VIEW   => ['handleView']
         ];
     }
 
@@ -88,9 +88,7 @@ class ClipboardController implements EventSubscriberInterface
             return;
         }
 
-        $actionName = $event->getAction()->getName();
-
-        if ('clear-clipboard' === $actionName) {
+        if ('clear-clipboard' === ($actionName = $event->getAction()->getName())) {
             $this->clearClipboard($event);
         }
 
@@ -123,12 +121,10 @@ class ClipboardController implements EventSubscriberInterface
         $actionName = $event->getAction()->getName();
 
         $environment     = $event->getEnvironment();
-        $inputProvider   = $environment->getInputProvider();
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
+        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
 
-        if (('create' === $actionName && true === $basicDefinition->isCreatable())
-            || ('cut' === $actionName && true === $basicDefinition->isEditable())
+        if ((('create' === $actionName) && (true === $basicDefinition->isCreatable()))
+            || (('cut' === $actionName) && (true === $basicDefinition->isEditable()))
             || (false === \in_array($actionName, ['create', 'cut']))
         ) {
             return true;
@@ -137,11 +133,11 @@ class ClipboardController implements EventSubscriberInterface
         $permissionMessage = 'You have no permission for model ' . $actionName .' ';
         switch ($actionName) {
             case 'create':
-                $permissionMessage .= 'in ' . $dataDefinition->getName();
+                $permissionMessage .= 'in ' . $environment->getDataDefinition()->getName();
                 break;
 
             case 'cut':
-                $permissionMessage .= $inputProvider->getParameter('source');
+                $permissionMessage .= $environment->getInputProvider()->getParameter('source');
                 break;
 
             default:
@@ -171,9 +167,8 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher = $environment->getEventDispatcher();
         $clipboard       = $environment->getClipboard();
         $input           = $environment->getInputProvider();
-        $clipboardId     = $input->getParameter('clipboard-item');
 
-        if ($clipboardId) {
+        if ($clipboardId = $input->getParameter('clipboard-item')) {
             $clipboard->removeByClipboardId($clipboardId);
         } else {
             $clipboard->clear();
@@ -184,8 +179,7 @@ class ClipboardController implements EventSubscriberInterface
             return;
         }
 
-        $act           = $input->getParameter('original-act');
-        $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $act);
+        $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $input->getParameter('original-act'));
         $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
 
         $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
@@ -236,8 +230,7 @@ class ClipboardController implements EventSubscriberInterface
             $parentId = null;
         }
 
-        $clipboardActionName = $this->translateActionName($actionName);
-        if (!$clipboardActionName) {
+        if (!($clipboardActionName = $this->translateActionName($actionName))) {
             return;
         }
 
@@ -268,7 +261,7 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         // If edit several don´t redirect do home and push item to the clipboard.
-        if ($input->getParameter('act') === 'select') {
+        if ('select' === $input->getParameter('act')) {
             $clipboard->push($item)->saveTo($environment);
 
             return;
@@ -316,24 +309,21 @@ class ClipboardController implements EventSubscriberInterface
             return;
         }
 
-        $environment        = $event->getEnvironment();
-        $input              = $environment->getInputProvider();
-        $clipboard          = $environment->getClipboard();
-        $eventDispatcher    = $environment->getEventDispatcher();
-        $basicDefinition    = $environment->getDataDefinition()->getBasicDefinition();
-        $modelProviderName  = $basicDefinition->getDataProvider();
-        $parentProviderName = $basicDefinition->getParentDataProvider();
+        $environment     = $event->getEnvironment();
+        $input           = $environment->getInputProvider();
+        $eventDispatcher = $environment->getEventDispatcher();
+        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($modelProviderName);
-        if ($parentProviderName) {
+        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
         }
 
         $options = [];
-        foreach ($clipboard->fetch($filter) as $item) {
+        foreach ($environment->getClipboard()->fetch($filter) as $item) {
             $modelId      = $item->getModelId();
             $dataProvider = $environment->getDataProvider($item->getDataProviderName());
 
@@ -357,15 +347,16 @@ class ClipboardController implements EventSubscriberInterface
                 $label = $environment->getTranslator()->translate('new.0', $item->getDataProviderName());
             }
 
-            $options[$item->getClipboardId()] = ['item'  => $item, 'model' => $model, 'label' => $label,];
+            $options[$item->getClipboardId()] = ['item'  => $item, 'model' => $model, 'label' => $label];
         }
 
-        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $input->getParameter('act'));
+        $inputAction   = $input->getParameter('act');
+        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $inputAction);
         $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
         $clearUrl = $addToUrlEvent->getUrl();
 
         $addToUrlEvent = new AddToUrlEvent(
-            'clipboard-item=%id%&act=clear-clipboard&original-act=' . $input->getParameter('act')
+            'clipboard-item=%id%&act=clear-clipboard&original-act=' . $inputAction
         );
         $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
         $clearItemUrl = $addToUrlEvent->getUrl();
@@ -390,12 +381,12 @@ class ClipboardController implements EventSubscriberInterface
      */
     private function removeItemsFromClipboard(ActionEvent $event)
     {
-        $inputProvider = $event->getEnvironment()->getInputProvider();
-        if ($inputProvider->getParameter('act') === 'select') {
+        $environment = $event->getEnvironment();
+        if ('select' === $environment->getInputProvider()->getParameter('act')) {
             return;
         }
 
-        $clipboard = $event->getEnvironment()->getClipboard();
+        $clipboard = $environment->getClipboard();
         $filter    = new Filter();
         $filter->andActionIs(ItemInterface::CREATE);
         $items = $clipboard->fetch($filter);

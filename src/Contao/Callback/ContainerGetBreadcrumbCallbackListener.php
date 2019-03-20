@@ -54,7 +54,7 @@ class ContainerGetBreadcrumbCallbackListener extends AbstractReturningCallbackLi
      */
     public function update($event, $value)
     {
-        if ($value === null) {
+        if (null === $value) {
             return;
         }
 

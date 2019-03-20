@@ -27,9 +27,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
-use Contao\TemplateLoader;
 use Contao\Date;
 use Contao\Input;
+use Contao\TemplateLoader;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
@@ -144,7 +144,7 @@ class ContaoWidgetManager
     public function hasWidget($property)
     {
         try {
-            return $this->getWidget($property) !== null;
+            return null !== $this->getWidget($property);
             // @codingStandardsIgnoreStart
         } catch (\Exception $e) {
             // Fall though and return false.
@@ -173,7 +173,7 @@ class ContaoWidgetManager
         $backendAdapter        = $this->framework->getAdapter(Backend::class);
         $templateLoaderAdapter = $this->framework->getAdapter(TemplateLoader::class);
 
-        list($file, $type) = \explode('|', $widget->rte);
+        [$file, $type] = \explode('|', $widget->rte);
 
         $templateName = 'be_' . $file;
         // This test if the rich text editor template exist.
@@ -208,7 +208,7 @@ class ContaoWidgetManager
 
         $selector = 'ctrl_' . $propertyName;
 
-        if ($inputProvider->getParameter('act') !== 'select'
+        if (('select' !== $inputProvider->getParameter('act'))
             || (false === $inputProvider->hasValue('edit') && false === $inputProvider->hasValue('edit_save'))
         ) {
             return $selector;
@@ -244,7 +244,6 @@ class ContaoWidgetManager
     public function getWidget($property, PropertyValueBag $inputValues = null)
     {
         $environment         = $this->getEnvironment();
-        $dispatcher          = $environment->getEventDispatcher();
         $propertyDefinitions = $environment->getDataDefinition()->getPropertiesDefinition();
 
         if (!$propertyDefinitions->hasProperty($property)) {
@@ -261,10 +260,9 @@ class ContaoWidgetManager
             $this->environment->getController()->updateModelFromPropertyBag($model, $values);
         }
 
-        $propertyDefinition = $propertyDefinitions->getProperty($property);
-        $event              = new BuildWidgetEvent($environment, $model, $propertyDefinition);
+        $event = new BuildWidgetEvent($environment, $model, $propertyDefinitions->getProperty($property));
 
-        $dispatcher->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         if (!$event->getWidget()) {
             throw new DcGeneralRuntimeException(
                 \sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
@@ -325,13 +323,12 @@ class ContaoWidgetManager
      */
     protected function generateHelpText($property)
     {
-        $environment = $this->getEnvironment();
-        $propInfo    = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
-        $label       = $propInfo->getDescription();
-        $widgetType  = $propInfo->getWidgetType();
+        $propInfo   = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
+        $label      = $propInfo->getDescription();
+        $widgetType = $propInfo->getWidgetType();
 
         if (null === $label
-            || $widgetType === 'password'
+            || ('password' === $widgetType)
             || !\is_string($label)
             || !$GLOBALS['TL_CONFIG']['showHelp']
         ) {
@@ -354,42 +351,29 @@ class ContaoWidgetManager
      */
     public function renderWidget($property, $ignoreErrors = false, PropertyValueBag $inputValues = null)
     {
-        $environment         = $this->getEnvironment();
-        $definition          = $environment->getDataDefinition();
-        $propertyDefinitions = $definition->getPropertiesDefinition();
-        $propInfo            = $propertyDefinitions->getProperty($property);
-        $propExtra           = $propInfo->getExtra();
-        $widget              = $this->getWidget($property, $inputValues);
-
         /** @var Widget $widget */
+        $widget = $this->getWidget($property, $inputValues);
         if (!$widget) {
             throw new DcGeneralRuntimeException('No widget for property ' . $property);
         }
 
         $this->cleanErrors($widget, $ignoreErrors);
-
         $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
-        $strDatePicker = $this->getDatePicker($propExtra, $widget);
+        $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
+        $content  = (new ContaoBackendViewTemplate('dcbe_general_field'))
+            ->set('strName', $property)
+            ->set('strClass', $widget->tl_class)
+            ->set('widget', $widget->parse())
+            ->set('hasErrors', $widget->hasErrors())
+            ->set('strDatepicker', $this->getDatePicker($propInfo->getExtra(), $widget))
+            // We used the var blnUpdate before.
+            ->set('blnUpdate', false)
+            ->set('strHelp', $this->generateHelpText($property))
+            ->set('strId', $widget->id)
+            ->parse();
 
-        $objTemplateFoo = new ContaoBackendViewTemplate('dcbe_general_field');
-        $objTemplateFoo->setData(
-            [
-                'strName'       => $property,
-                'strClass'      => $widget->tl_class,
-                'widget'        => $widget->parse(),
-                'hasErrors'     => $widget->hasErrors(),
-                'strDatepicker' => $strDatePicker,
-                // We used the var blnUpdate before.
-                'blnUpdate'     => false,
-                'strHelp'       => $this->generateHelpText($property),
-                'strId'         => $widget->id
-            ]
-        );
-
-        $buffer = $objTemplateFoo->parse();
-
-        return $this->loadRichTextEditor($buffer, $widget);
+        return $this->loadRichTextEditor($content, $widget);
     }
 
     /**
@@ -449,17 +433,19 @@ class ContaoWidgetManager
     {
         $propertyErrors = $propertyValues->getInvalidPropertyErrors();
 
-        if ($propertyErrors) {
-            $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        if (!$propertyErrors) {
+            return;
+        }
 
-            foreach ($propertyErrors as $property => $errors) {
-                $widget = $this->getWidget($property);
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
 
-                foreach ($errors as $error) {
-                    $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-                    $dispatcher->dispatch(ResolveWidgetErrorMessageEvent::NAME, $event);
-                    $widget->addError($event->getError());
-                }
+        foreach ($propertyErrors as $property => $errors) {
+            $widget = $this->getWidget($property);
+
+            foreach ($errors as $error) {
+                $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
+                $dispatcher->dispatch(ResolveWidgetErrorMessageEvent::NAME, $event);
+                $widget->addError($event->getError());
             }
         }
     }
@@ -474,15 +460,18 @@ class ContaoWidgetManager
      */
     protected function cleanErrors(Widget $widget, $ignoreErrors = false)
     {
-        if ($ignoreErrors) {
-            // Clean the errors array and fix up the CSS class.
-            $reflection = new \ReflectionProperty(\get_class($widget), 'arrErrors');
-            $reflection->setAccessible(true);
-            $reflection->setValue($widget, []);
-            $reflection = new \ReflectionProperty(\get_class($widget), 'strClass');
-            $reflection->setAccessible(true);
-            $reflection->setValue($widget, \str_replace('error', '', $reflection->getValue($widget)));
+        if (!$ignoreErrors) {
+            return;
         }
+
+        // Clean the errors array and fix up the CSS class.
+        $reflectionPropError = new \ReflectionProperty(\get_class($widget), 'arrErrors');
+        $reflectionPropError->setAccessible(true);
+        $reflectionPropError->setValue($widget, []);
+
+        $reflectionPropClass = new \ReflectionProperty(\get_class($widget), 'strClass');
+        $reflectionPropClass->setAccessible(true);
+        $reflectionPropClass->setValue($widget, \str_replace('error', '', $reflectionPropClass->getValue($widget)));
     }
 
     /**
@@ -501,12 +490,14 @@ class ContaoWidgetManager
         PropertyValueBagInterface $inputValues = null,
         $ignoreErrors = false
     ) {
-        if (!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
-            && $inputValues->isPropertyValueInvalid($property)
+        if (!(!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
+            && $inputValues->isPropertyValueInvalid($property))
         ) {
-            foreach ($inputValues->getPropertyValueErrors($property) as $error) {
-                $widget->addError($error);
-            }
+            return;
+        }
+
+        foreach ($inputValues->getPropertyValueErrors($property) as $error) {
+            $widget->addError($error);
         }
     }
 
@@ -520,12 +511,10 @@ class ContaoWidgetManager
      */
     protected function getDatePicker(array $propExtra, Widget $widget)
     {
-        $strDatePicker = '';
-
         if (!empty($propExtra['datepicker'])) {
-            $strDatePicker = $this->buildDatePicker($widget);
+            return $this->buildDatePicker($widget);
         }
 
-        return $strDatePicker;
+        return '';
     }
 }

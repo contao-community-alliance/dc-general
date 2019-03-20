@@ -226,8 +226,7 @@ class ButtonRenderer
      */
     private function isHierarchical()
     {
-        $environment     = $this->environment;
-        $dataDefinition  = $environment->getDataDefinition();
+        $dataDefinition  = $this->environment->getDataDefinition();
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
         return $basicDefinition::MODE_HIERARCHICAL === $basicDefinition->getMode();
@@ -252,8 +251,7 @@ class ButtonRenderer
     private function hasPasteNewButton()
     {
         $environment     = $this->environment;
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
+        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
 
         return ((true === (bool) ViewHelpers::getManualSortingProperty($environment))
                 && (true === empty($this->clipboardItems))
@@ -282,14 +280,10 @@ class ButtonRenderer
         if (!empty($extra['attributes'])) {
             $attributes .= \sprintf($extra['attributes'], $model->getID());
         }
-        $label = $this->getCommandLabel($command);
-        $title = \sprintf($this->translate($command->getDescription()), $model->getID());
-        $icon  = $extra['icon'];
+        $icon = $extra['icon'];
 
         if ($command instanceof ToggleCommandInterface) {
-            $iconDisabled = isset($extra['icon_disabled'])
-                ? $extra['icon_disabled']
-                : 'invisible.svg';
+            $iconDisabled = ($extra['icon_disabled'] ?? 'invisible.svg');
 
             $attributes .= \sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
@@ -302,17 +296,15 @@ class ButtonRenderer
             }
         }
 
-        $href = $this->calculateHref($command, $model);
-
         $buttonEvent = new GetOperationButtonEvent($this->environment);
         $buttonEvent
             ->setKey($command->getName())
             ->setCommand($command)
             ->setObjModel($model)
             ->setAttributes($attributes)
-            ->setLabel($label)
-            ->setTitle($title)
-            ->setHref($href)
+            ->setLabel($this->getCommandLabel($command))
+            ->setTitle(\sprintf($this->translate((string) $command->getDescription()), $model->getID()))
+            ->setHref($this->calculateHref($command, $model))
             ->setChildRecordIds($childIds)
             ->setCircularReference($isCircularReference)
             ->setPrevious($previous)
@@ -362,14 +354,16 @@ class ButtonRenderer
             return [];
         }
 
-        $result = [ModelId::fromModel($model)->getSerialized()];
+        $ids = [ModelId::fromModel($model)->getSerialized()];
+
+        $childIds = [];
         foreach ($childCollections as $collection) {
             foreach ($collection as $child) {
-                $result += $this->getChildIds($child);
+                $childIds[] = $this->getChildIds($child);
             }
         }
 
-        return $result;
+        return \array_merge($ids, ...$childIds);
     }
 
     /**
@@ -407,13 +401,9 @@ class ButtonRenderer
             return $parameters;
         }
 
-        $extra   = (array) $command->getExtra();
-        $idParam = isset($extra['idparam']) ? $extra['idparam'] : null;
-        if ($idParam) {
-            $parameters[$idParam] = $serializedModelId;
-        } else {
-            $parameters['id'] = $serializedModelId;
-        }
+        $extra = (array) $command->getExtra();
+
+        $parameters[($extra['idparam'] ?? null) ?: 'id'] = $serializedModelId;
 
         return $parameters;
     }
@@ -585,6 +575,8 @@ class ButtonRenderer
     private function isTogglerInActiveState($command, $model)
     {
         $dataProvider = $this->environment->getDataProvider($model->getProviderName());
+        $propModel    = $model;
+
         if ($command instanceof TranslatedToggleCommandInterface
             && $dataProvider instanceof MultiLanguageDataProviderInterface
         ) {
@@ -597,8 +589,6 @@ class ButtonRenderer
                     ->setFields([$command->getToggleProperty()])
             );
             $dataProvider->setCurrentLanguage($language);
-        } else {
-            $propModel = $model;
         }
 
         if ($command->isInverse()) {
@@ -618,8 +608,7 @@ class ButtonRenderer
      */
     private function calculateHref(CommandInterface $command, $model)
     {
-        $modelId    = ModelId::fromModel($model)->getSerialized();
-        $parameters = $this->calculateParameters($command, $modelId);
+        $parameters = $this->calculateParameters($command, ModelId::fromModel($model)->getSerialized());
         $href       = '';
         foreach ($parameters as $key => $value) {
             $href .= \sprintf('&%s=%s', $key, $value);
@@ -643,12 +632,6 @@ class ButtonRenderer
 
         $label = $this->translate($label);
 
-        if (\is_array($label)) {
-            $label = $label[0];
-
-            return $label;
-        }
-
-        return $label;
+        return \is_array($label) ? $label[0] : $label;
     }
 }

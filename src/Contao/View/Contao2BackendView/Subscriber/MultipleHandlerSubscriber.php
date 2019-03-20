@@ -86,7 +86,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      */
     public function prepareGlobalAllButton(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend() || 'showAll' !== $event->getAction()->getName()) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend() || ('showAll' !== $event->getAction()->getName())) {
             return;
         }
 
@@ -144,18 +144,18 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      */
     public function handleOriginalOptions(GetOptionsEvent $event)
     {
+        $environment = $event->getEnvironment();
+
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || 'select' !== $event->getEnvironment()->getInputProvider()->getParameter('act')
-            || 'edit' !== $event->getEnvironment()->getInputProvider()->getParameter('select')
+            || ('select' !== $environment->getInputProvider()->getParameter('act'))
+            || ('edit' !== $environment->getInputProvider()->getParameter('select'))
         ) {
             return;
         }
 
-        $model   = $event->getModel();
-        $modelId = ModelId::fromModel($model);
+        $model = $event->getModel();
 
-        $propertyName = $this->getOriginalPropertyName($event->getPropertyName(), $modelId);
-        if (!$propertyName
+        if (!($propertyName = $this->getOriginalPropertyName($event->getPropertyName(), ModelId::fromModel($model)))
             || !$model->getProperty($propertyName)
         ) {
             return;
@@ -175,7 +175,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
                 $event->getOptions()
             );
 
-        $event->getEnvironment()->getEventDispatcher()->dispatch(GetOptionsEvent::NAME, $originalOptionsEvent);
+        $environment->getEventDispatcher()->dispatch(GetOptionsEvent::NAME, $originalOptionsEvent);
 
         $event->setOptions($originalOptionsEvent->getOptions());
 
@@ -191,15 +191,16 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      */
     public function handleOriginalWidget(BuildWidgetEvent $event)
     {
+        $environment = $event->getEnvironment();
+
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || 'select' !== $event->getEnvironment()->getInputProvider()->getParameter('act')
-            || 'edit' !== $event->getEnvironment()->getInputProvider()->getParameter('select')
+            || ('select' !== $environment->getInputProvider()->getParameter('act'))
+            || ('edit' !== $environment->getInputProvider()->getParameter('select'))
         ) {
             return;
         }
 
-        $dataDefinition = $event->getEnvironment()->getDataDefinition();
-        $properties     = $dataDefinition->getPropertiesDefinition();
+        $properties = $environment->getDataDefinition()->getPropertiesDefinition();
 
         $this->findModelIdByPropertyName($event);
 
@@ -230,9 +231,9 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $originalProperty->setExtra($copiedExtra);
 
         $originalEvent =
-            new BuildWidgetEvent($event->getEnvironment(), $model, $originalProperty);
+            new BuildWidgetEvent($environment, $model, $originalProperty);
 
-        $event->getEnvironment()->getEventDispatcher()->dispatch(BuildWidgetEvent::NAME, $originalEvent);
+        $environment->getEventDispatcher()->dispatch(BuildWidgetEvent::NAME, $originalEvent);
 
         $originalEvent->getWidget()->id   = $event->getProperty()->getName();
         $originalEvent->getWidget()->name =
@@ -260,14 +261,18 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $dataDefinition = $event->getEnvironment()->getDataDefinition();
-        $inputProvider  = $event->getEnvironment()->getInputProvider();
-        $sessionStorage = $event->getEnvironment()->getSessionStorage();
+        $environment    = $event->getEnvironment();
+        $dataDefinition = $environment->getDataDefinition();
+        $inputProvider  = $environment->getInputProvider();
+        $sessionStorage = $environment->getSessionStorage();
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
-        foreach ($session['models'] as $model) {
-            if (0 !== \strpos($event->getProperty()->getName(), \str_replace('::', '____', $model))) {
+        $model = null;
+        foreach ($session['models'] as $sessionModel) {
+            $model = $sessionModel;
+
+            if (0 !== \strpos($event->getProperty()->getName(), \str_replace('::', '____', $sessionModel))) {
                 continue;
             }
 

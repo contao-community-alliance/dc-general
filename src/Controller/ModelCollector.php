@@ -175,8 +175,7 @@ class ModelCollector
             }
 
             // @codingStandardsIgnoreStart
-            @\trigger_error
-            (
+            @\trigger_error(
                 'Only real property is allowed in the property definition.' .
                 'This will no longer be supported in the future.',
                 E_DEPRECATED
@@ -257,8 +256,7 @@ class ModelCollector
         $sortingProperty = null,
         ModelIdInterface $parentId = null
     ) {
-        $provider = $this->environment->getDataProvider($model->getProviderName());
-        $config   = $this->environment->getBaseConfigRegistry()->getBaseConfig($parentId);
+        $config = $this->environment->getBaseConfigRegistry()->getBaseConfig($parentId);
         // Add the parent filter.
         $this->addParentFilter($model, $config);
 
@@ -270,7 +268,7 @@ class ModelCollector
         $definition = $this->environment->getDataDefinition();
         /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
         $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        if ($viewDefinition && $viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
+        if ($viewDefinition && ($viewDefinition instanceof Contao2BackendViewDefinitionInterface)) {
             $listingConfig        = $viewDefinition->getListingConfig();
             $sortingProperties    = \array_keys((array) $listingConfig->getDefaultSortingFields());
             $sortingPropertyIndex = \array_search($sortingProperty, $sortingProperties);
@@ -283,7 +281,7 @@ class ModelCollector
                     $filters[] = [
                         'operation' => '=',
                         'property'  => $propertyName,
-                        'value'     => $model->getProperty($propertyName),
+                        'value'     => $model->getProperty($propertyName)
                     ];
                 }
 
@@ -291,7 +289,7 @@ class ModelCollector
             }
         }
 
-        return $provider->fetchAll($config);
+        return $this->environment->getDataProvider($model->getProviderName())->fetchAll($config);
     }
 
     /**
@@ -321,7 +319,7 @@ class ModelCollector
      */
     public function collectDirectChildrenOf(ModelInterface $model, $providerName = '')
     {
-        return $this->internalCollectChildrenOf($model, $providerName, false);
+        return $this->internalCollectChildrenOf($model, $providerName);
     }
 
     /**
@@ -343,15 +341,11 @@ class ModelCollector
             $providerName = $model->getProviderName();
         }
 
-        $ids = [];
-
-        if ($model->getProviderName() === $providerName) {
-            $ids = [$model->getId()];
-        }
+        $ids = ($model->getProviderName() === $providerName) ? [$model->getId()] : [];
 
         // Check all data providers for children of the given element.
-        $conditions = $this->relationships->getChildConditions($model->getProviderName());
-        foreach ($conditions as $condition) {
+        $childIds = [];
+        foreach ($this->relationships->getChildConditions($model->getProviderName()) as $condition) {
             $provider = $this->environment->getDataProvider($condition->getDestinationName());
             $config   = $provider->getEmptyConfig();
             $config->setFilter($condition->getFilter($model));
@@ -363,15 +357,15 @@ class ModelCollector
                     $ids[] = $child->getId();
                 }
 
-                if ($recursive === false) {
+                if (false === $recursive) {
                     continue;
                 }
                 // Head into recursion.
-                $ids = \array_merge($ids, $this->collectChildrenOf($child, $providerName));
+                $childIds[] = $this->collectChildrenOf($child, $providerName);
             }
         }
 
-        return $ids;
+        return \array_merge($ids, ...$childIds);
     }
 
     /**
@@ -385,7 +379,7 @@ class ModelCollector
      */
     private function searchParentOfInParentedMode(ModelInterface $model)
     {
-        if ($model->getProviderName() !== $this->defaultProviderName) {
+        if ($this->defaultProviderName !== $model->getProviderName()) {
             throw new DcGeneralInvalidArgumentException(
                 'Model originates from ' . $model->getProviderName() .
                 ' but is expected to be from ' . $this->defaultProviderName .
@@ -394,10 +388,9 @@ class ModelCollector
         }
 
         $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->defaultProviderName);
-        $config    = $this->parentProvider->getEmptyConfig();
         // This is pretty expensive, we fetch all models from the parent provider here.
         // This can be much faster by using the inverse condition if present.
-        foreach ($this->parentProvider->fetchAll($config) as $candidate) {
+        foreach ($this->parentProvider->fetchAll($this->parentProvider->getEmptyConfig()) as $candidate) {
             if ($condition->matches($candidate, $model)) {
                 return $candidate;
             }

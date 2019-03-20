@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  */
 class GetPasteButtonEvent extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-paste-button';
+    public const NAME = 'dc-general.view.contao2backend.get-paste-button';
 
     /**
      * Determinator if there is a circular reference from an item in the clipboard to the current model.

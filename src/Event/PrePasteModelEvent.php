@@ -26,5 +26,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
  */
 class PrePasteModelEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.model.pre-paste';
+    public const NAME = 'dc-general.model.pre-paste';
 }

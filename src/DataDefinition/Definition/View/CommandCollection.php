@@ -53,8 +53,7 @@ class CommandCollection implements CommandCollectionInterface
      */
     public function setCommands(array $commands)
     {
-        $this->clearCommands();
-        $this->addCommands($commands);
+        $this->clearCommands()->addCommands($commands);
 
         return $this;
     }
@@ -90,9 +89,7 @@ class CommandCollection implements CommandCollectionInterface
      */
     public function hasCommand(CommandInterface $command)
     {
-        $hash = \spl_object_hash($command);
-
-        return isset($this->commands[$hash]);
+        return isset($this->commands[\spl_object_hash($command)]);
     }
 
     /**
@@ -101,7 +98,7 @@ class CommandCollection implements CommandCollectionInterface
     public function hasCommandNamed($name)
     {
         foreach ($this->commands as $command) {
-            if ($command->getName() == $name) {
+            if ($name === $command->getName()) {
                 return true;
             }
         }
@@ -151,8 +148,7 @@ class CommandCollection implements CommandCollectionInterface
      */
     public function removeCommand(CommandInterface $command)
     {
-        $hash = \spl_object_hash($command);
-        unset($this->commands[$hash]);
+        unset($this->commands[\spl_object_hash($command)]);
 
         return $this;
     }
@@ -165,7 +161,7 @@ class CommandCollection implements CommandCollectionInterface
     public function removeCommandNamed($name)
     {
         foreach ($this->commands as $command) {
-            if ($command->getName() == $name) {
+            if ($name === $command->getName()) {
                 $this->removeCommand($command);
 
                 return $this;
@@ -183,7 +179,7 @@ class CommandCollection implements CommandCollectionInterface
     public function getCommandNamed($name)
     {
         foreach ($this->commands as $command) {
-            if ($command->getName() == $name) {
+            if ($name === $command->getName()) {
                 return $command;
             }
         }

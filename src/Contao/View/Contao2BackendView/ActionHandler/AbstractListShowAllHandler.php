@@ -113,16 +113,18 @@ abstract class AbstractListShowAllHandler
             return;
         }
 
-        $basic = $event->getEnvironment()->getDataDefinition()->getBasicDefinition();
+        $environment = $event->getEnvironment();
+        $basic       = $environment->getDataDefinition()->getBasicDefinition();
+        $action      = $event->getAction();
 
         if (null !== $event->getResponse()
-            || ($event->getAction()->getName() !== 'showAll')
-            || !$this->wantToHandle($basic->getMode(), $event->getAction())
+            || ('showAll' !== $action->getName())
+            || !$this->wantToHandle($basic->getMode(), $action)
         ) {
             return;
         }
 
-        if ($response = $this->process($event->getAction(), $event->getEnvironment())) {
+        if (false !== ($response = $this->process($action, $environment))) {
             $event->setResponse($response);
         }
     }
@@ -138,8 +140,7 @@ abstract class AbstractListShowAllHandler
     protected function process(Action $action, EnvironmentInterface $environment)
     {
         // Edit only mode, forward to edit action.
-        $basic = $environment->getDataDefinition()->getBasicDefinition();
-        if ($basic->isEditOnlyMode()) {
+        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->callAction($environment, 'edit', $action->getArguments());
         }
 
@@ -151,23 +152,26 @@ abstract class AbstractListShowAllHandler
         $collection = $this->loadCollection($environment);
         $this->handleEditAllButton($collection, $environment);
         $this->renderCollection($environment, $collection, $grouping);
-        $template = $this->determineTemplate($grouping);
-        $template->set('collection', $collection);
-        $template->set('mode', ($grouping ? $grouping['mode'] : null));
-        $template->set('theme', Backend::getTheme());
+
+        $template = $this->determineTemplate($grouping)
+            ->set('collection', $collection)
+            ->set('mode', ($grouping ? $grouping['mode'] : null))
+            ->set('theme', Backend::getTheme());
         $this->renderTemplate($template, $environment);
 
         $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
         $environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $clipboard);
 
-        $result              = [];
-        $result['language']  = $this->languageSwitcher($environment);
-        $result['panel']     = $this->panel($environment);
-        $result['buttons']   = $this->generateHeaderButtons($environment);
-        $result['clipboard'] = $clipboard->getResponse();
-        $result['body']      = $template->parse();
-
-        return \implode("\n", $result);
+        return \implode(
+            "\n",
+            [
+                'language'  => $this->languageSwitcher($environment),
+                'panel'     => $this->panel($environment),
+                'buttons'   => $this->generateHeaderButtons($environment),
+                'clipboard' => $clipboard->getResponse(),
+                'body'      => $template->parse()
+            ]
+        );
     }
 
     /**
@@ -188,12 +192,12 @@ abstract class AbstractListShowAllHandler
 
         /** @var MultiLanguageDataProviderInterface $dataProvider */
 
-        $template
+        return $template
             ->set('languages', $environment->getController()->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
             ->set('submit', $this->translator->trans('MSC.showSelected', [], 'contao_default'))
-            ->set('REQUEST_TOKEN', REQUEST_TOKEN);
-        return $template->parse();
+            ->set('REQUEST_TOKEN', REQUEST_TOKEN)
+            ->parse();
     }
 
     /**
@@ -276,10 +280,7 @@ abstract class AbstractListShowAllHandler
      */
     protected function getTemplate($strTemplate)
     {
-        $template = new ContaoBackendViewTemplate($strTemplate);
-        $template->setTranslator($this->ccaTranslator);
-
-        return $template;
+        return (new ContaoBackendViewTemplate($strTemplate))->setTranslator($this->ccaTranslator);
     }
 
     /**
@@ -304,20 +305,21 @@ abstract class AbstractListShowAllHandler
         $definition = $environment->getDataDefinition();
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
-        $template->set('subHeadline', $this->translate('MSC.select_models', 'contao_default'));
-        $template->set('tableName', null !== $definition->getName() ? $definition->getName() : 'none');
-        $template->set('select', 'select' === $environment->getInputProvider()->getParameter('act'));
-        $template->set('action', \ampersand(Environment::get('request'), true));
-        $template->set('selectButtons', $this->getSelectButtons($environment));
-        $template->set('sortable', $this->isSortable($environment));
-        $template->set('showColumns', $showColumn);
-        $template->set('tableHead', $showColumn ? $this->getTableHead($environment) : '');
-        // Add breadcrumb, if we have one.
-        $template->set('breadcrumb', $this->breadcrumb($environment));
-        $template->set('floatRightSelectButtons', true);
-        $template->set('selectCheckBoxName', 'models[]');
-        $template->set('selectCheckBoxIdPrefix', 'models_');
-        $template->set('selectContainer', $this->getSelectContainer($environment));
+        $template
+            ->set('subHeadline', $this->translate('MSC.select_models', 'contao_default'))
+            ->set('tableName', ($definition->getName() ?? 'none'))
+            ->set('select', 'select' === $environment->getInputProvider()->getParameter('act'))
+            ->set('action', \ampersand(Environment::get('request')))
+            ->set('selectButtons', $this->getSelectButtons($environment))
+            ->set('sortable', $this->isSortable($environment))
+            ->set('showColumns', $showColumn)
+            ->set('tableHead', $showColumn ? $this->getTableHead($environment) : '')
+            // Add breadcrumb, if we have one.
+            ->set('breadcrumb', $this->breadcrumb($environment))
+            ->set('floatRightSelectButtons', true)
+            ->set('selectCheckBoxName', 'models[]')
+            ->set('selectCheckBoxIdPrefix', 'models_')
+            ->set('selectContainer', $this->getSelectContainer($environment));
 
         if ((null !== $template->get('action'))
             && (false !== \strpos($template->get('action'), 'select=models'))
@@ -337,15 +339,13 @@ abstract class AbstractListShowAllHandler
      */
     protected function loadCollection(EnvironmentInterface $environment)
     {
-        $dataProvider = $environment->getDataProvider();
-        $dataConfig   = $environment->getBaseConfigRegistry()->getBaseConfig();
-
+        $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
         $listingConfig = $this->getViewSection($environment->getDataDefinition())->getListingConfig();
         $panel         = $environment->getView()->getPanel();
 
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
 
-        return $dataProvider->fetchAll($dataConfig);
+        return $environment->getDataProvider()->fetchAll($dataConfig);
     }
 
     /**
@@ -357,8 +357,7 @@ abstract class AbstractListShowAllHandler
      */
     private function generateHeaderButtons(EnvironmentInterface $environment)
     {
-        $renderer = new GlobalButtonRenderer($environment);
-        return $renderer->render();
+        return (new GlobalButtonRenderer($environment))->render();
     }
 
     /**
@@ -372,9 +371,7 @@ abstract class AbstractListShowAllHandler
      */
     private function renderCollection(EnvironmentInterface $environment, CollectionInterface $collection, $grouping)
     {
-        $clipboard  = $environment->getClipboard();
-        $view       = $this->getViewSection($environment->getDataDefinition());
-        $listing    = $view->getListingConfig();
+        $listing    = $this->getViewSection($environment->getDataDefinition())->getListingConfig();
         $remoteCur  = null;
         $groupClass = 'tl_folder_tlist';
         $eoCount    = -1;
@@ -386,23 +383,20 @@ abstract class AbstractListShowAllHandler
         }
 
         // Run each model.
-        $index = 0;
         foreach ($collection as $model) {
-            $index++;
-
             /** @var ModelInterface $model */
             $this->addGroupHeader($environment, (array) $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
             }
-            $cssClasses = [((++$eoCount) % 2 == 0) ? 'even' : 'odd'];
+            $cssClasses = [(0 === (++$eoCount) % 2) ? 'even' : 'odd'];
 
             (null !== $model->getMeta($model::CSS_ROW_CLASS)) ?
                 $cssClasses[] = $model->getMeta($model::CSS_ROW_CLASS) : null;
 
             $modelId = ModelId::fromModel($model);
-            if ($clipboard->hasId($modelId)) {
+            if ($environment->getClipboard()->hasId($modelId)) {
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
@@ -449,7 +443,7 @@ abstract class AbstractListShowAllHandler
                 ]
             );
             // Add the group header if it differs from the last header.
-            if (($remoteNew != $remoteCur) || ($remoteCur === null)) {
+            if (($remoteCur !== $remoteNew) || (null === $remoteCur)) {
                 $eoCount    = -1;
                 $groupClass = 'tl_folder_list';
                 $remoteCur  = $remoteNew;
@@ -467,8 +461,7 @@ abstract class AbstractListShowAllHandler
      */
     private function panel(EnvironmentInterface $environment, $ignoredPanels = [])
     {
-        $renderer = new PanelRenderer($environment->getView());
-        return $renderer->render($ignoredPanels);
+        return (new PanelRenderer($environment->getView()))->render($ignoredPanels);
     }
 
     /**
@@ -491,11 +484,10 @@ abstract class AbstractListShowAllHandler
             if (!$properties->hasProperty($field)) {
                 continue;
             }
-            $label = $properties->getProperty($field)->getLabel();
 
             $tableHead[] = [
                 'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
-                'content' => $label
+                'content' => $properties->getProperty($field)->getLabel()
             ];
         }
 
@@ -528,10 +520,8 @@ abstract class AbstractListShowAllHandler
         $groupLength,
         EnvironmentInterface $environment
     ) {
-        $property = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
-
         // No property? Get out!
-        if (!$property) {
+        if (!$environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field)) {
             return '-';
         }
 
@@ -566,11 +556,8 @@ abstract class AbstractListShowAllHandler
      */
     private function isSortable(EnvironmentInterface $environment)
     {
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
-
         return ((true === (bool) ViewHelpers::getManualSortingProperty($environment))
-                && (true === $basicDefinition->isEditable()));
+                && (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable()));
     }
 
     /**
@@ -583,16 +570,14 @@ abstract class AbstractListShowAllHandler
      */
     protected function renderPasteTopButton(EnvironmentInterface $environment, $sorting)
     {
-        $definition      = $environment->getDataDefinition();
-        $dispatcher      = $environment->getEventDispatcher();
-        $basicDefinition = $definition->getBasicDefinition();
-        $clipboard       = $environment->getClipboard();
-        $languageDomain  = 'contao_' . $definition->getName();
+        $definition     = $environment->getDataDefinition();
+        $dispatcher     = $environment->getEventDispatcher();
+        $languageDomain = 'contao_' . $definition->getName();
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        $filter->andModelIsFromProvider($definition->getBasicDefinition()->getDataProvider());
 
-        if (!$sorting || $clipboard->isEmpty($filter)) {
+        if (!$sorting || $environment->getClipboard()->isEmpty($filter)) {
             return null;
         }
         if (!ViewHelpers::getManualSortingProperty($environment)) {
@@ -644,12 +629,12 @@ abstract class AbstractListShowAllHandler
             return null;
         }
 
-        $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
-        $template = $this->getTemplate('dcbe_general_breadcrumb');
-        $template->set('elements', $elements);
-
-        return $template->parse();
+        return $this
+            ->getTemplate('dcbe_general_breadcrumb')
+            ->set('elements', $elements)
+            ->parse();
     }
 
     /**
@@ -688,9 +673,8 @@ abstract class AbstractListShowAllHandler
     {
         $inputProvider  = $environment->getInputProvider();
         $sessionStorage = $environment->getSessionStorage();
-        $dataDefinition = $environment->getDataDefinition();
 
-        $sessionName = $dataDefinition->getName() . '.' . $inputProvider->getParameter('mode');
+        $sessionName = $environment->getDataDefinition()->getName() . '.' . $inputProvider->getParameter('mode');
         if (!$sessionStorage->has($sessionName)) {
             return [];
         }

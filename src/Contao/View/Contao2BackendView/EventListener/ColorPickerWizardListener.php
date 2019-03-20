@@ -85,14 +85,11 @@ class ColorPickerWizardListener
      */
     public static function getWizard($propInfo, EnvironmentInterface $environment)
     {
-        $wizard     = '';
-        $dispatcher = $environment->getEventDispatcher();
-        $translator = $environment->getTranslator();
-        $propExtra  = $propInfo->getExtra();
-        $assetsPath = 'assets/colorpicker/images/';
+        $wizard    = '';
+        $propExtra = $propInfo->getExtra();
 
         if (\is_array($propExtra) && \array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
-            $pickerText = $translator->translate('colorpicker', 'MSC');
+            $pickerText = $environment->getTranslator()->translate('colorpicker', 'MSC');
             $event      = new GenerateHtmlEvent(
                 'pickcolor.svg',
                 $pickerText,
@@ -104,7 +101,7 @@ class ColorPickerWizardListener
                 )
             );
 
-            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
 
             // Support single fields as well (see contao/core#5240)
             $strKey = $propExtra['multiple'] ? $propInfo->getName() . '_0' : $propInfo->getName();
@@ -117,7 +114,7 @@ class ColorPickerWizardListener
                 $event->getHtml(),
                 $propInfo->getName(),
                 $strKey,
-                $assetsPath
+                'assets/colorpicker/images/'
             );
         }
 

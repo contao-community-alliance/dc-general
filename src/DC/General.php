@@ -60,37 +60,35 @@ class General extends DataContainer implements DataContainerInterface
     /**
      * Create a new instance.
      *
-     * @param string $strTable The table name.
+     * @param string $tableName The table name.
      *
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    public function __construct($strTable)
+    public function __construct($tableName)
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\DC_General given" in callbacks.
         if (!\class_exists('\DataContainer', false)) {
             \class_alias('\Contao\DataContainer', '\DataContainer');
         }
-        $strTable   = $this->getTablenameCallback($strTable);
-        $translator = $this->getTranslator();
+
+        $tableNameCallback = $this->getTablenameCallback($tableName);
 
         $dispatcher = $this->getEventDispatcher();
-        $fetcher    = \Closure::bind(function (PopulateEnvironmentEvent $event) use ($strTable) {
+        $fetcher    = \Closure::bind(function (PopulateEnvironmentEvent $event) use ($tableNameCallback) {
             // We need to capture the correct environment and save it for later use.
-            if ($strTable !== $event->getEnvironment()->getDataDefinition()->getName()) {
+            if ($tableNameCallback !== $event->getEnvironment()->getDataDefinition()->getName()) {
                 return;
             }
             $this->objEnvironment = $event->getEnvironment();
         }, $this, $this);
         $dispatcher->addListener(PopulateEnvironmentEvent::NAME, $fetcher, 4800);
 
-        $factory = new DcGeneralFactory();
-
-        $factory
-            ->setContainerName($strTable)
+        (new DcGeneralFactory())
+            ->setContainerName($tableNameCallback)
             ->setEventDispatcher($dispatcher)
-            ->setTranslator($translator)
+            ->setTranslator($this->getTranslator())
             ->createDcGeneral();
         $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, $fetcher);
 
@@ -138,7 +136,7 @@ class General extends DataContainer implements DataContainerInterface
     {
         if (!empty($_POST)
             && (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
-            && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
+            && 'XMLHttpRequest' === $_SERVER['HTTP_X_REQUESTED_WITH'])
         ) {
             $this->getViewHandler()->handleAjaxCall();
         }
@@ -147,28 +145,24 @@ class General extends DataContainer implements DataContainerInterface
     /**
      * Call the table name callback.
      *
-     * @param string $strTable The current table name.
+     * @param string $tableName The current table name.
      *
      * @return string New name of current table.
      *
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    protected function getTablenameCallback($strTable)
+    protected function getTablenameCallback($tableName)
     {
-        if (isset($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
-            && \is_array($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'])
+        if (isset($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
+            && \is_array($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
         ) {
-            foreach ($GLOBALS['TL_DCA'][$strTable]['config']['tablename_callback'] as $callback) {
-                $strCurrentTable = Callbacks::call($callback, $strTable, $this);
-
-                if ($strCurrentTable != null) {
-                    $strTable = $strCurrentTable;
-                }
+            foreach ($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'] as $callback) {
+                $tableName = Callbacks::call($callback, $tableName, $this) ?: $tableName;
             }
         }
 
-        return $strTable;
+        return $tableName;
     }
 
     /**
@@ -184,9 +178,8 @@ class General extends DataContainer implements DataContainerInterface
      */
     public function __get($name)
     {
-        $environment    = $this->getEnvironment();
-        $inputProvider  = $environment->getInputProvider();
-        $dataDefinition = $environment->getDataDefinition();
+        $environment   = $this->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
 
         switch ($name) {
             case 'id':
@@ -200,7 +193,7 @@ class General extends DataContainer implements DataContainerInterface
 
                 return ModelId::fromSerialized($inputProvider->getParameter($idParameter))->getId();
             case 'table':
-                return $dataDefinition->getName();
+                return $environment->getDataDefinition()->getName();
             default:
         }
 
@@ -274,8 +267,8 @@ class General extends DataContainer implements DataContainerInterface
     protected function callAction()
     {
         $environment = $this->getEnvironment();
-        $act         = $environment->getInputProvider()->getParameter('act');
-        $action      = new Action($act ?: 'showAll');
+        $action      = new Action($environment->getInputProvider()->getParameter('act') ?: 'showAll');
+
         return $environment->getController()->handle($action);
     }
 

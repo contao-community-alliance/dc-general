@@ -85,12 +85,10 @@ class PropertyVisibleCondition implements PropertyConditionInterface
         }
 
         if ($legend->getPalette()) {
-            $property = $legend->getPalette()->getProperty($this->propertyName);
-        } else {
-            $property = $legend->getProperty($this->propertyName);
+            return $legend->getPalette()->getProperty($this->propertyName)->isVisible($model, $input, $legend);
         }
 
-        return $property->isVisible($model, $input, $legend);
+        return $legend->getProperty($this->propertyName)->isVisible($model, $input, $legend);
     }
 
     /**

@@ -288,24 +288,17 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name or container is missing');
         }
 
-        if (empty($this->eventDispatcher)) {
+        if (null === $this->eventDispatcher) {
             throw new DcGeneralRuntimeException('Required event dispatcher is missing');
         }
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(PreCreateDcGeneralEvent::NAME, new PreCreateDcGeneralEvent($this));
 
-        if ($this->environment) {
-            $environment = $this->environment;
-        } else {
-            $environment = $this->createEnvironment();
-        }
-
-        // Create reflections classes at one place.
-        $dcGeneralClass = new \ReflectionClass($this->dcGeneralClassName);
+        $environment = $this->environment ?: $this->createEnvironment();
 
         /** @var DcGeneral $dcGeneral */
-        $dcGeneral = $dcGeneralClass->newInstance($environment);
+        $dcGeneral = (new \ReflectionClass($this->dcGeneralClassName))->newInstance($environment);
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(CreateDcGeneralEvent::NAME, new CreateDcGeneralEvent($dcGeneral));
@@ -325,11 +318,11 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name or container is missing');
         }
 
-        if (empty($this->eventDispatcher)) {
+        if (null === $this->eventDispatcher) {
             throw new DcGeneralRuntimeException('Required event dispatcher is missing');
         }
 
-        if (empty($this->translator)) {
+        if (null === $this->translator) {
             throw new DcGeneralRuntimeException('Required translator is missing');
         }
 
@@ -339,10 +332,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             $dataContainer = $this->createContainer();
         }
 
-        $environmentClass = new \ReflectionClass($this->environmentClassName);
-
         /** @var EnvironmentInterface $environment */
-        $environment = $environmentClass->newInstance();
+        $environment = (new \ReflectionClass($this->environmentClassName))->newInstance();
         $environment->setDataDefinition($dataContainer);
         $environment->setEventDispatcher($this->eventDispatcher);
         $environment->setTranslator($this->translator);
@@ -370,7 +361,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name is missing');
         }
 
-        if (empty($this->eventDispatcher)) {
+        if (null === $this->eventDispatcher) {
             throw new DcGeneralRuntimeException('Required event dispatcher is missing');
         }
 
@@ -381,10 +372,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             return clone $definitions->getDefinition($this->containerName);
         }
 
-        $containerClass = new \ReflectionClass($this->containerClassName);
-
         /** @var ContainerInterface $dataContainer */
-        $dataContainer = $containerClass->newInstance($this->containerName);
+        $dataContainer = (new \ReflectionClass($this->containerClassName))->newInstance($this->containerName);
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(

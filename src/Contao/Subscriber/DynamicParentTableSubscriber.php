@@ -49,7 +49,7 @@ class DynamicParentTableSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            PrePersistModelEvent::NAME => ['handlePrePersistModelEvent', -200],
+            PrePersistModelEvent::NAME => ['handlePrePersistModelEvent', -200]
         ];
     }
 
@@ -62,15 +62,12 @@ class DynamicParentTableSubscriber implements EventSubscriberInterface
      */
     public function handlePrePersistModelEvent(PrePersistModelEvent $event)
     {
-        $enviroment           = $event->getEnvironment();
-        $dataDefinition       = $enviroment->getDataDefinition();
-        $parentDataDefinition = $enviroment->getParentDataDefinition();
-        $basicDefinition      = $dataDefinition->getBasicDefinition();
-        $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
+        $enviroment     = $event->getEnvironment();
+        $dataDefinition = $enviroment->getDataDefinition();
 
-        if (null === $parentDataDefinition
-            || false === $basicDefinition->isDynamicParentTable()
-            || false === $propertiesDefinition->hasProperty('ptable')
+        if (null === ($parentDataDefinition = $enviroment->getParentDataDefinition())
+            || (false === $dataDefinition->getPropertiesDefinition()->hasProperty('ptable'))
+            || (false === $dataDefinition->getBasicDefinition()->isDynamicParentTable())
         ) {
             return;
         }

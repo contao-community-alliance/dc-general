@@ -30,5 +30,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class GetEditModeButtonsEvent extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-edit-mode-buttons';
+    public const NAME = 'dc-general.view.contao2backend.get-edit-mode-buttons';
 }

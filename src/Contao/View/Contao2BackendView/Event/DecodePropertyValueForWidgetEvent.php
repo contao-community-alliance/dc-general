@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class DecodePropertyValueForWidgetEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.decode-property-value-for-widget';
+    public const NAME = 'dc-general.view.contao2backend.decode-property-value-for-widget';
 
     /**
      * The name of the property for which the data shall be decoded.

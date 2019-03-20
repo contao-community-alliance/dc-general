@@ -52,9 +52,7 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
     public function __construct($property, $values)
     {
         $this->operation = 'IN';
-        $this
-            ->setProperty($property)
-            ->setValues($values);
+        $this->setProperty($property)->setValues($values);
     }
 
     /**
@@ -71,7 +69,7 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
         $values   = $array['value'];
         $property = $array['property'];
 
-        if (!(isset($values) && isset($property))) {
+        if (!(isset($values, $property))) {
             throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 

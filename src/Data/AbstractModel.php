@@ -38,20 +38,16 @@ abstract class AbstractModel implements ModelInterface
     /**
      * {@inheritdoc}
      */
-    public function getMeta($strMetaName)
+    public function getMeta($metaName)
     {
-        if (isset($this->arrMetaInformation[$strMetaName])) {
-            return $this->arrMetaInformation[$strMetaName];
-        }
-
-        return null;
+        return ($this->arrMetaInformation[$metaName] ?? null);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setMeta($strMetaName, $varValue)
+    public function setMeta($metaName, $value)
     {
-        $this->arrMetaInformation[$strMetaName] = $varValue;
+        $this->arrMetaInformation[$metaName] = $value;
     }
 }

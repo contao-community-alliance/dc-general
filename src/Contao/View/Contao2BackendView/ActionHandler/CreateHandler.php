@@ -65,17 +65,16 @@ class CreateHandler
             return;
         }
 
-        if ($event->getAction()->getName() !== 'create') {
+        if ('create' !== $event->getAction()->getName()) {
             return;
         }
 
-        $action        = $event->getAction();
         $environment   = $event->getEnvironment();
         $inputProvider = $environment->getInputProvider();
 
         // Only handle if we do not have a manual sorting or we know where to insert.
         // Manual sorting is handled by clipboard.
-        if ($action->getName() !== 'create'
+        if (('create' !== $event->getAction()->getName())
             || (ViewHelpers::getManualSortingProperty($environment)
                 && !$inputProvider->hasParameter('after')
                 && !$inputProvider->hasParameter('into')
@@ -90,8 +89,7 @@ class CreateHandler
             return;
         }
 
-        $response = $this->process($environment);
-        if ($response !== false) {
+        if (false !== ($response = $this->process($environment))) {
             $event->setResponse($response);
         }
     }
@@ -105,18 +103,16 @@ class CreateHandler
      */
     protected function process(EnvironmentInterface $environment)
     {
-        $definition         = $environment->getDataDefinition();
-        $dataProvider       = $environment->getDataProvider();
-        $propertyDefinition = $definition->getPropertiesDefinition();
-        $properties         = $propertyDefinition->getProperties();
-        $model              = $dataProvider->getEmptyModel();
-        $clone              = $dataProvider->getEmptyModel();
+        $dataProvider = $environment->getDataProvider();
+        $properties   = $environment->getDataDefinition()->getPropertiesDefinition()->getProperties();
+        $model        = $dataProvider->getEmptyModel();
+        $clone        = $dataProvider->getEmptyModel();
 
         // If some of the fields have a default value, set it.
         foreach ($properties as $property) {
             $propName = $property->getName();
 
-            if ($property->getDefaultValue() !== null) {
+            if (null !== $property->getDefaultValue()) {
                 $model->setProperty($propName, $property->getDefaultValue());
                 $clone->setProperty($propName, $property->getDefaultValue());
             }
@@ -127,8 +123,7 @@ class CreateHandler
             return false;
         }
 
-        $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
-        return $editMask->execute();
+        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb()))->execute();
     }
 
     /**
@@ -140,10 +135,9 @@ class CreateHandler
      */
     private function checkPermission(EnvironmentInterface $environment)
     {
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
+        $dataDefinition = $environment->getDataDefinition();
 
-        if (true === $basicDefinition->isCreatable()) {
+        if (true === $dataDefinition->getBasicDefinition()->isCreatable()) {
             return true;
         }
 

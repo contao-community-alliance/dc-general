@@ -68,7 +68,10 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
         if (!($condition instanceof PalettePropertyValueCondition)
             && (!$condition instanceof PropertyValueCondition)
         ) {
-            throw new DcGeneralInvalidArgumentException();
+            throw new DcGeneralInvalidArgumentException(
+                'The condition is invalid. ' .
+                ' Only use PalettePropertyValueCondition or PropertyValueCondition.'
+            );
         }
 
         $this->condition = $condition;

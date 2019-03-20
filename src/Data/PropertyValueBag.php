@@ -58,7 +58,7 @@ class PropertyValueBag implements PropertyValueBagInterface
             foreach ($properties as $property => $value) {
                 $this->setPropertyValue($property, $value);
             }
-        } elseif ($properties !== null) {
+        } elseif (null !== $properties) {
             throw new DcGeneralInvalidArgumentException(
                 'The parameter $properties does not contain any properties nor values'
             );

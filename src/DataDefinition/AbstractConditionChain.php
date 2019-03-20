@@ -50,8 +50,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function __construct(array $conditions = [], $conjunction = self::AND_CONJUNCTION)
     {
-        $this->addConditions($conditions);
-        $this->setConjunction($conjunction);
+        $this->addConditions($conditions)->setConjunction($conjunction);
     }
 
     /**
@@ -68,8 +67,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function setConditions(array $conditions)
     {
-        $this->clearConditions();
-        $this->addConditions($conditions);
+        $this->clearConditions()->addConditions($conditions);
         return $this;
     }
 
@@ -89,9 +87,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function addCondition(ConditionInterface $condition)
     {
-        $hash = \spl_object_hash($condition);
-
-        $this->conditions[$hash] = $condition;
+        $this->conditions[\spl_object_hash($condition)] = $condition;
         return $this;
     }
 
@@ -100,8 +96,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function removeCondition(ConditionInterface $condition)
     {
-        $hash = \spl_object_hash($condition);
-        unset($this->conditions[$hash]);
+        unset($this->conditions[\spl_object_hash($condition)]);
         return $this;
     }
 
@@ -120,7 +115,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      */
     public function setConjunction($conjunction)
     {
-        if ($conjunction != static::AND_CONJUNCTION && $conjunction != static::OR_CONJUNCTION) {
+        if ((static::AND_CONJUNCTION !== $conjunction) && (static::OR_CONJUNCTION !== $conjunction)) {
             throw new DcGeneralInvalidArgumentException(
                 'Conjunction must be ConditionChainInterface::AND_CONJUNCTION ' .
                 'or ConditionChainInterface::OR_CONJUNCTION'

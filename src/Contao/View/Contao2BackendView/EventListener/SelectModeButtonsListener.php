@@ -37,9 +37,9 @@ class SelectModeButtonsListener
      */
     public function handleEvent(GetSelectModeButtonsEvent $event)
     {
-        $translator      = $event->getEnvironment()->getTranslator();
-        $definition      = $event->getEnvironment()->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
+        $environment     = $event->getEnvironment();
+        $translator      = $environment->getTranslator();
+        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
         $buttons         = [];
 
         $confirmMessage = \htmlentities(

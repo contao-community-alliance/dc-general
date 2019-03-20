@@ -198,7 +198,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      */
     public function hasAdditionalFilter($dataProvider = null)
     {
-        if ($dataProvider === null) {
+        if (null === $dataProvider) {
             $dataProvider = $this->getDataProvider();
         }
 
@@ -210,7 +210,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      */
     public function getAdditionalFilter($dataProvider = null)
     {
-        if ($dataProvider === null) {
+        if (null === $dataProvider) {
             $dataProvider = $this->getDataProvider();
         }
 

@@ -62,7 +62,7 @@ class LanguageFilter implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            DcGeneralEvents::ACTION => [['handleAction', 500]],
+            DcGeneralEvents::ACTION => [['handleAction', 500]]
         ];
     }
 
@@ -95,11 +95,10 @@ class LanguageFilter implements EventSubscriberInterface
      */
     private function checkLanguage($environment, $resetToFallback)
     {
-        $inputProvider  = $environment->getInputProvider();
         $sessionStorage = $environment->getSessionStorage();
         $dataProvider   = $environment->getDataProvider();
         $providerName   = $environment->getDataDefinition()->getName();
-        $modelId        = $this->modelIdFromInput($inputProvider);
+        $modelId        = $this->modelIdFromInput($environment->getInputProvider());
         $languages      = $environment->getController()->getSupportedLanguages($modelId);
 
         if (!$languages) {
@@ -113,7 +112,7 @@ class LanguageFilter implements EventSubscriberInterface
 
         // If a new item, we MUST reset to the fallback as that is the first language that has to be stored
         // and set this language to session.
-        if (null === $modelId && $resetToFallback) {
+        if ((null === $modelId) && $resetToFallback) {
             $dataProvider->setCurrentLanguage($dataProvider->getFallbackLanguage(null)->getLocale());
             $session['ml_support'][$providerName] = $dataProvider->getCurrentLanguage();
             $sessionStorage->set('dc_general', $session);
@@ -126,11 +125,7 @@ class LanguageFilter implements EventSubscriberInterface
         $session = (array) $sessionStorage->get('dc_general');
 
         // Try to get the language from session.
-        if (isset($session['ml_support'][$providerName])) {
-            $currentLanguage = $session['ml_support'][$providerName];
-        } else {
-            $currentLanguage = $GLOBALS['TL_LANGUAGE'];
-        }
+        $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
 
         if (!\array_key_exists($currentLanguage, $languages)) {
             $currentLanguage = $dataProvider->getFallbackLanguage($modelId)->getLocale();
@@ -154,21 +149,18 @@ class LanguageFilter implements EventSubscriberInterface
      */
     private function checkLanguageSubmit($environment, $languages)
     {
-        $sessionStorage = $environment->getSessionStorage();
-        $inputProvider  = $environment->getInputProvider();
+        $inputProvider = $environment->getInputProvider();
 
-        if ($inputProvider->getValue('FORM_SUBMIT') !== 'language_switch') {
+        if ('language_switch' !== $inputProvider->getValue('FORM_SUBMIT')) {
             return;
         }
-
-        $providerName = $environment->getDataDefinition()->getName();
 
         // Get/Check the new language.
         if ($inputProvider->hasValue('language')
             && \array_key_exists($inputProvider->getValue('language'), $languages)
         ) {
-            $session['ml_support'][$providerName] = $inputProvider->getValue('language');
-            $sessionStorage->set('dc_general', $session);
+            $session['ml_support'][$environment->getDataDefinition()->getName()] = $inputProvider->getValue('language');
+            $environment->getSessionStorage()->set('dc_general', $session);
         }
 
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());

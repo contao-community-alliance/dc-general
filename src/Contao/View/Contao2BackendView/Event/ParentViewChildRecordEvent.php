@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class ParentViewChildRecordEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
+    public const NAME = 'dc-general.view.contao2backend.parent-view-child-record';
 
     /**
      * The html code to use for the model.

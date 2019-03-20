@@ -249,7 +249,7 @@ class SortingManager
         $this->position = 0;
         $ids            = $this->getModelIds();
         // If no previous model, insert at beginning.
-        if ($this->previousModel === null) {
+        if (null === $this->previousModel) {
             if ($this->siblingsCopy->length()) {
                 $this->marker = $this->siblingsCopy->shift();
             }
@@ -293,7 +293,7 @@ class SortingManager
 
         // If delta too narrow, we need to make room.
         // Prevent delta to exceed, also. Use minimum delta which is calculated as multiple of 128.
-        if ($delta < 2 || $delta > 128) {
+        if (($delta < 2) || ($delta > 128)) {
             return (\ceil($this->results->length() / 128) * 128);
         }
 
@@ -356,7 +356,7 @@ class SortingManager
      */
     protected function calculate()
     {
-        if (isset($this->results) || $this->models->length() == 0) {
+        if (isset($this->results) || (0 === $this->models->length())) {
             return;
         }
 

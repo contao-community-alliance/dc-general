@@ -318,7 +318,7 @@ class DefaultDataProvider implements DataProviderInterface
         $model = $this->getEmptyModel();
 
         foreach ($result as $key => $value) {
-            if ($key == $this->idProperty) {
+            if ($key === $this->idProperty) {
                 $model->setIdRaw($value);
             }
 
@@ -371,7 +371,7 @@ class DefaultDataProvider implements DataProviderInterface
         DefaultDataProviderDBalUtils::addWhere($config, $queryBuilder);
         DefaultDataProviderDBalUtils::addSorting($config, $queryBuilder);
 
-        if ($config->getAmount() != 0) {
+        if (0 !== $config->getAmount()) {
             $queryBuilder->setMaxResults($config->getAmount());
             $queryBuilder->setFirstResult($config->getStart());
         }
@@ -407,7 +407,7 @@ class DefaultDataProvider implements DataProviderInterface
         $properties     = $internalConfig->getFields();
         $property       = $properties[0];
 
-        if (\count($properties) <> 1) {
+        if (1 !== \count($properties)) {
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
 
@@ -462,7 +462,7 @@ class DefaultDataProvider implements DataProviderInterface
             return true;
         }
 
-        if ((1 === $statement->rowCount()) && ($unique->id === $primaryId)) {
+        if (($primaryId === $unique->id) && (1 === $statement->rowCount())) {
             return true;
         }
 
@@ -592,7 +592,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $data = [];
         foreach ($model as $key => $value) {
-            if ($key == $this->idProperty) {
+            if ($key === $this->idProperty) {
                 continue;
             }
 
@@ -707,14 +707,14 @@ class DefaultDataProvider implements DataProviderInterface
 
         $data = StringUtil::deserialize($version->data);
 
-        if (!\is_array($data) || \count($data) == 0) {
+        if (!\is_array($data) || (0 === \count($data))) {
             return null;
         }
 
         $model = $this->getEmptyModel();
         $model->setID($mixID);
         foreach ($data as $key => $value) {
-            if ($key == $this->idProperty) {
+            if ($key === $this->idProperty) {
                 continue;
             }
 
@@ -764,7 +764,7 @@ class DefaultDataProvider implements DataProviderInterface
             $model->setId($mixID);
 
             foreach ($versionValue as $key => $value) {
-                if ($key == $this->idProperty) {
+                if ($key === $this->idProperty) {
                     continue;
                 }
 
@@ -861,9 +861,7 @@ class DefaultDataProvider implements DataProviderInterface
             return null;
         }
 
-        $version = $statement->fetch(\PDO::FETCH_OBJ);
-
-        return $version->version;
+        return $statement->fetch(\PDO::FETCH_OBJ)->version;
     }
 
     /**
@@ -877,7 +875,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function sameModels($firstModel, $secondModel)
     {
         foreach ($firstModel as $key => $value) {
-            if ($key == $this->idProperty) {
+            if ($key === $this->idProperty) {
                 continue;
             }
 
@@ -886,10 +884,10 @@ class DefaultDataProvider implements DataProviderInterface
                     return false;
                 }
 
-                if (\serialize($value) != \serialize($secondModel->getProperty($key))) {
+                if (\serialize($value) !== \serialize($secondModel->getProperty($key))) {
                     return false;
                 }
-            } elseif ($value != $secondModel->getProperty($key)) {
+            } elseif ($value !== $secondModel->getProperty($key)) {
                 return false;
             }
         }
@@ -966,7 +964,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         if (isset($config['database'])) {
             // @codingStandardsIgnoreStart
-            @trigger_error(
+            @\trigger_error(
                 'Config key database is deprecated use instead connection. Fallback will be dropped.',
                 E_USER_DEPRECATED
             );

@@ -48,9 +48,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
      */
     public function populate(EnvironmentInterface $environment)
     {
-        $definition = $environment->getDataDefinition();
-
-        foreach ($definition->getDataProviderDefinition() as $information) {
+        foreach ($environment->getDataDefinition()->getDataProviderDefinition() as $information) {
             if ($information instanceof ContaoDataProviderInformation) {
                 if ($environment->hasDataProvider($information->getName())) {
                     throw new DcGeneralRuntimeException(
@@ -61,10 +59,8 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
                     );
                 }
 
-                $providerClass = new \ReflectionClass($information->getClassName());
-
                 /** @var DataProviderInterface $dataProvider */
-                $dataProvider = $providerClass->newInstance();
+                $dataProvider = (new \ReflectionClass($information->getClassName()))->newInstance();
                 if ($initializationData = $information->getInitializationData()) {
                     $dataProvider->setBaseConfig($initializationData);
                 }

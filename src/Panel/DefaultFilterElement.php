@@ -60,16 +60,16 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      */
     protected function getPersistent()
     {
-        $arrValue = [];
+        $values = [];
         if ($this->getSessionStorage()->has('filter')) {
-            $arrValue = $this->getSessionStorage()->get('filter');
+            $values = $this->getSessionStorage()->get('filter');
         }
 
-        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
-            $arrValue = $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $values)) {
+            $values = $values[$this->getEnvironment()->getDataDefinition()->getName()];
 
-            if (\array_key_exists($this->getPropertyName(), $arrValue)) {
-                return $arrValue[$this->getPropertyName()];
+            if (\array_key_exists($this->getPropertyName(), $values)) {
+                return $values[$this->getPropertyName()];
             }
         }
 
@@ -79,30 +79,31 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * Store the persistent value in the input provider.
      *
-     * @param mixed $strValue The value to store.
+     * @param mixed $value The value to store.
      *
      * @return void
      */
-    protected function setPersistent($strValue)
+    protected function setPersistent($value)
     {
-        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
+        $values = [];
+
         if ($this->getSessionStorage()->has('filter')) {
-            $arrValue = $this->getSessionStorage()->get('filter');
+            $values = $this->getSessionStorage()->get('filter');
         }
 
-        if (!\is_array($arrValue[$definitionName])) {
-            $arrValue[$this->getEnvironment()->getDataDefinition()->getName()] = [];
+        if (!\is_array($values[$definitionName])) {
+            $values[$this->getEnvironment()->getDataDefinition()->getName()] = [];
         }
 
-        if ($arrValue !== null && ($strValue != 'tl_' . $this->getPropertyName())) {
-            $arrValue[$definitionName][$this->getPropertyName()] = $strValue;
+        if ((null !== $values) && ($value !== 'tl_' . $this->getPropertyName())) {
+            $values[$definitionName][$this->getPropertyName()] = $value;
         } else {
-            unset($arrValue[$definitionName][$this->getPropertyName()]);
+            unset($values[$definitionName][$this->getPropertyName()]);
         }
 
-        $this->getSessionStorage()->set('filter', $arrValue);
+        $this->getSessionStorage()->set('filter', $values);
     }
 
     /**
@@ -127,7 +128,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $value      = $persistent;
         }
 
-        if ($value !== null) {
+        if (null !== $value) {
             $this->setValue($value);
         }
     }
@@ -139,37 +140,37 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      */
     private function loadFilterOptions()
     {
-        $objTempConfig = $this->getOtherConfig();
-        $objTempConfig->setFields([$this->getPropertyName()]);
+        $otherConfig = $this->getOtherConfig();
+        $otherConfig->setFields([$this->getPropertyName()]);
 
-        $objFilterOptions = $this
+        $filterOptions = $this
             ->getEnvironment()
             ->getDataProvider()
-            ->getFilterOptions($objTempConfig);
+            ->getFilterOptions($otherConfig);
 
-        $arrOptions = [];
-        foreach ($objFilterOptions as $filterKey => $filterValue) {
-            $arrOptions[(string) $filterKey] = $filterValue;
+        $options = [];
+        foreach ($filterOptions as $filterKey => $filterValue) {
+            $options[(string) $filterKey] = $filterValue;
         }
 
-        $this->arrFilterOptions = $arrOptions;
+        $this->arrFilterOptions = $options;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
     {
         $this->updateValue();
 
-        if (($objElement !== $this) && $this->getPropertyName() && (null !== $this->getValue())) {
-            $arrCurrent = $objConfig->getFilter();
-            if (!\is_array($arrCurrent)) {
-                $arrCurrent = [];
+        if (($element !== $this) && $this->getPropertyName() && (null !== $this->getValue())) {
+            $current = $config->getFilter();
+            if (!\is_array($current)) {
+                $current = [];
             }
 
-            $objConfig->setFilter(
-                FilterBuilder::fromArray($arrCurrent)
+            $config->setFilter(
+                FilterBuilder::fromArray($current)
                     ->getFilter()
                     ->andPropertyEquals($this->getPropertyName(), $this->getValue())
                     ->getAllAsArray()
@@ -177,7 +178,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         }
 
         // Finally load the filter options.
-        if ($objElement === null) {
+        if (null === $element) {
             $this->loadFilterOptions();
         }
     }
@@ -185,15 +186,15 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * {@inheritDoc}
      */
-    public function render(ViewTemplateInterface $objTemplate)
+    public function render(ViewTemplateInterface $viewTemplate)
     {
-        $arrLabel = $this
+        $labels = $this
             ->getEnvironment()
             ->getDataDefinition()
             ->getPropertiesDefinition()
             ->getProperty($this->getPropertyName())->getLabel();
 
-        $arrOptions = [
+        $options = [
             [
                 'value'   => 'tl_' . $this->getPropertyName(),
                 'content' => '---',
@@ -203,19 +204,19 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 
         $selectedValue = $this->getValue();
         foreach ($this->arrFilterOptions as $key => $value) {
-            $arrOptions[] = [
+            $options[] = [
                 'value'      => (string) $key,
                 'content'    => $value,
                 'attributes' => ((string) $key === $selectedValue) ? ' selected' : ''
             ];
         }
 
-        $objTemplate->set('label', (\is_array($arrLabel) ? $arrLabel[0] : $arrLabel));
-        $objTemplate->set('name', $this->getPropertyName());
-        $objTemplate->set('id', $this->getPropertyName());
-        $objTemplate->set('class', 'tl_select' . (($selectedValue !== null) ? ' active' : ''));
-        $objTemplate->set('options', $arrOptions);
-        $objTemplate->set('active', $selectedValue);
+        $viewTemplate->set('label', (\is_array($labels) ? $labels[0] : $labels));
+        $viewTemplate->set('name', $this->getPropertyName());
+        $viewTemplate->set('id', $this->getPropertyName());
+        $viewTemplate->set('class', 'tl_select' . ((null !== $selectedValue) ? ' active' : ''));
+        $viewTemplate->set('options', $options);
+        $viewTemplate->set('active', $selectedValue);
 
         return $this;
     }

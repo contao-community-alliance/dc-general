@@ -76,7 +76,7 @@ class DeleteHandler
             return;
         }
 
-        if ($event->getAction()->getName() !== 'delete') {
+        if ('delete' !== $event->getAction()->getName()) {
             return;
         }
 
@@ -104,30 +104,33 @@ class DeleteHandler
      */
     protected function guardIsDeletable(EnvironmentInterface $environment, ModelIdInterface $modelId, $redirect = false)
     {
-        if ($environment->getDataDefinition()->getBasicDefinition()->isDeletable()) {
+        $dataDefinition = $environment->getDataDefinition();
+        if ($dataDefinition->getBasicDefinition()->isDeletable()) {
             return;
         }
 
-        if ($redirect) {
-            $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent(
-                    \sprintf(
-                        'Table "%s" is not deletable DC_General - DefaultController - delete()',
-                        $environment->getDataDefinition()->getName()
-                    ),
-                    __CLASS__ . '::delete()',
-                    TL_ERROR
-                )
-            );
-
-            $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent('contao/main.php?act=error')
-            );
+        if (false === $redirect) {
+            throw new NotDeletableException($modelId->getDataProviderName());
         }
 
-        throw new NotDeletableException($modelId->getDataProviderName());
+        $eventDispatcher = $environment->getEventDispatcher();
+
+        $eventDispatcher->dispatch(
+            ContaoEvents::SYSTEM_LOG,
+            new LogEvent(
+                \sprintf(
+                    'Table "%s" is not deletable DC_General - DefaultController - delete()',
+                    $dataDefinition->getName()
+                ),
+                __CLASS__ . '::delete()',
+                TL_ERROR
+            )
+        );
+
+        $eventDispatcher->dispatch(
+            ContaoEvents::CONTROLLER_REDIRECT,
+            new RedirectEvent('contao/main.php?act=error')
+        );
     }
 
     /**
@@ -174,15 +177,15 @@ class DeleteHandler
         $model = $this->fetchModel($environment, $modelId);
 
         // Trigger event before the model will be deleted.
-        $event = new PreDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $preDeleteEvent = new PreDeleteModelEvent($environment, $model);
+        $environment->getEventDispatcher()->dispatch($preDeleteEvent::NAME, $preDeleteEvent);
 
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $dataProvider->delete($model);
 
         // Trigger event after the model is deleted.
-        $event = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $postDeleteEvent = new PostDeleteModelEvent($environment, $model);
+        $environment->getEventDispatcher()->dispatch($postDeleteEvent::NAME, $postDeleteEvent);
     }
 
     /**
@@ -194,14 +197,17 @@ class DeleteHandler
      */
     protected function process(EnvironmentInterface $environment)
     {
-        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $inputProvider  = $environment->getInputProvider();
+        $dataDefinition = $environment->getDataDefinition();
+
+        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
         // Guard that we are in the preloaded environment. Otherwise checking the data definition could belong to
         // another model.
-        $this->guardValidEnvironment($environment->getDataDefinition(), $modelId);
+        $this->guardValidEnvironment($dataDefinition, $modelId);
 
         // Only edit mode is supported. Trigger an edit action.
-        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($dataDefinition->getBasicDefinition()->isEditOnlyMode()) {
             return $this->callAction($environment, 'edit');
         }
 
@@ -210,7 +216,7 @@ class DeleteHandler
         $this->deepDelete($environment, $modelId);
         $this->delete($environment, $modelId);
 
-        if ('delete' === $environment->getInputProvider()->getParameter('mode')) {
+        if ('delete' === $inputProvider->getParameter('mode')) {
             return null;
         }
 
@@ -228,12 +234,7 @@ class DeleteHandler
      */
     private function checkPermission(EnvironmentInterface $environment)
     {
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
-
-        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
-
-        if (true === $basicDefinition->isDeletable()) {
+        if (true === $environment->getDataDefinition()->getBasicDefinition()->isDeletable()) {
             return true;
         }
 
@@ -241,7 +242,7 @@ class DeleteHandler
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for delete model %s.
             </div>',
-            $modelId->getSerialized()
+            ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'))->getSerialized()
         );
     }
 
@@ -257,9 +258,8 @@ class DeleteHandler
      */
     protected function deepDelete(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
-        $dataDefinition = $environment->getDataDefinition();
         /** @var DefaultModelRelationshipDefinition $relationships */
-        $relationships = $dataDefinition->getDefinition('model-relationships');
+        $relationships = $environment->getDataDefinition()->getDefinition('model-relationships');
 
         $childConditions = $relationships->getChildConditions($modelId->getDataProviderName());
 
@@ -277,10 +277,9 @@ class DeleteHandler
             );
             $destinationChildDataProvider = $environment->getDataProvider($childCondition->getDestinationName());
 
-            $filters = $childCondition->getFilter($model);
             /** @var DefaultCollection $destinationChildModels */
             $destinationChildModels = $destinationChildDataProvider->fetchAll(
-                $dataProvider->getEmptyConfig()->setFilter($filters)
+                $dataProvider->getEmptyConfig()->setFilter($childCondition->getFilter($model))
             );
             if ($destinationChildModels->count() < 1) {
                 continue;
@@ -305,14 +304,14 @@ class DeleteHandler
 
             foreach ($childModels as $childModel) {
                 // Trigger event before the model will be deleted.
-                $event = new PreDeleteModelEvent($environment, $childModel);
-                $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+                $preDeleteEvent = new PreDeleteModelEvent($environment, $childModel);
+                $environment->getEventDispatcher()->dispatch($preDeleteEvent::NAME, $preDeleteEvent);
 
                 $childDataProvider->delete($childModel);
 
                 // Trigger event after the model is deleted.
-                $event = new PostDeleteModelEvent($environment, $childModel);
-                $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+                $postDeleteEvent = new PostDeleteModelEvent($environment, $childModel);
+                $environment->getEventDispatcher()->dispatch($postDeleteEvent::NAME, $postDeleteEvent);
             }
         }
     }

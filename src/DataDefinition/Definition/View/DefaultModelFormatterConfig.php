@@ -88,7 +88,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
      */
     public function setMaxLength($maxLength)
     {
-        $this->maxLength = ($maxLength !== null) ? (int) $maxLength : null;
+        $this->maxLength = (null !== $maxLength) ? (int) $maxLength : null;
 
         return $this;
     }

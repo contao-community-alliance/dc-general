@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  */
 class ResolveWidgetErrorMessageEvent extends AbstractEnvironmentAwareEvent
 {
-    const NAME = 'dc-general.view.widget.resolve-error-message';
+    public const NAME = 'dc-general.view.widget.resolve-error-message';
 
     /**
      * The error message.

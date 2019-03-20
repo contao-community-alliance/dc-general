@@ -26,5 +26,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
  */
 class PostDeleteModelEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.model.post-delete';
+    public const NAME = 'dc-general.model.post-delete';
 }

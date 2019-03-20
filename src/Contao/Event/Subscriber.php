@@ -91,7 +91,7 @@ class Subscriber implements EventSubscriberInterface
             GetPanelElementTemplateEvent::NAME     => ['getPanelElementTemplate', -1],
             ResolveWidgetErrorMessageEvent::NAME   => ['resolveWidgetErrorMessage', -1],
             RenderReadablePropertyValueEvent::NAME => 'renderReadablePropertyValue',
-            'contao-twig.init'                     => 'initTwig',
+            'contao-twig.init'                     => 'initTwig'
         ];
     }
 
@@ -166,10 +166,9 @@ class Subscriber implements EventSubscriberInterface
      */
     protected static function getOptions($environment, $model, $property)
     {
-        $options = $property->getOptions();
-        $event   = new GetPropertyOptionsEvent($environment, $model);
+        $event = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($property->getName());
-        $event->setOptions($options);
+        $event->setOptions($property->getOptions());
 
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
@@ -228,7 +227,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if ($event->getRendered() !== null) {
+        if (null !== $event->getRendered()) {
             return;
         }
 
@@ -250,7 +249,7 @@ class Subscriber implements EventSubscriberInterface
         self::renderTextAreaReadable($event, $property, $extra, $value);
         self::renderReferenceReadable($event, $extra, $value);
 
-        if ($event->getRendered() !== null) {
+        if (null !== $event->getRendered()) {
             return;
         }
 
@@ -401,7 +400,7 @@ class Subscriber implements EventSubscriberInterface
     private static function renderTimestampReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
         if (!isset($extra['rgxp'])
-            || !($extra['rgxp'] === 'date' || $extra['rgxp'] === 'time' || $extra['rgxp'] === 'datim')
+            || !(('date' === $extra['rgxp']) || ('time' === $extra['rgxp']) || ('datim' === $extra['rgxp']))
             || (null !== $event->getRendered())) {
             return;
         }
@@ -424,7 +423,7 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderDateTimePropertyIsTstamp(RenderReadablePropertyValueEvent $event, $property, $value)
     {
-        if ((null !== $event->getRendered()) || ($property->getName() !== 'tstamp')) {
+        if ((null !== $event->getRendered()) || ('tstamp' !== $property->getName())) {
             return;
         }
 
@@ -446,7 +445,9 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderSimpleCheckbox(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
     {
-        if ((null !== $event->getRendered()) || !(!$extra['multiple'] && $property->getWidgetType() === 'checkbox')) {
+        if ((null !== $event->getRendered())
+            || !(!$extra['multiple'] && ('checkbox' === $property->getWidgetType()))
+        ) {
             return;
         }
 
@@ -516,7 +517,7 @@ class Subscriber implements EventSubscriberInterface
     {
         if ((empty($extra['allowHtml']) && empty($extra['preserveTags']))
             || (null !== $event->getRendered())
-            || ($property->getWidgetType() !== 'textarea')) {
+            || ('textarea' !== $property->getWidgetType())) {
             return;
         }
 
@@ -534,8 +535,7 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderOptionValueReadable(RenderReadablePropertyValueEvent $event, $property, $value)
     {
-        $options = $property->getOptions();
-        if (!$options) {
+        if (!($options = $property->getOptions())) {
             $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
             if ($options) {
                 $property->setOptions($options);

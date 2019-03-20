@@ -32,8 +32,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Default implementation of an environment.
- *
- * @SuppressWarnings(PHPMD.LongVariable)
  */
 class DefaultEnvironment implements EnvironmentInterface
 {
@@ -110,7 +108,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * The translator in use.
      *
-     * @var \ContaoCommunityAlliance\Translator\TranslatorInterface
+     * @var TranslatorInterface
      */
     protected $translator;
 
@@ -124,9 +122,9 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function setController($objController)
+    public function setController($controller)
     {
-        $this->objController = $objController;
+        $this->objController = $controller;
 
         return $this;
     }
@@ -142,9 +140,9 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function setView($objView)
+    public function setView($view)
     {
-        $this->objView = $objView;
+        $this->objView = $view;
 
         return $this;
     }
@@ -160,9 +158,9 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function setDataDefinition($objDataDefinition)
+    public function setDataDefinition($dataDefinition)
     {
-        $this->objDataDefinition = $objDataDefinition;
+        $this->objDataDefinition = $dataDefinition;
 
         return $this;
     }
@@ -196,9 +194,9 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function setRootDataDefinition($objRootDataDefinition)
+    public function setRootDataDefinition($rootDataDefinition)
     {
-        $this->objRootDataDefinition = $objRootDataDefinition;
+        $this->objRootDataDefinition = $rootDataDefinition;
 
         return $this;
     }
@@ -232,9 +230,9 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function setInputProvider($objInputProvider)
+    public function setInputProvider($inputProvider)
     {
-        $this->objInputProvider = $objInputProvider;
+        $this->objInputProvider = $inputProvider;
 
         return $this;
     }
@@ -268,13 +266,13 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function hasDataProvider($strSource = null)
+    public function hasDataProvider($source = null)
     {
-        if ($strSource === null) {
-            $strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
+        if (null === $source) {
+            $source = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
         }
 
-        return isset($this->arrDataProvider[$strSource]);
+        return isset($this->arrDataProvider[$source]);
     }
 
     /**
@@ -282,28 +280,28 @@ class DefaultEnvironment implements EnvironmentInterface
      *
      * @throws DcGeneralRuntimeException When an undefined provider is requested.
      */
-    public function getDataProvider($strSource = null)
+    public function getDataProvider($source = null)
     {
-        if ($strSource === null) {
-            $strSource = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
+        if (null === $source) {
+            $source = $this->getDataDefinition()->getBasicDefinition()->getDataProvider();
         }
 
-        if (isset($this->arrDataProvider[$strSource])) {
-            return $this->arrDataProvider[$strSource];
+        if (isset($this->arrDataProvider[$source])) {
+            return $this->arrDataProvider[$source];
         }
 
-        throw new DcGeneralRuntimeException(\sprintf('Data provider %s not defined', $strSource));
+        throw new DcGeneralRuntimeException(\sprintf('Data provider %s not defined', $source));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addDataProvider($strSource, $dataProvider)
+    public function addDataProvider($source, $dataProvider)
     {
         // Force removal of an potentially registered data provider to ease sub-classing.
-        $this->removeDataProvider($strSource);
+        $this->removeDataProvider($source);
 
-        $this->arrDataProvider[$strSource] = $dataProvider;
+        $this->arrDataProvider[$source] = $dataProvider;
 
         return $this;
     }
@@ -311,10 +309,10 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function removeDataProvider($strSource)
+    public function removeDataProvider($source)
     {
-        if (isset($this->arrDataProvider[$strSource])) {
-            unset($this->arrDataProvider[$strSource]);
+        if (isset($this->arrDataProvider[$source])) {
+            unset($this->arrDataProvider[$source]);
         }
 
         return $this;
@@ -331,12 +329,12 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
-    public function setClipboard($objClipboard)
+    public function setClipboard($clipboard)
     {
-        if ($objClipboard === null) {
+        if (null === $clipboard) {
             $this->objClipboard = null;
         } else {
-            $this->objClipboard = $objClipboard;
+            $this->objClipboard = $clipboard;
         }
 
         return $this;

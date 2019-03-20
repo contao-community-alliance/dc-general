@@ -31,29 +31,29 @@ class DCGE
     /**
      * DataProvider sorting order asc
      */
-    const MODEL_SORTING_ASC = 'ASC';
+    public const MODEL_SORTING_ASC = 'ASC';
 
     /**
      * DataProvider sorting order desc
      */
-    const MODEL_SORTING_DESC = 'DESC';
+    public const MODEL_SORTING_DESC = 'DESC';
 
     /**
      * The current level in a tree view.
      */
-    const TREE_VIEW_LEVEL = 'dc_gen_tv_level';
+    public const TREE_VIEW_LEVEL = 'dc_gen_tv_level';
 
     /**
      * Is the tree item open.
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::SHOW_CHILDREN
      */
-    const TREE_VIEW_IS_OPEN = ModelInterface::SHOW_CHILDREN;
+    public const TREE_VIEW_IS_OPEN = ModelInterface::SHOW_CHILDREN;
 
     /**
      * Child Collection.
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::CHILD_COLLECTIONS
      */
-    const TREE_VIEW_CHILD_COLLECTION = ModelInterface::CHILD_COLLECTIONS;
+    public const TREE_VIEW_CHILD_COLLECTION = ModelInterface::CHILD_COLLECTIONS;
 }

@@ -42,7 +42,7 @@ class ActionEvent extends AbstractActionAwareEvent
      */
     public function setResponse($response)
     {
-        $this->response = ($response !== null) ? (string) $response : null;
+        $this->response = (null !== $response) ? (string) $response : null;
         return $this;
     }
 

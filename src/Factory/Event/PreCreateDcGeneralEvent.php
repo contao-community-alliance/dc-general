@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class PreCreateDcGeneralEvent extends Event
 {
-    const NAME = 'dc-general.factory.pre-create-dc-general';
+    public const NAME = 'dc-general.factory.pre-create-dc-general';
 
     /**
      * The factory calling.

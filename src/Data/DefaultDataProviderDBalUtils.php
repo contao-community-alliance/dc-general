@@ -200,7 +200,7 @@ class DefaultDataProviderDBalUtils
      *
      * @return string|null
      */
-    private function determineFilterAndOr(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterAndOr(array $filter, QueryBuilder $queryBuilder)
     {
         if (!\in_array($filter['operation'], ['AND', 'OR'])) {
             return null;
@@ -219,7 +219,7 @@ class DefaultDataProviderDBalUtils
      *
      * @return string|null
      */
-    private function determineFilterComparing(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterComparing(array $filter, QueryBuilder $queryBuilder)
     {
         if (!\in_array($filter['operation'], ['=', '>', '>=', '<', '<=', '<>'])) {
             return null;
@@ -236,7 +236,7 @@ class DefaultDataProviderDBalUtils
      *
      * @return string|null
      */
-    private function determineFilterInOrNotInList(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterInOrNotInList(array $filter, QueryBuilder $queryBuilder)
     {
         if (!\in_array($filter['operation'], ['IN', 'NOT IN'])) {
             return null;
@@ -253,7 +253,7 @@ class DefaultDataProviderDBalUtils
      *
      * @return string|null
      */
-    private function determineFilterLikeOrNotLike(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterLikeOrNotLike(array $filter, QueryBuilder $queryBuilder)
     {
         if (!\in_array($filter['operation'], ['LIKE', 'NOT LIKE'])) {
             return null;
@@ -270,7 +270,7 @@ class DefaultDataProviderDBalUtils
      *
      * @return string|null
      */
-    private function determineFilterIsNullOrIsNotNull(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterIsNullOrIsNotNull(array $filter, QueryBuilder $queryBuilder)
     {
         if (!\in_array($filter['operation'], ['IS NULL', 'IS NOT NULL'])) {
             return null;

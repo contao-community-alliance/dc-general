@@ -30,7 +30,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class GetGlobalButtonEvent extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-global-button';
+    public const NAME = 'dc-general.view.contao2backend.get-global-button';
 
     /**
      * The hotkey for the button.

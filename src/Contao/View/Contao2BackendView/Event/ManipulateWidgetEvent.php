@@ -38,7 +38,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class ManipulateWidgetEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.manipulate-widget';
+    public const NAME = 'dc-general.view.contao2backend.manipulate-widget';
 
     /**
      * The widget instance to manipulate.

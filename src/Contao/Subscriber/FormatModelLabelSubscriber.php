@@ -57,20 +57,17 @@ class FormatModelLabelSubscriber
 
         $dataDefinition = $environment->getDataDefinition();
         /** @var Contao2BackendViewDefinitionInterface $viewSection */
-        $viewSection       = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        $listing           = $viewSection->getListingConfig();
-        $properties        = $dataDefinition->getPropertiesDefinition();
-        $formatter         = $listing->getLabelFormatter($model->getProviderName());
-        $sorting           = ViewHelpers::getGroupingMode($environment);
-        $sortingDefinition = $sorting['sorting'];
-        $firstSorting      = $this->getFirstSorting($sortingDefinition);
-        $propertyNames     = $formatter->getPropertyNames();
-
-        $args = $this->prepareLabelArguments($propertyNames, $properties, $environment, $model);
+        $viewSection   = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $listing       = $viewSection->getListingConfig();
+        $properties    = $dataDefinition->getPropertiesDefinition();
+        $formatter     = $listing->getLabelFormatter($model->getProviderName());
+        $sorting       = ViewHelpers::getGroupingMode($environment);
+        $firstSorting  = $this->getFirstSorting($sorting['sorting']);
+        $propertyNames = $formatter->getPropertyNames();
 
         $modelToLabelEvent = new ModelToLabelEvent($environment, $model);
         $modelToLabelEvent
-            ->setArgs($args)
+            ->setArgs($this->prepareLabelArguments($propertyNames, $properties, $environment, $model))
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
@@ -82,15 +79,19 @@ class FormatModelLabelSubscriber
             return;
         }
 
-        $event->setLabel([[
-            'colspan' => null,
-            'class'   => 'tl_file_list',
-            'content' => $this->renderSingleValue(
-                $modelToLabelEvent->getLabel(),
-                $modelToLabelEvent->getArgs(),
-                $formatter->getMaxLength()
-            )
-        ]]);
+        $event->setLabel(
+            [
+                [
+                    'colspan' => null,
+                    'class'   => 'tl_file_list',
+                    'content' => $this->renderSingleValue(
+                        $modelToLabelEvent->getLabel(),
+                        $modelToLabelEvent->getArgs(),
+                        $formatter->getMaxLength()
+                    )
+                ]
+            ]
+        );
     }
 
     /**
@@ -134,15 +135,17 @@ class FormatModelLabelSubscriber
     ) {
         $args = [];
         foreach ($propertyNames as $propertyName) {
-            if ($properties->hasProperty($propertyName)) {
-                $args[$propertyName] = (string) ViewHelpers::getReadableFieldValue(
-                    $environment,
-                    $properties->getProperty($propertyName),
-                    $model
-                );
-            } else {
+            if (!$properties->hasProperty($propertyName)) {
                 $args[$propertyName] = '-';
+
+                continue;
             }
+
+            $args[$propertyName] = (string) ViewHelpers::getReadableFieldValue(
+                $environment,
+                $properties->getProperty($propertyName),
+                $model
+            );
         }
 
         return $args;
@@ -172,7 +175,7 @@ class FormatModelLabelSubscriber
         } else {
             foreach ($propertyNames as $propertyName) {
                 $class = 'tl_file_list col_' . $propertyName;
-                if ($propertyName == $firstSorting) {
+                if ($firstSorting === $propertyName) {
                     $class .= ' ordered_by';
                 }
 
@@ -199,13 +202,9 @@ class FormatModelLabelSubscriber
     private function renderSingleValue($label, $args, $maxLength = null)
     {
         // BC: sometimes the label was returned as string in the arguments instead of an array.
-        if (!\is_array($args)) {
-            $string = $args;
-        } else {
-            $string = \vsprintf($label, $args);
-        }
+        $string = !\is_array($args) ? $args : \vsprintf($label, $args);
 
-        if ($maxLength !== null && \strlen($string) > $maxLength) {
+        if ((null !== $maxLength) && \strlen($string) > $maxLength) {
             $string = \substr($string, 0, $maxLength);
         }
 

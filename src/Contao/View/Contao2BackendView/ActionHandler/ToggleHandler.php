@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -66,10 +67,9 @@ class ToggleHandler
             return;
         }
 
-        $environment  = $event->getEnvironment();
-        $serializedId = $this->getModelId($environment);
+        $environment = $event->getEnvironment();
 
-        if (empty($serializedId)) {
+        if (null === ($serializedId = $this->getModelId($environment))) {
             return;
         }
 
@@ -90,9 +90,9 @@ class ToggleHandler
     /**
      * Process the action.
      *
-     * @param EnvironmentInterface   $environment  The environment.
-     * @param ToggleCommandInterface $operation    The operation.
-     * @param ModelIdInterface|null  $serializedId The model id.
+     * @param EnvironmentInterface   $environment The environment.
+     * @param ToggleCommandInterface $operation   The operation.
+     * @param ModelIdInterface|null  $modelId     The model id.
      *
      * @return void
      *
@@ -103,21 +103,21 @@ class ToggleHandler
     protected function process(
         EnvironmentInterface $environment,
         ToggleCommandInterface $operation,
-        ModelIdInterface $serializedId = null
+        ModelIdInterface $modelId = null
     ) {
         $dataProvider = $environment->getDataProvider();
         $newState     = $this->determineNewState($environment->getInputProvider(), $operation->isInverse());
 
         // Override the language for language aware toggling.
-        if ($operation instanceof TranslatedToggleCommandInterface
-            && $dataProvider instanceof MultiLanguageDataProviderInterface
+        if (($operation instanceof TranslatedToggleCommandInterface)
+            && ($dataProvider instanceof MultiLanguageDataProviderInterface)
         ) {
             $language = $dataProvider->getCurrentLanguage();
             /** @var TranslatedToggleCommandInterface $operation */
             $dataProvider->setCurrentLanguage($operation->getLanguage());
         }
 
-        $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($serializedId->getId()));
+        $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         $originalModel = clone $model;
         $model->setProperty($operation->getToggleProperty(), $newState);
         $dispatcher = $environment->getEventDispatcher();
@@ -149,11 +149,9 @@ class ToggleHandler
      */
     private function checkPermission(ActionEvent $event)
     {
-        $environment     = $event->getEnvironment();
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
+        $environment = $event->getEnvironment();
 
-        if (true === $basicDefinition->isEditable()) {
+        if (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable()) {
             return true;
         }
 
@@ -181,16 +179,16 @@ class ToggleHandler
         $inputProvider = $environment->getInputProvider();
 
         if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            $serializedId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+            $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
         }
 
-        if (!(isset($serializedId)
-              && ($serializedId->getDataProviderName() == $environment->getDataDefinition()->getName()))
+        if (!(isset($modelId)
+              && ($environment->getDataDefinition()->getName() === $modelId->getDataProviderName()))
         ) {
             return null;
         }
 
-        return $serializedId;
+        return $modelId;
     }
 
     /**
@@ -199,14 +197,12 @@ class ToggleHandler
      * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return ToggleCommandInterface
+     * @return CommandInterface
      */
     private function getOperation(Action $action, EnvironmentInterface $environment)
     {
         /** @var Contao2BackendViewDefinitionInterface $definition */
-        $definition = $environment
-            ->getDataDefinition()
-            ->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $definition = $environment->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         $name       = $action->getName();
         $commands   = $definition->getModelCommands();
 
@@ -227,7 +223,7 @@ class ToggleHandler
      */
     private function determineNewState(InputProviderInterface $inputProvider, $isInverse)
     {
-        $state = $inputProvider->getParameter('state') == 1;
+        $state = 1 === (int) $inputProvider->getParameter('state');
 
         if ($isInverse) {
             return $state ? '' : '1';

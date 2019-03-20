@@ -33,5 +33,5 @@ class DcGeneralViews
      *
      * @api
      */
-    const CLIPBOARD = 'clipboard';
+    public const CLIPBOARD = 'clipboard';
 }

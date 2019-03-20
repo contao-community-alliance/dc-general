@@ -41,7 +41,7 @@ class ContainerOnLoadCallbackListener extends AbstractCallbackListener
     public function wantToExecute($event)
     {
         return (empty($this->dataContainerName)
-            || ($event->getDcGeneral()->getEnvironment()->getDataDefinition()->getName() == $this->dataContainerName)
+            || ($this->dataContainerName === $event->getDcGeneral()->getEnvironment()->getDataDefinition()->getName())
         );
     }
 

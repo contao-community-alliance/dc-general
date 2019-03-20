@@ -92,7 +92,7 @@ class ViewHelpers
             }
         }
 
-        if ($definition === null) {
+        if (null === $definition) {
             /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
             $dataDefinition            = $environment->getDataDefinition();
             $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
@@ -167,7 +167,7 @@ class ViewHelpers
         $firstSorting = $sorting->get(0);
 
         // Use the information from the property, if given.
-        if ($firstSorting->getGroupingMode() != '') {
+        if ('' !== $firstSorting->getGroupingMode()) {
             $groupMode   = $firstSorting->getGroupingMode();
             $groupLength = $firstSorting->getGroupingLength();
         } else {
@@ -207,7 +207,7 @@ class ViewHelpers
 
         $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        if ($event->getRendered() !== null) {
+        if (null !== $event->getRendered()) {
             return $event->getRendered();
         }
 

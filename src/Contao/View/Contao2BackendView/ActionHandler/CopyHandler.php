@@ -72,23 +72,23 @@ class CopyHandler
             return;
         }
 
-        if (!$event->getEnvironment()->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+        $environment = $event->getEnvironment();
+        if (!$environment->getDataDefinition()->getBasicDefinition()->isCreatable()) {
             return;
         }
 
-        if ($event->getAction()->getName() !== 'copy') {
+        if ('copy' !== $event->getAction()->getName()) {
             return;
         }
 
-        if (true !== ($response = $this->checkPermission($event->getEnvironment()))) {
+        if (true !== ($response = $this->checkPermission($environment))) {
             $event->setResponse($response);
             $event->stopPropagation();
 
             return;
         }
 
-        $response = $this->process($event->getEnvironment());
-        if ($response !== false) {
+        if (false !== ($response = $this->process($environment))) {
             $event->setResponse($response);
         }
     }
@@ -106,24 +106,27 @@ class CopyHandler
      */
     protected function guardIsCreatable(EnvironmentInterface $environment, ModelIdInterface $modelId, $redirect = false)
     {
-        if ($environment->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+        $dataDefinition = $environment->getDataDefinition();
+        if ($dataDefinition->getBasicDefinition()->isCreatable()) {
             return;
         }
 
         if ($redirect) {
-            $environment->getEventDispatcher()->dispatch(
+            $eventDispatcher = $environment->getEventDispatcher();
+
+            $eventDispatcher->dispatch(
                 ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     \sprintf(
                         'Table "%s" is not creatable, DC_General - DefaultController - copy()',
-                        $environment->getDataDefinition()->getName()
+                        $dataDefinition->getName()
                     ),
                     __CLASS__ . '::delete()',
                     TL_ERROR
                 )
             );
 
-            $environment->getEventDispatcher()->dispatch(
+            $eventDispatcher->dispatch(
                 ContaoEvents::CONTROLLER_REDIRECT,
                 new RedirectEvent('contao/main.php?act=error')
             );
@@ -131,7 +134,7 @@ class CopyHandler
 
         $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
-        $this->guardValidEnvironment($environment->getDataDefinition(), $modelId);
+        $this->guardValidEnvironment($dataDefinition, $modelId);
         // We want a redirect here if not creatable.
         $this->guardIsCreatable($environment, $modelId, true);
 
@@ -148,7 +151,7 @@ class CopyHandler
         $copiedModel = $this->copy($environment, $modelId);
 
         // If edit several don´t redirect do home.
-        if ($environment->getInputProvider()->getParameter('act') === 'select') {
+        if ('select' === $environment->getInputProvider()->getParameter('act')) {
             return;
         }
 
@@ -174,17 +177,17 @@ class CopyHandler
         // We need to keep the original data here.
         $copyModel = $environment->getController()->createClonedModel($model);
 
+        $eventDispatcher = $environment->getEventDispatcher();
         // Dispatch pre duplicate event.
-        $copyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
-        $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
+        $preCopyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
+        $eventDispatcher->dispatch($preCopyEvent::NAME, $preCopyEvent);
 
         // Save the copy.
-        $provider = $environment->getDataProvider($copyModel->getProviderName());
-        $provider->save($copyModel);
+        $environment->getDataProvider($copyModel->getProviderName())->save($copyModel);
 
         // Dispatch post duplicate event.
-        $copyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
-        $environment->getEventDispatcher()->dispatch($copyEvent::NAME, $copyEvent);
+        $postCopyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
+        $eventDispatcher->dispatch($postCopyEvent::NAME, $postCopyEvent);
 
         return $copyModel;
     }
@@ -224,11 +227,12 @@ class CopyHandler
     {
         $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
-        $this->guardValidEnvironment($environment->getDataDefinition(), $modelId);
+        $dataDefinition = $environment->getDataDefinition();
+        $this->guardValidEnvironment($dataDefinition, $modelId);
         // We want a redirect here if not creatable.
         $this->guardIsCreatable($environment, $modelId, true);
 
-        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($dataDefinition->getBasicDefinition()->isEditOnlyMode()) {
             return $this->callAction($environment, 'edit');
         }
 
@@ -254,20 +258,15 @@ class CopyHandler
      */
     private function checkPermission(EnvironmentInterface $environment)
     {
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
-
-        if (true === $basicDefinition->isCreatable()) {
+        if (true === $environment->getDataDefinition()->getBasicDefinition()->isCreatable()) {
             return true;
         }
-
-        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
 
         return \sprintf(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for copy model %s.
             </div>',
-            $modelId->getSerialized()
+            ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'))->getSerialized()
         );
     }
 }

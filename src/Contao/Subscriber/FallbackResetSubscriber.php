@@ -167,7 +167,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         }
 
         // Trigger BC layer in handleFallback().
-        if ($root === null && \count($relationship->getChildConditions()) == 0) {
+        if ((null === $root) && (0 === \count($relationship->getChildConditions()))) {
             return null;
         }
 

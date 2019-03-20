@@ -97,14 +97,14 @@ class DefaultCollection implements CollectionInterface
     /**
      * Get the model at a specific index.
      *
-     * @param int $intIndex The index of the model to retrieve.
+     * @param int $index The index of the model to retrieve.
      *
      * @return ModelInterface
      */
-    public function get($intIndex)
+    public function get($index)
     {
-        if (\array_key_exists($intIndex, $this->arrCollection)) {
-            return $this->arrCollection[$intIndex];
+        if (\array_key_exists($index, $this->arrCollection)) {
+            return $this->arrCollection[$index];
         }
 
         return null;
@@ -113,19 +113,19 @@ class DefaultCollection implements CollectionInterface
     /**
      * Append a model to the end of this collection.
      *
-     * @param ModelInterface $objModel The model to append to the collection.
+     * @param ModelInterface $model The model to append to the collection.
      *
      * @return void
      *
      * @throws DcGeneralRuntimeException When no model has been passed.
      */
-    public function push(ModelInterface $objModel)
+    public function push(ModelInterface $model)
     {
-        if (!$objModel) {
+        if (!$model) {
             throw new DcGeneralRuntimeException('push() - no model passed', 1);
         }
 
-        $this->arrCollection[] = $objModel;
+        $this->arrCollection[] = $model;
     }
 
     /**
@@ -137,7 +137,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function pop()
     {
-        if (\count($this->arrCollection) != 0) {
+        if (\count($this->arrCollection)) {
             return \array_pop($this->arrCollection);
         }
 
@@ -147,14 +147,14 @@ class DefaultCollection implements CollectionInterface
     /**
      * Insert a model at the beginning of the collection.
      *
-     * @param ModelInterface $objModel The model to insert into the collection.
+     * @param ModelInterface $model The model to insert into the collection.
      *
      * @return void
      */
-    public function unshift(ModelInterface $objModel)
+    public function unshift(ModelInterface $model)
     {
-        if ($objModel->hasProperties()) {
-            \array_unshift($this->arrCollection, $objModel);
+        if ($model->hasProperties()) {
+            \array_unshift($this->arrCollection, $model);
         }
     }
 
@@ -167,7 +167,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function shift()
     {
-        if (\count($this->arrCollection) != 0) {
+        if (\count($this->arrCollection)) {
             return \array_shift($this->arrCollection);
         }
 
@@ -180,15 +180,15 @@ class DefaultCollection implements CollectionInterface
      * Move all records at position >= $index one index up.
      * If $index is out of bounds, just add at the end (does not fill with empty records!).
      *
-     * @param int            $intIndex The index where the model shall be placed.
-     * @param ModelInterface $objModel The model to insert.
+     * @param int            $index The index where the model shall be placed.
+     * @param ModelInterface $model The model to insert.
      *
      * @return void
      */
-    public function insert($intIndex, ModelInterface $objModel)
+    public function insert($index, ModelInterface $model)
     {
-        if ($objModel->hasProperties()) {
-            \array_insert($this->arrCollection, $intIndex, [$objModel]);
+        if ($model->hasProperties()) {
+            \array_insert($this->arrCollection, $index, [$model]);
         }
     }
 
@@ -197,20 +197,20 @@ class DefaultCollection implements CollectionInterface
      *
      * ATTENTION: Don't use key to unset in foreach because of the new index.
      *
-     * @param mixed $mixedValue The index (integer) or InterfaceGeneralModel instance to remove.
+     * @param mixed $indexValue The index (integer) or InterfaceGeneralModel instance to remove.
      *
      * @return void
      */
-    public function remove($mixedValue)
+    public function remove($indexValue)
     {
-        if (\is_object($mixedValue)) {
-            foreach ($this->arrCollection as $intIndex => $objModel) {
-                if ($mixedValue === $objModel) {
-                    unset($this->arrCollection[$intIndex]);
+        if (\is_object($indexValue)) {
+            foreach ($this->arrCollection as $collectionIndex => $model) {
+                if ($indexValue === $model) {
+                    unset($this->arrCollection[$collectionIndex]);
                 }
             }
         } else {
-            unset($this->arrCollection[$mixedValue]);
+            unset($this->arrCollection[$indexValue]);
         }
 
         $this->arrCollection = \array_values($this->arrCollection);
@@ -224,7 +224,6 @@ class DefaultCollection implements CollectionInterface
     public function getModelIds()
     {
         $ids = [];
-
         foreach ($this as $model) {
             /** @var ModelInterface $model */
             $ids[] = $model->getId();
@@ -301,8 +300,8 @@ class DefaultCollection implements CollectionInterface
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() == $otherModel->getProviderName())
-                    && ($localModel->getId() == $otherModel->getId())
+                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                    && ($localModel->getId() === $otherModel->getId())
                 ) {
                     $intersection->push($localModel);
                 }
@@ -346,8 +345,8 @@ class DefaultCollection implements CollectionInterface
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() == $otherModel->getProviderName())
-                    && ($localModel->getId() == $otherModel->getId())
+                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                    && ($localModel->getId() === $otherModel->getId())
                 ) {
                     continue;
                 }
@@ -371,8 +370,8 @@ class DefaultCollection implements CollectionInterface
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() == $otherModel->getProviderName())
-                    && ($localModel->getId() == $otherModel->getId())
+                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                    && ($localModel->getId() === $otherModel->getId())
                 ) {
                     continue;
                 }

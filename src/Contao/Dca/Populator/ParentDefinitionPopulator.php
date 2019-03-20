@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
  */
 class ParentDefinitionPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    const PRIORITY = 0;
+    public const PRIORITY = 0;
 
     /**
      * Create a parent data definition, if parent data provider defined.
@@ -49,8 +49,7 @@ class ParentDefinitionPopulator extends AbstractEventDrivenEnvironmentPopulator
             return;
         }
 
-        $factory          = new DcGeneralFactory();
-        $parentDefinition = $factory
+        $parentDefinition = (new DcGeneralFactory())
             ->setEventDispatcher($environment->getEventDispatcher())
             ->setTranslator($environment->getTranslator())
             ->setContainerName($definition->getBasicDefinition()->getParentDataProvider())

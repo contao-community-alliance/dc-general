@@ -88,13 +88,13 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      */
     private function updateNonTableMode(ModelToLabelEvent $event, $value)
     {
-        if ($value === null) {
+        if (null === $value) {
             return;
         }
 
         // HACK: we need to escape all % chars but preserve the %s and the like.
         $value = \str_replace('%', '%%', $value);
-        $value = preg_replace(
+        $value = \preg_replace(
             '#%(%([0-9]+\$)?(\'.|0| )?-?([0-9]+)?(.[0-9]+)?(b|c|d|e|E|f|F|g|G|o|s|u|x|X))#',
             '\\1',
             $value
@@ -113,7 +113,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      */
     private function updateTableMode(ModelToLabelEvent $event, array $arguments)
     {
-        if ($arguments === null
+        if ((null === $arguments)
             || empty($arguments)
         ) {
             return;
