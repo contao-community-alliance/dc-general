@@ -47,6 +47,8 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
  * Class FileSelect.
  *
  * Back end tree picker for usage in generalfile.php.
+ *
+ * @deprecated This is deprecated since 2.1 and where removed in 3.0. Use the file tree widget instead.
  */
 class FileSelect
 {
