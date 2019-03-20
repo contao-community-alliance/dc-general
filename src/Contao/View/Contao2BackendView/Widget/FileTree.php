@@ -100,6 +100,13 @@ class FileTree extends AbstractWidget
     protected $placeholderImage = 'placeholder.png';
 
     /**
+     * The extensions where is allowed for download.
+     *
+     * @var array
+     */
+    private $allowedDownload = [];
+
+    /**
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
@@ -226,6 +233,7 @@ class FileTree extends AbstractWidget
 
         $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
         $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
+        $this->allowedDownload = StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload')));
     }
 
     /**
@@ -293,13 +301,7 @@ class FileTree extends AbstractWidget
      */
     protected function isAllowedDownload($extension)
     {
-        static $allowedDownload;
-
-        if ($allowedDownload === null) {
-            $allowedDownload = StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload')));
-        }
-
-        return \in_array($extension, $allowedDownload);
+        return \in_array($extension, $this->allowedDownload);
     }
 
     /**
