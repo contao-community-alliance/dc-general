@@ -116,6 +116,9 @@ class FileTree extends AbstractWidget
     {
         parent::__construct($attributes, $dataContainer);
 
+        $this->allowedDownload =
+            $attributes['allowedDownload'] ?? StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload')));
+
         $this->setUp();
     }
 
@@ -233,7 +236,6 @@ class FileTree extends AbstractWidget
 
         $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
         $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
-        $this->allowedDownload = StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload')));
     }
 
     /**
