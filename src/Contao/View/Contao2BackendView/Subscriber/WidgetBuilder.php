@@ -187,7 +187,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     private function isGetOptionsAllowed(PropertyInterface $property): bool
     {
-        $propExtra   = $property->getExtra();
+        $propExtra = $property->getExtra();
 
         // Check the overwrite param.
         if (\is_array($propExtra)
