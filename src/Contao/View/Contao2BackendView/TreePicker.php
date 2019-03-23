@@ -515,7 +515,7 @@ class TreePicker extends Widget
                 $config->setSorting([$this->orderField => 'ASC']);
             }
 
-            foreach ((array) $dataDriver->fetchAll($config) as $model) {
+            foreach ($dataDriver->fetchAll($config) as $model) {
                 $formatted        = $this->formatModel($model, false);
                 $idValue          = $model->getProperty($idProperty);
                 $values[$idValue] = $formatted[0]['content'];
