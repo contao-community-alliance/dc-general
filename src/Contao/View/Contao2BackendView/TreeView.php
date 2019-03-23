@@ -33,6 +33,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -227,7 +228,8 @@ class TreeView extends BaseView
             );
         }
 
-        if (!($parentItem = $environment->getController()->fetchModelFromProvider($pid))) {
+        $collector = new ModelCollector($environment);
+        if (!($parentItem = $collector->getModel($pid))) {
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
             $parentItem = $parentProvider->getEmptyModel();
