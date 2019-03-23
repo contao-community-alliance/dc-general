@@ -35,6 +35,8 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
+use ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
@@ -1412,9 +1414,16 @@ class TreePicker extends Widget
      */
     private function parentsOf($model, &$parents)
     {
-        $controller = $this->getEnvironment()->getController();
-        if (!$controller->isRootModel($model)) {
-            $parent = $controller->searchParentOf($model);
+        $environment    = $this->getEnvironment();
+        $dataDefinition = $environment->getDataDefinition();
+        $collector      = new ModelCollector($this->getEnvironment());
+        $relationships  = new RelationshipManager(
+            $dataDefinition->getModelRelationshipDefinition(),
+            $dataDefinition->getBasicDefinition()->getMode()
+        );
+
+        if (!$relationships->isRoot($model)) {
+            $parent = $collector->searchParentOf($model);
             if (!isset($parents[$model->getProviderName()][$parent->getId()])) {
                 $this->parentsOf($parent, $parents);
             }
