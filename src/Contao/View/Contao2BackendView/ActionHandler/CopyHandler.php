@@ -132,7 +132,10 @@ class CopyHandler
             );
         }
 
-        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        $sourceModelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        if ($modelId !== $sourceModelId) {
+            $modelId = $sourceModelId;
+        }
 
         $this->guardValidEnvironment($dataDefinition, $modelId);
         // We want a redirect here if not creatable.
