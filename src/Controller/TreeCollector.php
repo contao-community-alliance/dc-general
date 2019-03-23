@@ -317,7 +317,7 @@ class TreeCollector implements EnvironmentAwareInterface
     /**
      * Recursively retrieve a collection of all complete node hierarchy.
      *
-     * @param array  $rootId       The ids of the root node.
+     * @param string $rootId       The ids of the root node.
      * @param int    $level        The level the items are residing on.
      * @param string $providerName The data provider from which the root element originates from.
      *
