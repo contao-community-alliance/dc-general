@@ -27,7 +27,6 @@ use Contao\BackendUser;
 use Contao\Config;
 use Contao\Database;
 use Contao\Environment;
-use Contao\Session;
 use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -73,7 +72,6 @@ class TreeSelect
     {
         BackendUser::getInstance();
         Config::getInstance();
-        Session::getInstance();
         Database::getInstance();
 
         BackendUser::getInstance()->authenticate();

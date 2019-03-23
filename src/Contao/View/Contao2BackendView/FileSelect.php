@@ -80,9 +80,7 @@ class FileSelect
     {
         BackendUser::getInstance();
         Config::getInstance();
-        Session::getInstance();
         Database::getInstance();
-
         BackendUser::getInstance()->authenticate();
 
         System::loadLanguageFile('default');
@@ -108,14 +106,16 @@ class FileSelect
 
         $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
+        $this->setupItemContainer($modelId);
+
+        $sessionStorage = $this->itemContainer->getEnvironment()->getSessionStorage();
+
         // Define the current ID.
         \define(
             'CURRENT_ID',
             ($modelId->getDataProviderName()
-                ? Session::getInstance()->get('CURRENT_ID') : $inputProvider->getParameter('id'))
+                ? $sessionStorage->get('CURRENT_ID') : $inputProvider->getParameter('id'))
         );
-
-        $this->setupItemContainer($modelId);
 
         $fileSelector = $this->prepareFileSelector($modelId, $ajax);
 
@@ -128,7 +128,7 @@ class FileSelect
         $template->addSearch   = $fileSelector->searchField;
         $template->search      = $GLOBALS['TL_LANG']['MSC']['search'];
         $template->action      = \ampersand(Environment::get('request'));
-        $template->value       = Session::getInstance()->get('file_selector_search');
+        $template->value       = $sessionStorage->get('file_selector_search');
         $template->manager     = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
         $template->managerHref = '';
 
@@ -205,7 +205,7 @@ class FileSelect
 
         $information['eval'] = \array_merge($extra, (array) $information['eval']);
 
-        Session::getInstance()->set('filePickerRef', Environment::get('request'));
+        $this->session->set('filePickerRef', Environment::get('request'));
 
         $combat = new DcCompat($this->itemContainer->getEnvironment(), $this->getActiveModel($modelId), $propertyName);
 
