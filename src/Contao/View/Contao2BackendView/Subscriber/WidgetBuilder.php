@@ -188,7 +188,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
     private function isGetOptionsAllowed(PropertyInterface $property): bool
     {
         $propExtra   = $property->getExtra();
-        $widgetClass = $this->getWidgetClass($property);
 
         // Check the overwrite param.
         if (\is_array($propExtra)
@@ -199,7 +198,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         // Check the class.
-        if (in_array(CheckBox::class, class_parents($widgetClass))) {
+        if ('checkbox' !== $property->getWidgetType()) {
             return true;
         }
 
