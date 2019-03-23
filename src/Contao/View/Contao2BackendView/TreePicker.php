@@ -198,7 +198,9 @@ class TreePicker extends Widget
     {
         parent::__construct($attributes);
 
-        if (!\defined('TL_MODE') && ('BE' !== TL_MODE)) {
+        $scopeDeterminator = System::getContainer()->get('cca.dc-general.scope-matcher');
+
+        if ($scopeDeterminator->currentScopeIsUnknown() || !$scopeDeterminator->currentScopeIsBackend()) {
             throw new DcGeneralRuntimeException('Treepicker is currently for Backend only.');
         }
 

@@ -107,6 +107,13 @@ class FileTree extends AbstractWidget
     private $allowedDownload = [];
 
     /**
+     * The root directory.
+     *
+     * @var string
+     */
+    private $rootDir;
+
+    /**
      * Create a new instance.
      *
      * @param array|null    $attributes    The custom attributes.
@@ -236,6 +243,7 @@ class FileTree extends AbstractWidget
 
         $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
         $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
+        $this->rootDir         = System::getContainer()->getParameter('kernel.root_dir');
     }
 
     /**
@@ -280,7 +288,7 @@ class FileTree extends AbstractWidget
 
         foreach ($collection->getModels() as $model) {
             // File system and database seem not in sync
-            if (!\defined('TL_ROOT') && !\file_exists(TL_ROOT . '/' . $model->path)) {
+            if (!\file_exists($this->rootDir . '/' . $model->path)) {
                 continue;
             }
 

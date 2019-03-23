@@ -391,9 +391,14 @@ class WidgetBuilder implements EnvironmentAwareInterface
         PropertyInterface $property,
         ModelInterface $model
     ) {
-        if (!\defined('TL_MODE') || TL_MODE !== 'BE') {
+        if (static::$scopeDeterminator->currentScopeIsUnknown()
+            || !static::$scopeDeterminator->currentScopeIsBackend()
+        ) {
             throw new DcGeneralRuntimeException(
-                \sprintf('WidgetBuilder only supports TL_MODE "BE". Running in TL_MODE "%s".', TL_MODE)
+                \sprintf(
+                    'WidgetBuilder only supports the backend mode. Running in mode "%s".',
+                    static::$scopeDeterminator->currentScopeIsUnknown() ? 'unknown' : 'frontend'
+                )
             );
         }
 
