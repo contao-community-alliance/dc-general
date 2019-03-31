@@ -11,27 +11,25 @@
  * This project is provided in good faith and hope to be usable by anyone.
  *
  * @package    contao-community-alliance/dc-general
- * @author     David Molineus <david.molineus@netzmacht.de>
- * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception;
+namespace ContaoCommunityAlliance\DcGeneral\Exception;
 
 /**
- * Class NotDeletableException.
+ * Class NotEditableException.
  *
- * This exception is thrown if a data definition does not support delete actions.
+ * This exception is thrown if a data definition does not support edit actions.
  */
-class NotDeletableException extends DefinitionException
+class NotEditableException extends DefinitionException
 {
     /**
      * The message template.
      *
      * @var string
      */
-    protected $message = 'Not able to perform delete action for data definition "%s".';
+    protected $message = 'Not able to perform edit action for data definition "%s".';
 }
