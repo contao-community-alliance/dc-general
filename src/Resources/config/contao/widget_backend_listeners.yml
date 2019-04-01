@@ -9,6 +9,7 @@ services:
             -   name: kernel.event_listener
                 event: dc-general.view.contao2backend.build-widget
                 method: handleEvent
+                priority: -100
 
     cca.dc-general.backend_listener.color_picker_wizard:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\ColorPickerWizardListener
