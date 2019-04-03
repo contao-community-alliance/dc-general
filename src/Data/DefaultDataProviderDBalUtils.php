@@ -47,9 +47,18 @@ class DefaultDataProviderDBalUtils
         }
 
         if (null !== $config->getFields()) {
-            $fields = implode(', ', $config->getFields());
+            $connection = $queryBuilder->getConnection();
+            $fields     = implode(
+                ', ',
+                array_map(
+                    function ($field) use ($connection) {
+                        return $connection->quoteIdentifier($field);
+                    },
+                    $config->getFields()
+                )
+            );
 
-            if (false !== stripos($fields, 'DISTINCT')) {
+            if (false !== stripos($fields, 'DISTINCT') || \in_array($idProperty, $config->getFields(), true)) {
                 $queryBuilder->select($fields);
                 return;
             }
