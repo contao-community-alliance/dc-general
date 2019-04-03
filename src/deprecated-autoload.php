@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -19,10 +20,18 @@
 
 // This hack is to load the "old locations" of the classes.
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\ColorPickerWizardListener;
+use ContaoCommunityAlliance\DcGeneral\Exception\DefinitionException;
+use ContaoCommunityAlliance\DcGeneral\Exception\EditOnlyModeException;
+use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
+use ContaoCommunityAlliance\DcGeneral\Exception\NotDeletableException;
 
 spl_autoload_register(
     function ($class) {
         static $classes = [
+            '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\DefinitionException'          => DefinitionException::class,
+            '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException'        => EditOnlyModeException::class,
+            '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotCreatableException'        => NotCreatableException::class,
+            '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeletableException'        => NotDeletableException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' => ColorPickerWizardListener::class,
         ];
 
