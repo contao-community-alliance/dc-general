@@ -129,7 +129,7 @@ class DeleteHandler
 
         $eventDispatcher->dispatch(
             ContaoEvents::CONTROLLER_REDIRECT,
-            new RedirectEvent('contao/main.php?act=error')
+            new RedirectEvent('contao?act=error')
         );
     }
 

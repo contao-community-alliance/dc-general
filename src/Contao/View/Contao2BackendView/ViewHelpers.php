@@ -229,7 +229,7 @@ class ViewHelpers
             if ($hasParentId) {
                 $event = new RedirectEvent(
                     \sprintf(
-                        'contao/main.php?do=%s&table=%s&pid=%s',
+                        'contao?do=%s&table=%s&pid=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table'),
                         $input->getParameter('pid')
@@ -238,7 +238,7 @@ class ViewHelpers
             } else {
                 $event = new RedirectEvent(
                     \sprintf(
-                        'contao/main.php?do=%s&table=%s',
+                        'contao?do=%s&table=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table')
                     )
@@ -247,7 +247,7 @@ class ViewHelpers
         } else {
             $event = new RedirectEvent(
                 \sprintf(
-                    'contao/main.php?do=%s',
+                    'contao?do=%s',
                     $input->getParameter('do')
                 )
             );

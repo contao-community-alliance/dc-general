@@ -361,7 +361,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
 
             $helpWizard .= \sprintf(
-                ' <a href="contao/help.php?table=%s&amp;field=%s" ' .
+                ' <a href="contao/help?table=%s&amp;field=%s" ' .
                 'title="%s" ' .
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
                 $environment->getDataDefinition()->getName(),

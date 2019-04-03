@@ -175,7 +175,7 @@ class TreeSelect
         // Add the manager link.
         if ($treeSelector->managerHref) {
             $template
-                ->set('managerHref', 'contao/main.php?' . \ampersand($treeSelector->managerHref) . '&amp;popup=1');
+                ->set('managerHref', 'contao?' . \ampersand($treeSelector->managerHref) . '&amp;popup=1');
         }
 
         // Prevent debug output at all cost.
