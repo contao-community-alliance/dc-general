@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class GetPropertyOptionsEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-property-options';
+    public const NAME = 'dc-general.view.contao2backend.get-property-options';
 
     /**
      * The name of the property to retrieve the options for.

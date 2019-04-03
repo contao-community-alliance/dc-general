@@ -74,8 +74,13 @@ class AddConditionEvent extends BuilderEvent
      */
     public function setCondition($condition)
     {
-        if ((!$condition instanceof PaletteConditionInterface) && (!$condition instanceof PropertyConditionInterface)) {
-            throw new DcGeneralInvalidArgumentException();
+        if ((!$condition instanceof PaletteConditionInterface)
+            && (!$condition instanceof PropertyConditionInterface)
+        ) {
+            throw new DcGeneralInvalidArgumentException(
+                'The condition is invalid. ' .
+                ' Only use PaletteConditionInterface or PropertyConditionInterface.'
+            );
         }
 
         $this->condition = $condition;

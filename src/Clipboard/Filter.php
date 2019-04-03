@@ -53,79 +53,79 @@ class Filter implements FilterInterface
      */
     private $compiled;
 
-    const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getDataProviderName() === variables[%d]
 )
 EXPR;
 
-    const MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getDataProviderName() !== variables[%d]
 )
 EXPR;
 
-    const MODEL_IS_EXPRESSION = <<<'EXPR'
+    public const MODEL_IS_EXPRESSION = <<<'EXPR'
 (
     item.getModelId()
     and item.getModelId().equals(variables[%d])
 )
 EXPR;
 
-    const MODEL_IS_NOT_EXPRESSION = <<<'EXPR'
+    public const MODEL_IS_NOT_EXPRESSION = <<<'EXPR'
 (
     !item.getModelId()
     or !item.getModelId().equals(variables[%d])
 )
 EXPR;
 
-    const PARENT_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const PARENT_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getParentId()
     and item.getParentId().getDataProviderName() === variables[%d]
 )
 EXPR;
 
-    const PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getParentId()
     and item.getParentId().getDataProviderName() !== variables[%d]
 )
 EXPR;
 
-    const HAS_NO_PARENT_EXPRESSION = <<<'EXPR'
+    public const HAS_NO_PARENT_EXPRESSION = <<<'EXPR'
 (
     !item.getParentId()
 )
 EXPR;
 
-    const PARENT_IS_EXPRESSION = <<<'EXPR'
+    public const PARENT_IS_EXPRESSION = <<<'EXPR'
 (
     item.getParentId()
     and item.getParentId().equals(variables[%d])
 )
 EXPR;
 
-    const PARENT_IS_NOT_EXPRESSION = <<<'EXPR'
+    public const PARENT_IS_NOT_EXPRESSION = <<<'EXPR'
 (
     !item.getParentId()
     or !item.getParentId().equals(variables[%d])
 )
 EXPR;
 
-    const ACTION_IS_EXPRESSION = <<<'EXPR'
+    public const ACTION_IS_EXPRESSION = <<<'EXPR'
 (
     item.getAction() === variables[%d]
 )
 EXPR;
 
-    const ACTION_IS_NOT_EXPRESSION = <<<'EXPR'
+    public const ACTION_IS_NOT_EXPRESSION = <<<'EXPR'
 (
     item.getAction() !== variables[%d]
 )
 EXPR;
 
-    const SUB_FILTER = <<<'EXPR'
+    public const SUB_FILTER = <<<'EXPR'
 (
     variables[%d].accepts(item)
 )

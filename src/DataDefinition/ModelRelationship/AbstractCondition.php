@@ -79,11 +79,7 @@ abstract class AbstractCondition
      */
     protected static function getConditionValue($condition, $parent)
     {
-        if (isset($condition['remote_value'])) {
-            return $condition['remote_value'];
-        }
-
-        return $parent->getProperty($condition['property']);
+        return ($condition['remote_value'] ?? $parent->getProperty($condition['property']));
     }
 
     /**

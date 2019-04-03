@@ -50,10 +50,10 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
 
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
-        } else {
-            \array_splice($this->information, $index, 0, [$information]);
+            return $information;
         }
 
+        \array_splice($this->information, $index, 0, [$information]);
         return $information;
     }
 

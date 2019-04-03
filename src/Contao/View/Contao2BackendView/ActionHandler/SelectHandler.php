@@ -78,11 +78,11 @@ class SelectHandler
 
         $action = $event->getAction();
 
-        if ($action->getName() !== 'select') {
+        if ('select' !== $action->getName()) {
             return;
         }
 
-        if ($response = $this->process($action, $event->getEnvironment())) {
+        if (false !== ($response = $this->process($action, $event->getEnvironment()))) {
             $event->setResponse($response);
 
             // Stop the event here.
@@ -102,11 +102,12 @@ class SelectHandler
      */
     private function process(Action $action, EnvironmentInterface $environment)
     {
-        $submitAction = $this->getSubmitAction($environment, $this->regardSelectMode($environment));
+        $actionMethod = \sprintf(
+            'handle%sAllAction',
+            \ucfirst($this->getSubmitAction($environment, $this->regardSelectMode($environment)))
+        );
 
-        $actionMethod = \sprintf('handle%sAllAction', \ucfirst($submitAction));
-
-        if ($response = $this->{$actionMethod}($environment, $action)) {
+        if (false !== ($response = $this->{$actionMethod}($environment, $action))) {
             return $response;
         }
 
@@ -151,9 +152,7 @@ class SelectHandler
      */
     private function determineAction(EnvironmentInterface $environment)
     {
-        $actions = ['delete', 'cut', 'copy', 'override', 'edit'];
-
-        foreach ($actions as $action) {
+        foreach (['delete', 'cut', 'copy', 'override', 'edit'] as $action) {
             if ($environment->getInputProvider()->hasValue($action)
                 || $environment->getInputProvider()->hasValue($action . '_save')
                 || $environment->getInputProvider()->hasValue($action . '_saveNback')
@@ -163,6 +162,7 @@ class SelectHandler
                 return $action;
             }
         }
+
         return null;
     }
 
@@ -267,10 +267,11 @@ class SelectHandler
     {
         $this->clearClipboard($environment);
         $this->handleGlobalCommands($environment);
-
-        $models = $this->getModelIds($environment, $action, $this->getSubmitAction($environment));
-
-        $this->handleSessionOverrideEditAll($models, 'models', $environment);
+        $this->handleSessionOverrideEditAll(
+            $this->getModelIds($environment, $action, $this->getSubmitAction($environment)),
+            'models',
+            $environment
+        );
 
         $collection = $this->getSelectCollection($environment);
         $this->setIntersectProperties($collection, $environment);
@@ -298,12 +299,13 @@ class SelectHandler
         $this->clearClipboard($environment);
         $this->handleGlobalCommands($environment);
 
+        $inputProvider = $environment->getInputProvider();
         foreach ($this->getModelIds($environment, $action, $this->getSubmitAction($environment)) as $modelId) {
-            $environment->getInputProvider()->setParameter('id', $modelId->getSerialized());
+            $inputProvider->setParameter('id', $modelId->getSerialized());
 
             $this->callAction($environment, 'delete');
 
-            $environment->getInputProvider()->unsetParameter('id');
+            $inputProvider->unsetParameter('id');
         }
 
         ViewHelpers::redirectHome($environment);
@@ -323,12 +325,13 @@ class SelectHandler
      */
     private function handleCutAllAction(EnvironmentInterface $environment, Action $action)
     {
+        $inputProvider = $environment->getInputProvider();
         foreach ($this->getModelIds($environment, $action, $this->getSubmitAction($environment)) as $modelId) {
-            $environment->getInputProvider()->setParameter('source', $modelId->getSerialized());
+            $inputProvider->setParameter('source', $modelId->getSerialized());
 
             $this->callAction($environment, 'cut');
 
-            $environment->getInputProvider()->unsetParameter('source');
+            $inputProvider->unsetParameter('source');
         }
 
         ViewHelpers::redirectHome($environment);
@@ -348,12 +351,13 @@ class SelectHandler
      */
     private function handleCopyAllAction(EnvironmentInterface $environment, Action $action)
     {
+        $inputProvider = $environment->getInputProvider();
         foreach ($this->getModelIds($environment, $action, $this->getSubmitAction($environment)) as $modelId) {
-            $environment->getInputProvider()->setParameter('source', $modelId->getSerialized());
+            $inputProvider->setParameter('source', $modelId->getSerialized());
 
             $this->callAction($environment, 'copy');
 
-            $environment->getInputProvider()->unsetParameter('source');
+            $inputProvider->unsetParameter('source');
         }
 
         ViewHelpers::redirectHome($environment);
@@ -376,10 +380,11 @@ class SelectHandler
     {
         $this->clearClipboard($environment);
         $this->handleGlobalCommands($environment);
-
-        $models = $this->getModelIds($environment, $action, $this->getSubmitAction($environment));
-
-        $this->handleSessionOverrideEditAll($models, 'properties', $environment);
+        $this->handleSessionOverrideEditAll(
+            $this->getModelIds($environment, $action, $this->getSubmitAction($environment)),
+            'properties',
+            $environment
+        );
 
         return  $this->callAction($environment, 'editAll', ['mode' => 'edit']);
     }
@@ -399,10 +404,11 @@ class SelectHandler
     {
         $this->clearClipboard($environment);
         $this->handleGlobalCommands($environment);
-
-        $models = $this->getModelIds($environment, $action, $this->getSubmitAction($environment));
-
-        $this->handleSessionOverrideEditAll($models, 'properties', $environment);
+        $this->handleSessionOverrideEditAll(
+            $this->getModelIds($environment, $action, $this->getSubmitAction($environment)),
+            'properties',
+            $environment
+        );
 
         return $this->callAction($environment, 'overrideAll', ['mode' => 'override']);
     }
@@ -434,7 +440,7 @@ class SelectHandler
             $parametersBackButton->offsetSet('act', 'select');
             $parametersBackButton->offsetSet(
                 'select',
-                ($this->getSelectAction($environment) === 'edit') ? 'properties' : 'models'
+                ('edit' === $this->getSelectAction($environment)) ? 'properties' : 'models'
             );
             $parametersBackButton->offsetSet('mode', $this->getSubmitAction($environment, true));
         }
@@ -510,13 +516,15 @@ class SelectHandler
             $filter->andHasNoParent();
         }
 
-        $items = $environment->getClipboard()->fetch($filter);
+        $clipboard = $environment->getClipboard();
+
+        $items = $clipboard->fetch($filter);
         if (\count($items) < 1) {
             return;
         }
 
         foreach ($items as $item) {
-            $environment->getClipboard()->remove($item);
+            $clipboard->remove($item);
         }
     }
 
@@ -607,8 +615,7 @@ class SelectHandler
      */
     private function collectIntersectModelProperties(CollectionInterface $collection, EnvironmentInterface $environment)
     {
-        $dataDefinition     = $environment->getDataDefinition();
-        $palettesDefinition = $dataDefinition->getPalettesDefinition();
+        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
 
         $properties = [];
         foreach ($collection->getIterator() as $model) {
@@ -727,7 +734,7 @@ class SelectHandler
             return 1 === \count(\array_unique($values)) ? $values[0] : null;
         }
 
-        return 1 === \count(\array_unique($values)) ? \unserialize($values[0]) : null;
+        return 1 === \count(\array_unique($values)) ? \unserialize($values[0], ['allowed_classes' => true]) : null;
     }
 
     /**

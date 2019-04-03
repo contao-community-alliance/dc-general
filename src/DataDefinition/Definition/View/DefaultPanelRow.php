@@ -61,10 +61,10 @@ class DefaultPanelRow implements PanelRowInterface
 
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->elements[] = $element;
-        } else {
-            \array_splice($this->elements, $index, 0, [$element]);
+            return $this;
         }
 
+        \array_splice($this->elements, $index, 0, [$element]);
         return $this;
     }
 
@@ -81,13 +81,13 @@ class DefaultPanelRow implements PanelRowInterface
                 function ($element) use ($indexOrNameOrInstance) {
                     /** @var ElementInformationInterface $element */
 
-                    return $element == $indexOrNameOrInstance;
+                    return $element === $indexOrNameOrInstance;
                 }
             );
         } elseif (\is_string($indexOrNameOrInstance)) {
             foreach ($this as $index => $element) {
                 /** @var ElementInformationInterface $element */
-                if ($indexOrNameOrInstance == $element->getName()) {
+                if ($indexOrNameOrInstance === $element->getName()) {
                     unset($this->elements[$index]);
                     break;
                 }
@@ -113,7 +113,7 @@ class DefaultPanelRow implements PanelRowInterface
         if (\is_string($instanceOrName)) {
             foreach ($this as $element) {
                 /** @var ElementInformationInterface $element */
-                if ($instanceOrName == $element->getName()) {
+                if ($instanceOrName === $element->getName()) {
                     return true;
                 }
             }
@@ -143,7 +143,7 @@ class DefaultPanelRow implements PanelRowInterface
         if (\is_string($indexOrName)) {
             foreach ($this as $element) {
                 /** @var ElementInformationInterface $element */
-                if ($indexOrName == $element->getName()) {
+                if ($indexOrName === $element->getName()) {
                     return $element;
                 }
             }

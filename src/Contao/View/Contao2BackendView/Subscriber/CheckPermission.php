@@ -83,9 +83,8 @@ class CheckPermission implements EventSubscriberInterface
         $container          = $event->getContainer();
         $properties         = $container->getPropertiesDefinition();
         $palettesDefinition = $container->getPalettesDefinition();
-        $palettes           = $palettesDefinition->getPalettes();
 
-        foreach ($palettes as $palette) {
+        foreach ($palettesDefinition->getPalettes() as $palette) {
             foreach ($palette->getProperties() as $property) {
                 if (!$properties->hasProperty($name = $property->getName())) {
                     // @codingStandardsIgnoreStart
@@ -101,9 +100,9 @@ class CheckPermission implements EventSubscriberInterface
                     continue;
                 }
 
-                $chain = $this->getVisibilityConditionChain($property);
-
-                $chain->addCondition(new BooleanCondition(!$properties->getProperty($name)->isExcluded()));
+                $this
+                    ->getVisibilityConditionChain($property)
+                    ->addCondition(new BooleanCondition(!$properties->getProperty($name)->isExcluded()));
             }
         }
     }
@@ -121,10 +120,9 @@ class CheckPermission implements EventSubscriberInterface
             return;
         }
 
-        $container       = $event->getContainer();
-        $basicDefinition = $container->getBasicDefinition();
+        $container = $event->getContainer();
 
-        if ($basicDefinition->isEditable()) {
+        if ($container->getBasicDefinition()->isEditable()) {
             return;
         }
 
@@ -149,10 +147,9 @@ class CheckPermission implements EventSubscriberInterface
             return;
         }
 
-        $container       = $event->getContainer();
-        $basicDefinition = $container->getBasicDefinition();
+        $container = $event->getContainer();
 
-        if ($basicDefinition->isDeletable()) {
+        if ($container->getBasicDefinition()->isDeletable()) {
             return;
         }
 
@@ -175,10 +172,9 @@ class CheckPermission implements EventSubscriberInterface
             return;
         }
 
-        $container       = $event->getContainer();
-        $basicDefinition = $container->getBasicDefinition();
+        $container = $event->getContainer();
 
-        if ($basicDefinition->isCreatable()) {
+        if ($container->getBasicDefinition()->isCreatable()) {
             return;
         }
 
@@ -197,18 +193,17 @@ class CheckPermission implements EventSubscriberInterface
      */
     private function getVisibilityConditionChain($property)
     {
-        $chain = $property->getVisibleCondition();
-        if ($chain
+        if (($chain = $property->getVisibleCondition())
             && ($chain instanceof PropertyConditionChain)
             && $chain->getConjunction() === PropertyConditionChain::AND_CONJUNCTION
         ) {
             return $chain;
         }
 
-        $chain = new PropertyConditionChain($chain ? [$chain] : []);
-        $property->setVisibleCondition($chain);
+        $newChain = new PropertyConditionChain($chain ? [$chain] : []);
+        $property->setVisibleCondition($newChain);
 
-        return $chain;
+        return $newChain;
     }
 
     /**
@@ -227,12 +222,12 @@ class CheckPermission implements EventSubscriberInterface
             $disableCommand = false;
 
             if (\array_key_exists('act', $parameters)
-                && $parameters['act'] === $actionName
+                && ($parameters['act'] === $actionName)
             ) {
                 $disableCommand = true;
             }
 
-            if (!$disableCommand && $command->getName() === $actionName) {
+            if (!$disableCommand && ($command->getName() === $actionName)) {
                 $disableCommand = true;
             }
 

@@ -59,12 +59,11 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ($event->getAction()->getName() !== 'editAll')) {
+            || ('editAll' !== $event->getAction()->getName())) {
             return;
         }
 
-        $response = $this->process($event->getAction(), $event->getEnvironment());
-        if (false !== $response) {
+        if (false !== ($response = $this->process($event->getAction(), $event->getEnvironment()))) {
             $event->setResponse($response);
             $event->stopPropagation();
         }
@@ -75,9 +74,8 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function process(Action $action, EnvironmentInterface $environment)
     {
-        $inputProvider  = $environment->getInputProvider();
-        $dataDefinition = $environment->getDataDefinition();
-        $translator     = $environment->getTranslator();
+        $inputProvider = $environment->getInputProvider();
+        $translator    = $environment->getTranslator();
 
         $renderInformation = new \ArrayObject();
 
@@ -96,7 +94,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                     $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected') . ': ' .
                     $translator->translate('MSC.all.0'),
                 'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
-                'table'       => $dataDefinition->getName(),
+                'table'       => $environment->getDataDefinition()->getName(),
                 'error'       => $renderInformation->offsetGet('error'),
                 'breadcrumb'  => $this->renderBreadcrumb($environment),
                 'editButtons' => $this->getEditButtons($action, $environment),
@@ -127,8 +125,6 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             $model   = $collection->shift();
             $modelId = ModelId::fromModel($model);
 
-            $widgetManager = new ContaoWidgetManager($environment, $model);
-
             $editPropertyValuesBag = $this->getPropertyValueBagFromModel($action, $model, $environment);
             if ($formInputs) {
                 $this->handleEditCollection($action, $editPropertyValuesBag, $model, $renderInformation, $environment);
@@ -136,7 +132,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 
             $fields = $this->renderEditFields(
                 $action,
-                $widgetManager,
+                new ContaoWidgetManager($environment, $model),
                 $model,
                 $editPropertyValuesBag,
                 $environment
@@ -146,15 +142,13 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
-            $fieldSet = [
+            $fieldSets[] = [
                 'label'   => $modelId->getSerialized(),
                 'model'   => $model,
                 'legend'  => \str_replace('::', '____', $modelId->getSerialized()),
                 'class'   => 'tl_box',
                 'palette' => \implode('', $fields)
             ];
-
-            $fieldSets[] = $fieldSet;
         }
 
         $renderInformation->offsetSet('fieldsets', $this->handleLegendCollapsed($fieldSets));
@@ -344,8 +338,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         PropertyInterface $selectProperty,
         PropertyValueBagInterface $propertyValuesBag
     ) {
-        $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
-        if ($editErrors
+        if (($editErrors = $propertyValuesBag->getInvalidPropertyErrors())
             && \array_key_exists($selectProperty->getName(), $editErrors)
         ) {
             $propertyValuesBag->markPropertyValueAsInvalid(

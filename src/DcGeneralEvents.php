@@ -37,7 +37,7 @@ class DcGeneralEvents
      *
      * @api
      */
-    const ACTION = 'dc-general.action';
+    public const ACTION = 'dc-general.action';
 
     /**
      * The VIEW event occurs when a specific view must be rendered.
@@ -51,7 +51,7 @@ class DcGeneralEvents
      *
      * @api
      */
-    const VIEW = 'dc-general.view';
+    public const VIEW = 'dc-general.view';
 
     /**
      * The FORMAT_MODEL_LABEL event occurs when a label for a model must be formatted.
@@ -64,12 +64,12 @@ class DcGeneralEvents
      *
      * @api
      */
-    const FORMAT_MODEL_LABEL = 'dc-general.model.format_model_label';
+    public const FORMAT_MODEL_LABEL = 'dc-general.model.format_model_label';
 
     /**
      * Triggered when a models relationship must be recalculated.
      *
      * @see \ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent
      */
-    const ENFORCE_MODEL_RELATIONSHIP = 'dc-general.model.enforce-relationship';
+    public const ENFORCE_MODEL_RELATIONSHIP = 'dc-general.model.enforce-relationship';
 }

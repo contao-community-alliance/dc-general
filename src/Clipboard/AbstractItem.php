@@ -80,7 +80,7 @@ abstract class AbstractItem implements ItemInterface
      */
     public function isCreate()
     {
-        return ItemInterface::CREATE == $this->action;
+        return ItemInterface::CREATE === $this->action;
     }
 
     /**
@@ -88,7 +88,7 @@ abstract class AbstractItem implements ItemInterface
      */
     public function isCut()
     {
-        return ItemInterface::CUT == $this->action;
+        return ItemInterface::CUT === $this->action;
     }
 
     /**
@@ -96,7 +96,7 @@ abstract class AbstractItem implements ItemInterface
      */
     public function isCopy()
     {
-        return ItemInterface::COPY == $this->action;
+        return ItemInterface::COPY === $this->action;
     }
 
     /**
@@ -104,7 +104,7 @@ abstract class AbstractItem implements ItemInterface
      */
     public function isDeepCopy()
     {
-        return ItemInterface::DEEP_COPY == $this->action;
+        return ItemInterface::DEEP_COPY === $this->action;
     }
 
     /**

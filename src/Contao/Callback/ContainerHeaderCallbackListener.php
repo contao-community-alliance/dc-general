@@ -53,7 +53,7 @@ class ContainerHeaderCallbackListener extends AbstractReturningCallbackListener
      */
     public function update($event, $value)
     {
-        if ($value === null) {
+        if (null === $value) {
             return;
         }
 

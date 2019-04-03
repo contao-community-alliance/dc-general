@@ -54,19 +54,19 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function setEnvironment(EnvironmentInterface $objEnvironment)
+    public function setEnvironment(EnvironmentInterface $environment)
     {
-        $this->objEnvironment = $objEnvironment;
+        $this->objEnvironment = $environment;
         return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addPanel($strKey, $objPanel)
+    public function addPanel($panelName, $panel)
     {
-        $this->arrPanels[$strKey] = $objPanel;
-        $objPanel->setContainer($this);
+        $this->arrPanels[$panelName] = $panel;
+        $panel->setContainer($this);
 
         return $this;
     }
@@ -74,20 +74,19 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function getPanel($strKey)
+    public function getPanel($panelName)
     {
-        return $this->arrPanels[$strKey];
+        return $this->arrPanels[$panelName];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
     {
-        /** @var PanelInterface $objPanel */
-
-        foreach ($this as $objPanel) {
-            $objPanel->initialize($objConfig, $objElement);
+        /** @var PanelInterface $panel */
+        foreach ($this as $panel) {
+            $panel->initialize($config, $element);
         }
     }
 
@@ -96,7 +95,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function updateValues()
     {
-        return ($this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT') === 'tl_filters');
+        return ('tl_filters' === $this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT'));
     }
 
     /**

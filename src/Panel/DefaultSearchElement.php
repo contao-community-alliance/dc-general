@@ -58,13 +58,13 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     protected function getPersistent()
     {
-        $arrValue = [];
+        $values = [];
         if ($this->getSessionStorage()->has('search')) {
-            $arrValue = $this->getSessionStorage()->get('search');
+            $values = $this->getSessionStorage()->get('search');
         }
 
-        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
-            return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $values)) {
+            return $values[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
         return [];
@@ -73,42 +73,42 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * Store the persistent value in the input provider.
      *
-     * @param string $strProperty The property being searched on.
-     * @param string $strValue    The value being searched for.
+     * @param string $propertyName The property being searched on.
+     * @param string $searchValue  The value being searched for.
      *
      * @return void
      */
-    protected function setPersistent($strProperty, $strValue)
+    protected function setPersistent($propertyName, $searchValue)
     {
-        $arrValue       = [];
+        $values         = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
         if ($this->getSessionStorage()->has('search')) {
-            $arrValue = $this->getSessionStorage()->get('search');
+            $values = $this->getSessionStorage()->get('search');
         }
 
-        if (!empty($strValue)) {
-            if (!\is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = [];
+        if (!empty($searchValue)) {
+            if (!\is_array($values[$definitionName])) {
+                $values[$definitionName] = [];
             }
 
-            if ($strValue) {
-                $arrValue[$definitionName]['field'] = $strProperty;
-                $arrValue[$definitionName]['value'] = $strValue;
+            if ($searchValue) {
+                $values[$definitionName]['field'] = $propertyName;
+                $values[$definitionName]['value'] = $searchValue;
             } else {
-                unset($arrValue[$definitionName]);
+                unset($values[$definitionName]);
             }
         } else {
-            unset($arrValue[$definitionName]);
+            unset($values[$definitionName]);
         }
 
-        $this->getSessionStorage()->set('search', $arrValue);
+        $this->getSessionStorage()->set('search', $values);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    public function initialize(ConfigInterface $filterConfig, PanelElementInterface $objElement = null)
     {
         $session = $this->getSessionStorage();
         $input   = $this->getInputProvider();
@@ -135,14 +135,14 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             return;
         }
 
-        $arrCurrent = $objConfig->getFilter();
-        if (!\is_array($arrCurrent)) {
-            $arrCurrent = [];
+        $currents = $filterConfig->getFilter();
+        if (!\is_array($currents)) {
+            $currents = [];
         }
 
-        $objConfig->setFilter(
+        $filterConfig->setFilter(
             \array_merge_recursive(
-                $arrCurrent,
+                $currents,
                 [
                     [
                         'operation' => 'AND',
@@ -162,27 +162,27 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
-    public function render(ViewTemplateInterface $objTemplate)
+    public function render(ViewTemplateInterface $viewTemplate)
     {
-        $arrOptions = [];
+        $options = [];
 
         foreach ($this->getPropertyNames() as $field) {
-            $arrLabel     = $this
+            $lLabels   = $this
                 ->getEnvironment()
                 ->getDataDefinition()
                 ->getPropertiesDefinition()
                 ->getProperty($field)
                 ->getLabel();
-            $arrOptions[] = [
+            $options[] = [
                     'value'      => $field,
-                    'content'    => \is_array($arrLabel) ? $arrLabel[0] : $arrLabel,
-                    'attributes' => ($field == $this->getSelectedProperty()) ? ' selected' : ''
+                    'content'    => \is_array($lLabels) ? $lLabels[0] : $lLabels,
+                    'attributes' => ($field === $this->getSelectedProperty()) ? ' selected' : ''
                 ];
         }
 
-        $objTemplate->set('class', 'tl_select' . (($this->getValue() !== null) ? ' active' : ''));
-        $objTemplate->set('options', $arrOptions);
-        $objTemplate->set('value', $this->getValue());
+        $viewTemplate->set('class', 'tl_select' . ((null !== $this->getValue()) ? ' active' : ''));
+        $viewTemplate->set('options', $options);
+        $viewTemplate->set('value', $this->getValue());
 
         return $this;
     }
@@ -190,9 +190,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
-    public function addProperty($strProperty)
+    public function addProperty($propertyName)
     {
-        $this->arrProperties[] = $strProperty;
+        $this->arrProperties[] = $propertyName;
 
         return $this;
     }
@@ -200,7 +200,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
-    public function getPropertyNames()
+    public function getPropertyNames(): array
     {
         return $this->arrProperties;
     }
@@ -208,9 +208,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
-    public function setSelectedProperty($strProperty = '')
+    public function setSelectedProperty($propertyName = '')
     {
-        $this->strSelectedProperty = $strProperty;
+        $this->strSelectedProperty = $propertyName;
 
         return $this;
     }

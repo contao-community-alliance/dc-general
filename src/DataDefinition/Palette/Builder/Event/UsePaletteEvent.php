@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
  */
 class UsePaletteEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.use-palette';
+    public const NAME = 'dc-general.data-definition.palette.builder.use-palette';
 
     /**
      * The palette.

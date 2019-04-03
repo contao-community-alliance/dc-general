@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetPropertyClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-property-class-name';
+    public const NAME = 'dc-general.data-definition.palette.builder.set-property-class-name';
 
     /**
      * The class name.

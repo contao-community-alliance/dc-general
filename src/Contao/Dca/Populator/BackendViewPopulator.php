@@ -70,15 +70,13 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
             return;
         }
 
-        $definition = $environment->getDataDefinition();
+        $dataDefinition = $environment->getDataDefinition();
 
-        if (!$definition->hasBasicDefinition()) {
+        if (!$dataDefinition->hasBasicDefinition()) {
             return;
         }
 
-        $definition = $definition->getBasicDefinition();
-
-        switch ($definition->getMode()) {
+        switch ($dataDefinition->getBasicDefinition()->getMode()) {
             case BasicDefinitionInterface::MODE_FLAT:
                 $view = new ListView($this->scopeDeterminator);
                 break;
@@ -89,7 +87,8 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
                 $view = new TreeView($this->scopeDeterminator);
                 break;
             default:
-                throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $definition->getMode());
+                $mode = $dataDefinition->getBasicDefinition()->getMode();
+                throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $mode);
         }
 
         $view->setEnvironment($environment);
@@ -107,27 +106,24 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
      */
     protected function populatePanel(EnvironmentInterface $environment)
     {
-        // Already populated or not in Backend? Get out then.
-        if (!(($environment->getView() instanceof BaseView))) {
-            return;
-        }
-
-        $definition = $environment->getDataDefinition();
-
-        if (!$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)) {
-            return;
-        }
-
         /** @var BackendViewInterface $view */
         $view = $environment->getView();
+
+        // Already populated or not in Backend? Get out then.
+        if (!(($view instanceof BaseView))) {
+            return;
+        }
+
+        if (!$environment->getDataDefinition()->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)) {
+            return;
+        }
 
         // Already populated.
         if ($view->getPanel()) {
             return;
         }
 
-        $builder = new PanelBuilder($environment);
-        $view->setPanel($builder->build());
+        $view->setPanel((new PanelBuilder($environment))->build());
     }
 
     /**
@@ -144,7 +140,6 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
         }
 
         $this->populateView($environment);
-
         $this->populatePanel($environment);
     }
 }

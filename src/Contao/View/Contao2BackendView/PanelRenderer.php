@@ -73,14 +73,13 @@ class PanelRenderer
     protected function renderPanelElement($element, $cssClass)
     {
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
 
         $event = new GetPanelElementTemplateEvent($environment, $element);
-        $dispatcher->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $template = $event->getTemplate();
 
-        if ($template === null) {
+        if (null === $template) {
             return '';
         }
 
@@ -124,9 +123,9 @@ class PanelRenderer
     protected function calculatePanelElementCssClass($index, $max)
     {
         return
-            ($index % 2 ? 'odd' : 'even') .
-            ($index == 0 ? ' first' : '') .
-            ($index == $max ? ' last' : '');
+            (($index % 2) ? 'odd' : 'even') .
+            ((0 === $index) ? ' first' : '') .
+            (($max === $index) ? ' last' : '');
     }
 
     /**
@@ -171,17 +170,16 @@ class PanelRenderer
      */
     public function render($ignoredPanels = [])
     {
+        $environment = $this->getEnvironment();
+
         // If in edit/override all mode and list all properties, the panel filter isn´t in use.
-        if ('properties' === $this->getEnvironment()->getInputProvider()->getParameter('select')) {
+        if ('properties' === $environment->getInputProvider()->getParameter('select')) {
             return '';
         }
 
-        if ($this->view->getPanel() === null) {
+        if (null === $this->view->getPanel()) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }
-
-        $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
 
         $panels = [];
         foreach ($this->view->getPanel() as $panel) {
@@ -192,7 +190,7 @@ class PanelRenderer
             $template   = new ContaoBackendViewTemplate('dcbe_general_panel');
             $themeEvent = new GetThemeEvent();
 
-            $dispatcher->dispatch(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_GET_THEME, $themeEvent);
 
             $template
                 ->set('action', \ampersand($environment->getInputProvider()->getRequestUrl(), true))

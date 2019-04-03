@@ -49,7 +49,7 @@ class PageTreeOrder extends AbstractWidget
      */
     protected function getSerializedValue()
     {
-        if ($this->varValue === null) {
+        if (null === $this->varValue) {
             $this->varValue = [];
         }
 

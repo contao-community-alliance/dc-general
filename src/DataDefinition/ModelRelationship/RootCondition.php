@@ -109,9 +109,9 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
      *
      * @throws DcGeneralRuntimeException When an incomplete rule is encountered in the setters.
      */
-    public function applyTo($objModel)
+    public function applyTo($model)
     {
-        $this->guardProviderName($objModel);
+        $this->guardProviderName($model);
 
         if ($this->setOn) {
             foreach ($this->setOn as $rule) {
@@ -125,32 +125,32 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
                     );
                 }
 
-                $objModel->setProperty($rule['property'], $rule['value']);
+                $model->setProperty($rule['property'], $rule['value']);
             }
-        } else {
-            throw new DcGeneralRuntimeException(
-                'Error Processing root condition, you need to specify root condition setters.',
-                1
-            );
+
+            return $this;
         }
 
-        return $this;
+        throw new DcGeneralRuntimeException(
+            'Error Processing root condition, you need to specify root condition setters.',
+            1
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function matches($objModel)
+    public function matches($model)
     {
         try {
-            $this->guardProviderName($objModel);
+            $this->guardProviderName($model);
         } catch (\InvalidArgumentException $exception) {
             return false;
         }
 
         if ($this->getFilterArray()) {
             return static::checkCondition(
-                $objModel,
+                $model,
                 [
                     'operation' => 'AND',
                     'children'  => $this->getFilterArray()

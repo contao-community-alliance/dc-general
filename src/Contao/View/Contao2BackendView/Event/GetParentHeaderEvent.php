@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class GetParentHeaderEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-parent-header';
+    public const NAME = 'dc-general.view.contao2backend.get-parent-header';
 
     /**
      * The additional lines that shall be added to the header section.

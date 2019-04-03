@@ -40,7 +40,8 @@
         "contao-community-alliance/url-builder": "^1.3",
         "symfony/event-dispatcher": "^3.3 || ^4.0",
         "symfony/expression-language": "^3.3 || ^4.0",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-pdo": "*"
     },
     "conflict": {
         "menatwork/contao-multicolumnwizard": "<3.4.0"

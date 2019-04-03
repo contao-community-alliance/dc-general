@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class ModelToLabelEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.model-to-label';
+    public const NAME = 'dc-general.view.contao2backend.model-to-label';
 
     /**
      * The label for the model.

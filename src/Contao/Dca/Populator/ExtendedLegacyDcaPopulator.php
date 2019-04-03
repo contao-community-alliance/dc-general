@@ -72,18 +72,12 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPo
         }
 
         /** @var ExtendedDca $extendedDefinition */
-        $extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
-        $class              = $extendedDefinition->getViewClass();
-
-        if (!$class) {
+        if (!($class = $definition->getDefinition(ExtendedDca::NAME)->getViewClass())) {
             return;
         }
 
-        $viewClass = new \ReflectionClass($class);
-
         /** @var ViewInterface $view */
-        $view = $viewClass->newInstance();
-
+        $view = (new \ReflectionClass($class))->newInstance();
         $view->setEnvironment($environment);
         $environment->setView($view);
     }
@@ -111,18 +105,12 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPo
             return;
         }
 
-        /** @var ExtendedDca $extendedDefinition */
-        $extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
-        $class              = $extendedDefinition->getControllerClass();
-
-        if (!$class) {
+        if (!($class = $definition->getDefinition(ExtendedDca::NAME)->getControllerClass())) {
             return;
         }
 
-        $controllerClass = new \ReflectionClass($class);
-
         /** @var ControllerInterface $controller */
-        $controller = $controllerClass->newInstance();
+        $controller = (new \ReflectionClass($class))->newInstance();
 
         $controller->setEnvironment($environment);
         $environment->setController($controller);

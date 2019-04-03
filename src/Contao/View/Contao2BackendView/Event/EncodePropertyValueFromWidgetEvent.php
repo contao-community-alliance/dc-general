@@ -33,7 +33,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  */
 class EncodePropertyValueFromWidgetEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.encode-property-value-from-widget';
+    public const NAME = 'dc-general.view.contao2backend.encode-property-value-from-widget';
 
     /**
      * The name of the property for which the data shall be decoded.

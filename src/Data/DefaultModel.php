@@ -79,18 +79,18 @@ class DefaultModel extends AbstractModel
      *
      * This method returns null if an unknown property is retrieved.
      *
-     * @param string $strPropertyName The property name to be retrieved.
+     * @param string $propertyName The property name to be retrieved.
      *
      * @return mixed The value of the given property.
      */
-    public function getProperty($strPropertyName)
+    public function getProperty($propertyName)
     {
-        if ($strPropertyName == 'id') {
+        if ('id' === $propertyName) {
             return $this->getID();
         }
 
-        if (\array_key_exists($strPropertyName, $this->arrProperties)) {
-            return $this->arrProperties[$strPropertyName];
+        if (\array_key_exists($propertyName, $this->arrProperties)) {
+            return $this->arrProperties[$propertyName];
         }
 
         return null;
@@ -103,10 +103,7 @@ class DefaultModel extends AbstractModel
      */
     public function getPropertiesAsArray()
     {
-        $arrArray       = $this->arrProperties;
-        $arrArray['id'] = $this->mixID;
-
-        return $arrArray;
+        return \array_merge($this->arrProperties, ['id' => $this->mixID]);
     }
 
     /**
@@ -122,7 +119,7 @@ class DefaultModel extends AbstractModel
      */
     public function setID($mixID)
     {
-        if ($this->mixID == null) {
+        if (null === $this->mixID) {
             $this->setIdRaw($mixID);
             $this->setMeta(static::IS_CHANGED, true);
         }
@@ -147,48 +144,48 @@ class DefaultModel extends AbstractModel
      *
      * This method is not interfaced and MUST only be used for initial values from the data provider.
      *
-     * @param string $strPropertyName The property name to be set.
-     * @param mixed  $varValue        The value to be set.
+     * @param string $propertyName The property name to be set.
+     * @param mixed  $value        The value to be set.
      *
      * @return void
      */
-    public function setPropertyRaw($strPropertyName, $varValue)
+    public function setPropertyRaw($propertyName, $value)
     {
-        $this->arrProperties[$strPropertyName] = $varValue;
+        $this->arrProperties[$propertyName] = $value;
     }
 
     /**
      * Update the property value in the model.
      *
-     * @param string $strPropertyName The property name to be set.
-     * @param mixed  $varValue        The value to be set.
+     * @param string $propertyName The property name to be set.
+     * @param mixed  $value        The value to be set.
      *
      * @return void
      */
-    public function setProperty($strPropertyName, $varValue)
+    public function setProperty($propertyName, $value)
     {
-        if ($varValue !== $this->getProperty($strPropertyName)) {
+        if ($value !== $this->getProperty($propertyName)) {
             $this->setMeta(static::IS_CHANGED, true);
-            $this->setPropertyRaw($strPropertyName, $varValue);
+            $this->setPropertyRaw($propertyName, $value);
         }
     }
 
     /**
      * Update all properties in the model.
      *
-     * @param array $arrProperties The property values as name => value pairs.
+     * @param array $properties The property values as name => value pairs.
      *
      * @return void
      */
-    public function setPropertiesAsArray($arrProperties)
+    public function setPropertiesAsArray($properties)
     {
-        if (\is_array($arrProperties)) {
-            if (\array_key_exists('id', $arrProperties)) {
-                unset($arrProperties['id']);
+        if (\is_array($properties)) {
+            if (\array_key_exists('id', $properties)) {
+                unset($properties['id']);
             }
 
-            foreach ($arrProperties as $strPropertyName => $varValue) {
-                $this->setProperty($strPropertyName, $varValue);
+            foreach ($properties as $propertyName => $value) {
+                $this->setProperty($propertyName, $value);
             }
         }
     }
@@ -200,7 +197,7 @@ class DefaultModel extends AbstractModel
      */
     public function hasProperties()
     {
-        return \count($this->arrProperties) != 0;
+        return 0 !== \count($this->arrProperties);
     }
 
     /**
@@ -221,13 +218,13 @@ class DefaultModel extends AbstractModel
      * For this reason, this method is not interfaced, as only the data provider knows how
      * to set itself to the model.
      *
-     * @param string $strProviderName The name of the corresponding data provider.
+     * @param string $providerName The name of the corresponding data provider.
      *
      * @return void
      */
-    public function setProviderName($strProviderName)
+    public function setProviderName($providerName)
     {
-        $this->strProviderName = $strProviderName;
+        $this->strProviderName = $providerName;
     }
 
     /**

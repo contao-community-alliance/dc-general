@@ -15,6 +15,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -22,6 +23,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\CheckBox;
 use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -106,10 +108,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return;
         }
 
-        $builder = new static($event->getEnvironment());
-        $widget  = $builder->buildWidget($event->getProperty(), $event->getModel());
-
-        $event->setWidget($widget);
+        $event
+            ->setWidget((new static($event->getEnvironment()))->buildWidget($event->getProperty(), $event->getModel()));
     }
 
     /**
@@ -156,21 +156,20 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * @param PropertyInterface $propInfo The property for which the X label shall be generated.
      * @param ModelInterface    $model    The model.
      *
-     * @return string
+     * @return array
      */
-    protected function getOptionsForWidget($propInfo, $model)
+    protected function getOptionsForWidget($propInfo, $model): ?array
     {
         if (!$this->isGetOptionsAllowed($propInfo)) {
             return null;
         }
 
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
         $options     = $propInfo->getOptions();
         $event       = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($propInfo->getName());
         $event->setOptions($options);
-        $dispatcher->dispatch(GetPropertyOptionsEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(GetPropertyOptionsEvent::NAME, $event);
 
         if ($event->getOptions() !== $options) {
             return $event->getOptions();
@@ -184,12 +183,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @param PropertyInterface $property The bag with all information.
      *
-     * @return bool True => allowed to get options | False => don't get options.
+     * @return bool True => allowed to get options | False => doesn't get options.
      */
-    private function isGetOptionsAllowed(PropertyInterface $property)
+    private function isGetOptionsAllowed(PropertyInterface $property): bool
     {
         $propExtra = $property->getExtra();
-        $strClass  = $this->getWidgetClass($property);
 
         // Check the overwrite param.
         if (\is_array($propExtra)
@@ -200,16 +198,12 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         // Check the class.
-        if ('CheckBox' !== $strClass) {
+        if ('checkbox' !== $property->getWidgetType()) {
             return true;
         }
 
         // Check if multiple is active.
-        if (\array_key_exists('multiple', $propExtra) && (true === $propExtra['multiple'])) {
-            return true;
-        }
-
-        return false;
+        return \array_key_exists('multiple', $propExtra) && (true === $propExtra['multiple']);
     }
 
     /**
@@ -254,7 +248,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
         );
 
         $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
-
         $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $importTableEvent);
         $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $shrinkEvent);
         $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $expandEvent);
@@ -311,11 +304,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
     {
         $xLabel      = '';
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
         $translator  = $environment->getTranslator();
 
         // Toggle line wrap (textarea).
-        if ($propInfo->getWidgetType() === 'textarea' && !\array_key_exists('rte', $propInfo->getExtra())) {
+        if (('textarea' === $propInfo->getWidgetType()) && !\array_key_exists('rte', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'wrap.svg',
                 $translator->translate('wordWrap', 'MSC'),
@@ -326,7 +318,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 )
             );
 
-            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
 
             $xLabel .= ' ' . $event->getHtml();
         }
@@ -357,8 +349,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
     {
         $helpWizard  = '';
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $defName     = $environment->getDataDefinition()->getName();
         $translator  = $environment->getTranslator();
         // Add the help wizard.
         if ($propInfo->getExtra() && \array_key_exists('helpwizard', $propInfo->getExtra())) {
@@ -368,13 +358,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'style="vertical-align:text-bottom;"'
             );
 
-            $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
+            $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
 
             $helpWizard .= \sprintf(
-                ' <a href="contao/help.php?table=%s&amp;field=%s" ' .
+                ' <a href="contao/help?table=%s&amp;field=%s" ' .
                 'title="%s" ' .
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
-                $defName,
+                $environment->getDataDefinition()->getName(),
                 $propInfo->getName(),
                 StringUtil::specialchars($translator->translate('helpWizard', 'MSC')),
                 $event->getHtml()
@@ -401,26 +391,30 @@ class WidgetBuilder implements EnvironmentAwareInterface
         PropertyInterface $property,
         ModelInterface $model
     ) {
-        if (TL_MODE !== 'BE') {
+        if (static::$scopeDeterminator->currentScopeIsUnknown()
+            || !static::$scopeDeterminator->currentScopeIsBackend()
+        ) {
             throw new DcGeneralRuntimeException(
-                \sprintf('WidgetBuilder only supports TL_MODE "BE". Running in TL_MODE "%s".', TL_MODE)
+                \sprintf(
+                    'WidgetBuilder only supports the backend mode. Running in mode "%s".',
+                    static::$scopeDeterminator->currentScopeIsUnknown() ? 'unknown' : 'frontend'
+                )
             );
         }
 
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
         $class       = $this->getWidgetClass($property);
 
         $prepareAttributes = $this->prepareWidgetAttributes($model, $property);
+        $widget            = new $class($prepareAttributes, new DcCompat($environment, $model, $property->getName()));
 
-        $widget = new $class($prepareAttributes, new DcCompat($environment, $model, $property->getName()));
         // OH: what is this? source: DataContainer 232.
         $widget->currentRecord = $model->getId();
 
         $widget->xlabel .= $this->getXLabel($property);
 
         $event = new ManipulateWidgetEvent($environment, $model, $property, $widget);
-        $dispatcher->dispatch(ManipulateWidgetEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(ManipulateWidgetEvent::NAME, $event);
 
         return $widget;
     }
@@ -435,17 +429,19 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     private function valueToWidget(ModelInterface $model, PropertyInterface $property)
     {
-        $event = new DecodePropertyValueForWidgetEvent($this->getEnvironment(), $model);
+        $environment = $this->getEnvironment();
+
+        $event = new DecodePropertyValueForWidgetEvent($environment, $model);
         $event
             ->setProperty($property->getName())
             ->setValue($model->getProperty($property->getName()));
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
         $value = $event->getValue();
 
         $propExtra = $property->getExtra();
 
-        if ((int) $value === 0
+        if ((0 === (int) $value)
             && \is_numeric($value)
             && empty($propExtra['mandatory'])
             && (isset($propExtra['rgxp']) && \in_array($propExtra['rgxp'], ['date', 'time', 'datim']))
@@ -469,14 +465,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
     private function prepareWidgetAttributes(ModelInterface $model, PropertyInterface $property)
     {
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
         $defName     = $environment->getDataDefinition()->getName();
 
         $propExtra = $property->getExtra();
 
         $value = $this->valueToWidget($model, $property);
 
-        $propExtra['required'] = ($value === '') && !empty($propExtra['mandatory']);
+        $propExtra['required'] = ('' === $value) && !empty($propExtra['mandatory']);
 
         $widgetConfig = [
             'inputType' => $property->getWidgetType(),
@@ -502,10 +497,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
             new DcCompat($environment, $model, $property->getName())
         );
 
-        $dispatcher->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
         $prepareAttributes = $event->getResult();
 
-        if ($widgetConfig['inputType'] === 'checkbox'
+        if (('checkbox' === $widgetConfig['inputType'])
             && $widgetConfig['eval']['submitOnChange']
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && \is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])

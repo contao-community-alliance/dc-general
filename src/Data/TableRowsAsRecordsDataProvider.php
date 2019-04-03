@@ -291,14 +291,16 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
                     ['id' => $intId, $this->strGroupCol => $item->getId()]
                 );
                 $keep[] = $intId;
-            } else {
-                // Force group col value.
-                $sqlData[$this->strGroupCol] = $item->getId();
 
-                $this->connection->insert($this->source, $sqlData);
-
-                $keep[] = $this->connection->lastInsertId($this->source);
+                continue;
             }
+
+            // Force group col value.
+            $sqlData[$this->strGroupCol] = $item->getId();
+
+            $this->connection->insert($this->source, $sqlData);
+
+            $keep[] = $this->connection->lastInsertId($this->source);
         }
 
         // House keeping, kill the rest.

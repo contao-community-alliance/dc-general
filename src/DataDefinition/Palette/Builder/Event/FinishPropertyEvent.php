@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class FinishPropertyEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.finish-property';
+    public const NAME = 'dc-general.data-definition.palette.builder.finish-property';
 
     /**
      * The property.

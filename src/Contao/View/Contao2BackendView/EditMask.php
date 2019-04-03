@@ -236,7 +236,7 @@ class EditMask
     {
         $input = $this->getEnvironment()->getInputProvider();
 
-        if ($input->getValue('FORM_SUBMIT') == $this->getDataDefinition()->getName()) {
+        if ($input->getValue('FORM_SUBMIT') === $this->getDataDefinition()->getName()) {
             $propertyValues = new PropertyValueBag();
             $propertyNames  = \array_intersect(
                 $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames(),
@@ -264,13 +264,14 @@ class EditMask
      */
     protected function handlePrePersist()
     {
-        if ($this->preFunction !== null) {
-            \call_user_func($this->preFunction, $this->getEnvironment(), $this->model, $this->originalModel);
+        $environment = $this->getEnvironment();
+        if (null !== $this->preFunction) {
+            \call_user_func($this->preFunction, $environment, $this->model, $this->originalModel);
         }
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch(
+        $environment->getEventDispatcher()->dispatch(
             PrePersistModelEvent::NAME,
-            new PrePersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel)
+            new PrePersistModelEvent($environment, $this->model, $this->originalModel)
         );
     }
 
@@ -281,12 +282,13 @@ class EditMask
      */
     protected function handlePostPersist()
     {
-        if ($this->postFunction != null) {
-            \call_user_func($this->postFunction, $this->getEnvironment(), $this->model, $this->originalModel);
+        $environment = $this->getEnvironment();
+        if (null !== $this->postFunction) {
+            \call_user_func($this->postFunction, $environment, $this->model, $this->originalModel);
         }
 
-        $event = new PostPersistModelEvent($this->getEnvironment(), $this->model, $this->originalModel);
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $event = new PostPersistModelEvent($environment, $this->model, $this->originalModel);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
     }
 
     /**
@@ -304,10 +306,11 @@ class EditMask
     protected function getButtonLabel($buttonLabel)
     {
         $translator = $this->getEnvironment()->getTranslator();
-        $definition = $this->getDataDefinition();
-        if (($label = $translator->translate($buttonLabel, $definition->getName())) !== $buttonLabel) {
+        if (($label = $translator->translate($buttonLabel, $this->getDataDefinition()->getName())) !== $buttonLabel) {
             return $label;
-        } elseif (($label = $translator->translate('MSC.' . $buttonLabel)) !== $buttonLabel) {
+        }
+
+        if (($label = $translator->translate('MSC.' . $buttonLabel)) !== $buttonLabel) {
             return $label;
         }
 
@@ -326,8 +329,7 @@ class EditMask
     protected function getEditButtons()
     {
         $buttons         = [];
-        $definition      = $this->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
+        $basicDefinition = $this->getDataDefinition()->getBasicDefinition();
 
         $buttonTemplate = new ContaoBackendViewTemplate('dc_general_button');
 
@@ -339,7 +341,7 @@ class EditMask
                     'name'      => 'save',
                     'id'        => 'save',
                     'class'     => 'tl_submit',
-                    'accesskey' => 's',
+                    'accesskey' => 's'
                 ]
             ]
         );
@@ -353,7 +355,7 @@ class EditMask
                     'name'      => 'saveNclose',
                     'id'        => 'saveNclose',
                     'class'     => 'tl_submit',
-                    'accesskey' => 'c',
+                    'accesskey' => 'c'
                 ]
             ]
         );
@@ -368,7 +370,7 @@ class EditMask
                         'name'      => 'saveNcreate',
                         'id'        => 'saveNcreate',
                         'class'     => 'tl_submit',
-                        'accesskey' => 'n',
+                        'accesskey' => 'n'
                     ]
                 ]
             );
@@ -384,14 +386,14 @@ class EditMask
                         'name'      => 'saveNedit',
                         'id'        => 'saveNedit',
                         'class'     => 'tl_submit',
-                        'accesskey' => 'e',
+                        'accesskey' => 'e'
                     ]
                 ]
             );
             $buttons['saveNedit'] = $buttonTemplate->parse();
         } elseif (!$this->isPopup()
-                  && (($basicDefinition->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST)
-                      || strlen($basicDefinition->getParentDataProvider())
+                  && ((BasicDefinitionInterface::MODE_PARENTEDLIST === $basicDefinition->getMode())
+                      || '' !== $basicDefinition->getParentDataProvider()
                       || $basicDefinition->isSwitchToEditEnabled()
                   )
         ) {
@@ -403,7 +405,7 @@ class EditMask
                         'name'      => 'saveNback',
                         'id'        => 'saveNback',
                         'class'     => 'tl_submit',
-                        'accesskey' => 'g',
+                        'accesskey' => 'g'
                     ]
                 ]
             );
@@ -449,7 +451,7 @@ class EditMask
         $definition          = $this->getDataDefinition();
         $translator          = $environment->getTranslator();
         $propertyDefinitions = $definition->getPropertiesDefinition();
-        $isAutoSubmit        = ($environment->getInputProvider()->getValue('SUBMIT_TYPE') === 'auto');
+        $isAutoSubmit        = ('auto' === $environment->getInputProvider()->getValue('SUBMIT_TYPE'));
         $legendStates        = $this->getLegendStates();
         $editInformation     = $GLOBALS['container']['dc-general.edit-information'];
 
@@ -612,14 +614,14 @@ class EditMask
         if ($this->model->getId()) {
             $headline = $translator->translate('editRecord', $definitionName, [$this->model->getId()]);
 
-            if ($headline !== 'editRecord') {
+            if ('editRecord' !== $headline) {
                 return $headline;
             }
             return $translator->translate('MSC.editRecord', null, [$this->model->getId()]);
         }
 
         $headline = $translator->translate('newRecord', $definitionName, [$this->model->getId()]);
-        if ($headline !== 'newRecord') {
+        if ('newRecord' !== $headline) {
             return $headline;
         }
 
@@ -635,10 +637,9 @@ class EditMask
      */
     protected function doPersist()
     {
-        $environment     = $this->getEnvironment();
-        $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
-        $inputProvider   = $environment->getInputProvider();
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $environment   = $this->getEnvironment();
+        $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
+        $inputProvider = $environment->getInputProvider();
 
         if (!$this->model->getMeta(ModelInterface::IS_CHANGED)) {
             return true;
@@ -646,7 +647,7 @@ class EditMask
 
         $this->handlePrePersist();
 
-        if (($this->model->getId() === null) && $this->getManualSortingProperty()) {
+        if ((null === $this->model->getId()) && $this->getManualSortingProperty()) {
             $models = $dataProvider->getEmptyCollection();
             $models->push($this->model);
 
@@ -687,6 +688,7 @@ class EditMask
             if (!$this->allValuesUnique()) {
                 return false;
             }
+            $editInformation = $GLOBALS['container']['dc-general.edit-information'];
 
             // Save the model.
             $dataProvider->save($this->model, $editInformation->uniformTime());
@@ -709,19 +711,19 @@ class EditMask
     protected function allValuesUnique()
     {
         // Init some vars.
-        $translator      = $this->getEnvironment()->getTranslator();
-        $dataProvider    = $this->getEnvironment()->getDataProvider($this->model->getProviderName());
-        $propertyNames   = $this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames();
+        $environment     = $this->getEnvironment();
+        $translator      = $environment->getTranslator();
+        $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
         $editInformation = $GLOBALS['container']['dc-general.edit-information'];
 
         // Run each and check the unique flag.
-        foreach ($propertyNames as $propertyName) {
+        foreach ($this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames() as $propertyName) {
             $definition = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($propertyName);
             $extra      = $definition->getExtra();
             $value      = $this->model->getProperty($propertyName);
 
             // Check the flag and the value.
-            if ($value != '' && $extra['unique'] && isset($extra['unique'])) {
+            if (('' !== $value) && $extra['unique'] && isset($extra['unique'])) {
                 // Check the database. If return true the value is already in the database.
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
                     $editInformation->setModelError(
@@ -759,8 +761,8 @@ class EditMask
         $dataProviderInformation = $dataProviderDefinition->getInformation($this->model->getProviderName());
         $inputProvider           = $environment->getInputProvider();
         $palettesDefinition      = $definition->getPalettesDefinition();
-        $blnSubmitted            = ($inputProvider->getValue('FORM_SUBMIT') === $definition->getName());
-        $blnIsAutoSubmit         = ($inputProvider->getValue('SUBMIT_TYPE') === 'auto');
+        $submitted               = ($definition->getName() === $inputProvider->getValue('FORM_SUBMIT'));
+        $isAutoSubmit            = ('auto' === $inputProvider->getValue('SUBMIT_TYPE'));
         $editInformation         = $GLOBALS['container']['dc-general.edit-information'];
 
         $widgetManager = new ContaoWidgetManager($environment, $this->model);
@@ -789,7 +791,7 @@ class EditMask
         }
 
         $propertyValues = $this->processInput($widgetManager);
-        if ($blnSubmitted && $propertyValues) {
+        if ($submitted && $propertyValues) {
             // Pass 2: Determine the real palette we want to work on if we have some data submitted.
             $palette = $palettesDefinition->findPalette($this->model, $propertyValues);
 
@@ -799,14 +801,14 @@ class EditMask
 
         $fieldSets = $this->buildFieldSet($widgetManager, $palette, $propertyValues);
 
-        if ((!$blnIsAutoSubmit) && $blnSubmitted && !$editInformation->getModelError($this->model)) {
+        if ((!$isAutoSubmit) && $submitted && !$editInformation->getModelError($this->model)) {
             if ($this->doPersist()) {
                 $this->handleSubmit($this->model);
             }
         }
 
-        $objTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
-        $objTemplate->setData(
+        $viewTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
+        $viewTemplate->setData(
             [
                 'fieldsets'   => $fieldSets,
                 'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
@@ -822,9 +824,9 @@ class EditMask
             ]
         );
 
-        $this->executeMultiLanguage($objTemplate);
+        $this->executeMultiLanguage($viewTemplate);
 
-        return $objTemplate->parse();
+        return $viewTemplate->parse();
     }
 
     /**
@@ -847,7 +849,7 @@ class EditMask
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $dataProvider = $this->getEnvironment()->getDataProvider();
 
-            $langsNative = System::getLanguages();
+            $languages = System::getLanguages();
 
             $template->set(
                 'languages',
@@ -855,12 +857,13 @@ class EditMask
             )
                 ->set('language', $dataProvider->getCurrentLanguage())
                 ->set('languageSubmit', $this->environment->getTranslator()->translate('MSC.showSelected'))
-                ->set('languageHeadline', $langsNative[$dataProvider->getCurrentLanguage()]);
-        } else {
-            $template
-                ->set('languages', null)
-                ->set('languageHeadline', '');
+                ->set('languageHeadline', $languages[$dataProvider->getCurrentLanguage()]);
+            return;
         }
+
+        $template
+            ->set('languages', null)
+            ->set('languageHeadline', '');
     }
 
     /**
@@ -912,11 +915,11 @@ class EditMask
             $legendStates = $legendStates[$definition->getName()];
 
             return $legendStates;
-        } else {
-            $legendStates = [];
-
-            return $legendStates;
         }
+
+        $legendStates = [];
+
+        return $legendStates;
     }
 
     /**

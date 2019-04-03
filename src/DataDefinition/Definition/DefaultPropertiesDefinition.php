@@ -83,11 +83,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      */
     public function removeProperty($property)
     {
-        if ($property instanceof PropertyInterface) {
-            $name = $property->getName();
-        } else {
-            $name = $property;
-        }
+        $name = ($property instanceof PropertyInterface) ? $property->getName() : $property;
 
         if (!$this->hasProperty($name)) {
             throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');

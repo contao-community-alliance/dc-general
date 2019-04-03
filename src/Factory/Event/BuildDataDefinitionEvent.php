@@ -29,7 +29,7 @@ use Symfony\Component\EventDispatcher\Event;
  */
 class BuildDataDefinitionEvent extends Event
 {
-    const NAME = 'dc-general.factory.build-data-definition';
+    public const NAME = 'dc-general.factory.build-data-definition';
 
     /**
      * The data definition container being built.

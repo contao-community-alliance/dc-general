@@ -53,8 +53,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function setPalettes(array $palettes)
     {
-        $this->clearPalettes();
-        $this->addPalettes($palettes);
+        $this->clearPalettes()->addPalettes($palettes);
         return $this;
     }
 
@@ -74,9 +73,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function addPalette(PaletteInterface $palette)
     {
-        $hash = \spl_object_hash($palette);
-
-        $this->palettes[$hash] = $palette;
+        $this->palettes[\spl_object_hash($palette)] = $palette;
         return $this;
     }
 
@@ -85,8 +82,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function removePalette(PaletteInterface $palette)
     {
-        $hash = \spl_object_hash($palette);
-        unset($this->palettes[$hash]);
+        unset($this->palettes[\spl_object_hash($palette)]);
         return $this;
     }
 
@@ -103,8 +99,7 @@ class PaletteCollection implements PaletteCollectionInterface
      */
     public function hasPalette(PaletteInterface $palette)
     {
-        $hash = \spl_object_hash($palette);
-        return isset($this->palettes[$hash]);
+        return isset($this->palettes[\spl_object_hash($palette)]);
     }
 
     /**
@@ -123,7 +118,7 @@ class PaletteCollection implements PaletteCollectionInterface
             if ($condition) {
                 $count = $condition->getMatchCount($model, $input);
 
-                if ($count !== false) {
+                if (false !== $count) {
                     $matches[$count][] = $palette;
                 }
             }
@@ -135,7 +130,7 @@ class PaletteCollection implements PaletteCollectionInterface
         // Get palettes with highest matching count.
         $palettes = \array_pop($matches);
 
-        if (\count($palettes) !== 1) {
+        if (1 !== \count($palettes)) {
             throw new DcGeneralInvalidArgumentException(\sprintf('%d matching palettes found.', \count($palettes)));
         }
 
@@ -148,7 +143,7 @@ class PaletteCollection implements PaletteCollectionInterface
     public function hasPaletteByName($paletteName)
     {
         foreach ($this->palettes as $palette) {
-            if ($palette->getName() == $paletteName) {
+            if ($paletteName === $palette->getName()) {
                 return true;
             }
         }
@@ -164,7 +159,7 @@ class PaletteCollection implements PaletteCollectionInterface
     public function getPaletteByName($paletteName)
     {
         foreach ($this->palettes as $palette) {
-            if ($palette->getName() == $paletteName) {
+            if ($paletteName === $palette->getName()) {
                 return $palette;
             }
         }

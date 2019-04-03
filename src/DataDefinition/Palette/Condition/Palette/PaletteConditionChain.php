@@ -48,9 +48,9 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
 
             $conditionCount = $condition->getMatchCount($model, $input);
 
-            if ($conditionCount !== false) {
+            if (false !== $conditionCount) {
                 $totalCount += $conditionCount;
-            } elseif ($this->conjunction == static::AND_CONJUNCTION) {
+            } elseif (static::AND_CONJUNCTION === $this->conjunction) {
                 return false;
             }
         }

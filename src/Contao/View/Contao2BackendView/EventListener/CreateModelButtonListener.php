@@ -52,8 +52,7 @@ class CreateModelButtonListener
         }
 
         $environment     = $event->getEnvironment();
-        $definition      = $environment->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
+        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
         $mode            = $basicDefinition->getMode();
 
         if (!$basicDefinition->isCreatable()) {
@@ -61,8 +60,8 @@ class CreateModelButtonListener
             return;
         }
 
-        if (($mode == BasicDefinitionInterface::MODE_PARENTEDLIST)
-            || ($mode == BasicDefinitionInterface::MODE_HIERARCHICAL)
+        if ((BasicDefinitionInterface::MODE_PARENTEDLIST === $mode)
+            || (BasicDefinitionInterface::MODE_HIERARCHICAL === $mode)
         ) {
             $filter = new Filter();
             $filter->andModelIsFromProvider($basicDefinition->getDataProvider());

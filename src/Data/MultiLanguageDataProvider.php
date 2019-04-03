@@ -57,13 +57,9 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      */
     public function getLanguages($mixID)
     {
-        $collection = new DefaultLanguageInformationCollection();
-
-        $collection
+        return (new DefaultLanguageInformationCollection())
             ->add(new DefaultLanguageInformation('de', null))
             ->add(new DefaultLanguageInformation('en', null));
-
-        return $collection;
     }
 
     /**
@@ -83,13 +79,13 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
     /**
      * Set the current working language for the whole data provider.
      *
-     * @param string $strLanguage The new language, use short tag "2 chars like de, fr etc.".
+     * @param string $language The new language, use short tag "2 chars like de, fr etc.".
      *
      * @return DataProviderInterface
      */
-    public function setCurrentLanguage($strLanguage)
+    public function setCurrentLanguage($language)
     {
-        $this->strCurrentLanguage = $strLanguage;
+        $this->strCurrentLanguage = $language;
 
         return $this;
     }

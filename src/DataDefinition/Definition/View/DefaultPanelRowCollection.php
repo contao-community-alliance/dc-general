@@ -55,12 +55,12 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     public function addRow($index = -1)
     {
         $row = new DefaultPanelRow();
-
         if (($index < 0) || ($this->getRowCount() <= $index)) {
             $this->rows[] = $row;
-        } else {
-            \array_splice($this->rows, $index, 0, [$row]);
+            return $row;
         }
+
+        \array_splice($this->rows, $index, 0, [$row]);
 
         return $row;
     }

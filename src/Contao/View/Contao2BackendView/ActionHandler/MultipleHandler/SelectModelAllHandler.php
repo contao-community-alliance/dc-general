@@ -49,17 +49,17 @@ class SelectModelAllHandler
      *
      * @param ActionEvent $event The event.
      *
-     * @return null
+     * @return void
      */
     public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || 'selectModelAll' !== $event->getAction()->getName()
+            || ('selectModelAll' !== $event->getAction()->getName())
         ) {
-            return null;
+            return;
         }
 
-        if ($response = $this->process($event->getAction(), $event->getEnvironment())) {
+        if (false !== ($response = $this->process($event->getAction(), $event->getEnvironment()))) {
             $event->setResponse($response);
         }
     }
@@ -74,10 +74,18 @@ class SelectModelAllHandler
      */
     private function process(Action $action, EnvironmentInterface $environment)
     {
-        $arguments           = $action->getArguments();
-        $arguments['mode']   = $environment->getInputProvider()->getParameter('mode');
-        $arguments['select'] = $environment->getInputProvider()->getParameter('select');
+        $inputProvider = $environment->getInputProvider();
 
-        return $this->callAction($environment, 'showAll', $arguments);
+        return $this->callAction(
+            $environment,
+            'showAll',
+            \array_merge(
+                $action->getArguments(),
+                [
+                    'mode' => $inputProvider->getParameter('mode'),
+                    'select' => $inputProvider->getParameter('select')
+                ]
+            )
+        );
     }
 }

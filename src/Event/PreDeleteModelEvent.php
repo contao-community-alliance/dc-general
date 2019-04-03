@@ -26,5 +26,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
  */
 class PreDeleteModelEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.model.pre-delete';
+    public const NAME = 'dc-general.model.pre-delete';
 }

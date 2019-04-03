@@ -120,11 +120,11 @@ class DefaultEditInformation implements EditInformationInterface
             return $modelErrors;
         }
 
-        $errors = [];
+        $errors = [[]];
         foreach ($this->getModelError($model) as $modelError) {
-            $errors = \array_merge($errors, $modelError);
+            $errors[] = $modelError;
         }
 
-        return $errors;
+        return \array_merge(...$errors);
     }
 }

@@ -113,7 +113,7 @@ class ModelId implements ModelIdInterface
 
         $chunks = \explode('::', $serialized);
 
-        if (\count($chunks) !== 2) {
+        if (2 !== \count($chunks)) {
             throw new DcGeneralRuntimeException('Unparsable encoded id value: ' . \var_export($serialized, true));
         }
 

@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class FinishConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.finish-condition';
+    public const NAME = 'dc-general.data-definition.palette.builder.finish-condition';
 
     /**
      * The condition.
@@ -63,8 +63,13 @@ class FinishConditionEvent extends BuilderEvent
      */
     public function setCondition($condition)
     {
-        if ((!$condition instanceof PaletteConditionInterface) && (!$condition instanceof PropertyConditionInterface)) {
-            throw new DcGeneralInvalidArgumentException();
+        if ((!$condition instanceof PaletteConditionInterface)
+            && (!$condition instanceof PropertyConditionInterface)
+        ) {
+            throw new DcGeneralInvalidArgumentException(
+                'The condition is invalid. ' .
+                ' Only use PaletteConditionInterface or PropertyConditionInterface.'
+            );
         }
 
         $this->condition = $condition;

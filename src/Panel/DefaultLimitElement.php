@@ -70,19 +70,25 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function calculateTotal()
     {
-        $objTempConfig = $this->getOtherConfig();
-        $total         = $this
+        $otherConfig = $this->getOtherConfig();
+        $total       = $this
             ->getEnvironment()
             ->getDataProvider()
-            ->fetchAll($objTempConfig->setIdOnly(true));
+            ->fetchAll($otherConfig->setIdOnly(true));
 
         if (\is_array($total)) {
             $this->intTotal = $total ? \count($total) : 0;
-        } elseif (\is_object($total)) {
-            $this->intTotal = $total->length();
-        } else {
-            $this->intTotal = 0;
+
+            return;
         }
+
+        if (\is_object($total)) {
+            $this->intTotal = $total->length();
+
+            return;
+        }
+
+        $this->intTotal = 0;
     }
 
     /**
@@ -92,13 +98,13 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getPersistent()
     {
-        $arrValue = [];
+        $values = [];
         if ($this->getSessionStorage()->has('limit')) {
-            $arrValue = $this->getSessionStorage()->get('limit');
+            $values = $this->getSessionStorage()->get('limit');
         }
 
-        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $arrValue)) {
-            return $arrValue[$this->getEnvironment()->getDataDefinition()->getName()];
+        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $values)) {
+            return $values[$this->getEnvironment()->getDataDefinition()->getName()];
         }
 
         return [];
@@ -107,40 +113,41 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * Store the persistent value in the input provider.
      *
-     * @param int $intOffset The offset.
-     * @param int $intAmount The amount of items to show.
+     * @param int $offset The offset.
+     * @param int $amount The amount of items to show.
      *
      * @return void
      */
-    protected function setPersistent($intOffset, $intAmount)
+    protected function setPersistent($offset, $amount)
     {
-        $arrValue       = [];
         $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
 
+        $values = [];
+
         if ($this->getSessionStorage()->has('limit')) {
-            $arrValue = $this->getSessionStorage()->get('limit');
+            $values = $this->getSessionStorage()->get('limit');
         }
 
-        if ($intOffset) {
-            if (!\is_array($arrValue[$definitionName])) {
-                $arrValue[$definitionName] = [];
+        if ($offset) {
+            if (!\is_array($values[$definitionName])) {
+                $values[$definitionName] = [];
             }
 
-            $arrValue[$definitionName]['offset'] = $intOffset;
-            $arrValue[$definitionName]['amount'] = $intAmount;
+            $values[$definitionName]['offset'] = $offset;
+            $values[$definitionName]['amount'] = $amount;
         } else {
-            unset($arrValue[$definitionName]);
+            unset($values[$definitionName]);
         }
 
-        $this->getSessionStorage()->set('limit', $arrValue);
+        $this->getSessionStorage()->set('limit', $values);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
     {
-        if ($objElement === null) {
+        if (null === $element) {
             $this->calculateTotal();
 
             $offset = 0;
@@ -148,9 +155,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
             $input = $this->getInputProvider();
             if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
-                $limit  = \explode(',', $input->getValue('tl_limit'));
-                $offset = $limit[0];
-                $amount = $limit[1];
+                [$offset, $amount] = \explode(',', $input->getValue('tl_limit'));
 
                 $this->setPersistent($offset, $amount);
             }
@@ -172,14 +177,14 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 }
             }
 
-            if ($offset !== null) {
+            if (null !== $offset) {
                 $this->setOffset($offset);
                 $this->setAmount($amount);
             }
         }
 
-        $objConfig->setStart($this->getOffset());
-        $objConfig->setAmount($this->getAmount());
+        $config->setStart($this->getOffset());
+        $config->setAmount($this->getAmount());
     }
 
     /**
@@ -188,9 +193,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function render(ViewTemplateInterface $objTemplate)
+    public function render(ViewTemplateInterface $viewTemplate)
     {
-        $arrOptions = [
+        $options = [
             [
                 'value'      => 'tl_limit',
                 'attributes' => '',
@@ -210,25 +215,25 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 $upperLimit = $this->intTotal;
             }
 
-            $arrOptions[] = [
+            $options[] = [
                 'value'      => $thisLimit,
-                'attributes' => ($this->getOffset() == $first) ? ' selected' : '',
+                'attributes' => ($first === $this->getOffset()) ? ' selected' : '',
                 'content'    => ($first + 1) . ' - ' . $upperLimit
             ];
         }
 
         if ($this->intTotal > $optionsPerPage) {
-            $arrOptions[] = [
+            $options[] = [
                 'value'      => 'all',
                 'attributes' =>
-                    (($this->getOffset() == 0) && ($this->getAmount() == $this->intTotal))
+                    ((0 === $this->getOffset()) && ($this->intTotal === $this->getAmount()))
                         ? 'selected'
                         : '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
             ];
         }
 
-        $objTemplate->set('options', $arrOptions);
+        $viewTemplate->set('options', $options);
 
         return $this;
     }
@@ -236,9 +241,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * {@inheritDoc}
      */
-    public function setOffset($intOffset)
+    public function setOffset($offset)
     {
-        $this->intOffset = $intOffset;
+        $this->intOffset = $offset;
 
         return $this;
     }

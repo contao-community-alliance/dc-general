@@ -67,10 +67,9 @@ class EditHandler
             return;
         }
 
-        $action = $event->getAction();
         // Only handle if we do not have a manual sorting or we know where to insert.
         // Manual sorting is handled by clipboard.
-        if ($action->getName() !== 'edit') {
+        if ('edit' !== $event->getAction()->getName()) {
             return;
         }
 
@@ -80,8 +79,7 @@ class EditHandler
             return;
         }
 
-        $response = $this->process($event->getEnvironment());
-        if (false !== $response) {
+        if (false !== ($response = $this->process($event->getEnvironment()))) {
             $event->setResponse($response);
         }
     }
@@ -108,8 +106,7 @@ class EditHandler
 
         $this->checkRestoreVersion($environment, $modelId);
 
-        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
-        if (!$model) {
+        if (!($model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId())))) {
             throw new DcGeneralRuntimeException('Could not retrieve model with id ' . $modelId->getSerialized());
         }
 
@@ -120,9 +117,7 @@ class EditHandler
             $this->handleGlobalCommands($environment);
         }
 
-        $editMask = new EditMask($view, $model, $clone, null, null, $view->breadcrumb());
-
-        return $editMask->execute();
+        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb()))->execute();
     }
 
     /**
@@ -134,24 +129,20 @@ class EditHandler
      */
     private function checkPermission(ActionEvent $event)
     {
-        $environment     = $event->getEnvironment();
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $dataDefinition->getBasicDefinition();
+        $environment = $event->getEnvironment();
 
-        if (true === $basicDefinition->isEditable()) {
+        if (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable()) {
             return true;
         }
 
         $inputProvider = $environment->getInputProvider();
-
-        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
         $event->setResponse(
             \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for edit model %s.
                 </div>',
-                $modelId->getSerialized()
+                ModelId::fromSerialized($inputProvider->getParameter('id'))->getSerialized()
             )
         );
 
@@ -175,39 +166,37 @@ class EditHandler
      */
     private function checkRestoreVersion(EnvironmentInterface $environment, ModelId $modelId)
     {
-        $definition    = $environment->getDataDefinition();
         $inputProvider = $environment->getInputProvider();
 
-        $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProvider            = $environment->getDataProvider($modelId->getDataProviderName());
-        $dataProviderInformation = $dataProviderDefinition->getInformation($modelId->getDataProviderName());
+        $dataProviderDefinition = $environment->getDataDefinition()->getDataProviderDefinition();
+        $dataProvider           = $environment->getDataProvider($modelId->getDataProviderName());
 
-        if ($dataProviderInformation->isVersioningEnabled()
-            && ($inputProvider->getValue('FORM_SUBMIT') === 'tl_version')
-            && ($modelVersion = $inputProvider->getValue('version')) !== null
+        if (!((null !== ($modelVersion = $inputProvider->getValue('version')))
+            && ('tl_version' === $inputProvider->getValue('FORM_SUBMIT'))
+            && $dataProviderDefinition->getInformation($modelId->getDataProviderName())->isVersioningEnabled())
         ) {
-            $model = $dataProvider->getVersion($modelId->getId(), $modelVersion);
-
-            if ($model === null) {
-                $message = \sprintf(
-                    'Could not load version %s of record ID %s from %s',
-                    $modelVersion,
-                    $modelId->getId(),
-                    $modelId->getDataProviderName()
-                );
-
-                $environment->getEventDispatcher()->dispatch(
-                    ContaoEvents::SYSTEM_LOG,
-                    new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
-                );
-
-                throw new DcGeneralRuntimeException($message);
-            }
-
-            $dataProvider->save($model);
-            $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+            return;
         }
+
+        if (null === ($model = $dataProvider->getVersion($modelId->getId(), $modelVersion))) {
+            $message = \sprintf(
+                'Could not load version %s of record ID %s from %s',
+                $modelVersion,
+                $modelId->getId(),
+                $modelId->getDataProviderName()
+            );
+
+            $environment->getEventDispatcher()->dispatch(
+                ContaoEvents::SYSTEM_LOG,
+                new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
+            );
+
+            throw new DcGeneralRuntimeException($message);
+        }
+
+        $dataProvider->save($model);
+        $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
     }
 
     /**
@@ -219,8 +208,7 @@ class EditHandler
      */
     protected function handleGlobalCommands(EnvironmentInterface $environment)
     {
-        $dataDefinition = $environment->getDataDefinition();
-        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $backendView    = $environment->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         $globalCommands = $backendView->getGlobalCommands();
 
         $globalCommands->clearCommands();

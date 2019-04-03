@@ -207,7 +207,7 @@ class DefaultController implements ControllerInterface
      *
      * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
      */
-    public function assembleAllChildrenFrom($objModel, $strDataProvider = '')
+    public function assembleAllChildrenFrom($model, $providerName = '')
     {
         // @codingStandardsIgnoreStart
         @\trigger_error(
@@ -216,7 +216,7 @@ class DefaultController implements ControllerInterface
         );
         // @codingStandardsIgnoreEnd
 
-        return $this->modelCollector->collectChildrenOf($objModel, $strDataProvider);
+        return $this->modelCollector->collectChildrenOf($model, $providerName);
     }
 
     /**
@@ -267,7 +267,7 @@ class DefaultController implements ControllerInterface
         $config        = $environment->getBaseConfigRegistry()->getBaseConfig();
         $relationships = $definition->getModelRelationshipDefinition();
 
-        if ($definition->getBasicDefinition()->getMode() !== BasicDefinitionInterface::MODE_HIERARCHICAL) {
+        if (BasicDefinitionInterface::MODE_HIERARCHICAL !== $definition->getBasicDefinition()->getMode()) {
             throw new DcGeneralRuntimeException('Unable to retrieve children in non hierarchical mode.');
         }
 
@@ -300,36 +300,39 @@ class DefaultController implements ControllerInterface
     /**
      * Return all supported languages from the default data data provider.
      *
-     * @param mixed $mixID The id of the item for which to retrieve the valid languages.
+     * @param mixed $currentID The id of the item for which to retrieve the valid languages.
      *
      * @return array
      */
-    public function getSupportedLanguages($mixID)
+    public function getSupportedLanguages($currentID)
     {
-        $environment     = $this->getEnvironment();
-        $objDataProvider = $environment->getDataProvider();
+        $environment  = $this->getEnvironment();
+        $dataProvider = $environment->getDataProvider();
 
         // Check if current data provider supports multi language.
-        if ($objDataProvider instanceof MultiLanguageDataProviderInterface) {
-            $supportedLanguages = $objDataProvider->getLanguages($mixID);
+        if ($dataProvider instanceof MultiLanguageDataProviderInterface) {
+            $supportedLanguages = $dataProvider->getLanguages($currentID);
         } else {
             $supportedLanguages = null;
         }
 
         // Check if we have some languages.
-        if ($supportedLanguages == null) {
+        if (null === $supportedLanguages) {
             return [];
         }
 
+        $translator = $environment->getTranslator();
+
         // Make an array from the collection.
-        $arrLanguage = [];
-        $translator  = $environment->getTranslator();
+        $languages = [];
         foreach ($supportedLanguages as $value) {
             /** @var LanguageInformationInterface $value */
-            $arrLanguage[$value->getLocale()] = $translator->translate('LNG.' . $value->getLocale(), 'languages');
+            $locale = $value->getLocale();
+
+            $languages[$locale] = $translator->translate('LNG.' . $locale, 'languages');
         }
 
-        return $arrLanguage;
+        return $languages;
     }
 
     /**
@@ -350,14 +353,14 @@ class DefaultController implements ControllerInterface
         $propName = $property->getName();
 
         // Check doNotCopy.
-        if (isset($extra['doNotCopy']) && $extra['doNotCopy'] === true) {
+        if (isset($extra['doNotCopy']) && (true === $extra['doNotCopy'])) {
             $model->setProperty($propName, null);
             return;
         }
 
         // Check uniqueness.
         if (isset($extra['unique'])
-            && $extra['unique'] === true
+            && (true === $extra['unique'])
             && !$dataProvider->isUniqueValue($propName, $model->getProperty($propName))
         ) {
             // Implicit "do not copy" unique values, they cannot be unique anymore.
@@ -428,7 +431,7 @@ class DefaultController implements ControllerInterface
         foreach ($properties as $property) {
             $propName = $property->getName();
 
-            if ($property->getDefaultValue() !== null) {
+            if (null !== $property->getDefaultValue()) {
                 $model->setProperty($propName, $property->getDefaultValue());
             }
         }
@@ -545,7 +548,7 @@ class DefaultController implements ControllerInterface
         $actions = [
             [
                 'model' => $model,
-                'item'  => new Item($action, $parentModelId, ModelId::fromModel($model)),
+                'item'  => new Item($action, $parentModelId, ModelId::fromModel($model))
             ]
         ];
 
@@ -630,6 +633,7 @@ class DefaultController implements ControllerInterface
         foreach ($actions as &$action) {
             $this->applyAction($action, $deepCopyList, $parentModel);
         }
+        unset($action);
 
         // When pasting after another model, apply same grouping information
         $this->ensureSameGrouping($actions, $after);
@@ -838,11 +842,14 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $into = null,
         ModelIdInterface $parent = null
     ) {
-        if ($models->count() && (($after && (int) $after->getId() === 0) || ($into && (int) $into->getId() === 0))) {
+        if ($models->count()
+            && (($after && (0 === (int) $after->getId()))
+                || ($into && (0 === (int) $into->getId())))
+        ) {
             $manualSorting  = ViewHelpers::getManualSortingProperty($this->getEnvironment());
             $dataDefinition = $this->getEnvironment()->getDataDefinition();
 
-            if ($dataDefinition->getBasicDefinition()->getMode() === BasicDefinitionInterface::MODE_HIERARCHICAL) {
+            if (BasicDefinitionInterface::MODE_HIERARCHICAL === $dataDefinition->getBasicDefinition()->getMode()) {
                 $this->relationshipManager->setAllRoot($models);
             }
 
@@ -1023,9 +1030,8 @@ class DefaultController implements ControllerInterface
         $environment = $this->getEnvironment();
 
         // Enforce proper sorting now.
-        $siblings    = $this->modelCollector->collectSiblingsOf($models->get(0), $sortedBy, $parentId);
-        $sortManager = new SortingManager($models, $siblings, $sortedBy, null);
-        $newList     = $sortManager->getResults();
+        $siblings = $this->modelCollector->collectSiblingsOf($models->get(0), $sortedBy, $parentId);
+        $newList  = (new SortingManager($models, $siblings, $sortedBy, null))->getResults();
 
         $environment->getDataProvider($models->get(0)->getProviderName())->saveEach($newList);
     }
@@ -1037,7 +1043,7 @@ class DefaultController implements ControllerInterface
      */
     public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
     {
-        if ($models->length() == 0) {
+        if (0 === $models->length()) {
             throw new \RuntimeException('No models passed to pasteAfter().');
         }
         $environment = $this->getEnvironment();
@@ -1062,9 +1068,8 @@ class DefaultController implements ControllerInterface
         }
 
         // Enforce proper sorting now.
-        $siblings    = $this->modelCollector->collectSiblingsOf($previousModel, $sortedBy);
-        $sortManager = new SortingManager($models, $siblings, $sortedBy, $previousModel);
-        $newList     = $sortManager->getResults();
+        $siblings = $this->modelCollector->collectSiblingsOf($previousModel, $sortedBy);
+        $newList  = (new SortingManager($models, $siblings, $sortedBy, $previousModel))->getResults();
 
         $environment->getDataProvider($previousModel->getProviderName())->saveEach($newList);
     }
@@ -1079,9 +1084,8 @@ class DefaultController implements ControllerInterface
         $this->relationshipManager->setParentForAll($models, $parentModel);
 
         // Enforce proper sorting now.
-        $siblings    = $this->assembleChildrenFor($parentModel, $sortedBy);
-        $sortManager = new SortingManager($models, $siblings, $sortedBy);
-        $newList     = $sortManager->getResults();
+        $siblings = $this->assembleChildrenFor($parentModel, $sortedBy);
+        $newList  = (new SortingManager($models, $siblings, $sortedBy))->getResults();
 
         $environment->getDataProvider($newList->get(0)->getProviderName())->saveEach($newList);
     }

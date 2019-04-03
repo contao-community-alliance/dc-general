@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetPropertyConditionChainClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-property-condition-chain-class-name';
+    public const NAME = 'dc-general.data-definition.palette.builder.set-property-condition-chain-class-name';
 
     /**
      * The class name.

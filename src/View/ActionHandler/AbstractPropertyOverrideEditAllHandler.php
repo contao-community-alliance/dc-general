@@ -60,7 +60,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage  = $environment->getSessionStorage();
         $eventDispatcher = $environment->getEventDispatcher();
 
-        if (($inputProvider->getValue('SUBMIT_TYPE') === 'auto')
+        if (('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
             || !$inputProvider->hasValue($this->getMode($action) . '_saveNback')) {
             return;
         }
@@ -122,30 +122,27 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return;
         }
 
-        $error = $renderInformation->offsetGet('error');
-
+        $error = [];
         foreach (\array_keys($modelError) as $modelId) {
-            $newEditError = [
-                \sprintf(
-                    '<strong><a href="%s#pal_%s">%s</a></strong>',
-                    Environment::get('request'),
-                    \str_replace('::', '____', $modelId),
-                    $modelId
-                )
-            ];
+            $error[] = \sprintf(
+                '<strong><a href="%s#pal_%s">%s</a></strong>',
+                Environment::get('request'),
+                \str_replace('::', '____', $modelId),
+                $modelId
+            );
 
-            foreach ($modelError[$modelId] as $modelIdError) {
-                $newEditError = \array_merge($newEditError, $modelIdError);
+            foreach ($modelError[$modelId] as $modelIdErrors) {
+                foreach ($modelIdErrors as $modelIdError) {
+                    $error[] = $modelIdError;
+                }
             }
 
-            if (\count($error) > 0) {
-                $error = \array_merge($error, ['']);
+            if (\count($modelError) > 1) {
+                $error[] = '';
             }
-
-            $error = \array_merge($error, $newEditError);
         }
 
-        $renderInformation->offsetSet('error', $error);
+        $renderInformation->offsetSet('error', \array_merge($renderInformation->offsetGet('error'), $error));
     }
 
     /**
@@ -653,7 +650,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return null;
         }
 
-        $GLOBALS['TL_CSS'][] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.breadcrumb'] = 'system/modules/dc-general/html/css/generalBreadcrumb.css';
 
         $template = new ContaoBackendViewTemplate('dcbe_general_breadcrumb');
         $template->set('elements', $elements);

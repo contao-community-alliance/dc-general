@@ -49,17 +49,17 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
     public function loadDca($dcaName, EventDispatcherInterface $dispatcher)
     {
         $this->dca = null;
-        $event     = new LoadDataContainerEvent($dcaName, false);
-        $dispatcher->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, $event);
+
+        $dispatcher
+            ->dispatch(ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER, new LoadDataContainerEvent($dcaName, false));
 
         if (isset($GLOBALS['TL_DCA'][$dcaName])) {
             $this->dca = $GLOBALS['TL_DCA'][$dcaName];
         }
 
-        $event = new LoadLanguageFileEvent($dcaName);
-        $dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, $event);
+        $dispatcher->dispatch(ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE, new LoadLanguageFileEvent($dcaName));
 
-        return $this->dca !== null;
+        return null !== $this->dca;
     }
 
     /**
@@ -74,7 +74,7 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
         $chunks = \explode('/', \trim($path, '/'));
         $dca    = $this->dca;
 
-        while (($chunk = \array_shift($chunks)) !== null) {
+        while (null !== ($chunk = \array_shift($chunks))) {
             if (!(\is_array($dca) && \array_key_exists($chunk, $dca))) {
                 return null;
             }

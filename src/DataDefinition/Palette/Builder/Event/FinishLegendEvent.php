@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
  */
 class FinishLegendEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
+    public const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
 
     /**
      * The legend.

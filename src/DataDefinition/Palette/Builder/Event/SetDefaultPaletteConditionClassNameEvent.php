@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuil
  */
 class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
+    public const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
 
     /**
      * The class name.

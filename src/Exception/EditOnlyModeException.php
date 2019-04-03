@@ -11,20 +11,26 @@
  * This project is provided in good faith and hope to be usable by anyone.
  *
  * @package    contao-community-alliance/dc-general
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Event;
+namespace ContaoCommunityAlliance\DcGeneral\Exception;
 
 /**
- * This event is emitted before the edit view will be generated.
+ * Exception is thrown if an data definition is in edit only mode.
  */
-class PreEditModelEvent extends AbstractModelAwareEvent
+class EditOnlyModeException extends DefinitionException
 {
-    public const NAME = 'dc-general.model.pre-edit-model';
+    /**
+     * The message template.
+     *
+     * @var string
+     */
+    protected $message = 'Not able to perform action as definition only supports edit actions "%s".';
 }

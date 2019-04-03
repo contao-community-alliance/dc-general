@@ -25,18 +25,15 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
-use Contao\BackendUser;
 use Contao\CoreBundle\Exception\ResponseException;
-use Contao\Database;
 use Contao\StringUtil;
-use Contao\Config;
-use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
@@ -115,7 +112,7 @@ class TreeView extends BaseView
         if (($modelId = $input->getParameter('ptg')) && ($providerName = $input->getParameter('provider'))) {
             $states = $this->getTreeNodeStates();
             // Check if the open/close all has been triggered or just a model.
-            if ($modelId == 'all') {
+            if ('all' === $modelId) {
                 if ($states->isAllOpen()) {
                     $states->resetAll();
                 }
@@ -157,48 +154,49 @@ class TreeView extends BaseView
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
      * @param string $rootId       The root element (or null to fetch everything).
-     * @param int    $intLevel     The current level in the tree (of the optional root element).
+     * @param int    $level        The current level in the tree (of the optional root element).
      * @param string $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
      */
-    public function loadCollection($rootId = null, $intLevel = 0, $providerName = null)
+    public function loadCollection($rootId = null, $level = 0, $providerName = null)
     {
-        $environment   = $this->getEnvironment();
-        $dataDriver    = $environment->getDataProvider($providerName);
-        $realProvider  = $dataDriver->getEmptyModel()->getProviderName();
-        $collector     = new TreeCollector(
+        $environment  = $this->getEnvironment();
+        $dataDriver   = $environment->getDataProvider($providerName);
+        $realProvider = $dataDriver->getEmptyModel()->getProviderName();
+        $collector    = new TreeCollector(
             $environment,
             $this->getPanel(),
             $this->getViewSection()->getListingConfig()->getDefaultSortingFields(),
             $this->getTreeNodeStates()
         );
-        $objCollection = $rootId
-            ? $collector->getTreeCollectionRecursive($rootId, $intLevel, $realProvider)
+
+        $collection = $rootId
+            ? $collector->getTreeCollectionRecursive($rootId, $level, $realProvider)
             : $collector->getChildrenOf(
                 $realProvider,
-                $intLevel,
+                $level,
                 $environment->getInputProvider()->hasParameter('pid') ? $this->loadParentModel() : null
             );
 
         if ($rootId) {
-            $objTreeData = $dataDriver->getEmptyCollection();
-            $objModel    = $objCollection->get(0);
+            $treeData = $dataDriver->getEmptyCollection();
+            $model    = $collection->get(0);
 
-            if (!$objModel->getMeta(ModelInterface::HAS_CHILDREN)) {
-                return $objTreeData;
+            if (!$model->getMeta(ModelInterface::HAS_CHILDREN)) {
+                return $treeData;
             }
 
-            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
-                foreach ($objCollection as $objSubModel) {
-                    $objTreeData->push($objSubModel);
+            foreach ($model->getMeta($model::CHILD_COLLECTIONS) as $collection) {
+                foreach ($collection as $objSubModel) {
+                    $treeData->push($objSubModel);
                 }
             }
 
-            return $objTreeData;
+            return $treeData;
         }
 
-        return $objCollection;
+        return $collection;
     }
 
     /**
@@ -222,7 +220,7 @@ class TreeView extends BaseView
 
         $pid = ModelId::fromSerialized($parentId);
 
-        if (!($objParentProvider = $environment->getDataProvider($pid->getDataProviderName()))
+        if (!($parentProvider = $environment->getDataProvider($pid->getDataProviderName()))
         ) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent data provider defined, somehow none is defined?',
@@ -230,67 +228,66 @@ class TreeView extends BaseView
             );
         }
 
-        $objParentItem = $environment->getController()->fetchModelFromProvider($pid);
-
-        if (!$objParentItem) {
+        $collector = new ModelCollector($environment);
+        if (!($parentItem = $collector->getModel($pid))) {
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
-            $objParentItem = $objParentProvider->getEmptyModel();
-            $objParentItem->setId($parentId);
+            $parentItem = $parentProvider->getEmptyModel();
+            $parentItem->setId($parentId);
         }
 
-        return $objParentItem;
+        return $parentItem;
     }
 
     /**
      * Calculate the fields needed by a tree label for the given data provider name.
      *
-     * @param string $strTable The name of the data provider.
+     * @param string $providerName The name of the data provider.
      *
      * @return array
      */
-    protected function calcLabelFields($strTable)
+    protected function calcLabelFields($providerName)
     {
-        return $this->getViewSection()->getListingConfig()->getLabelFormatter($strTable)->getPropertyNames();
+        return $this->getViewSection()->getListingConfig()->getLabelFormatter($providerName)->getPropertyNames();
     }
 
     /**
      * Render a given model.
      *
-     * @param ModelInterface $objModel    The model to render.
-     * @param string         $strToggleID The id of the toggler.
+     * @param ModelInterface $model    The model to render.
+     * @param string         $toggleID The id of the toggler.
      *
      * @return string
      */
-    protected function parseModel($objModel, $strToggleID)
+    protected function parseModel($model, $toggleID)
     {
-        $event = new FormatModelLabelEvent($this->environment, $objModel);
+        $event = new FormatModelLabelEvent($this->environment, $model);
         $this->environment->getEventDispatcher()->dispatch(
             DcGeneralEvents::FORMAT_MODEL_LABEL,
             $event
         );
 
-        $objModel->setMeta($objModel::LABEL_VALUE, $event->getLabel());
+        $model->setMeta($model::LABEL_VALUE, $event->getLabel());
 
-        $objTemplate = $this->getTemplate('dcbe_general_treeview_entry');
+        $template = $this->getTemplate('dcbe_general_treeview_entry');
 
-        if ($objModel->getMeta($objModel::SHOW_CHILDREN)) {
+        if ($model->getMeta($model::SHOW_CHILDREN)) {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
         } else {
             $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
         }
 
         $toggleUrlEvent = new AddToUrlEvent(
-            'ptg=' . $objModel->getId() . '&amp;provider=' . $objModel->getProviderName()
+            'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
         $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         $toggleData = [
             'url'          => \html_entity_decode($toggleUrlEvent->getUrl()),
-            'toggler'      => $strToggleID,
-            'id'           => $objModel->getId(),
-            'providerName' => $objModel->getProviderName(),
-            'level'        => $objModel->getMeta('dc_gen_tv_level'),
+            'toggler'      => $toggleID,
+            'id'           => $model->getId(),
+            'providerName' => $model->getProviderName(),
+            'level'        => $model->getMeta('dc_gen_tv_level'),
             'mode'         => 6
         ];
 
@@ -300,65 +297,64 @@ class TreeView extends BaseView
         );
 
         $this
-            ->addToTemplate('theme', Backend::getTheme(), $objTemplate)
-            ->addToTemplate('environment', $this->getEnvironment(), $objTemplate)
-            ->addToTemplate('objModel', $objModel, $objTemplate)
-            ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
-            ->addToTemplate('intMode', 6, $objTemplate)
-            ->addToTemplate('strToggleID', $strToggleID, $objTemplate)
-            ->addToTemplate('toggleUrl', $toggleUrlEvent->getUrl(), $objTemplate)
-            ->addToTemplate('toggleTitle', $toggleTitle, $objTemplate)
-            ->addToTemplate('toggleScript', $toggleScript, $objTemplate)
-            ->addToTemplate('selectContainer', $this->getSelectContainer(), $objTemplate);
+            ->addToTemplate('theme', Backend::getTheme(), $template)
+            ->addToTemplate('environment', $this->getEnvironment(), $template)
+            ->addToTemplate('objModel', $model, $template)
+            ->addToTemplate('select', $this->isSelectModeActive(), $template)
+            ->addToTemplate('intMode', 6, $template)
+            ->addToTemplate('strToggleID', $toggleID, $template)
+            ->addToTemplate('toggleUrl', $toggleUrlEvent->getUrl(), $template)
+            ->addToTemplate('toggleTitle', $toggleTitle, $template)
+            ->addToTemplate('toggleScript', $toggleScript, $template)
+            ->addToTemplate('selectContainer', $this->getSelectContainer(), $template);
 
-        return $objTemplate->parse();
+        return $template->parse();
     }
 
     /**
      * Render the tree view and return it as string.
      *
-     * @param CollectionInterface $objCollection The collection to iterate over.
-     * @param string              $treeClass     The class to use for the tree.
+     * @param CollectionInterface $collection The collection to iterate over.
+     * @param string              $treeClass  The class to use for the tree.
      *
      * @return string
      */
-    protected function generateTreeView($objCollection, $treeClass)
+    protected function generateTreeView($collection, $treeClass)
     {
-        $arrHtml = [];
+        $content = [];
 
         // Generate buttons - only if not in select mode!
         if (!$this->isSelectModeActive()) {
-            $buttonRenderer = new ButtonRenderer($this->environment);
-            $buttonRenderer->renderButtonsForCollection($objCollection);
+            (new ButtonRenderer($this->environment))->renderButtonsForCollection($collection);
         }
 
-        foreach ($objCollection as $objModel) {
-            /** @var ModelInterface $objModel */
+        foreach ($collection as $model) {
+            /** @var ModelInterface $model */
 
-            $strToggleID = $objModel->getProviderName() . '_' . $treeClass . '_' . $objModel->getId();
+            $toggleID = $model->getProviderName() . '_' . $treeClass . '_' . $model->getId();
 
-            $arrHtml[] = $this->parseModel($objModel, $strToggleID);
+            $content[] = $this->parseModel($model, $toggleID);
 
-            if ($objModel->getMeta($objModel::HAS_CHILDREN) && $objModel->getMeta($objModel::SHOW_CHILDREN)) {
-                $objTemplate = $this->getTemplate('dcbe_general_treeview_child');
-                $strSubHtml  = '';
+            if ($model->getMeta($model::HAS_CHILDREN) && $model->getMeta($model::SHOW_CHILDREN)) {
+                $template = $this->getTemplate('dcbe_general_treeview_child');
+                $subHtml  = '';
 
-                foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
-                    $strSubHtml .= $this->generateTreeView($objCollection, $treeClass);
+                foreach ($model->getMeta($model::CHILD_COLLECTIONS) as $childCollection) {
+                    $subHtml .= $this->generateTreeView($childCollection, $treeClass);
                 }
 
                 $this
-                    ->addToTemplate('select', $this->isSelectModeActive(), $objTemplate)
-                    ->addToTemplate('objParentModel', $objModel, $objTemplate)
-                    ->addToTemplate('strToggleID', $strToggleID, $objTemplate)
-                    ->addToTemplate('strHTML', $strSubHtml, $objTemplate)
-                    ->addToTemplate('strTable', $objModel->getProviderName(), $objTemplate);
+                    ->addToTemplate('select', $this->isSelectModeActive(), $template)
+                    ->addToTemplate('objParentModel', $model, $template)
+                    ->addToTemplate('strToggleID', $toggleID, $template)
+                    ->addToTemplate('strHTML', $subHtml, $template)
+                    ->addToTemplate('strTable', $model->getProviderName(), $template);
 
-                $arrHtml[] = $objTemplate->parse();
+                $content[] = $template->parse();
             }
         }
 
-        return \implode("\n", $arrHtml);
+        return \implode("\n", $content);
     }
 
     /**
@@ -370,21 +366,21 @@ class TreeView extends BaseView
      */
     public static function renderPasteRootButton(GetPasteRootButtonEvent $event)
     {
-        if ($event->getHtml() !== null) {
+        if (null !== $event->getHtml()) {
             return $event->getHtml();
         }
         $environment = $event->getEnvironment();
-        $strLabel    = $environment->getTranslator()->translate(
+        $label       = $environment->getTranslator()->translate(
             'pasteinto.0',
             $environment->getDataDefinition()->getName()
         );
         if ($event->isPasteDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $event->getEnvironment()->getEventDispatcher()->dispatch(
+            $imageEvent = $environment->getEventDispatcher()->dispatch(
                 ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteinto_.svg',
-                    $strLabel,
+                    $label,
                     'class="blink"'
                 )
             );
@@ -393,11 +389,11 @@ class TreeView extends BaseView
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $event->getEnvironment()->getEventDispatcher()->dispatch(
+        $imageEvent = $environment->getEventDispatcher()->dispatch(
             ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteinto.svg',
-                $strLabel,
+                $label,
                 'class="blink"'
             )
         );
@@ -405,7 +401,7 @@ class TreeView extends BaseView
         return \sprintf(
             ' <a href="%s" title="%s" %s>%s</a>',
             $event->getHref(),
-            StringUtil::specialchars($strLabel),
+            StringUtil::specialchars($label),
             'onclick="Backend.getScrollOffset()"',
             $imageEvent->getHtml()
         );
@@ -438,15 +434,15 @@ class TreeView extends BaseView
 
         // Label + Icon.
         if (null === $listing->getRootLabel()) {
-            $strLabelText = 'DC General Tree BackendView Ultimate';
+            $labelText = 'DC General Tree BackendView Ultimate';
         } else {
-            $strLabelText = $listing->getRootLabel();
+            $labelText = $listing->getRootLabel();
         }
 
         if (null === $listing->getRootIcon()) {
-            $strLabelIcon = 'pagemounts.svg';
+            $labelIcon = 'pagemounts.svg';
         } else {
-            $strLabelIcon = $listing->getRootIcon();
+            $labelIcon = $listing->getRootIcon();
         }
 
         $filter = new Filter();
@@ -477,56 +473,57 @@ class TreeView extends BaseView
 
             $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
 
-            $strRootPasteInto = static::renderPasteRootButton($buttonEvent);
+            $rootPasteInto = static::renderPasteRootButton($buttonEvent);
         } else {
-            $strRootPasteInto = '';
+            $rootPasteInto = '';
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, new GenerateHtmlEvent($strLabelIcon));
+        $imageEvent = $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, new GenerateHtmlEvent($labelIcon));
 
         // Build template.
-        $objTemplate                   = $this->getTemplate('dcbe_general_treeview');
-        $objTemplate->treeClass        = 'tl_' . $treeClass;
-        $objTemplate->tableName        = $definition->getName();
-        $objTemplate->strLabelIcon     = $imageEvent->getHtml();
-        $objTemplate->strLabelText     = $strLabelText;
-        $objTemplate->strHTML          = $this->generateTreeView($collection, $treeClass);
-        $objTemplate->strRootPasteinto = $strRootPasteInto;
-        $objTemplate->select           = $this->isSelectModeActive();
-        $objTemplate->selectButtons    = $this->getSelectButtons();
-        $objTemplate->intMode          = 6;
+        $template = $this->getTemplate('dcbe_general_treeview');
+        $template
+            ->set('treeClass', 'tl_' . $treeClass)
+            ->set('tableName', $definition->getName())
+            ->set('strLabelIcon', $imageEvent->getHtml())
+            ->set('strLabelText', $labelText)
+            ->set('strHTML', $this->generateTreeView($collection, $treeClass))
+            ->set('strRootPasteinto', $rootPasteInto)
+            ->set('select', $this->isSelectModeActive())
+            ->set('selectButtons', $this->getSelectButtons())
+            ->set('intMode', 6);
 
-        $this->formActionForSelect($objTemplate);
+        $this->formActionForSelect($template);
 
         // Add breadcrumb, if we have one.
-        $strBreadcrumb = $this->breadcrumb();
-        if ($strBreadcrumb != null) {
-            $objTemplate->breadcrumb = $strBreadcrumb;
+        if (null !== ($breadcrumb = $this->breadcrumb())) {
+            $template->set('breadcrumb', $breadcrumb);
         }
 
-        return $objTemplate->parse();
+        return $template->parse();
     }
 
     /**
      * Add the form action url for input parameter action is select.
      *
-     * @param ContaoBackendViewTemplate $objTemplate The template.
+     * @param ContaoBackendViewTemplate $template The template.
      *
      * @return void
      */
-    protected function formActionForSelect(ContaoBackendViewTemplate $objTemplate)
+    protected function formActionForSelect(ContaoBackendViewTemplate $template)
     {
-        if (!$objTemplate->select
-            || $this->getEnvironment()->getInputProvider()->getParameter('act') !== 'select'
+        $environment = $this->getEnvironment();
+        if (!$template->get('select')
+            || ('select' !== $environment->getInputProvider()->getParameter('act'))
         ) {
             return;
         }
 
         $actionUrlEvent = new AddToUrlEvent('select=properties');
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $actionUrlEvent);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $actionUrlEvent);
 
-        $objTemplate->action = $actionUrlEvent->getUrl();
+        $template->set('action', $actionUrlEvent->getUrl());
     }
 
     /**
@@ -550,31 +547,32 @@ class TreeView extends BaseView
      */
     public function showAll(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        $environment = $this->getEnvironment();
+        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
 
         $this->handleNodeStateChanges();
 
         $collection = $this->loadCollection();
-        $arrReturn  = [];
+        $content    = [];
 
         $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, []);
-        $this->environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
+        $environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
 
         // A list with ignored panels.
-        $arrIgnoredPanels = [
+        $ignoredPanels = [
             LimitElementInterface::class,
             SortElementInterface::class
         ];
 
-        $arrReturn['language']  = $this->languageSwitcher($this->environment);
-        $arrReturn['panel']     = $this->panel($arrIgnoredPanels);
-        $arrReturn['buttons']   = $this->generateHeaderButtons();
-        $arrReturn['clipboard'] = $viewEvent->getResponse();
-        $arrReturn['body']      = $this->viewTree($collection);
+        $content['language']  = $this->languageSwitcher($this->environment);
+        $content['panel']     = $this->panel($ignoredPanels);
+        $content['buttons']   = $this->generateHeaderButtons();
+        $content['clipboard'] = $viewEvent->getResponse();
+        $content['body']      = $this->viewTree($collection);
 
-        return \implode("\n", $arrReturn);
+        return \implode("\n", $content);
     }
 
     /**
@@ -595,12 +593,12 @@ class TreeView extends BaseView
 
         /** @var MultiLanguageDataProviderInterface $dataProvider */
 
-        $template
+        return $template
             ->set('languages', $environment->getController()->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
             ->set('submit', $this->environment->getTranslator()->translate('MSC.showSelected'))
-            ->set('REQUEST_TOKEN', REQUEST_TOKEN);
-        return $template->parse();
+            ->set('REQUEST_TOKEN', REQUEST_TOKEN)
+            ->parse();
     }
 
     /**
@@ -618,20 +616,21 @@ class TreeView extends BaseView
     {
         $input = $this->getEnvironment()->getInputProvider();
 
-        switch ($input->getValue('action')) {
-            case 'DcGeneralLoadSubTree':
-                $response = new Response($this->ajaxTreeView(
-                    $input->getValue('id'),
-                    $input->getValue('providerName'),
-                    $input->getValue('level')
-                ));
+        if ('DcGeneralLoadSubTree' !== $input->getValue('action')) {
+            parent::handleAjaxCall();
 
-                throw new ResponseException($response);
-
-            default:
+            return;
         }
 
-        parent::handleAjaxCall();
+        $response = new Response(
+            $this->ajaxTreeView(
+                $input->getValue('id'),
+                $input->getValue('providerName'),
+                $input->getValue('level')
+            )
+        );
+
+        throw new ResponseException($response);
     }
 
     /**
@@ -672,11 +671,11 @@ class TreeView extends BaseView
      */
     private function getSelectContainer()
     {
-        $inputProvider  = $this->getEnvironment()->getInputProvider();
-        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+        $environment   = $this->getEnvironment();
+        $inputProvider = $environment->getInputProvider();
 
-        $sessionName = $dataDefinition->getName() . '.' . $inputProvider->getParameter('mode');
-        if (!$this->getEnvironment()->getSessionStorage()->has($sessionName)) {
+        $sessionName = $environment->getDataDefinition()->getName() . '.' . $inputProvider->getParameter('mode');
+        if (!$environment->getSessionStorage()->has($sessionName)) {
             return [];
         }
 
@@ -685,7 +684,7 @@ class TreeView extends BaseView
             return [];
         }
 
-        $session = $this->getEnvironment()->getSessionStorage()->get($sessionName);
+        $session = $environment->getSessionStorage()->get($sessionName);
         if (!\array_key_exists($selectAction, $session)) {
             return [];
         }

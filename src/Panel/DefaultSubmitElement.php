@@ -32,14 +32,14 @@ class DefaultSubmitElement extends AbstractElement implements SubmitElementInter
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null)
+    public function initialize(ConfigInterface $config, PanelElementInterface $panelElement = null)
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function render(ViewTemplateInterface $objTemplate)
+    public function render(ViewTemplateInterface $viewTemplate)
     {
     }
 }

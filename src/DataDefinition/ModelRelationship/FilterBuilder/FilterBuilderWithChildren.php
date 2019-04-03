@@ -99,7 +99,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function current()
     {
-        if ($this->index == -1) {
+        if (-1 === $this->index) {
             return $this->first();
         }
 
@@ -268,9 +268,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
 
         if ($index === -1) {
             $this->children[] = $filter;
-            $filter
-                ->setBuilder($this->builder)
-                ->setParent($this);
+            $filter->setBuilder($this->builder)->setParent($this);
         }
 
         return $this;
@@ -309,10 +307,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
             $children[] = FilterBuilder::getBuilderFromArray($child, $builder);
         }
 
-        /** @var BaseFilterBuilder $instance */
-        $instance = new static($children);
-
-        return $instance->setBuilder($builder);
+        return (new static($children))->setBuilder($builder);
     }
 
     /**
@@ -345,9 +340,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
             $filters = $filters->getFilter();
         }
 
-        $clones = clone $filters;
-
-        $this->andEncapsulate($clones->setBuilder($this->getBuilder()));
+        $this->andEncapsulate((clone $filters)->setBuilder($this->getBuilder()));
 
         return $this;
     }

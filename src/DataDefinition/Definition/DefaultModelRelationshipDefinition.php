@@ -65,9 +65,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      */
     public function addChildCondition($condition)
     {
-        $hash = \spl_object_hash($condition);
-
-        $this->childConditions[$hash] = $condition;
+        $this->childConditions[\spl_object_hash($condition)] = $condition;
 
         return $this;
     }
@@ -78,7 +76,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
     public function getChildCondition($srcProvider, $dstProvider)
     {
         foreach ($this->getChildConditions($srcProvider) as $condition) {
-            if ($condition->getDestinationName() == $dstProvider) {
+            if ($dstProvider === $condition->getDestinationName()) {
                 return $condition;
             }
         }
@@ -95,16 +93,16 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
             return [];
         }
 
-        $arrReturn = [];
+        $return = [];
         foreach ($this->childConditions as $condition) {
-            if (!empty($srcProvider) && ($condition->getSourceName() != $srcProvider)) {
+            if (!empty($srcProvider) && ($srcProvider !== $condition->getSourceName())) {
                 continue;
             }
 
-            $arrReturn[] = $condition;
+            $return[] = $condition;
         }
 
-        return $arrReturn;
+        return $return;
     }
 
     /**
@@ -112,7 +110,7 @@ class DefaultModelRelationshipDefinition implements ModelRelationshipDefinitionI
      */
     public function __clone()
     {
-        if ($this->rootCondition !== null) {
+        if (null !== $this->rootCondition) {
             $this->rootCondition = clone $this->rootCondition;
         }
 

@@ -94,8 +94,8 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
         }
 
         if ($parentProvider) {
-            $objParent = $parentProvider->fetch($parentProvider->getEmptyConfig()->setId($idParent->getId()));
-            if (!$objParent) {
+            $parent = $parentProvider->fetch($parentProvider->getEmptyConfig()->setId($idParent->getId()));
+            if (!$parent) {
                 throw new DcGeneralRuntimeException(
                     'Parent item ' . $idParent->getSerialized() . ' not found in ' . $parentProviderName
                 );
@@ -107,14 +107,14 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
             );
 
             if ($condition) {
-                $arrBaseFilter = $config->getFilter();
-                $arrFilter     = $condition->getFilter($objParent);
+                $baseFilter = $config->getFilter();
+                $filter     = $condition->getFilter($parent);
 
-                if ($arrBaseFilter) {
-                    $arrFilter = \array_merge($arrBaseFilter, $arrFilter);
+                if ($baseFilter) {
+                    $filter = \array_merge($baseFilter, $filter);
                 }
 
-                $config->setFilter([['operation' => 'AND', 'children'  => $arrFilter,]]);
+                $config->setFilter([['operation' => 'AND', 'children'  => $filter]]);
             }
         }
 
@@ -151,7 +151,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
         // Special filter for certain modes.
         if ($parentId) {
             $this->addParentFilter($parentId, $config);
-        } elseif ($definition->getBasicDefinition()->getMode() == BasicDefinitionInterface::MODE_PARENTEDLIST) {
+        } elseif (BasicDefinitionInterface::MODE_PARENTEDLIST === $definition->getBasicDefinition()->getMode()) {
             $pid        = $environment->getInputProvider()->getParameter('pid');
             $pidDetails = ModelId::fromSerialized($pid);
 

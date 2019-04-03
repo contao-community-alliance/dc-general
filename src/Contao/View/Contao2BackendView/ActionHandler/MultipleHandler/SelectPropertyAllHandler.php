@@ -58,7 +58,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || 'selectPropertyAll' !== $event->getAction()->getName()
+            || ('selectPropertyAll' !== $event->getAction()->getName())
         ) {
             return null;
         }
@@ -74,13 +74,11 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     protected function process(Action $action, EnvironmentInterface $environment)
     {
-        $dataDefinition  = $environment->getDataDefinition();
-        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
-        $backendView     = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $dataDefinition = $environment->getDataDefinition();
+        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 
         $backendView->getListingConfig()->setShowColumns(false);
-
-        $basicDefinition->setMode(BasicDefinitionInterface::MODE_FLAT);
+        $environment->getDataDefinition()->getBasicDefinition()->setMode(BasicDefinitionInterface::MODE_FLAT);
 
         return parent::process($action, $environment);
     }
@@ -132,9 +130,10 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     {
         $properties = $environment->getDataDefinition()->getPropertiesDefinition();
 
-        $labelFormatter = new DefaultModelFormatterConfig();
-        $labelFormatter->setPropertyNames(['name', 'description']);
-        $labelFormatter->setFormat('%s <span style="color:#b3b3b3; padding-left:3px">[%s]</span>');
+        $labelFormatter = (new DefaultModelFormatterConfig())
+            ->setPropertyNames(['name', 'description'])
+            ->setFormat('%s <span style="color:#b3b3b3; padding-left:3px">[%s]</span>');
+
         $this->getViewSection($environment->getDataDefinition())
             ->getListingConfig()
             ->setLabelFormatter($providerName, $labelFormatter);
@@ -160,10 +159,9 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     private function getCollection(DataProviderInterface $dataProvider, EnvironmentInterface $environment)
     {
-        $properties = $environment->getDataDefinition()->getPropertiesDefinition();
         $collection = $dataProvider->getEmptyCollection();
 
-        foreach ($properties as $property) {
+        foreach ($environment->getDataDefinition()->getPropertiesDefinition() as $property) {
             if (!$this->isPropertyAllowed($property, $environment)) {
                 continue;
             }
@@ -199,13 +197,12 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     private function isPropertyAllowed(PropertyInterface $property, EnvironmentInterface $environment)
     {
         if (!$property->getWidgetType()
-            || $property->getWidgetType() === 'dummyProperty'
+            || ('dummyProperty' === $property->getWidgetType())
         ) {
             return false;
         }
 
-        $inputProvider = $environment->getInputProvider();
-        $translator    = $environment->getTranslator();
+        $translator = $environment->getTranslator();
 
         $extra = (array) $property->getExtra();
         if ($this->isPropertyAllowedByEdit($extra, $environment)
@@ -215,7 +212,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                 \sprintf(
                     $translator->translate('MSC.not_allowed_property_info'),
                     $property->getLabel() ?: $property->getName(),
-                    $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected')
+                    $translator->translate('MSC.' . $environment->getInputProvider()->getParameter('mode') . 'Selected')
                 )
             );
 
@@ -236,7 +233,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     private function isPropertyAllowedByEdit(array $extra, EnvironmentInterface $environment)
     {
         return (true === $extra['doNotEditMultiple'])
-               && 'edit' === $environment->getInputProvider()->getParameter('mode');
+               && ('edit' === $environment->getInputProvider()->getParameter('mode'));
     }
 
     /**
@@ -301,13 +298,15 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                         });
                     </script>';
 
-        $GLOBALS['TL_MOOTOOLS'][] =
+        $mooScript =
             \sprintf(
                 $script,
                 'properties_' . $property->getName(),
                 'properties_' . $extra['orderField'],
                 'properties_' . $extra['orderField']
             );
+
+        $GLOBALS['TL_MOOTOOLS']['cca.dc-general.fileTree-' . \md5($mooScript)] = $mooScript;
     }
 
     /**
@@ -337,26 +336,28 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
-        $inputProvider = $environment->getInputProvider();
+        $inputProvider  = $environment->getInputProvider();
+        $dataDefinition = $environment->getDataDefinition();
 
-        $languageDomain = 'contao_' . $environment->getDataDefinition()->getName();
+        $languageDomain = 'contao_' . $dataDefinition->getName();
 
-        $this->getViewSection($environment->getDataDefinition())->getListingConfig()->setShowColumns(false);
+        $this->getViewSection($dataDefinition)->getListingConfig()->setShowColumns(false);
 
         parent::renderTemplate($template, $environment);
 
-        $template->set(
-            'subHeadline',
-            \sprintf(
-                '%s: %s',
-                $this->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected', $languageDomain),
-                $this->translate('MSC.edit_all_select_properties', $languageDomain)
+        $template
+            ->set(
+                'subHeadline',
+                \sprintf(
+                    '%s: %s',
+                    $this->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected', $languageDomain),
+                    $this->translate('MSC.edit_all_select_properties', $languageDomain)
+                )
             )
-        );
-        $template->set('mode', 'none');
-        $template->set('floatRightSelectButtons', true);
-        $template->set('selectCheckBoxName', 'properties[]');
-        $template->set('selectCheckBoxIdPrefix', 'properties_');
+            ->set('mode', 'none')
+            ->set('floatRightSelectButtons', true)
+            ->set('selectCheckBoxName', 'properties[]')
+            ->set('selectCheckBoxIdPrefix', 'properties_');
 
         if ((null !== $template->get('action'))
             && (false !== \strpos($template->get('action'), 'select=properties'))
@@ -399,11 +400,9 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $onClick        = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'properties[]\', \'' .
                           $confirmMessage . '\'); return false;';
 
-        $input = '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">';
-
         $continueName        = $environment->getInputProvider()->getParameter('mode');
         $buttons['continue'] = \sprintf(
-            $input,
+            '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">',
             $continueName,
             $continueName,
             'c',

@@ -148,7 +148,7 @@ class GlobalButtonRenderer
             ->setKey($command->getName())
             ->setHref($href)
             ->setLabel($label)
-            ->setTitle($this->translate($command->getDescription()));
+            ->setTitle($this->translate((string) $command->getDescription()));
         $this->dispatcher->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
 
         // Allow to override the button entirely - if someone sets empty string, we keep it.

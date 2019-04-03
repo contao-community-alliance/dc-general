@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  */
 class PostDuplicateModelEvent extends AbstractModelAwareEvent
 {
-    const NAME = 'dc-general.model.post-duplicate';
+    public const NAME = 'dc-general.model.post-duplicate';
 
     /**
      * The source model.

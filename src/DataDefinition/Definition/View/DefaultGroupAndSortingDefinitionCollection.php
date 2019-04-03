@@ -51,10 +51,10 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
 
         if (($index < 0) || ($this->getCount() <= $index)) {
             $this->information[] = $information;
-        } else {
-            \array_splice($this->information, $index, 0, [$information]);
+            return $information;
         }
 
+        \array_splice($this->information, $index, 0, [$information]);
         return $information;
     }
 
@@ -63,7 +63,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function delete($index)
     {
-        if ($index == $this->default) {
+        if ($index === $this->default) {
             $this->default = -1;
         }
         unset($this->information[$index]);
@@ -87,7 +87,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function get($index = -1)
     {
-        if ($index == -1) {
+        if ($index === -1) {
             return $this->getDefault();
         }
 
@@ -121,7 +121,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      */
     public function hasDefault()
     {
-        return ($this->getDefaultIndex() != -1);
+        return (-1 !== $this->getDefaultIndex());
     }
 
     /**
@@ -132,7 +132,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     public function getDefault()
     {
         $index = $this->getDefaultIndex();
-        if ($index == -1) {
+        if (-1 === $index) {
             throw new DcGeneralInvalidArgumentException('No default sorting and grouping information defined.');
         }
 

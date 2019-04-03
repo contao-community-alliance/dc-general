@@ -165,7 +165,7 @@ class TreeNodeStates
      */
     public function isModelOpen($providerName, $modelId, $ignoreAllState = false)
     {
-        if (!$ignoreAllState && isset($this->states['all']) && ($this->states['all'] == 1)) {
+        if (!$ignoreAllState && isset($this->states['all']) && (1 === $this->states['all'])) {
             return true;
         }
 

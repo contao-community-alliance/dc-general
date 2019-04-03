@@ -25,16 +25,12 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use Contao\StringUtil;
 use Contao\Template;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\CopyHandler;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\DeleteHandler;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\SelectHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\ShowHandler;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
@@ -102,7 +98,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            DcGeneralEvents::ACTION => ['handleAction', -100],
+            DcGeneralEvents::ACTION => ['handleAction', -100]
         ];
     }
 
@@ -118,9 +114,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
-        $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = 'bundles/ccadcgeneral/css/generalDriver.css';
 
-        if ($event->getResponse() !== null
+        if ((null !== $event->getResponse())
             || $event->getEnvironment()->getDataDefinition()->getName()
                !== $this->environment->getDataDefinition()->getName()
         ) {
@@ -130,27 +126,27 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $action = $event->getAction();
         $name   = $action->getName();
 
-        if ($name === 'show') {
+        if ('show' === $name) {
             $handler = new ShowHandler($this->scopeDeterminator);
             $handler->handleEvent($event);
 
             return;
         }
 
-        if ($name === 'showAll') {
-            $response = call_user_func_array(
-                array($this, $name),
-                array_merge(array($action), $action->getArguments())
+        if ('showAll' === $name) {
+            $response = \call_user_func_array(
+                [$this, $name],
+                \array_merge([$action], $action->getArguments())
             );
             $event->setResponse($response);
 
             return;
         }
 
-        if ($name === 'select') {
-            $response = call_user_func_array(
-                array($this, $name),
-                array_merge(array($action), $action->getArguments())
+        if ('select' === $name) {
+            $response = \call_user_func_array(
+                [$this, $name],
+                \array_merge([$action], $action->getArguments())
             );
             $event->setResponse($response);
 
@@ -173,12 +169,12 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function setEnvironment(EnvironmentInterface $environment)
     {
-        if ($this->environment) {
+        if ($this->getEnvironment()) {
             $this->environment->getEventDispatcher()->removeSubscriber($this);
         }
 
         $this->environment = $environment;
-        $this->environment->getEventDispatcher()->addSubscriber($this);
+        $this->getEnvironment()->getEventDispatcher()->addSubscriber($this);
     }
 
     /**
@@ -228,7 +224,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return $value;
         }
 
-        return $this->getEnvironment()->getTranslator()->translate($path);
+        return $translator->translate($path);
     }
 
     /**
@@ -282,7 +278,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function isSelectModeActive()
     {
-        return $this->getEnvironment()->getInputProvider()->getParameter('act') == 'select';
+        return 'select' === $this->getEnvironment()->getInputProvider()->getParameter('act');
     }
 
     /**
@@ -298,15 +294,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function formatCurrentValue($field, ModelInterface $model, $groupMode, $groupLength)
     {
-        $property = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
+        $environment = $this->getEnvironment();
+        $property    = $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field);
 
         // No property? Get out!
         if (!$property) {
             return '-';
         }
 
-        $event = new GetGroupHeaderEvent($this->getEnvironment(), $model, $field, null, $groupMode, $groupLength);
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $event = new GetGroupHeaderEvent($environment, $model, $field, null, $groupMode, $groupLength);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         return $event->getValue();
     }
@@ -318,9 +315,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function getSelectButtons()
     {
-        $event = new GetSelectModeButtonsEvent($this->getEnvironment());
+        $environment = $this->getEnvironment();
+
+        $event = new GetSelectModeButtonsEvent($environment);
         $event->setButtons([]);
-        $this->getEnvironment()->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
 
         return $event->getButtons();
     }
@@ -328,28 +327,25 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * Determine if we are currently working in multi language mode.
      *
-     * @param mixed $mixId The id of the current model.
+     * @param mixed $currentID The id of the current model.
      *
      * @return bool
      */
-    protected function isMultiLanguage($mixId)
+    protected function isMultiLanguage($currentID)
     {
-        return \count($this->getEnvironment()->getController()->getSupportedLanguages($mixId)) > 0;
+        return (bool) \count($this->getEnvironment()->getController()->getSupportedLanguages($currentID));
     }
 
     /**
      * Create a new instance of ContaoBackendViewTemplate with the template file of the given name.
      *
-     * @param string $strTemplate Name of the template to create.
+     * @param string $name Name of the template to create.
      *
      * @return ContaoBackendViewTemplate
      */
-    protected function getTemplate($strTemplate)
+    protected function getTemplate($name)
     {
-        $template = new ContaoBackendViewTemplate($strTemplate);
-        $template->setTranslator($this->getEnvironment()->getTranslator());
-
-        return $template;
+        return (new ContaoBackendViewTemplate($name))->setTranslator($this->getEnvironment()->getTranslator());
     }
 
     /**
@@ -361,7 +357,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAjaxCall()
     {
-        $input = $this->environment->getInputProvider();
+        $environment = $this->getEnvironment();
+        $input       = $environment->getInputProvider();
 
         if (true === ($input->hasParameter('id'))) {
             // Redefine the parameter id if this isn´t model id conform.
@@ -370,14 +367,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $input->setParameter('id', $modelId->getSerialized());
             }
             $modelId      = ModelId::fromSerialized($input->getParameter('id'));
-            $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
             $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         }
 
         $this->addAjaxPropertyForEditAll();
 
         $handler = new Ajax3X();
-        $handler->executePostActions(new DcCompat($this->getEnvironment(), ($model ?? null)));
+        $handler->executePostActions(new DcCompat($environment, ($model ?? null)));
     }
 
     /**
@@ -421,7 +418,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function move(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
 
@@ -433,7 +430,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function undo(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
 
@@ -463,13 +460,13 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function showAll(Action $action)
     {
-        if ($this->environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
 
         return \sprintf(
             $this->notImplMsg,
-            'showAll - Mode ' . $this->environment->getDataDefinition()->getBasicDefinition()->getMode()
+            'showAll - Mode ' . $this->getEnvironment()->getDataDefinition()->getBasicDefinition()->getMode()
         );
     }
 
@@ -480,8 +477,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function generateHeaderButtons()
     {
-        $renderer = new GlobalButtonRenderer($this->environment);
-        return $renderer->render();
+        return (new GlobalButtonRenderer($this->getEnvironment()))->render();
     }
 
     /**
@@ -495,8 +491,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     protected function panel($ignoredPanels = [])
     {
-        $renderer = new PanelRenderer($this);
-        return $renderer->render($ignoredPanels);
+        return (new PanelRenderer($this))->render($ignoredPanels);
     }
 
     /**
@@ -509,22 +504,22 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function breadcrumb()
     {
-        $event = new GetBreadcrumbEvent($this->getEnvironment());
+        $environment = $this->getEnvironment();
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $event = new GetBreadcrumbEvent($environment);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
-        $arrReturn = $event->getElements();
+        $elements = $event->getElements();
 
-        if (!\is_array($arrReturn) || !\count($arrReturn)) {
+        if (!\is_array($elements) || !\count($elements)) {
             return null;
         }
 
-        $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
-        $objTemplate = $this->getTemplate('dcbe_general_breadcrumb');
-        $this->addToTemplate('elements', $arrReturn, $objTemplate);
-
-        return $objTemplate->parse();
+        return $this->getTemplate('dcbe_general_breadcrumb')
+            ->set('elements', $elements)
+            ->parse();
     }
 
     /**
@@ -593,7 +588,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             }
 
             $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
-            if ($propertyNamePrefix !== \substr($propertyName, 0, \strlen($propertyNamePrefix))) {
+            if (0 !== strpos($propertyName, $propertyNamePrefix)) {
                 continue;
             }
 

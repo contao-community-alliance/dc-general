@@ -33,7 +33,7 @@ class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
     /**
      * The name of the event.
      */
-    const NAME = 'dc-general.view.contao2backend.get.panel.element.template';
+    public const NAME = 'dc-general.view.contao2backend.get.panel.element.template';
 
     /**
      * The element for which a template shall get retrieved.

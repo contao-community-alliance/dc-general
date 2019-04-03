@@ -76,27 +76,27 @@ abstract class Ajax implements EnvironmentAwareInterface
     /**
      * Compat wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
      *
-     * @param string $key               The key to retrieve.
-     * @param bool   $blnDecodeEntities Decode the entities.
+     * @param string $key            The key to retrieve.
+     * @param bool   $decodeEntities Decode the entities.
      *
      * @return mixed
      */
-    protected function getGet($key, $blnDecodeEntities = false)
+    protected function getGet($key, $decodeEntities = false)
     {
-        return $this->getEnvironment()->getInputProvider()->getParameter($key, $blnDecodeEntities);
+        return $this->getEnvironment()->getInputProvider()->getParameter($key, $decodeEntities);
     }
 
     /**
      * Compatibility wrapper for contao 2.X and 3.X - delegates to the relevant input handler.
      *
-     * @param string $key               The key to retrieve.
-     * @param bool   $blnDecodeEntities Decode the entities.
+     * @param string $key            The key to retrieve.
+     * @param bool   $decodeEntities Decode the entities.
      *
      * @return mixed
      */
-    protected function getPost($key, $blnDecodeEntities = false)
+    protected function getPost($key, $decodeEntities = false)
     {
-        return $this->getEnvironment()->getInputProvider()->getValue($key, $blnDecodeEntities);
+        return $this->getEnvironment()->getInputProvider()->getValue($key, $decodeEntities);
     }
 
     /**
@@ -193,18 +193,18 @@ abstract class Ajax implements EnvironmentAwareInterface
     /**
      * Handle the post actions from DcGeneral.
      *
-     * @param DataContainerInterface $objDc The data container.
+     * @param DataContainerInterface $container The data container.
      *
      * @return void
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function executePostActions(DataContainerInterface $objDc)
+    public function executePostActions(DataContainerInterface $container)
     {
         \header('Content-Type: text/html; charset=' . $GLOBALS['TL_CONFIG']['characterSet']);
 
-        $this->objDc = $objDc;
+        $this->objDc = $container;
 
         $action = $this->getEnvironment()->getInputProvider()->getValue('action');
 

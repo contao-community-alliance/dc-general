@@ -43,7 +43,6 @@ class ParentView extends BaseView
     public function enforceModelRelationship($model)
     {
         // Fallback implementation.
-        $listener = new ParentEnforcingListener();
-        $listener->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
+        (new ParentEnforcingListener())->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
     }
 }

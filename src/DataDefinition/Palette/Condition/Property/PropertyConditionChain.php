@@ -45,7 +45,7 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
         PropertyInterface $property = null,
         LegendInterface $legend = null
     ) {
-        if ($this->conjunction == static::AND_CONJUNCTION) {
+        if (static::AND_CONJUNCTION === $this->conjunction) {
             foreach ($this->conditions as $condition) {
                 if (!($condition instanceof PropertyConditionInterface)) {
                     throw new DcGeneralRuntimeException('Invalid condition in chain: ' . \get_class($condition));

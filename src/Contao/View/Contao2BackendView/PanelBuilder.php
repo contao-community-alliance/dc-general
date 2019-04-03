@@ -75,8 +75,7 @@ class PanelBuilder
             ->getDataDefinition()
             ->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
 
-        $panelLayout = $viewDefinition->getPanelLayout();
-        foreach ($panelLayout->getRows() as $panelKey => $row) {
+        foreach ($viewDefinition->getPanelLayout()->getRows() as $panelKey => $row) {
             $panelRow = new DefaultPanel();
             $panel->addPanel($panelKey, $panelRow);
             foreach ($row as $element) {

@@ -143,7 +143,7 @@ class TreeCollector implements EnvironmentAwareInterface
      */
     private function getChildProvidersOf($parentProvider, $relationships = null)
     {
-        if ($relationships === null) {
+        if (null === $relationships) {
             $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
         }
 
@@ -229,7 +229,9 @@ class TreeCollector implements EnvironmentAwareInterface
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
             if ($hasChildren && !$model->getMeta($model::SHOW_CHILDREN)) {
                 break;
-            } elseif ($hasChildren) {
+            }
+
+            if ($hasChildren) {
                 foreach ($childCollection as $childModel) {
                     // Let the child know about it's parent.
                     $model->setMeta(ModelInterface::PARENT_ID, $model->getID());
@@ -242,7 +244,7 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // If expanded, store children.
-        if ($model->getMeta($model::SHOW_CHILDREN) && \count($childCollections) != 0) {
+        if ($model->getMeta($model::SHOW_CHILDREN) && \count($childCollections)) {
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
@@ -264,7 +266,6 @@ class TreeCollector implements EnvironmentAwareInterface
         $environment     = $this->getEnvironment();
         $definition      = $environment->getDataDefinition();
         $basicDefinition = $definition->getBasicDefinition();
-        $relationships   = $definition->getModelRelationshipDefinition();
 
         if (!$basicDefinition->getParentDataProvider()) {
             return;
@@ -281,7 +282,7 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // Apply parent filtering, do this only for root elements.
-        if ($parentCondition = $relationships->getChildCondition(
+        if ($parentCondition = $definition->getModelRelationshipDefinition()->getChildCondition(
             $basicDefinition->getParentDataProvider(),
             $basicDefinition->getRootDataProvider()
         )) {
@@ -316,7 +317,7 @@ class TreeCollector implements EnvironmentAwareInterface
     /**
      * Recursively retrieve a collection of all complete node hierarchy.
      *
-     * @param array  $rootId       The ids of the root node.
+     * @param string $rootId       The ids of the root node.
      * @param int    $level        The level the items are residing on.
      * @param string $providerName The data provider from which the root element originates from.
      *
@@ -328,10 +329,9 @@ class TreeCollector implements EnvironmentAwareInterface
         $dataProvider = $environment->getDataProvider($providerName);
 
         // Fetch root element.
-        $rootModel   = $dataProvider->fetch($this->calculateRootConfig()->setId($rootId));
-        $mySubTables = $this->getChildProvidersOf($rootModel->getProviderName());
+        $rootModel = $dataProvider->fetch($this->calculateRootConfig()->setId($rootId));
 
-        $this->treeWalkModel($rootModel, $level, $mySubTables);
+        $this->treeWalkModel($rootModel, $level, $this->getChildProvidersOf($rootModel->getProviderName()));
         $rootCollection = $dataProvider->getEmptyCollection();
         $rootCollection->push($rootModel);
 

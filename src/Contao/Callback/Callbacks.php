@@ -107,7 +107,7 @@ class Callbacks
      */
     protected static function evaluateCallback($callback)
     {
-        if (\is_array($callback) && \count($callback) == 2 && \is_string($callback[0]) && \is_string($callback[1])) {
+        if (\is_array($callback) && (2 === \count($callback)) && \is_string($callback[0]) && \is_string($callback[1])) {
             $serviceCallback = static::evaluateServiceCallback($callback);
             if ($serviceCallback[0] !== $callback[0]) {
                 return $serviceCallback;

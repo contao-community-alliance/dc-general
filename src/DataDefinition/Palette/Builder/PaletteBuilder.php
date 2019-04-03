@@ -87,12 +87,12 @@ class PaletteBuilder
     /**
      * The condition define if the property is viewable.
      */
-    const VISIBLE = 'view';
+    public const VISIBLE = 'view';
 
     /**
      * The condition define if the property is editable.
      */
-    const EDITABLE = 'edit';
+    public const EDITABLE = 'edit';
 
     /**
      * The data definition container.
@@ -864,7 +864,7 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (\count($this->property) == 1) {
+        if (1 === \count($this->property)) {
             $this->property = \array_shift($this->property);
         }
 
@@ -902,7 +902,7 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (\count($this->property) == 1) {
+        if (1 === \count($this->property)) {
             $this->property = \array_shift($this->property);
         }
 
@@ -983,7 +983,9 @@ class PaletteBuilder
      */
     protected function createPropertyConditionChain($conjunction = PropertyConditionChain::AND_CONJUNCTION)
     {
-        if (!$this->condition instanceof PropertyConditionChain || $this->condition->getConjunction() != $conjunction) {
+        if (!($this->condition instanceof PropertyConditionChain)
+            || ($conjunction !== $this->condition->getConjunction())
+        ) {
             $previousCondition = $this->condition;
 
             $condition = $this->propertyConditionChainClass->newInstance();
@@ -1238,12 +1240,12 @@ class PaletteBuilder
             $this->dispatchEvent($event);
             $condition = $event->getCondition();
 
-            $previousCondition = $scope == self::EDITABLE
+            $previousCondition = self::EDITABLE === $scope
                 ? $property->getEditableCondition()
                 : $property->getVisibleCondition();
 
             if (!$previousCondition) {
-                if ($scope == self::EDITABLE) {
+                if (self::EDITABLE === $scope) {
                     $property->setEditableCondition($condition);
                 } else {
                     $property->setVisibleCondition($condition);
@@ -1255,7 +1257,7 @@ class PaletteBuilder
                 $chain->addCondition($previousCondition);
                 $chain->addCondition($condition);
 
-                if ($scope == self::EDITABLE) {
+                if (self::EDITABLE === $scope) {
                     $property->setEditableCondition($chain);
                 } else {
                     $property->setVisibleCondition($chain);
@@ -1278,14 +1280,16 @@ class PaletteBuilder
     {
         if ($condition instanceof PaletteConditionInterface) {
             $this->addPaletteCondition($condition);
-        } elseif ($condition instanceof PropertyConditionInterface) {
-            $this->addPropertyCondition($condition, $scope);
-        } else {
-            $type = \is_object($condition) ? \get_class($condition) : \gettype($condition);
-            throw new DcGeneralInvalidArgumentException('Cannot handle condition of type [' . $type . ']');
+            return $this;
         }
 
-        return $this;
+        if ($condition instanceof PropertyConditionInterface) {
+            $this->addPropertyCondition($condition, $scope);
+            return $this;
+        }
+
+        $type = \is_object($condition) ? \get_class($condition) : \gettype($condition);
+        throw new DcGeneralInvalidArgumentException('Cannot handle condition of type [' . $type . ']');
     }
 
     /**

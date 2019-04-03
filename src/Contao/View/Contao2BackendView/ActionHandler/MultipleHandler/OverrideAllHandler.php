@@ -57,12 +57,11 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ($event->getAction()->getName() !== 'overrideAll')) {
+            || ('overrideAll' !== $event->getAction()->getName())) {
             return;
         }
 
-        $response = $this->process($event->getAction(), $event->getEnvironment());
-        if (false !== $response) {
+        if (false !== ($response = $this->process($event->getAction(), $event->getEnvironment()))) {
             $event->setResponse($response);
             $event->stopPropagation();
         }
@@ -85,10 +84,9 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $editInformation = $GLOBALS['container']['dc-general.edit-information'];
 
         $renderInformation = new \ArrayObject();
-        $properties        = $this->getOverrideProperties($action, $environment);
 
         $propertyValueBag = new PropertyValueBag();
-        foreach ($properties as $property) {
+        foreach ($this->getOverrideProperties($action, $environment) as $property) {
             $propertyValueBag->setPropertyValue($property->getName(), $property->getDefaultValue());
         }
 
@@ -338,7 +336,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function getPropertyValueErrors(PropertyValueBagInterface $propertyValueBag, $propertyName, array $errors)
     {
-        if (null !== $propertyValueBag
+        if ((null !== $propertyValueBag)
             && $propertyValueBag->hasPropertyValue($propertyName)
             && $propertyValueBag->isPropertyValueInvalid($propertyName)
         ) {
@@ -367,7 +365,6 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $propertyName,
         EnvironmentInterface $environment
     ) {
-        $inputProvider        = $environment->getInputProvider();
         $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
 
         // If in the intersect model the value available, then set it as default.
@@ -377,8 +374,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             return;
         }
 
-        if (!$inputProvider->hasValue($propertyName)
-            && $propertiesDefinition->hasProperty($propertyName)
+        if ($propertiesDefinition->hasProperty($propertyName)
+            && !$environment->getInputProvider()->hasValue($propertyName)
         ) {
             $propertyValueBag->setPropertyValue(
                 $propertyName,

@@ -176,33 +176,33 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     {
         $this->guardProviderNames(null, $model);
 
-        $arrApplied = [
+        $applied = [
             'operation' => $filter['operation'],
         ];
 
         if (isset($filter['local'])) {
-            $arrApplied['property'] = $filter['local'];
+            $applied['property'] = $filter['local'];
         }
 
         if (isset($filter['remote'])) {
-            $arrApplied['value'] = $model->getProperty($filter['remote']);
+            $applied['value'] = $model->getProperty($filter['remote']);
         }
 
         if (isset($filter['remote_value'])) {
-            $arrApplied['value'] = $filter['remote_value'];
+            $applied['value'] = $filter['remote_value'];
         }
 
         if (isset($filter['value'])) {
-            $arrApplied['value'] = $filter['value'];
+            $applied['value'] = $filter['value'];
         }
 
         if (isset($filter['children'])) {
             foreach ($filter['children'] as $child) {
-                $arrApplied['children'][] = $this->parseFilter($child, $model);
+                $applied['children'][] = $this->parseFilter($child, $model);
             }
         }
 
-        return $arrApplied;
+        return $applied;
     }
 
     /**
@@ -210,18 +210,18 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @throws DcGeneralInvalidArgumentException When an empty parent model is given.
      */
-    public function getFilter($objParent)
+    public function getFilter($parent)
     {
-        if (!$objParent) {
+        if (!$parent) {
             throw new DcGeneralInvalidArgumentException('No parent model passed.');
         }
 
-        $arrResult = [];
+        $result = [];
         foreach ($this->getFilterArray() as $child) {
-            $arrResult[] = $this->parseFilter($child, $objParent);
+            $result[] = $this->parseFilter($child, $parent);
         }
 
-        return $arrResult;
+        return $result;
     }
 
     /**
@@ -234,7 +234,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     private function isValidSetter($setter)
     {
         return (\is_array($setter)
-            && (\count($setter) == 2)
+            && (2 === \count($setter))
             && isset($setter['to_field'])
             && (isset($setter['from_field']) || isset($setter['value'])));
     }
@@ -273,9 +273,11 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
             if (isset($setter['from_field'])) {
                 $objChild->setProperty($setter['to_field'], $objParent->getProperty($setter['from_field']));
-            } else {
-                $objChild->setProperty($setter['to_field'], $setter['value']);
+
+                continue;
             }
+
+            $objChild->setProperty($setter['to_field'], $setter['value']);
         }
     }
 
@@ -314,41 +316,43 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
             if (isset($setter['from_field'])) {
                 $destinationModel->setProperty($setter['to_field'], $sourceModel->getProperty($setter['to_field']));
-            } else {
-                $destinationModel->setProperty($setter['to_field'], $setter['value']);
+
+                continue;
             }
+
+            $destinationModel->setProperty($setter['to_field'], $setter['value']);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getInverseFilterFor($objChild)
+    public function getInverseFilterFor($child)
     {
-        $this->guardProviderNames($objChild);
+        $this->guardProviderNames($child);
 
-        $arrResult = [];
+        $result = [];
         foreach ($this->getInverseFilterArray() as $arrRule) {
-            $arrApplied = [
+            $applied = [
                 'operation' => $arrRule['operation'],
             ];
 
             if (isset($arrRule['remote'])) {
-                $arrApplied['property'] = $arrRule['remote'];
+                $applied['property'] = $arrRule['remote'];
             }
 
             if (isset($arrRule['local'])) {
-                $arrApplied['value'] = $objChild->getProperty($arrRule['local']);
+                $applied['value'] = $child->getProperty($arrRule['local']);
             }
 
             if (isset($arrRule['value'])) {
-                $arrApplied['value'] = $arrRule['value'];
+                $applied['value'] = $arrRule['value'];
             }
 
-            $arrResult[] = $arrApplied;
+            $result[] = $applied;
         }
 
-        return $arrResult;
+        return $result;
     }
 
     /**

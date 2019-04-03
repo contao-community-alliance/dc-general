@@ -49,11 +49,10 @@ class ParentEnforcingListener
             return;
         }
 
-        $model         = $event->getModel();
-        $collector     = new ModelCollector($environment);
-        $relationships = new RelationshipManager($definition->getModelRelationshipDefinition(), $mode);
-        $parent        = $collector->getModel(ModelId::fromSerialized($input->getParameter('pid')));
+        $model = $event->getModel();
 
-        $relationships->setParent($model, $parent);
+        $parent = (new ModelCollector($environment))->getModel(ModelId::fromSerialized($input->getParameter('pid')));
+
+        (new RelationshipManager($definition->getModelRelationshipDefinition(), $mode))->setParent($model, $parent);
     }
 }

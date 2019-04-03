@@ -85,12 +85,10 @@ class PropertyEditableCondition implements PropertyConditionInterface
         }
 
         if ($legend->getPalette()) {
-            $property = $legend->getPalette()->getProperty($this->propertyName);
-        } else {
-            $property = $legend->getProperty($this->propertyName);
+            return $legend->getPalette()->getProperty($this->propertyName)->isEditable($model, $input, $legend);
         }
 
-        return $property->isEditable($model, $input, $legend);
+        return $legend->getProperty($this->propertyName)->isEditable($model, $input, $legend);
     }
 
     /**

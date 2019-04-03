@@ -127,7 +127,7 @@ abstract class BaseFilterBuilder
             return $this;
         }
 
-        if ($parent instanceof AndFilterBuilder && !($this instanceof FilterBuilderWithChildren)) {
+        if (($parent instanceof AndFilterBuilder) && !($this instanceof FilterBuilderWithChildren)) {
             return $parent;
         }
 
@@ -160,7 +160,7 @@ abstract class BaseFilterBuilder
             return $this;
         }
 
-        if ($parent instanceof OrFilterBuilder && !($this instanceof FilterBuilderWithChildren)) {
+        if (($parent instanceof OrFilterBuilder) && !($this instanceof FilterBuilderWithChildren)) {
             return $parent;
         }
 

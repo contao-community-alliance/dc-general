@@ -57,8 +57,8 @@ class TreePickerOrder extends AbstractWidget
      */
     protected function getSerializedValue()
     {
-        if ($this->varValue === null) {
-            $this->varValue = array();
+        if (null === $this->varValue) {
+            $this->varValue = [];
         }
 
         return \implode(',', $this->varValue);

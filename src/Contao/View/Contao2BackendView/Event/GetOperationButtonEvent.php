@@ -32,7 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInte
  */
 class GetOperationButtonEvent extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-operation-button';
+    public const NAME = 'dc-general.view.contao2backend.get-operation-button';
 
     /**
      * The command for which the button is being rendered.

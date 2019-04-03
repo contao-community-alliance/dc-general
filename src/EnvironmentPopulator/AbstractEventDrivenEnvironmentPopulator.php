@@ -34,7 +34,7 @@ abstract class AbstractEventDrivenEnvironmentPopulator implements EnvironmentPop
      * Priority of the listener.
      * Just here vor sanity, must be overwritten by implementation.
      */
-    const PRIORITY = null;
+    public const PRIORITY = null;
 
     /**
      * Creates an instance of itself and processes the event.

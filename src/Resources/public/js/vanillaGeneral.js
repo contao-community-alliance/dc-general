@@ -319,7 +319,7 @@ var GeneralTreePicker =
 				alert('Could not find the SimpleModal frame');
 				return;
 			}
-			if (frm.document.location.href.indexOf('contao/main.php') != -1) {
+			if (frm.document.location.href.indexOf('contao') != -1) {
 				alert(Contao.lang.picker);
 				return; // see #5704
 			}

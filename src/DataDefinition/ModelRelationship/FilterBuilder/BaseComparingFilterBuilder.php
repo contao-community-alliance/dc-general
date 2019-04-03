@@ -88,6 +88,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
             ->setIsRemote($isRemote)
             ->setProperty($property)
             ->setValue($value);
+
         if ($this->isRemote()) {
             $this->setIsRemoteProperty($isRemoteProp);
         }
@@ -119,7 +120,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
             $property = $array['property'];
         }
 
-        if (!(isset($value) && isset($property))) {
+        if (!(isset($value, $property))) {
             throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 
@@ -131,7 +132,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
      */
     public function get()
     {
-        $result = ['operation' => $this->operation,];
+        $result = ['operation' => $this->operation];
 
         if ($this->isRemote()) {
             $result['local'] = $this->getProperty();

@@ -29,5 +29,5 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class GetSelectModeButtonsEvent extends BaseGetButtonsEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-select-mode-buttons';
+    public const NAME = 'dc-general.view.contao2backend.get-select-mode-buttons';
 }

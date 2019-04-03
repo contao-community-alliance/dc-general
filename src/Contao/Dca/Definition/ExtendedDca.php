@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterf
  */
 class ExtendedDca implements DefinitionInterface
 {
-    const NAME = 'extended-dca';
+    public const NAME = 'extended-dca';
 
     /**
      * Controller class to use.

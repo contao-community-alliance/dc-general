@@ -34,7 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractActionAwareEvent;
  */
 class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
 {
-    const NAME = 'dc-general.view.contao2backend.prepare-multiple-models-action';
+    public const NAME = 'dc-general.view.contao2backend.prepare-multiple-models-action';
 
     /**
      * The model ids.

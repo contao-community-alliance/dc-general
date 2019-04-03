@@ -61,38 +61,35 @@ class PageTree extends TreePicker
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
      * @param mixed $rootId       The root element (or null to fetch everything).
-     * @param int   $intLevel     The current level in the tree (of the optional root element).
+     * @param int   $level        The current level in the tree (of the optional root element).
      * @param null  $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
      */
-    public function loadCollection($rootId = null, $intLevel = 0, $providerName = null)
+    public function loadCollection($rootId = null, $level = 0, $providerName = null)
     {
-        $environment = $this->getEnvironment();
-        $dataDriver  = $environment->getDataProvider($providerName);
+        $collection = $this->getTreeCollectionRecursive($rootId, $level, $providerName);
 
-        $objCollection = $this->getTreeCollectionRecursive($rootId, $intLevel, $providerName);
-
-        $objTreeData = $dataDriver->getEmptyCollection();
+        $treeData = $this->getEnvironment()->getDataProvider($providerName)->getEmptyCollection();
         if ($rootId) {
-            $objModel = $objCollection->get(0);
-            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $objCollection) {
-                foreach ($objCollection as $objSubModel) {
-                    $objTreeData->push($objSubModel);
+            $objModel = $collection->get(0);
+            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $childCollection) {
+                foreach ($childCollection as $subModel) {
+                    $treeData->push($subModel);
                 }
             }
-            return $objTreeData;
+            return $treeData;
         }
 
-        foreach ($objCollection as $model) {
-            if ($model->getProperty('type') !== 'root') {
+        foreach ($collection as $model) {
+            if ('root' !== $model->getProperty('type')) {
                 continue;
             }
 
-            $objTreeData->push($model);
+            $treeData->push($model);
         }
 
-        return $objTreeData;
+        return $treeData;
     }
 
     /**

@@ -81,7 +81,7 @@ abstract class AbstractCallbackListener
     public function wantToExecute($event)
     {
         return (empty($this->dataContainerName)
-            || ($event->getEnvironment()->getDataDefinition()->getName() == $this->dataContainerName)
+            || ($this->dataContainerName === $event->getEnvironment()->getDataDefinition()->getName())
         );
     }
 

@@ -28,7 +28,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  */
 class GetPasteRootButtonEvent extends BaseButtonEvent
 {
-    const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
+    public const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
 
     /**
      * The href information to use for the paste button.

@@ -27,8 +27,6 @@ use Contao\BackendUser;
 use Contao\Config;
 use Contao\Database;
 use Contao\Environment;
-use Contao\Input;
-use Contao\Session;
 use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -74,7 +72,6 @@ class TreeSelect
     {
         BackendUser::getInstance();
         Config::getInstance();
-        Session::getInstance();
         Database::getInstance();
 
         BackendUser::getInstance()->authenticate();
@@ -93,94 +90,92 @@ class TreeSelect
      */
     public function run()
     {
+        $environment    = $this->itemContainer->getEnvironment();
+        $inputProvider  = $environment->getInputProvider();
+        $sessionStorage = $environment->getSessionStorage();
+
         // Ajax request.
         // @codingStandardsIgnoreStart - We need POST access here.
         if ($_POST && Environment::get('isAjaxRequest')) // @codingStandardsIgnoreEnd
         {
-            $ajax = new Ajax(Input::post('action'));
+            $ajax = new Ajax($inputProvider->getValue('action'));
             $ajax->executePreActions();
         }
 
-        $strTable = Input::get('table');
-        $strField = Input::get('field');
+        $inputTable = $inputProvider->getParameter('table');
+        $inputField = $inputProvider->getParameter('field');
+        $inputId    = $inputProvider->getParameter('id');
 
         // Define the current ID.
-        \define('CURRENT_ID', ($strTable ? Session::getInstance()->get('CURRENT_ID') : Input::get('id')));
+        \define('CURRENT_ID', ($inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId));
 
         $dispatcher = $GLOBALS['container']['event-dispatcher'];
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
 
-        $factory             = new DcGeneralFactory();
-        $this->itemContainer = $factory
-            ->setContainerName($strTable)
+        $this->itemContainer = (new DcGeneralFactory())
+            ->setContainerName($inputTable)
             ->setTranslator($translator)
             ->setEventDispatcher($dispatcher)
             ->createDcGeneral();
 
-        $information = (array) $GLOBALS['TL_DCA'][$strTable]['fields'][$strField];
+        $information = (array) $GLOBALS['TL_DCA'][$inputTable]['fields'][$inputField];
 
         if (!isset($information['eval'])) {
             $information['eval'] = [];
         }
 
         // Merge with the information from the data container.
-        $property = $this
-            ->itemContainer
-            ->getEnvironment()
+        $property = $environment
             ->getDataDefinition()
             ->getPropertiesDefinition()
-            ->getProperty($strField);
+            ->getProperty($inputField);
         $extra    = $property->getExtra();
 
         $information['eval'] = \array_merge($extra, $information['eval']);
 
         $property->setExtra(\array_merge($property->getExtra(), $information['eval']));
 
-        $environment   = $this->itemContainer->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
-        $dataProvider  = $environment->getDataProvider();
-
-        $model = $dataProvider->getEmptyModel();
+        $dataProvider = $environment->getDataProvider();
+        $model        = $dataProvider->getEmptyModel();
         if ($inputProvider->getParameter('id')) {
             $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
             $model   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         }
 
-        $builder = new WidgetBuilder($this->itemContainer->getEnvironment());
-        /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $objTreeSelector */
-        $objTreeSelector        = $builder->buildWidget($property, $model);
-        $objTreeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
+        /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $treeSelector */
+        $treeSelector        = (new WidgetBuilder($environment))->buildWidget($property, $model);
+        $treeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
 
         // AJAX request.
         if (isset($ajax)) {
-            $objTreeSelector->generateAjax();
-            $ajax->executePostActions(new DcCompat($this->itemContainer->getEnvironment()));
+            $treeSelector->generateAjax();
+            $ajax->executePostActions(new DcCompat($environment));
         }
 
 
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
-            ->set('main', $objTreeSelector->generatePopup())
+            ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
             ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
             ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
-            ->set('addSearch', $objTreeSelector->searchField)
+            ->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
             ->set('action', \ampersand(Environment::get('request')))
-            ->set('value', Session::getInstance()->get($objTreeSelector->getSearchSessionKey()))
+            ->set('value', $sessionStorage->get($treeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
-            ->set('breadcrumb', $GLOBALS['TL_DCA'][$objTreeSelector->foreignTable]['list']['sorting']['breadcrumb'])
+            ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'])
             ->set('managerHref', '');
 
         // Add the manager link.
-        if ($objTreeSelector->managerHref) {
+        if ($treeSelector->managerHref) {
             $template
-                ->set('managerHref', 'contao/main.php?' . \ampersand($objTreeSelector->managerHref) . '&amp;popup=1');
+                ->set('managerHref', 'contao?' . \ampersand($treeSelector->managerHref) . '&amp;popup=1');
         }
 
         // Prevent debug output at all cost.

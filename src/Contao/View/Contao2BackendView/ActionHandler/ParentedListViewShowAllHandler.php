@@ -91,7 +91,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     {
         // Add template.
         if (isset($groupingInformation['mode'])
-            && ($groupingInformation['mode'] != GroupAndSortingInformationInterface::GROUP_NONE)) {
+            && (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingInformation['mode'])) {
             return $this->getTemplate('dcbe_general_grouping');
         }
         return $this->getTemplate('dcbe_general_parentView');
@@ -103,9 +103,11 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
         parent::renderTemplate($template, $environment);
+
         $parentModel = $this->loadParentModel($environment);
-        $template->set('header', $this->renderHeaderFields($parentModel, $environment));
-        $template->set('headerButtons', $this->getParentModelButtons($parentModel, $environment));
+        $template
+            ->set('header', $this->renderHeaderFields($parentModel, $environment))
+            ->set('headerButtons', $this->getParentModelButtons($parentModel, $environment));
     }
 
     /**
@@ -130,7 +132,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         }
 
         $parent = $provider->fetch($provider->getEmptyConfig()->setId($pidDetails->getId()));
-
         if (!$parent) {
             // No parent item found, might have been deleted.
             // We transparently create it for our filter to be able to filter to nothing.
@@ -158,14 +159,14 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         foreach ($this->getViewSection($definition)->getListingConfig()->getHeaderPropertyNames() as $field) {
             $value = StringUtil::deserialize($parentModel->getProperty($field));
 
-            if ($field == 'tstamp') {
+            if ('tstamp' === $field) {
                 $value = date(Config::get('datimFormat'), $value);
             } else {
                 $value = $this->renderParentProperty($environment, $properties->getProperty($field), $value);
             }
 
             // Add the field.
-            if ($value != '') {
+            if ('' !== $value) {
                 $add[$this->translateHeaderColumnName($field, $parentName)] = $value;
             }
         }
@@ -175,7 +176,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $environment->getEventDispatcher()->dispatch(GetParentHeaderEvent::NAME, $event);
 
-        if (!$event->getAdditional() !== null) {
+        if (null !== !$event->getAdditional()) {
             $add = $event->getAdditional();
         }
 
@@ -200,13 +201,9 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function translateHeaderColumnName($field, $parentName)
     {
-        if ($field === 'tstamp') {
-            $lang = $this->translate('MSC.tstamp', 'contao_default');
-        } else {
-            $lang = $this->translate(\sprintf('%s.0', $field), $parentName);
-        }
-
-        return $lang;
+        return ('tstamp' === $field)
+            ? $this->translate('MSC.tstamp', 'contao_default')
+            : $this->translate(\sprintf('%s.0', $field), $parentName);
     }
 
     /**
@@ -337,13 +334,14 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return '';
         }
 
-        $headerButtons = [];
-
-        $headerButtons['editHeader'] = $this->getHeaderEditButton($parentModel, $environment);
-        $headerButtons['pasteNew']   = $this->getHeaderPasteNewButton($parentModel, $environment);
-        $headerButtons['pasteAfter'] = $this->getHeaderPasteTopButton($parentModel, $environment);
-
-        return \implode(' ', $headerButtons);
+        return \implode(
+            ' ',
+            [
+                'editHeader' => $this->getHeaderEditButton($parentModel, $environment),
+                'pasteNew' => $this->getHeaderPasteNewButton($parentModel, $environment),
+                'pasteAfter' => $this->getHeaderPasteTopButton($parentModel, $environment)
+            ]
+        );
     }
 
     /**
@@ -366,10 +364,8 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return null;
         }
 
-        $definition      = $environment->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
-        $parentName      = $basicDefinition->getParentDataProvider();
-        $dispatcher      = $environment->getEventDispatcher();
+        $parentName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+        $dispatcher = $environment->getEventDispatcher();
 
         $command    = $commands->getCommandNamed('edit');
         $parameters = (array) $command->getParameters();
@@ -379,9 +375,8 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $parameters['table'] = $parentName;
         $parameters['pid']   = '';
 
-        $extra   = (array) $command->getExtra();
-        $idParam = isset($extra['idparam']) ? $extra['idparam'] : null;
-        if ($idParam) {
+        $extra = (array) $command->getExtra();
+        if ($idParam = ($extra['idparam'] ?? null)) {
             $parameters[$idParam] = ModelId::fromModel($parentModel)->getSerialized();
         } else {
             $parameters['id'] = ModelId::fromModel($parentModel)->getSerialized();
@@ -430,8 +425,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function getHeaderPasteNewButton(ModelInterface $parentModel, EnvironmentInterface $environment)
     {
-        $definition      = $environment->getDataDefinition();
-        $basicDefinition = $definition->getBasicDefinition();
+        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
         if (!$basicDefinition->isCreatable()) {
             return null;
         }
@@ -495,9 +489,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return null;
         }
 
-        $allowPasteTop = ViewHelpers::getManualSortingProperty($environment);
-
-        if (!$allowPasteTop) {
+        if (!($allowPasteTop = ViewHelpers::getManualSortingProperty($environment))) {
             $subFilter = new Filter();
             $subFilter->andActionIsNotIn([ItemInterface::COPY, ItemInterface::DEEP_COPY]);
             $subFilter->andParentIsNot(ModelId::fromModel($parentModel));
@@ -568,13 +560,11 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         ModelInterface $parentModel,
         EnvironmentInterface $environment
     ) {
-        if ('' == ($grandParentName = $parentDefinition->getBasicDefinition()->getParentDataProvider())) {
+        if ('' === ($grandParentName = $parentDefinition->getBasicDefinition()->getParentDataProvider())) {
             return null;
         }
 
-        $container = $environment->getDataDefinition();
-
-        $relationship = $container->getModelRelationshipDefinition()->getChildCondition(
+        $relationship = $environment->getDataDefinition()->getModelRelationshipDefinition()->getChildCondition(
             $grandParentName,
             $parentDefinition->getName()
         );
@@ -582,16 +572,15 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         if (!$relationship) {
             return null;
         }
-        $filter = $relationship->getInverseFilterFor($parentModel);
 
         $grandParentProvider = $environment->getDataProvider($grandParentName);
 
         $config = $grandParentProvider->getEmptyConfig();
-        $config->setFilter($filter);
+        $config->setFilter($relationship->getInverseFilterFor($parentModel));
 
         $parents = $grandParentProvider->fetchAll($config);
 
-        if ($parents->length() == 1) {
+        if (1 === $parents->length()) {
             return ModelId::fromModel($parents->get(0))->getSerialized();
         }
         return false;

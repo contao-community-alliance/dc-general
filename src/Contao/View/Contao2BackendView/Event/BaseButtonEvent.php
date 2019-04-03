@@ -33,7 +33,7 @@ class BaseButtonEvent extends AbstractEnvironmentAwareEvent
     /**
      * The name of the event.
      */
-    const NAME = 'dc-general.view.contao2backend.button';
+    public const NAME = 'dc-general.view.contao2backend.button';
 
     /**
      * The html attributes to use for the button.
