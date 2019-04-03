@@ -128,37 +128,11 @@ class CopyHandler
 
             $eventDispatcher->dispatch(
                 ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent('contao/main.php?act=error')
+                new RedirectEvent('contao?act=error')
             );
         }
 
-        $sourceModelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
-        if ($modelId !== $sourceModelId) {
-            $modelId = $sourceModelId;
-        }
-
-        $this->guardValidEnvironment($dataDefinition, $modelId);
-        // We want a redirect here if not creatable.
-        $this->guardIsCreatable($environment, $modelId, true);
-
-        if ($this->isEditOnlyResponse()) {
-            return;
-        }
-
-        // Manual sorting mode. The ClipboardController should pick it up.
-        $manualSortingProperty = ViewHelpers::getManualSortingProperty($environment);
-        if ($manualSortingProperty && $environment->getDataProvider()->fieldExists($manualSortingProperty)) {
-            return;
-        }
-
-        $copiedModel = $this->copy($environment, $modelId);
-
-        // If edit several don´t redirect do home.
-        if ('select' === $environment->getInputProvider()->getParameter('act')) {
-            return;
-        }
-
-        $this->redirect($environment, ModelId::fromModel($copiedModel));
+        throw new NotCreatableException($modelId->getDataProviderName());
     }
 
     /**
@@ -208,7 +182,7 @@ class CopyHandler
         // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
         $url = new BackendUrlBuilder();
         $url
-            ->setPath('contao/main.php')
+            ->setPath('contao')
             ->setQueryParameter('do', $environment->getInputProvider()->getParameter('do'))
             ->setQueryParameter('table', $copiedModelId->getDataProviderName())
             ->setQueryParameter('act', 'edit')
@@ -246,6 +220,11 @@ class CopyHandler
         }
 
         $copiedModel = $this->copy($environment, $modelId);
+
+        // If edit several don´t redirect do home.
+        if ('select' === $environment->getInputProvider()->getParameter('act')) {
+            return false;
+        }
 
         $this->redirect($environment, ModelId::fromModel($copiedModel));
 
