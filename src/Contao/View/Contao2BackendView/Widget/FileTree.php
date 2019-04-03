@@ -230,6 +230,8 @@ class FileTree extends AbstractWidget
         // Load the fonts for the drag hint (see #4838)
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
+        $this->rootDir = \dirname(System::getContainer()->getParameter('kernel.root_dir'));
+
         if (!$this->dataContainer || !$this->orderField) {
             return;
         }
@@ -243,7 +245,6 @@ class FileTree extends AbstractWidget
 
         $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
         $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
-        $this->rootDir         = \dirname(System::getContainer()->getParameter('kernel.root_dir'));
     }
 
     /**
