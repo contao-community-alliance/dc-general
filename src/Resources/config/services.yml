@@ -33,3 +33,9 @@ services:
     cca.dc-general.edit-information:
         class: ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation
         public: true
+
+    cca.dc-general.security-url-builder-factory:
+        class: ContaoCommunityAlliance\UrlBuilder\Contao\CsrfUrlBuilderFactory
+        arguments:
+            - '@security.csrf.token_manager'
+            - '%contao.csrf_token_name%'

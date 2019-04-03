@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -39,6 +40,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\ActionGuardTrait;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
+use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 
 /**
  * Class CopyModelController handles copy action on a model.
@@ -180,8 +182,8 @@ class CopyHandler
     protected function redirect($environment, $copiedModelId)
     {
         // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
-        $url = new BackendUrlBuilder();
-        $url
+        $urlBuilder = new UrlBuilder();
+        $urlBuilder
             ->setPath('contao')
             ->setQueryParameter('do', $environment->getInputProvider()->getParameter('do'))
             ->setQueryParameter('table', $copiedModelId->getDataProviderName())
@@ -189,7 +191,9 @@ class CopyHandler
             ->setQueryParameter('id', $copiedModelId->getSerialized())
             ->setQueryParameter('pid', $environment->getInputProvider()->getParameter('pid'));
 
-        $redirectEvent = new RedirectEvent($url->getUrl());
+        $securityUrlBuilder = System::getContainer()->get('cca.dc-general.security-url-builder-factory');
+
+        $redirectEvent = new RedirectEvent($securityUrlBuilder->create($urlBuilder->getUrl())->getUrl());
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
     }
 
