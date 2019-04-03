@@ -243,7 +243,7 @@ class FileTree extends AbstractWidget
 
         $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
         $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
-        $this->rootDir         = System::getContainer()->getParameter('kernel.root_dir');
+        $this->rootDir         = \dirname(System::getContainer()->getParameter('kernel.root_dir'));
     }
 
     /**
