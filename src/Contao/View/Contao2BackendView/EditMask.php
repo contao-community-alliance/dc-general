@@ -589,7 +589,9 @@ class EditMask
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
+            // We have to remove the empty id parameter - see MetaModels/core#1309
+            $url = str_replace('id=&', '', $newUrlEvent->getUrl());
+            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($url));
         } elseif ($inputProvider->hasValue('saveNback')) {
             $this->clearBackendStates();
 
