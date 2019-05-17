@@ -89,10 +89,6 @@ class CreateHandler
             return;
         }
 
-        if ('select' !== $inputProvider->getParameter('act')) {
-            $this->handleGlobalCommands($environment);
-        }
-
         if (false !== ($response = $this->process($environment))) {
             $event->setResponse($response);
         }
@@ -125,6 +121,10 @@ class CreateHandler
         $view = $environment->getView();
         if (!$view instanceof BaseView) {
             return false;
+        }
+
+        if ('select' !== $environment->getInputProvider()->getParameter('act')) {
+            $this->handleGlobalCommands($environment);
         }
 
         return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb()))->execute();
