@@ -365,7 +365,7 @@ class ContaoWidgetManager
         $content  = (new ContaoBackendViewTemplate('dcbe_general_field'))
             ->set('strName', $property)
             ->set('strClass', $widget->tl_class)
-            ->set('widget', $widget->parse())
+            ->set('widget', (isset($extra['hideInput']) ?? $extra['hideInput']) ? null : $widget->parse())
             ->set('hasErrors', $widget->hasErrors())
             ->set('strDatepicker', $this->getDatePicker($propInfo->getExtra(), $widget))
             // We used the var blnUpdate before.
@@ -373,6 +373,8 @@ class ContaoWidgetManager
             ->set('strHelp', $this->generateHelpText($property))
             ->set('strId', $widget->id)
             ->set('hideInput', ($extra['hideInput'] ?? false))
+            ->set('hiddenName', $widget->name)
+            ->set('value', $widget->value)
             ->parse();
 
         return $this->loadRichTextEditor($content, $widget);
