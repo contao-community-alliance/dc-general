@@ -361,6 +361,7 @@ class ContaoWidgetManager
         $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
         $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
+        $extra    = (array) $propInfo->getExtra();
         $content  = (new ContaoBackendViewTemplate('dcbe_general_field'))
             ->set('strName', $property)
             ->set('strClass', $widget->tl_class)
@@ -371,6 +372,7 @@ class ContaoWidgetManager
             ->set('blnUpdate', false)
             ->set('strHelp', $this->generateHelpText($property))
             ->set('strId', $widget->id)
+            ->set('hideInput', ($extra['hideInput'] ?? false))
             ->parse();
 
         return $this->loadRichTextEditor($content, $widget);
