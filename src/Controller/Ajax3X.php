@@ -340,7 +340,7 @@ class Ajax3X extends Ajax
         if (('select' !== $inputProvider->getParameter('act'))
             && ('edit' !== $inputProvider->getParameter('mode'))
         ) {
-            echo $widget->generate();
+            echo $widget->parse();
 
             return;
         }
@@ -348,6 +348,6 @@ class Ajax3X extends Ajax
         $model = $environment->getDataProvider()->getEmptyModel();
         $model->setProperty($widget->name, $widget->value);
 
-        echo (new ContaoWidgetManager($environment, $model))->getWidget($inputProvider->getValue('name'))->generate();
+        echo (new ContaoWidgetManager($environment, $model))->getWidget($inputProvider->getValue('name'))->parse();
     }
 }
