@@ -362,22 +362,51 @@ class ContaoWidgetManager
 
         $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
         $extra    = (array) $propInfo->getExtra();
-        $content  = (new ContaoBackendViewTemplate('dcbe_general_field'))
+
+        $isHideInput = (isset($extra['hideInput']) ?? $extra['hideInput']);
+
+        $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
+
+        $content = (new ContaoBackendViewTemplate('dcbe_general_field'))
             ->set('strName', $property)
             ->set('strClass', $widget->tl_class)
-            ->set('widget', (isset($extra['hideInput']) ?? $extra['hideInput']) ? null : $widget->parse())
-            ->set('hasErrors', $widget->hasErrors())
-            ->set('strDatepicker', $this->getDatePicker($propInfo->getExtra(), $widget))
+            ->set('widget', $isHideInput ? null : $widget->parse())
+            ->set('hasErrors', $isHideInput ? null : $widget->hasErrors())
+            ->set('strDatepicker', $isHideInput ? null : $this->getDatePicker($propInfo->getExtra(), $widget))
             // We used the var blnUpdate before.
             ->set('blnUpdate', false)
-            ->set('strHelp', $this->generateHelpText($property))
+            ->set('strHelp', $isHideInput ? null : $this->generateHelpText($property))
             ->set('strId', $widget->id)
-            ->set('hideInput', ($extra['hideInput'] ?? false))
+            ->set('hideInput', $isHideInput)
             ->set('hiddenName', $widget->name)
             ->set('value', $widget->value)
+            ->set('hiddenFields', $hiddenFields)
             ->parse();
 
         return $this->loadRichTextEditor($content, $widget);
+    }
+
+    /**
+     * Build the hidden fields.
+     * This return an array with field name and their value.
+     *
+     * @param string|array $value        The property value.
+     * @param string       $propertyName The property name.
+     *
+     * @return array
+     */
+    public function buildHiddenFields($value, string $propertyName): array
+    {
+        if (is_string($value)) {
+            return [$propertyName => $value];
+        }
+
+        $values = [[]];
+        foreach ($value as $key => $item) {
+            $values[] = $this->buildHiddenFields($item, $propertyName . '[' . $key . ']');
+        }
+
+        return array_merge(...$values);
     }
 
     /**

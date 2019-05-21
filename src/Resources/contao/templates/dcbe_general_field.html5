@@ -1,7 +1,9 @@
 <div id="widget_<?php echo $this->strName; ?>" class="widget <?php echo $this->strClass; ?>">
   <input type="hidden" value="<?php echo $this->strName; ?>" name="FORM_INPUTS[]" />
   <?php if (true === $this->hideInput): ?>
-  <input type="hidden" value="<?= $this->value ?>" name="<?= $this->hiddenName ?>">
+  <?php foreach ($this->hiddenFields as $hiddenFieldName => $hiddenFieldValue): ?>
+  <input type="hidden" value="<?= $hiddenFieldValue ?>" name="<?= $hiddenFieldName ?>">
+  <?php endforeach; ?>
   <?php else: ?>
   <?php echo $this->widget; ?>
   <?php if($this->strDatepicker): ?>
