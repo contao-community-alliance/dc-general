@@ -361,9 +361,8 @@ class ContaoWidgetManager
         $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
         $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
-        $extra    = (array) $propInfo->getExtra();
 
-        $isHideInput = (isset($extra['hideInput']) ?? $extra['hideInput']);
+        $isHideInput = (bool) $widget->hideInput;
 
         $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
 
