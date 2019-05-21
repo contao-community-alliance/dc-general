@@ -68,6 +68,8 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeAction()
     {
+        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
+
         return $this->runBackendTree($this->container->get('request_stack')->getCurrentRequest());
     }
 
@@ -80,6 +82,8 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeToggleAction()
     {
+        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
+
         return $this->runBackendTreeToggle($this->container->get('request_stack')->getCurrentRequest());
     }
 
@@ -92,6 +96,8 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeBreadCrumbAction()
     {
+        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
+
         return $this->runBackendTreeBreadCrumb($this->container->get('request_stack')->getCurrentRequest());
     }
 
@@ -104,6 +110,8 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeUpdateAction()
     {
+        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
+
         return $this->runBackendTreeUpdate($this->container->get('request_stack')->getCurrentRequest());
     }
 
@@ -124,8 +132,6 @@ class BackendTreeController implements ContainerAwareInterface
             throw new \InvalidArgumentException('No picker was given here.');
         }
         $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
-
-        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
 
         $treeSelector = $this->prepareTreeSelector($picker);
 
