@@ -19,6 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
+use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
@@ -81,7 +82,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     {
         $inputProvider   = $environment->getInputProvider();
         $translator      = $environment->getTranslator();
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
         $renderInformation = new \ArrayObject();
 
@@ -116,7 +117,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
                 'error'       => $renderInformation->offsetGet('error'),
                 'breadcrumb'  => $this->renderBreadcrumb($environment),
                 'editButtons' => $this->getEditButtons($action, $environment),
-                'noReload'    => (bool) $editInformation->hasAnyModelError($action, $environment)
+                'noReload'    => (bool) $editInformation->hasAnyModelError()
             ]
         );
     }
