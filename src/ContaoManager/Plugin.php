@@ -29,7 +29,6 @@ use Contao\ManagerPlugin\Routing\RoutingPluginInterface;
 use ContaoCommunityAlliance\Contao\Bindings\CcaEventsContaoBindingsBundle;
 use ContaoCommunityAlliance\DcGeneral\CcaDcGeneralBundle;
 use ContaoCommunityAlliance\UrlBuilder\CcaUrlBuilderBundle;
-use DependencyInjection\Container\CcaDependencyInjectionBundle;
 use Symfony\Component\Config\Loader\LoaderResolverInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -48,7 +47,6 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
                 ->setLoadAfter(
                     [
                         ContaoCoreBundle::class,
-                        CcaDependencyInjectionBundle::class,
                         CcaEventsContaoBindingsBundle::class
                     ]
                 )
