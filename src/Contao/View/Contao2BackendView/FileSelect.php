@@ -279,13 +279,11 @@ class FileSelect
      */
     private function setupItemContainer(ModelIdInterface $modelId)
     {
-        $dispatcher = $GLOBALS['container']['event-dispatcher'];
-
+        $dispatcher = System::getContainer()->get('event_dispatcher');
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
 
-        $factory             = new DcGeneralFactory();
-        $this->itemContainer = $factory
+        $this->itemContainer = (new DcGeneralFactory())
             ->setContainerName($modelId->getDataProviderName())
             ->setTranslator($translator)
             ->setEventDispatcher($dispatcher)

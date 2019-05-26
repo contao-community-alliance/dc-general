@@ -19,6 +19,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
@@ -166,7 +167,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function handleLegendCollapsed(array $fieldSets)
     {
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
         if (!$editInformation->hasAnyModelError()) {
             return $fieldSets;
         }
@@ -372,7 +373,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         PropertyValueBagInterface $propertyValuesBag,
         EnvironmentInterface $environment
     ) {
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
         $sessionValues   = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
 
         $modelError = $editInformation->getModelError($editModel);

@@ -29,6 +29,7 @@ use Contao\Backend;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Date;
 use Contao\Input;
+use Contao\System;
 use Contao\TemplateLoader;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
@@ -76,14 +77,12 @@ class ContaoWidgetManager
      *
      * @param EnvironmentInterface $environment The environment in use.
      * @param ModelInterface       $model       The model for which widgets shall be generated.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
     {
         $this->environment = $environment;
         $this->model       = $model;
-        $this->framework   = $GLOBALS['container']->getContainer()->get('contao.framework');
+        $this->framework   = System::getContainer()->get('contao.framework');
     }
 
     /**

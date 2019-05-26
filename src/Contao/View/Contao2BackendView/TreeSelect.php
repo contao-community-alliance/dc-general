@@ -109,7 +109,7 @@ class TreeSelect
         // Define the current ID.
         \define('CURRENT_ID', ($inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId));
 
-        $dispatcher = $GLOBALS['container']['event-dispatcher'];
+        $dispatcher = System::getContainer()->get('event_dispatcher');
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));

@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder;
 
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionChainInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\AddConditionEvent;
@@ -1300,14 +1301,10 @@ class PaletteBuilder
      * @return void
      *
      * @internal
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function dispatchEvent(BuilderEvent $event)
+    protected function dispatchEvent(BuilderEvent $event): void
     {
-        /** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
-        $dispatcher = $GLOBALS['container']['event-dispatcher'];
+        $dispatcher = System::getContainer()->get('event_dispatcher');
         $dispatcher->dispatch($event::NAME, $event);
     }
 }
