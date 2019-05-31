@@ -480,14 +480,11 @@ abstract class AbstractListShowAllHandler
         $sorting    = ViewHelpers::getCurrentSorting($environment);
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
-            // Skip unknown properties. This may happen if the property is not defined for editing but only listing.
-            if (!$properties->hasProperty($field)) {
-                continue;
-            }
-
             $tableHead[] = [
                 'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
-                'content' => $properties->getProperty($field)->getLabel()
+                'content' => $properties->hasProperty($field)
+                    ? $properties->getProperty($field)->getLabel()
+                    : $this->translate($definition->getName() . '.' . $field . '.0', 'contao_' . $definition->getName())
             ];
         }
 
