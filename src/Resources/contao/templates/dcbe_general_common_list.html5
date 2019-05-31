@@ -59,7 +59,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 <?php if ($this->collection->length() > 0) : ?>
 <?php
 // If we are grouped, split them up.
-$this->grouped = ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE);
+$this->grouped = (null !== $this->mode && $this->mode !== GroupAndSortingInformationInterface::GROUP_NONE);
 if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
     $grouped = [];
     foreach ($this->collection as $model) {
