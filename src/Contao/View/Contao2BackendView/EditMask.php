@@ -347,19 +347,21 @@ class EditMask
         );
         $buttons['save'] = $buttonTemplate->parse();
 
-        $buttonTemplate->setData(
-            [
-                'label'      => $this->getButtonLabel('saveNclose'),
-                'attributes' => [
-                    'type'      => 'submit',
-                    'name'      => 'saveNclose',
-                    'id'        => 'saveNclose',
-                    'class'     => 'tl_submit',
-                    'accesskey' => 'c'
+        if (!$this->getEnvironment()->getInputProvider()->getParameter('nb')) {
+            $buttonTemplate->setData(
+                [
+                    'label'      => $this->getButtonLabel('saveNclose'),
+                    'attributes' => [
+                        'type'      => 'submit',
+                        'name'      => 'saveNclose',
+                        'id'        => 'saveNclose',
+                        'class'     => 'tl_submit',
+                        'accesskey' => 'c'
+                    ]
                 ]
-            ]
-        );
-        $buttons['saveNclose'] = $buttonTemplate->parse();
+            );
+            $buttons['saveNclose'] = $buttonTemplate->parse();
+        }
 
         if (!$this->isPopup() && $basicDefinition->isCreatable()) {
             $buttonTemplate->setData(
