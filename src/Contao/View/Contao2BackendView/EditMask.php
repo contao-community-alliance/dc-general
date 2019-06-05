@@ -363,7 +363,8 @@ class EditMask
             $buttons['saveNclose'] = $buttonTemplate->parse();
         }
 
-        if (!$this->isPopup() && $basicDefinition->isCreatable()) {
+        if ($basicDefinition->isCreatable()
+            && !$this->getEnvironment()->getInputProvider()->getParameter('nc')) {
             $buttonTemplate->setData(
                 [
                     'label'      => $this->getButtonLabel('saveNcreate'),
