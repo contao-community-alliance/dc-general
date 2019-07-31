@@ -1,5 +1,10 @@
 <div id="widget_<?php echo $this->strName; ?>" class="widget <?php echo $this->strClass; ?>">
   <input type="hidden" value="<?php echo $this->strName; ?>" name="FORM_INPUTS[]" />
+  <?php if (true === $this->isHideInput): ?>
+  <?php foreach ($this->hiddenFields as $hiddenFieldName => $hiddenFieldValue): ?>
+  <input type="hidden" value="<?= $hiddenFieldValue ?>" name="<?= $hiddenFieldName ?>">
+  <?php endforeach; ?>
+  <?php else: ?>
   <?php echo $this->widget; ?>
   <?php if($this->strDatepicker): ?>
     <img src="assets/datepicker/images/icon.svg" width="20" height="20" id="toggle_<?php echo $this->strId; ?>" style="vertical-align:-6px;">
@@ -15,4 +20,5 @@
     <input type="radio" name="<?php echo $this->strName; ?>_update" id="opt_<?php echo $this->strName; ?>_update_0" class="tl_radio" value="replace" checked="checked" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?php echo $this->strName; ?>_update_0"><?php echo $GLOBALS['TL_LANG']['MSC']['updateReplace']; ?></label>
   </div>
   <?php endif; if(!$this->hasErrors) echo $this->strHelp; ?>
+  <?php endif; ?>
 </div>

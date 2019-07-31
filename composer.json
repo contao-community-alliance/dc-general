@@ -35,7 +35,6 @@
         "php": "^7.1",
         "contao/core-bundle": "^4.4",
         "contao-community-alliance/translator": "^2.1",
-        "contao-community-alliance/dependency-container": "^2.0",
         "contao-community-alliance/events-contao-bindings": "^4.4",
         "contao-community-alliance/url-builder": "^1.3",
         "symfony/event-dispatcher": "^3.3 || ^4.0",

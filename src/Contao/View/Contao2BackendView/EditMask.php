@@ -453,7 +453,7 @@ class EditMask
         $propertyDefinitions = $definition->getPropertiesDefinition();
         $isAutoSubmit        = ('auto' === $environment->getInputProvider()->getValue('SUBMIT_TYPE'));
         $legendStates        = $this->getLegendStates();
-        $editInformation     = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation     = System::getContainer()->get('cca.dc-general.edit-information');
 
         $fieldSets = [];
         $first     = true;
@@ -589,7 +589,9 @@ class EditMask
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
             $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
+            // We have to remove the empty id parameter - see MetaModels/core#1309
+            $url = str_replace('id=&', '', $newUrlEvent->getUrl());
+            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($url));
         } elseif ($inputProvider->hasValue('saveNback')) {
             $this->clearBackendStates();
 
@@ -688,7 +690,7 @@ class EditMask
             if (!$this->allValuesUnique()) {
                 return false;
             }
-            $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
             // Save the model.
             $dataProvider->save($this->model, $editInformation->uniformTime());
@@ -714,7 +716,7 @@ class EditMask
         $environment     = $this->getEnvironment();
         $translator      = $environment->getTranslator();
         $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
         // Run each and check the unique flag.
         foreach ($this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames() as $propertyName) {
@@ -763,7 +765,7 @@ class EditMask
         $palettesDefinition      = $definition->getPalettesDefinition();
         $submitted               = ($definition->getName() === $inputProvider->getValue('FORM_SUBMIT'));
         $isAutoSubmit            = ('auto' === $inputProvider->getValue('SUBMIT_TYPE'));
-        $editInformation         = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation         = System::getContainer()->get('cca.dc-general.edit-information');
 
         $widgetManager = new ContaoWidgetManager($environment, $this->model);
 

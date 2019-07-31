@@ -473,6 +473,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $propExtra['required'] = ('' === $value) && !empty($propExtra['mandatory']);
 
+        $propExtra = $this->setPropExtraDisabled($property, $propExtra);
+
         $widgetConfig = [
             'inputType' => $property->getWidgetType(),
             'label'     => [
@@ -512,5 +514,23 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         return $prepareAttributes;
+    }
+
+    /**
+     * Set "disabled" attribute for certain widgets being readonly.
+     *
+     * @param PropertyInterface $property  The property for the widget.
+     * @param array             $propExtra The property extra.
+     *
+     * @return array
+     */
+    private function setPropExtraDisabled(PropertyInterface $property, array $propExtra): array
+    {
+        if ($propExtra['readonly'] && \in_array($property->getWidgetType(), ['checkbox', 'select', 'radio'], true)) {
+            $propExtra['disabled'] = true;
+            unset($propExtra['chosen']);
+        }
+
+        return $propExtra;
     }
 }

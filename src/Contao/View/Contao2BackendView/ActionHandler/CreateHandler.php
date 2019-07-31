@@ -23,9 +23,9 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
-use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
@@ -121,6 +121,10 @@ class CreateHandler
         $view = $environment->getView();
         if (!$view instanceof BaseView) {
             return false;
+        }
+
+        if ('select' !== $environment->getInputProvider()->getParameter('act')) {
+            $this->handleGlobalCommands($environment);
         }
 
         return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb()))->execute();

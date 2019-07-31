@@ -18,6 +18,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -29,6 +30,7 @@ use Contao\Backend;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Date;
 use Contao\Input;
+use Contao\System;
 use Contao\TemplateLoader;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
@@ -76,14 +78,12 @@ class ContaoWidgetManager
      *
      * @param EnvironmentInterface $environment The environment in use.
      * @param ModelInterface       $model       The model for which widgets shall be generated.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
     {
         $this->environment = $environment;
         $this->model       = $model;
-        $this->framework   = $GLOBALS['container']->getContainer()->get('contao.framework');
+        $this->framework   = System::getContainer()->get('contao.framework');
     }
 
     /**
@@ -361,19 +361,52 @@ class ContaoWidgetManager
         $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
         $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
-        $content  = (new ContaoBackendViewTemplate('dcbe_general_field'))
+        $extra    = (array) $propInfo->getExtra();
+
+        $isHideInput = (isset($extra['isHideInput']) ?? $extra['isHideInput']);
+
+        $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
+
+        $content = (new ContaoBackendViewTemplate('dcbe_general_field'))
             ->set('strName', $property)
             ->set('strClass', $widget->tl_class)
-            ->set('widget', $widget->parse())
-            ->set('hasErrors', $widget->hasErrors())
-            ->set('strDatepicker', $this->getDatePicker($propInfo->getExtra(), $widget))
+            ->set('widget', $isHideInput ? null : $widget->parse())
+            ->set('hasErrors', $isHideInput ? null : $widget->hasErrors())
+            ->set('strDatepicker', $isHideInput ? null : $this->getDatePicker($propInfo->getExtra(), $widget))
             // We used the var blnUpdate before.
             ->set('blnUpdate', false)
-            ->set('strHelp', $this->generateHelpText($property))
+            ->set('strHelp', $isHideInput ? null : $this->generateHelpText($property))
             ->set('strId', $widget->id)
+            ->set('isHideInput', $isHideInput)
+            ->set('hiddenName', $widget->name)
+            ->set('value', $widget->value)
+            ->set('hiddenFields', $hiddenFields)
             ->parse();
 
         return $this->loadRichTextEditor($content, $widget);
+    }
+
+    /**
+     * Build the hidden fields.
+     * This return an array with field name and their value.
+     *
+     * @param string|array $value        The property value.
+     * @param string       $propertyName The property name.
+     *
+     * @return array
+     */
+    public function buildHiddenFields($value, string $propertyName): array
+    {
+        if (is_string($value)) {
+            return [$propertyName => $value];
+        }
+
+        $values = [[]];
+        foreach ($value as $key => $item) {
+            $values[] = $this->buildHiddenFields($item, $propertyName . '[' . $key . ']');
+        }
+
+        return array_merge(...$values);
     }
 
     /**

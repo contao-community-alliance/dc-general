@@ -15,6 +15,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -39,7 +40,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\ActionGuardTrait;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
-use ContaoCommunityAlliance\UrlBuilder\Contao\BackendUrlBuilder;
+use ContaoCommunityAlliance\UrlBuilder\Contao\CsrfUrlBuilderFactory;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 
 /**
@@ -52,13 +53,23 @@ class CopyHandler
     use CallActionTrait;
 
     /**
+     * The URL builder factory for URLs with security token.
+     *
+     * @var CsrfUrlBuilderFactory
+     */
+    private $securityUrlBuilder;
+
+    /**
      * PasteHandler constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     * @param RequestScopeDeterminator $scopeDeterminator  The request mode determinator.
+     * @param CsrfUrlBuilderFactory    $securityUrlBuilder The URL builder factory for URLs with security token.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator, CsrfUrlBuilderFactory $securityUrlBuilder)
     {
         $this->setScopeDeterminator($scopeDeterminator);
+
+        $this->securityUrlBuilder = $securityUrlBuilder;
     }
 
     /**
@@ -191,9 +202,7 @@ class CopyHandler
             ->setQueryParameter('id', $copiedModelId->getSerialized())
             ->setQueryParameter('pid', $environment->getInputProvider()->getParameter('pid'));
 
-        $securityUrlBuilder = System::getContainer()->get('cca.dc-general.security-url-builder-factory');
-
-        $redirectEvent = new RedirectEvent($securityUrlBuilder->create($urlBuilder->getUrl())->getUrl());
+        $redirectEvent = new RedirectEvent($this->securityUrlBuilder->create($urlBuilder->getUrl())->getUrl());
         $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
     }
 

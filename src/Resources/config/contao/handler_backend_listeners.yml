@@ -24,6 +24,7 @@ services:
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
+            - "@cca.dc-general.security-url-builder-factory"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action
