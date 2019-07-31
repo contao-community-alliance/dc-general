@@ -18,6 +18,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -29,6 +30,7 @@ use Contao\Backend;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Date;
 use Contao\Input;
+use Contao\System;
 use Contao\TemplateLoader;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
@@ -76,14 +78,12 @@ class ContaoWidgetManager
      *
      * @param EnvironmentInterface $environment The environment in use.
      * @param ModelInterface       $model       The model for which widgets shall be generated.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
     {
         $this->environment = $environment;
         $this->model       = $model;
-        $this->framework   = $GLOBALS['container']->getContainer()->get('contao.framework');
+        $this->framework   = System::getContainer()->get('contao.framework');
     }
 
     /**

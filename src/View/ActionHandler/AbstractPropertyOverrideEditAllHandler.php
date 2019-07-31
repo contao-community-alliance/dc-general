@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
@@ -20,6 +21,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\View\ActionHandler;
 
 use Contao\Environment;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
@@ -214,7 +216,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         \ArrayObject $renderInformation,
         EnvironmentInterface $environment
     ) {
-        $editInformation  = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation  = System::getContainer()->get('cca.dc-general.edit-information');
         $errorInformation = $editInformation->getModelError($model);
         if (null === $errorInformation) {
             return;
@@ -332,7 +334,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $inputProvider   = $environment->getInputProvider();
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
         $inputValues = $this->handleInputValues($action, $model, $environment);
 
@@ -531,7 +533,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
-        $editInformation      = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation      = System::getContainer()->get('cca.dc-general.edit-information');
 
         $propertyValueBag = new PropertyValueBag();
 
@@ -674,7 +676,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         CollectionInterface $collection,
         EnvironmentInterface $environment
     ) {
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
         if (!$editInformation->hasAnyModelError()) {
             return;
         }
