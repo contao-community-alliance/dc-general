@@ -363,7 +363,7 @@ class ContaoWidgetManager
         $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
         $extra    = (array) $propInfo->getExtra();
 
-        $isHideInput = (isset($extra['hideInput']) ?? $extra['hideInput']);
+        $isHideInput = (isset($extra['isHideInput']) ?? $extra['isHideInput']);
 
         $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
 
@@ -377,7 +377,7 @@ class ContaoWidgetManager
             ->set('blnUpdate', false)
             ->set('strHelp', $isHideInput ? null : $this->generateHelpText($property))
             ->set('strId', $widget->id)
-            ->set('hideInput', $isHideInput)
+            ->set('isHideInput', $isHideInput)
             ->set('hiddenName', $widget->name)
             ->set('value', $widget->value)
             ->set('hiddenFields', $hiddenFields)
