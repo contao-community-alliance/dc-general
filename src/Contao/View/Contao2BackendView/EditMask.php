@@ -725,7 +725,7 @@ class EditMask
             $value      = $this->model->getProperty($propertyName);
 
             // Check the flag and the value.
-            if (('' !== $value) && $extra['unique'] && isset($extra['unique'])) {
+            if (('' !== (string) $value) && $extra['unique'] && isset($extra['unique'])) {
                 // Check the database. If return true the value is already in the database.
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
                     $editInformation->setModelError(
