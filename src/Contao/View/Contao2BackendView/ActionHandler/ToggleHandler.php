@@ -119,6 +119,7 @@ class ToggleHandler
 
         $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         $originalModel = clone $model;
+        $originalModel->setId($model->getId());
         $model->setProperty($operation->getToggleProperty(), $newState);
         $dispatcher = $environment->getEventDispatcher();
 
