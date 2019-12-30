@@ -12,6 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -28,7 +29,6 @@ use Contao\Database;
 use Contao\Environment;
 use Contao\FileSelector;
 use Contao\Input;
-use Contao\Session;
 use Contao\StringUtil;
 use Contao\System;
 use Contao\Validator;
@@ -279,13 +279,11 @@ class FileSelect
      */
     private function setupItemContainer(ModelIdInterface $modelId)
     {
-        $dispatcher = $GLOBALS['container']['event-dispatcher'];
-
+        $dispatcher = System::getContainer()->get('event_dispatcher');
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
 
-        $factory             = new DcGeneralFactory();
-        $this->itemContainer = $factory
+        $this->itemContainer = (new DcGeneralFactory())
             ->setContainerName($modelId->getDataProviderName())
             ->setTranslator($translator)
             ->setEventDispatcher($dispatcher)

@@ -456,7 +456,7 @@ class EditMask
         $propertyDefinitions = $definition->getPropertiesDefinition();
         $isAutoSubmit        = ('auto' === $environment->getInputProvider()->getValue('SUBMIT_TYPE'));
         $legendStates        = $this->getLegendStates();
-        $editInformation     = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation     = System::getContainer()->get('cca.dc-general.edit-information');
 
         $fieldSets = [];
         $first     = true;
@@ -693,7 +693,7 @@ class EditMask
             if (!$this->allValuesUnique()) {
                 return false;
             }
-            $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
             // Save the model.
             $dataProvider->save($this->model, $editInformation->uniformTime());
@@ -719,7 +719,7 @@ class EditMask
         $environment     = $this->getEnvironment();
         $translator      = $environment->getTranslator();
         $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
-        $editInformation = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
         // Run each and check the unique flag.
         foreach ($this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames() as $propertyName) {
@@ -728,7 +728,7 @@ class EditMask
             $value      = $this->model->getProperty($propertyName);
 
             // Check the flag and the value.
-            if (('' !== $value) && $extra['unique'] && isset($extra['unique'])) {
+            if (('' !== (string) $value) && $extra['unique'] && isset($extra['unique'])) {
                 // Check the database. If return true the value is already in the database.
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
                     $editInformation->setModelError(
@@ -768,7 +768,7 @@ class EditMask
         $palettesDefinition      = $definition->getPalettesDefinition();
         $submitted               = ($definition->getName() === $inputProvider->getValue('FORM_SUBMIT'));
         $isAutoSubmit            = ('auto' === $inputProvider->getValue('SUBMIT_TYPE'));
-        $editInformation         = $GLOBALS['container']['dc-general.edit-information'];
+        $editInformation         = System::getContainer()->get('cca.dc-general.edit-information');
 
         $widgetManager = new ContaoWidgetManager($environment, $this->model);
 
