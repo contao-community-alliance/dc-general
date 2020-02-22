@@ -243,7 +243,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     public function setOffset($offset)
     {
-        $this->intOffset = $offset;
+        $this->intOffset = (int) $offset;
 
         return $this;
     }
