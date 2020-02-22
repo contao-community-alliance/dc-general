@@ -177,7 +177,7 @@ class ContaoWidgetManager
 
         $templateName = 'be_' . $file;
         // This test if the rich text editor template exist.
-        $templateLoaderAdapter->getDefaultPath($templateName, 'html5');
+        $templateLoaderAdapter->getPath($templateName, 'html5');
 
         $template = new ContaoBackendViewTemplate($templateName);
         $template
