@@ -155,9 +155,11 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
             $input = $this->getInputProvider();
             if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
-                [$offset, $amount] = \explode(',', $input->getValue('tl_limit'));
-
-                $this->setPersistent($offset, $amount);
+                $limit = $input->getValue('tl_limit');
+                if ('tl_limit' !== $limit) {
+                    [$offset, $amount] = \explode(',', $input->getValue('tl_limit'));
+                    $this->setPersistent($offset, $amount);
+                }
             }
 
             $persistent = $this->getPersistent();
