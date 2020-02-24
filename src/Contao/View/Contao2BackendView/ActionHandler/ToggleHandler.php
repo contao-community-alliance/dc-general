@@ -14,6 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Benedict Zinke <bz@presentprogressive.de>
  * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -119,6 +120,7 @@ class ToggleHandler
 
         $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
         $originalModel = clone $model;
+        $originalModel->setId($model->getId());
         $model->setProperty($operation->getToggleProperty(), $newState);
         $dispatcher = $environment->getEventDispatcher();
 

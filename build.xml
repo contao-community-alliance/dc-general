@@ -8,4 +8,5 @@
 -->
 <project name="dc-general" default="build">
   <import file="vendor/phpcq/phpcq/phpcq.main.xml" />
+  <target name="phpspec" />
 </project>
