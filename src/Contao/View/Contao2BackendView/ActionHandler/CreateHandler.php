@@ -112,10 +112,12 @@ class CreateHandler
         foreach ($properties as $property) {
             $propName = $property->getName();
 
-            if (null !== $property->getDefaultValue()) {
-                $model->setProperty($propName, $property->getDefaultValue());
-                $clone->setProperty($propName, $property->getDefaultValue());
+            if ((null === $property->getDefaultValue()) || !$dataProvider->fieldExists($propName)) {
+                continue;
             }
+
+            $clone->setProperty($propName, $property->getDefaultValue());
+            $model->setProperty($propName, $property->getDefaultValue());
         }
 
         $view = $environment->getView();
