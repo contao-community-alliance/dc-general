@@ -20,3 +20,13 @@ services:
             -   name: kernel.event_listener
                 event: dc-general.view.contao2backend.build-widget
                 method: handleEvent
+
+    cca.dc-general.backend_listener.convert_timestamp_widget:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\ConvertTimestampWidgetListener
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.decode-property-value-for-widget
+                method: handleDecodePropertyValueForWidgetEvent
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.encode-property-value-from-widget
+                method: handleEncodePropertyValueFromWidget
