@@ -99,6 +99,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChi
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
+use ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
@@ -242,31 +243,36 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     {
         $args = [$container->getName()];
         foreach ([
-                'config/onload_callback'                => [
+                'config/onload_callback'                  => [
                     'event' => CreateDcGeneralEvent::NAME,
                     'class' => ContainerOnLoadCallbackListener::class
                 ],
-                'config/onsubmit_callback'              => [
+                'config/onsubmit_callback'                => [
                     'event' => PostPersistModelEvent::NAME,
                     'class' => ContainerOnSubmitCallbackListener::class
                 ],
-                'config/ondelete_callback'              => [
+                'config/ondelete_callback'                => [
                     'event' => PostDeleteModelEvent::NAME,
                     'class' => ContainerOnDeleteCallbackListener::class
                 ],
-                'config/oncut_callback'                 => [
+                'config/oncut_callback'                   => [
                     'event' => PostPasteModelEvent::NAME,
                     'class' => ContainerOnCutCallbackListener::class
                 ],
-                'config/oncopy_callback'                => [
+                'config/oncopy_callback'                  => [
                     'event' => PostDuplicateModelEvent::NAME,
                     'class' => ContainerOnCopyCallbackListener::class
                 ],
-                'list/sorting/header_callback'          => [
+                'config/oninvalidate_cache_tags_callback' => [
+                    'deprecated' => 'Dc-general not supported the config/oninvalidate_cache_tags_callback. ' .
+                                    'Use the event ' . InvalidHttpCacheTagsEvent::class . ' for the data container ' .
+                                    $container->getName() . '.'
+                ],
+                'list/sorting/header_callback'            => [
                     'event' => GetParentHeaderEvent::NAME,
                     'class' => ContainerHeaderCallbackListener::class
                 ],
-                'list/sorting/paste_button_callback'    => [
+                'list/sorting/paste_button_callback'      => [
                     [
                         'event' => GetPasteRootButtonEvent::NAME,
                         'class' => ContainerPasteRootButtonCallbackListener::class
@@ -276,19 +282,19 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                         'class' => ContainerPasteButtonCallbackListener::class
                     ]
                 ],
-                'list/sorting/child_record_callback'    => [
+                'list/sorting/child_record_callback'      => [
                     'event' => ParentViewChildRecordEvent::NAME,
                     'class' => ModelChildRecordCallbackListener::class
                 ],
-                'list/label/group_callback'             => [
+                'list/label/group_callback'               => [
                     'event' => GetGroupHeaderEvent::NAME,
                     'class' => ModelGroupCallbackListener::class
                 ],
-                'list/label/label_callback'             => [
+                'list/label/label_callback'               => [
                     'event' => ModelToLabelEvent::NAME,
                     'class' => ModelLabelCallbackListener::class
                 ],
-                'list/presentation/breadcrumb_callback' => [
+                'list/presentation/breadcrumb_callback'   => [
                     'event' => GetBreadcrumbEvent::NAME,
                     'class' => ContainerGetBreadcrumbCallbackListener::class
                 ]
@@ -297,6 +303,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 if (isset($callback['event'])) {
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
 
+                    continue;
+                }
+
+                if (isset($callback['deprecated'])) {
+                    // @codingStandardsIgnoreStart
+                    @\trigger_error($callback['deprecated']);
+                    // @codingStandardsIgnoreEnd
                     continue;
                 }
 

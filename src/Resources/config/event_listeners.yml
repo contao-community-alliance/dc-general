@@ -22,3 +22,39 @@ services:
             -   name: kernel.event_listener
                 event: dc-general.view.contao2backend.get-select-mode-buttons
                 method: handleEvent
+
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\PersistModelInvalidCacheTags:
+        public: false
+        arguments:
+            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-persist
+                priority: -256
+
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\DuplicateModelInvalidCacheTags:
+        public: false
+        arguments:
+            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-duplicate
+                priority: -256
+
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\DeleteModelInvalidCacheTags:
+        public: false
+        arguments:
+            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-delete
+                priority: -256
+
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\PasteModelInvalidCacheTags:
+        public: false
+        arguments:
+            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-paste
+                priority: -256
