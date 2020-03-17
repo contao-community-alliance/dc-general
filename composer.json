@@ -35,6 +35,7 @@
         "php": "^7.4",
         "ext-json": "*",
         "ext-pdo": "*",
+        "contao/core-bundle": "^4.9",
         "contao-community-alliance/events-contao-bindings": "^4.9",
         "contao-community-alliance/translator": "^2.2",
         "contao-community-alliance/url-builder": "^1.3",
