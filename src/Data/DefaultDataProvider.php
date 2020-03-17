@@ -588,11 +588,11 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    private function convertModelToDataPropertyArray(ModelInterface $model, $timestamp = 0)
+    private function convertModelToDataPropertyArray(ModelInterface $model, int $timestamp)
     {
         $data = [];
         foreach ($model as $key => $value) {
-            if ($key === $this->idProperty) {
+            if (($key === $this->idProperty) || !$this->fieldExists($key)) {
                 continue;
             }
 
