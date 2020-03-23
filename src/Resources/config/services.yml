@@ -40,12 +40,9 @@ services:
             - '@security.csrf.token_manager'
             - '%contao.csrf_token_name%'
 
-    ContaoCommunityAlliance\DcGeneral\Contao\Factory\InvalidHttpCacheTagsFactory:
-        public: false
-        arguments:
-            - '@event_dispatcher'
-            - '@?fos_http_cache.cache_manager'
-
     ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags:
         public: false
-        factory: ['@ContaoCommunityAlliance\DcGeneral\Contao\Factory\InvalidHttpCacheTagsFactory', 'createService']
+        arguments:
+            - 'contao.db.'
+            - '@event_dispatcher'
+            - '@?fos_http_cache.cache_manager'
