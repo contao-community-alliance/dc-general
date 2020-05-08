@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,7 +23,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -419,15 +419,14 @@ class DefaultDataProvider implements DataProviderInterface
 
         $values = $statement->fetchAll(\PDO::FETCH_OBJ);
 
-        $filterProperties = $config->getFields();
-        if (1 !== \count($filterProperties)) {
-            throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
+        $filterPropertyName = $property;
+        // Remove the data provider name from the filter property name, if exist.
+        if (0 === \strpos($filterPropertyName, $this->source . '.')) {
+            $filterPropertyName = \substr($filterPropertyName, \strlen($this->source . '.'));
         }
-        $filterProperty = $filterProperties[0];
-
         $collection = new DefaultFilterOptionCollection();
         foreach ($values as $value) {
-            $collection->add($value->$filterProperty, $value->$filterProperty);
+            $collection->add($value->$filterPropertyName, $value->$filterPropertyName);
         }
 
         return $collection;
