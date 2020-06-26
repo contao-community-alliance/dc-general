@@ -405,11 +405,10 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $internalConfig = $this->prefixDataProviderProperties($config);
         $properties     = $internalConfig->getFields();
-        $property       = $properties[0];
-
         if (1 !== \count($properties)) {
             throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
+        $property = $properties[0];
 
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select('DISTINCT(' . $property . ')');
@@ -420,9 +419,15 @@ class DefaultDataProvider implements DataProviderInterface
 
         $values = $statement->fetchAll(\PDO::FETCH_OBJ);
 
+        $filterProperties = $config->getFields();
+        if (1 !== \count($filterProperties)) {
+            throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
+        }
+        $filterProperty = $filterProperties[0];
+
         $collection = new DefaultFilterOptionCollection();
         foreach ($values as $value) {
-            $collection->add($value->$property, $value->$property);
+            $collection->add($value->$filterProperty, $value->$filterProperty);
         }
 
         return $collection;
