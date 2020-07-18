@@ -21,9 +21,30 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
+use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+
 /**
  * The persist invalid http cache tags, is for a model be deleted.
  */
 class DeleteModelInvalidCacheTags extends AbstractInvalidCacheTags
 {
+    /**
+     * {@inheritDoc}
+     */
+    protected function getEnvironment(AbstractModelAwareEvent $event): EnvironmentInterface
+    {
+        if ($event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getDataProvider()
+            === $event->getModel()->getProviderName()) {
+            return $event->getEnvironment();
+        }
+
+        return (new DcGeneralFactory())
+            ->setContainerName($event->getModel()->getProviderName())
+            ->setEventDispatcher($event->getEnvironment()->getEventDispatcher())
+            ->setTranslator($event->getEnvironment()->getTranslator())
+            ->createDcGeneral()
+            ->getEnvironment();
+    }
 }

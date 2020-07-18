@@ -21,9 +21,9 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Cache\Http;
 
-use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent;
 use FOS\HttpCache\CacheInvalidator;
@@ -136,20 +136,19 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
      */
     private function addRelatedModelsTag(ModelInterface $model): void
     {
-        if (null === ($parentDefinition = $this->environment->getParentDataDefinition())) {
+        if (null === $this->environment->getParentDataDefinition()) {
             return;
         }
-        /** @var ModelRelationshipDefinitionInterface $relationships */
-        $relationships   = $this->environment->getDataDefinition()->getDefinition('model-relationships');
-        $parentCondition = $relationships->getChildCondition($parentDefinition->getName(), $model->getProviderName());
-        $dataProvider    = $this->environment->getDataProvider($parentDefinition->getName());
 
-        /** @var DefaultCollection $parentModels */
-        $parentModels = $dataProvider
-            ->fetchAll($dataProvider->getEmptyConfig()->setFilter($parentCondition->getInverseFilterFor($model)));
-        foreach ($parentModels as $parentModel) {
-            $this->addModelTag($parentModel);
+        $collector  = new ModelCollector($this->environment);
+        $definition = $this->environment->getDataDefinition()->getBasicDefinition();
+        if (BasicDefinitionInterface::MODE_HIERARCHICAL === $definition->getMode()) {
+            $parentModel = $collector->searchParentFromHierarchical($model);
+        } else {
+            $parentModel = $collector->searchParentOf($model);
         }
+
+        $this->addModelTag($parentModel);
     }
 
     /**
@@ -159,7 +158,7 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
      *
      * @return void
      */
-    private function addModelTag(ModelInterface$model): void
+    private function addModelTag(ModelInterface $model): void
     {
         $modelNamespace = $this->namespace . $model->getProviderName();
         $this->tags[]   = $modelNamespace;

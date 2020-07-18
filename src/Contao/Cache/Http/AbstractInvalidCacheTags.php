@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 
 use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidCacheTagsInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 
 /**
@@ -56,7 +57,19 @@ abstract class AbstractInvalidCacheTags
     public function __invoke(AbstractModelAwareEvent $event): void
     {
         $this->service
-            ->setEnvironment($event->getEnvironment())
+            ->setEnvironment($this->getEnvironment($event))
             ->purgeCacheTags($event->getModel());
+    }
+
+    /**
+     * Get the environment.
+     *
+     * @param AbstractModelAwareEvent $event The event.
+     *
+     * @return EnvironmentInterface
+     */
+    protected function getEnvironment(AbstractModelAwareEvent $event): EnvironmentInterface
+    {
+        return $event->getEnvironment();
     }
 }
