@@ -25,6 +25,7 @@ services:
 
     ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags:
         public: false
+        abstract: true
         arguments:
             - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidateCacheTags'
 
