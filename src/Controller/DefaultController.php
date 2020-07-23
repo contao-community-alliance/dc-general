@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +25,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Tim Gatzky <info@tim-gatzky.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -257,7 +257,8 @@ class DefaultController implements ControllerInterface
      *
      * @return CollectionInterface
      *
-     * @throws DcGeneralRuntimeException When not in hierarchical mode.
+     * @throws DcGeneralRuntimeException Unable to retrieve children in non hierarchical mode.
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     protected function assembleChildrenFor(ModelInterface $model, $sortingProperty = null)
     {
@@ -272,6 +273,11 @@ class DefaultController implements ControllerInterface
         }
 
         $condition = $relationships->getChildCondition($model->getProviderName(), $model->getProviderName());
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
         $config->setFilter($condition->getFilter($model));
 
         if ($sortingProperty) {

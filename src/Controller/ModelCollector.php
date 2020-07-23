@@ -280,6 +280,11 @@ class ModelCollector
         }
 
         $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->rootProviderName);
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
         if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
@@ -447,6 +452,11 @@ class ModelCollector
         }
 
         $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->defaultProviderName);
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
         if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
@@ -466,10 +476,17 @@ class ModelCollector
      * @param ModelInterface $model The model to search the parent of.
      *
      * @return ModelInterface|null
+     *
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     private function searchParentOfInHierarchical(ModelInterface $model)
     {
         $condition = $this->relationships->getChildCondition($this->rootProviderName, $this->defaultProviderName);
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
         if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->rootProvider->fetch($this->rootProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
@@ -487,7 +504,8 @@ class ModelCollector
      *
      * @return void
      *
-     * @throws DcGeneralRuntimeException When parent could not be found.
+     * @throws DcGeneralRuntimeException Parent could not be found, are the parent child conditions correct.
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     private function addParentFilter(ModelInterface $model, $config)
     {
@@ -512,6 +530,11 @@ class ModelCollector
         }
 
         $condition = $this->relationships->getChildCondition($parent->getProviderName(), $model->getProviderName());
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
         $config->setFilter($condition->getFilter($parent));
     }
 
