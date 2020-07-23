@@ -24,6 +24,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 /**
  * The persist invalidate http cache tags, is for a model be copied.
  */
-class DuplicateModelInvalidateCacheTags extends AbstractInvalidateCacheTags
+final class DuplicateModelInvalidateCacheTags extends AbstractInvalidateCacheTags
 {
 }

@@ -24,6 +24,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 /**
  * The persist invalid http cache tags, is for a model be saved.
  */
-class PersistModelInvalidateCacheTags extends AbstractInvalidateCacheTags
+final class PersistModelInvalidateCacheTags extends AbstractInvalidateCacheTags
 {
 }

@@ -24,6 +24,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 /**
  * The persist invalid http cache tags, is for a model be pasted.
  */
-class PasteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
+final class PasteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
 {
 }
