@@ -26,14 +26,14 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 
 /**
- * The abstract class for the invalid http cache tags.
+ * The abstract class for the invalidate http cache tags.
  */
-abstract class AbstractInvalidCacheTags
+abstract class AbstractInvalidateCacheTags
 {
     /**
      * The invalid http cache tags service.
      *
-     * @var ContaoInvalidCacheTags
+     * @var ContaoInvalidateCacheTags
      */
     private $service;
 

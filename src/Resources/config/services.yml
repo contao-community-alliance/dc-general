@@ -40,7 +40,7 @@ services:
             - '@security.csrf.token_manager'
             - '%contao.csrf_token_name%'
 
-    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags:
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidateCacheTags:
         public: false
         arguments:
             - 'contao.db.'

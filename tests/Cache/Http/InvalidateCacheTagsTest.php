@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Cache\Http;
 
-use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidCacheTags;
+use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidateCacheTags;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultConfig;
@@ -38,11 +38,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @covers \ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidCacheTags
+ * @covers \ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidateCacheTags
  * @covers \ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent
  * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector
  */
-class InvalidCacheTagsTest extends TestCase
+class InvalidateCacheTagsTest extends TestCase
 {
     public function testCacheManagerNotAvailable(): void
     {
@@ -64,7 +64,7 @@ class InvalidCacheTagsTest extends TestCase
             ->expects(self::never())
             ->method('getProviderName');
 
-        $invalidCacheTags = new InvalidCacheTags('namespace.', $dispatcher);
+        $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher);
         $invalidCacheTags->setEnvironment($environment);
         $invalidCacheTags->purgeCacheTags($model);
     }
@@ -110,7 +110,7 @@ class InvalidCacheTagsTest extends TestCase
                 }
             );
 
-        $invalidCacheTags = new InvalidCacheTags('namespace.', $dispatcher, $cacheManager);
+        $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
         $invalidCacheTags->setEnvironment($environment);
         $invalidCacheTags->purgeCacheTags($model1);
         self::assertSame(['namespace.foo', 'namespace.foo.1'], $actualInvalidTags);
@@ -164,7 +164,7 @@ class InvalidCacheTagsTest extends TestCase
                 }
             );
 
-        $invalidCacheTags = new InvalidCacheTags('namespace.', $dispatcher, $cacheManager);
+        $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
         $invalidCacheTags->setEnvironment($environment);
         $invalidCacheTags->purgeCacheTags($model);
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.foo.2'], $actualInvalidTags);
@@ -271,7 +271,7 @@ class InvalidCacheTagsTest extends TestCase
                 }
             );
 
-        $invalidCacheTags = new InvalidCacheTags('namespace.', $dispatcher, $cacheManager);
+        $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
         $invalidCacheTags->setEnvironment($environment);
         $invalidCacheTags->purgeCacheTags($model1);
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.bar', 'namespace.bar.2'], $actualInvalidTags);
@@ -392,7 +392,7 @@ class InvalidCacheTagsTest extends TestCase
                 }
             );
 
-        $invalidCacheTags = new InvalidCacheTags('namespace.', $dispatcher, $cacheManager);
+        $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
         $invalidCacheTags->setEnvironment($environment);
         $invalidCacheTags->purgeCacheTags($model1);
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.bar', 'namespace.bar.2'], $actualInvalidTags);

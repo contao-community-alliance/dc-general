@@ -23,37 +23,38 @@ services:
                 event: dc-general.view.contao2backend.get-select-mode-buttons
                 method: handleEvent
 
-    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\PersistModelInvalidCacheTags:
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags:
         public: false
         arguments:
-            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidateCacheTags'
+
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\PersistModelInvalidateCacheTags:
+        public: false
+        parent: 'ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.model.post-persist
                 priority: -256
 
-    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\DuplicateModelInvalidCacheTags:
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\DuplicateModelInvalidateCacheTags:
         public: false
-        arguments:
-            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+        parent: 'ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.model.post-duplicate
                 priority: -256
 
-    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\DeleteModelInvalidCacheTags:
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\DeleteModelInvalidateCacheTags:
         public: false
-        arguments:
-            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+        parent: 'ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.model.post-delete
                 priority: -256
 
-    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\PasteModelInvalidCacheTags:
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\PasteModelInvalidateCacheTags:
         public: false
-        arguments:
-            - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags'
+        parent: 'ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.model.post-paste

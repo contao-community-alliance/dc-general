@@ -34,9 +34,9 @@ interface InvalidCacheTagsInterface
      *
      * @param EnvironmentInterface $environment The dc general environment.
      *
-     * @return InvalidCacheTags
+     * @return InvalidateCacheTags
      */
-    public function setEnvironment(EnvironmentInterface $environment): InvalidCacheTags;
+    public function setEnvironment(EnvironmentInterface $environment): InvalidateCacheTags;
 
     /**
      * Purge the http cache tags.

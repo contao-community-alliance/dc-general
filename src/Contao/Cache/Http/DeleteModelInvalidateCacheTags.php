@@ -26,9 +26,9 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 
 /**
- * The persist invalid http cache tags, is for a model be deleted.
+ * The persist invalidate http cache tags, is for a model be deleted.
  */
-class DeleteModelInvalidCacheTags extends AbstractInvalidCacheTags
+class DeleteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
 {
     /**
      * {@inheritDoc}

@@ -22,16 +22,16 @@ declare(strict_types=1);
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Cache\Http;
 
 use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidCacheTagsInterface;
-use ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidCacheTags;
+use ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidCacheTags
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags
  */
-class AbstractInvalidCacheTagsTest extends TestCase
+class AbstractInvalidateCacheTagsTest extends TestCase
 {
     public function testEventListener(): void
     {
@@ -57,7 +57,7 @@ class AbstractInvalidCacheTagsTest extends TestCase
 
         $service = $this->createMock(InvalidCacheTagsInterface::class);
 
-        $listener = $this->getMockForAbstractClass(AbstractInvalidCacheTags::class, [$service]);
+        $listener = $this->getMockForAbstractClass(AbstractInvalidateCacheTags::class, [$service]);
         $listener->__invoke($event);
 
         self::assertTrue($eventModelCalled);

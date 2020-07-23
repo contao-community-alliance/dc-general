@@ -30,9 +30,9 @@ use FOS\HttpCache\CacheInvalidator;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
- * This is for purge the invalid http cache tags.
+ * This is for purge the invalidate http cache tags.
  */
-class InvalidCacheTags implements InvalidCacheTagsInterface
+class InvalidateCacheTags implements InvalidCacheTagsInterface
 {
     /**
      * The http cache namespace.
@@ -89,7 +89,7 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
     /**
      * {@inheritDoc}
      */
-    public function setEnvironment(EnvironmentInterface $environment): InvalidCacheTags
+    public function setEnvironment(EnvironmentInterface $environment): InvalidateCacheTags
     {
         $this->environment = $environment;
         return $this;
@@ -106,7 +106,7 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
 
         $this->clearCacheTags();
         $this->addCurrentModelTag($model);
-        $this->addRelatedModelsTag($model);
+        $this->addParentModelTag($model);
 
         $event = new InvalidHttpCacheTagsEvent($this->environment);
         $event->setNamespace($this->namespace)->setTags($this->tags);
@@ -128,20 +128,21 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
     }
 
     /**
-     * Add the cache tag for the related models, if current model has relations.
+     * Add the cache tag for the parent model, if current model is a children of.
      *
      * @param ModelInterface $model The current model.
      *
      * @return void
      */
-    private function addRelatedModelsTag(ModelInterface $model): void
+    private function addParentModelTag(ModelInterface $model): void
     {
-        if (null === $this->environment->getParentDataDefinition()) {
+        $definition = $this->environment->getDataDefinition()->getBasicDefinition();
+        if ((null === $this->environment->getParentDataDefinition())
+        ) {
             return;
         }
 
         $collector  = new ModelCollector($this->environment);
-        $definition = $this->environment->getDataDefinition()->getBasicDefinition();
         if (BasicDefinitionInterface::MODE_HIERARCHICAL === $definition->getMode()) {
             $parentModel = $collector->searchParentFromHierarchical($model);
         } else {
