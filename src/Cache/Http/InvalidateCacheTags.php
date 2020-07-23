@@ -136,20 +136,22 @@ class InvalidateCacheTags implements InvalidCacheTagsInterface
      */
     private function addParentModelTag(ModelInterface $model): void
     {
-        $definition = $this->environment->getDataDefinition()->getBasicDefinition();
         if ((null === $this->environment->getParentDataDefinition())
         ) {
             return;
         }
 
+        $definition = $this->environment->getDataDefinition()->getBasicDefinition();
         $collector  = new ModelCollector($this->environment);
-        if (BasicDefinitionInterface::MODE_HIERARCHICAL === $definition->getMode()) {
-            $parentModel = $collector->searchParentFromHierarchical($model);
-        } else {
-            $parentModel = $collector->searchParentOf($model);
+        switch ($definition->getMode()) {
+            case BasicDefinitionInterface::MODE_HIERARCHICAL:
+                $this->addModelTag($collector->searchParentFromHierarchical($model));
+                return;
+            case BasicDefinitionInterface::MODE_PARENTEDLIST:
+                $this->addModelTag($collector->searchParentOf($model));
+                return;
+            default:
         }
-
-        $this->addModelTag($parentModel);
     }
 
     /**
