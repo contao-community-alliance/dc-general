@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,7 +23,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -36,6 +36,7 @@ use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Class DefaultDataProvider.
@@ -82,6 +83,13 @@ class DefaultDataProvider implements DataProviderInterface
      * @var IdGeneratorInterface
      */
     protected $idGenerator;
+
+    /**
+     * The table schema.
+     *
+     * @var Table
+     */
+    private $schema;
 
     /**
      * Retrieve the name of the id property.
@@ -684,9 +692,11 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fieldExists($columnName)
     {
-        $tableDetails = $this->connection->getSchemaManager()->listTableDetails($this->source);
+        if (!isset($this->schema)) {
+            $this->schema = $this->connection->getSchemaManager()->listTableDetails($this->source);
+        }
 
-        return $tableDetails->hasColumn($columnName);
+        return $this->schema->hasColumn($columnName);
     }
 
     /**
