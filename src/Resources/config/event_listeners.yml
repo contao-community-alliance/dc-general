@@ -28,6 +28,7 @@ services:
         abstract: true
         arguments:
             - '@ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidateCacheTags'
+            - '@ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactoryService'
 
     ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\PersistModelInvalidateCacheTags:
         public: false

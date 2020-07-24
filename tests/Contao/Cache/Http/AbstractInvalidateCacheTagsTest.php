@@ -26,6 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheT
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
+use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactoryServiceInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -56,8 +57,9 @@ class AbstractInvalidateCacheTagsTest extends TestCase
             );
 
         $service = $this->createMock(InvalidCacheTagsInterface::class);
+        $factory   = $this->createMock(DcGeneralFactoryServiceInterface::class);
 
-        $listener = $this->getMockForAbstractClass(AbstractInvalidateCacheTags::class, [$service]);
+        $listener = $this->getMockForAbstractClass(AbstractInvalidateCacheTags::class, [$service, $factory]);
         $listener->__invoke($event);
 
         self::assertTrue($eventModelCalled);

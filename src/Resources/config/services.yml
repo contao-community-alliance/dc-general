@@ -46,3 +46,12 @@ services:
             - 'contao.db.'
             - '@event_dispatcher'
             - '@?fos_http_cache.cache_manager'
+
+    ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache:
+        public: true
+        deprecated: Warning the %service_id% is in future not public!
+
+    ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactoryService:
+        public: false
+        arguments:
+            - '@ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache'

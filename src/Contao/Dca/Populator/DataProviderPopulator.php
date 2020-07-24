@@ -84,7 +84,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 
                 $initializationData = $information->getInitializationData();
                 \ksort($initializationData);
-                $cacheKey = \md5(\serialize($initializationData) . $information->getClassName());
+                $cacheKey = \md5(\json_encode($initializationData) . $information->getClassName());
                 if (!isset($this->instances[$cacheKey])) {
                     /** @var DataProviderInterface $dataProvider */
                     $dataProvider = (new \ReflectionClass($information->getClassName()))->newInstance();

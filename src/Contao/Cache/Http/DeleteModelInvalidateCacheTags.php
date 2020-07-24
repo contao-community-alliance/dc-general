@@ -40,7 +40,7 @@ final class DeleteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
             return $event->getEnvironment();
         }
 
-        return (new DcGeneralFactory())
+        return $this->factory->createFactory()
             ->setContainerName($event->getModel()->getProviderName())
             ->setEventDispatcher($event->getEnvironment()->getEventDispatcher())
             ->setTranslator($event->getEnvironment()->getTranslator())

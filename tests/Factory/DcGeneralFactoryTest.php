@@ -26,6 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Doctrine\Common\Cache\Cache;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -59,8 +60,10 @@ class DcGeneralFactoryTest extends TestCase
             ->with('test-container')
             ->willReturn(false);
 
+        $cache = $this->createMock(Cache::class);
+
         /** @var TranslatorInterface $mockTranslator */
-        $factory   = new DcGeneralFactory();
+        $factory   = new DcGeneralFactory($cache);
         $dcGeneral = $factory
             ->setContainerName('test-container')
             ->setEventDispatcher($eventDispatcher)
