@@ -115,8 +115,12 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setInverseFilterArray($value)
     {
-        $this->inverseFilter = (array) $value;
+        if (empty($value)) {
+            $this->inverseFilter = null;
+            return $this;
+        }
 
+        $this->inverseFilter = (array) $value;
         return $this;
     }
 
@@ -125,7 +129,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function getInverseFilterArray()
     {
-        return $this->inverseFilter;
+        return ($this->inverseFilter ?? []);
     }
 
     /**

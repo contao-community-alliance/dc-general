@@ -285,7 +285,7 @@ class ModelCollector
                 'Invalid configuration. Child condition must be defined!'
             );
         }
-        if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
 
@@ -457,7 +457,7 @@ class ModelCollector
                 'Invalid configuration. Child condition must be defined!'
             );
         }
-        if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
 
@@ -487,7 +487,7 @@ class ModelCollector
                 'Invalid configuration. Child condition must be defined!'
             );
         }
-        if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->rootProvider->fetch($this->rootProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
 
