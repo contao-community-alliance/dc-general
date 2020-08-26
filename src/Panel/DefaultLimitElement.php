@@ -199,7 +199,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     {
         $options = [
             [
-                'value'      => 'tl_limit',
+                'value'      => '0,' . $this->getItemsPerPage(),
                 'attributes' => '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
             ]
