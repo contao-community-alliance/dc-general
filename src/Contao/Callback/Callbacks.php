@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
+use Contao\CoreBundle\Exception\ResponseException;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use Symfony\Component\DependencyInjection\Container;
@@ -63,6 +64,7 @@ class Callbacks
      *
      * @return mixed
      *
+     * @throws ResponseException         Throw the response exception.
      * @throws DcGeneralRuntimeException When the callback throws an exception.
      */
     public static function callArgs($callback, array $args = [])
@@ -71,6 +73,8 @@ class Callbacks
             $callback = static::evaluateCallback($callback);
 
             return \call_user_func_array($callback, $args);
+        } catch (ResponseException $e) {
+            throw $e;
         } catch (\Exception $e) {
             $message = $e->getMessage();
         }
