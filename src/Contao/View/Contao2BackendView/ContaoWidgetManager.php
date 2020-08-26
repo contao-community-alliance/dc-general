@@ -327,7 +327,7 @@ class ContaoWidgetManager
         $label      = $propInfo->getDescription();
         $widgetType = $propInfo->getWidgetType();
 
-        if (null === $label
+        if (empty($label)
             || ('password' === $widgetType)
             || !\is_string($label)
             || !$GLOBALS['TL_CONFIG']['showHelp']
