@@ -67,14 +67,19 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return [
+        $listeners = [
             DcGeneralEvents::ACTION => [
                 ['prepareGlobalAllButton', 9999],
                 ['deactivateGlobalButton', 9999]
             ],
-            GetOptionsEvent::NAME   => ['handleOriginalOptions', 9999],
             BuildWidgetEvent::NAME  => ['handleOriginalWidget', 9999]
         ];
+
+        if (\class_exists(GetOptionsEvent::class)) {
+            $listeners[GetOptionsEvent::NAME] = ['handleOriginalOptions', 9999];
+        }
+
+        return $listeners;
     }
 
     /**
