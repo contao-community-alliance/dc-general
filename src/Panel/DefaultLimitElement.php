@@ -64,6 +64,16 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     }
 
     /**
+     * Retrieve the amount of max items to display per page.
+     *
+     * @return int
+     */
+    protected function getMaxItemsPerPage()
+    {
+        return Config::get('maxResultsPerPage');
+    }
+
+    /**
      * Calculate the total amount of items.
      *
      * @return void
@@ -199,14 +209,22 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     {
         $options = [
             [
-                'value'      => 'tl_limit',
+                'value'      => '0,' . $this->getItemsPerPage(),
                 'attributes' => '',
                 'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
             ]
         ];
 
-        $optionsPerPage = $this->getItemsPerPage();
-        $optionsTotal   = \ceil($this->intTotal / $optionsPerPage);
+        switch ($this->getInputProvider()->getValue('tl_limit')) {
+            case 'all':
+                $optionsPerPage = ($this->intTotal >= $this->getMaxItemsPerPage())
+                    ? $this->getMaxItemsPerPage() : $this->getItemsPerPage();
+                break;
+
+            default:
+                $optionsPerPage = $this->getItemsPerPage();
+        }
+        $optionsTotal = \ceil($this->intTotal / $optionsPerPage);
 
         for ($i = 0; $i < $optionsTotal; $i++) {
             $first      = ($i * $optionsPerPage);

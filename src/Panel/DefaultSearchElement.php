@@ -180,7 +180,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
                 ];
         }
 
-        $viewTemplate->set('class', 'tl_select' . ((null !== $this->getValue()) ? ' active' : ''));
+        $viewTemplate->set('class', 'tl_select' . (!empty($this->getValue()) ? ' active' : ''));
         $viewTemplate->set('options', $options);
         $viewTemplate->set('value', $this->getValue());
 

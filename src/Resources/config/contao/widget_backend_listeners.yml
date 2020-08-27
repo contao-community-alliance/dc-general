@@ -20,3 +20,4 @@ services:
             -   name: kernel.event_listener
                 event: dc-general.view.contao2backend.build-widget
                 method: handleEvent
+                priority: -256
