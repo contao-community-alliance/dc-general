@@ -60,7 +60,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getItemsPerPage()
     {
-        return Config::get('resultsPerPage');
+        return (int) Config::get('resultsPerPage');
     }
 
     /**
@@ -70,7 +70,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function getMaxItemsPerPage()
     {
-        return Config::get('maxResultsPerPage');
+        return (int) Config::get('maxResultsPerPage');
     }
 
     /**
@@ -185,7 +185,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
                 if ('all' === $offset) {
                     $offset = 0;
-                    $amount = $this->intTotal;
+                    $amount = $this->getAmountForFilterOptionAll();
                 }
             }
 
@@ -197,6 +197,16 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
         $config->setStart($this->getOffset());
         $config->setAmount($this->getAmount());
+    }
+
+    /**
+     * Get the amount for the filter option all.
+     *
+     * @return int
+     */
+    private function getAmountForFilterOptionAll()
+    {
+        return $this->intTotal > $this->getMaxItemsPerPage() ? $this->getMaxItemsPerPage() : $this->intTotal;
     }
 
     /**
