@@ -760,7 +760,7 @@ class DefaultDataProvider implements DataProviderInterface
             return null;
         }
 
-        $versions = $statement->fetch(\PDO::FETCH_ASSOC);
+        $versions = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
         $collection = $this->getEmptyCollection();
 
