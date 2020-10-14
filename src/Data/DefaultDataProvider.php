@@ -695,6 +695,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function getVersion($mixID, $mixVersion)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*');
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $mixID);
