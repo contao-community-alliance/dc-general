@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -163,30 +164,34 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             $offset = 0;
             $amount = $this->getItemsPerPage();
 
-            $input = $this->getInputProvider();
-            if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
-                $limit = $input->getValue('tl_limit');
-                if ('tl_limit' !== $limit) {
-                    [$offset, $amount] = \explode(',', $input->getValue('tl_limit'));
-                    $this->setPersistent($offset, $amount);
-                }
-            }
+            if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
 
-            $persistent = $this->getPersistent();
-            if ($persistent) {
-                $offset = $persistent['offset'];
-                $amount = $persistent['amount'];
-
-                // Hotfix the offset - we also might want to store it persistent.
-                // Another way would be to always stick on the "last" page when we hit the upper limit.
-                if ($offset > $this->intTotal) {
-                    $offset = 0;
+                $input = $this->getInputProvider();
+                if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
+                    $limit = $input->getValue('tl_limit');
+                    if ('tl_limit' !== $limit) {
+                        [$offset, $amount] = \explode(',', $input->getValue('tl_limit'));
+                        $this->setPersistent($offset, $amount);
+                    }
                 }
 
-                if ('all' === $offset) {
-                    $offset = 0;
-                    $amount = $this->getAmountForFilterOptionAll();
+                $persistent = $this->getPersistent();
+                if ($persistent) {
+                    $offset = $persistent['offset'];
+                    $amount = $persistent['amount'];
+
+                    // Hotfix the offset - we also might want to store it persistent.
+                    // Another way would be to always stick on the "last" page when we hit the upper limit.
+                    if ($offset > $this->intTotal) {
+                        $offset = 0;
+                    }
+
+                    if ('all' === $offset) {
+                        $offset = 0;
+                        $amount = $this->getAmountForFilterOptionAll();
+                    }
                 }
+
             }
 
             if (null !== $offset) {
