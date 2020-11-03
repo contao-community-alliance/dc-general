@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -117,15 +118,19 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $input   = $this->getInputProvider();
         $value   = null;
 
-        if ($input->hasValue($this->getPropertyName()) && $this->getPanel()->getContainer()->updateValues()) {
-            $value = $input->getValue($this->getPropertyName());
+        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
 
-            $this->setPersistent($value);
-        }
+            if ($input->hasValue($this->getPropertyName()) && $this->getPanel()->getContainer()->updateValues()) {
+                $value = $input->getValue($this->getPropertyName());
 
-        if ($session->has('filter')) {
-            $persistent = $this->getPersistent();
-            $value      = $persistent;
+                $this->setPersistent($value);
+            }
+
+            if ($session->has('filter')) {
+                $persistent = $this->getPersistent();
+                $value      = $persistent;
+            }
+
         }
 
         if (null !== $value) {
