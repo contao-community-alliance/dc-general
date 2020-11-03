@@ -152,14 +152,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
                 $currents,
                 [
                     [
-                        'operation' => 'AND',
-                        'children'  => [
-                            [
-                                'operation' => 'LIKE',
-                                'property'  => $this->getSelectedProperty(),
-                                'value'     => \sprintf('*%s*', $this->getValue())
-                            ]
-                        ]
+                        'operation' => 'LIKE',
+                        'property'  => $this->getSelectedProperty(),
+                        'value'     => \sprintf('*%s*', $this->getValue())
                     ]
                 ]
             )
