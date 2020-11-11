@@ -24,6 +24,12 @@ env:
 
 matrix:
     fast_finish: true
+    allow_failures:
+        -   env: CONTAO_VERSION='contao/core-bundle ~4.10.0'
+        -   env: CONTAO_VERSION='contao/core-bundle ~4.8.0'
+        -   env: CONTAO_VERSION='contao/core-bundle ~4.7.0'
+        -   env: CONTAO_VERSION='contao/core-bundle ~4.6.0'
+        -   env: CONTAO_VERSION='contao/core-bundle ~4.5.0'
     exclude:
         -   php: "7.1"
             env: CONTAO_VERSION='contao/core-bundle ~4.9.0'
