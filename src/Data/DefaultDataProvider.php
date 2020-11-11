@@ -23,6 +23,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @author     Alex Wuttke <alex@das-l.de>
  * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -694,6 +695,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function getVersion($mixID, $mixVersion)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
+        $queryBuilder->select('*');
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $mixID);
@@ -742,8 +744,8 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->select(['tstamp', 'version', 'username', 'active']);
         $queryBuilder->from('tl_version');
-        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.formTable', ':formTable'));
-        $queryBuilder->setParameter(':formTable', $this->source);
+        $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
+        $queryBuilder->setParameter(':fromTable', $this->source);
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $mixID);
 
@@ -759,7 +761,7 @@ class DefaultDataProvider implements DataProviderInterface
             return null;
         }
 
-        $versions = $statement->fetch(\PDO::FETCH_ASSOC);
+        $versions = $statement->fetchAll(\PDO::FETCH_ASSOC);
 
         $collection = $this->getEmptyCollection();
 
@@ -851,7 +853,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function getActiveVersion($mixID)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder->select(['select']);
+        $queryBuilder->select('version');
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
         $queryBuilder->setParameter(':pid', $mixID);
