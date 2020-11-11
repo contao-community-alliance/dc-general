@@ -483,7 +483,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
             ],
             'options'   => $this->getOptionsForWidget($property, $model),
             'eval'      => $propExtra,
+            // @codingStandardsIgnoreStart
             // 'foreignKey' => null
+            // @codingStandardsIgnoreEnd
         ];
 
         if (isset($propExtra['reference'])) {
