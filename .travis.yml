@@ -1,9 +1,9 @@
 dist: xenial
 
 addons:
-  apt:
-    packages:
-      - ant-optional
+    apt:
+        packages:
+            - ant-optional
 
 language: php
 
@@ -13,14 +13,16 @@ php:
     - "7.2"
 
 env:
-  - CONTAO_VERSION='contao/core-bundle ~4.9.0'
-  - CONTAO_VERSION='contao/core-bundle ~4.10.0@dev'
+    - CONTAO_VERSION='contao/core-bundle ~4.10.0'
+    - CONTAO_VERSION='contao/core-bundle ~4.9.0'
 
 matrix:
-  fast_finish: true
-  allow_failures:
-    -  php: "7.4"
-    -  env: CONTAO_VERSION='contao/core-bundle ~4.10.0@dev'
+    fast_finish: true
+    exclude:
+        -   php: "7.1"
+            env: CONTAO_VERSION='contao/core-bundle ~4.9.0'
+        -   php: "7.1"
+            env: CONTAO_VERSION='contao/core-bundle ~4.10.0'
 
 before_install:
     - echo "memory_limit = -1" > travis.php.ini && phpenv config-add travis.php.ini
@@ -34,8 +36,8 @@ script: ant -keep-going
 
 # Hack to make things work again - we can not use a shallow repository.
 git:
-  depth: 2147483647
+    depth: 2147483647
 
 cache:
-  directories:
-    - vendor
+    directories:
+        - vendor

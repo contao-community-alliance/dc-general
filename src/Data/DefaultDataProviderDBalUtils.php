@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -100,6 +101,10 @@ class DefaultDataProviderDBalUtils
         }
 
         foreach ($config->getSorting() as $sort => $order) {
+            if (empty($sort)) {
+                continue;
+            }
+
             // array could be a simple field list or list of field => direction combinations.
             if (!empty($order)) {
                 $order = strtoupper($order);
@@ -309,7 +314,9 @@ class DefaultDataProviderDBalUtils
         $whereOperation = strtolower($operation['operation']) . 'Where';
 
         foreach ($children as $child) {
-            $queryBuilder->{$whereOperation}(static::calculateSubFilter($child, $queryBuilder));
+            if ('' !== $child = static::calculateSubFilter($child, $queryBuilder)) {
+                $queryBuilder->{$whereOperation}($child);
+            }
         }
     }
 

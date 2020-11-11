@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -105,6 +105,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      *
+     * @throws DcGeneralInvalidArgumentException Is thrown if there is no palettes found.
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette found or more than one palette.
      */
     public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null)
@@ -130,6 +131,9 @@ class PaletteCollection implements PaletteCollectionInterface
         // Get palettes with highest matching count.
         $palettes = \array_pop($matches);
 
+        if (null === $palettes) {
+            throw new DcGeneralInvalidArgumentException('No matching palettes found.');
+        }
         if (1 !== \count($palettes)) {
             throw new DcGeneralInvalidArgumentException(\sprintf('%d matching palettes found.', \count($palettes)));
         }
