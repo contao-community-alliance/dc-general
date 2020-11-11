@@ -1338,7 +1338,8 @@ class TreePicker extends Widget
             $this->generateToggleUrl($model)
         );
 
-        $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
+        $idProperty = $this->idProperty ?: 'id';
+        $template   = new ContaoBackendViewTemplate('widget_treepicker_entry');
         $template
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('id', $this->strId)
@@ -1351,8 +1352,8 @@ class TreePicker extends Widget
             ->set('toggleUrl', $this->generateToggleUrl($model))
             ->set('toggleTitle', $toggleTitle)
             ->set('toggleScript', $toggleScript)
-            ->set('active', static::optionChecked($model->getProperty($this->idProperty), $this->value))
-            ->set('idProperty', $this->idProperty);
+            ->set('active', static::optionChecked($model->getProperty($idProperty), $this->value))
+            ->set('idProperty', $idProperty);
 
         $level = $model->getMeta(DCGE::TREE_VIEW_LEVEL);
         if (($this->minLevel > 0) && ($level < ($this->minLevel - 1))) {

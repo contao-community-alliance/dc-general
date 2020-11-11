@@ -43,7 +43,7 @@
         "ext-pdo": "*"
     },
     "conflict": {
-        "menatwork/contao-multicolumnwizard": "<3.4.0"
+        "menatwork/contao-multicolumnwizard-bundle": "<3.4.9"
     },
     "require-dev": {
         "phpcq/all-tasks": "^1.2",
@@ -51,7 +51,8 @@
         "phpunit/phpunit": "^7.5",
         "contao/manager-plugin": "^2.2",
         "menatwork/contao-multicolumnwizard-bundle": "^3.4",
-        "php-http/guzzle6-adapter": "^1.1"
+        "php-http/guzzle6-adapter": "^1.1",
+        "phpmd/phpmd": "~2.8.2"
     },
     "autoload": {
         "classmap": [
