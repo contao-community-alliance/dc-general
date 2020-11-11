@@ -43,7 +43,7 @@
         "ext-pdo": "*"
     },
     "conflict": {
-        "menatwork/contao-multicolumnwizard": "<3.4.0"
+        "menatwork/contao-multicolumnwizard-bundle": "<3.4.9"
     },
     "require-dev": {
         "phpcq/all-tasks": "^1.2",
