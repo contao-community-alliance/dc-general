@@ -447,8 +447,8 @@ class ContaoWidgetManager
                         $property,
                         $this->encodeValue($property, $widget->value, $propertyValues)
                     );
-                } catch (\Exception $e) {
-                    $widget->addError($e->getMessage());
+                } catch (\Exception $exception) {
+                    $widget->addError($exception->getMessage());
                     foreach ($widget->getErrors() as $error) {
                         $propertyValues->markPropertyValueAsInvalid($property, $error);
                     }
