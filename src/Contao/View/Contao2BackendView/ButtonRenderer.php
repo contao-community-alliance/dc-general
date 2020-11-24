@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -321,16 +321,28 @@ class ButtonRenderer
         }
 
         if ($buttonEvent->isDisabled()) {
-            $iconDisabledSuffix = '_1';
+            if (!($command instanceof ToggleCommandInterface)) {
+                $iconDisabledSuffix = '_1';
 
-            // Check wheter icon is part of contao
-            if ($icon !== Image::getPath($icon)) {
-                $iconDisabledSuffix = '_';
+                // Check whether icon is part of contao.
+                if ($icon !== Image::getPath($icon)) {
+                    $iconDisabledSuffix = '_';
+                }
+                $icon = \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0);
             }
 
             return $this->renderImageAsHtml(
-                \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0),
-                $buttonEvent->getLabel()
+                $icon,
+                $buttonEvent->getLabel(),
+                \sprintf(
+                    'title="%s" class="%s"',
+                    StringUtil::specialchars($this->translator->translate(
+                        'MSC.dc_general_disabled',
+                        'contao_default',
+                        [$buttonEvent->getTitle()]
+                    )),
+                    'cursor_disabled'
+                )
             );
         }
 
