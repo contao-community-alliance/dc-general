@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Benedict Zinke <bz@presentprogressive.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -79,7 +80,7 @@ class ToggleHandler
             return;
         }
 
-        if (false === $this->checkPermission($event)) {
+        if (false === $this->checkPermission($event, $operation)) {
             $event->stopPropagation();
 
             return;
@@ -145,15 +146,17 @@ class ToggleHandler
     /**
      * Check permission for toggle property.
      *
-     * @param ActionEvent $event The action event.
+     * @param ActionEvent            $event   The action event.
+     *
+     * @param ToggleCommandInterface $command The executed operation.
      *
      * @return bool
      */
-    private function checkPermission(ActionEvent $event)
+    private function checkPermission(ActionEvent $event, ToggleCommandInterface $command)
     {
         $environment = $event->getEnvironment();
 
-        if (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable()) {
+        if (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable() && !$command->isDisabled()) {
             return true;
         }
 
