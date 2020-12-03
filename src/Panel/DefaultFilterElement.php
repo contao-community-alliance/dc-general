@@ -131,6 +131,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
                 $value      = $persistent;
             }
 
+        } else {
+          $this->setPersistent(null);
         }
 
         if (null !== $value) {

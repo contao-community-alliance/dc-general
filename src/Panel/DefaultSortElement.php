@@ -153,6 +153,8 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
                 $this->setSelected($persistent);
             }
+        } else {
+          $this->setPersistent(null);
         }
 
         $current = $config->getSorting();
