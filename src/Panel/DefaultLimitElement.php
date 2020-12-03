@@ -193,7 +193,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 }
 
             } else {
-              $this->setPersistent(null, null);
+               $this->setPersistent(null, null);
             }
 
             if (null !== $offset) {

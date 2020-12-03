@@ -135,7 +135,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             $this->setValue($value);
 
         } else {
-          $this->setPersistent(null, null);
+            $this->setPersistent(null, null);
         }
 
         if (!($this->getSelectedProperty() && $this->getValue())) {
