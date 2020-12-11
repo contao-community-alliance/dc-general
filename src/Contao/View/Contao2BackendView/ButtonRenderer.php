@@ -320,16 +320,28 @@ class ButtonRenderer
         }
 
         if ($buttonEvent->isDisabled()) {
-            $iconDisabledSuffix = '_1';
+            if (!($command instanceof ToggleCommandInterface)) {
+                $iconDisabledSuffix = '_1';
 
-            // Check wheter icon is part of contao
-            if ($icon !== Image::getPath($icon)) {
-                $iconDisabledSuffix = '_';
+                // Check whether icon is part of contao.
+                if ($icon !== Image::getPath($icon)) {
+                    $iconDisabledSuffix = '_';
+                }
+                $icon = \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0);
             }
 
             return $this->renderImageAsHtml(
-                \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0),
-                $buttonEvent->getLabel()
+                $icon,
+                $buttonEvent->getLabel(),
+                \sprintf(
+                    'title="%s" class="%s"',
+                    StringUtil::specialchars($this->translator->translate(
+                        'MSC.dc_general_disabled',
+                        'contao_default',
+                        [$buttonEvent->getTitle()]
+                    )),
+                    'cursor_disabled'
+                )
             );
         }
 

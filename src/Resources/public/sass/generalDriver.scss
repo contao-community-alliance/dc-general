@@ -4,6 +4,7 @@
  * @copyright  Contao Community Alliance.
  * @author     Andreas Isaak <please.andi@metamodel.me>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @package    Backend
  */
 
@@ -25,6 +26,10 @@
   .tl_listing tr.tl_folder_clipped > td {
     background-color: #fff9e6;
   }
+  
+  .cursor_disabled{
+    cursor: not-allowed;
+  }  
 
   @import "clipboard";
   @import "languagePanel";
