@@ -119,7 +119,6 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $value   = null;
 
         if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
-
             if ($input->hasValue($this->getPropertyName()) && $this->getPanel()->getContainer()->updateValues()) {
                 $value = $input->getValue($this->getPropertyName());
 
@@ -130,9 +129,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
                 $persistent = $this->getPersistent();
                 $value      = $persistent;
             }
-
         } else {
-           $this->setPersistent(null);
+            $this->setPersistent(null);
         }
 
         if (null !== $value) {

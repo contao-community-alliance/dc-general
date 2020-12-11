@@ -115,9 +115,8 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         $input   = $this->getInputProvider();
         $value   = null;
         $field   = null;
-        
-        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
 
+        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
             if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
                 $field = $input->getValue('tl_field');
                 $value = $input->getValue('tl_value');
@@ -133,7 +132,6 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
             $this->setSelectedProperty($field);
             $this->setValue($value);
-
         } else {
             $this->setPersistent(null, null);
         }

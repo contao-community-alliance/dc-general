@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
+use phpDocumentor\Reflection\Types\Mixed_;
 
 /**
  * Default implementation of a sort element.
@@ -131,31 +132,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     public function initialize(ConfigInterface $config, PanelElementInterface $panelElement = null)
     {
-        if (null === $panelElement) {
-            $input = $this->getInputProvider();
-            $value = null;
-
-            if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
-
-                if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
-                    $value = $input->getValue('tl_sort');
-
-                    $this->setPersistent($value);
-                }
-
-                $persistent = $this->getPersistent();
-                if (!$persistent) {
-                    if ($this->getGroupAndSortingDefinition()->hasDefault()) {
-                        $persistent = $this->getGroupAndSortingDefinition()->getDefault()->getName();
-                    }
-                    $this->setPersistent($value);
-                }
-
-                $this->setSelected($persistent);
-            } else {
-                $this->setPersistent(null);
-            }
-        }
+        $this->defineSortOption($panelElement);
 
         $current = $config->getSorting();
 
@@ -169,6 +146,43 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             }
         }
         $config->setSorting($current);
+    }
+
+    /**
+     * Define the sort option for the filter.
+     *
+     * @param PanelElementInterface|null $panelElement The panel element.
+     *
+     * @return void
+     */
+    private function defineSortOption(?PanelElementInterface $panelElement): void
+    {
+        if (null !== $panelElement) {
+            return;
+        }
+
+        $input = $this->getInputProvider();
+        $value = null;
+
+        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
+            if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
+                $value = $input->getValue('tl_sort');
+
+                $this->setPersistent($value);
+            }
+
+            $persistent = $this->getPersistent();
+            if (!$persistent) {
+                if ($this->getGroupAndSortingDefinition()->hasDefault()) {
+                    $persistent = $this->getGroupAndSortingDefinition()->getDefault()->getName();
+                }
+                $this->setPersistent($value);
+            }
+
+            $this->setSelected($persistent);
+        } else {
+            $this->setPersistent(null);
+        }
     }
 
     /**

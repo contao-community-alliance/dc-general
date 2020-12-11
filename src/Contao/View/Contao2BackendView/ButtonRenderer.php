@@ -124,10 +124,13 @@ class ButtonRenderer
         $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems = \array_filter($this->clipboardItems, function ($item) {
-            /** @var ItemInterface $item */
-            return $item->getAction() === $item::CUT;
-        });
+        $cutItems  = \array_filter(
+            $this->clipboardItems,
+            function ($item) {
+                /** @var ItemInterface $item */
+                return $item->getAction() === $item::CUT;
+            }
+        );
         $cutModels = $controller->getModelsFromClipboardItems($cutItems);
         $collector = new ModelCollector($environment);
         foreach ($cutModels as $model) {
