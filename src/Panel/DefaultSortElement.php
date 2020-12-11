@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -134,21 +135,26 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             $input = $this->getInputProvider();
             $value = null;
 
-            if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
-                $value = $input->getValue('tl_sort');
+            if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
 
-                $this->setPersistent($value);
-            }
+                if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
+                    $value = $input->getValue('tl_sort');
 
-            $persistent = $this->getPersistent();
-            if (!$persistent) {
-                if ($this->getGroupAndSortingDefinition()->hasDefault()) {
-                    $persistent = $this->getGroupAndSortingDefinition()->getDefault()->getName();
+                    $this->setPersistent($value);
                 }
-                $this->setPersistent($value);
-            }
 
-            $this->setSelected($persistent);
+                $persistent = $this->getPersistent();
+                if (!$persistent) {
+                    if ($this->getGroupAndSortingDefinition()->hasDefault()) {
+                        $persistent = $this->getGroupAndSortingDefinition()->getDefault()->getName();
+                    }
+                    $this->setPersistent($value);
+                }
+
+                $this->setSelected($persistent);
+            } else {
+                $this->setPersistent(null);
+            }
         }
 
         $current = $config->getSorting();
