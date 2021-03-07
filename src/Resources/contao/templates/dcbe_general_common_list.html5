@@ -119,8 +119,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
                         </tbody>
                     <?php if ($this->sortable) : ?>
                         <script>
-                            var table = document.getElementById('table_<?= $this->tableName ?>_<?= StringUtil::standardize($groupValue) ?>');
-                            var SortableTableDnD = new GeneralTableDnD();
+                            const table = document.getElementById('table_<?= $this->tableName ?>');
+                            const SortableTableDnD = new GeneralTableDnD();
                             SortableTableDnD.init(table);
                         </script>
                     <?php endif; ?>
