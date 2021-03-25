@@ -65,7 +65,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class SubscriberTest extends TestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
         \define('TL_ROOT', __DIR__ . '/../../../../../../vendor/contao/core');
