@@ -39,6 +39,8 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * Test case for the relationship manager.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector
  */
 class ModelCollectorTest extends TestCase
 {
@@ -110,14 +112,14 @@ class ModelCollectorTest extends TestCase
         $environment->method('getDataDefinition')->willReturn($definition);
 
         $config = $this->getMockForAbstractClass(ConfigInterface::class);
-        $config->expects($this->once())->method('setId')->with('test-id')->willReturn($config);
+        $config->expects(self::once())->method('setId')->with('test-id')->willReturn($config);
 
         $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
         $provider->method('getEmptyConfig')->willReturn($config);
         $provider->method('fieldExists')->willReturn(true);
         $model = $this->getMockForAbstractClass(ModelInterface::class);
-        $provider->expects($this->once())->method('fetch')->with($config)->willReturn($model);
-        $environment->expects($this->once())->method('getDataProvider')->with('provider-name')->willReturn($provider);
+        $provider->expects(self::once())->method('fetch')->with($config)->willReturn($model);
+        $environment->expects(self::once())->method('getDataProvider')->with('provider-name')->willReturn($provider);
 
         $collector = new ModelCollector($environment);
 
@@ -132,7 +134,7 @@ class ModelCollectorTest extends TestCase
             $environment->method('getParentDataDefinition')->willReturn($parentDataDefinition);
         }
 
-        $this->assertSame($model, $collector->getModel($modelId, $providerName));
+        self::assertSame($model, $collector->getModel($modelId, $providerName));
     }
 
     /**
@@ -182,7 +184,7 @@ class ModelCollectorTest extends TestCase
         $rootCondition->method('matches')->with($model)->willReturn(true);
 
         $config = $this->getMockForAbstractClass(ConfigInterface::class);
-        $config->expects($this->once())
+        $config->expects(self::once())
             ->method('setFilter')
             ->with([['local' => 'pid', 'remote' => 'id']])
             ->willReturn($config);
@@ -197,13 +199,13 @@ class ModelCollectorTest extends TestCase
 
         $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
         $model->method('getProviderName')->willReturn('root-provider');
-        $provider->expects($this->once())->method('fetchAll')->with($config)->willReturn($collection);
+        $provider->expects(self::once())->method('fetchAll')->with($config)->willReturn($collection);
         $environment->method('getDataProvider')->with('root-provider')->willReturn($provider);
 
 
         $collector = new ModelCollector($environment);
 
-        $this->assertSame($collection, $collector->collectSiblingsOf($model));
+        self::assertSame($collection, $collector->collectSiblingsOf($model));
     }
 
     /**

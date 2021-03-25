@@ -61,22 +61,22 @@ class ItemTest extends TestCase
         $item2       = new Item(ItemInterface::CREATE, $parentId, $modelId);
 
         // Compare unsaved item and normal one.
-        $this->assertEquals(false, $item2->equals($unsavedItem));
+        self::assertEquals(false, $item2->equals($unsavedItem));
 
         // Test item with provider name only
-        $this->assertEquals(true, $item->equals($unsavedItem));
-        $this->assertEquals(false, $item->equals($item2));
+        self::assertEquals(true, $item->equals($unsavedItem));
+        self::assertEquals(false, $item->equals($item2));
 
         // Test item with model id.
         $item = new MockedAbstractItem(ItemInterface::CREATE, $parentId, $modelId);
 
-        $this->assertEquals(false, $item->equals($unsavedItem));
-        $this->assertEquals(true, $item->equals($item2));
+        self::assertEquals(false, $item->equals($unsavedItem));
+        self::assertEquals(true, $item->equals($item2));
 
         // Test different actions.
         $item = new MockedAbstractItem(ItemInterface::CUT, $parentId, $modelId);
-        $this->assertEquals(false, $item->equals($unsavedItem));
-        $this->assertEquals(false, $item->equals($item2));
+        self::assertEquals(false, $item->equals($unsavedItem));
+        self::assertEquals(false, $item->equals($item2));
     }
 
 

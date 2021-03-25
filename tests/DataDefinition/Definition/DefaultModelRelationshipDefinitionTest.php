@@ -43,8 +43,8 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         $definition = new DefaultModelRelationshipDefinition();
         $root       = $this->getMockForAbstractClass(RootConditionInterface::class);
 
-        $this->assertSame($definition, $definition->setRootCondition($root));
-        $this->assertSame($root, $definition->getRootCondition());
+        self::assertSame($definition, $definition->setRootCondition($root));
+        self::assertSame($root, $definition->getRootCondition());
     }
 
     /**
@@ -60,8 +60,8 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         $definition = new DefaultModelRelationshipDefinition();
         $condition  = $this->mockChildCondition('parent', 'child');
 
-        $this->assertSame($definition, $definition->addChildCondition($condition));
-        $this->assertSame($condition, $definition->getChildCondition('parent', 'child'));
+        self::assertSame($definition, $definition->addChildCondition($condition));
+        self::assertSame($condition, $definition->getChildCondition('parent', 'child'));
     }
 
     /**
@@ -77,7 +77,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         $condition  = $this->mockChildCondition('another-parent', 'child');
 
         $definition->addChildCondition($condition);
-        $this->assertNull($definition->getChildCondition('parent', 'child'));
+        self::assertNull($definition->getChildCondition('parent', 'child'));
     }
 
     /**
@@ -98,7 +98,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
 
         $conditions = $definition->getChildConditions('parent');
 
-        $this->assertEquals([$condition1, $condition2, $condition3], $conditions);
+        self::assertEquals([$condition1, $condition2, $condition3], $conditions);
     }
 
     /**
@@ -114,7 +114,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
 
         $conditions = $definition->getChildConditions('parent');
 
-        $this->assertEquals([], $conditions);
+        self::assertEquals([], $conditions);
     }
 
     /**
@@ -135,7 +135,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
 
         $conditions = $definition->getChildConditions();
 
-        $this->assertEquals([$condition1, $condition2, $condition3, $condition4], $conditions);
+        self::assertEquals([$condition1, $condition2, $condition3, $condition4], $conditions);
     }
 
     /**
@@ -158,11 +158,11 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
 
         $definition2 = clone $definition;
 
-        $this->assertNotSame($root, $definition2->getRootCondition());
-        $this->assertInstanceOf(RootConditionInterface::class, $definition2->getRootCondition());
+        self::assertNotSame($root, $definition2->getRootCondition());
+        self::assertInstanceOf(RootConditionInterface::class, $definition2->getRootCondition());
 
-        $this->assertNotSame($condition, $definition2->getChildCondition('parent', 'child'));
-        $this->assertInstanceOf(
+        self::assertNotSame($condition, $definition2->getChildCondition('parent', 'child'));
+        self::assertInstanceOf(
             ParentChildConditionInterface::class,
             $definition2->getChildCondition('parent', 'child')
         );

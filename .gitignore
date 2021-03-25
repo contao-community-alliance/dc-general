@@ -18,3 +18,4 @@ composer.lock
 # build
 .sass-cache
 build/
+.phpunit.result.cache

@@ -31,16 +31,19 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * This class tests the DefaultDataProvider class.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider
  */
 class DefaultDataProviderTest extends TestCase
 {
     /**
      * Mock the Contao database.
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Database
+     * @return MockObject|Database
      */
     private function mockDatabase()
     {
@@ -104,8 +107,8 @@ class DefaultDataProviderTest extends TestCase
         try {
             $dataProvider->setBaseConfig([]);
         } catch (\Exception $exception) {
-            $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
-            $this->assertSame($exception->getMessage(), 'Missing table name.');
+            self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
+            self::assertSame($exception->getMessage(), 'Missing table name.');
         }
     }
 
@@ -145,18 +148,18 @@ class DefaultDataProviderTest extends TestCase
 
         $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
         $reflection->setAccessible(true);
-        $this->assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
+        self::assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
 
         $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'source');
         $reflection->setAccessible(true);
-        $this->assertSame('tl_dummy', $reflection->getValue($dataProvider));
+        self::assertSame('tl_dummy', $reflection->getValue($dataProvider));
 
         $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'idProperty');
         $reflection->setAccessible(true);
-        $this->assertSame('id', $reflection->getValue($dataProvider));
+        self::assertSame('id', $reflection->getValue($dataProvider));
 
-        $this->assertFalse($dataProvider->getTimeStampProperty());
-        $this->assertNull($dataProvider->getIdGenerator());
+        self::assertFalse($dataProvider->getTimeStampProperty());
+        self::assertNull($dataProvider->getIdGenerator());
     }
 
     public function testSetBaseConfigInvalidConnection()
@@ -171,8 +174,8 @@ class DefaultDataProviderTest extends TestCase
                 ]
             );
         } catch (\Exception $exception) {
-            $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
-            $this->assertSame($exception->getMessage(), 'Invalid database connection.');
+            self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
+            self::assertSame($exception->getMessage(), 'Invalid database connection.');
         }
     }
 
@@ -210,7 +213,7 @@ class DefaultDataProviderTest extends TestCase
 
         $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
         $reflection->setAccessible(true);
-        $this->assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
+        self::assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
     }
 
     /**
@@ -239,11 +242,11 @@ class DefaultDataProviderTest extends TestCase
         $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
         $reflection->setAccessible(true);
 
-        $this->assertEquals('tl_something', $dataProvider->getEmptyModel()->getProviderName());
-        $this->assertEquals($connection, $reflection->getValue($dataProvider));
-        $this->assertEquals('idField', $dataProvider->getIdProperty());
-        $this->assertEquals('lastChanged', $dataProvider->getTimeStampProperty());
-        $this->assertSame($idGenerator, $dataProvider->getIdGenerator());
+        self::assertEquals('tl_something', $dataProvider->getEmptyModel()->getProviderName());
+        self::assertEquals($connection, $reflection->getValue($dataProvider));
+        self::assertEquals('idField', $dataProvider->getIdProperty());
+        self::assertEquals('lastChanged', $dataProvider->getTimeStampProperty());
+        self::assertSame($idGenerator, $dataProvider->getIdGenerator());
     }
 
     /**
@@ -254,7 +257,7 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyConfig()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf(ConfigInterface::class, $provider->getEmptyConfig());
+        self::assertInstanceOf(ConfigInterface::class, $provider->getEmptyConfig());
     }
 
     /**
@@ -265,7 +268,7 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyModel()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf(ModelInterface::class, $provider->getEmptyModel());
+        self::assertInstanceOf(ModelInterface::class, $provider->getEmptyModel());
     }
 
     /**
@@ -276,7 +279,7 @@ class DefaultDataProviderTest extends TestCase
     public function testGetEmptyCollection()
     {
         $provider = $this->mockDefaultProvider();
-        $this->assertInstanceOf(CollectionInterface::class, $provider->getEmptyCollection());
+        self::assertInstanceOf(CollectionInterface::class, $provider->getEmptyCollection());
     }
 
     /**
@@ -284,6 +287,6 @@ class DefaultDataProviderTest extends TestCase
      */
     public function testGetDefaultConnection()
     {
-        $this->markTestSkipped('This method is not testable.');
+        self::markTestSkipped('This method is not testable.');
     }
 }

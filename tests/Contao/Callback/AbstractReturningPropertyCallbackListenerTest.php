@@ -140,15 +140,15 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
     public function testExecution($listenerClass, $eventClass)
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename', 'propertyName']);
-        $this->assertTrue(
+        self::assertTrue(
             $listener->wantToExecute($this->mockPropertyEvent($eventClass, 'tablename', 'propertyName')),
             $listenerClass
         );
-        $this->assertFalse(
+        self::assertFalse(
             $listener->wantToExecute($this->mockPropertyEvent($eventClass, 'anotherTable', 'propertyName')),
             $listenerClass
         );
-        $this->assertFalse(
+        self::assertFalse(
             $listener->wantToExecute($this->mockPropertyEvent($eventClass, 'tablename', 'anotherPropertyName')),
             $listenerClass
         );

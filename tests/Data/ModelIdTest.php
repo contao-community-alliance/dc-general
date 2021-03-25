@@ -97,8 +97,8 @@ class ModelIdTest extends TestCase
 
         $modelId = ModelId::fromModel($model);
 
-        $this->assertEquals($model->getId(), $modelId->getId());
-        $this->assertEquals($model->getProviderName(), $modelId->getDataProviderName());
+        self::assertEquals($model->getId(), $modelId->getId());
+        self::assertEquals($model->getProviderName(), $modelId->getDataProviderName());
     }
 
     /**
@@ -133,6 +133,6 @@ class ModelIdTest extends TestCase
             $this->expectException($exception);
         }
 
-        $this->assertEquals($testId, ModelId::fromSerialized($testId)->getSerialized());
+        self::assertEquals($testId, ModelId::fromSerialized($testId)->getSerialized());
     }
 }

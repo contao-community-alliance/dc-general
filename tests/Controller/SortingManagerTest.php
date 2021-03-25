@@ -30,6 +30,8 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * Test case for the sorting manager.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Controller\SortingManager
  */
 class SortingManagerTest extends TestCase
 {
@@ -215,9 +217,9 @@ class SortingManagerTest extends TestCase
             // Only compare if previous model is given and not identical with test model.
             // Only test affected items as well.
             if ($previousModel && $previousModel->getId() != $id && \in_array($id, $affected)) {
-                $this->assertGreaterThan($position, $siblings[$id]->getProperty('sorting'));
-                $this->assertGreaterThanOrEqual(2, ($siblings[$id]->getProperty('sorting') - $position));
-                $this->assertLessThanOrEqual(128, ($siblings[$id]->getProperty('sorting') - $position));
+                self::assertGreaterThan($position, $siblings[$id]->getProperty('sorting'));
+                self::assertGreaterThanOrEqual(2, ($siblings[$id]->getProperty('sorting') - $position));
+                self::assertLessThanOrEqual(128, ($siblings[$id]->getProperty('sorting') - $position));
             }
 
             $previousModel = $siblings[$id];
@@ -228,6 +230,6 @@ class SortingManagerTest extends TestCase
 
         // Explicit compare the new order with expected order.
         \ksort($ordered);
-        $this->assertEquals(\array_values($ordered), $expectedOrder);
+        self::assertEquals(\array_values($ordered), $expectedOrder);
     }
 }

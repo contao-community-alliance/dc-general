@@ -26,6 +26,8 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * This class tests the RootCondition.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition
  */
 class RootConditionTest extends TestCase
 {
@@ -53,7 +55,7 @@ class RootConditionTest extends TestCase
             )
             ->setSourceName('test-provider');
 
-        $this->assertFalse($condition->matches($model));
+        self::assertFalse($condition->matches($model));
     }
 
     /**
@@ -80,6 +82,6 @@ class RootConditionTest extends TestCase
             )
             ->setSourceName('test-provider');
 
-        $this->assertTrue($condition->matches($model));
+        self::assertTrue($condition->matches($model));
     }
 }

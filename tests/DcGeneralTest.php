@@ -122,7 +122,7 @@ class DcGeneralTest extends TestCase
 
         $dataContainerBar = new \DC_General('tl_bar');
 
-        $this->assertInstanceOf(
+        self::assertInstanceOf(
             EnvironmentInterface::class,
             $dataContainerBar->getEnvironment()->setParentDataDefinition(
                 $dataContainerFoo->getEnvironment()->getDataDefinition()
@@ -130,10 +130,10 @@ class DcGeneralTest extends TestCase
         );
 
 
-        $this->assertInstanceOf(\DC_General::class, $dataContainerFoo);
-        $this->assertInstanceOf(General::class, $dataContainerFoo);
+        self::assertInstanceOf(\DC_General::class, $dataContainerFoo);
+        self::assertInstanceOf(General::class, $dataContainerFoo);
 
-        $this->assertInstanceOf(\DC_General::class, $dataContainerBar);
-        $this->assertInstanceOf(General::class, $dataContainerBar);
+        self::assertInstanceOf(\DC_General::class, $dataContainerBar);
+        self::assertInstanceOf(General::class, $dataContainerBar);
     }
 }

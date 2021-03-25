@@ -37,21 +37,21 @@ class DataDefinitionContainerTest extends TestCase
         $container  = $this->getMockBuilder(ContainerInterface::class)->getMock();
         $definition = new DataDefinitionContainer();
 
-        $this->assertFalse($definition->hasDefinition('foo'));
+        self::assertFalse($definition->hasDefinition('foo'));
         try {
             $definition->getDefinition('foo');
         } catch (\Exception $exception) {
-            $this->assertInstanceOf(DcGeneralInvalidArgumentException::class, $exception);
-            $this->assertSame('Data definition foo is not contained.', $exception->getMessage());
+            self::assertInstanceOf(DcGeneralInvalidArgumentException::class, $exception);
+            self::assertSame('Data definition foo is not contained.', $exception->getMessage());
         }
 
-        $this
-            ->assertInstanceOf(DataDefinitionContainerInterface::class, $definition->setDefinition('foo', $container));
-        $this->assertTrue($definition->hasDefinition('foo'));
-        $this->assertSame($container, $definition->getDefinition('foo'));
+        self
+            ::assertInstanceOf(DataDefinitionContainerInterface::class, $definition->setDefinition('foo', $container));
+        self::assertTrue($definition->hasDefinition('foo'));
+        self::assertSame($container, $definition->getDefinition('foo'));
 
-        $this
-            ->assertInstanceOf(DataDefinitionContainerInterface::class, $definition->setDefinition('foo', null));
-        $this->assertFalse($definition->hasDefinition('foo'));
+        self
+            ::assertInstanceOf(DataDefinitionContainerInterface::class, $definition->setDefinition('foo', null));
+        self::assertFalse($definition->hasDefinition('foo'));
     }
 }

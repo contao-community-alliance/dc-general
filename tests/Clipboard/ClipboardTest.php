@@ -31,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * This class tests the clipboard.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard
  */
 class ClipboardTest extends TestCase
 {
@@ -60,22 +62,22 @@ class ClipboardTest extends TestCase
         $filterGetAll = new Filter();
         $createItem   = new UnsavedItem(Item::CREATE, null, 'dummy-provider');
 
-        $this->assertTrue($clipboard->isEmpty($filterGetAll));
-        $this->assertFalse($clipboard->isNotEmpty($filterGetAll));
+        self::assertTrue($clipboard->isEmpty($filterGetAll));
+        self::assertFalse($clipboard->isNotEmpty($filterGetAll));
 
         $clipboard->push($createItem);
-        $this->assertFalse($clipboard->isEmpty($filterGetAll));
-        $this->assertTrue($clipboard->isNotEmpty($filterGetAll));
+        self::assertFalse($clipboard->isEmpty($filterGetAll));
+        self::assertTrue($clipboard->isNotEmpty($filterGetAll));
 
-        $this->assertTrue($clipboard->has($createItem));
-        $this->assertTrue($clipboard->has(clone $createItem));
+        self::assertTrue($clipboard->has($createItem));
+        self::assertTrue($clipboard->has(clone $createItem));
 
         $clipboard2 = new Clipboard();
         $clipboard->saveTo($environment);
         $clipboard2->loadFrom($environment);
 
-        $this->assertTrue($clipboard2->has($createItem));
-        $this->assertTrue($clipboard2->has(clone $createItem));
+        self::assertTrue($clipboard2->has($createItem));
+        self::assertTrue($clipboard2->has(clone $createItem));
     }
 
     /**
@@ -94,11 +96,11 @@ class ClipboardTest extends TestCase
         $clipboard->push($cutItem);
         $clipboard->push($copyItem);
 
-        $this->assertTrue($clipboard->hasId($modelId));
+        self::assertTrue($clipboard->hasId($modelId));
 
         $items = $clipboard->fetch($filterGetAll);
 
-        $this->assertCount(2, $items);
+        self::assertCount(2, $items);
     }
 
     /**
@@ -122,12 +124,12 @@ class ClipboardTest extends TestCase
 
         $clipboard->removeByClipboardId($cutItem->getClipboardId());
 
-        $this->assertTrue($clipboard->hasId($modelId));
-        $this->assertTrue($clipboard->hasId($otherModelId));
+        self::assertTrue($clipboard->hasId($modelId));
+        self::assertTrue($clipboard->hasId($otherModelId));
 
         $items = $clipboard->fetch($filterGetAll);
 
-        $this->assertCount(2, $items);
+        self::assertCount(2, $items);
     }
 
     /**
@@ -151,12 +153,12 @@ class ClipboardTest extends TestCase
 
         $clipboard->removeById($modelId);
 
-        $this->assertFalse($clipboard->hasId($modelId));
-        $this->assertTrue($clipboard->hasId($otherModelId));
+        self::assertFalse($clipboard->hasId($modelId));
+        self::assertTrue($clipboard->hasId($otherModelId));
 
         $items = $clipboard->fetch($filterGetAll);
 
-        $this->assertCount(1, $items);
+        self::assertCount(1, $items);
     }
 
     /**
@@ -180,12 +182,12 @@ class ClipboardTest extends TestCase
 
         $clipboard->remove($copyItem);
 
-        $this->assertTrue($clipboard->hasId($modelId));
-        $this->assertTrue($clipboard->hasId($otherModelId));
+        self::assertTrue($clipboard->hasId($modelId));
+        self::assertTrue($clipboard->hasId($otherModelId));
 
         $items = $clipboard->fetch($filterGetAll);
 
-        $this->assertCount(2, $items);
-        $this->assertArraySubset([$cutItem, $copyOtherItem], $items);
+        self::assertCount(2, $items);
+        self::assertSame([$cutItem, $copyOtherItem], $items);
     }
 }
