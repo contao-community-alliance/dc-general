@@ -1096,6 +1096,8 @@ class TreePicker extends Widget
             $sortDirection = $inputProvider->getParameter('sortDirection');
 
             $baseConfig->setSorting([$orderProperty => $sortDirection]);
+        } elseif ($this->orderProperty && $this->sortDirection) {
+            $baseConfig->setSorting([$this->orderProperty => $this->sortDirection]);
         }
 
         // Fetch all root elements.
