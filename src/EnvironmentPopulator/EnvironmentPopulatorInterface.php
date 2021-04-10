@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator;
 
+use ContaoCommunityAlliance\DcGeneral\EnvironmentFlatConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
@@ -33,7 +34,7 @@ interface EnvironmentPopulatorInterface
     /**
      * Create all needed objects the populator knows to create and put them into the environment.
      *
-     * @param EnvironmentInterface $environment The environment to populate.
+     * @param EnvironmentInterface|EnvironmentFlatConfigRegistryInterface $environment The environment to populate.
      *
      * @return void
      */
