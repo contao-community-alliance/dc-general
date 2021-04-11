@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -71,8 +71,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $urlEvent = new GetReferrerEvent(false, $environment->getDataDefinition()->getName());
 
-        $eventDispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $urlEvent);
-        $eventDispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($urlEvent->getReferrerUrl()));
+        $eventDispatcher->dispatch($urlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
+        $eventDispatcher->dispatch(new RedirectEvent($urlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
     }
 
     /**
@@ -646,7 +646,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     protected function renderBreadcrumb(EnvironmentInterface $environment)
     {
         $event = new GetBreadcrumbEvent($environment);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
         $elements = $event->getElements();
         if (empty($elements)) {
             return null;
@@ -727,7 +727,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $event = new PostPersistModelEvent($environment, $model, $originalModel);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
     }
 
     /**

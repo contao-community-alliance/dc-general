@@ -11,8 +11,8 @@ $event = new \ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlE
     'clipboard.svg'
 );
 $eventDispatcher->dispatch(
-    \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
-    $event
+    $event,
+    \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML
 );
 $clipboardIcon = $event->getHtml();
 
@@ -36,8 +36,8 @@ foreach ($this->options as $id => $row) {
             $icon . '.svg'
         );
         $eventDispatcher->dispatch(
-            \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML,
-            $event
+            $event,
+            \ContaoCommunityAlliance\Contao\Bindings\ContaoEvents::IMAGE_GET_HTML
         );
         $icons[$item->getAction()] = $event->getHtml();
     }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -106,7 +106,7 @@ class ContaoWidgetManager
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventDispatcher()->dispatch(EncodePropertyValueFromWidgetEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, EncodePropertyValueFromWidgetEvent::NAME);
 
         return $event->getValue();
     }
@@ -127,7 +127,7 @@ class ContaoWidgetManager
         $event
             ->setProperty($property)
             ->setValue($value);
-        $environment->getEventDispatcher()->dispatch(DecodePropertyValueForWidgetEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, DecodePropertyValueForWidgetEvent::NAME);
 
         return $event->getValue();
     }
@@ -264,7 +264,7 @@ class ContaoWidgetManager
 
         $event = new BuildWidgetEvent($environment, $model, $propertyDefinitions->getProperty($property));
 
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
         if (!$event->getWidget()) {
             throw new DcGeneralRuntimeException(
                 \sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
@@ -478,7 +478,7 @@ class ContaoWidgetManager
 
             foreach ($errors as $error) {
                 $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-                $dispatcher->dispatch(ResolveWidgetErrorMessageEvent::NAME, $event);
+                $dispatcher->dispatch($event, ResolveWidgetErrorMessageEvent::NAME);
                 $widget->addError($event->getError());
             }
         }

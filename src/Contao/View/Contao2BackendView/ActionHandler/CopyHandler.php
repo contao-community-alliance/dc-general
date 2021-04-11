@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -128,7 +128,6 @@ class CopyHandler
             $eventDispatcher = $environment->getEventDispatcher();
 
             $eventDispatcher->dispatch(
-                ContaoEvents::SYSTEM_LOG,
                 new LogEvent(
                     \sprintf(
                         'Table "%s" is not creatable, DC_General - DefaultController - copy()',
@@ -136,12 +135,13 @@ class CopyHandler
                     ),
                     __CLASS__ . '::delete()',
                     TL_ERROR
-                )
+                ),
+                ContaoEvents::SYSTEM_LOG
             );
 
             $eventDispatcher->dispatch(
-                ContaoEvents::CONTROLLER_REDIRECT,
-                new RedirectEvent('contao?act=error')
+                new RedirectEvent('contao?act=error'),
+                ContaoEvents::CONTROLLER_REDIRECT
             );
         }
 
@@ -170,14 +170,14 @@ class CopyHandler
         $eventDispatcher = $environment->getEventDispatcher();
         // Dispatch pre duplicate event.
         $preCopyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
-        $eventDispatcher->dispatch($preCopyEvent::NAME, $preCopyEvent);
+        $eventDispatcher->dispatch($preCopyEvent, $preCopyEvent::NAME);
 
         // Save the copy.
         $environment->getDataProvider($copyModel->getProviderName())->save($copyModel);
 
         // Dispatch post duplicate event.
         $postCopyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
-        $eventDispatcher->dispatch($postCopyEvent::NAME, $postCopyEvent);
+        $eventDispatcher->dispatch($postCopyEvent, $postCopyEvent::NAME);
 
         return $copyModel;
     }
@@ -203,7 +203,7 @@ class CopyHandler
             ->setQueryParameter('pid', $environment->getInputProvider()->getParameter('pid'));
 
         $redirectEvent = new RedirectEvent($this->securityUrlBuilder->create($urlBuilder->getUrl())->getUrl());
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
+        $environment->getEventDispatcher()->dispatch($redirectEvent, ContaoEvents::CONTROLLER_REDIRECT);
     }
 
     /**

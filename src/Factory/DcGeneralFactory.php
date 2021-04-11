@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -293,7 +293,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         }
 
         // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(PreCreateDcGeneralEvent::NAME, new PreCreateDcGeneralEvent($this));
+        $this->getEventDispatcher()->dispatch(new PreCreateDcGeneralEvent($this), PreCreateDcGeneralEvent::NAME);
 
         $environment = $this->environment ?: $this->createEnvironment();
 
@@ -301,7 +301,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         $dcGeneral = (new \ReflectionClass($this->dcGeneralClassName))->newInstance($environment);
 
         // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(CreateDcGeneralEvent::NAME, new CreateDcGeneralEvent($dcGeneral));
+        $this->getEventDispatcher()->dispatch(new CreateDcGeneralEvent($dcGeneral), CreateDcGeneralEvent::NAME);
 
         return $dcGeneral;
     }
@@ -340,8 +340,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(
-            PopulateEnvironmentEvent::NAME,
-            new PopulateEnvironmentEvent($environment)
+            new PopulateEnvironmentEvent($environment),
+            PopulateEnvironmentEvent::NAME
         );
 
         return $environment;
@@ -377,8 +377,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(
-            BuildDataDefinitionEvent::NAME,
-            new BuildDataDefinitionEvent($dataContainer)
+            new BuildDataDefinitionEvent($dataContainer),
+            BuildDataDefinitionEvent::NAME
         );
 
         $definitions->setDefinition($this->containerName, $dataContainer);

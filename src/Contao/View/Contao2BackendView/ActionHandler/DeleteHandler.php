@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -116,7 +116,6 @@ class DeleteHandler
         $eventDispatcher = $environment->getEventDispatcher();
 
         $eventDispatcher->dispatch(
-            ContaoEvents::SYSTEM_LOG,
             new LogEvent(
                 \sprintf(
                     'Table "%s" is not deletable DC_General - DefaultController - delete()',
@@ -124,13 +123,11 @@ class DeleteHandler
                 ),
                 __CLASS__ . '::delete()',
                 TL_ERROR
-            )
+            ),
+            ContaoEvents::SYSTEM_LOG
         );
 
-        $eventDispatcher->dispatch(
-            ContaoEvents::CONTROLLER_REDIRECT,
-            new RedirectEvent('contao?act=error')
-        );
+        $eventDispatcher->dispatch(new RedirectEvent('contao?act=error'), ContaoEvents::CONTROLLER_REDIRECT);
     }
 
     /**
@@ -178,14 +175,14 @@ class DeleteHandler
 
         // Trigger event before the model will be deleted.
         $preDeleteEvent = new PreDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($preDeleteEvent::NAME, $preDeleteEvent);
+        $environment->getEventDispatcher()->dispatch($preDeleteEvent, $preDeleteEvent::NAME);
 
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         $dataProvider->delete($model);
 
         // Trigger event after the model is deleted.
         $postDeleteEvent = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($postDeleteEvent::NAME, $postDeleteEvent);
+        $environment->getEventDispatcher()->dispatch($postDeleteEvent, $postDeleteEvent::NAME);
     }
 
     /**
@@ -305,13 +302,13 @@ class DeleteHandler
             foreach ($childModels as $childModel) {
                 // Trigger event before the model will be deleted.
                 $preDeleteEvent = new PreDeleteModelEvent($environment, $childModel);
-                $environment->getEventDispatcher()->dispatch($preDeleteEvent::NAME, $preDeleteEvent);
+                $environment->getEventDispatcher()->dispatch($preDeleteEvent, $preDeleteEvent::NAME);
 
                 $childDataProvider->delete($childModel);
 
                 // Trigger event after the model is deleted.
                 $postDeleteEvent = new PostDeleteModelEvent($environment, $childModel);
-                $environment->getEventDispatcher()->dispatch($postDeleteEvent::NAME, $postDeleteEvent);
+                $environment->getEventDispatcher()->dispatch($postDeleteEvent, $postDeleteEvent::NAME);
             }
         }
     }
