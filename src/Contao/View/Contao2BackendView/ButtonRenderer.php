@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -210,7 +210,7 @@ class ButtonRenderer
                 ->setPasteAfterDisabled($isCircular)
                 ->setPasteIntoDisabled($isCircular)
                 ->setContainedModels($this->clipboardModels);
-            $this->eventDispatcher->dispatch(GetPasteButtonEvent::NAME, $buttonEvent);
+            $this->eventDispatcher->dispatch($buttonEvent, GetPasteButtonEvent::NAME);
 
             $buttons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
             if ($this->isHierarchical()) {
@@ -315,7 +315,7 @@ class ButtonRenderer
             ->setPrevious($previous)
             ->setNext($next)
             ->setDisabled($command->isDisabled());
-        $this->eventDispatcher->dispatch(GetOperationButtonEvent::NAME, $buttonEvent);
+        $this->eventDispatcher->dispatch($buttonEvent, GetOperationButtonEvent::NAME);
 
         if (null !== ($html = $buttonEvent->getHtml())) {
             // If the event created a button, use it.
@@ -559,8 +559,8 @@ class ButtonRenderer
     {
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $this->eventDispatcher->dispatch(
-            ContaoEvents::IMAGE_GET_HTML,
-            new GenerateHtmlEvent($src, $alt, $attributes)
+            new GenerateHtmlEvent($src, $alt, $attributes),
+            ContaoEvents::IMAGE_GET_HTML
         );
 
         return $imageEvent->getHtml();
@@ -576,7 +576,7 @@ class ButtonRenderer
     private function addToUrl($parameters)
     {
         /** @var AddToUrlEvent $urlAfter */
-        $urlAfter = $this->eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, new AddToUrlEvent($parameters));
+        $urlAfter = $this->eventDispatcher->dispatch(new AddToUrlEvent($parameters), ContaoEvents::BACKEND_ADD_TO_URL);
 
         return $urlAfter->getUrl();
     }

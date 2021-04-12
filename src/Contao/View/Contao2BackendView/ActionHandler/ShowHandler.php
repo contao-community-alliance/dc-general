@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -90,7 +90,6 @@ class ShowHandler
         $eventDispatcher = $environment->getEventDispatcher();
 
         $eventDispatcher->dispatch(
-            ContaoEvents::SYSTEM_LOG,
             new LogEvent(
                 \sprintf(
                     'Could not find ID %s in %s. DC_General show()',
@@ -99,13 +98,11 @@ class ShowHandler
                 ),
                 __CLASS__ . '::' . __FUNCTION__,
                 TL_ERROR
-            )
+            ),
+            ContaoEvents::SYSTEM_LOG
         );
 
-        $eventDispatcher->dispatch(
-            ContaoEvents::CONTROLLER_REDIRECT,
-            new RedirectEvent('contao?act=error')
-        );
+        $eventDispatcher->dispatch(new RedirectEvent('contao?act=error'), ContaoEvents::CONTROLLER_REDIRECT);
 
         return null;
     }

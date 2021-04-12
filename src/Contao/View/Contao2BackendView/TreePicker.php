@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -336,7 +336,7 @@ class TreePicker extends Widget
                     $this->nodeStates->setAllOpen($this->nodeStates->isAllOpen())->getStates()
                 );
 
-                $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+                $environment->getEventDispatcher()->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
             }
         }
 
@@ -578,7 +578,7 @@ class TreePicker extends Widget
         $template    = new ContaoBackendViewTemplate('widget_treepicker');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
+        $environment->getEventDispatcher()->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
 
         $template
             ->setTranslator($translator)
@@ -710,7 +710,7 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         return System::getContainer()->get('router')->generate(
             'cca_dc_general_tree_breadcrumb',
@@ -731,7 +731,7 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         return System::getContainer()->get('router')->generate(
             'cca_dc_general_tree_toggle',
@@ -799,7 +799,7 @@ class TreePicker extends Widget
         $template    = new ContaoBackendViewTemplate('widget_treepicker_popup');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
+        $environment->getEventDispatcher()->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
 
         $template
             ->setTranslator($translator)
@@ -1221,7 +1221,7 @@ class TreePicker extends Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
 
         $labelList = [];
         $this->prepareLabelWithDisplayedProperties($formatter, $event->getArgs(), $firstSorting, $labelList);

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -187,8 +187,8 @@ class EditHandler
             );
 
             $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
+                new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()'),
+                ContaoEvents::SYSTEM_LOG
             );
 
             throw new DcGeneralRuntimeException($message);
@@ -196,7 +196,7 @@ class EditHandler
 
         $dataProvider->save($model);
         $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+        $environment->getEventDispatcher()->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -180,10 +180,10 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $input->getParameter('original-act'));
-        $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+        $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
-        $eventDispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, $redirectEvent);
+        $eventDispatcher->dispatch($redirectEvent, ContaoEvents::CONTROLLER_REDIRECT);
     }
 
     /**
@@ -338,7 +338,7 @@ class ClipboardController implements EventSubscriberInterface
                 }
 
                 $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
-                $eventDispatcher->dispatch(DcGeneralEvents::FORMAT_MODEL_LABEL, $formatModelLabelEvent);
+                $eventDispatcher->dispatch($formatModelLabelEvent, DcGeneralEvents::FORMAT_MODEL_LABEL);
                 $label = $formatModelLabelEvent->getLabel();
                 $label = \array_shift($label);
                 $label = $label['content'];
@@ -352,13 +352,13 @@ class ClipboardController implements EventSubscriberInterface
 
         $inputAction   = $input->getParameter('act');
         $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $inputAction);
-        $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+        $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearUrl = $addToUrlEvent->getUrl();
 
         $addToUrlEvent = new AddToUrlEvent(
             'clipboard-item=%id%&act=clear-clipboard&original-act=' . $inputAction
         );
-        $eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $addToUrlEvent);
+        $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearItemUrl = $addToUrlEvent->getUrl();
 
         $template = new ContaoBackendViewTemplate('dcbe_general_clipboard');
