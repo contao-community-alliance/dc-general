@@ -6,5 +6,5 @@
 		<?php endforeach; ?>
 	</select>
 	<span> = </span>
-	<input type="text" name="tl_value" class="<?php echo $this->class; ?>" value="<?php echo $this->value; ?>">
+	<input type="search" name="tl_value" class="tl_text" value="<?php echo $this->value; ?>">
 </div>
