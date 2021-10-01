@@ -30,6 +30,7 @@ use Contao\Environment;
 use Contao\File;
 use Contao\FilesModel;
 use Contao\Image;
+use Contao\Image\ResizeConfiguration;
 use Contao\Model\Collection;
 use Contao\StringUtil;
 use Contao\System;
@@ -373,31 +374,45 @@ class FileTree extends AbstractWidget
     }
 
     /**
-     * Generate a image for use as gallery listing.
+     * Generate an image for use as gallery listing.
      *
      * @param FilesModel $model The file model in use.
      * @param File       $file  The image file being rendered.
-     * @param string      $info  The image information.
+     * @param string     $info  The image information.
      *
      * @return string
      */
     private function generateGalleryImage($model, File $file, $info)
     {
-        $image = $this->placeholderImage;
-
-        if ($file->isSvgImage
-            || (($file->height <= Config::get('gdMaxImgHeight')) && ($file->width <= Config::get('gdMaxImgWidth')))
+        if ($file->viewWidth && $file->viewHeight
+            && ($file->isSvgImage
+                || (($file->height <= Config::get('gdMaxImgHeight'))
+                    && ($file->width <= Config::get('gdMaxImgWidth'))
+                )
+            )
         ) {
-            $width  = \min($file->width, $this->thumbnailWidth);
-            $height = \min($file->height, $this->thumbnailHeight);
-            $image  = Image::get($model->path, $width, $height, 'center_center');
+            // Inline the image if no preview image will be generated (see #636).
+            if ($file->height !== null && $file->height <= $this->thumbnailHeight
+                && $file->width !== null && $file->width <= $this->thumbnailWidth
+            ) {
+                $image = $file->dataUri;
+            } else {
+                $projectDir = System::getContainer()->getParameter('kernel.project_dir');
+                $image      = System::getContainer()->get('contao.image.image_factory')->create(
+                    $projectDir . '/' . $file->path,
+                    [$this->thumbnailWidth, $this->thumbnailHeight, ResizeConfiguration::MODE_BOX]
+                )->getUrl($projectDir);
+            }
+        } else {
+            $image = $this->placeholderImage;
         }
 
-        return Image::getHtml(
-            $image,
-            '',
-            'class="gimage removable" title="' . StringUtil::specialchars($info) . '"'
-        );
+        if (strncmp($image, 'data:', 5) === 0) {
+            return '<img src="' . $file->dataUri . '" width="' . $file->width . '" height="' . $file->height
+                   . '" alt="" class="gimage removable" title="' . StringUtil::specialchars($info) . '">';
+        }
+
+        return Image::getHtml($image, '', 'class="gimage removable" title="' . StringUtil::specialchars($info) . '"');
     }
 
     /**
