@@ -97,6 +97,13 @@ class ModelCollector
     private $parentProviderName;
 
     /**
+     * The default data provider name.
+     *
+     * @var string
+     */
+    private $defaultProviderName;
+
+    /**
      * Create a new instance.
      *
      * @param EnvironmentInterface $environment The environment.
