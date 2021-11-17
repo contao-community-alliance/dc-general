@@ -270,23 +270,15 @@ class ModelCollector
      *
      * @return ModelInterface|null
      *
-     * @throws DcGeneralInvalidArgumentException It throws a exception if the configuration not passed.
+     * @throws DcGeneralInvalidArgumentException It throws an exception if the configuration not passed.
      * @throws DcGeneralInvalidArgumentException When the model does not originate from the child provider.
      */
     public function searchParentFromHierarchical(ModelInterface $model): ?ModelInterface
     {
         $this->guardModelOriginatesFromProvider($model);
+        $this->guardRootProviderDefined();
+        $this->guardParentProviderDefined();
 
-        if (null === $this->rootProvider) {
-            throw new DcGeneralInvalidArgumentException(
-                'Invalid configuration. The root data provider must be defined!'
-            );
-        }
-        if (null === $this->parentProvider) {
-            throw new DcGeneralInvalidArgumentException(
-                'Invalid configuration. The parent data provider must be defined!'
-            );
-        }
         if ($this->rootProviderName !== $model->getProviderName()) {
             throw new DcGeneralInvalidArgumentException(
                 'Model originates from ' . $model->getProviderName() .
@@ -454,7 +446,7 @@ class ModelCollector
      */
     private function searchParentOfInParentedMode(ModelInterface $model)
     {
-        $this->guardModelOriginatesFromProvider($model);
+        $this->guardParentProviderDefined();
 
         $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->defaultProviderName);
         if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
@@ -479,6 +471,8 @@ class ModelCollector
      */
     private function searchParentOfInHierarchical(ModelInterface $model)
     {
+        $this->guardRootProviderDefined();
+
         $condition = $this->relationships->getChildCondition($this->rootProviderName, $this->defaultProviderName);
         if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->rootProvider->fetch($this->rootProvider->getEmptyConfig()->setFilter($inverseFilter));
@@ -536,6 +530,34 @@ class ModelCollector
     private function isRootModel(ModelInterface $model)
     {
         return (null !== $this->rootCondition) && $this->rootCondition->matches($model);
+    }
+
+    /**
+     * Guards that a root provider is defined.
+     *
+     * @throws DcGeneralInvalidArgumentException When not root provider is defined.
+     */
+    private function guardRootProviderDefined(): void
+    {
+        if (null === $this->rootProvider) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. The root data provider must be defined!'
+            );
+        }
+    }
+
+    /**
+     * Guards that a parent provider is defined.
+     *
+     * @throws DcGeneralInvalidArgumentException When not root provider is defined.
+     */
+    private function guardParentProviderDefined(): void
+    {
+        if (null === $this->parentProvider) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. The parent data provider must be defined!'
+            );
+        }
     }
 
     /**
