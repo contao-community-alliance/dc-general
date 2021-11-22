@@ -265,6 +265,7 @@ class ModelCollectorTest extends TestCase
         $definition = $this->mockDefinitionContainer();
 
         $basicDefinition = $this->mockBasicDefinition();
+        $basicDefinition->method('getDataProvider')->willReturn('child');
         $basicDefinition->method('getParentDataProvider')->willReturn('parent');
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_PARENTEDLIST);
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
@@ -366,6 +367,7 @@ class ModelCollectorTest extends TestCase
     ): void {
         $definition      = $this->mockDefinitionContainer();
         $basicDefinition = $this->mockBasicDefinition();
+        $basicDefinition->method('getDataProvider')->willReturn('child');
         $basicDefinition->method('getParentDataProvider')->willReturn('parent');
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_PARENTEDLIST);
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
