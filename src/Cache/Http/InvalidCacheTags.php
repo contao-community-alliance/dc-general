@@ -147,7 +147,9 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
 
         /** @var DefaultCollection $parentModels */
         $parentModels = $dataProvider
-            ->fetchAll($dataProvider->getEmptyConfig()->setFilter((array) $parentCondition->getInverseFilterFor($model)));
+            ->fetchAll(
+                $dataProvider->getEmptyConfig()->setFilter((array) $parentCondition->getInverseFilterFor($model))
+            );
         foreach ($parentModels as $parentModel) {
             $this->addModelTag($parentModel);
         }

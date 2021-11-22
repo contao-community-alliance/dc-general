@@ -555,6 +555,8 @@ class ModelCollector
     /**
      * Guards that a root provider is defined.
      *
+     * @return void
+     *
      * @throws DcGeneralInvalidArgumentException When not root provider is defined.
      */
     private function guardRootProviderDefined(): void
@@ -568,6 +570,8 @@ class ModelCollector
 
     /**
      * Guards that a parent provider is defined.
+     *
+     * @return void
      *
      * @throws DcGeneralInvalidArgumentException When not root provider is defined.
      */
@@ -584,6 +588,8 @@ class ModelCollector
      * This guard checks if the model belongs to the configured data provider.
      *
      * @param ModelInterface $model The model to check.
+     *
+     * @return void
      *
      * @throws DcGeneralInvalidArgumentException When model is not for the configured provider.
      */
