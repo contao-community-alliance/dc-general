@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Subscriber;
 
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
@@ -160,9 +161,11 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         );
 
         if (null !== $parentFilter) {
-            $parentConfig   = $dataProvider->getEmptyConfig()->setFilter($parentFilter->getInverseFilterFor($model));
-            $parentProvider = $environment->getDataProvider($parentFilter->getSourceName());
-            $parent         = $parentProvider->fetchAll($parentConfig)->get(0);
+            $parent = (new ModelCollector($environment))->searchParentOf($model);
+            if ($parent === null) {
+                return null;
+            }
+
             return $dataProvider->getEmptyConfig()->setFilter($parentFilter->getFilter($parent));
         }
 
