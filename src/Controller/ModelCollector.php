@@ -479,9 +479,23 @@ class ModelCollector
     {
         $this->guardRootProviderDefined();
 
-        $condition = $this->relationships->getChildCondition($this->rootProviderName, $this->defaultProviderName);
-        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
-            return $this->rootProvider->fetch($this->rootProvider->getEmptyConfig()->setFilter($inverseFilter));
+        foreach ($this->relationships->getChildConditions() as $condition) {
+            // Skip conditions where the destination is not the provider
+            if ($this->defaultProviderName !== $condition->getDestinationName()) {
+                continue;
+            }
+
+            if (null === ($inverseFilter = $condition->getInverseFilterFor($model))) {
+                continue;
+            }
+
+            $provider = $this->environment->getDataProvider($condition->getSourceName());
+            $config   = $provider->getEmptyConfig()->setFilter($inverseFilter);
+            $parent   = $this->environment->getDataProvider($condition->getSourceName())->fetch($config);
+
+            if (null !== $parent) {
+                return $parent;
+            }
         }
 
         $config = $this->rootProvider->getEmptyConfig()->setFilter($this->rootCondition->getFilterArray());

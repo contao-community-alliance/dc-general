@@ -217,11 +217,11 @@ class ModelCollectorTest extends TestCase
     }
 
     /**
-     * Provides data for the testSearchParentOfWithoutRecursion test.
+     * Provides data for the testSearchParentOfInWithoutRecursion test.
      *
      * @return Generator
      */
-    public function provideForTestSearchParentOfWithoutRecursion(): Generator
+    public function provideForTestSearchParentOfInWithoutRecursion(): Generator
     {
         $collection = new DefaultCollection();
         $collection->push($parentA = $this->createModel('parent', 1));
@@ -255,9 +255,9 @@ class ModelCollectorTest extends TestCase
      *
      * @return void
      *
-     * @dataProvider provideForTestSearchParentOfWithoutRecursion
+     * @dataProvider provideForTestSearchParentOfInWithoutRecursion
      */
-    public function testSearchParentOfWithoutRecursion(
+    public function testSearchParentOfInWithoutRecursion(
         ?ModelInterface $expected,
         ModelInterface $model,
         CollectionInterface $candidates
@@ -315,7 +315,7 @@ class ModelCollectorTest extends TestCase
      *
      * @return Generator
      */
-    public function provideForTestSearchParentOfWithRecursion(): Generator
+    public function provideForTestSearchParentOfInWithRecursion(): Generator
     {
         $parents = new DefaultCollection();
         $parents->push($parentA = $this->createModel('parent', 1, ['pid' => 10]));
@@ -357,9 +357,9 @@ class ModelCollectorTest extends TestCase
      *
      * @return void
      *
-     * @dataProvider provideForTestSearchParentOfWithRecursion
+     * @dataProvider provideForTestSearchParentOfInWithRecursion
      */
-    public function testSearchParentOfWithRecursion(
+    public function testSearchParentOfInWithRecursion(
         ?ModelInterface $expected,
         ModelInterface $model,
         CollectionInterface $parents,
