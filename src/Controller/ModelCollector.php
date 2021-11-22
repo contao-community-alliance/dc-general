@@ -241,6 +241,9 @@ class ModelCollector
     /**
      * Search the parent model for the given model.
      *
+     * If the model is part of a hierarchical structure the parent node is determined instead of a possible available
+     * parent relationship.
+     *
      * @param ModelInterface $model The model for which the parent shall be retrieved.
      *
      * @return ModelInterface|null
@@ -264,7 +267,10 @@ class ModelCollector
     }
 
     /**
-     * Search the parent model from a hierarchical model.
+     * Search the parent model for the given model being in a hierarchical structure.
+     *
+     * This method will determine the parent defined by the parent relationship and not the parent node of the
+     * hierarchical structure.
      *
      * @param ModelInterface $model The hierarchical model for search the parent model.
      *
@@ -273,7 +279,7 @@ class ModelCollector
      * @throws DcGeneralInvalidArgumentException It throws an exception if the configuration not passed.
      * @throws DcGeneralInvalidArgumentException When the model does not originate from the child provider.
      */
-    public function searchParentFromHierarchical(ModelInterface $model): ?ModelInterface
+    public function searchParentOfRootModel(ModelInterface $model): ?ModelInterface
     {
         $this->guardModelOriginatesFromProvider($model);
         $this->guardRootProviderDefined();
