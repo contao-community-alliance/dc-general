@@ -294,7 +294,7 @@ class ModelCollector
         }
 
         $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->rootProviderName);
-        if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
 
@@ -455,7 +455,7 @@ class ModelCollector
         $this->guardParentProviderDefined();
 
         $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->defaultProviderName);
-        if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
 
@@ -480,7 +480,7 @@ class ModelCollector
         $this->guardRootProviderDefined();
 
         $condition = $this->relationships->getChildCondition($this->rootProviderName, $this->defaultProviderName);
-        if ([] !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
             return $this->rootProvider->fetch($this->rootProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
 

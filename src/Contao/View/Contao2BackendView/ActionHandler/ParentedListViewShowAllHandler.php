@@ -576,7 +576,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $grandParentProvider = $environment->getDataProvider($grandParentName);
 
         $config = $grandParentProvider->getEmptyConfig();
-        $config->setFilter($relationship->getInverseFilterFor($parentModel));
+        $config->setFilter((array) $relationship->getInverseFilterFor($parentModel));
 
         $parents = $grandParentProvider->fetchAll($config);
 
