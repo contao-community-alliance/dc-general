@@ -436,6 +436,109 @@ class ModelCollectorTest extends TestCase
     }
 
     /**
+     * Provides data for the testSearchParentOfInHierarchical test.
+     *
+     * @return Generator
+     */
+    public function provideForTestSearchParentOfInHierarchicalByInverseFilter(): Generator
+    {
+        $parentNodeA = $this->createModel('node', 10);
+        $parentNodeB = $this->createModel('node', 11);
+
+        yield [
+            $parentNodeA,
+            $this->createModel('node', 1, ['pid' => 10, 'parentId' => 1]),
+        ];
+
+        yield [
+            $parentNodeB,
+            $this->createModel('node', 1, ['pid' => 11, 'parentId' => 2]),
+        ];
+
+        yield [
+            null,
+            $this->createModel('node', 1, ['pid' => 12, 'parentId' => 1]),
+        ];
+    }
+
+    /**
+     * Tests the searchParentOfIn method without recursion.
+     *
+     * @param ModelInterface|null $expected The expected parent.
+     * @param ModelInterface      $model    The given instance of the model.
+     *
+     * @return void
+     *
+     * @dataProvider provideForTestSearchParentOfInHierarchicalByInverseFilter
+     */
+    public function testSearchParentOfInHierarchicalByInverseFilter(
+        ?ModelInterface $expected,
+        ModelInterface $model
+    ): void {
+        $definition      = $this->mockDefinitionContainer();
+        $basicDefinition = $this->mockBasicDefinition();
+        $basicDefinition->method('getDataProvider')->willReturn('node');
+        $basicDefinition->method('getRootDataProvider')->willReturn('node');
+        $basicDefinition->method('getParentDataProvider')->willReturn('parent');
+        $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_HIERARCHICAL);
+        $definition->method('getBasicDefinition')->willReturn($basicDefinition);
+
+        $relationships = $this->mockRelationshipDefinition();
+        $relationships->method('getChildConditions')->willReturn(
+            [
+                $this->createParentChildCondition('parent', 'node'),
+                $this->createParentChildCondition('node', 'node'),
+            ]
+        );
+
+        $rootCondition = $this->getMockForAbstractClass(RootConditionInterface::class);
+        $relationships->method('getRootCondition')->willReturn($rootCondition);
+
+        $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
+
+        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment->method('getDataDefinition')->willReturn($definition);
+
+        $config = $this->getMockForAbstractClass(ConfigInterface::class);
+        $config->method('setFilter')->willReturn($config);
+
+        $parentProvider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $parentProvider->method('getEmptyConfig')->willReturn($config);
+        $parentProvider
+            ->expects($this->once())
+            ->method('fetch')
+            ->willReturn(null);
+
+        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $provider->method('getEmptyConfig')->willReturn($config);
+        $provider
+            ->expects($this->once())
+            ->method('fetch')->willReturn($expected);
+
+        $provider
+            ->expects(null === $expected ? $this->once() : $this->never())
+            ->method('fetchAll')
+            ->willReturn(new DefaultCollection());
+
+        $environment->method('getDataProvider')->willReturnCallback(
+            function (string $name) use ($provider, $parentProvider) {
+                switch ($name) {
+                    case 'node':
+                        return $provider;
+                    case 'parent':
+                        return $parentProvider;
+
+                    default:
+                        throw new \RuntimeException();
+                }
+            }
+        );
+
+        $collector = new ModelCollector($environment);
+        $this->assertSame($expected, $collector->searchParentOf($model));
+    }
+
+    /**
      * Mock a basic definition.
      *
      * @return BasicDefinitionInterface|\PHPUnit_Framework_MockObject_MockObject
