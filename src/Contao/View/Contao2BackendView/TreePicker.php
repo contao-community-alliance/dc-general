@@ -50,6 +50,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConf
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\DC\General;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentFlatConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
@@ -306,7 +307,7 @@ class TreePicker extends Widget
     /**
      * Retrieve the environment of the item data container.
      *
-     * @return EnvironmentInterface
+     * @return EnvironmentInterface|EnvironmentFlatConfigRegistryInterface
      */
     public function getEnvironment()
     {
@@ -613,22 +614,15 @@ class TreePicker extends Widget
     protected function generatePickerUrl()
     {
         $parameter = [
-            'fieldType'    => $this->fieldType,
-            'sourceName'   => $this->sourceName,
-            'modelId'      => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
-            'orderField'   => $this->orderField,
-            'propertyName' => $this->name
+            'fieldType'     => $this->fieldType,
+            'sourceName'    => $this->sourceName,
+            'modelId'       => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
+            'orderField'    => $this->orderField,
+            'propertyName'  => $this->name,
+            'orderProperty' => $this->pickerOrderProperty,
+            'sortDirection' => $this->pickerSortDirection,
+            'flatMode'      => ($this->pickerFlatMode ?? false)
         ];
-
-        if ($this->pickerOrderProperty && $this->pickerSortDirection) {
-            $parameter = \array_merge(
-                $parameter,
-                [
-                    'orderProperty' => $this->pickerOrderProperty,
-                    'sortDirection' => $this->pickerSortDirection
-                ]
-            );
-        }
 
         return System::getContainer()->get('contao.picker.builder')->getUrl('cca_tree', $parameter);
     }
@@ -1017,11 +1011,14 @@ class TreePicker extends Widget
      */
     public function getTreeCollectionRecursive($rootId, $level = 0, $providerName = null)
     {
-        $environment   = $this->getEnvironment();
-        $dataDriver    = $environment->getDataProvider($providerName);
-        $tableTreeData = $dataDriver->getEmptyCollection();
-        $rootConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
+        $environment    = $this->getEnvironment();
+        $dataDriver     = $environment->getDataProvider($providerName);
+        $tableTreeData  = $dataDriver->getEmptyCollection();
+        $configRegistry = ($this->flatMode ?? ($environment instanceof EnvironmentFlatConfigRegistryInterface))
+                ? $environment->getFlatConfigRegistry()
+                : $environment->getBaseConfigRegistry();
+        $rootConfig     = $configRegistry->getBaseConfig();
+        $relationships  = $environment->getDataDefinition()->getModelRelationshipDefinition();
 
         if (!$rootId) {
             $this->prepareFilterForRootCondition();
@@ -1056,7 +1053,11 @@ class TreePicker extends Widget
         $environment   = $this->getEnvironment();
         $rootCondition = $environment->getDataDefinition()->getModelRelationshipDefinition()->getRootCondition();
 
-        $baseConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $configRegistry = ($this->flatMode ?? ($environment instanceof EnvironmentFlatConfigRegistryInterface))
+                ? $environment->getFlatConfigRegistry()
+                : $environment->getBaseConfigRegistry();
+        $baseConfig     = $configRegistry->getBaseConfig();
+
         if (!$rootCondition) {
             return $baseConfig;
         }
@@ -1097,6 +1098,8 @@ class TreePicker extends Widget
             $sortDirection = $inputProvider->getParameter('sortDirection');
 
             $baseConfig->setSorting([$orderProperty => $sortDirection]);
+        } elseif ($this->orderProperty && $this->sortDirection) {
+            $baseConfig->setSorting([$this->orderProperty => $this->sortDirection]);
         }
 
         // Fetch all root elements.

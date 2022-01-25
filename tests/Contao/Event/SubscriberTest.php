@@ -24,7 +24,7 @@ use Contao\Date;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
-use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinition;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber;
@@ -551,9 +551,7 @@ class SubscriberTest extends TestCase
         $environment->setDataDefinition($dataDefinition);
 
         $baseConfigRegistry = $this
-            ->getMockBuilder(BaseConfigRegistry::class)
-            ->setMethods(['getBaseConfig'])
-            ->getMock();
+            ->getMockForAbstractClass(BaseConfigRegistryInterface::class);
         $environment->setBaseConfigRegistry($baseConfigRegistry);
 
         $dataConfig = DefaultConfig::init();

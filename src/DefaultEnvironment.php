@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral;
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
+use ContaoCommunityAlliance\DcGeneral\Config\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
@@ -33,7 +34,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Default implementation of an environment.
  */
-class DefaultEnvironment implements EnvironmentInterface
+class DefaultEnvironment implements EnvironmentInterface, EnvironmentFlatConfigRegistryInterface
 {
     /**
      * The controller.
@@ -90,6 +91,13 @@ class DefaultEnvironment implements EnvironmentInterface
      * @var BaseConfigRegistryInterface
      */
     protected $baseConfigRegistry;
+
+    /**
+     * The attached flat config registry.
+     *
+     * @var BaseConfigRegistryInterface
+     */
+    protected $flatConfigRegistry;
 
     /**
      * The registered data providers.
@@ -261,6 +269,25 @@ class DefaultEnvironment implements EnvironmentInterface
     public function getBaseConfigRegistry()
     {
         return $this->baseConfigRegistry;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setFlatConfigRegistry(
+        BaseConfigRegistryInterface $flatConfigRegistry
+    ): EnvironmentFlatConfigRegistryInterface {
+        $this->flatConfigRegistry = $flatConfigRegistry;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFlatConfigRegistry(): ?BaseConfigRegistryInterface
+    {
+        return $this->flatConfigRegistry;
     }
 
     /**

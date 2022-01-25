@@ -17,10 +17,10 @@
  * @filesource
  */
 
-namespace ContaoCommunityAlliance\DcGeneral\Test;
+namespace ContaoCommunityAlliance\DcGeneral\Test\Config;
 
-use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
-use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
+use ContaoCommunityAlliance\DcGeneral\Config\BaseConfigRegistry;
+use ContaoCommunityAlliance\DcGeneral\Config\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultConfig;
@@ -42,9 +42,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test the base configuration registry.
  *
- * @covers \ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry
- *
- * @deprecated Is deprecated since DcGeneral 2.2.0 and where removed in DcGeneral 3.0.
+ * @covers \ContaoCommunityAlliance\DcGeneral\Config\BaseConfigRegistry
  */
 class BaseConfigRegistryTest extends TestCase
 {

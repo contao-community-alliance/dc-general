@@ -23,8 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
 use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
+use ContaoCommunityAlliance\DcGeneral\Config\FlatConfigRegistry;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
 use ContaoCommunityAlliance\DcGeneral\Controller\DefaultController;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentFlatConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 
@@ -94,6 +96,17 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
             $baseConfigRegistry = new BaseConfigRegistry();
             $baseConfigRegistry->setEnvironment($environment);
             $environment->setBaseConfigRegistry($baseConfigRegistry);
+            // @codingStandardsIgnoreStart
+            @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
+            // @codingStandardsIgnoreEnd
+        }
+
+        if (($environment instanceof EnvironmentFlatConfigRegistryInterface)
+            && (!$environment->getFlatConfigRegistry())
+        ) {
+            $flatConfigRegistry = new FlatConfigRegistry();
+            $flatConfigRegistry->setEnvironment($environment);
+            $environment->setFlatConfigRegistry($flatConfigRegistry);
             // @codingStandardsIgnoreStart
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
             // @codingStandardsIgnoreEnd
