@@ -231,7 +231,7 @@ class FileTree extends AbstractWidget
         // Load the fonts for the drag hint (see #4838)
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
-        $this->rootDir = \dirname(System::getContainer()->getParameter('kernel.root_dir'));
+        $this->rootDir = \dirname(System::getContainer()->getParameter('kernel.project_dir'));
 
         if (!$this->dataContainer || !$this->orderField) {
             return;
