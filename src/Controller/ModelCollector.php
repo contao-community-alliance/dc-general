@@ -35,7 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use function sprintf;
 
 /**
  * This class provides methods for retrieval of models.
@@ -253,8 +252,6 @@ class ModelCollector
      */
     public function searchParentOf(ModelInterface $model)
     {
-        $this->guardModelOriginatesFromProvider($model);
-
         switch ($this->definitionMode) {
             case BasicDefinitionInterface::MODE_HIERARCHICAL:
                 return $this->searchParentOfInHierarchical($model);
