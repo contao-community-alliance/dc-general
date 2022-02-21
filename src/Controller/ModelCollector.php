@@ -264,47 +264,6 @@ class ModelCollector
     }
 
     /**
-     * Search the parent model for the given model being in a hierarchical structure.
-     *
-     * This method will determine the parent defined by the parent relationship and not the parent node of the
-     * hierarchical structure.
-     *
-     * @param ModelInterface $model The hierarchical model for search the parent model.
-     *
-     * @return ModelInterface|null
-     *
-     * @throws DcGeneralInvalidArgumentException It throws an exception if the configuration not passed.
-     * @throws DcGeneralInvalidArgumentException When the model does not originate from the child provider.
-     */
-    public function searchParentOfRootModel(ModelInterface $model): ?ModelInterface
-    {
-        $this->guardModelOriginatesFromProvider($model);
-        $this->guardRootProviderDefined();
-        $this->guardParentProviderDefined();
-
-        if ($this->rootProviderName !== $model->getProviderName()) {
-            throw new DcGeneralInvalidArgumentException(
-                'Model originates from ' . $model->getProviderName() .
-                ' but is expected to be from ' . $this->rootProviderName .
-                ' can not determine parent.'
-            );
-        }
-
-        $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->rootProviderName);
-        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
-            return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
-        }
-
-        foreach ($this->parentProvider->fetchAll($this->parentProvider->getEmptyConfig()) as $candidate) {
-            if ($condition->matches($candidate, $model)) {
-                return $candidate;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Retrieve all siblings of a given model.
      *
      * @param ModelInterface   $model           The model for which the siblings shall be retrieved from.
