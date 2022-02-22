@@ -24,12 +24,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Abstract base class for environment aware events.
  */
-abstract class AbstractEnvironmentAwareEvent extends EventDispatcher implements EnvironmentAwareInterface
+abstract class AbstractEnvironmentAwareEvent extends Event implements EnvironmentAwareInterface
 {
     /**
      * The environment attached to this event.
