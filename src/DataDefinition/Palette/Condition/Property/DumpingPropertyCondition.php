@@ -54,7 +54,7 @@ class DumpingPropertyCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      *
-     * @SuppressWarnings (PHPMD.DevelopmentCodeFragment)
+     * @SuppressWarnings(PHPMD.DevelopmentCodeFragment)
      */
     public function match(
         ModelInterface $model = null,
