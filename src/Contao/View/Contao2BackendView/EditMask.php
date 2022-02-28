@@ -298,8 +298,8 @@ class EditMask
         }
 
         $environment->getEventDispatcher()->dispatch(
+            new PrePersistModelEvent($environment, $this->model, $this->originalModel),
             PrePersistModelEvent::NAME,
-            new PrePersistModelEvent($environment, $this->model, $this->originalModel)
         );
     }
 
