@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,11 +16,13 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
+// @codingStandardsIgnoreStart
 $GLOBALS['TL_LANG']['MSC']['language']                    = 'Language';
 $GLOBALS['TL_LANG']['MSC']['showSelected']                = 'Switch language';
 $GLOBALS['TL_LANG']['MSC']['treePicker']                  = 'Table: %s';
@@ -37,3 +39,4 @@ $GLOBALS['TL_LANG']['MSC']['edit_all_select_properties']  = 'Select properties';
 $GLOBALS['TL_LANG']['MSC']['no_properties_available']     = 'Please check your selected properties!';
 $GLOBALS['TL_LANG']['MSC']['select_models']               = 'Select models';
 $GLOBALS['TL_LANG']['MSC']['dc_general_disabled']         = 'Disabled: %s';
+// @codingStandardsIgnoreEnd

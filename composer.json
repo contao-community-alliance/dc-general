@@ -81,5 +81,11 @@
     },
     "scripts": {
         "php-cs-fixer": "php-cs-fixer fix --rules=@PSR2"
+    },
+    "config": {
+        "allow-plugins": {
+            "contao-components/installer": false,
+            "contao/manager-plugin": true
+        }
     }
 }
