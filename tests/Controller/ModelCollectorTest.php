@@ -42,8 +42,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use Generator;
-use function func_get_args;
-use function var_dump;
 
 /**
  * Test case for the relationship manager.
@@ -307,7 +305,7 @@ class ModelCollectorTest extends TestCase
 
         $collector = new ModelCollector($environment);
 
-        $this->assertSame($expected, $collector->searchParentOfIn($model, $candidates));
+        self::assertSame($expected, $collector->searchParentOfIn($model, $candidates));
     }
 
     /**
@@ -432,7 +430,7 @@ class ModelCollectorTest extends TestCase
         );
 
         $collector = new ModelCollector($environment);
-        $this->assertSame($expected, $collector->searchParentOfIn($model, $grandParents));
+        self::assertSame($expected, $collector->searchParentOfIn($model, $grandParents));
     }
 
     /**
@@ -535,7 +533,7 @@ class ModelCollectorTest extends TestCase
         );
 
         $collector = new ModelCollector($environment);
-        $this->assertSame($expected, $collector->searchParentOf($model));
+        self::assertSame($expected, $collector->searchParentOf($model));
     }
 
     /**
