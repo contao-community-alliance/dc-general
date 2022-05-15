@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,7 +24,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Alex Wuttke <alex@das-l.de>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -339,6 +339,8 @@ class DefaultDataProvider implements DataProviderInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function fetch(ConfigInterface $config)
     {
@@ -348,7 +350,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         if (null !== $config->getId()) {
             $queryBuilder->where($this->source . '.id=:id');
-            $queryBuilder->setParameter(':id', $config->getId());
+            $queryBuilder->setParameter('id', $config->getId());
         }
 
         if (null === $config->getId()) {
@@ -359,12 +361,12 @@ class DefaultDataProvider implements DataProviderInterface
             $queryBuilder->setFirstResult(0);
         }
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
         if (0 === $statement->rowCount()) {
             return null;
         }
 
-        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        $result = $statement->fetchAssociative();
 
         return $this->createModelFromDatabaseResult($result);
     }
