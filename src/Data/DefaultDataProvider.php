@@ -373,6 +373,8 @@ class DefaultDataProvider implements DataProviderInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function fetchAll(ConfigInterface $config)
     {
@@ -389,16 +391,16 @@ class DefaultDataProvider implements DataProviderInterface
 
         $collection = $this->getEmptyCollection();
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
         if (0 === $statement->rowCount()) {
             return $collection;
         }
 
         if ($config->getIdOnly()) {
-            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+            return $statement->fetchFirstColumn();
         }
 
-        $result = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $statement->fetchAllAssociative();
 
         foreach ($result as $item) {
             $collection->push($this->createModelFromDatabaseResult($item));
@@ -411,6 +413,7 @@ class DefaultDataProvider implements DataProviderInterface
      * {@inheritDoc}
      *
      * @throws DcGeneralRuntimeException If improper values have been passed (i.e. not exactly one field requested).
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getFilterOptions(ConfigInterface $config)
     {
@@ -426,9 +429,9 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->from($this->source);
         DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
 
-        $values = $statement->fetchAll(\PDO::FETCH_OBJ);
+        $values = $statement->fetchAssociative();
 
         $filterProperties = $config->getFields();
         if (1 !== \count($filterProperties)) {
@@ -437,8 +440,8 @@ class DefaultDataProvider implements DataProviderInterface
         $filterProperty = $filterProperties[0];
 
         $collection = new DefaultFilterOptionCollection();
-        foreach ($values as $value) {
-            $collection->add($value->$filterProperty, $value->$filterProperty);
+        foreach ((array) $values as $value) {
+            $collection->add($value[$filterProperty], $value[$filterProperty]);
         }
 
         return $collection;
@@ -446,6 +449,8 @@ class DefaultDataProvider implements DataProviderInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getCount(ConfigInterface $config)
     {
@@ -455,13 +460,14 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->from($this->source);
         DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
 
-        return $statement->fetch(\PDO::FETCH_COLUMN);
+        return $statement->fetchFirstColumn();
     }
 
     /**
      * {@inheritDoc}
+     * @throws \Doctrine\DBAL\Exception
      */
     public function isUniqueValue($field, $new, $primaryId = null)
     {
@@ -469,16 +475,16 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->select('*');
         $queryBuilder->from($this->source);
         $queryBuilder->where($queryBuilder->expr()->eq($this->source . '.' . $field, ':' . $field));
-        $queryBuilder->setParameter(':' . $field, $new);
+        $queryBuilder->setParameter($field, $new);
 
-        $statement = $queryBuilder->execute();
-        $unique    = $statement->fetch(\PDO::FETCH_OBJ);
+        $statement = $queryBuilder->executeQuery();
+        $unique    = $statement->fetchAssociative();
 
         if (0 === $statement->rowCount()) {
             return true;
         }
 
-        if (($primaryId === $unique->id) && (1 === $statement->rowCount())) {
+        if (($primaryId === $unique['id']) && (1 === $statement->rowCount())) {
             return true;
         }
 
@@ -704,6 +710,8 @@ class DefaultDataProvider implements DataProviderInterface
 
     /**
      * {@inheritDoc}
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getVersion($mixID, $mixVersion)
     {
@@ -711,20 +719,22 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->select('*');
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
-        $queryBuilder->setParameter(':pid', $mixID);
+        $queryBuilder->setParameter('pid', $mixID);
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.version', ':version'));
-        $queryBuilder->setParameter(':version', $mixVersion);
+        $queryBuilder->setParameter('version', $mixVersion);
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
-        $queryBuilder->setParameter(':fromTable', $this->source);
+        $queryBuilder->setParameter('fromTable', $this->source);
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
         if (0 === $statement->rowCount()) {
             return null;
         }
 
-        $version = $statement->fetch(\PDO::FETCH_OBJ);
+        if (null === $version = $statement->fetchAllAssociative()) {
+            return null;
+        }
 
-        $data = StringUtil::deserialize($version->data);
+        $data = StringUtil::deserialize($version['data']);
 
         if (!\is_array($data) || (0 === \count($data))) {
             return null;
@@ -751,6 +761,8 @@ class DefaultDataProvider implements DataProviderInterface
      *                            returned.
      *
      * @return CollectionInterface
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getVersions($mixID, $onlyActive = false)
     {
@@ -758,27 +770,27 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->select(['tstamp', 'version', 'username', 'active']);
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
-        $queryBuilder->setParameter(':fromTable', $this->source);
+        $queryBuilder->setParameter('fromTable', $this->source);
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
-        $queryBuilder->setParameter(':pid', $mixID);
+        $queryBuilder->setParameter('pid', $mixID);
 
         if ($onlyActive) {
             $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.active', ':active'));
-            $queryBuilder->setParameter(':active', '1');
+            $queryBuilder->setParameter('active', '1');
         } else {
             $queryBuilder->orderBy('tl_version.version', 'DESC');
         }
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
         if (0 === $statement->rowCount()) {
             return null;
         }
 
-        $versions = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        $versions = $statement->fetchAllAssociative();
 
         $collection = $this->getEmptyCollection();
 
-        foreach ($versions as $versionValue) {
+        foreach ((array) $versions as $versionValue) {
             $model = $this->getEmptyModel();
             $model->setId($mixID);
 
@@ -803,6 +815,8 @@ class DefaultDataProvider implements DataProviderInterface
      * @param string         $username The username to attach to the version as creator.
      *
      * @return void
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function saveVersion(ModelInterface $model, $username)
     {
@@ -810,12 +824,12 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->select('COUNT(*) AS count');
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
-        $queryBuilder->setParameter(':pid', $model->getId());
+        $queryBuilder->setParameter('pid', $model->getId());
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
-        $queryBuilder->setParameter(':fromTable', $this->source);
+        $queryBuilder->setParameter('fromTable', $this->source);
 
-        $statement = $queryBuilder->execute();
-        $count     = $statement->fetch(\PDO::FETCH_COLUMN);
+        $statement = $queryBuilder->executeQuery();
+        $count     = $statement->fetchFirstColumn();
 
         $mixNewVersion = ((int) $count + 1);
         $mixData       = $model->getPropertiesAsArray();
@@ -862,6 +876,8 @@ class DefaultDataProvider implements DataProviderInterface
      * @param mixed $mixID The ID of the row.
      *
      * @return mixed The current version number of the requested row.
+     *
+     * @throws \Doctrine\DBAL\Exception
      */
     public function getActiveVersion($mixID)
     {
@@ -869,18 +885,18 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->select('version');
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.pid', ':pid'));
-        $queryBuilder->setParameter(':pid', $mixID);
+        $queryBuilder->setParameter('pid', $mixID);
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
-        $queryBuilder->setParameter(':fromTable', $this->source);
+        $queryBuilder->setParameter('fromTable', $this->source);
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.active', ':active'));
-        $queryBuilder->setParameter(':active', 1);
+        $queryBuilder->setParameter('active', 1);
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
         if (0 === $statement->rowCount()) {
             return null;
         }
 
-        return $statement->fetch(\PDO::FETCH_OBJ)->version;
+        return $statement->fetchAllAssociative()['version'];
     }
 
     /**
@@ -977,7 +993,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @return void
      *
-     * @deprecated This method is deprecated sinde 2.1 and where removed in 3.0. The old database never used in future.
+     * @deprecated This method is deprecated since 2.1 and where removed in 3.0. The old database never used in future.
      */
     private function fallbackFromDatabaseToConnection(array &$config)
     {
