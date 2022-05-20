@@ -26,6 +26,8 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
 /**
  * This class tests the ParentChildCondition.
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition
  */
 class ParentChildConditionTest extends TestCase
 {
@@ -57,7 +59,7 @@ class ParentChildConditionTest extends TestCase
             ->setSourceName('test-provider')
             ->setDestinationName('test-provider');
 
-        $this->assertFalse($condition->matches($parent, $child));
+        self::assertFalse($condition->matches($parent, $child));
     }
 
     /**
@@ -88,7 +90,7 @@ class ParentChildConditionTest extends TestCase
             ->setSourceName('test-provider')
             ->setDestinationName('test-provider');
 
-        $this->assertFalse($condition->matches($parent, $child));
+        self::assertFalse($condition->matches($parent, $child));
     }
 
     /**
@@ -118,7 +120,7 @@ class ParentChildConditionTest extends TestCase
             )
             ->setDestinationName('test-provider');
 
-        $this->assertFalse($condition->matches($parent, $child));
+        self::assertFalse($condition->matches($parent, $child));
     }
 
     /**
@@ -148,7 +150,7 @@ class ParentChildConditionTest extends TestCase
             )
             ->setSourceName('test2-provider');
 
-        $this->assertFalse($condition->matches($parent, $child));
+        self::assertFalse($condition->matches($parent, $child));
     }
 
     /**
@@ -174,7 +176,7 @@ class ParentChildConditionTest extends TestCase
             ]
         );
 
-        $this->assertTrue($condition->matches($parent, $child));
+        self::assertTrue($condition->matches($parent, $child));
     }
 
     /**
@@ -201,6 +203,6 @@ class ParentChildConditionTest extends TestCase
             ]
         );
 
-        $this->assertTrue($condition->matches($parent, $child));
+        self::assertTrue($condition->matches($parent, $child));
     }
 }

@@ -48,8 +48,8 @@ class UnsavedItemTest extends TestCase
         try {
             new UnsavedItem($action, null, 'non');
         } catch (\Exception $exception) {
-            $this->assertInstanceOf(\InvalidArgumentException::class, $exception);
-            $this->assertSame('UnsavedItem is designed for create actions only.', $exception->getMessage());
+            self::assertInstanceOf(\InvalidArgumentException::class, $exception);
+            self::assertSame('UnsavedItem is designed for create actions only.', $exception->getMessage());
         }
     }
 
@@ -69,10 +69,10 @@ class UnsavedItemTest extends TestCase
     {
         $unsavedItem = new UnsavedItem(ItemInterface::CREATE, $parentId, $providerName);
 
-        $this->assertNull($unsavedItem->getModelId());
-        $this->assertIsString($unsavedItem->getDataProviderName());
-        $this->assertSame($exceptedProviderName, $unsavedItem->getDataProviderName());
-        $this->assertIsString($unsavedItem->getClipboardId());
-        $this->assertSame($exceptedClipboardId, $unsavedItem->getClipboardId());
+        self::assertNull($unsavedItem->getModelId());
+        self::assertIsString($unsavedItem->getDataProviderName());
+        self::assertSame($exceptedProviderName, $unsavedItem->getDataProviderName());
+        self::assertIsString($unsavedItem->getClipboardId());
+        self::assertSame($exceptedClipboardId, $unsavedItem->getClipboardId());
     }
 }

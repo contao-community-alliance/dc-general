@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -169,7 +169,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $event       = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($propInfo->getName());
         $event->setOptions($options);
-        $environment->getEventDispatcher()->dispatch(GetPropertyOptionsEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, GetPropertyOptionsEvent::NAME);
 
         if ($event->getOptions() !== $options) {
             return $event->getOptions();
@@ -247,10 +247,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
             )
         );
 
-        $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $importTableEvent);
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $shrinkEvent);
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $expandEvent);
+        $dispatcher->dispatch($urlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+        $dispatcher->dispatch($importTableEvent, ContaoEvents::IMAGE_GET_HTML);
+        $dispatcher->dispatch($shrinkEvent, ContaoEvents::IMAGE_GET_HTML);
+        $dispatcher->dispatch($expandEvent, ContaoEvents::IMAGE_GET_HTML);
 
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
@@ -282,8 +282,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
             'style="vertical-align:text-bottom;"'
         );
 
-        $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $urlEvent);
-        $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, $importListEvent);
+        $dispatcher->dispatch($urlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+        $dispatcher->dispatch($importListEvent, ContaoEvents::IMAGE_GET_HTML);
 
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
@@ -318,7 +318,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 )
             );
 
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
+            $environment->getEventDispatcher()->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
 
             $xLabel .= ' ' . $event->getHtml();
         }
@@ -358,7 +358,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'style="vertical-align:text-bottom;"'
             );
 
-            $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $event);
+            $environment->getEventDispatcher()->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
 
             $helpWizard .= \sprintf(
                 ' <a href="contao/help?table=%s&amp;field=%s" ' .
@@ -414,7 +414,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $widget->xlabel .= $this->getXLabel($property);
 
         $event = new ManipulateWidgetEvent($environment, $model, $property, $widget);
-        $environment->getEventDispatcher()->dispatch(ManipulateWidgetEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, ManipulateWidgetEvent::NAME);
 
         return $widget;
     }
@@ -436,7 +436,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             ->setProperty($property->getName())
             ->setValue($model->getProperty($property->getName()));
 
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
         $value = $event->getValue();
 
         $propExtra = $property->getExtra();
@@ -483,7 +483,6 @@ class WidgetBuilder implements EnvironmentAwareInterface
             ],
             'options'   => $this->getOptionsForWidget($property, $model),
             'eval'      => $propExtra,
-            // 'foreignKey' => null
         ];
 
         if (isset($propExtra['reference'])) {
@@ -499,7 +498,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             new DcCompat($environment, $model, $property->getName())
         );
 
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA, $event);
+        $environment->getEventDispatcher()->dispatch($event, ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA);
         $prepareAttributes = $event->getResult();
 
         if (('checkbox' === $widgetConfig['inputType'])

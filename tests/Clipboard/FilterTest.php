@@ -30,7 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 /**
  * Test for the Filter.
  *
- * @package ContaoCommunityAlliance\DcGeneral\Test\Clipboard
+ * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\Filter
  */
 class FilterTest extends TestCase
 {
@@ -62,10 +62,10 @@ class FilterTest extends TestCase
         $filter->andActionIs($action1);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(true, $filter->accepts($item));
+        self::assertEquals(true, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(false, $filter->accepts($item2));
+        self::assertEquals(false, $filter->accepts($item2));
     }
 
     /**
@@ -80,10 +80,10 @@ class FilterTest extends TestCase
         $filter->andActionIsNot($action1);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(false, $filter->accepts($item));
+        self::assertEquals(false, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(true, $filter->accepts($item2));
+        self::assertEquals(true, $filter->accepts($item2));
     }
 
     /**
@@ -98,13 +98,13 @@ class FilterTest extends TestCase
         $filter->orActionIs($action1)->orActionIs($action2);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(true, $filter->accepts($item));
+        self::assertEquals(true, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(true, $filter->accepts($item2));
+        self::assertEquals(true, $filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        $this->assertEquals(false, $filter->accepts($item3));
+        self::assertEquals(false, $filter->accepts($item3));
     }
 
     /**
@@ -119,13 +119,13 @@ class FilterTest extends TestCase
         $filter->orActionIsNot($action1);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(false, $filter->accepts($item));
+        self::assertEquals(false, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(true, $filter->accepts($item2));
+        self::assertEquals(true, $filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        $this->assertEquals(true, $filter->accepts($item3));
+        self::assertEquals(true, $filter->accepts($item3));
     }
 
     /**
@@ -140,13 +140,13 @@ class FilterTest extends TestCase
         $filter->andActionIsIn([$action1]);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(true, $filter->accepts($item));
+        self::assertEquals(true, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(false, $filter->accepts($item2));
+        self::assertEquals(false, $filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        $this->assertEquals(false, $filter->accepts($item3));
+        self::assertEquals(false, $filter->accepts($item3));
     }
 
     /**
@@ -161,13 +161,13 @@ class FilterTest extends TestCase
         $filter->andActionIsNotIn([$action1, $action2]);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(false, $filter->accepts($item));
+        self::assertEquals(false, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(false, $filter->accepts($item2));
+        self::assertEquals(false, $filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        $this->assertEquals(true, $filter->accepts($item3));
+        self::assertEquals(true, $filter->accepts($item3));
     }
 
     /**
@@ -182,13 +182,13 @@ class FilterTest extends TestCase
         $filter->orActionIsIn([$action1]);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(true, $filter->accepts($item));
+        self::assertEquals(true, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(false, $filter->accepts($item2));
+        self::assertEquals(false, $filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        $this->assertEquals(false, $filter->accepts($item3));
+        self::assertEquals(false, $filter->accepts($item3));
     }
 
     /**
@@ -205,13 +205,13 @@ class FilterTest extends TestCase
             ->orActionIsNotIn([$action1, $action2]);
 
         $item = new MockedAbstractItem($action1);
-        $this->assertEquals(false, $filter->accepts($item));
+        self::assertEquals(false, $filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        $this->assertEquals(true, $filter->accepts($item2));
+        self::assertEquals(true, $filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        $this->assertEquals(true, $filter->accepts($item3));
+        self::assertEquals(true, $filter->accepts($item3));
     }
 
     /**
@@ -228,8 +228,8 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andHasNoParent();
 
-        $this->assertEquals(false, $filter->accepts($item));
-        $this->assertEquals(true, $filter->accepts($item2));
+        self::assertEquals(false, $filter->accepts($item));
+        self::assertEquals(true, $filter->accepts($item2));
     }
 
     /**
@@ -246,8 +246,8 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(false));
         $filter->orHasNoParent();
 
-        $this->assertEquals(false, $filter->accepts($item));
-        $this->assertEquals(true, $filter->accepts($item2));
+        self::assertEquals(false, $filter->accepts($item));
+        self::assertEquals(true, $filter->accepts($item2));
     }
 
     /**
@@ -281,7 +281,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(false));
         $filter->orParentIs($parentId2)->orParentIs($parentId3);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -297,7 +297,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andParentIs($parentId2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -330,7 +330,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andModelIs($modelId2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -363,7 +363,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andModelIsNot($modelId2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -397,7 +397,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(false));
         $filter->orModelIs($modelId2)->orModelIs($modelId3);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -431,7 +431,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(false));
         $filter->orModelIsNot($modelId2)->orModelIsNot($modelId3);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -464,7 +464,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andModelIsFromProvider($provider2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -480,7 +480,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andParentIsFromProvider($provider2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -513,7 +513,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andModelIsNotFromProvider($provider2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
 
@@ -530,7 +530,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andParentIsNotFromProvider($provider2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -546,7 +546,7 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(false));
         $filter->orParentIsNotFromProvider($provider2);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -561,7 +561,7 @@ class FilterTest extends TestCase
 
         $filter->andSub(new MockedFilter(true));
         $filter->andParentIsIn([$parentId2, $parentId3]);
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -576,7 +576,7 @@ class FilterTest extends TestCase
 
         $filter->andSub(new MockedFilter(true));
         $filter->andParentIsNotIn([$parentId2, $parentId3]);
-        $this->assertEquals(!$expected, $filter->accepts($item));
+        self::assertEquals(!$expected, $filter->accepts($item));
     }
 
     /**
@@ -591,7 +591,7 @@ class FilterTest extends TestCase
 
         $filter->andSub(new MockedFilter(false));
         $filter->orParentIsIn([$parentId2, $parentId3]);
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -622,7 +622,7 @@ class FilterTest extends TestCase
         $filter->andSub($firstSub);
         $filter->andSub($subFilter);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 
     /**
@@ -640,6 +640,6 @@ class FilterTest extends TestCase
         $filter->orSub($firstSub);
         $filter->orSub($subFilter);
 
-        $this->assertEquals($expected, $filter->accepts($item));
+        self::assertEquals($expected, $filter->accepts($item));
     }
 }

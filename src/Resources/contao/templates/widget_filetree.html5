@@ -12,10 +12,13 @@
         </li>
         <?php endforeach; ?>
     </ul>
-<p>
-    <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('changeSelection', 'MSC') ?></a>
-</p>
+    <?php if (!$this->readonly): ?>
+        <p>
+            <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('changeSelection', 'MSC') ?></a>
+        </p>
+    <?php endif; ?>
 </div>
+<?php if (!$this->readonly): ?>
 <script>
     $("ft_<?= $this->name ?>").addEvent("click", function(e) {
         e.preventDefault();
@@ -37,6 +40,7 @@
         });
     });
 </script>
+<?php endif; ?>
 <?php if ($this->hasOrder): ?>
     <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
 <?php endif; ?>

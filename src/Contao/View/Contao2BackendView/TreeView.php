@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -262,10 +262,7 @@ class TreeView extends BaseView
     protected function parseModel($model, $toggleID)
     {
         $event = new FormatModelLabelEvent($this->environment, $model);
-        $this->environment->getEventDispatcher()->dispatch(
-            DcGeneralEvents::FORMAT_MODEL_LABEL,
-            $event
-        );
+        $this->environment->getEventDispatcher()->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
         $model->setMeta($model::LABEL_VALUE, $event->getLabel());
 
@@ -280,7 +277,7 @@ class TreeView extends BaseView
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $toggleData = [
             'url'          => \html_entity_decode($toggleUrlEvent->getUrl()),
@@ -377,12 +374,12 @@ class TreeView extends BaseView
         if ($event->isPasteDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteinto_.svg',
                     $label,
                     'class="blink"'
-                )
+                ),
+                ContaoEvents::IMAGE_GET_HTML
             );
 
             return $imageEvent->getHtml();
@@ -390,12 +387,12 @@ class TreeView extends BaseView
 
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $environment->getEventDispatcher()->dispatch(
-            ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteinto.svg',
                 $label,
                 'class="blink"'
-            )
+            ),
+            ContaoEvents::IMAGE_GET_HTML
         );
 
         return \sprintf(
@@ -457,13 +454,13 @@ class TreeView extends BaseView
         if ($environment->getClipboard()->isNotEmpty($filter)) {
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
                     \sprintf(
                         'act=paste&amp;into=%s::0',
                         $definition->getName()
                     )
-                )
+                ),
+                ContaoEvents::BACKEND_ADD_TO_URL
             );
 
             $buttonEvent = new GetPasteRootButtonEvent($this->getEnvironment());
@@ -471,7 +468,7 @@ class TreeView extends BaseView
                 ->setHref($urlEvent->getUrl())
                 ->setPasteDisabled(false);
 
-            $dispatcher->dispatch($buttonEvent::NAME, $buttonEvent);
+            $dispatcher->dispatch($buttonEvent, $buttonEvent::NAME);
 
             $rootPasteInto = static::renderPasteRootButton($buttonEvent);
         } else {
@@ -479,7 +476,7 @@ class TreeView extends BaseView
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $dispatcher->dispatch(ContaoEvents::IMAGE_GET_HTML, new GenerateHtmlEvent($labelIcon));
+        $imageEvent = $dispatcher->dispatch(new GenerateHtmlEvent($labelIcon), ContaoEvents::IMAGE_GET_HTML);
 
         // Build template.
         $template = $this->getTemplate('dcbe_general_treeview');
@@ -521,7 +518,7 @@ class TreeView extends BaseView
         }
 
         $actionUrlEvent = new AddToUrlEvent('select=properties');
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $actionUrlEvent);
+        $environment->getEventDispatcher()->dispatch($actionUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $template->set('action', $actionUrlEvent->getUrl());
     }
@@ -558,7 +555,7 @@ class TreeView extends BaseView
         $content    = [];
 
         $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, []);
-        $environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $viewEvent);
+        $environment->getEventDispatcher()->dispatch($viewEvent, DcGeneralEvents::VIEW);
 
         // A list with ignored panels.
         $ignoredPanels = [

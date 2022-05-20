@@ -49,13 +49,13 @@ class CheckPermissionTest extends TestCase
     {
         $events = CheckPermission::getSubscribedEvents();
 
-        $this->assertCount(1, $events);
-        $this->assertEquals([BuildDataDefinitionEvent::NAME], array_keys($events));
-        $this->assertCount(4, $events[BuildDataDefinitionEvent::NAME]);
-        $this->assertEquals('checkPermissionForProperties', $events[BuildDataDefinitionEvent::NAME][0][0]);
-        $this->assertEquals('checkPermissionIsCreatable', $events[BuildDataDefinitionEvent::NAME][1][0]);
-        $this->assertEquals('checkPermissionIsEditable', $events[BuildDataDefinitionEvent::NAME][2][0]);
-        $this->assertEquals('checkPermissionIsDeletable', $events[BuildDataDefinitionEvent::NAME][3][0]);
+        self::assertCount(1, $events);
+        self::assertEquals([BuildDataDefinitionEvent::NAME], array_keys($events));
+        self::assertCount(4, $events[BuildDataDefinitionEvent::NAME]);
+        self::assertEquals('checkPermissionForProperties', $events[BuildDataDefinitionEvent::NAME][0][0]);
+        self::assertEquals('checkPermissionIsCreatable', $events[BuildDataDefinitionEvent::NAME][1][0]);
+        self::assertEquals('checkPermissionIsEditable', $events[BuildDataDefinitionEvent::NAME][2][0]);
+        self::assertEquals('checkPermissionIsDeletable', $events[BuildDataDefinitionEvent::NAME][3][0]);
     }
 
     /**
@@ -87,14 +87,14 @@ class CheckPermissionTest extends TestCase
 
         $palettesDefinition = $this->getMockBuilder(PalettesDefinitionInterface::class)->getMockForAbstractClass();
 
-        $container->expects($this->once())->method('getPropertiesDefinition')->willReturn($properties);
-        $container->expects($this->once())->method('getPalettesDefinition')->willReturn($palettesDefinition);
-        $palettesDefinition->expects($this->once())->method('getPalettes')->willReturn($palettes);
-        $palette1->expects($this->once())->method('getProperties')->willReturn(
+        $container->expects(self::once())->method('getPropertiesDefinition')->willReturn($properties);
+        $container->expects(self::once())->method('getPalettesDefinition')->willReturn($palettesDefinition);
+        $palettesDefinition->expects(self::once())->method('getPalettes')->willReturn($palettes);
+        $palette1->expects(self::once())->method('getProperties')->willReturn(
             [$property11, $property12, $propertyNotExist]
         );
-        $palette2->expects($this->once())->method('getProperties')->willReturn([$property21, $property22]);
-        $properties->expects($this->exactly(4))->method('getProperty')->willReturnCallback(
+        $palette2->expects(self::once())->method('getProperties')->willReturn([$property21, $property22]);
+        $properties->expects(self::exactly(4))->method('getProperty')->willReturnCallback(
             function ($name) {
                 switch ($name) {
                     case 'property11':
@@ -111,7 +111,7 @@ class CheckPermissionTest extends TestCase
                 return null;
             }
         );
-        $properties->expects($this->exactly(5))->method('hasProperty')->willReturnCallback(
+        $properties->expects(self::exactly(5))->method('hasProperty')->willReturnCallback(
             function ($name) {
                 return \in_array($name, ['property11', 'property12', 'property21', 'property22']);
             }
@@ -126,37 +126,37 @@ class CheckPermissionTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $subscriber = new CheckPermission($determinator);
-        $determinator->expects($this->once())->method('currentScopeIsBackend')->willReturn(true);
+        $determinator->expects(self::once())->method('currentScopeIsBackend')->willReturn(true);
         $subscriber->checkPermissionForProperties($event);
 
-        $this->assertInstanceOf(PropertyConditionChain::class, $property11->getVisibleCondition());
-        $this->assertCount(1, $property11->getVisibleCondition()->getConditions());
-        $this->assertInstanceOf(BooleanCondition::class, $property11->getVisibleCondition()->getConditions()[0]);
-        $this->assertFalse($property11->getVisibleCondition()->getConditions()[0]->getValue());
+        self::assertInstanceOf(PropertyConditionChain::class, $property11->getVisibleCondition());
+        self::assertCount(1, $property11->getVisibleCondition()->getConditions());
+        self::assertInstanceOf(BooleanCondition::class, $property11->getVisibleCondition()->getConditions()[0]);
+        self::assertFalse($property11->getVisibleCondition()->getConditions()[0]->getValue());
 
-        $this->assertInstanceOf(PropertyConditionChain::class, $property12->getVisibleCondition());
-        $this->assertSame($prop12chain,  $property12->getVisibleCondition()->getConditions()[0]);
-        $this->assertInstanceOf(BooleanCondition::class, $property12->getVisibleCondition()->getConditions()[1]);
-        $this->assertTrue($property12->getVisibleCondition()->getConditions()[1]->getValue());
+        self::assertInstanceOf(PropertyConditionChain::class, $property12->getVisibleCondition());
+        self::assertSame($prop12chain, $property12->getVisibleCondition()->getConditions()[0]);
+        self::assertInstanceOf(BooleanCondition::class, $property12->getVisibleCondition()->getConditions()[1]);
+        self::assertTrue($property12->getVisibleCondition()->getConditions()[1]->getValue());
 
-        $this->assertInstanceOf(PropertyConditionChain::class, $property21->getVisibleCondition());
-        $this->assertSame($prop21chain,  $property21->getVisibleCondition()->getConditions()[0]);
-        $this->assertInstanceOf(BooleanCondition::class, $property21->getVisibleCondition()->getConditions()[1]);
-        $this->assertFalse($property21->getVisibleCondition()->getConditions()[1]->getValue());
+        self::assertInstanceOf(PropertyConditionChain::class, $property21->getVisibleCondition());
+        self::assertSame($prop21chain, $property21->getVisibleCondition()->getConditions()[0]);
+        self::assertInstanceOf(BooleanCondition::class, $property21->getVisibleCondition()->getConditions()[1]);
+        self::assertFalse($property21->getVisibleCondition()->getConditions()[1]->getValue());
 
         $chain = $property21->getVisibleCondition();
-        $this->assertInstanceOf(PropertyConditionChain::class, $chain);
-        $this->assertSame($prop21chain,  $chain->getConditions()[0]);
-        $this->assertInstanceOf(BooleanCondition::class, $chain->getConditions()[1]);
-        $this->assertFalse($chain->getConditions()[1]->getValue());
+        self::assertInstanceOf(PropertyConditionChain::class, $chain);
+        self::assertSame($prop21chain, $chain->getConditions()[0]);
+        self::assertInstanceOf(BooleanCondition::class, $chain->getConditions()[1]);
+        self::assertFalse($chain->getConditions()[1]->getValue());
 
-        $this->assertInstanceOf(PropertyConditionChain::class, $property22->getVisibleCondition());
-        $this->assertSame($prop22chain, $property22->getVisibleCondition());
-        $this->assertInstanceOf(BooleanCondition::class, $property22->getVisibleCondition()->getConditions()[0]);
-        $this->assertFalse($property22->getVisibleCondition()->getConditions()[0]->getValue());
+        self::assertInstanceOf(PropertyConditionChain::class, $property22->getVisibleCondition());
+        self::assertSame($prop22chain, $property22->getVisibleCondition());
+        self::assertInstanceOf(BooleanCondition::class, $property22->getVisibleCondition()->getConditions()[0]);
+        self::assertFalse($property22->getVisibleCondition()->getConditions()[0]->getValue());
 
 
-        $this->assertNull($propertyNotExist->getVisibleCondition());
+        self::assertNull($propertyNotExist->getVisibleCondition());
     }
 
     /**
@@ -167,7 +167,7 @@ class CheckPermissionTest extends TestCase
         $mock = $this
             ->getMockBuilder(PropertyInterface::class)
             ->getMockForAbstractClass();
-        $mock->expects($this->once())->method('isExcluded')->willReturn($isExcluded);
+        $mock->expects(self::once())->method('isExcluded')->willReturn($isExcluded);
 
         return $mock;
     }

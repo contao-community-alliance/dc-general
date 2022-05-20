@@ -29,11 +29,11 @@ class AbstractConditionChainTestBase extends TestCase
     {
         $condition2 = clone $condition;
 
-        $this->assertNotSame($condition, $condition2);
+        self::assertNotSame($condition, $condition2);
 
-        $this->assertInstanceOf(\get_class($condition), $condition2);
-        $this->assertNotSame($condition, $condition2);
-        $this->assertSame($condition->getConjunction(), $condition2->getConjunction());
+        self::assertInstanceOf(\get_class($condition), $condition2);
+        self::assertNotSame($condition, $condition2);
+        self::assertSame($condition->getConjunction(), $condition2->getConjunction());
 
         $reflection = new ReflectionProperty($condition, 'conditions');
         $reflection->setAccessible(true);
@@ -41,8 +41,8 @@ class AbstractConditionChainTestBase extends TestCase
         $conditions  = $reflection->getValue($condition);
         $conditions2 = $reflection->getValue($condition2);
 
-        $this->assertCount(\count($conditions), $conditions2);
-        $this->assertCount(\count($conditions), \array_diff(\array_keys($conditions), \array_keys($conditions2)));
+        self::assertCount(\count($conditions), $conditions2);
+        self::assertCount(\count($conditions), \array_diff(\array_keys($conditions), \array_keys($conditions2)));
 
         \reset($conditions);
         \reset($conditions2);
@@ -50,7 +50,7 @@ class AbstractConditionChainTestBase extends TestCase
         $subcondition2 = \current($conditions2);
 
         do {
-            $this->assertSame(\get_class($subcondition), \get_class($subcondition2));
+            self::assertSame(\get_class($subcondition), \get_class($subcondition2));
 
             \next($conditions);
             \next($conditions2);

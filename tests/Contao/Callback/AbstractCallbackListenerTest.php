@@ -85,7 +85,7 @@ class AbstractCallbackListenerTest extends TestCase
             ->setConstructorArgs([$this->getCallback($listenerClass)])
             ->getMock();
 
-        $this->assertTrue(
+        self::assertTrue(
             $listener->wantToExecute($this->mockEnvironmentEvent($eventClass, 'tablename')),
             $listenerClass
         );
@@ -96,12 +96,12 @@ class AbstractCallbackListenerTest extends TestCase
             ->setConstructorArgs([$this->getCallback($listenerClass), ['tablename']])
             ->getMock();
 
-        $this->assertTrue(
+        self::assertTrue(
             $listener->wantToExecute($this->mockEnvironmentEvent($eventClass, 'tablename')),
             $listenerClass
         );
 
-        $this->assertFalse(
+        self::assertFalse(
             $listener->wantToExecute($this->mockEnvironmentEvent($eventClass, 'anotherTable')),
             $listenerClass
         );

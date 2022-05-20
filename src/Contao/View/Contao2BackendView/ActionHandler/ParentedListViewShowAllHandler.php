@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -67,7 +67,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     protected function renderModel(ModelInterface $model, EnvironmentInterface $environment)
     {
         $event = new ParentViewChildRecordEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
 
         if (null !== $event->getHtml()) {
             $information = [
@@ -174,7 +174,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $event = new GetParentHeaderEvent($environment, $parentModel);
         $event->setAdditional($add);
 
-        $environment->getEventDispatcher()->dispatch(GetParentHeaderEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, GetParentHeaderEvent::NAME);
 
         if (null !== !$event->getAdditional()) {
             $add = $event->getAdditional();
@@ -286,7 +286,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $isRendered = true;
 
         $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::DATE_PARSE, $event);
+        $environment->getEventDispatcher()->dispatch($event, ContaoEvents::DATE_PARSE);
         return $event->getResult();
     }
 
@@ -391,11 +391,11 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $dispatcher->dispatch(
-            ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'edit.svg',
                 $this->translate('editheader.0', $parentDefinition->getName())
-            )
+            ),
+            ContaoEvents::IMAGE_GET_HTML
         );
 
         $href = '';
@@ -403,7 +403,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $href .= \sprintf('&%s=%s', $key, $value);
         }
         /** @var AddToUrlEvent $urlAfter */
-        $urlAfter = $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, new AddToUrlEvent($href));
+        $urlAfter = $dispatcher->dispatch(new AddToUrlEvent($href), ContaoEvents::BACKEND_ADD_TO_URL);
 
         return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
@@ -445,18 +445,18 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         /** @var AddToUrlEvent $urlEvent */
         $urlEvent = $dispatcher->dispatch(
-            ContaoEvents::BACKEND_ADD_TO_URL,
-            new AddToUrlEvent('act=create&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized())
+            new AddToUrlEvent('act=create&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized()),
+            ContaoEvents::BACKEND_ADD_TO_URL
         );
 
         $parentDefinition = $environment->getParentDataDefinition();
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $dispatcher->dispatch(
-            ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'new.svg',
                 $this->translate('pastenew.0', $parentDefinition->getName())
-            )
+            ),
+            ContaoEvents::IMAGE_GET_HTML
         );
 
         return \sprintf(
@@ -507,22 +507,22 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         if ($allowPasteTop) {
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
                 new AddToUrlEvent(
                     'act=paste' .
                     '&amp;pid=' . ModelId::fromModel($parentModel)->getSerialized() .
                     '&amp;after=' . ModelId::fromValues($basicDefinition->getDataProvider(), '0')->getSerialized()
-                )
+                ),
+                ContaoEvents::BACKEND_ADD_TO_URL
             );
 
             /** @var GenerateHtmlEvent $imageEvent */
             $imageEvent = $dispatcher->dispatch(
-                ContaoEvents::IMAGE_GET_HTML,
                 new GenerateHtmlEvent(
                     'pasteafter.svg',
                     $this->translate('pasteafter.0', $definition->getName()),
                     'class="blink"'
-                )
+                ),
+                ContaoEvents::IMAGE_GET_HTML
             );
 
             return \sprintf(
@@ -535,12 +535,12 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $dispatcher->dispatch(
-            ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteafter_.svg',
                 $this->translate('pasteafter.0', $definition->getName()),
                 'class="blink"'
-            )
+            ),
+            ContaoEvents::IMAGE_GET_HTML
         );
 
         return $imageEvent->getHtml();
@@ -576,7 +576,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $grandParentProvider = $environment->getDataProvider($grandParentName);
 
         $config = $grandParentProvider->getEmptyConfig();
-        $config->setFilter($relationship->getInverseFilterFor($parentModel));
+        $config->setFilter((array) $relationship->getInverseFilterFor($parentModel));
 
         $parents = $grandParentProvider->fetchAll($config);
 

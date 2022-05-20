@@ -23,13 +23,16 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 
+/**
+ * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\FilterBuilder
+ */
 class FilterBuilderTest extends TestCase
 {
     public function testEmpty()
     {
         $builder = new FilterBuilder();
 
-        $this->assertEquals([], $builder->getAllAsArray());
+        self::assertEquals([], $builder->getAllAsArray());
     }
 
     public function testNoOp()
@@ -38,7 +41,7 @@ class FilterBuilderTest extends TestCase
 
         $builder = new FilterBuilder($filter, true);
 
-        $this->assertEquals($filter, $builder->getAllAsArray());
+        self::assertEquals($filter, $builder->getAllAsArray());
     }
 
     public function testAddAnd()
@@ -50,6 +53,6 @@ class FilterBuilderTest extends TestCase
 
         $builder->getFilter()->andPropertyEquals('prop2', '2');
 
-        $this->assertEquals($result, $builder->getAllAsArray());
+        self::assertEquals($result, $builder->getAllAsArray());
     }
 }

@@ -58,60 +58,60 @@ class DefaultEnvironmentTest extends TestCase
 
         $environment = new DefaultEnvironment();
 
-        $this->assertNull($environment->getController());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setController($controller));
-        $this->assertInstanceOf(ControllerInterface::class, $environment->getController());
-        $this->assertSame($controller, $environment->getController());
+        self::assertNull($environment->getController());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setController($controller));
+        self::assertInstanceOf(ControllerInterface::class, $environment->getController());
+        self::assertSame($controller, $environment->getController());
 
-        $this->assertNull($environment->getView());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setView($view));
-        $this->assertInstanceOf(ViewInterface::class, $environment->getView());
-        $this->assertSame($view, $environment->getView());
+        self::assertNull($environment->getView());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setView($view));
+        self::assertInstanceOf(ViewInterface::class, $environment->getView());
+        self::assertSame($view, $environment->getView());
 
-        $this->assertNull($environment->getDataDefinition());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setDataDefinition($container));
-        $this->assertInstanceOf(ContainerInterface::class, $environment->getDataDefinition());
-        $this->assertSame($container, $environment->getDataDefinition());
+        self::assertNull($environment->getDataDefinition());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setDataDefinition($container));
+        self::assertInstanceOf(ContainerInterface::class, $environment->getDataDefinition());
+        self::assertSame($container, $environment->getDataDefinition());
 
-        $this->assertNull($environment->getParentDataDefinition());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setParentDataDefinition($parentContainer));
-        $this->assertInstanceOf(ContainerInterface::class, $environment->getParentDataDefinition());
+        self::assertNull($environment->getParentDataDefinition());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setParentDataDefinition($parentContainer));
+        self::assertInstanceOf(ContainerInterface::class, $environment->getParentDataDefinition());
 
-        $this->assertNull($environment->getRootDataDefinition());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setRootDataDefinition($rootContainer));
-        $this->assertInstanceOf(ContainerInterface::class, $environment->getRootDataDefinition());
-        $this->assertSame($rootContainer, $environment->getRootDataDefinition());
+        self::assertNull($environment->getRootDataDefinition());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setRootDataDefinition($rootContainer));
+        self::assertInstanceOf(ContainerInterface::class, $environment->getRootDataDefinition());
+        self::assertSame($rootContainer, $environment->getRootDataDefinition());
 
-        $this->assertNull($environment->getSessionStorage());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setSessionStorage($sessionStorage));
-        $this->assertInstanceOf(SessionStorageInterface::class, $environment->getSessionStorage());
-        $this->assertSame($sessionStorage, $environment->getSessionStorage());
+        self::assertNull($environment->getSessionStorage());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setSessionStorage($sessionStorage));
+        self::assertInstanceOf(SessionStorageInterface::class, $environment->getSessionStorage());
+        self::assertSame($sessionStorage, $environment->getSessionStorage());
 
-        $this->assertNull($environment->getInputProvider());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setInputProvider($inputProvider));
-        $this->assertInstanceOf(InputProviderInterface::class, $environment->getInputProvider());
-        $this->assertSame($inputProvider, $environment->getInputProvider());
+        self::assertNull($environment->getInputProvider());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setInputProvider($inputProvider));
+        self::assertInstanceOf(InputProviderInterface::class, $environment->getInputProvider());
+        self::assertSame($inputProvider, $environment->getInputProvider());
 
-        $this->assertNull($environment->getBaseConfigRegistry());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setBaseConfigRegistry($baseConfig));
-        $this->assertInstanceOf(BaseConfigRegistryInterface::class, $environment->getBaseConfigRegistry());
-        $this->assertSame($baseConfig, $environment->getBaseConfigRegistry());
+        self::assertNull($environment->getBaseConfigRegistry());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setBaseConfigRegistry($baseConfig));
+        self::assertInstanceOf(BaseConfigRegistryInterface::class, $environment->getBaseConfigRegistry());
+        self::assertSame($baseConfig, $environment->getBaseConfigRegistry());
 
-        $this->assertNull($environment->getClipboard());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setClipboard($clipBoard));
-        $this->assertInstanceOf(ClipboardInterface::class, $environment->getClipboard());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setClipboard(null));
-        $this->assertNull($environment->getClipboard());
+        self::assertNull($environment->getClipboard());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setClipboard($clipBoard));
+        self::assertInstanceOf(ClipboardInterface::class, $environment->getClipboard());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setClipboard(null));
+        self::assertNull($environment->getClipboard());
 
-        $this->assertNull($environment->getTranslator());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setTranslator($translator));
-        $this->assertInstanceOf(TranslatorInterface::class, $environment->getTranslator());
-        $this->assertSame($translator, $environment->getTranslator());
+        self::assertNull($environment->getTranslator());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setTranslator($translator));
+        self::assertInstanceOf(TranslatorInterface::class, $environment->getTranslator());
+        self::assertSame($translator, $environment->getTranslator());
 
-        $this->assertNull($environment->getEventDispatcher());
-        $this->assertInstanceOf(DefaultEnvironment::class, $environment->setEventDispatcher($eventDispatcher));
-        $this->assertInstanceOf(EventDispatcherInterface::class, $environment->getEventDispatcher());
-        $this->assertSame($eventDispatcher, $environment->getEventDispatcher());
+        self::assertNull($environment->getEventDispatcher());
+        self::assertInstanceOf(DefaultEnvironment::class, $environment->setEventDispatcher($eventDispatcher));
+        self::assertInstanceOf(EventDispatcherInterface::class, $environment->getEventDispatcher());
+        self::assertSame($eventDispatcher, $environment->getEventDispatcher());
     }
 
     public function testDataProvider()
@@ -137,19 +137,19 @@ class DefaultEnvironmentTest extends TestCase
         try {
             $environment->getDataProvider();
         } catch (\Exception $exception) {
-            $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
-            $this->assertSame('Data provider foo not defined', $exception->getMessage());
+            self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
+            self::assertSame('Data provider foo not defined', $exception->getMessage());
         }
 
         $environment->addDataProvider('foo', $fooDataProvider);
-        $this->assertTrue($environment->hasDataProvider());
-        $this->assertInstanceOf(DataProviderInterface::class, $environment->getDataProvider());
-        $this->assertSame($fooDataProvider, $environment->getDataProvider());
-        $this->assertTrue($environment->hasDataProvider('foo'));
-        $this->assertInstanceOf(DataProviderInterface::class, $environment->getDataProvider('foo'));
-        $this->assertSame($fooDataProvider, $environment->getDataProvider('foo'));
+        self::assertTrue($environment->hasDataProvider());
+        self::assertInstanceOf(DataProviderInterface::class, $environment->getDataProvider());
+        self::assertSame($fooDataProvider, $environment->getDataProvider());
+        self::assertTrue($environment->hasDataProvider('foo'));
+        self::assertInstanceOf(DataProviderInterface::class, $environment->getDataProvider('foo'));
+        self::assertSame($fooDataProvider, $environment->getDataProvider('foo'));
 
         $environment->removeDataProvider('foo');
-        $this->assertFalse($environment->hasDataProvider('foo'));
+        self::assertFalse($environment->hasDataProvider('foo'));
     }
 }

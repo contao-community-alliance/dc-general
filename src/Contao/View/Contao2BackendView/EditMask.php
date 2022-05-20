@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -171,8 +171,8 @@ class EditMask
         if ($model->getId() && !$definition->getBasicDefinition()->isEditable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
             $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+                new LogEvent($message, TL_ERROR, 'DC_General - edit()'),
+                ContaoEvents::SYSTEM_LOG
             );
             throw new DcGeneralRuntimeException($message);
         }
@@ -196,8 +196,8 @@ class EditMask
         if (!($model->getId() || $definition->getBasicDefinition()->isCreatable())) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
             $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+                new LogEvent($message, TL_ERROR, 'DC_General - edit()'),
+                ContaoEvents::SYSTEM_LOG
             );
             throw new DcGeneralRuntimeException($message);
         }
@@ -288,7 +288,7 @@ class EditMask
         }
 
         $event = new PostPersistModelEvent($environment, $this->model, $this->originalModel);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
     }
 
     /**
@@ -347,21 +347,24 @@ class EditMask
         );
         $buttons['save'] = $buttonTemplate->parse();
 
-        $buttonTemplate->setData(
-            [
-                'label'      => $this->getButtonLabel('saveNclose'),
-                'attributes' => [
-                    'type'      => 'submit',
-                    'name'      => 'saveNclose',
-                    'id'        => 'saveNclose',
-                    'class'     => 'tl_submit',
-                    'accesskey' => 'c'
+        if (!$this->getEnvironment()->getInputProvider()->getParameter('nb')) {
+            $buttonTemplate->setData(
+                [
+                    'label'      => $this->getButtonLabel('saveNclose'),
+                    'attributes' => [
+                        'type'      => 'submit',
+                        'name'      => 'saveNclose',
+                        'id'        => 'saveNclose',
+                        'class'     => 'tl_submit',
+                        'accesskey' => 'c'
+                    ]
                 ]
-            ]
-        );
-        $buttons['saveNclose'] = $buttonTemplate->parse();
+            );
+            $buttons['saveNclose'] = $buttonTemplate->parse();
+        }
 
-        if (!$this->isPopup() && $basicDefinition->isCreatable()) {
+        if ($basicDefinition->isCreatable()
+            && !$this->getEnvironment()->getInputProvider()->getParameter('nc')) {
             $buttonTemplate->setData(
                 [
                     'label'      => $this->getButtonLabel('saveNcreate'),
@@ -415,7 +418,7 @@ class EditMask
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event, $event::NAME);
 
         $submitButtons = ['toggleIcon' => Image::getHtml('navcol.svg')];
         $editButtons   = $event->getButtons();
@@ -575,31 +578,31 @@ class EditMask
 
         if ($inputProvider->hasValue('save')) {
             $newUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($model)->getSerialized());
-            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getUrl()), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNclose')) {
             $this->clearBackendStates();
 
             $newUrlEvent = new GetReferrerEvent();
-            $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
+            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNcreate')) {
             $this->clearBackendStates();
             $after = ModelId::fromModel($model);
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
-            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
             // We have to remove the empty id parameter - see MetaModels/core#1309
             $url = str_replace('id=&', '', $newUrlEvent->getUrl());
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($url));
+            $dispatcher->dispatch(new RedirectEvent($url), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNback')) {
             $this->clearBackendStates();
 
             $parentProviderName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
             $newUrlEvent        = new GetReferrerEvent(false, $parentProviderName);
 
-            $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
+            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
         }
     }
 
@@ -773,13 +776,13 @@ class EditMask
         $this->checkCreatable($this->model);
 
         $environment->getEventDispatcher()->dispatch(
-            PreEditModelEvent::NAME,
-            new PreEditModelEvent($environment, $this->model)
+            new PreEditModelEvent($environment, $this->model),
+            PreEditModelEvent::NAME
         );
 
         $environment->getEventDispatcher()->dispatch(
-            DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP,
-            new EnforceModelRelationshipEvent($this->getEnvironment(), $this->model)
+            new EnforceModelRelationshipEvent($this->getEnvironment(), $this->model),
+            DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP
         );
 
         // Pass 1: Get the palette for the values stored in the model.
@@ -822,7 +825,8 @@ class EditMask
                 'error'       => $editInformation->getFlatModelErrors($this->model),
                 'editButtons' => $this->getEditButtons(),
                 'noReload'    => $editInformation->hasAnyModelError(),
-                'breadcrumb'  => $this->breadcrumb
+                'breadcrumb'  => $this->breadcrumb,
+                'model'       => $this->model
             ]
         );
 

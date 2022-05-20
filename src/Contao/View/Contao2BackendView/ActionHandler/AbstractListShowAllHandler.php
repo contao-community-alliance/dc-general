@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -160,7 +160,7 @@ abstract class AbstractListShowAllHandler
         $this->renderTemplate($template, $environment);
 
         $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
-        $environment->getEventDispatcher()->dispatch(DcGeneralEvents::VIEW, $clipboard);
+        $environment->getEventDispatcher()->dispatch($clipboard, DcGeneralEvents::VIEW);
 
         return \implode(
             "\n",
@@ -263,10 +263,7 @@ abstract class AbstractListShowAllHandler
     protected function renderModel(ModelInterface $model, EnvironmentInterface $environment)
     {
         $event = new FormatModelLabelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch(
-            DcGeneralEvents::FORMAT_MODEL_LABEL,
-            $event
-        );
+        $environment->getEventDispatcher()->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
         $model->setMeta($model::LABEL_VALUE, $event->getLabel());
     }
@@ -523,7 +520,7 @@ abstract class AbstractListShowAllHandler
         }
 
         $event = new GetGroupHeaderEvent($environment, $model, $field, null, $groupMode, $groupLength);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
 
         return $event->getValue();
     }
@@ -539,7 +536,7 @@ abstract class AbstractListShowAllHandler
     {
         $event = new GetSelectModeButtonsEvent($environment);
         $event->setButtons([]);
-        $environment->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, GetSelectModeButtonsEvent::NAME);
 
         return $event->getButtons();
     }
@@ -583,20 +580,20 @@ abstract class AbstractListShowAllHandler
 
         /** @var AddToUrlEvent $urlEvent */
         $urlEvent = $dispatcher->dispatch(
-            ContaoEvents::BACKEND_ADD_TO_URL,
             new AddToUrlEvent(
                 'act=paste&after=' . ModelId::fromValues($definition->getName(), '0')->getSerialized()
-            )
+            ),
+            ContaoEvents::BACKEND_ADD_TO_URL
         );
 
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $dispatcher->dispatch(
-            ContaoEvents::IMAGE_GET_HTML,
             new GenerateHtmlEvent(
                 'pasteafter.svg',
                 $this->translate('pasteafter.0', $languageDomain),
                 'class="blink"'
-            )
+            ),
+            ContaoEvents::IMAGE_GET_HTML
         );
 
         return \sprintf(
@@ -620,7 +617,7 @@ abstract class AbstractListShowAllHandler
     private function breadcrumb(EnvironmentInterface $environment)
     {
         $event = new GetBreadcrumbEvent($environment);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
         $elements = $event->getElements();
         if (empty($elements)) {
             return null;

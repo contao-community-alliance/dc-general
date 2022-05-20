@@ -188,21 +188,21 @@ class AbstractContainerCallbackListenerTest extends TestCase
     public function testEnvironmentAwareEventExecution($listenerClass, $eventClass)
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename']);
-        $this->assertTrue(
+        self::assertTrue(
             $listener->wantToExecute($this->mockContainerEvent($eventClass, 'tablename')),
             $listenerClass
         );
-        $this->assertFalse(
+        self::assertFalse(
             $listener->wantToExecute($this->mockContainerEvent($eventClass, 'anotherTable')),
             $listenerClass
         );
 
         $listener = new $listenerClass($this->getCallback($listenerClass));
-        $this->assertTrue(
+        self::assertTrue(
             $listener->wantToExecute($this->mockContainerEvent($eventClass, 'tablename')),
             $listenerClass
         );
-        $this->assertTrue(
+        self::assertTrue(
             $listener->wantToExecute($this->mockContainerEvent($eventClass, 'anotherTable')),
             $listenerClass
         );
@@ -237,12 +237,12 @@ class AbstractContainerCallbackListenerTest extends TestCase
     public function testEnvironmentUnawareEventExecution($listenerClass, $eventFactory)
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename']);
-        $this->assertTrue($listener->wantToExecute($eventFactory('tablename')), $listenerClass);
-        $this->assertFalse($listener->wantToExecute($eventFactory('anotherTable')), $listenerClass);
+        self::assertTrue($listener->wantToExecute($eventFactory('tablename')), $listenerClass);
+        self::assertFalse($listener->wantToExecute($eventFactory('anotherTable')), $listenerClass);
 
         $listener = new $listenerClass($this->getCallback($listenerClass));
-        $this->assertTrue($listener->wantToExecute($eventFactory('tablename')), $listenerClass);
-        $this->assertTrue($listener->wantToExecute($eventFactory('anotherTable')), $listenerClass);
+        self::assertTrue($listener->wantToExecute($eventFactory('tablename')), $listenerClass);
+        self::assertTrue($listener->wantToExecute($eventFactory('anotherTable')), $listenerClass);
     }
 
     public function operationRestrictedEventExecutionDataProvider()
@@ -295,15 +295,15 @@ class AbstractContainerCallbackListenerTest extends TestCase
     public function testOperationRestrictedEventExecution($listenerClass, $eventFactory)
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename', 'operationName']);
-        $this->assertTrue(
+        self::assertTrue(
             $listener->wantToExecute($eventFactory('tablename', 'operationName')),
             $listenerClass
         );
-        $this->assertFalse(
+        self::assertFalse(
             $listener->wantToExecute($eventFactory('anotherTable', 'operationName')),
             $listenerClass
         );
-        $this->assertFalse(
+        self::assertFalse(
             $listener->wantToExecute($eventFactory('tablename', 'anotherOperationName')),
             $listenerClass
         );

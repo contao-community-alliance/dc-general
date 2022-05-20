@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +25,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Tim Gatzky <info@tim-gatzky.de>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -155,7 +155,7 @@ class DefaultController implements ControllerInterface
     public function handle(Action $action)
     {
         $event = new ActionEvent($this->getEnvironment(), $action);
-        $this->getEnvironment()->getEventDispatcher()->dispatch(DcGeneralEvents::ACTION, $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event, DcGeneralEvents::ACTION);
 
         return $event->getResponse();
     }
@@ -720,11 +720,11 @@ class DefaultController implements ControllerInterface
 
         // Trigger the pre duplicate event.
         $duplicateEvent = new PreDuplicateModelEvent($environment, $clonedModel, $model);
-        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
+        $environment->getEventDispatcher()->dispatch($duplicateEvent, $duplicateEvent::NAME);
 
         // And trigger the post event for it.
         $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
-        $environment->getEventDispatcher()->dispatch($duplicateEvent::NAME, $duplicateEvent);
+        $environment->getEventDispatcher()->dispatch($duplicateEvent, $duplicateEvent::NAME);
 
         return $clonedModel;
     }
@@ -923,7 +923,7 @@ class DefaultController implements ControllerInterface
     {
         foreach ($collection as $model) {
             $event = new PrePasteModelEvent($this->getEnvironment(), $model);
-            $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+            $this->getEnvironment()->getEventDispatcher()->dispatch($event, $event::NAME);
         }
     }
 
@@ -938,7 +938,7 @@ class DefaultController implements ControllerInterface
     {
         foreach ($collection as $model) {
             $event = new PostPasteModelEvent($this->getEnvironment(), $model);
-            $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+            $this->getEnvironment()->getEventDispatcher()->dispatch($event, $event::NAME);
         }
     }
 

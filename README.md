@@ -1,15 +1,32 @@
-[![Build Status](https://travis-ci.org/contao-community-alliance/dc-general.png)](https://travis-ci.org/contao-community-alliance/dc-general)
+[![Build Status](https://github.com/contao-community-alliance/dc-general/actions/workflows/diagnostics.yml/badge.svg)](https://github.com/contao-community-alliance/dc-general/actions)
 [![Latest Version tagged](http://img.shields.io/github/tag/contao-community-alliance/dc-general.svg)](https://github.com/contao-community-alliance/dc-general/tags)
 [![Latest Version on Packagist](http://img.shields.io/packagist/v/contao-community-alliance/dc-general.svg)](https://packagist.org/packages/contao-community-alliance/dc-general)
 [![Installations via composer per month](http://img.shields.io/packagist/dm/contao-community-alliance/dc-general.svg)](https://packagist.org/packages/contao-community-alliance/dc-general)
 
+
 DC_General
 ==========
 
-Universal data container for Contao.
+The DC_General is a universal data container for Contao and is an alternative
+for the DC_Table of the Contao framework.
 
-We hope that ultimatively this driver will become the de facto standard
-driver for Contao extensions in the future, once proven to be stable enough.
+With the DC_General we facilitate programming with excellent functions and
+influence possibilities.
+
+
+Different to Contao DC_Table
+============================
+
+With the use of the DC_General there are many advantages, e.g.
+
+* Object-oriented data container definitions
+* Event driven
+* abstraction of the data source
+* modular design
+* verification of data - no invalid records
+* improved configuration of dependencies between data containers
+* more control through events
+
 
 How to use
 ==========
@@ -26,3 +43,15 @@ There are some notable changes in compatibility considering DC_Table:
 3. The system is totally event driven and relevant information (like the model
    in scope) is attached to the events.
 
+
+Help for the start
+==================
+
+You can start with our new [documentation](https://dc-general.readthedocs.io/de/latest/index.html)
+(currently in german) or [older one](http://contao-community-alliance.github.io/dc-general-docs/) (in english). 
+
+We have an overview of [DCA mapping](https://dc-general.readthedocs.io/de/latest/reference/dca_mapping.html)
+and [Callbacks](https://dc-general.readthedocs.io/de/latest/reference/callbacks.html).
+
+In our [examples](https://github.com/contao-community-alliance/dc-general-example)
+you can see the difference to DC_Table.

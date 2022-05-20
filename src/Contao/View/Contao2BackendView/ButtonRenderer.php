@@ -3,7 +3,8 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,15 +17,18 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\Controller;
 use Contao\Image;
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -122,7 +126,7 @@ class ButtonRenderer
         $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems = \array_filter($this->clipboardItems, function ($item) {
+        $cutItems  = \array_filter($this->clipboardItems, function ($item) {
             /** @var ItemInterface $item */
             return $item->getAction() === $item::CUT;
         });
@@ -205,7 +209,7 @@ class ButtonRenderer
                 ->setPasteAfterDisabled($isCircular)
                 ->setPasteIntoDisabled($isCircular)
                 ->setContainedModels($this->clipboardModels);
-            $this->eventDispatcher->dispatch(GetPasteButtonEvent::NAME, $buttonEvent);
+            $this->eventDispatcher->dispatch($buttonEvent, GetPasteButtonEvent::NAME);
 
             $buttons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
             if ($this->isHierarchical()) {
@@ -287,8 +291,8 @@ class ButtonRenderer
 
             $attributes .= \sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
-                $icon,
-                $iconDisabled
+                Controller::addStaticUrlTo(System::urlEncode($icon)),
+                Controller::addStaticUrlTo(System::urlEncode($iconDisabled))
             );
 
             if (!$this->isTogglerInActiveState($command, $model)) {
@@ -310,7 +314,7 @@ class ButtonRenderer
             ->setPrevious($previous)
             ->setNext($next)
             ->setDisabled($command->isDisabled());
-        $this->eventDispatcher->dispatch(GetOperationButtonEvent::NAME, $buttonEvent);
+        $this->eventDispatcher->dispatch($buttonEvent, GetOperationButtonEvent::NAME);
 
         if (null !== ($html = $buttonEvent->getHtml())) {
             // If the event created a button, use it.
@@ -318,16 +322,28 @@ class ButtonRenderer
         }
 
         if ($buttonEvent->isDisabled()) {
-            $iconDisabledSuffix = '_1';
+            if (!($command instanceof ToggleCommandInterface)) {
+                $iconDisabledSuffix = '_1';
 
-            // Check wheter icon is part of contao
-            if ($icon !== Image::getPath($icon)) {
-                $iconDisabledSuffix = '_';
+                // Check whether icon is part of contao.
+                if ($icon !== Image::getPath($icon)) {
+                    $iconDisabledSuffix = '_';
+                }
+                $icon = \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0);
             }
 
             return $this->renderImageAsHtml(
-                \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0),
-                $buttonEvent->getLabel()
+                $icon,
+                $buttonEvent->getLabel(),
+                \sprintf(
+                    'title="%s" class="%s"',
+                    StringUtil::specialchars($this->translator->translate(
+                        'MSC.dc_general_disabled',
+                        'contao_default',
+                        [$buttonEvent->getTitle()]
+                    )),
+                    'cursor_disabled'
+                )
             );
         }
 
@@ -542,8 +558,8 @@ class ButtonRenderer
     {
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $this->eventDispatcher->dispatch(
-            ContaoEvents::IMAGE_GET_HTML,
-            new GenerateHtmlEvent($src, $alt, $attributes)
+            new GenerateHtmlEvent($src, $alt, $attributes),
+            ContaoEvents::IMAGE_GET_HTML
         );
 
         return $imageEvent->getHtml();
@@ -559,7 +575,7 @@ class ButtonRenderer
     private function addToUrl($parameters)
     {
         /** @var AddToUrlEvent $urlAfter */
-        $urlAfter = $this->eventDispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, new AddToUrlEvent($parameters));
+        $urlAfter = $this->eventDispatcher->dispatch(new AddToUrlEvent($parameters), ContaoEvents::BACKEND_ADD_TO_URL);
 
         return $urlAfter->getUrl();
     }

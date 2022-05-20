@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -49,6 +49,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * Class ContaoWidgetManager.
  *
  * This class is responsible for creating widgets and processing data through them.
+ *
+ * @SuppressWarnings(PHPMD.LongClassName)
  */
 class ContaoWidgetManager
 {
@@ -104,7 +106,7 @@ class ContaoWidgetManager
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventDispatcher()->dispatch(EncodePropertyValueFromWidgetEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, EncodePropertyValueFromWidgetEvent::NAME);
 
         return $event->getValue();
     }
@@ -125,7 +127,7 @@ class ContaoWidgetManager
         $event
             ->setProperty($property)
             ->setValue($value);
-        $environment->getEventDispatcher()->dispatch(DecodePropertyValueForWidgetEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, DecodePropertyValueForWidgetEvent::NAME);
 
         return $event->getValue();
     }
@@ -262,7 +264,7 @@ class ContaoWidgetManager
 
         $event = new BuildWidgetEvent($environment, $model, $propertyDefinitions->getProperty($property));
 
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
         if (!$event->getWidget()) {
             throw new DcGeneralRuntimeException(
                 \sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
@@ -327,7 +329,7 @@ class ContaoWidgetManager
         $label      = $propInfo->getDescription();
         $widgetType = $propInfo->getWidgetType();
 
-        if (null === $label
+        if (empty($label)
             || ('password' === $widgetType)
             || !\is_string($label)
             || !$GLOBALS['TL_CONFIG']['showHelp']
@@ -361,9 +363,8 @@ class ContaoWidgetManager
         $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
         $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
-        $extra    = (array) $propInfo->getExtra();
 
-        $isHideInput = (isset($extra['isHideInput']) ?? $extra['isHideInput']);
+        $isHideInput = (bool) $widget->hideInput;
 
         $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
 
@@ -446,8 +447,8 @@ class ContaoWidgetManager
                         $property,
                         $this->encodeValue($property, $widget->value, $propertyValues)
                     );
-                } catch (\Exception $e) {
-                    $widget->addError($e->getMessage());
+                } catch (\Exception $exception) {
+                    $widget->addError($exception->getMessage());
                     foreach ($widget->getErrors() as $error) {
                         $propertyValues->markPropertyValueAsInvalid($property, $error);
                     }
@@ -477,7 +478,7 @@ class ContaoWidgetManager
 
             foreach ($errors as $error) {
                 $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
-                $dispatcher->dispatch(ResolveWidgetErrorMessageEvent::NAME, $event);
+                $dispatcher->dispatch($event, ResolveWidgetErrorMessageEvent::NAME);
                 $widget->addError($event->getError());
             }
         }

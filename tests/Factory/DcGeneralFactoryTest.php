@@ -32,6 +32,8 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This class tests the DcGeneralFactory
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory
  */
 class DcGeneralFactoryTest extends TestCase
 {
@@ -49,13 +51,13 @@ class DcGeneralFactoryTest extends TestCase
 
         $mockDefinitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
         $container
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('get')
             ->with('cca.dc-general.data-definition-container')
             ->willReturn($mockDefinitionContainer);
 
         $mockDefinitionContainer
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('hasDefinition')
             ->with('test-container')
             ->willReturn(false);
@@ -70,6 +72,6 @@ class DcGeneralFactoryTest extends TestCase
             ->setTranslator($mockTranslator)
             ->createDcGeneral();
 
-        $this->assertInstanceOf(EnvironmentInterface::class, $dcGeneral->getEnvironment());
+        self::assertInstanceOf(EnvironmentInterface::class, $dcGeneral->getEnvironment());
     }
 }
