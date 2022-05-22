@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -255,6 +256,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @throws DcGeneralException When the passed model does not contain a property named "rows", an Exception is
      *                            thrown.
+     * @throws \Doctrine\DBAL\Exception
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
@@ -307,10 +309,10 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->delete($this->source);
         $queryBuilder->andWhere($queryBuilder->expr()->eq($this->strGroupCol, ':' . $this->strGroupCol));
-        $queryBuilder->setParameter(':' . $this->strGroupCol, $item->getId());
+        $queryBuilder->setParameter($this->strGroupCol, $item->getId());
         $queryBuilder->andWhere($queryBuilder->expr()->notIn('id', $keep));
 
-        $queryBuilder->execute();
+        $queryBuilder->executeQuery();
 
         return $item;
     }
