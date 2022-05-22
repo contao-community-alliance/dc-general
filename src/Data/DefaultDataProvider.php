@@ -441,7 +441,9 @@ class DefaultDataProvider implements DataProviderInterface
 
         $collection = new DefaultFilterOptionCollection();
         foreach ((array) $values as $value) {
-            $collection->add($value[$filterProperty], $value[$filterProperty]);
+            if (isset($value[$filterProperty])) {
+                $collection->add($value[$filterProperty], $value[$filterProperty]);
+            }
         }
 
         return $collection;
