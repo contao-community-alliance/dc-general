@@ -434,7 +434,7 @@ class Subscriber implements EventSubscriberInterface
     }
 
     /**
-     * Render for simple checkobx
+     * Render for simple checkbox.
      *
      * @param RenderReadablePropertyValueEvent $event    The event to store the value to.
      * @param PropertyInterface                $property The property for render it.
@@ -446,7 +446,7 @@ class Subscriber implements EventSubscriberInterface
     private static function renderSimpleCheckbox(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
     {
         if ((null !== $event->getRendered())
-            || !(!$extra['multiple'] && ('checkbox' === $property->getWidgetType()))
+            || !(isset($extra['multiple']) && !$extra['multiple'] && ('checkbox' === $property->getWidgetType()))
         ) {
             return;
         }
