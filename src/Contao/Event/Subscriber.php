@@ -24,6 +24,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
+use Contao\ArrayUtil;
 use Contao\Config;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -542,7 +543,7 @@ class Subscriber implements EventSubscriberInterface
             }
         }
 
-        if (\array_is_assoc($options)) {
+        if (ArrayUtil::isAssoc($options) && isset($options[$value])) {
             $event->setRendered($options[$value]);
         }
     }
