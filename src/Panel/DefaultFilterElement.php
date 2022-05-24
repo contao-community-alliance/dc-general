@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -94,7 +94,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $values = $this->getSessionStorage()->get('filter');
         }
 
-        if (!\is_array($values[$definitionName])) {
+        if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
             $values[$this->getEnvironment()->getDataDefinition()->getName()] = [];
         }
 
