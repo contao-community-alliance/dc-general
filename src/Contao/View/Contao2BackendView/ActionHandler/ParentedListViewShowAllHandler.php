@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,13 +15,15 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\ArrayUtil;
 use Contao\Config;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -227,10 +229,12 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $value = $this->renderForCheckbox($property, $value, $isRendered);
         $value = $this->renderForDateTime($environment, $property, $value, $isRendered);
-        $value = $this->renderReference($value, $evaluation['reference'], $isRendered);
+        $value = isset($evaluation['reference'])
+            ? $this->renderReference($value, $evaluation['reference'], $isRendered)
+            : $value;
 
         $options = $property->getOptions();
-        if ($evaluation['isAssociative'] || \array_is_assoc($options)) {
+        if ((isset($evaluation['isAssociative']) && $evaluation['isAssociative']) || ArrayUtil::isAssoc($options)) {
             $value = $options[$value];
         }
 
@@ -250,7 +254,9 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     {
         $evaluation = $property->getExtra();
 
-        if ((true === $isRendered) || $evaluation['multiple'] || !('checkbox' === $property->getWidgetType())) {
+        if ((true === $isRendered)
+            || (isset($evaluation['multiple']) && $evaluation['multiple'])
+            || !('checkbox' === $property->getWidgetType())) {
             return $value;
         }
 
@@ -279,7 +285,10 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     ) {
         $evaluation = $property->getExtra();
 
-        if ((true === $isRendered) || !$value || !\in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
+        if ((true === $isRendered)
+            || !$value
+            || !isset($evaluation['rgxp'])
+            || !\in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
             return $value;
         }
 
