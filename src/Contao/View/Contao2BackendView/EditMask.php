@@ -906,7 +906,7 @@ class EditMask
             )
                 ->set('language', $dataProvider->getCurrentLanguage())
                 ->set('languageSubmit', $this->environment->getTranslator()->translate('MSC.showSelected'))
-                ->set('languageHeadline', $languages[$dataProvider->getCurrentLanguage()]);
+                ->set('languageHeadline', $languages[$dataProvider->getCurrentLanguage()] ?? '');
             return;
         }
 
