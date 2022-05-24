@@ -16,6 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -502,6 +503,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $prepareAttributes = $event->getResult();
 
         if (('checkbox' === $widgetConfig['inputType'])
+            && isset($widgetConfig['eval']['submitOnChange'])
             && $widgetConfig['eval']['submitOnChange']
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
             && \is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
@@ -525,7 +527,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     private function setPropExtraDisabled(PropertyInterface $property, array $propExtra): array
     {
-        if ($propExtra['readonly'] && \in_array($property->getWidgetType(), ['checkbox', 'select', 'radio'], true)) {
+        if (isset($propExtra['readonly']) && $propExtra['readonly'] && \in_array($property->getWidgetType(), ['checkbox', 'select', 'radio'], true)) {
             $propExtra['disabled'] = true;
             unset($propExtra['chosen']);
         }
