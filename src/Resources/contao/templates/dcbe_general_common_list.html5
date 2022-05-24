@@ -64,9 +64,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
                 if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
                     $grouped = [];
                     foreach ($this->collection as $model) {
-                        $group = $model->getMeta($model::GROUP_VALUE);
-
-                        $grouped[$group['value']][] = $model;
+                        if ($group = $model->getMeta($model::GROUP_VALUE)) {
+                            $grouped[$group['value']][] = $model;
+                        }
                     }
                 } else {
                     // Push all to main group otherwise.
