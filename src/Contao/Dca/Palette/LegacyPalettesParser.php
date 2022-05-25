@@ -188,7 +188,7 @@ class LegacyPalettesParser
                 if ($palette->hasLegend($name)) {
                     $legend = $palette->getLegend($name);
                 } else {
-                    $legend = new Legend($matches[1] ?? null);
+                    $legend = new Legend($name);
                     $palette->addLegend($legend);
                 }
             }
