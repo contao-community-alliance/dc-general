@@ -447,7 +447,7 @@ class Subscriber implements EventSubscriberInterface
     private static function renderSimpleCheckbox(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
     {
         if ((null !== $event->getRendered())
-            || !(isset($extra['multiple']) && !$extra['multiple'] && ('checkbox' === $property->getWidgetType()))
+            || !(!($extra['multiple'] ?? false) && ('checkbox' === $property->getWidgetType()))
         ) {
             return;
         }
