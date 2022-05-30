@@ -34,7 +34,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 /**
  * This is for purge the invalidate http cache tags.
  */
-class InvalidateCacheTags implements InvalidCacheTagsInterface
+class InvalidateCacheTags implements InvalidateCacheTagsInterface
 {
     /**
      * The http cache namespace.
@@ -91,7 +91,7 @@ class InvalidateCacheTags implements InvalidCacheTagsInterface
     /**
      * {@inheritDoc}
      */
-    public function setEnvironment(EnvironmentInterface $environment): InvalidCacheTagsInterface
+    public function setEnvironment(EnvironmentInterface $environment): InvalidateCacheTagsInterface
     {
         $this->environment = $environment;
         return $this;

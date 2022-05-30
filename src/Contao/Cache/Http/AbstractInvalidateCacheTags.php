@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 
-use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidCacheTagsInterface;
+use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidateCacheTagsInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactoryService;
@@ -49,10 +49,10 @@ abstract class AbstractInvalidateCacheTags
     /**
      * The constructor.
      *
-     * @param InvalidCacheTagsInterface        $service The invalid http cache tags service.
+     * @param InvalidateCacheTagsInterface     $service The invalid http cache tags service.
      * @param DcGeneralFactoryServiceInterface $factory The dc general factory.
      */
-    public function __construct(InvalidCacheTagsInterface $service, DcGeneralFactoryServiceInterface $factory)
+    public function __construct(InvalidateCacheTagsInterface $service, DcGeneralFactoryServiceInterface $factory)
     {
         $this->service = $service;
         $this->factory = $factory;

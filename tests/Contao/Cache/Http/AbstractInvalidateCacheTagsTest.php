@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Cache\Http;
 
-use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidCacheTagsInterface;
+use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidateCacheTagsInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -56,7 +56,7 @@ class AbstractInvalidateCacheTagsTest extends TestCase
                 }
             );
 
-        $service = $this->createMock(InvalidCacheTagsInterface::class);
+        $service = $this->createMock(InvalidateCacheTagsInterface::class);
         $factory   = $this->createMock(DcGeneralFactoryServiceInterface::class);
 
         $listener = $this->getMockForAbstractClass(AbstractInvalidateCacheTags::class, [$service, $factory]);
