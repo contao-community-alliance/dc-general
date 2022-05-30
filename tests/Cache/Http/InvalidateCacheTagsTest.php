@@ -66,8 +66,7 @@ class InvalidateCacheTagsTest extends TestCase
             ->method('getProviderName');
 
         $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher);
-        $invalidCacheTags->setEnvironment($environment);
-        $invalidCacheTags->purgeCacheTags($model);
+        $invalidCacheTags->purgeCacheTags($model, $environment);
     }
 
     public function testPurgeHttpCacheWithNoParentRelation(): void
@@ -112,12 +111,11 @@ class InvalidateCacheTagsTest extends TestCase
             );
 
         $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
-        $invalidCacheTags->setEnvironment($environment);
-        $invalidCacheTags->purgeCacheTags($model1);
+        $invalidCacheTags->purgeCacheTags($model1, $environment);
         self::assertSame(['namespace.foo', 'namespace.foo.1'], $actualInvalidTags);
 
         // Run the test in second time. For test are the tags from the first model not should be stayed.
-        $invalidCacheTags->purgeCacheTags($model2);
+        $invalidCacheTags->purgeCacheTags($model2, $environment);
         self::assertSame(['namespace.bar', 'namespace.bar.2'], $actualInvalidTags);
     }
 
@@ -166,8 +164,7 @@ class InvalidateCacheTagsTest extends TestCase
             );
 
         $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
-        $invalidCacheTags->setEnvironment($environment);
-        $invalidCacheTags->purgeCacheTags($model);
+        $invalidCacheTags->purgeCacheTags($model, $environment);
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.foo.2'], $actualInvalidTags);
     }
 
@@ -273,8 +270,7 @@ class InvalidateCacheTagsTest extends TestCase
             );
 
         $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
-        $invalidCacheTags->setEnvironment($environment);
-        $invalidCacheTags->purgeCacheTags($model1);
+        $invalidCacheTags->purgeCacheTags($model1, $environment);
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.bar', 'namespace.bar.2'], $actualInvalidTags);
     }
 
@@ -394,8 +390,7 @@ class InvalidateCacheTagsTest extends TestCase
             );
 
         $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher, $cacheManager);
-        $invalidCacheTags->setEnvironment($environment);
-        $invalidCacheTags->purgeCacheTags($model1);
+        $invalidCacheTags->purgeCacheTags($model1, $environment);
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.bar', 'namespace.bar.2'], $actualInvalidTags);
     }
 }

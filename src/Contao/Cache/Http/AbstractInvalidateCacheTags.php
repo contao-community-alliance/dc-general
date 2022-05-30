@@ -68,9 +68,7 @@ abstract class AbstractInvalidateCacheTags
      */
     public function __invoke(AbstractModelAwareEvent $event): void
     {
-        $this->service
-            ->setEnvironment($this->getEnvironment($event))
-            ->purgeCacheTags($event->getModel());
+        $this->service->purgeCacheTags($event->getModel(), $this->getEnvironment($event));
     }
 
     /**

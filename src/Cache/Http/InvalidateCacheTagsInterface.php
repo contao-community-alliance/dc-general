@@ -30,20 +30,12 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 interface InvalidateCacheTagsInterface
 {
     /**
-     * Set the environment.
-     *
-     * @param EnvironmentInterface $environment The dc general environment.
-     *
-     * @return InvalidateCacheTags
-     */
-    public function setEnvironment(EnvironmentInterface $environment): InvalidateCacheTagsInterface;
-
-    /**
      * Purge the http cache tags.
      *
-     * @param ModelInterface $model The current model.
+     * @param ModelInterface       $model       The current model.
+     * @param EnvironmentInterface $environment The dc general environment.
      *
      * @return void
      */
-    public function purgeCacheTags(ModelInterface $model): void;
+    public function purgeCacheTags(ModelInterface $model, EnvironmentInterface $environment): void;
 }

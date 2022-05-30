@@ -58,13 +58,6 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
     private $cacheManager;
 
     /**
-     * The dc general environment.
-     *
-     * @var EnvironmentInterface
-     */
-    private $environment;
-
-    /**
      * The cache tags.
      *
      * @var string[]
@@ -91,16 +84,7 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
     /**
      * {@inheritDoc}
      */
-    public function setEnvironment(EnvironmentInterface $environment): InvalidateCacheTagsInterface
-    {
-        $this->environment = $environment;
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function purgeCacheTags(ModelInterface $model): void
+    public function purgeCacheTags(ModelInterface $model, EnvironmentInterface $environment): void
     {
         if (null === $this->cacheManager) {
             return;
@@ -108,9 +92,9 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
 
         $this->clearCacheTags();
         $this->addCurrentModelTag($model);
-        $this->addParentModelTag($model);
+        $this->addParentModelTag($model, $environment);
 
-        $event = new InvalidHttpCacheTagsEvent($this->environment);
+        $event = new InvalidHttpCacheTagsEvent($environment);
         $event->setNamespace($this->namespace)->setTags($this->tags);
         $this->dispatcher->dispatch($event);
 
@@ -132,19 +116,20 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
     /**
      * Add the cache tag for the parent model, if current model is a children of.
      *
-     * @param ModelInterface $model The current model.
+     * @param ModelInterface       $model       The current model.
+     * @param EnvironmentInterface $environment The dc general environment.
      *
      * @return void
      */
-    private function addParentModelTag(ModelInterface $model): void
+    private function addParentModelTag(ModelInterface $model, EnvironmentInterface $environment): void
     {
-        if ((null === $this->environment->getParentDataDefinition())
+        if ((null === $environment->getParentDataDefinition())
         ) {
             return;
         }
 
-        $definition = $this->environment->getDataDefinition()->getBasicDefinition();
-        $collector  = new ModelCollector($this->environment);
+        $definition = $environment->getDataDefinition()->getBasicDefinition();
+        $collector  = new ModelCollector($environment);
         switch ($definition->getMode()) {
             case BasicDefinitionInterface::MODE_HIERARCHICAL:
                 $this->addModelTag($collector->searchParentFromHierarchical($model));
