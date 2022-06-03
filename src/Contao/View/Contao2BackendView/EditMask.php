@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -642,15 +642,20 @@ class EditMask
      */
     protected function doPersist()
     {
-        $environment   = $this->getEnvironment();
-        $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
-        $inputProvider = $environment->getInputProvider();
+        $environment     = $this->getEnvironment();
+        $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
+        $inputProvider   = $environment->getInputProvider();
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
         if (!$this->model->getMeta(ModelInterface::IS_CHANGED)) {
             return true;
         }
 
         $this->handlePrePersist();
+
+        if ($editInformation->hasAnyModelError()) {
+            return false;
+        }
 
         if ((null === $this->model->getId()) && $this->getManualSortingProperty()) {
             $models = $dataProvider->getEmptyCollection();
@@ -693,7 +698,6 @@ class EditMask
             if (!$this->allValuesUnique()) {
                 return false;
             }
-            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
             // Save the model.
             $dataProvider->save($this->model, $editInformation->uniformTime());
