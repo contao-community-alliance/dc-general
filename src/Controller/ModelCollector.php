@@ -437,7 +437,9 @@ class ModelCollector
 
         foreach ($this->relationships->getChildConditions() as $condition) {
             // Skip conditions where the destination is not the provider
-            if ($this->defaultProviderName !== $condition->getDestinationName()) {
+            if ($this->defaultProviderName !== $condition->getDestinationName()
+                || $this->defaultProviderName !== $condition->getSourceName()
+            ) {
                 continue;
             }
 
