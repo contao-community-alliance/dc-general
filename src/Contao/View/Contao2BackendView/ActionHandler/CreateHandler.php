@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 
@@ -43,13 +45,22 @@ class CreateHandler
     use RequestScopeDeterminatorAwareTrait;
 
     /**
+     * The default edit information.
+     *
+     * @var DefaultEditInformation
+     */
+    private DefaultEditInformation $editInformation;
+
+    /**
      * CreateHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     * @param DefaultEditInformation   $editInformation   The default edit information.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator, DefaultEditInformation $editInformation)
     {
         $this->setScopeDeterminator($scopeDeterminator);
+        $this->editInformation = $editInformation;
     }
 
     /**
@@ -129,7 +140,8 @@ class CreateHandler
             $this->handleGlobalCommands($environment);
         }
 
-        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb()))->execute();
+        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb(), $this->editInformation))
+            ->execute();
     }
 
     /**

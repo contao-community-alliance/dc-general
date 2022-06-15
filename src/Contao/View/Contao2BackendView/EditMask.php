@@ -34,6 +34,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -104,6 +105,13 @@ class EditMask
     protected $breadcrumb;
 
     /**
+     * The default edit information.
+     *
+     * @var DefaultEditInformation
+     */
+    private DefaultEditInformation $editInformation;
+
+    /**
      * Create the edit mask.
      *
      * @param BackendViewInterface $view          The view in use.
@@ -113,14 +121,33 @@ class EditMask
      * @param callable             $postFunction  The function to call after saving an item.
      * @param string               $breadcrumb    The rendered breadcrumb.
      */
-    public function __construct($view, $model, $originalModel, $preFunction, $postFunction, $breadcrumb)
-    {
+    public function __construct(
+        $view,
+        $model,
+        $originalModel,
+        $preFunction,
+        $postFunction,
+        $breadcrumb,
+        ?DefaultEditInformation $editInformation = null
+    ) {
         $this->environment   = $view->getEnvironment();
         $this->model         = $model;
         $this->originalModel = $originalModel;
         $this->preFunction   = $preFunction;
         $this->postFunction  = $postFunction;
         $this->breadcrumb    = $breadcrumb;
+
+        if (null === $editInformation) {
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'DefaultEditInformation is missing. It has to be passed in the constructor. Fallback will be dropped.',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        }
+
+        $this->editInformation = $editInformation;
     }
 
     /**
@@ -636,16 +663,15 @@ class EditMask
     /**
      * Handle the persisting of the currently loaded model.
      *
-     * @return bool True means everything is okay, False error.
+     * @return bool True means everything is okay, false error.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function doPersist()
     {
-        $environment     = $this->getEnvironment();
-        $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
-        $inputProvider   = $environment->getInputProvider();
-        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        $environment   = $this->getEnvironment();
+        $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
+        $inputProvider = $environment->getInputProvider();
 
         if (!$this->model->getMeta(ModelInterface::IS_CHANGED)) {
             return true;
@@ -653,7 +679,7 @@ class EditMask
 
         $this->handlePrePersist();
 
-        if ($editInformation->hasAnyModelError()) {
+        if ($this->editInformation->getModelError($this->model)) {
             return false;
         }
 
@@ -700,7 +726,7 @@ class EditMask
             }
 
             // Save the model.
-            $dataProvider->save($this->model, $editInformation->uniformTime());
+            $dataProvider->save($this->model, $this->editInformation->uniformTime());
         }
 
         $this->handlePostPersist();
