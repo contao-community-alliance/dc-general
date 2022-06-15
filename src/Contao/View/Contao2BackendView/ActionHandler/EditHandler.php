@@ -184,8 +184,8 @@ class EditHandler
         $dataProvider           = $environment->getDataProvider($modelId->getDataProviderName());
 
         if (!((null !== ($modelVersion = $inputProvider->getValue('version')))
-            && ('tl_version' === $inputProvider->getValue('FORM_SUBMIT'))
-            && $dataProviderDefinition->getInformation($modelId->getDataProviderName())->isVersioningEnabled())
+              && ('tl_version' === $inputProvider->getValue('FORM_SUBMIT'))
+              && $dataProviderDefinition->getInformation($modelId->getDataProviderName())->isVersioningEnabled())
         ) {
             return;
         }
