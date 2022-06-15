@@ -109,7 +109,7 @@ class EditMask
      *
      * @var DefaultEditInformation
      */
-    private $editInformation;
+    private DefaultEditInformation $editInformation;
 
     /**
      * Create the edit mask.
@@ -666,6 +666,7 @@ class EditMask
      * @return bool True means everything is okay, false error.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function doPersist()
     {
