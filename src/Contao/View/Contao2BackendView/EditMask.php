@@ -114,12 +114,13 @@ class EditMask
     /**
      * Create the edit mask.
      *
-     * @param BackendViewInterface $view          The view in use.
-     * @param ModelInterface       $model         The model with the current data.
-     * @param ModelInterface       $originalModel The data from the original data.
-     * @param callable             $preFunction   The function to call before saving an item.
-     * @param callable             $postFunction  The function to call after saving an item.
-     * @param string               $breadcrumb    The rendered breadcrumb.
+     * @param BackendViewInterface   $view            The view in use.
+     * @param ModelInterface         $model           The model with the current data.
+     * @param ModelInterface         $originalModel   The data from the original data.
+     * @param callable               $preFunction     The function to call before saving an item.
+     * @param callable               $postFunction    The function to call after saving an item.
+     * @param string                 $breadcrumb      The rendered breadcrumb.
+     * @param DefaultEditInformation $editInformation The default edit information.
      */
     public function __construct(
         $view,
