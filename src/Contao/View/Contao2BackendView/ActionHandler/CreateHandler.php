@@ -49,7 +49,7 @@ class CreateHandler
      *
      * @var DefaultEditInformation
      */
-    private DefaultEditInformation $editInformation;
+    private $editInformation;
 
     /**
      * CreateHandler constructor.

@@ -109,7 +109,7 @@ class EditMask
      *
      * @var DefaultEditInformation
      */
-    private DefaultEditInformation $editInformation;
+    private $editInformation;
 
     /**
      * Create the edit mask.

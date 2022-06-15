@@ -51,8 +51,7 @@ class EditHandler
      *
      * @var DefaultEditInformation
      */
-
-    private DefaultEditInformation $editInformation;
+    private $editInformation;
 
     /**
      * EditHandler constructor.
