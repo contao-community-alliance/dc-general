@@ -137,12 +137,12 @@ class ModelCollectorTest extends TestCase
         $collector = new ModelCollector($environment);
 
         // Test with parent definition
-        if (false !== strpos(is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
+        if (false !== \strpos(\is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
             $parentPropertiesDefinition = $this->mockPropertiesDefinition();
             $parentPropertiesDefinition->method('getPropertyNames')->willReturn(['test-parent-property']);
             $parentDataDefinition = $this->mockDefinitionContainer();
             $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized(
-                is_object($modelId) ? $modelId->getSerialized() : $modelId)->getDataProviderName());
+                \is_object($modelId) ? $modelId->getSerialized() : $modelId)->getDataProviderName());
             $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentPropertiesDefinition);
 
             $environment->method('getParentDataDefinition')->willReturn($parentDataDefinition);
@@ -174,7 +174,7 @@ class ModelCollectorTest extends TestCase
 
         $this->expectException('InvalidArgumentException');
 
-        $collector->getModel(new DateTime());
+        $collector->getModel(new \DateTime());
     }
 
     /**
@@ -389,7 +389,7 @@ class ModelCollectorTest extends TestCase
                         return [$this->createParentChildCondition('parent', 'child')];
 
                     default:
-                        throw new RuntimeException();
+                        throw new \RuntimeException();
                 }
             }
         );
@@ -535,7 +535,7 @@ class ModelCollectorTest extends TestCase
                         return $parentProvider;
 
                     default:
-                        throw new RuntimeException();
+                        throw new \RuntimeException();
                 }
             }
         );
