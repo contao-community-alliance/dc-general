@@ -514,7 +514,8 @@ class ModelCollectorTest extends TestCase
         $provider->method('getEmptyConfig')->willReturn($config);
         $provider
             ->expects($this->once())
-            ->method('fetch')->willReturn($expected);
+            ->method('fetch')
+            ->willReturn($expected);
 
         $provider
             ->expects(null === $expected ? $this->once() : $this->never())
