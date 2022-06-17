@@ -42,13 +42,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
-use DateTime;
 use Generator;
 use PHPUnit\Framework\MockObject\MockObject;
-use RuntimeException;
-
-use function is_object;
-use function strpos;
 
 /**
  * Test case for the relationship manager.
