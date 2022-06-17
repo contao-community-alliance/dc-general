@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -41,7 +42,13 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use DateTime;
 use Generator;
+use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
+
+use function is_object;
+use function strpos;
 
 /**
  * Test case for the relationship manager.
@@ -130,11 +137,12 @@ class ModelCollectorTest extends TestCase
         $collector = new ModelCollector($environment);
 
         // Test with parent definition
-        if (false !== \strpos(\is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
+        if (false !== strpos(is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
             $parentPropertiesDefinition = $this->mockPropertiesDefinition();
             $parentPropertiesDefinition->method('getPropertyNames')->willReturn(['test-parent-property']);
             $parentDataDefinition = $this->mockDefinitionContainer();
-            $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized(\is_object($modelId) ? $modelId->getSerialized() : $modelId)->getDataProviderName());
+            $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized(
+                is_object($modelId) ? $modelId->getSerialized() : $modelId)->getDataProviderName());
             $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentPropertiesDefinition);
 
             $environment->method('getParentDataDefinition')->willReturn($parentDataDefinition);
@@ -166,7 +174,7 @@ class ModelCollectorTest extends TestCase
 
         $this->expectException('InvalidArgumentException');
 
-        $collector->getModel(new \DateTime());
+        $collector->getModel(new DateTime());
     }
 
     /**
@@ -298,7 +306,7 @@ class ModelCollectorTest extends TestCase
                         return $parentProvider;
 
                     default:
-                        throw new \RuntimeException();
+                        throw new RuntimeException();
                 }
             }
         );
@@ -381,7 +389,7 @@ class ModelCollectorTest extends TestCase
                         return [$this->createParentChildCondition('parent', 'child')];
 
                     default:
-                        throw new \RuntimeException();
+                        throw new RuntimeException();
                 }
             }
         );
@@ -424,7 +432,7 @@ class ModelCollectorTest extends TestCase
                         return $grandParentProvider;
 
                     default:
-                        throw new \RuntimeException();
+                        throw new RuntimeException();
                 }
             }
         );
@@ -527,7 +535,7 @@ class ModelCollectorTest extends TestCase
                         return $parentProvider;
 
                     default:
-                        throw new \RuntimeException();
+                        throw new RuntimeException();
                 }
             }
         );
@@ -539,7 +547,7 @@ class ModelCollectorTest extends TestCase
     /**
      * Mock a basic definition.
      *
-     * @return BasicDefinitionInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @return BasicDefinitionInterface|MockObject
      */
     private function mockBasicDefinition()
     {
@@ -549,7 +557,7 @@ class ModelCollectorTest extends TestCase
     /**
      * Mock a relationship definition.
      *
-     * @return \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @return ModelRelationshipDefinitionInterface|MockObject
      */
     private function mockRelationshipDefinition()
     {
@@ -559,7 +567,7 @@ class ModelCollectorTest extends TestCase
     /**
      * Mock a definition container.
      *
-     * @return \ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @return ContainerInterface|MockObject
      */
     private function mockDefinitionContainer()
     {
@@ -569,7 +577,7 @@ class ModelCollectorTest extends TestCase
     /**
      * Mock a definition container.
      *
-     * @return \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface|\PHPUnit_Framework_MockObject_MockObject
+     * @return PropertiesDefinitionInterface|MockObject
      */
     private function mockPropertiesDefinition()
     {
