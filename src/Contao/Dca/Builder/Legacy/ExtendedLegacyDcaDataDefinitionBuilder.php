@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -565,6 +565,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      * @param ContainerInterface $container The container where the data shall be stored.
      *
      * @return void
+     *
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     protected function parseDynamicParentTableProperty(ContainerInterface $container)
     {
@@ -578,7 +580,9 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         $relationship   = $container->getModelRelationshipDefinition();
         $childCondition = $relationship->getChildCondition($sourceProvider, $container->getName());
         if (null === $childCondition) {
-            return;
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
         }
 
         $childCondition->setFilterArray(

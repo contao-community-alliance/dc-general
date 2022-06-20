@@ -40,9 +40,18 @@ services:
             - '@security.csrf.token_manager'
             - '%contao.csrf_token_name%'
 
-    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidCacheTags:
+    ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidateCacheTags:
         public: false
         arguments:
             - 'contao.db.'
             - '@event_dispatcher'
             - '@?fos_http_cache.cache_manager'
+
+    ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache:
+        public: true
+        deprecated: Warning the %service_id% is in future not public!
+
+    ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactoryService:
+        public: false
+        arguments:
+            - '@ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache'

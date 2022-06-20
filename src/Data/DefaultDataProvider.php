@@ -37,6 +37,7 @@ use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Class DefaultDataProvider.
@@ -83,6 +84,13 @@ class DefaultDataProvider implements DataProviderInterface
      * @var IdGeneratorInterface
      */
     protected $idGenerator;
+
+    /**
+     * The table schema.
+     *
+     * @var Table
+     */
+    private $schema;
 
     /**
      * Retrieve the name of the id property.
@@ -685,9 +693,11 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fieldExists($columnName)
     {
-        $tableDetails = $this->connection->getSchemaManager()->listTableDetails($this->source);
+        if (!isset($this->schema)) {
+            $this->schema = $this->connection->getSchemaManager()->listTableDetails($this->source);
+        }
 
-        return $tableDetails->hasColumn($columnName);
+        return $this->schema->hasColumn($columnName);
     }
 
     /**

@@ -21,11 +21,9 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 
-use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidCacheTags;
-
 /**
- * This class is for define the service.
+ * The persist invalidate http cache tags, is for a model be saved.
  */
-final class ContaoInvalidCacheTags extends InvalidCacheTags
+final class PersistModelInvalidateCacheTags extends AbstractInvalidateCacheTags
 {
 }

@@ -40,6 +40,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Doctrine\Common\Cache\Cache;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -60,12 +61,15 @@ class General extends DataContainer implements DataContainerInterface
     /**
      * Create a new instance.
      *
-     * @param string $tableName The table name.
+     * @param string     $tableName The table name.
+     * @param array      $module    The modules.
+     * @param Cache|null $cache     The cache.
      *
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __construct($tableName)
+    public function __construct($tableName, array $module = [], Cache $cache = null)
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\DC_General given" in callbacks.
@@ -85,7 +89,7 @@ class General extends DataContainer implements DataContainerInterface
         }, $this, $this);
         $dispatcher->addListener(PopulateEnvironmentEvent::NAME, $fetcher, 4800);
 
-        (new DcGeneralFactory())
+        (new DcGeneralFactory($cache))
             ->setContainerName($tableNameCallback)
             ->setEventDispatcher($dispatcher)
             ->setTranslator($this->getTranslator())
