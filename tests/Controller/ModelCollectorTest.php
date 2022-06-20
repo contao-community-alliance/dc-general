@@ -15,6 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -465,6 +466,12 @@ class ModelCollectorTest extends TestCase
     /**
      * Tests the searchParentOfIn method without recursion.
      *
+     * When does ParentOfInHierarchical is ture. Per definition a ParentOfInHierarchical means that we are in them same
+     * table all the time and all the data are mapped based on a parent <=> child, which is in the most cases that the
+     * parent id is stored in the pid field of the child.
+     * So if we check this, the source and the destination data provider have to be the same table. If not, we didn't
+     * have a ParentOfInHierarchical definition.
+     *
      * @param ModelInterface|null $expected The expected parent.
      * @param ModelInterface      $model    The given instance of the model.
      *
@@ -505,10 +512,11 @@ class ModelCollectorTest extends TestCase
 
         $parentProvider = $this->getMockForAbstractClass(DataProviderInterface::class);
         $parentProvider->method('getEmptyConfig')->willReturn($config);
-        $parentProvider
-            ->expects($this->once())
-            ->method('fetch')
-            ->willReturn(null);
+        // There won't be a call to the parent, because we don't need it, we are in a hierarchical check.
+        //$parentProvider
+        //    ->expects($this->once())
+        //    ->method('fetch')
+        //    ->willReturn(null);
 
         $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
         $provider->method('getEmptyConfig')->willReturn($config);
