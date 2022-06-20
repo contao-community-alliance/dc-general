@@ -4,6 +4,7 @@ services:
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
+            - "@cca.dc-general.edit-information"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action
@@ -14,6 +15,7 @@ services:
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
+            - "@cca.dc-general.edit-information"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action
