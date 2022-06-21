@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -34,6 +34,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -104,23 +105,50 @@ class EditMask
     protected $breadcrumb;
 
     /**
+     * The default edit information.
+     *
+     * @var DefaultEditInformation
+     */
+    private DefaultEditInformation $editInformation;
+
+    /**
      * Create the edit mask.
      *
-     * @param BackendViewInterface $view          The view in use.
-     * @param ModelInterface       $model         The model with the current data.
-     * @param ModelInterface       $originalModel The data from the original data.
-     * @param callable             $preFunction   The function to call before saving an item.
-     * @param callable             $postFunction  The function to call after saving an item.
-     * @param string               $breadcrumb    The rendered breadcrumb.
+     * @param BackendViewInterface   $view            The view in use.
+     * @param ModelInterface         $model           The model with the current data.
+     * @param ModelInterface         $originalModel   The data from the original data.
+     * @param callable               $preFunction     The function to call before saving an item.
+     * @param callable               $postFunction    The function to call after saving an item.
+     * @param string                 $breadcrumb      The rendered breadcrumb.
+     * @param DefaultEditInformation $editInformation The default edit information.
      */
-    public function __construct($view, $model, $originalModel, $preFunction, $postFunction, $breadcrumb)
-    {
+    public function __construct(
+        $view,
+        $model,
+        $originalModel,
+        $preFunction,
+        $postFunction,
+        $breadcrumb,
+        ?DefaultEditInformation $editInformation = null
+    ) {
         $this->environment   = $view->getEnvironment();
         $this->model         = $model;
         $this->originalModel = $originalModel;
         $this->preFunction   = $preFunction;
         $this->postFunction  = $postFunction;
         $this->breadcrumb    = $breadcrumb;
+
+        if (null === $editInformation) {
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'DefaultEditInformation is missing. It has to be passed in the constructor. Fallback will be dropped.',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        }
+
+        $this->editInformation = $editInformation;
     }
 
     /**
@@ -171,8 +199,8 @@ class EditMask
         if ($model->getId() && !$definition->getBasicDefinition()->isEditable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
             $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+                new LogEvent($message, TL_ERROR, 'DC_General - edit()'),
+                ContaoEvents::SYSTEM_LOG
             );
             throw new DcGeneralRuntimeException($message);
         }
@@ -196,8 +224,8 @@ class EditMask
         if (!($model->getId() || $definition->getBasicDefinition()->isCreatable())) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
             $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()')
+                new LogEvent($message, TL_ERROR, 'DC_General - edit()'),
+                ContaoEvents::SYSTEM_LOG
             );
             throw new DcGeneralRuntimeException($message);
         }
@@ -288,7 +316,7 @@ class EditMask
         }
 
         $event = new PostPersistModelEvent($environment, $this->model, $this->originalModel);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
     }
 
     /**
@@ -418,7 +446,7 @@ class EditMask
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event::NAME, $event);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($event, $event::NAME);
 
         $submitButtons = ['toggleIcon' => Image::getHtml('navcol.svg')];
         $editButtons   = $event->getButtons();
@@ -578,31 +606,31 @@ class EditMask
 
         if ($inputProvider->hasValue('save')) {
             $newUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($model)->getSerialized());
-            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getUrl()));
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getUrl()), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNclose')) {
             $this->clearBackendStates();
 
             $newUrlEvent = new GetReferrerEvent();
-            $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
+            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNcreate')) {
             $this->clearBackendStates();
             $after = ModelId::fromModel($model);
 
             $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
-            $dispatcher->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $newUrlEvent);
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
             // We have to remove the empty id parameter - see MetaModels/core#1309
             $url = str_replace('id=&', '', $newUrlEvent->getUrl());
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($url));
+            $dispatcher->dispatch(new RedirectEvent($url), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNback')) {
             $this->clearBackendStates();
 
             $parentProviderName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
             $newUrlEvent        = new GetReferrerEvent(false, $parentProviderName);
 
-            $dispatcher->dispatch(ContaoEvents::SYSTEM_GET_REFERRER, $newUrlEvent);
-            $dispatcher->dispatch(ContaoEvents::CONTROLLER_REDIRECT, new RedirectEvent($newUrlEvent->getReferrerUrl()));
+            $dispatcher->dispatch($newUrlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
+            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
         }
     }
 
@@ -636,9 +664,10 @@ class EditMask
     /**
      * Handle the persisting of the currently loaded model.
      *
-     * @return bool True means everything is okay, False error.
+     * @return bool True means everything is okay, false error.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function doPersist()
     {
@@ -651,6 +680,10 @@ class EditMask
         }
 
         $this->handlePrePersist();
+
+        if ($this->editInformation->getModelError($this->model)) {
+            return false;
+        }
 
         if ((null === $this->model->getId()) && $this->getManualSortingProperty()) {
             $models = $dataProvider->getEmptyCollection();
@@ -693,10 +726,9 @@ class EditMask
             if (!$this->allValuesUnique()) {
                 return false;
             }
-            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
             // Save the model.
-            $dataProvider->save($this->model, $editInformation->uniformTime());
+            $dataProvider->save($this->model, $this->editInformation->uniformTime());
         }
 
         $this->handlePostPersist();
@@ -776,13 +808,13 @@ class EditMask
         $this->checkCreatable($this->model);
 
         $environment->getEventDispatcher()->dispatch(
-            PreEditModelEvent::NAME,
-            new PreEditModelEvent($environment, $this->model)
+            new PreEditModelEvent($environment, $this->model),
+            PreEditModelEvent::NAME
         );
 
         $environment->getEventDispatcher()->dispatch(
-            DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP,
-            new EnforceModelRelationshipEvent($this->getEnvironment(), $this->model)
+            new EnforceModelRelationshipEvent($this->getEnvironment(), $this->model),
+            DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP
         );
 
         // Pass 1: Get the palette for the values stored in the model.
@@ -825,7 +857,8 @@ class EditMask
                 'error'       => $editInformation->getFlatModelErrors($this->model),
                 'editButtons' => $this->getEditButtons(),
                 'noReload'    => $editInformation->hasAnyModelError(),
-                'breadcrumb'  => $this->breadcrumb
+                'breadcrumb'  => $this->breadcrumb,
+                'model'       => $this->model
             ]
         );
 

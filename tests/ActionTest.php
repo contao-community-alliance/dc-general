@@ -35,9 +35,9 @@ class ActionTest extends TestCase
 
         $action = new Action('action', $arguments);
 
-        $this->assertIsString($action->getName());
-        $this->assertSame('action', $action->getName());
-        $this->assertIsArray($action->getArguments());
-        $this->assertSame(['foo', 'bar'], $action->getArguments());
+        self::assertIsString($action->getName());
+        self::assertSame('action', $action->getName());
+        self::assertIsArray($action->getArguments());
+        self::assertSame(['foo', 'bar'], $action->getArguments());
     }
 }

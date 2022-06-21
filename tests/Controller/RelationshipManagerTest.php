@@ -50,10 +50,10 @@ class RelationshipManagerTest extends TestCase
         $root  = $this->getMockForAbstractClass(
             RootConditionInterface::class
         );
-        $root->expects($this->once())->method('matches')->with($model);
+        $root->expects(self::once())->method('matches')->with($model);
 
         $relationships = $this->mockRelationship();
-        $relationships->expects($this->once())->method('getRootCondition')->willReturn($root);
+        $relationships->expects(self::once())->method('getRootCondition')->willReturn($root);
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
@@ -70,7 +70,7 @@ class RelationshipManagerTest extends TestCase
     public function testIsRootInNonHierarchicalMode()
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects($this->never())->method('getRootCondition');
+        $relationships->expects(self::never())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_FLAT);
 
@@ -87,7 +87,7 @@ class RelationshipManagerTest extends TestCase
     public function testIsRootWithoutCondition()
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects($this->once())->method('getRootCondition');
+        $relationships->expects(self::once())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
@@ -109,10 +109,10 @@ class RelationshipManagerTest extends TestCase
         $root  = $this->getMockForAbstractClass(
             RootConditionInterface::class
         );
-        $root->expects($this->once())->method('applyTo')->with($model);
+        $root->expects(self::once())->method('applyTo')->with($model);
 
         $relationships = $this->mockRelationship();
-        $relationships->expects($this->once())->method('getRootCondition')->willReturn($root);
+        $relationships->expects(self::once())->method('getRootCondition')->willReturn($root);
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
@@ -129,7 +129,7 @@ class RelationshipManagerTest extends TestCase
     public function testSetRootInNonHierarchicalMode()
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects($this->never())->method('getRootCondition');
+        $relationships->expects(self::never())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_FLAT);
 
@@ -146,7 +146,7 @@ class RelationshipManagerTest extends TestCase
     public function testSetRootWithoutCondition()
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects($this->once())->method('getRootCondition');
+        $relationships->expects(self::once())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
@@ -175,7 +175,7 @@ class RelationshipManagerTest extends TestCase
             ->setMethods(['setRoot'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects($this->exactly(2))->method('setRoot')->withConsecutive([$model1], [$model2]);
+        $manager->expects(self::exactly(2))->method('setRoot')->withConsecutive([$model1], [$model2]);
 
         /** @var RelationshipManager $manager */
         $manager->setAllRoot($collection);
@@ -193,14 +193,14 @@ class RelationshipManagerTest extends TestCase
         $model     = $this->mockModel();
         $parent    = $this->mockModel();
         $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
-        $condition->expects($this->once())->method('applyTo')->with($model);
+        $condition->expects(self::once())->method('applyTo')->with($model);
 
         $model->method('getProviderName')->willReturn('child');
         $parent->method('getProviderName')->willReturn('parent');
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn($condition);
@@ -226,7 +226,7 @@ class RelationshipManagerTest extends TestCase
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn(null);
@@ -259,7 +259,7 @@ class RelationshipManagerTest extends TestCase
             ->setMethods(['setParent'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects($this->exactly(2))->method('setParent')->withConsecutive(
+        $manager->expects(self::exactly(2))->method('setParent')->withConsecutive(
             [$model1, $parent],
             [$model2, $parent]
         );
@@ -282,14 +282,14 @@ class RelationshipManagerTest extends TestCase
         $condition = $this->getMockForAbstractClass(
             ParentChildConditionInterface::class
         );
-        $condition->expects($this->once())->method('copyFrom')->with($model, $source);
+        $condition->expects(self::once())->method('copyFrom')->with($model, $source);
 
         $model->method('getProviderName')->willReturn('child');
         $source->method('getProviderName')->willReturn('child');
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn($condition);
@@ -315,7 +315,7 @@ class RelationshipManagerTest extends TestCase
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn(null);
@@ -351,7 +351,7 @@ class RelationshipManagerTest extends TestCase
             ->setMethods(['setSameParent'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects($this->exactly(2))->method('setSameParent')->withConsecutive(
+        $manager->expects(self::exactly(2))->method('setSameParent')->withConsecutive(
             [$model1, $source, 'parent'],
             [$model2, $source, 'parent']
         );

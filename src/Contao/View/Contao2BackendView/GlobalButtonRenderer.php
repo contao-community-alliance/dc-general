@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -100,7 +100,7 @@ class GlobalButtonRenderer
 
         $buttonsEvent = new GetGlobalButtonsEvent($this->environment);
         $buttonsEvent->setButtons($buttons);
-        $this->dispatcher->dispatch(GetGlobalButtonsEvent::NAME, $buttonsEvent);
+        $this->dispatcher->dispatch($buttonsEvent, GetGlobalButtonsEvent::NAME);
 
         return '<div id="tl_buttons">' . \implode('', $buttonsEvent->getButtons()) . '</div>';
     }
@@ -127,10 +127,8 @@ class GlobalButtonRenderer
 
             /** @var AddToUrlEvent $event */
             $event = $this->dispatcher->dispatch(
-                ContaoEvents::BACKEND_ADD_TO_URL,
-                new AddToUrlEvent(
-                    $href
-                )
+                new AddToUrlEvent($href),
+                ContaoEvents::BACKEND_ADD_TO_URL
             );
 
             $href = $event->getUrl();
@@ -149,7 +147,7 @@ class GlobalButtonRenderer
             ->setHref($href)
             ->setLabel($label)
             ->setTitle($this->translate((string) $command->getDescription()));
-        $this->dispatcher->dispatch(GetGlobalButtonEvent::NAME, $buttonEvent);
+        $this->dispatcher->dispatch($buttonEvent, GetGlobalButtonEvent::NAME);
 
         // Allow to override the button entirely - if someone sets empty string, we keep it.
         if (null !== ($html = $buttonEvent->getHtml())) {

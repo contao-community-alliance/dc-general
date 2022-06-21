@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -32,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * This abstract visibility handler provide methods for the visibility of properties.
@@ -142,7 +143,7 @@ abstract class AbstractPropertyVisibilityHandler
             $event = new GetPropertyOptionsEvent($environment, $emptyModel);
             $event->setPropertyName($property->getName());
             $event->setOptions($property->getOptions());
-            $environment->getEventDispatcher()->dispatch(GetPropertyOptionsEvent::NAME, $event);
+            $environment->getEventDispatcher()->dispatch($event, GetPropertyOptionsEvent::NAME);
             if ((null === $event->getOptions()) || (0 > \count($event->getOptions()))) {
                 continue;
             }
@@ -770,6 +771,8 @@ abstract class AbstractPropertyVisibilityHandler
      * @param EnvironmentInterface $environment    The environment.
      *
      * @return void
+     *
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     private function intersectModelSetParentId(ModelInterface $intersectModel, EnvironmentInterface $environment)
     {
@@ -783,6 +786,11 @@ abstract class AbstractPropertyVisibilityHandler
         $relationships  = $dataDefinition->getModelRelationshipDefinition();
         $childCondition =
             $relationships->getChildCondition($parentDataDefinition->getName(), $dataDefinition->getName());
+        if (null === $childCondition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
 
         $parentField = null;
         foreach ($childCondition->getSetters() as $setter) {

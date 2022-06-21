@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -115,21 +116,25 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         $value   = null;
         $field   = null;
 
-        if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
-            $field = $input->getValue('tl_field');
-            $value = $input->getValue('tl_value');
+        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
+            if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
+                $field = $input->getValue('tl_field');
+                $value = $input->getValue('tl_value');
 
-            $this->setPersistent($field, $value);
-        } elseif ($session->has('search')) {
-            $persistent = $this->getPersistent();
-            if ($persistent) {
-                $field = $persistent['field'];
-                $value = $persistent['value'];
+                $this->setPersistent($field, $value);
+            } elseif ($session->has('search')) {
+                $persistent = $this->getPersistent();
+                if ($persistent) {
+                    $field = $persistent['field'];
+                    $value = $persistent['value'];
+                }
             }
-        }
 
-        $this->setSelectedProperty($field);
-        $this->setValue($value);
+            $this->setSelectedProperty($field);
+            $this->setValue($value);
+        } else {
+            $this->setPersistent(null, null);
+        }
 
         if (!($this->getSelectedProperty() && $this->getValue())) {
             return;
@@ -145,14 +150,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
                 $currents,
                 [
                     [
-                        'operation' => 'AND',
-                        'children'  => [
-                            [
-                                'operation' => 'LIKE',
-                                'property'  => $this->getSelectedProperty(),
-                                'value'     => \sprintf('*%s*', $this->getValue())
-                            ]
-                        ]
+                        'operation' => 'LIKE',
+                        'property'  => $this->getSelectedProperty(),
+                        'value'     => \sprintf('*%s*', $this->getValue())
                     ]
                 ]
             )

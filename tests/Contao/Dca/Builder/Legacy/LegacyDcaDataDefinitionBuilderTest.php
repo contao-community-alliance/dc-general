@@ -65,9 +65,10 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
             ->getMock();
 
         $mock
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('loadDca')
-            ->will($this->returnCallback(
+            ->will(
+                self::returnCallback(
                 function () use ($mock, $dca, $class) {
                     $reflection = new \ReflectionProperty($class, 'dca');
                     $reflection->setAccessible(true);
@@ -132,20 +133,20 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
         );
 
         $event->setProperty('testProperty');
-        $this->assertCount(1, $dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME));
+        self::assertCount(1, $dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME));
         foreach ($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME) as $listener) {
             /** @var AbstractCallbackListener $listener */
-            $this->assertTrue($listener->wantToExecute($event));
+            self::assertTrue($listener->wantToExecute($event));
             $event->setValue('testvalue');
             $listener($event);
-            $this->assertEquals('executed', $event->getValue());
+            self::assertEquals('executed', $event->getValue());
         }
 
         $event->setProperty('testProperty2');
 
         foreach ($dispatcher->getListeners(EncodePropertyValueFromWidgetEvent::NAME) as $listener) {
             /** @var AbstractCallbackListener $listener */
-            $this->assertFalse($listener->wantToExecute($event));
+            self::assertFalse($listener->wantToExecute($event));
         }
     }
 }

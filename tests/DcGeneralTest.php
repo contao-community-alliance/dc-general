@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
+use Doctrine\Common\Cache\Cache;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -118,11 +119,13 @@ class DcGeneralTest extends TestCase
             'palettes'   => []
         ];
 
-        $dataContainerFoo = new \DC_General('tl_foo');
+        $cache = $this->getMockForAbstractClass(Cache::class);
 
-        $dataContainerBar = new \DC_General('tl_bar');
+        $dataContainerFoo = new \DC_General('tl_foo', [], $cache);
 
-        $this->assertInstanceOf(
+        $dataContainerBar = new \DC_General('tl_bar', [], $cache);
+
+        self::assertInstanceOf(
             EnvironmentInterface::class,
             $dataContainerBar->getEnvironment()->setParentDataDefinition(
                 $dataContainerFoo->getEnvironment()->getDataDefinition()
@@ -130,10 +133,10 @@ class DcGeneralTest extends TestCase
         );
 
 
-        $this->assertInstanceOf(\DC_General::class, $dataContainerFoo);
-        $this->assertInstanceOf(General::class, $dataContainerFoo);
+        self::assertInstanceOf(\DC_General::class, $dataContainerFoo);
+        self::assertInstanceOf(General::class, $dataContainerFoo);
 
-        $this->assertInstanceOf(\DC_General::class, $dataContainerBar);
-        $this->assertInstanceOf(General::class, $dataContainerBar);
+        self::assertInstanceOf(\DC_General::class, $dataContainerBar);
+        self::assertInstanceOf(General::class, $dataContainerBar);
     }
 }

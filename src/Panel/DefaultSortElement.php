@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2020 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
+ * @copyright  2013-2020 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
+use phpDocumentor\Reflection\Types\Mixed_;
 
 /**
  * Default implementation of a sort element.
@@ -130,10 +132,39 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
      */
     public function initialize(ConfigInterface $config, PanelElementInterface $panelElement = null)
     {
-        if (null === $panelElement) {
-            $input = $this->getInputProvider();
-            $value = null;
+        $this->defineSortOption($panelElement);
 
+        $current = $config->getSorting();
+
+        if (!\is_array($current)) {
+            $current = [];
+        }
+
+        if ($this->getSelectedDefinition()) {
+            foreach ($this->getSelectedDefinition() as $information) {
+                $current[$information->getProperty()] = $information->getSortingMode();
+            }
+        }
+        $config->setSorting($current);
+    }
+
+    /**
+     * Define the sort option for the filter.
+     *
+     * @param PanelElementInterface|null $panelElement The panel element.
+     *
+     * @return void
+     */
+    private function defineSortOption(?PanelElementInterface $panelElement): void
+    {
+        if (null !== $panelElement) {
+            return;
+        }
+
+        $input = $this->getInputProvider();
+        $value = null;
+
+        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
             if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
                 $value = $input->getValue('tl_sort');
 
@@ -149,20 +180,9 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             }
 
             $this->setSelected($persistent);
+        } else {
+            $this->setPersistent(null);
         }
-
-        $current = $config->getSorting();
-
-        if (!\is_array($current)) {
-            $current = [];
-        }
-
-        if ($this->getSelectedDefinition()) {
-            foreach ($this->getSelectedDefinition() as $information) {
-                $current[$information->getProperty()] = $information->getSortingMode();
-            }
-        }
-        $config->setSorting($current);
     }
 
     /**

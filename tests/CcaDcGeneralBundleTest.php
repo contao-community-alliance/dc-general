@@ -40,10 +40,10 @@ class CcaDcGeneralBundleTest extends TestCase
 
         $container = $this->createMock(ContainerBuilder::class);
         $container
-            ->expects($this->exactly(\count($passes)))
+            ->expects(self::exactly(\count($passes)))
             ->method('addCompilerPass')
             ->with(
-                $this->callback(
+                self::callback(
                     function ($param) use ($passes) {
                         return \in_array(\get_class($param), $passes, true);
                     }

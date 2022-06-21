@@ -1,10 +1,10 @@
-<div class="tl_search tl_subpanel <?php echo $this->rowClass; ?>">
-	<strong><?php echo $GLOBALS['TL_LANG']['MSC']['search']; ?>:</strong>
-	<select name="tl_field" class="<?php echo $this->class; ?>">
-		<?php foreach ($this->options as $arrOption): ?>
-			<option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['attributes']; ?>><?php echo $arrOption['content']; ?></option>
-		<?php endforeach; ?>
-	</select>
-	<span> = </span>
-	<input type="text" name="tl_value" class="<?php echo $this->class; ?>" value="<?php echo $this->value; ?>">
+<div class="tl_search tl_subpanel <?= $this->rowClass ?>">
+    <strong><?= $GLOBALS['TL_LANG']['MSC']['search'] ?>:</strong>
+    <select name="tl_field" class="<?= $this->class ?>">
+        <?php foreach ($this->options as $arrOption): ?>
+            <option value="<?= $arrOption['value'] ?>"<?= $arrOption['attributes'] ?>><?= $arrOption['content'] ?></option>
+        <?php endforeach; ?>
+    </select>
+    <span> = </span>
+    <input type="search" name="tl_value" class="tl_text" value="<?= $this->value ?>">
 </div>

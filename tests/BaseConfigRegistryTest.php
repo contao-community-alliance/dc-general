@@ -52,11 +52,11 @@ class BaseConfigRegistryTest extends TestCase
 
         $configRegistry = new BaseConfigRegistry();
 
-        $this->assertNull($configRegistry->getEnvironment());
+        self::assertNull($configRegistry->getEnvironment());
 
-        $this->assertInstanceOf(BaseConfigRegistryInterface::class, $configRegistry->setEnvironment($environment));
-        $this->assertInstanceOf(EnvironmentInterface::class, $configRegistry->getEnvironment());
-        $this->assertSame($environment, $configRegistry->getEnvironment());
+        self::assertInstanceOf(BaseConfigRegistryInterface::class, $configRegistry->setEnvironment($environment));
+        self::assertInstanceOf(EnvironmentInterface::class, $configRegistry->getEnvironment());
+        self::assertSame($environment, $configRegistry->getEnvironment());
     }
 
     public function testGetBaseConfig()
@@ -79,14 +79,14 @@ class BaseConfigRegistryTest extends TestCase
             Contao2BackendViewDefinitionInterface::NAME => $viewDefinition
         ];
         $dataDefinition->method('hasDefinition')->will(
-            $this->returnCallback(
+            self::returnCallback(
                 function ($definitionName) use ($definition) {
                     return array_key_exists($definitionName, $definition);
                 }
             )
         );
         $dataDefinition->method('getDefinition')->will(
-            $this->returnCallback(
+            self::returnCallback(
                 function ($definitionName) use ($definition) {
                     return $definition[$definitionName];
                 }
@@ -98,7 +98,7 @@ class BaseConfigRegistryTest extends TestCase
         $parentChildCondition->method('getFilter')->willReturn($parentChildFilter);
 
         $modelRelationShip->method('getChildCondition')->will(
-            $this->returnCallback(
+            self::returnCallback(
                 function ($parentProviderName) use ($parentChildCondition) {
                     if ('parentIdWithCondition' === $parentProviderName) {
                         return $parentChildCondition;
@@ -126,14 +126,14 @@ class BaseConfigRegistryTest extends TestCase
         $environment->addDataProvider('single', $singleDataProvider);
         $basicDefinition->setDataProvider('single');
         $basicDefinition->setAdditionalFilter('single', $singleAdditionalFilter);
-        $this->assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig(null));
-        $this->assertIsArray($singleDataProviderConfig->getFilter());
-        $this->assertSame($singleAdditionalFilter, $singleDataProviderConfig->getFilter());
+        self::assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig(null));
+        self::assertIsArray($singleDataProviderConfig->getFilter());
+        self::assertSame($singleAdditionalFilter, $singleDataProviderConfig->getFilter());
         // Test get single data provider from cache.
         $basicDefinition->setAdditionalFilter('single', $singleAdditionalFilter2);
-        $this->assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig(null));
-        $this->assertIsArray($singleDataProviderConfig->getFilter());
-        $this->assertNotSame($singleAdditionalFilter2, $singleDataProviderConfig->getFilter());
+        self::assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig(null));
+        self::assertIsArray($singleDataProviderConfig->getFilter());
+        self::assertNotSame($singleAdditionalFilter2, $singleDataProviderConfig->getFilter());
 
         // ParentId data provider test settings.
         $parentIdDataProvider       = $this->createMock(DefaultDataProvider::class);
@@ -147,8 +147,8 @@ class BaseConfigRegistryTest extends TestCase
         try {
             $configRegistry->getBaseConfig($unexpectedModelId);
         } catch (\Exception $exception) {
-            $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
-            $this->assertSame(
+            self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
+            self::assertSame(
                 'Unexpected parent provider parentId (expected unexpectedDataProvider)',
                 $exception->getMessage()
             );
@@ -160,8 +160,8 @@ class BaseConfigRegistryTest extends TestCase
         try {
             $configRegistry->getBaseConfig($itemNotFoundModelId);
         } catch (\Exception $exception) {
-            $this->assertInstanceOf(DcGeneralRuntimeException::class, $exception);
-            $this->assertSame(
+            self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
+            self::assertSame(
                 'Parent item parentId::Iml0ZW0tbm90LWZvdW5kIg== not found in parentId',
                 $exception->getMessage()
             );
@@ -174,9 +174,9 @@ class BaseConfigRegistryTest extends TestCase
         $parentIdDataProvider->method('fetch')->willReturn($parentIdModel);
         $basicDefinition->setAdditionalFilter('single', $singleAdditionalFilter);
         $basicDefinition->setAdditionalFilter('parentId', $parentIdAdditionalFilter);
-        $this->assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig($modelId));
-        $this->assertIsArray($singleDataProviderConfig->getFilter());
-        $this->assertSame($singleAdditionalFilter, $singleDataProviderConfig->getFilter());
+        self::assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig($modelId));
+        self::assertIsArray($singleDataProviderConfig->getFilter());
+        self::assertSame($singleAdditionalFilter, $singleDataProviderConfig->getFilter());
 
         // ParentId data provider tests with child condition.
         $modelIdWithChildCondition = ModelId::fromValues('parentIdWithCondition', 'id-parent-with-child-condition');
@@ -188,9 +188,9 @@ class BaseConfigRegistryTest extends TestCase
                 'children'  => array_merge($singleAdditionalFilter, $parentChildFilter)
             ]
         ];
-        $this->assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig($modelIdWithChildCondition));
-        $this->assertIsArray($singleDataProviderConfig->getFilter());
-        $this->assertSame($exceptedFilterWithChildCondition, $singleDataProviderConfig->getFilter());
+        self::assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig($modelIdWithChildCondition));
+        self::assertIsArray($singleDataProviderConfig->getFilter());
+        self::assertSame($exceptedFilterWithChildCondition, $singleDataProviderConfig->getFilter());
     }
 
     public function testGetBaseConfigParentListMode()
@@ -227,14 +227,14 @@ class BaseConfigRegistryTest extends TestCase
             Contao2BackendViewDefinitionInterface::NAME => $viewDefinition
         ];
         $dataDefinition->method('hasDefinition')->will(
-            $this->returnCallback(
+            self::returnCallback(
                 function ($definitionName) use ($definition) {
                     return array_key_exists($definitionName, $definition);
                 }
             )
         );
         $dataDefinition->method('getDefinition')->will(
-            $this->returnCallback(
+            self::returnCallback(
                 function ($definitionName) use ($definition) {
                     return $definition[$definitionName];
                 }
@@ -265,8 +265,8 @@ class BaseConfigRegistryTest extends TestCase
         $basicDefinition->setMode(BasicDefinitionInterface::MODE_PARENTEDLIST);
         $additionalFilter  = ['current' => 'foo'];
         $basicDefinition->setAdditionalFilter('current', $additionalFilter);
-        $this->assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig(null));
-        $this->assertIsArray($dataProviderConfig->getFilter());
-        $this->assertSame($additionalFilter, $dataProviderConfig->getFilter());
+        self::assertInstanceOf(ConfigInterface::class, $configRegistry->getBaseConfig(null));
+        self::assertIsArray($dataProviderConfig->getFilter());
+        self::assertSame($additionalFilter, $dataProviderConfig->getFilter());
     }
 }

@@ -37,6 +37,7 @@ use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Schema\Table;
 
 /**
  * Class DefaultDataProvider.
@@ -83,6 +84,13 @@ class DefaultDataProvider implements DataProviderInterface
      * @var IdGeneratorInterface
      */
     protected $idGenerator;
+
+    /**
+     * The table schema.
+     *
+     * @var Table
+     */
+    private $schema;
 
     /**
      * Retrieve the name of the id property.
@@ -420,14 +428,15 @@ class DefaultDataProvider implements DataProviderInterface
 
         $values = $statement->fetchAll(\PDO::FETCH_OBJ);
 
-        $filterPropertyName = $property;
-        // Remove the data provider name from the filter property name, if exist.
-        if (0 === \strpos($filterPropertyName, $this->source . '.')) {
-            $filterPropertyName = \substr($filterPropertyName, \strlen($this->source . '.'));
+        $filterProperties = $config->getFields();
+        if (1 !== \count($filterProperties)) {
+            throw new DcGeneralRuntimeException('objConfig must contain exactly one property to be retrieved.');
         }
+        $filterProperty = $filterProperties[0];
+
         $collection = new DefaultFilterOptionCollection();
         foreach ($values as $value) {
-            $collection->add($value->$filterPropertyName, $value->$filterPropertyName);
+            $collection->add($value->$filterProperty, $value->$filterProperty);
         }
 
         return $collection;
@@ -684,9 +693,11 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function fieldExists($columnName)
     {
-        $tableDetails = $this->connection->getSchemaManager()->listTableDetails($this->source);
+        if (!isset($this->schema)) {
+            $this->schema = $this->connection->getSchemaManager()->listTableDetails($this->source);
+        }
 
-        return $tableDetails->hasColumn($columnName);
+        return $this->schema->hasColumn($columnName);
     }
 
     /**

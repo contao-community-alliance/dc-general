@@ -26,11 +26,14 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Doctrine\Common\Cache\Cache;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This class tests the DcGeneralFactory
+ *
+ * @covers \ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory
  */
 class DcGeneralFactoryTest extends TestCase
 {
@@ -48,25 +51,27 @@ class DcGeneralFactoryTest extends TestCase
 
         $mockDefinitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
         $container
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('get')
             ->with('cca.dc-general.data-definition-container')
             ->willReturn($mockDefinitionContainer);
 
         $mockDefinitionContainer
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('hasDefinition')
             ->with('test-container')
             ->willReturn(false);
 
+        $cache = $this->createMock(Cache::class);
+
         /** @var TranslatorInterface $mockTranslator */
-        $factory   = new DcGeneralFactory();
+        $factory   = new DcGeneralFactory($cache);
         $dcGeneral = $factory
             ->setContainerName('test-container')
             ->setEventDispatcher($eventDispatcher)
             ->setTranslator($mockTranslator)
             ->createDcGeneral();
 
-        $this->assertInstanceOf(EnvironmentInterface::class, $dcGeneral->getEnvironment());
+        self::assertInstanceOf(EnvironmentInterface::class, $dcGeneral->getEnvironment());
     }
 }

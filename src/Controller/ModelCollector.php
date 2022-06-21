@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,9 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Stefan Heimes <stefan_heimes@hotmail.com>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -97,6 +99,13 @@ class ModelCollector
     private $parentProviderName;
 
     /**
+     * The default data provider name.
+     *
+     * @var string
+     */
+    private $defaultProviderName;
+
+    /**
      * Create a new instance.
      *
      * @param EnvironmentInterface $environment The environment.
@@ -119,6 +128,11 @@ class ModelCollector
 
             if (!$this->rootCondition instanceof RootConditionInterface) {
                 throw new DcGeneralRuntimeException('No root condition specified for hierarchical mode.');
+            }
+
+            if ($this->environment->getParentDataDefinition()) {
+                $this->parentProviderName = $basicDefinition->getParentDataProvider();
+                $this->parentProvider     = $this->environment->getDataProvider($this->parentProviderName);
             }
         }
         if (BasicDefinitionInterface::MODE_PARENTEDLIST === $this->definitionMode) {
@@ -196,12 +210,15 @@ class ModelCollector
      * @param ModelInterface      $model  The model to search the parent for.
      * @param CollectionInterface $models The collection to search in.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
+     *
+     * @throws DcGeneralInvalidArgumentException When the model does not originate from the child provider.
      */
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
     {
+        $this->guardModelOriginatesFromProvider($model);
+
         foreach ($models as $candidate) {
-            /** @var ModelInterface $candidate */
             foreach ($this->relationships->getChildConditions($candidate->getProviderName()) as $condition) {
                 if ($condition->matches($candidate, $model)) {
                     return $candidate;
@@ -222,11 +239,15 @@ class ModelCollector
     /**
      * Search the parent model for the given model.
      *
+     * If the model is part of a hierarchical structure the parent node is determined instead of a possible available
+     * parent relationship.
+     *
      * @param ModelInterface $model The model for which the parent shall be retrieved.
      *
      * @return ModelInterface|null
      *
      * @throws DcGeneralInvalidArgumentException When a root model has been passed or not in hierarchical mode.
+     * @throws DcGeneralInvalidArgumentException When the model does not originate from the child provider.
      */
     public function searchParentOf(ModelInterface $model)
     {
@@ -239,6 +260,54 @@ class ModelCollector
         }
 
         throw new DcGeneralInvalidArgumentException('Invalid condition, not in hierarchical mode!');
+    }
+
+    /**
+     * Search the parent model from a hierarchical model.
+     *
+     * @param ModelInterface $model The hierarchical model for search the parent model.
+     *
+     * @return ModelInterface|null
+     *
+     * @throws DcGeneralInvalidArgumentException It throws a exception if the configuration not passed.
+     */
+    public function searchParentFromHierarchical(ModelInterface $model): ?ModelInterface
+    {
+        if (null === $this->rootProvider) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. The root data provider must be defined!'
+            );
+        }
+        if (null === $this->parentProvider) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. The parent data provider must be defined!'
+            );
+        }
+        if ($this->rootProviderName !== $model->getProviderName()) {
+            throw new DcGeneralInvalidArgumentException(
+                'Model originates from ' . $model->getProviderName() .
+                ' but is expected to be from ' . $this->rootProviderName .
+                ' can not determine parent.'
+            );
+        }
+
+        $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->rootProviderName);
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+            return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
+        }
+
+        foreach ($this->parentProvider->fetchAll($this->parentProvider->getEmptyConfig()) as $candidate) {
+            if ($condition->matches($candidate, $model)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -386,17 +455,20 @@ class ModelCollector
      */
     private function searchParentOfInParentedMode(ModelInterface $model)
     {
-        if ($this->defaultProviderName !== $model->getProviderName()) {
+        $this->guardParentProviderDefined();
+
+        $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->defaultProviderName);
+
+        if (null === $condition) {
             throw new DcGeneralInvalidArgumentException(
-                'Model originates from ' . $model->getProviderName() .
-                ' but is expected to be from ' . $this->defaultProviderName .
-                ' can not determine parent.'
+                'Invalid configuration. Child condition must be defined!'
             );
         }
 
-        $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->defaultProviderName);
-        // This is pretty expensive, we fetch all models from the parent provider here.
-        // This can be much faster by using the inverse condition if present.
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+            return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
+        }
+
         foreach ($this->parentProvider->fetchAll($this->parentProvider->getEmptyConfig()) as $candidate) {
             if ($condition->matches($candidate, $model)) {
                 return $candidate;
@@ -417,8 +489,27 @@ class ModelCollector
      */
     private function searchParentOfInHierarchical(ModelInterface $model)
     {
-        if ($this->isRootModel($model)) {
-            throw new DcGeneralInvalidArgumentException('Invalid condition, root models can not have parents!');
+        $this->guardRootProviderDefined();
+
+        foreach ($this->relationships->getChildConditions() as $condition) {
+            // Skip conditions where the destination is not the provider
+            if ($this->defaultProviderName !== $condition->getDestinationName()
+                || $this->defaultProviderName !== $condition->getSourceName()
+            ) {
+                continue;
+            }
+
+            if (null === ($inverseFilter = $condition->getInverseFilterFor($model))) {
+                continue;
+            }
+
+            $provider = $this->environment->getDataProvider($condition->getSourceName());
+            $config   = $provider->getEmptyConfig()->setFilter($inverseFilter);
+            $parent   = $this->environment->getDataProvider($condition->getSourceName())->fetch($config);
+
+            if (null !== $parent) {
+                return $parent;
+            }
         }
         // Start from the root data provider and walk through the whole tree.
         // To speed up, some conditions have an inverse filter - we should use them!
@@ -435,7 +526,8 @@ class ModelCollector
      *
      * @return void
      *
-     * @throws DcGeneralRuntimeException When parent could not be found.
+     * @throws DcGeneralRuntimeException Parent could not be found, are the parent child conditions correct.
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     private function addParentFilter(ModelInterface $model, $config)
     {
@@ -460,6 +552,11 @@ class ModelCollector
         }
 
         $condition = $this->relationships->getChildCondition($parent->getProviderName(), $model->getProviderName());
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
         $config->setFilter($condition->getFilter($parent));
     }
 
@@ -474,5 +571,59 @@ class ModelCollector
     private function isRootModel(ModelInterface $model)
     {
         return (null !== $this->rootCondition) && $this->rootCondition->matches($model);
+    }
+
+    /**
+     * Guards that a root provider is defined.
+     *
+     * @return void
+     *
+     * @throws DcGeneralInvalidArgumentException When not root provider is defined.
+     */
+    private function guardRootProviderDefined(): void
+    {
+        if (null === $this->rootProvider) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. The root data provider must be defined!'
+            );
+        }
+    }
+
+    /**
+     * Guards that a parent provider is defined.
+     *
+     * @return void
+     *
+     * @throws DcGeneralInvalidArgumentException When not root provider is defined.
+     */
+    private function guardParentProviderDefined(): void
+    {
+        if (null === $this->parentProvider) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. The parent data provider must be defined!'
+            );
+        }
+    }
+
+    /**
+     * This guard checks if the model belongs to the configured data provider.
+     *
+     * @param ModelInterface $model The model to check.
+     *
+     * @return void
+     *
+     * @throws DcGeneralInvalidArgumentException When model is not for the configured provider.
+     */
+    private function guardModelOriginatesFromProvider(ModelInterface $model): void
+    {
+        if ($this->defaultProviderName === $model->getProviderName()) {
+            return;
+        }
+
+        throw new DcGeneralInvalidArgumentException(
+            'Model originates from ' . $model->getProviderName() .
+            ' but is expected to be from ' . $this->defaultProviderName .
+            ' can not determine parent.'
+        );
     }
 }

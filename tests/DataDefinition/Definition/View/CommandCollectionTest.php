@@ -25,11 +25,14 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandColl
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
+/**
+ * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollection
+ */
 class CommandCollectionTest extends TestCase
 {
     protected function assertIndexIs($expected, $array, $command)
     {
-        $this->assertSame($expected, \array_search($command, \array_values($array)));
+        self::assertSame($expected, \array_search($command, \array_values($array)));
     }
 
     public function testAddOne()
@@ -41,8 +44,8 @@ class CommandCollectionTest extends TestCase
 
         $collection->addCommand($command);
 
-        $this->assertTrue($collection->hasCommand($command));
-        $this->assertTrue($collection->hasCommandNamed('test'));
+        self::assertTrue($collection->hasCommand($command));
+        self::assertTrue($collection->hasCommandNamed('test'));
         $this->assertIndexIs(0, $collection->getCommands(), $command);
     }
 
@@ -58,10 +61,10 @@ class CommandCollectionTest extends TestCase
         $collection->addCommand($command1);
         $collection->addCommand($command2, $command1);
 
-        $this->assertTrue($collection->hasCommand($command1));
-        $this->assertTrue($collection->hasCommandNamed('test1'));
-        $this->assertTrue($collection->hasCommand($command2));
-        $this->assertTrue($collection->hasCommandNamed('test2'));
+        self::assertTrue($collection->hasCommand($command1));
+        self::assertTrue($collection->hasCommandNamed('test1'));
+        self::assertTrue($collection->hasCommand($command2));
+        self::assertTrue($collection->hasCommandNamed('test2'));
 
         $this->assertIndexIs(1, $collection->getCommands(), $command1);
         $this->assertIndexIs(0, $collection->getCommands(), $command2);
@@ -80,10 +83,10 @@ class CommandCollectionTest extends TestCase
 
         $collection->addCommand($command2, $command1);
 
-        $this->assertTrue($collection->hasCommand($command1));
-        $this->assertTrue($collection->hasCommandNamed('test1'));
-        $this->assertFalse($collection->hasCommand($command2));
-        $this->assertFalse($collection->hasCommandNamed('test2'));
+        self::assertTrue($collection->hasCommand($command1));
+        self::assertTrue($collection->hasCommandNamed('test1'));
+        self::assertFalse($collection->hasCommand($command2));
+        self::assertFalse($collection->hasCommandNamed('test2'));
 
         $this->assertIndexIs(0, $collection->getCommands(), $command1);
         $this->assertIndexIs(false, $collection->getCommands(), $command2);
@@ -100,10 +103,10 @@ class CommandCollectionTest extends TestCase
 
         $collection->addCommands([$command1, $command2]);
 
-        $this->assertTrue($collection->hasCommand($command1));
-        $this->assertTrue($collection->hasCommandNamed('test1'));
-        $this->assertTrue($collection->hasCommand($command2));
-        $this->assertTrue($collection->hasCommandNamed('test2'));
+        self::assertTrue($collection->hasCommand($command1));
+        self::assertTrue($collection->hasCommandNamed('test1'));
+        self::assertTrue($collection->hasCommand($command2));
+        self::assertTrue($collection->hasCommandNamed('test2'));
         $this->assertIndexIs(0, $collection->getCommands(), $command1);
         $this->assertIndexIs(1, $collection->getCommands(), $command2);
     }
@@ -122,12 +125,12 @@ class CommandCollectionTest extends TestCase
         $collection->addCommand($command3);
         $collection->addCommands([$command1, $command2], $command3);
 
-        $this->assertTrue($collection->hasCommand($command1));
-        $this->assertTrue($collection->hasCommandNamed('test1'));
-        $this->assertTrue($collection->hasCommand($command2));
-        $this->assertTrue($collection->hasCommandNamed('test2'));
-        $this->assertTrue($collection->hasCommand($command3));
-        $this->assertTrue($collection->hasCommandNamed('test3'));
+        self::assertTrue($collection->hasCommand($command1));
+        self::assertTrue($collection->hasCommandNamed('test1'));
+        self::assertTrue($collection->hasCommand($command2));
+        self::assertTrue($collection->hasCommandNamed('test2'));
+        self::assertTrue($collection->hasCommand($command3));
+        self::assertTrue($collection->hasCommandNamed('test3'));
         $this->assertIndexIs(0, $collection->getCommands(), $command1);
         $this->assertIndexIs(1, $collection->getCommands(), $command2);
         $this->assertIndexIs(2, $collection->getCommands(), $command3);
@@ -148,12 +151,12 @@ class CommandCollectionTest extends TestCase
 
         $collection->addCommands([$command1, $command2], $command3);
 
-        $this->assertTrue($collection->hasCommand($command1));
-        $this->assertTrue($collection->hasCommandNamed('test1'));
-        $this->assertTrue($collection->hasCommand($command2));
-        $this->assertTrue($collection->hasCommandNamed('test2'));
-        $this->assertFalse($collection->hasCommand($command3));
-        $this->assertFalse($collection->hasCommandNamed('test3'));
+        self::assertTrue($collection->hasCommand($command1));
+        self::assertTrue($collection->hasCommandNamed('test1'));
+        self::assertTrue($collection->hasCommand($command2));
+        self::assertTrue($collection->hasCommandNamed('test2'));
+        self::assertFalse($collection->hasCommand($command3));
+        self::assertFalse($collection->hasCommandNamed('test3'));
 
         $this->assertIndexIs(0, $collection->getCommands(), $command1);
         $this->assertIndexIs(1, $collection->getCommands(), $command2);

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Martin Treml <github@r2pi.net>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -303,7 +303,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         $event = new GetGroupHeaderEvent($environment, $model, $field, null, $groupMode, $groupLength);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
 
         return $event->getValue();
     }
@@ -319,7 +319,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $event = new GetSelectModeButtonsEvent($environment);
         $event->setButtons([]);
-        $environment->getEventDispatcher()->dispatch(GetSelectModeButtonsEvent::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, GetSelectModeButtonsEvent::NAME);
 
         return $event->getButtons();
     }
@@ -507,7 +507,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $environment = $this->getEnvironment();
 
         $event = new GetBreadcrumbEvent($environment);
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
 
         $elements = $event->getElements();
 

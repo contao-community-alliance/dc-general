@@ -26,6 +26,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\AbstractConditionChainTestBase;
 
+/**
+ * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteConditionChain
+ */
 class PaletteConditionChainTest extends AbstractConditionChainTestBase
 {
     public function testClone()
@@ -46,24 +49,24 @@ class PaletteConditionChainTest extends AbstractConditionChainTestBase
         $condition->addCondition(new PropertyValueCondition('prop1', '0'));
         $condition->addCondition(new PropertyValueCondition('prop2', '1'));
 
-        $this->assertEquals(0, $condition->getMatchCount());
+        self::assertEquals(0, $condition->getMatchCount());
 
         $model = new DefaultModel();
         $model->setProperty('prop1', '0');
         $model->setProperty('prop2', '1');
 
-        $this->assertEquals(2, $condition->getMatchCount($model));
+        self::assertEquals(2, $condition->getMatchCount($model));
 
         $model->setProperty('prop2', '0');
-        $this->assertEquals(0, $condition->getMatchCount($model));
+        self::assertEquals(0, $condition->getMatchCount($model));
 
         $propertyValueBag = new PropertyValueBag();
         $propertyValueBag->setPropertyValue('prop1', '0');
         $propertyValueBag->setPropertyValue('prop2', '1');
 
-        $this->assertEquals(2, $condition->getMatchCount(null, $propertyValueBag));
+        self::assertEquals(2, $condition->getMatchCount(null, $propertyValueBag));
 
         $propertyValueBag->setPropertyValue('prop2', '3');
-        $this->assertEquals(0, $condition->getMatchCount(null, $propertyValueBag));
+        self::assertEquals(0, $condition->getMatchCount(null, $propertyValueBag));
     }
 }

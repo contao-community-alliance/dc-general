@@ -61,11 +61,11 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * This class test the subscriber.
  *
- * @see  \ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
+ * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
  */
 class SubscriberTest extends TestCase
 {
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
         \define('TL_ROOT', __DIR__ . '/../../../../../../vendor/contao/core');
@@ -85,12 +85,12 @@ class SubscriberTest extends TestCase
     {
         $events = Subscriber::getSubscribedEvents();
 
-        $this->assertSame('array', \gettype($events));
-        $this->assertArrayHasKey(DcGeneralEvents::ACTION, $events);
-        $this->assertArrayHasKey(GetPanelElementTemplateEvent::NAME, $events);
-        $this->assertArrayHasKey(ResolveWidgetErrorMessageEvent::NAME, $events);
-        $this->assertArrayHasKey(RenderReadablePropertyValueEvent::NAME, $events);
-        $this->assertArrayHasKey('contao-twig.init', $events);
+        self::assertSame('array', \gettype($events));
+        self::assertArrayHasKey(DcGeneralEvents::ACTION, $events);
+        self::assertArrayHasKey(GetPanelElementTemplateEvent::NAME, $events);
+        self::assertArrayHasKey(ResolveWidgetErrorMessageEvent::NAME, $events);
+        self::assertArrayHasKey(RenderReadablePropertyValueEvent::NAME, $events);
+        self::assertArrayHasKey('contao-twig.init', $events);
     }
 
     public function getPanelElementTemplateDataProvider()
@@ -126,9 +126,9 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
 
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'getPanelElementTemplate']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame($excepted, $event->getTemplate()->getName());
+        self::assertSame($excepted, $event->getTemplate()->getName());
     }
 
     public function widgetErrorMessageDataProvider()
@@ -137,7 +137,7 @@ class SubscriberTest extends TestCase
         $objectError         = $this->getMockBuilder('stdClass')->getMock();
         $objectErrorToString = $this->getMockBuilder('stdClass')->setMethods(['__toString'])->getMock();
         $objectErrorToString
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('__toString')
             ->willReturn('foo__toString');
 
@@ -163,7 +163,7 @@ class SubscriberTest extends TestCase
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'resolveWidgetErrorMessage']);
         $dispatcher->dispatch($event::NAME, $event);
 
-        $this->assertSame($excepted, $event->getError());
+        self::assertSame($excepted, $event->getError());
     }
 
     public function testRenderReadablePropertyValueIsRendered()
@@ -182,9 +182,9 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
 
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame('foo', $event->getRendered());
+        self::assertSame('foo', $event->getRendered());
     }
 
     public function testRenderForeignKeyReadable()
@@ -199,10 +199,10 @@ class SubscriberTest extends TestCase
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame('testValue', $event->getValue());
-        $this->assertNull($event->getRendered());
+        self::assertSame('testValue', $event->getValue());
+        self::assertNull($event->getRendered());
     }
 
     public function arrayReadableSingleDataProvider()
@@ -223,10 +223,10 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher        = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame($values, $event->getValue());
-        $this->assertSame($excepted, $event->getRendered());
+        self::assertSame($values, $event->getValue());
+        self::assertSame($excepted, $event->getRendered());
     }
 
     public function timestampReadableForDateDataProvider()
@@ -263,15 +263,15 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
-        $parseDateListener = $this->mockParseDateEventListener($this->once());
+        $parseDateListener = $this->mockParseDateEventListener(self::once());
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener(ContaoEvents::DATE_PARSE, [$parseDateListener, 'handle']);
         $dispatcher->addListener($event::NAME, [$subscriber, 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame($dateTime, $event->getValue());
-        $this->assertSame($dateTime->format('Y-m-d H:i'), $event->getRendered());
+        self::assertSame($dateTime, $event->getValue());
+        self::assertSame($dateTime->format('Y-m-d H:i'), $event->getRendered());
     }
 
     public function widgetCheckBoxReadableDataProvider()
@@ -293,10 +293,10 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher        = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame($value, $event->getValue());
-        $this->assertSame($excepted, $event->getRendered());
+        self::assertSame($value, $event->getValue());
+        self::assertSame($excepted, $event->getRendered());
     }
 
     public function widgetTextAreaReadableDataProvider()
@@ -333,17 +333,17 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher        = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
         if (null === $excepted) {
-            $this->assertSame($value, $event->getValue());
-            $this->assertNull($event->getRendered());
+            self::assertSame($value, $event->getValue());
+            self::assertNull($event->getRendered());
 
             return;
         }
 
-        $this->assertSame($value, $event->getValue());
-        $this->assertSame($excepted, $event->getRendered());
+        self::assertSame($value, $event->getValue());
+        self::assertSame($excepted, $event->getRendered());
     }
 
     public function referenceReadableDataProvider()
@@ -382,17 +382,17 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher        = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame($value, $event->getValue());
+        self::assertSame($value, $event->getValue());
 
         if (null === $excepted) {
-            $this->assertNull($event->getRendered());
+            self::assertNull($event->getRendered());
 
             return;
         }
 
-        $this->assertSame($excepted, $event->getRendered());
+        self::assertSame($excepted, $event->getRendered());
     }
 
     public function optionValueReadableDataProvider()
@@ -421,32 +421,32 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
-        $parseDateListener = $this->mockParseDateEventListener($this->never());
+        $parseDateListener = $this->mockParseDateEventListener(self::never());
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener(ContaoEvents::DATE_PARSE, [$parseDateListener, 'handle']);
 
         if (!empty($propertyOptions) && $optionsForListener) {
-            $optionsListener = $this->mockGetPropertyOptionsEventListener($this->once(), $propertyOptions);
+            $optionsListener = $this->mockGetPropertyOptionsEventListener(self::once(), $propertyOptions);
             $dispatcher->addListener(GetPropertyOptionsEvent::NAME, [$optionsListener, 'handle']);
         }
 
         $dispatcher->addListener($event::NAME, [$subscriber, 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame($value, $event->getValue());
+        self::assertSame($value, $event->getValue());
 
         if (null === $excepted) {
-            $this->assertNull($event->getRendered());
+            self::assertNull($event->getRendered());
             return;
         }
 
-        $this->assertSame($excepted, $event->getRendered());
+        self::assertSame($excepted, $event->getRendered());
     }
 
     public function testInitTwig()
     {
-        $this->markTestSkipped('The Contao twig extention we not using at time. We show for replace this.');
+        self::markTestSkipped('The Contao twig extention we not using at time. We show for replace this.');
         return;
 
         $dispatcher = new EventDispatcher();
@@ -457,12 +457,12 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher->addListener('contao-twig.init', [new Subscriber($scopeDeterminator), 'initTwig']);
-        $dispatcher->dispatch('contao-twig.init', $event);
+        $dispatcher->dispatch($event, 'contao-twig.init');
 
         $environment = $contaoTwig->getEnvironment();
 
-        $this->assertTrue($environment->hasExtension('dc-general'));
-        $this->assertInstanceOf(DcGeneralExtension::class, $environment->getExtension('dc-general'));
+        self::assertTrue($environment->hasExtension('dc-general'));
+        self::assertInstanceOf(DcGeneralExtension::class, $environment->getExtension('dc-general'));
     }
 
     public function initializePanelsDataProvider()
@@ -580,7 +580,7 @@ class SubscriberTest extends TestCase
         $panel
             ->method('initialize')
             ->will(
-                $this->returnCallback(
+                self::returnCallback(
                     function ($config) {
                         $config->setSorting([3, 4]);
                     }
@@ -589,9 +589,9 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher->addListener(DcGeneralEvents::ACTION, [new Subscriber($scopeDeterminator), 'initializePanels']);
-        $dispatcher->dispatch(DcGeneralEvents::ACTION, $event);
+        $dispatcher->dispatch($event, DcGeneralEvents::ACTION);
 
-        $this->assertArraySubset($dataConfig->getSorting(), $excepted);
+        self::assertSame($dataConfig->getSorting(), $excepted);
     }
 
     public function testGetConfig()
@@ -599,8 +599,8 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
 
-        $this->assertInstanceOf(Config::class, Subscriber::getConfig());
-        $this->assertInstanceOf(Config::class, $subscriber::getConfig());
+        self::assertInstanceOf(Config::class, Subscriber::getConfig());
+        self::assertInstanceOf(Config::class, $subscriber::getConfig());
     }
 
     public function testSetConfig()
@@ -610,7 +610,7 @@ class SubscriberTest extends TestCase
 
         $subscriber::setConfig(Config::getInstance());
 
-        $this->assertInstanceOf(Config::class, $subscriber::getConfig());
+        self::assertInstanceOf(Config::class, $subscriber::getConfig());
     }
 
     private function runTimestampReadable($propertyName, $time, $excepted, array $extra = [])
@@ -620,23 +620,23 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
         $parseDateListener = $this->mockParseDateEventListener(
-            (isset($extra['rgxp']) && $extra['rgxp'] === 'non-format') ? $this->never() : $this->once()
+            (isset($extra['rgxp']) && $extra['rgxp'] === 'non-format') ? self::never() : self::once()
         );
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener(ContaoEvents::DATE_PARSE, [$parseDateListener, 'handle']);
         $dispatcher->addListener($event::NAME, [$subscriber, 'renderReadablePropertyValue']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
-        $this->assertSame($time, $event->getValue());
+        self::assertSame($time, $event->getValue());
 
         if (isset($extra['rgxp']) && $extra['rgxp'] === 'non-format') {
-            $this->assertNull($event->getRendered());
+            self::assertNull($event->getRendered());
 
             return;
         }
 
-        $this->assertSame($excepted, $event->getRendered());
+        self::assertSame($excepted, $event->getRendered());
     }
 
     private function setupRenderReadablePropertyValueEvent($value, $propertyName, array $extra = [])
@@ -670,12 +670,12 @@ class SubscriberTest extends TestCase
             ->expects($expects)
             ->method('handle')
             ->with(
-                $this->isInstanceOf(ParseDateEvent::class),
-                $this->equalTo(ContaoEvents::DATE_PARSE),
-                $this->isInstanceOf(EventDispatcher::class)
+                self::isInstanceOf(ParseDateEvent::class),
+                self::equalTo(ContaoEvents::DATE_PARSE),
+                self::isInstanceOf(EventDispatcher::class)
             )
             ->will(
-                $this->returnCallback(
+                self::returnCallback(
                     function (ParseDateEvent $event) {
                         $event->setResult(Date::parse($event->getFormat(), $event->getTimestamp()));
                     }
@@ -695,12 +695,12 @@ class SubscriberTest extends TestCase
             ->expects($expects)
             ->method('handle')
             ->with(
-                $this->isInstanceOf(GetPropertyOptionsEvent::class),
-                $this->equalTo(GetPropertyOptionsEvent::NAME),
-                $this->isInstanceOf(EventDispatcher::class)
+                self::isInstanceOf(GetPropertyOptionsEvent::class),
+                self::equalTo(GetPropertyOptionsEvent::NAME),
+                self::isInstanceOf(EventDispatcher::class)
             )
             ->will(
-                $this->returnCallback(
+                self::returnCallback(
                     function (GetPropertyOptionsEvent $event) use ($options) {
                         if (!\count($options)) {
                             return;

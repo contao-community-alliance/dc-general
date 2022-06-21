@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,15 +25,16 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
-use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -45,13 +47,22 @@ class EditHandler
     use RequestScopeDeterminatorAwareTrait;
 
     /**
+     * The default edit information.
+     *
+     * @var DefaultEditInformation
+     */
+    private DefaultEditInformation $editInformation;
+
+    /**
      * EditHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     * @param DefaultEditInformation   $editInformation   The default edit information.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    public function __construct(RequestScopeDeterminator $scopeDeterminator, DefaultEditInformation $editInformation)
     {
         $this->setScopeDeterminator($scopeDeterminator);
+        $this->editInformation = $editInformation;
     }
 
     /**
@@ -117,7 +128,8 @@ class EditHandler
             $this->handleGlobalCommands($environment);
         }
 
-        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb()))->execute();
+        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb(), $this->editInformation))
+            ->execute();
     }
 
     /**
@@ -172,8 +184,8 @@ class EditHandler
         $dataProvider           = $environment->getDataProvider($modelId->getDataProviderName());
 
         if (!((null !== ($modelVersion = $inputProvider->getValue('version')))
-            && ('tl_version' === $inputProvider->getValue('FORM_SUBMIT'))
-            && $dataProviderDefinition->getInformation($modelId->getDataProviderName())->isVersioningEnabled())
+              && ('tl_version' === $inputProvider->getValue('FORM_SUBMIT'))
+              && $dataProviderDefinition->getInformation($modelId->getDataProviderName())->isVersioningEnabled())
         ) {
             return;
         }
@@ -187,8 +199,8 @@ class EditHandler
             );
 
             $environment->getEventDispatcher()->dispatch(
-                ContaoEvents::SYSTEM_LOG,
-                new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()')
+                new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()'),
+                ContaoEvents::SYSTEM_LOG
             );
 
             throw new DcGeneralRuntimeException($message);
@@ -196,7 +208,7 @@ class EditHandler
 
         $dataProvider->save($model);
         $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+        $environment->getEventDispatcher()->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
     }
 
     /**

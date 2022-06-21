@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2021 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2021 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
 use Contao\System;
+use ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
@@ -34,6 +35,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Doctrine\Common\Cache\Cache;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -41,6 +43,32 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {
+    /**
+     * The cache.
+     *
+     * @var Cache|null
+     */
+    private $cache;
+
+    /**
+     * The constructor.
+     *
+     * @param Cache|null $cache The cache.
+     */
+    public function __construct(Cache $cache = null)
+    {
+        $this->cache = $cache;
+        if (null === $this->cache) {
+            // @codingStandardsIgnoreStart
+            @\trigger_error(
+                'You should use ' . DcGeneralFactoryCache::class . ' .',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+            $this->cache = System::getContainer()->get(DcGeneralFactoryCache::class);
+        }
+    }
+
     /**
      * Create a new factory with basic settings from the environment.
      *
@@ -292,8 +320,12 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required event dispatcher is missing');
         }
 
+        $cacheKey = \md5('dc-general.' . $this->containerName);
+        if ($this->cache->contains($cacheKey)) {
+            return $this->cache->fetch($cacheKey);
+        }
         // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(PreCreateDcGeneralEvent::NAME, new PreCreateDcGeneralEvent($this));
+        $this->getEventDispatcher()->dispatch(new PreCreateDcGeneralEvent($this), PreCreateDcGeneralEvent::NAME);
 
         $environment = $this->environment ?: $this->createEnvironment();
 
@@ -301,7 +333,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         $dcGeneral = (new \ReflectionClass($this->dcGeneralClassName))->newInstance($environment);
 
         // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(CreateDcGeneralEvent::NAME, new CreateDcGeneralEvent($dcGeneral));
+        $this->getEventDispatcher()->dispatch(new CreateDcGeneralEvent($dcGeneral), CreateDcGeneralEvent::NAME);
+
+        $this->cache->save($cacheKey, $dcGeneral);
 
         return $dcGeneral;
     }
@@ -340,8 +374,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(
-            PopulateEnvironmentEvent::NAME,
-            new PopulateEnvironmentEvent($environment)
+            new PopulateEnvironmentEvent($environment),
+            PopulateEnvironmentEvent::NAME
         );
 
         return $environment;
@@ -377,8 +411,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(
-            BuildDataDefinitionEvent::NAME,
-            new BuildDataDefinitionEvent($dataContainer)
+            new BuildDataDefinitionEvent($dataContainer),
+            BuildDataDefinitionEvent::NAME
         );
 
         $definitions->setDefinition($this->containerName, $dataContainer);
