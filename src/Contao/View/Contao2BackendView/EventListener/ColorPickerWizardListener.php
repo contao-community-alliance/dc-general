@@ -95,7 +95,7 @@ class ColorPickerWizardListener
                 $pickerText,
                 \sprintf(
                     'style="%s" title="%s" id="moo_%s"',
-                    'vertical-align:top;cursor:pointer',
+                    'vertical-align:-6px; width:20px; height:20px',
                     StringUtil::specialchars($pickerText),
                     $propInfo->getName()
                 )
