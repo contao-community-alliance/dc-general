@@ -112,7 +112,7 @@ class FileTree extends AbstractWidget
      *
      * @var string
      */
-    private $rootDir;
+    private $projectDir;
 
     /**
      * Create a new instance.
@@ -231,7 +231,7 @@ class FileTree extends AbstractWidget
         // Load the fonts for the drag hint (see #4838)
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
-        $this->rootDir = \dirname(System::getContainer()->getParameter('kernel.project_dir'));
+        $this->projectDir = System::getContainer()->getParameter('kernel.project_dir');
 
         if (!$this->dataContainer || !$this->orderField) {
             return;
@@ -290,7 +290,7 @@ class FileTree extends AbstractWidget
 
         foreach ($collection->getModels() as $model) {
             // File system and database seem not in sync
-            if (!\file_exists($this->rootDir . '/' . $model->path)) {
+            if (!\file_exists($this->projectDir . '/' . $model->path)) {
                 continue;
             }
 
@@ -485,6 +485,7 @@ class FileTree extends AbstractWidget
         if (!empty($this->varValue)) {
             $files = FilesModel::findMultipleByUuids((array) $this->varValue);
             $this->renderList($icons, $files, $this->isGallery || $this->isDownloads);
+            //dump($icons);
             $icons = $this->applySorting($icons);
 
             // Files can be null.
