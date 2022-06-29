@@ -431,7 +431,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $statement = $queryBuilder->executeQuery();
 
-        $values = $statement->fetchAssociative();
+        $values = $statement->fetchAllAssociative();
 
         $filterProperties = $config->getFields();
         if (1 !== \count($filterProperties)) {
@@ -440,10 +440,8 @@ class DefaultDataProvider implements DataProviderInterface
         $filterProperty = $filterProperties[0];
 
         $collection = new DefaultFilterOptionCollection();
-        foreach ((array) $values as $value) {
-            if (isset($value[$filterProperty])) {
-                $collection->add($value[$filterProperty], $value[$filterProperty]);
-            }
+        foreach ($values as $value) {
+            $collection->add($value[$filterProperty], $value[$filterProperty]);
         }
 
         return $collection;
