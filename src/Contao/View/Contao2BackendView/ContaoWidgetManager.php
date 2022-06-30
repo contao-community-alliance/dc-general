@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -175,7 +175,7 @@ class ContaoWidgetManager
         $backendAdapter        = $this->framework->getAdapter(Backend::class);
         $templateLoaderAdapter = $this->framework->getAdapter(TemplateLoader::class);
 
-        [$file, $type] = \explode('|', $widget->rte);
+        [$file, $type] = \explode('|', $widget->rte) + [null, null];
 
         $templateName = 'be_' . $file;
         // This test if the rich text editor template exist.
