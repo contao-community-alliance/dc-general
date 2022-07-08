@@ -933,25 +933,26 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * Store an undo entry in the table tl_undo.
      *
-     * Currently this only supports delete queries.
+     * Currently, this only supports delete queries.
      *
      * @param string $sourceSQL The SQL used to perform the action to be undone.
      * @param string $saveSQL   The SQL query to retrieve the current entries.
      * @param string $table     The table to be affected by the action.
      *
      * @return void
+     * @throws \Doctrine\DBAL\Exception
      */
     protected function insertUndo($sourceSQL, $saveSQL, $table)
     {
         // Load row.
-        $statement = $this->connection->query($saveSQL);
+        $statement = $this->connection->executeQuery($saveSQL);
 
         // Check if we have a result.
         if (0 === $statement->rowCount()) {
             return;
         }
 
-        $result = $statement->fetch(\PDO::FETCH_ASSOC);
+        $result = $statement->fetchAssociative();
 
         // Save information in array.
         $parameters = [];

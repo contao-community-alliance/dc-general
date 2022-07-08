@@ -161,12 +161,12 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             $queryBuilder->orderBy($this->strSortCol, 'ASC');
         }
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
 
         $model = $this->getEmptyModel();
         $model->setID($config->getId());
         if (0 < $statement->rowCount()) {
-            $model->setPropertyRaw('rows', $statement->fetchAll(\PDO::FETCH_ASSOC));
+            $model->setPropertyRaw('rows', $statement->fetchAllAssociative());
         }
 
         return $model;
