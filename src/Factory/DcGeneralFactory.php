@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,6 +23,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
 use Contao\System;
+use ContaoCommunityAlliance\DcGeneral\Cache\CacheContainer;
 use ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
@@ -35,7 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Doctrine\Common\Cache\Cache;
+use Symfony\Component\Cache;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -321,9 +323,15 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         }
 
         $cacheKey = \md5('dc-general.' . $this->containerName);
-        if ($this->cache->contains($cacheKey)) {
-            return $this->cache->fetch($cacheKey);
+
+        if ($this->cache->hasItem($cacheKey)) {
+            /** @var CacheContainer $cacheContainer */
+            $cacheContainer = $this->cache->getItem($cacheKey);
+            if($cacheContainer !== null && $cacheContainer->isHit()){
+                return $cacheContainer->get();
+            }
         }
+
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(new PreCreateDcGeneralEvent($this), PreCreateDcGeneralEvent::NAME);
 
@@ -335,7 +343,8 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(new CreateDcGeneralEvent($dcGeneral), CreateDcGeneralEvent::NAME);
 
-        $this->cache->save($cacheKey, $dcGeneral);
+        $cacheContainer = new CacheContainer($cacheKey, $dcGeneral);
+        $this->cache->save($cacheContainer);
 
         return $dcGeneral;
     }
