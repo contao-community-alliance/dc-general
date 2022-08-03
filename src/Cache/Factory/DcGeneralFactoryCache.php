@@ -22,11 +22,13 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Cache\Factory;
 
-use Symfony\Component\Cache\Adapter\ArrayAdapter as ArrayCache;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 /**
  * The cache for dc general factory.
+ *
+ * @deprecated Use a cache interface directly.
  */
-final class DcGeneralFactoryCache extends ArrayCache
+final class DcGeneralFactoryCache extends ArrayAdapter
 {
 }

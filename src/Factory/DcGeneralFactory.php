@@ -23,7 +23,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
 use Contao\System;
-use ContaoCommunityAlliance\DcGeneral\Cache\CacheContainer;
 use ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
@@ -37,7 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Symfony\Component\Cache;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -48,16 +47,16 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * The cache.
      *
-     * @var Cache|null
+     * @var CacheInterface|null
      */
     private $cache;
 
     /**
      * The constructor.
      *
-     * @param Cache|null $cache The cache.
+     * @param CacheInterface|null $cache The cache.
      */
-    public function __construct(Cache $cache = null)
+    public function __construct(CacheInterface $cache = null)
     {
         $this->cache = $cache;
         if (null === $this->cache) {
@@ -323,30 +322,20 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         }
 
         $cacheKey = \md5('dc-general.' . $this->containerName);
+        return $this->cache->get($cacheKey, function (): DcGeneral {
+            // Backwards compatibility.
+            $this->getEventDispatcher()->dispatch(new PreCreateDcGeneralEvent($this), PreCreateDcGeneralEvent::NAME);
 
-        if ($this->cache->hasItem($cacheKey)) {
-            /** @var CacheContainer $cacheContainer */
-            $cacheContainer = $this->cache->getItem($cacheKey);
-            if($cacheContainer !== null && $cacheContainer->isHit()){
-                return $cacheContainer->get();
-            }
-        }
+            $environment = $this->environment ?: $this->createEnvironment();
 
-        // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(new PreCreateDcGeneralEvent($this), PreCreateDcGeneralEvent::NAME);
+            /** @var DcGeneral $dcGeneral */
+            $dcGeneral = (new \ReflectionClass($this->dcGeneralClassName))->newInstance($environment);
 
-        $environment = $this->environment ?: $this->createEnvironment();
+            // Backwards compatibility.
+            $this->getEventDispatcher()->dispatch(new CreateDcGeneralEvent($dcGeneral), CreateDcGeneralEvent::NAME);
 
-        /** @var DcGeneral $dcGeneral */
-        $dcGeneral = (new \ReflectionClass($this->dcGeneralClassName))->newInstance($environment);
-
-        // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(new CreateDcGeneralEvent($dcGeneral), CreateDcGeneralEvent::NAME);
-
-        $cacheContainer = new CacheContainer($cacheKey, $dcGeneral);
-        $this->cache->save($cacheContainer);
-
-        return $dcGeneral;
+            return $dcGeneral;
+        });
     }
 
     /**
