@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
 use Doctrine\Common\Cache\Cache;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * This service create a new instance of the dc general factory.
@@ -30,17 +31,15 @@ final class DcGeneralFactoryService implements DcGeneralFactoryServiceInterface
 {
     /**
      * The cache of the dc-general instances.
-     *
-     * @var Cache
      */
-    private $cache;
+    private CacheInterface $cache;
 
     /**
      * DcGeneralFactoryService constructor.
      *
-     * @param Cache $cache The cache of the dc-general instances.
+     * @param CacheInterface $cache The cache of the dc-general instances.
      */
-    public function __construct(Cache $cache)
+    public function __construct(CacheInterface $cache)
     {
         $this->cache = $cache;
     }
