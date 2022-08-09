@@ -386,7 +386,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         if (0 !== $config->getAmount()) {
             $queryBuilder->setMaxResults($config->getAmount());
-            $queryBuilder->setFirstResult($config->getStart());
+            $queryBuilder->setFirstResult($config->getStart() ?? 0);
         }
 
         $collection = $this->getEmptyCollection();
