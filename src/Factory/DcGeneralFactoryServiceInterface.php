@@ -17,13 +17,17 @@
  * @filesource
  */
 
-declare(strict_types=1);
-
-namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
+namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
 /**
- * The persist invalid http cache tags, is for a model be pasted.
+ * This service create a new instance of the dc general factory.
  */
-class PasteModelInvalidCacheTags extends AbstractInvalidCacheTags
+interface DcGeneralFactoryServiceInterface
 {
+    /**
+     * Create a new instance of the dc general factory.
+     *
+     * @return DcGeneralFactoryInterface
+     */
+    public function createFactory(): DcGeneralFactoryInterface;
 }

@@ -38,7 +38,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
     const MODE_FLAT = 0;
 
     /**
-     * Hierarchical mode. The models span over various levels.
+     * Parented list mode. The models are children of a parent model.
      */
     const MODE_PARENTEDLIST = 1;
 

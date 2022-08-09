@@ -257,7 +257,8 @@ class DefaultController implements ControllerInterface
      *
      * @return CollectionInterface
      *
-     * @throws DcGeneralRuntimeException When not in hierarchical mode.
+     * @throws DcGeneralRuntimeException Unable to retrieve children in non hierarchical mode.
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     protected function assembleChildrenFor(ModelInterface $model, $sortingProperty = null)
     {
@@ -272,6 +273,11 @@ class DefaultController implements ControllerInterface
         }
 
         $condition = $relationships->getChildCondition($model->getProviderName(), $model->getProviderName());
+        if (null === $condition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
         $config->setFilter($condition->getFilter($model));
 
         if ($sortingProperty) {

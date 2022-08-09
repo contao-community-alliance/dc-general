@@ -19,11 +19,13 @@
 
 declare(strict_types=1);
 
-namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
+namespace ContaoCommunityAlliance\DcGeneral\Cache\Factory;
+
+use Doctrine\Common\Cache\ArrayCache;
 
 /**
- * The persist invalid http cache tags, is for a model be saved.
+ * The cache for dc general factory.
  */
-class PersistModelInvalidCacheTags extends AbstractInvalidCacheTags
+final class DcGeneralFactoryCache extends ArrayCache
 {
 }

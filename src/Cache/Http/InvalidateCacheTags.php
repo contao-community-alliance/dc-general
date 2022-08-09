@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,18 +23,18 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Cache\Http;
 
-use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent;
 use FOS\HttpCache\CacheInvalidator;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
- * This is for purge the invalid http cache tags.
+ * This is for purge the invalidate http cache tags.
  */
-class InvalidCacheTags implements InvalidCacheTagsInterface
+class InvalidateCacheTags implements InvalidateCacheTagsInterface
 {
     /**
      * The http cache namespace.
@@ -55,13 +56,6 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
      * @var CacheInvalidator|null
      */
     private $cacheManager;
-
-    /**
-     * The dc general environment.
-     *
-     * @var EnvironmentInterface
-     */
-    private $environment;
 
     /**
      * The cache tags.
@@ -90,16 +84,7 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
     /**
      * {@inheritDoc}
      */
-    public function setEnvironment(EnvironmentInterface $environment): InvalidCacheTags
-    {
-        $this->environment = $environment;
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function purgeCacheTags(ModelInterface $model): void
+    public function purgeCacheTags(ModelInterface $model, EnvironmentInterface $environment): void
     {
         if (null === $this->cacheManager) {
             return;
@@ -107,9 +92,9 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
 
         $this->clearCacheTags();
         $this->addCurrentModelTag($model);
-        $this->addRelatedModelsTag($model);
+        $this->addParentModelTag($model, $environment);
 
-        $event = new InvalidHttpCacheTagsEvent($this->environment);
+        $event = new InvalidHttpCacheTagsEvent($environment);
         $event->setNamespace($this->namespace)->setTags($this->tags);
         $this->dispatcher->dispatch($event);
 
@@ -129,29 +114,30 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
     }
 
     /**
-     * Add the cache tag for the related models, if current model has relations.
+     * Add the cache tag for the parent model, if current model is a children of.
      *
-     * @param ModelInterface $model The current model.
+     * @param ModelInterface       $model       The current model.
+     * @param EnvironmentInterface $environment The dc general environment.
      *
      * @return void
      */
-    private function addRelatedModelsTag(ModelInterface $model): void
+    private function addParentModelTag(ModelInterface $model, EnvironmentInterface $environment): void
     {
-        if (null === ($parentDefinition = $this->environment->getParentDataDefinition())) {
+        if ((null === $environment->getParentDataDefinition())
+        ) {
             return;
         }
-        /** @var ModelRelationshipDefinitionInterface $relationships */
-        $relationships   = $this->environment->getDataDefinition()->getDefinition('model-relationships');
-        $parentCondition = $relationships->getChildCondition($parentDefinition->getName(), $model->getProviderName());
-        $dataProvider    = $this->environment->getDataProvider($parentDefinition->getName());
 
-        /** @var DefaultCollection $parentModels */
-        $parentModels = $dataProvider
-            ->fetchAll(
-                $dataProvider->getEmptyConfig()->setFilter((array) $parentCondition->getInverseFilterFor($model))
-            );
-        foreach ($parentModels as $parentModel) {
-            $this->addModelTag($parentModel);
+        $definition = $environment->getDataDefinition()->getBasicDefinition();
+        $collector  = new ModelCollector($environment);
+        switch ($definition->getMode()) {
+            case BasicDefinitionInterface::MODE_HIERARCHICAL:
+                $this->addModelTag($collector->searchParentFromHierarchical($model));
+                return;
+            case BasicDefinitionInterface::MODE_PARENTEDLIST:
+                $this->addModelTag($collector->searchParentOf($model));
+                return;
+            default:
         }
     }
 
@@ -162,7 +148,7 @@ class InvalidCacheTags implements InvalidCacheTagsInterface
      *
      * @return void
      */
-    private function addModelTag(ModelInterface$model): void
+    private function addModelTag(ModelInterface $model): void
     {
         $modelNamespace = $this->namespace . $model->getProviderName();
         $this->tags[]   = $modelNamespace;

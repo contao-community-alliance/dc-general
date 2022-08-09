@@ -32,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * This abstract visibility handler provide methods for the visibility of properties.
@@ -770,6 +771,8 @@ abstract class AbstractPropertyVisibilityHandler
      * @param EnvironmentInterface $environment    The environment.
      *
      * @return void
+     *
+     * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     private function intersectModelSetParentId(ModelInterface $intersectModel, EnvironmentInterface $environment)
     {
@@ -783,6 +786,11 @@ abstract class AbstractPropertyVisibilityHandler
         $relationships  = $dataDefinition->getModelRelationshipDefinition();
         $childCondition =
             $relationships->getChildCondition($parentDataDefinition->getName(), $dataDefinition->getName());
+        if (null === $childCondition) {
+            throw new DcGeneralInvalidArgumentException(
+                'Invalid configuration. Child condition must be defined!'
+            );
+        }
 
         $parentField = null;
         foreach ($childCondition->getSetters() as $setter) {

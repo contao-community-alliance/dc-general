@@ -338,7 +338,7 @@ class TreePicker extends Widget
                     $this->nodeStates->setAllOpen($this->nodeStates->isAllOpen())->getStates()
                 );
 
-                $environment->getEventDispatcher()->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
+                $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
             }
         }
 
@@ -580,7 +580,7 @@ class TreePicker extends Widget
         $template    = new ContaoBackendViewTemplate('widget_treepicker');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
         $template
             ->setTranslator($translator)
@@ -596,8 +596,7 @@ class TreePicker extends Widget
             ->set('label', $this->label)
             ->set('popupUrl', $this->generatePickerUrl())
             ->set('updateUrl', $this->generateUpdateUrl())
-            ->set('providerName', $this->sourceName)
-            ->set('readonly', $this->readonly);
+            ->set('providerName', $this->sourceName);
 
         $this->addOrderFieldToTemplate($template);
 
@@ -713,7 +712,7 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         return System::getContainer()->get('router')->generate(
             'cca_dc_general_tree_breadcrumb',
@@ -734,7 +733,7 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
         return System::getContainer()->get('router')->generate(
             'cca_dc_general_tree_toggle',
@@ -802,7 +801,7 @@ class TreePicker extends Widget
         $template    = new ContaoBackendViewTemplate('widget_treepicker_popup');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
+        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
 
         $template
             ->setTranslator($translator)
@@ -1224,7 +1223,7 @@ class TreePicker extends Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
 
         $labelList = [];
         $this->prepareLabelWithDisplayedProperties($formatter, $event->getArgs(), $firstSorting, $labelList);
@@ -1341,8 +1340,7 @@ class TreePicker extends Widget
             $this->generateToggleUrl($model)
         );
 
-        $idProperty = $this->idProperty ?: 'id';
-        $template   = new ContaoBackendViewTemplate('widget_treepicker_entry');
+        $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
         $template
             ->setTranslator($this->getEnvironment()->getTranslator())
             ->set('id', $this->strId)
@@ -1355,8 +1353,8 @@ class TreePicker extends Widget
             ->set('toggleUrl', $this->generateToggleUrl($model))
             ->set('toggleTitle', $toggleTitle)
             ->set('toggleScript', $toggleScript)
-            ->set('active', static::optionChecked($model->getProperty($idProperty), $this->value))
-            ->set('idProperty', $idProperty);
+            ->set('active', static::optionChecked($model->getProperty($this->idProperty), $this->value))
+            ->set('idProperty', $this->idProperty);
 
         $level = $model->getMeta(DCGE::TREE_VIEW_LEVEL);
         if (($this->minLevel > 0) && ($level < ($this->minLevel - 1))) {
