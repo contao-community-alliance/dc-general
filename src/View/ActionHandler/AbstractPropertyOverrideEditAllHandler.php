@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -118,7 +119,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     protected function updateErrorInformation(
         \ArrayObject $renderInformation
     ) {
-        $modelError = $renderInformation->offsetGet('modelError');
+        $modelError =
+            $renderInformation->offsetExists('modelError') ? $renderInformation->offsetGet('modelError') : null;
 
         if (null === $modelError) {
             return;
@@ -629,8 +631,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $session = $this->getSession($action, $environment);
-
-        return $session['editProperties'][$modelId->getSerialized()];
+//dd($session['editProperties']);
+        return $session['editProperties'][$modelId->getSerialized()] ?? [];
     }
 
     /**
