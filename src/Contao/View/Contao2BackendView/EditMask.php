@@ -475,6 +475,7 @@ class EditMask
      * @return array
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function buildFieldSet($widgetManager, $palette, $propertyValues)
     {
@@ -518,6 +519,15 @@ class EditMask
                         $this->model,
                         $propertyValues->getPropertyValueErrors($property->getName()),
                         $propertyDefinitions->getProperty($property->getName())
+                    );
+                }
+
+                // Set to readonly if not editable.
+                // This is pretty hacky, but we can not do it otherwise as the widget manager has no context.
+                if (!$property->isEditable($this->model, $propertyValues, $legend)) {
+                    $propertyDefinition = $propertyDefinitions->getProperty($property->getName());
+                    $propertyDefinition->setExtra(
+                        array_merge(($propertyDefinition->getExtra() ?? []), ['readonly' => true])
                     );
                 }
 
