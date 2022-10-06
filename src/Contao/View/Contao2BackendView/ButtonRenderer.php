@@ -3,7 +3,6 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
  * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
@@ -334,7 +333,7 @@ class ButtonRenderer
 
             return $this->renderImageAsHtml(
                 $icon,
-                $buttonEvent->getLabel(),
+                ($buttonEvent->getLabel() ?? ''),
                 \sprintf(
                     'title="%s" class="%s"',
                     StringUtil::specialchars($this->translator->translate(
@@ -353,7 +352,7 @@ class ButtonRenderer
             $buttonEvent->getHref(),
             StringUtil::specialchars($buttonEvent->getTitle()),
             \ltrim($buttonEvent->getAttributes()),
-            $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
+            $this->renderImageAsHtml($icon, ($buttonEvent->getLabel() ?? ''))
         );
     }
 
