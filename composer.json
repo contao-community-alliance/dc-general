@@ -1,95 +1,92 @@
 {
-    "name": "contao-community-alliance/dc-general",
-    "description": "Universal data container for Contao",
-    "license": "LGPL-3.0-or-later",
-    "type": "contao-bundle",
-    "keywords": [
-        "framework",
-        "data",
-        "container",
-        "driver",
-        "php",
-        "contao"
-    ],
-    "authors": [
-        {
-            "name": "Christian Schiffler",
-            "email": "c.schiffler@cyberspectrum.de",
-            "homepage": "https://www.cyberspectrum.de",
-            "role": "Developer"
-        },
-        {
-            "name": "Stefan Heimes",
-            "email": "stefan_heimes@hotmail.com",
-            "role": "Developer"
-        }
-    ],
-    "homepage": "https://c-c-a.org/",
-    "support": {
-        "issues": "https://github.com/contao-community-alliance/dc-general/issues",
-        "wiki": "https://de.contaowiki.org/DC_General",
-        "irc": "irc://irc.freenode.org/contao.dev",
-        "source": "https://github.com/contao-community-alliance/dc-general"
+  "name": "contao-community-alliance/dc-general",
+  "description": "Universal data container for Contao",
+  "license": "LGPL-3.0-or-later",
+  "type": "contao-bundle",
+  "keywords": [
+    "framework",
+    "data",
+    "container",
+    "driver",
+    "php",
+    "contao"
+  ],
+  "authors": [
+    {
+      "name": "Christian Schiffler",
+      "email": "c.schiffler@cyberspectrum.de",
+      "homepage": "https://www.cyberspectrum.de",
+      "role": "Developer"
     },
-    "require": {
-        "php": "^7.4 || ^8.0",
-        "ext-json": "*",
-        "ext-pdo": "*",
-        "contao-community-alliance/events-contao-bindings": "^4.9",
-        "contao-community-alliance/translator": "^2.3",
-        "contao-community-alliance/url-builder": "^1.3",
-        "contao/core-bundle": "^4.9",
-        "psr/event-dispatcher": "^1.0",
-        "symfony/cache": "4.4.* || ^5.4",
-        "symfony/cache-contracts": "^1.1.7 || ^2",
-        "symfony/event-dispatcher": "4.4.* || ^5.4",
-        "symfony/expression-language": "4.4.* || ^5.4",
-        "symfony/polyfill-mbstring": "^1.0"
-    },
-    "require-dev": {
-        "contao/manager-plugin": "^2.8",
-        "friendsofphp/php-cs-fixer": "^2.13",
-        "friendsofsymfony/http-cache": "^2.9",
-        "menatwork/contao-multicolumnwizard-bundle": "^3.4",
-        "php-http/guzzle6-adapter": "^2.0",
-        "phpcq/all-tasks": "^1.3",
-        "phpmd/phpmd": "^2.8",
-        "phpunit/phpunit": "^7.5 || ^8.5 || ^9.3"
-    },
-    "conflict": {
-        "menatwork/contao-multicolumnwizard-bundle": "<3.4.9"
-    },
-    "autoload": {
-        "psr-4": {
-            "ContaoCommunityAlliance\\DcGeneral\\": "src/"
-        },
-        "classmap": [
-            "contao-compat/DC_General.php"
-        ],
-        "files": [
-            "src/deprecated-autoload.php"
-        ]
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "ContaoCommunityAlliance\\DcGeneral\\Test\\": "tests/"
-        }
-    },
-    "config": {
-        "allow-plugins": {
-            "contao-components/installer": false,
-            "contao/manager-plugin": true
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.2.x-dev",
-            "dev-release/2.3.0": "2.3.x-dev",
-            "dev-support/2.1.x": "2.1.x-dev"
-        },
-        "contao-manager-plugin": "ContaoCommunityAlliance\\DcGeneral\\ContaoManager\\Plugin"
-    },
-    "scripts": {
-        "php-cs-fixer": "php-cs-fixer fix --rules=@PSR2"
+    {
+      "name": "Stefan Heimes",
+      "email": "stefan_heimes@hotmail.com",
+      "role": "Developer"
     }
+  ],
+  "homepage": "https://c-c-a.org/",
+  "support": {
+    "issues": "https://github.com/contao-community-alliance/dc-general/issues",
+    "wiki": "https://de.contaowiki.org/DC_General",
+    "irc": "irc://irc.freenode.org/contao.dev",
+    "source": "https://github.com/contao-community-alliance/dc-general"
+  },
+  "require": {
+    "php": "^7.4 || ^8.0",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "contao-community-alliance/events-contao-bindings": "^4.9",
+    "contao-community-alliance/translator": "^2.3",
+    "contao-community-alliance/url-builder": "^1.3",
+    "contao/core-bundle": "^4.9",
+    "psr/event-dispatcher": "^1.0",
+    "symfony/cache": "4.4.* || ^5.4",
+    "symfony/cache-contracts": "^1.1.7 || ^2",
+    "symfony/event-dispatcher": "4.4.* || ^5.4",
+    "symfony/expression-language": "4.4.* || ^5.4",
+    "symfony/polyfill-mbstring": "^1.0"
+  },
+  "require-dev": {
+    "contao/manager-plugin": "^2.8",
+    "friendsofsymfony/http-cache": "^2.9",
+    "menatwork/contao-multicolumnwizard-bundle": "^3.4",
+    "php-http/guzzle6-adapter": "^2.0",
+    "phpcq/runner-bootstrap": "^1.0@dev"
+  },
+  "conflict": {
+    "menatwork/contao-multicolumnwizard-bundle": "<3.4.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "ContaoCommunityAlliance\\DcGeneral\\": "src/"
+    },
+    "classmap": [
+      "contao-compat/DC_General.php"
+    ],
+    "files": [
+      "src/deprecated-autoload.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ContaoCommunityAlliance\\DcGeneral\\Test\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "contao-components/installer": false,
+      "contao/manager-plugin": true
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.2.x-dev",
+      "dev-release/2.3.0": "2.3.x-dev",
+      "dev-support/2.1.x": "2.1.x-dev"
+    },
+    "contao-manager-plugin": "ContaoCommunityAlliance\\DcGeneral\\ContaoManager\\Plugin"
+  },
+  "scripts": {
+    "php-cs-fixer": "php-cs-fixer fix --rules=@PSR2"
+  }
 }
