@@ -1,0 +1,16 @@
+{
+  "symbol-whitelist": [
+    "array", "bool", "false", "int", "null", "self", "static", "string", "true", "void",
+    "ContaoCommunityAlliance\\Contao\\EventDispatcher\\CcaEventDispatcherBundle",
+    "Contao\\Calendar",
+    "Contao\\CalendarEventsModel",
+    "Contao\\CalendarModel",
+    "Contao\\CommentsModel",
+    "Contao\\ManagerBundle\\ContaoManagerBundle",
+    "Contao\\ManagerPlugin\\Bundle\\BundlePluginInterface",
+    "Contao\\ManagerPlugin\\Bundle\\Config\\BundleConfig",
+    "Contao\\ManagerPlugin\\Bundle\\Parser\\ParserInterface",
+    "Contao\\NewsArchiveModel",
+    "Contao\\NewsModel"
+  ]
+}c

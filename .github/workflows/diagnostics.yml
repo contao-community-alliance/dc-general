@@ -42,6 +42,7 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
+
       - name: PHP ${{ matrix.php }} ${{ matrix.contao }} Install composer dependencies
         run: composer update --prefer-dist --no-interaction --no-suggest
 
