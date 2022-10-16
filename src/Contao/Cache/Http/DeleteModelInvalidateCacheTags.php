@@ -35,12 +35,15 @@ final class DeleteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
      */
     protected function getEnvironment(AbstractModelAwareEvent $event): EnvironmentInterface
     {
-        if ($event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getDataProvider()
-            === $event->getModel()->getProviderName()) {
+        if (
+            $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getDataProvider()
+            === $event->getModel()->getProviderName()
+        ) {
             return $event->getEnvironment();
         }
 
-        return $this->factory->createFactory()
+        return $this->factory
+            ->createFactory()
             ->setContainerName($event->getModel()->getProviderName())
             ->setEventDispatcher($event->getEnvironment()->getEventDispatcher())
             ->setTranslator($event->getEnvironment()->getTranslator())

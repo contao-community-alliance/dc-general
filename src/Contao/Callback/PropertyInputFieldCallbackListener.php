@@ -32,7 +32,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
  */
 class PropertyInputFieldCallbackListener extends AbstractReturningPropertyCallbackListener
 {
-
     /**
      * Retrieve the arguments for the callback.
      *

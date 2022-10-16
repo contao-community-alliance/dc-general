@@ -29,6 +29,8 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
  * Class Filter.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Filter implements FilterInterface
 {
