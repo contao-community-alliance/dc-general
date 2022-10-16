@@ -38,22 +38,22 @@ interface ItemInterface
     /**
      * Item is in create action.
      */
-    const CREATE = 'create';
+    public const CREATE = 'create';
 
     /**
      * Item is in cut action.
      */
-    const CUT = 'cut';
+    public const CUT = 'cut';
 
     /**
      * Item is in copy action.
      */
-    const COPY = 'copy';
+    public const COPY = 'copy';
 
     /**
      * Item is in deep copy action.
      */
-    const DEEP_COPY = 'deepcopy';
+    public const DEEP_COPY = 'deepcopy';
 
     /**
      * Retrieve the current action of the clipboard.

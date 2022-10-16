@@ -123,8 +123,7 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
      */
     private function addParentModelTag(ModelInterface $model, EnvironmentInterface $environment): void
     {
-        if ((null === $environment->getParentDataDefinition())
-        ) {
+        if ((null === $environment->getParentDataDefinition())) {
             return;
         }
 

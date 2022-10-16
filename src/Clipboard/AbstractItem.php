@@ -53,7 +53,8 @@ abstract class AbstractItem implements ItemInterface
      */
     public function __construct($action, $parentId)
     {
-        if (ItemInterface::CREATE !== $action
+        if (
+            ItemInterface::CREATE !== $action
             && ItemInterface::CUT !== $action
             && ItemInterface::COPY !== $action
             && ItemInterface::DEEP_COPY !== $action

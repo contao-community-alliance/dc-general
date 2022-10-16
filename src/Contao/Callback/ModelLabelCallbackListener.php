@@ -61,7 +61,8 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
     public function update($event, $value)
     {
         $groupingInformation = ViewHelpers::getGroupingMode($event->getEnvironment());
-        if (isset($groupingInformation['mode'])
+        if (
+            isset($groupingInformation['mode'])
             && ($groupingInformation['mode'] === GroupAndSortingInformationInterface::GROUP_NONE)
         ) {
             if (!\is_array($value)) {
@@ -113,9 +114,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      */
     private function updateTableMode(ModelToLabelEvent $event, array $arguments)
     {
-        if ((null === $arguments)
-            || empty($arguments)
-        ) {
+        if ((null === $arguments) || empty($arguments)) {
             return;
         }
 
