@@ -163,7 +163,8 @@ class Callbacks
     {
         $container = System::getContainer();
 
-        if ($container->has($callback[0])
+        if (
+            $container->has($callback[0])
             && ((false !== \strpos($callback[0], '\\')) || !\class_exists($callback[0]))
         ) {
             $callback[0] = $container->get($callback[0]);
