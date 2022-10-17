@@ -475,6 +475,7 @@ class EditMask
      * @return array
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function buildFieldSet($widgetManager, $palette, $propertyValues)
     {
@@ -518,6 +519,15 @@ class EditMask
                         $this->model,
                         $propertyValues->getPropertyValueErrors($property->getName()),
                         $propertyDefinitions->getProperty($property->getName())
+                    );
+                }
+
+                // Set to readonly if not editable.
+                // This is pretty hacky, but we can not do it otherwise as the widget manager has no context.
+                if (!$property->isEditable($this->model, $propertyValues, $legend)) {
+                    $propertyDefinition = $propertyDefinitions->getProperty($property->getName());
+                    $propertyDefinition->setExtra(
+                        array_merge(($propertyDefinition->getExtra() ?? []), ['readonly' => true])
                     );
                 }
 
@@ -605,7 +615,7 @@ class EditMask
         $inputProvider = $environment->getInputProvider();
 
         if ($inputProvider->hasValue('save')) {
-            $newUrlEvent = new AddToUrlEvent('act=edit&id=' . ModelId::fromModel($model)->getSerialized());
+            $newUrlEvent = new AddToUrlEvent('act=edit&btn=s&id=' . ModelId::fromModel($model)->getSerialized());
             $dispatcher->dispatch($newUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
             $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getUrl()), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNclose')) {
@@ -618,10 +628,11 @@ class EditMask
             $this->clearBackendStates();
             $after = ModelId::fromModel($model);
 
-            $newUrlEvent = new AddToUrlEvent('act=create&id=&after=' . $after->getSerialized());
+            $newUrlEvent = new AddToUrlEvent('act=create&btn=snc&id=&after=' . $after->getSerialized());
             $dispatcher->dispatch($newUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+
             // We have to remove the empty id parameter - see MetaModels/core#1309
-            $url = str_replace('id=&', '', $newUrlEvent->getUrl());
+            $url = \str_replace(['id=&amp;', 'id=&'], '', $newUrlEvent->getUrl());
             $dispatcher->dispatch(new RedirectEvent($url), ContaoEvents::CONTROLLER_REDIRECT);
         } elseif ($inputProvider->hasValue('saveNback')) {
             $this->clearBackendStates();
