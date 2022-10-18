@@ -49,13 +49,10 @@
     },
     "require-dev": {
         "contao/manager-plugin": "^2.8",
-        "friendsofphp/php-cs-fixer": "^2.13",
         "friendsofsymfony/http-cache": "^2.9",
         "menatwork/contao-multicolumnwizard-bundle": "^3.4",
         "php-http/guzzle6-adapter": "^2.0",
-        "phpcq/all-tasks": "^1.3",
-        "phpmd/phpmd": "^2.8",
-        "phpunit/phpunit": "^7.5 || ^8.5 || ^9.3"
+        "phpcq/all-tasks": "^1.3"
     },
     "conflict": {
         "menatwork/contao-multicolumnwizard-bundle": "<3.4.9"
