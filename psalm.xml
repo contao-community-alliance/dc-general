@@ -10,6 +10,8 @@
         <directory name="src"/>
         <ignoreFiles>
             <directory name="src/Resources"/>
+            <file name="vendor/contao/core-bundle/src/Resources/contao/library/Contao/Widget.php"/>
+            <file name="vendor/symfony/dependency-injection/ContainerAwareTrait.php"/>
         </ignoreFiles>
     </projectFiles>
 </psalm>
