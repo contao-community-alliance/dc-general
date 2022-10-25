@@ -24,3 +24,6 @@ build/
 .php_cs.cache
 build.properties
 .build
+
+# CSS / JS
+src/Resources/public/prepros.config
