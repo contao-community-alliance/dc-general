@@ -29,7 +29,7 @@ class ActionEvent extends AbstractActionAwareEvent
     /**
      * The action response, if any is set.
      *
-     * @var string
+     * @var string|null
      */
     protected $response;
 
@@ -49,7 +49,7 @@ class ActionEvent extends AbstractActionAwareEvent
     /**
      * Return the action response.
      *
-     * @return string
+     * @return string|null
      */
     public function getResponse()
     {

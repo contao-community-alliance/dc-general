@@ -39,12 +39,14 @@ trait CallActionTrait
      * @param string               $actionName  The action name.
      * @param array                $arguments   The optional action arguments.
      *
-     * @return string
+     * @return string|null
      */
     protected function callAction(EnvironmentInterface $environment, $actionName, $arguments = [])
     {
         $event = new ActionEvent($environment, new Action($actionName, $arguments));
-        $environment->getEventDispatcher()->dispatch($event, DcGeneralEvents::ACTION);
+        if (null !== $dispatcher = $environment->getEventDispatcher()) {
+            $dispatcher->dispatch($event, DcGeneralEvents::ACTION);
+        }
 
         return $event->getResponse();
     }
