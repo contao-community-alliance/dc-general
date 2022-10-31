@@ -35,7 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
-use http\Exception\BadQueryStringException;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -240,7 +239,7 @@ class BackendTreeController implements ContainerAwareInterface
      * @return Response
      *
      * @throws BadRequestHttpException This request isn`t from type ajax.
-     * @throws BadQueryStringException No picker was given here.
+     * @throws BadRequestHttpException No picker was given here.
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
@@ -251,7 +250,7 @@ class BackendTreeController implements ContainerAwareInterface
         }
 
         if (null === ($request->query->get('picker'))) {
-            throw new BadQueryStringException('No picker was given here.');
+            throw new BadRequestHttpException('No picker was given here.');
         }
         $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
 
