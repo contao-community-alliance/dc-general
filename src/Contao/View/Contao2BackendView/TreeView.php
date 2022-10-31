@@ -223,8 +223,7 @@ class TreeView extends BaseView
 
         $pid = ModelId::fromSerialized($parentId);
 
-        if (!($parentProvider = $environment->getDataProvider($pid->getDataProviderName()))
-        ) {
+        if (!($parentProvider = $environment->getDataProvider($pid->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent data provider defined, somehow none is defined?',
                 1
@@ -514,9 +513,7 @@ class TreeView extends BaseView
     protected function formActionForSelect(ContaoBackendViewTemplate $template)
     {
         $environment = $this->getEnvironment();
-        if (!$template->get('select')
-            || ('select' !== $environment->getInputProvider()->getParameter('act'))
-        ) {
+        if (!$template->get('select') || ('select' !== $environment->getInputProvider()->getParameter('act'))) {
             return;
         }
 

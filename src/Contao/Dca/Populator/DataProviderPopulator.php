@@ -36,7 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  */
 class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    const PRIORITY = 100;
+    public const PRIORITY = 100;
 
     /**
      * The cached instances of the data provider.

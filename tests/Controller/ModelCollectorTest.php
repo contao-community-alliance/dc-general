@@ -140,8 +140,10 @@ class ModelCollectorTest extends TestCase
             $parentProperties = $this->mockPropertiesDefinition();
             $parentProperties->method('getPropertyNames')->willReturn(['test-parent-property']);
             $parentDataDefinition = $this->mockDefinitionContainer();
-            $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized(
-                \is_object($modelId) ? $modelId->getSerialized() : $modelId)->getDataProviderName());
+            $parentDataDefinition->method('getName')->willReturn(
+                ModelId::fromSerialized(\is_object($modelId) ? $modelId->getSerialized() : $modelId)
+                    ->getDataProviderName()
+            );
             $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentProperties);
 
             $environment->method('getParentDataDefinition')->willReturn($parentDataDefinition);
@@ -384,7 +386,7 @@ class ModelCollectorTest extends TestCase
                     case 'grandparent':
                         return [$this->createParentChildCondition('grandparent', 'parent')];
 
-                    case  'parent':
+                    case 'parent':
                         return [$this->createParentChildCondition('parent', 'child')];
 
                     default:

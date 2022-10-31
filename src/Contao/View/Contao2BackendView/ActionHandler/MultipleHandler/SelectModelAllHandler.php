@@ -53,7 +53,8 @@ class SelectModelAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
+        if (
+            !$this->scopeDeterminator->currentScopeIsBackend()
             || ('selectModelAll' !== $event->getAction()->getName())
         ) {
             return;

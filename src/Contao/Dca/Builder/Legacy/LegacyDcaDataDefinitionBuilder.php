@@ -204,7 +204,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     {
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
             $args = [$container->getName(), $propName];
-            foreach ([
+            foreach (
+                [
                     'load_callback'        => [
                         'event' => DecodePropertyValueForWidgetEvent::NAME,
                         'class' => PropertyOnLoadCallbackListener::class
@@ -229,7 +230,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                         'event' => ManipulateWidgetEvent::NAME,
                         'class' => PropertyInputFieldGetXLabelCallbackListener::class
                     ]
-                ] as $name => $callback) {
+                ] as $name => $callback
+            ) {
                 if (isset($propInfo[$name])) {
                     $this->parseCallback($dispatcher, $propInfo[$name], $callback['event'], $args, $callback['class']);
                 }
@@ -251,7 +253,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
         $args = [$container->getName()];
-        foreach ([
+        foreach (
+            [
                 'config/onload_callback'                  => [
                     'event' => CreateDcGeneralEvent::NAME,
                     'class' => ContainerOnLoadCallbackListener::class
@@ -307,7 +310,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     'event' => GetBreadcrumbEvent::NAME,
                     'class' => ContainerGetBreadcrumbCallbackListener::class
                 ]
-            ] as $name => $callback) {
+            ] as $name => $callback
+        ) {
             if ($callbacks = $this->getFromDca($name)) {
                 if (isset($callback['event'])) {
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
@@ -453,7 +457,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBasicMode($config);
         $this->parseBasicFlags($config);
 
-        if ((null !== ($filters = $this->getFromDca('list/sorting/filter')))
+        if (
+            (null !== ($filters = $this->getFromDca('list/sorting/filter')))
             && \is_array($filters)
             && !empty($filters)
         ) {
@@ -491,7 +496,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         // If mode is 5, we need to define tree view.
-        if ((5 === $this->getFromDca('list/sorting/mode'))
+        if (
+            (5 === $this->getFromDca('list/sorting/mode'))
             && !$container->getBasicDefinition()->getRootDataProvider()
         ) {
             $container->getBasicDefinition()->setRootDataProvider($container->getName());
@@ -1234,7 +1240,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     {
         foreach ($container->getPropertiesDefinition()->getProperties() as $property) {
             $extra = $property->getExtra();
-            if (!isset($extra['orderField'])
+            if (
+                !isset($extra['orderField'])
                 || !$container->getPropertiesDefinition()->hasProperty($extra['orderField'])
             ) {
                 continue;
@@ -1247,7 +1254,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
             foreach ($container->getPalettesDefinition()->getPalettes() as $palette) {
                 foreach ($palette->getLegends() as $legend) {
-                    if ((false === $legend->hasProperty($property->getName()))
+                    if (
+                        (false === $legend->hasProperty($property->getName()))
                         || (true === $legend->hasProperty($orderProperty->getName()))
                     ) {
                         continue;
@@ -1381,9 +1389,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     private function parseWidgetPageTree(PropertyInterface $property, array $propInfo)
     {
-        if (isset($propInfo['sourceName'])
-            || ('pageTree' !== $property->getWidgetType())
-        ) {
+        if (isset($propInfo['sourceName']) || ('pageTree' !== $property->getWidgetType())) {
             return;
         }
 
@@ -1458,7 +1464,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $this->parseSingleProperty($property, $propInfo);
 
             $extra = $property->getExtra();
-            if (isset($extra['orderField'])
+            if (
+                isset($extra['orderField'])
                 && \array_key_exists($extra['orderField'], (array) $this->getFromDca('fields'))
             ) {
                 if (!$definition->hasProperty($extra['orderField'])) {

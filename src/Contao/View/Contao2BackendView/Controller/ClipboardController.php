@@ -102,7 +102,8 @@ class ClipboardController implements EventSubscriberInterface
             return;
         }
 
-        if ('create' === $actionName
+        if (
+            'create' === $actionName
             || 'cut' === $actionName
             || 'copy' === $actionName
             || 'deepcopy' === $actionName
@@ -125,14 +126,15 @@ class ClipboardController implements EventSubscriberInterface
         $environment     = $event->getEnvironment();
         $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
 
-        if ((('create' === $actionName) && (true === $basicDefinition->isCreatable()))
+        if (
+            (('create' === $actionName) && (true === $basicDefinition->isCreatable()))
             || (('cut' === $actionName) && (true === $basicDefinition->isEditable()))
             || (false === \in_array($actionName, ['create', 'cut']))
         ) {
             return true;
         }
 
-        $permissionMessage = 'You have no permission for model ' . $actionName .' ';
+        $permissionMessage = 'You have no permission for model ' . $actionName . ' ';
         switch ($actionName) {
             case 'create':
                 $permissionMessage .= 'in ' . $environment->getDataDefinition()->getName();

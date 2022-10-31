@@ -302,7 +302,8 @@ class DefaultCollection implements CollectionInterface
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                if (
+                    ($localModel->getProviderName() === $otherModel->getProviderName())
                     && ($localModel->getId() === $otherModel->getId())
                 ) {
                     $intersection->push($localModel);
@@ -347,7 +348,8 @@ class DefaultCollection implements CollectionInterface
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                if (
+                    ($localModel->getProviderName() === $otherModel->getProviderName())
                     && ($localModel->getId() === $otherModel->getId())
                 ) {
                     continue;
@@ -372,7 +374,8 @@ class DefaultCollection implements CollectionInterface
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                if (
+                    ($localModel->getProviderName() === $otherModel->getProviderName())
                     && ($localModel->getId() === $otherModel->getId())
                 ) {
                     continue;

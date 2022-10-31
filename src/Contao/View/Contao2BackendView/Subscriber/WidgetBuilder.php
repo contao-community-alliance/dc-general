@@ -194,7 +194,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $propExtra = $property->getExtra();
 
         // Check the overwrite param.
-        if (\is_array($propExtra)
+        if (
+            \is_array($propExtra)
             && \array_key_exists('fetchOptions', $propExtra)
             && (true === $propExtra['fetchOptions'])
         ) {
@@ -395,7 +396,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
         PropertyInterface $property,
         ModelInterface $model
     ) {
-        if (static::$scopeDeterminator->currentScopeIsUnknown()
+        if (
+            static::$scopeDeterminator->currentScopeIsUnknown()
             || !static::$scopeDeterminator->currentScopeIsBackend()
         ) {
             throw new DcGeneralRuntimeException(
@@ -445,7 +447,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $propExtra = $property->getExtra();
 
-        if ((0 === (int) $value)
+        if (
+            (0 === (int) $value)
             && \is_numeric($value)
             && empty($propExtra['mandatory'])
             && (isset($propExtra['rgxp']) && \in_array($propExtra['rgxp'], ['date', 'time', 'datim']))
@@ -505,7 +508,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $environment->getEventDispatcher()->dispatch($event, ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA);
         $prepareAttributes = $event->getResult();
 
-        if (('checkbox' === $widgetConfig['inputType'])
+        if (
+            ('checkbox' === $widgetConfig['inputType'])
             && isset($widgetConfig['eval']['submitOnChange'])
             && $widgetConfig['eval']['submitOnChange']
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
@@ -530,7 +534,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     private function setPropExtraDisabled(PropertyInterface $property, array $propExtra): array
     {
-        if (isset($propExtra['readonly']) && $propExtra['readonly'] && \in_array($property->getWidgetType(), ['checkbox', 'select', 'radio'], true)) {
+        if (
+            isset($propExtra['readonly'])
+            && $propExtra['readonly']
+            && \in_array($property->getWidgetType(), ['checkbox', 'select', 'radio'], true)
+        ) {
             $propExtra['disabled'] = true;
             unset($propExtra['chosen']);
         }

@@ -95,8 +95,10 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     protected function determineTemplate($groupingInformation)
     {
         // Add template.
-        if (isset($groupingInformation['mode'])
-            && (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingInformation['mode'])) {
+        if (
+            isset($groupingInformation['mode'])
+            && (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingInformation['mode'])
+        ) {
             return $this->getTemplate('dcbe_general_grouping');
         }
         return $this->getTemplate('dcbe_general_parentView');
@@ -257,9 +259,11 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     {
         $evaluation = $property->getExtra();
 
-        if ((true === $isRendered)
+        if (
+            (true === $isRendered)
             || (isset($evaluation['multiple']) && $evaluation['multiple'])
-            || !('checkbox' === $property->getWidgetType())) {
+            || !('checkbox' === $property->getWidgetType())
+        ) {
             return $value;
         }
 
@@ -288,10 +292,12 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     ) {
         $evaluation = $property->getExtra();
 
-        if ((true === $isRendered)
+        if (
+            (true === $isRendered)
             || !$value
             || !isset($evaluation['rgxp'])
-            || !\in_array($evaluation['rgxp'], ['date', 'time', 'datim'])) {
+            || !\in_array($evaluation['rgxp'], ['date', 'time', 'datim'])
+        ) {
             return $value;
         }
 

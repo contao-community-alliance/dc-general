@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\D
  */
 class CreateDefaultPaletteConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-default-palette-condition';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-default-palette-condition';
 
     /**
      * The default palette condition.

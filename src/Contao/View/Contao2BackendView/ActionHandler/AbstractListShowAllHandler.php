@@ -121,7 +121,8 @@ abstract class AbstractListShowAllHandler
         $basic       = $environment->getDataDefinition()->getBasicDefinition();
         $action      = $event->getAction();
 
-        if (null !== $event->getResponse()
+        if (
+            null !== $event->getResponse()
             || ('showAll' !== $action->getName())
             || !$this->wantToHandle($basic->getMode(), $action)
         ) {
@@ -322,7 +323,8 @@ abstract class AbstractListShowAllHandler
             ->set('selectCheckBoxIdPrefix', 'models_')
             ->set('selectContainer', $this->getSelectContainer($environment));
 
-        if ((null !== $template->get('action'))
+        if (
+            (null !== $template->get('action'))
             && (false !== \strpos($template->get('action'), 'select=models'))
         ) {
             $template->set('action', \str_replace('select=models', 'select=properties', $template->get('action')));

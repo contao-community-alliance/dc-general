@@ -595,7 +595,8 @@ class ButtonRenderer
         $dataProvider = $this->environment->getDataProvider($model->getProviderName());
         $propModel    = $model;
 
-        if ($command instanceof TranslatedToggleCommandInterface
+        if (
+            $command instanceof TranslatedToggleCommandInterface
             && $dataProvider instanceof MultiLanguageDataProviderInterface
         ) {
             $language = $dataProvider->getCurrentLanguage();

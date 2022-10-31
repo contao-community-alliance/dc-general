@@ -85,11 +85,11 @@ class CreateHandler
 
         // Only handle if we do not have a manual sorting or we know where to insert.
         // Manual sorting is handled by clipboard.
-        if (('create' !== $event->getAction()->getName())
-            || (ViewHelpers::getManualSortingProperty($environment)
-                && !$inputProvider->hasParameter('after')
-                && !$inputProvider->hasParameter('into')
-            )) {
+        if (
+            ViewHelpers::getManualSortingProperty($environment)
+            && !$inputProvider->hasParameter('after')
+            && !$inputProvider->hasParameter('into')
+        ) {
             return;
         }
 

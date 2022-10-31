@@ -246,8 +246,7 @@ class BackendTreeController implements ContainerAwareInterface
      */
     private function runBackendTreeUpdate(Request $request)
     {
-        if ((false === (bool) $request->request->count())
-            && (false === $request->isXmlHttpRequest())) {
+        if ((false === (bool) $request->request->count()) && (false === $request->isXmlHttpRequest())) {
             throw new BadRequestHttpException('This request isn`t from type ajax.');
         }
 
@@ -284,7 +283,8 @@ class BackendTreeController implements ContainerAwareInterface
             $values = [];
             // Clean keys the have empty value.
             foreach ($widgetValue as $index => $value) {
-                if (empty($value)
+                if (
+                    empty($value)
                     // The first key entry has the value on, if the checkbox for all checked.
                     || ((0 === $index) && ('on' === $value))
                 ) {

@@ -31,7 +31,6 @@ use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
  */
 abstract class AbstractElement implements PanelElementInterface
 {
-
     /**
      * The panel this element is contained within.
      *

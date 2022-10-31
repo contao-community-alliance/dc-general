@@ -94,7 +94,7 @@ class AbstractContainerCallbackListenerTest extends TestCase
     /** @SuppressWarnings(PHPMD.UnusedFormalParameter) - phpmd can not handle the use syntax. */
     protected function getCallback($value)
     {
-        return function () use($value) {
+        return function () use ($value) {
             throw new \Exception('The callback should not be executed as it is only mocked');
         };
     }
@@ -124,7 +124,6 @@ class AbstractContainerCallbackListenerTest extends TestCase
                     ->willReturn($this->mockEnvironment($tablename));
             }
         } else {
-
             $event = $this
                 ->getMockBuilder($class)
                 ->setMethods(['unknownMethod'])

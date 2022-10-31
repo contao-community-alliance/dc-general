@@ -215,7 +215,8 @@ class NoOpDataProvider implements DataProviderInterface
 
         $propertyNames = \array_unique(\array_merge(\array_keys($firstProperties), \array_keys($secondProperties)));
         foreach ($propertyNames as $propertyName) {
-            if (!\array_key_exists($propertyName, $firstProperties) ||
+            if (
+                !\array_key_exists($propertyName, $firstProperties) ||
                 !\array_key_exists($propertyName, $secondProperties) ||
                 $firstProperties[$propertyName] !== $secondProperties[$propertyName]
             ) {

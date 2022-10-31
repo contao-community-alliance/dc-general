@@ -113,7 +113,8 @@ class ToggleHandler
         $newState     = $this->determineNewState($environment->getInputProvider(), $operation->isInverse());
 
         // Override the language for language aware toggling.
-        if (($operation instanceof TranslatedToggleCommandInterface)
+        if (
+            ($operation instanceof TranslatedToggleCommandInterface)
             && ($dataProvider instanceof MultiLanguageDataProviderInterface)
         ) {
             $language = $dataProvider->getCurrentLanguage();
@@ -189,9 +190,7 @@ class ToggleHandler
             $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
         }
 
-        if (!(isset($modelId)
-              && ($environment->getDataDefinition()->getName() === $modelId->getDataProviderName()))
-        ) {
+        if (!(isset($modelId) && ($environment->getDataDefinition()->getName() === $modelId->getDataProviderName()))) {
             return null;
         }
 

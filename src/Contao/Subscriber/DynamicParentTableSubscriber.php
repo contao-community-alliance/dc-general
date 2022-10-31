@@ -65,7 +65,8 @@ class DynamicParentTableSubscriber implements EventSubscriberInterface
         $enviroment     = $event->getEnvironment();
         $dataDefinition = $enviroment->getDataDefinition();
 
-        if (null === ($parentDataDefinition = $enviroment->getParentDataDefinition())
+        if (
+            null === ($parentDataDefinition = $enviroment->getParentDataDefinition())
             || (false === $dataDefinition->getPropertiesDefinition()->hasProperty('ptable'))
             || (false === $dataDefinition->getBasicDefinition()->isDynamicParentTable())
         ) {

@@ -568,7 +568,8 @@ class DefaultDataProvider implements DataProviderInterface
     private function filterPrefixer(array &$filter)
     {
         foreach ($filter as &$child) {
-            if (\array_key_exists('property', $child)
+            if (
+                \array_key_exists('property', $child)
                 && (false === \strpos($child['property'], $this->source . '.'))
                 && $this->fieldExists($child['property'])
             ) {
@@ -591,9 +592,7 @@ class DefaultDataProvider implements DataProviderInterface
     private function fieldPrefixer(array &$fields)
     {
         foreach ($fields as $index => $property) {
-            if (0 === \strpos($property, $this->source . '.')
-                || !$this->fieldExists($property)
-            ) {
+            if (0 === \strpos($property, $this->source . '.') || !$this->fieldExists($property)) {
                 continue;
             }
 

@@ -388,7 +388,8 @@ class FileTree extends AbstractWidget
      */
     private function generateGalleryImage(File $file, $info)
     {
-        if ($file->viewWidth && $file->viewHeight
+        if (
+            $file->viewWidth && $file->viewHeight
             && ($file->isSvgImage
                 || (($file->height <= Config::get('gdMaxImgHeight'))
                     && ($file->width <= Config::get('gdMaxImgWidth'))
@@ -396,7 +397,8 @@ class FileTree extends AbstractWidget
             )
         ) {
             // Inline the image if no preview image will be generated (see #636).
-            if ($file->height !== null && $file->height <= $this->thumbnailHeight
+            if (
+                $file->height !== null && $file->height <= $this->thumbnailHeight
                 && $file->width !== null && $file->width <= $this->thumbnailWidth
             ) {
                 $image = $file->dataUri;

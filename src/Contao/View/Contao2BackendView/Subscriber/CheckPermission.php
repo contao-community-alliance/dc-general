@@ -193,7 +193,8 @@ class CheckPermission implements EventSubscriberInterface
      */
     private function getVisibilityConditionChain($property)
     {
-        if (($chain = $property->getVisibleCondition())
+        if (
+            ($chain = $property->getVisibleCondition())
             && ($chain instanceof PropertyConditionChain)
             && $chain->getConjunction() === PropertyConditionChain::AND_CONJUNCTION
         ) {
@@ -221,9 +222,7 @@ class CheckPermission implements EventSubscriberInterface
 
             $disableCommand = false;
 
-            if (\array_key_exists('act', $parameters)
-                && ($parameters['act'] === $actionName)
-            ) {
+            if (\array_key_exists('act', $parameters) && ($parameters['act'] === $actionName)) {
                 $disableCommand = true;
             }
 

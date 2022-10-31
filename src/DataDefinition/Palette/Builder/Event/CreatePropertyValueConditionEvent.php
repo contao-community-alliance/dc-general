@@ -33,7 +33,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class CreatePropertyValueConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
 
     /**
      * The property value condition.
@@ -65,7 +65,8 @@ class CreatePropertyValueConditionEvent extends BuilderEvent
      */
     public function setPropertyValueCondition($condition)
     {
-        if (!($condition instanceof PalettePropertyValueCondition)
+        if (
+            !($condition instanceof PalettePropertyValueCondition)
             && (!$condition instanceof PropertyValueCondition)
         ) {
             throw new DcGeneralInvalidArgumentException(

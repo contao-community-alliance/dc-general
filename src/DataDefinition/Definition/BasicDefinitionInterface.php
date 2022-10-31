@@ -30,22 +30,22 @@ interface BasicDefinitionInterface extends DefinitionInterface
     /**
      * The name of the definition.
      */
-    const NAME = 'basic';
+    public const NAME = 'basic';
 
     /**
      * Flat mode. All models are on the same hierarchical level. No root conditions are defined.
      */
-    const MODE_FLAT = 0;
+    public const MODE_FLAT = 0;
 
     /**
      * Parented list mode. The models are children of a parent model.
      */
-    const MODE_PARENTEDLIST = 1;
+    public const MODE_PARENTEDLIST = 1;
 
     /**
      * Hierarchical mode. The models span over various levels.
      */
-    const MODE_HIERARCHICAL = 2;
+    public const MODE_HIERARCHICAL = 2;
 
     /**
      * Set the mode the data definition is in.

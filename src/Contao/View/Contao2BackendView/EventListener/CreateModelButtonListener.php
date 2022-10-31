@@ -60,7 +60,8 @@ class CreateModelButtonListener
             return;
         }
 
-        if ((BasicDefinitionInterface::MODE_PARENTEDLIST === $mode)
+        if (
+            (BasicDefinitionInterface::MODE_PARENTEDLIST === $mode)
             || (BasicDefinitionInterface::MODE_HIERARCHICAL === $mode)
         ) {
             $filter = new Filter();

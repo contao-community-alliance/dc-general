@@ -75,9 +75,7 @@ class SessionStorage implements SessionStorageInterface
 
         foreach ($databaseKeys as $index => $databaseKeyItems) {
             foreach ((array) $databaseKeyItems as $databaseKey) {
-                if (('common' === $index)
-                    || (0 === \strpos($index, 'DC_GENERAL_'))
-                ) {
+                if (('common' === $index) || (0 === \strpos($index, 'DC_GENERAL_'))) {
                     $this->databaseKeys[$index][] = $databaseKey;
 
                     continue;

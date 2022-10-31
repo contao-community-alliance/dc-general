@@ -294,7 +294,8 @@ class LegacyPalettesParser
 
             $selectorProperty = [];
             // For selectable sub selector.
-            if (isset($properties[$selectorFieldName])
+            if (
+                isset($properties[$selectorFieldName])
                 && (0 < \substr_count($subPaletteSelector, '_'))
             ) {
                 $selectorProperty = $properties[$selectorFieldName];

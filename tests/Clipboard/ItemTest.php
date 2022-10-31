@@ -34,7 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
  */
 class ItemTest extends TestCase
 {
-    const TEST_PROVIDER = 'dummy-provider';
+    public const TEST_PROVIDER = 'dummy-provider';
 
     /**
      * Test the the Item requires an valid model id.

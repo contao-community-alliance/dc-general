@@ -368,7 +368,8 @@ class DefaultController implements ControllerInterface
         }
 
         // Check uniqueness.
-        if (isset($extra['unique'])
+        if (
+            isset($extra['unique'])
             && (true === $extra['unique'])
             && !$dataProvider->isUniqueValue($propName, $model->getProperty($propName))
         ) {
@@ -852,7 +853,8 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $into = null,
         ModelIdInterface $parent = null
     ) {
-        if ($models->count()
+        if (
+            $models->count()
             && (($after && (0 === (int) $after->getId()))
                 || ($into && (0 === (int) $into->getId())))
         ) {
@@ -1060,16 +1062,15 @@ class DefaultController implements ControllerInterface
         }
         $environment = $this->getEnvironment();
 
-        if (\in_array(
-            $environment
-                ->getDataDefinition()
-                ->getBasicDefinition()
-                ->getMode(),
-            [
-                BasicDefinitionInterface::MODE_HIERARCHICAL,
-                BasicDefinitionInterface::MODE_PARENTEDLIST
-            ]
-        )) {
+        if (
+            \in_array(
+                $environment->getDataDefinition()->getBasicDefinition()->getMode(),
+                [
+                    BasicDefinitionInterface::MODE_HIERARCHICAL,
+                    BasicDefinitionInterface::MODE_PARENTEDLIST
+                ]
+            )
+        ) {
             if (!$this->relationshipManager->isRoot($previousModel)) {
                 $parentModel = $this->modelCollector->searchParentOf($previousModel);
                 $parentName  = $parentModel->getProviderName();

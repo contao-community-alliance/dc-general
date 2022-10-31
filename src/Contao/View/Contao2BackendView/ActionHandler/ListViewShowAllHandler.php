@@ -46,7 +46,8 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
      */
     protected function determineTemplate($groupingInformation)
     {
-        if (isset($groupingInformation['mode'])
+        if (
+            isset($groupingInformation['mode'])
             && (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingInformation['mode'])
         ) {
             return $this->getTemplate('dcbe_general_grouping');

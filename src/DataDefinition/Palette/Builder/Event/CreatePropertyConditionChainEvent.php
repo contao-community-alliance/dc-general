@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\
  */
 class CreatePropertyConditionChainEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-property-condition-chain';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-property-condition-chain';
 
     /**
      * The property condition chain.

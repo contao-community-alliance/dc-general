@@ -48,7 +48,8 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray([
+            ->setFilterArray(
+                [
                     [
                         'local'     => 'id',
                         'operation' => '=',
@@ -79,7 +80,8 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray([
+            ->setFilterArray(
+                [
                     [
                         'local'     => 'id',
                         'operation' => '=',
@@ -110,7 +112,8 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray([
+            ->setFilterArray(
+                [
                     [
                         'local'     => 'id',
                         'operation' => '=',
@@ -140,7 +143,8 @@ class ParentChildConditionTest extends TestCase
 
         $condition = new ParentChildCondition();
         $condition
-            ->setFilterArray([
+            ->setFilterArray(
+                [
                     [
                         'local'     => 'id',
                         'operation' => '=',
@@ -167,7 +171,8 @@ class ParentChildConditionTest extends TestCase
         $child->setPropertyRaw('pid', 1);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray([
+        $condition->setFilterArray(
+            [
                 [
             'local'     => 'id',
             'operation' => '=',
@@ -194,7 +199,8 @@ class ParentChildConditionTest extends TestCase
         $child->setID(2);
 
         $condition = new ParentChildCondition();
-        $condition->setFilterArray([
+        $condition->setFilterArray(
+            [
                 [
                     'local'        => 'id',
                     'operation'    => '=',

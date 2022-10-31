@@ -31,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class CreateConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-condition';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-condition';
 
     /**
      * The condition being created.
@@ -65,7 +65,8 @@ class CreateConditionEvent extends BuilderEvent
      */
     public function setCondition($condition)
     {
-        if ((!$condition instanceof PaletteConditionInterface)
+        if (
+            (!$condition instanceof PaletteConditionInterface)
             && (!$condition instanceof PropertyConditionInterface)
         ) {
             throw new DcGeneralInvalidArgumentException(

@@ -31,7 +31,7 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
     /**
      * The name of the definition.
      */
-    const NAME = 'properties';
+    public const NAME = 'properties';
 
     /**
      * Get all properties.

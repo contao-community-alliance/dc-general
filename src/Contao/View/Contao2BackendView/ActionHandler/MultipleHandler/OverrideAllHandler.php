@@ -58,8 +58,10 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ('overrideAll' !== $event->getAction()->getName())) {
+        if (
+            !$this->scopeDeterminator->currentScopeIsBackend()
+            || ('overrideAll' !== $event->getAction()->getName())
+        ) {
             return;
         }
 
@@ -145,9 +147,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         @\trigger_error('This function where remove in 3.0. ' . __CLASS__  . '::' . __FUNCTION__, E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
-        if ((null === $propertyValueBag)
-            || (null === $model)
-        ) {
+        if ((null === $propertyValueBag) || (null === $model)) {
             return;
         }
 
@@ -340,7 +340,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function getPropertyValueErrors(PropertyValueBagInterface $propertyValueBag, $propertyName, array $errors)
     {
-        if ((null !== $propertyValueBag)
+        if (
+            (null !== $propertyValueBag)
             && $propertyValueBag->hasPropertyValue($propertyName)
             && $propertyValueBag->isPropertyValueInvalid($propertyName)
         ) {
@@ -378,7 +379,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             return;
         }
 
-        if ($propertiesDefinition->hasProperty($propertyName)
+        if (
+            $propertiesDefinition->hasProperty($propertyName)
             && !$environment->getInputProvider()->hasValue($propertyName)
         ) {
             $propertyValueBag->setPropertyValue(

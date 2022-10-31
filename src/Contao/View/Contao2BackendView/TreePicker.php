@@ -855,9 +855,7 @@ class TreePicker extends Widget
     {
         $input = $this->getEnvironment()->getInputProvider();
 
-        if ($input->hasValue('action')
-            && ('DcGeneralLoadSubTree' === $input->getValue('action'))
-        ) {
+        if ($input->hasValue('action') && ('DcGeneralLoadSubTree' === $input->getValue('action'))) {
             $provider = $input->getValue('providerName');
             $rootId   = $input->getValue('id');
             $this->getEnvironment()->getSessionStorage()->set(
@@ -1468,7 +1466,8 @@ class TreePicker extends Widget
      */
     private function handleInputNameForEditAll()
     {
-        if (('select' !== $this->getEnvironment()->getInputProvider()->getParameter('act'))
+        if (
+            ('select' !== $this->getEnvironment()->getInputProvider()->getParameter('act'))
             && ('edit' !== $this->getEnvironment()->getInputProvider()->getParameter('select'))
             && ('edit' !== $this->getEnvironment()->getInputProvider()->getParameter('mode'))
         ) {

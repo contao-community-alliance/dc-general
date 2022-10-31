@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
  */
 class CreateLegendEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-legend';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-legend';
 
     /**
      * The legend that has been created.

@@ -987,7 +987,8 @@ class PaletteBuilder
      */
     protected function createPropertyConditionChain($conjunction = PropertyConditionChain::AND_CONJUNCTION)
     {
-        if (!($this->condition instanceof PropertyConditionChain)
+        if (
+            !($this->condition instanceof PropertyConditionChain)
             || ($conjunction !== $this->condition->getConjunction())
         ) {
             $previousCondition = $this->condition;

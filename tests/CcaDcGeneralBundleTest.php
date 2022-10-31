@@ -31,7 +31,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  */
 class CcaDcGeneralBundleTest extends TestCase
 {
-
     public function testBuild()
     {
         $passes    = [

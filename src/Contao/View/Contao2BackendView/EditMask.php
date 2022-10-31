@@ -392,8 +392,10 @@ class EditMask
             $buttons['saveNclose'] = $buttonTemplate->parse();
         }
 
-        if ($basicDefinition->isCreatable()
-            && !$this->getEnvironment()->getInputProvider()->getParameter('nc')) {
+        if (
+            $basicDefinition->isCreatable()
+            && !$this->getEnvironment()->getInputProvider()->getParameter('nc')
+        ) {
             $buttonTemplate->setData(
                 [
                     'label'      => $this->getButtonLabel('saveNcreate'),
@@ -423,11 +425,13 @@ class EditMask
                 ]
             );
             $buttons['saveNedit'] = $buttonTemplate->parse();
-        } elseif (!$this->isPopup()
-                  && ((BasicDefinitionInterface::MODE_PARENTEDLIST === $basicDefinition->getMode())
-                      || '' !== $basicDefinition->getParentDataProvider()
-                      || $basicDefinition->isSwitchToEditEnabled()
-                  )
+        } elseif (
+            !$this->isPopup()
+            && (
+                (BasicDefinitionInterface::MODE_PARENTEDLIST === $basicDefinition->getMode())
+                || '' !== $basicDefinition->getParentDataProvider()
+                || $basicDefinition->isSwitchToEditEnabled()
+            )
         ) {
             $buttonTemplate->setData(
                 [
@@ -508,7 +512,8 @@ class EditMask
                 $this->ensurePropertyExists($property->getName(), $propertyDefinitions);
 
                 // If this property is invalid, fetch the error.
-                if ((!$isAutoSubmit)
+                if (
+                    (!$isAutoSubmit)
                     && $propertyValues
                     && $propertyValues->hasPropertyValue($property->getName())
                     && $propertyValues->isPropertyValueInvalid($property->getName())
@@ -578,7 +583,8 @@ class EditMask
 
         // Compare version and current record.
         $currentVersion = $dataProvider->getActiveVersion($modelId);
-        if (!$currentVersion
+        if (
+            !$currentVersion
             || !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion))
         ) {
             $user = BackendUser::getInstance();
@@ -888,14 +894,16 @@ class EditMask
      */
     private function executeMultiLanguage(ContaoBackendViewTemplate $template)
     {
-        if (\in_array(
-            MultiLanguageDataProviderInterface::class,
-            \class_implements(
-                $this->getEnvironment()->getDataProvider(
-                    $this->model->getProviderName()
+        if (
+            \in_array(
+                MultiLanguageDataProviderInterface::class,
+                \class_implements(
+                    $this->getEnvironment()->getDataProvider(
+                        $this->model->getProviderName()
+                    )
                 )
             )
-        )) {
+        ) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $dataProvider = $this->getEnvironment()->getDataProvider();
 

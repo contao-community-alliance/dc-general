@@ -118,9 +118,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = 'bundles/ccadcgeneral/css/generalDriver.css';
 
-        if ((null !== $event->getResponse())
+        if (
+            (null !== $event->getResponse())
             || $event->getEnvironment()->getDataDefinition()->getName()
-               !== $this->environment->getDataDefinition()->getName()
+                !== $this->environment->getDataDefinition()->getName()
         ) {
             return;
         }
@@ -533,7 +534,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
 
-        if (('select' !== $inputProvider->getParameter('act'))
+        if (
+            ('select' !== $inputProvider->getParameter('act'))
             && ('edit' !== $inputProvider->getParameter('select'))
             && ('edit' !== $inputProvider->getParameter('mode'))
         ) {

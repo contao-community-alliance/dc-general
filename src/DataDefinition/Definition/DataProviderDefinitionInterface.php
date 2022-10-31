@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\DataProviderInformationInte
  */
 interface DataProviderDefinitionInterface extends DefinitionInterface, \IteratorAggregate, \Countable, \ArrayAccess
 {
-    const NAME = 'dataProvider';
+    public const NAME = 'dataProvider';
 
     /**
      * Add a data provider information to the definition.

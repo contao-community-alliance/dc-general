@@ -60,7 +60,8 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
+        if (
+            !$this->scopeDeterminator->currentScopeIsBackend()
             || ('selectPropertyAll' !== $event->getAction()->getName())
         ) {
             return null;
@@ -199,16 +200,15 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     private function isPropertyAllowed(PropertyInterface $property, EnvironmentInterface $environment)
     {
-        if (!$property->getWidgetType()
-            || ('dummyProperty' === $property->getWidgetType())
-        ) {
+        if (!$property->getWidgetType() || ('dummyProperty' === $property->getWidgetType())) {
             return false;
         }
 
         $translator = $environment->getTranslator();
 
         $extra = (array) $property->getExtra();
-        if ($this->isPropertyAllowedByEdit($extra, $environment)
+        if (
+            $this->isPropertyAllowedByEdit($extra, $environment)
             || $this->isPropertyAllowedByOverride($extra, $environment)
         ) {
             Message::addInfo(
@@ -364,7 +364,8 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             ->set('selectCheckBoxName', 'properties[]')
             ->set('selectCheckBoxIdPrefix', 'properties_');
 
-        if ((null !== $template->get('action'))
+        if (
+            (null !== $template->get('action'))
             && (false !== \strpos($template->get('action'), 'select=properties'))
         ) {
             $template->set('action', \str_replace('select=properties', 'select=edit', $template->get('action')));

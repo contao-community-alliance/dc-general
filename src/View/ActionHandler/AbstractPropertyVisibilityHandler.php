@@ -545,7 +545,8 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            if (isset($invisibleProperties[$condition->getPropertyName()])
+            if (
+                isset($invisibleProperties[$condition->getPropertyName()])
                 || !$propertiesDefinition->hasProperty($condition->getPropertyName() . '.dummy')
             ) {
                 continue;
@@ -639,13 +640,15 @@ abstract class AbstractPropertyVisibilityHandler
                 );
             }
 
-            if (!\method_exists($condition, 'getPropertyName')
+            if (
+                !\method_exists($condition, 'getPropertyName')
                 || ($property->getName() !== $condition->getPropertyName())
             ) {
                 continue;
             }
 
-            if (isset($invisibleProperties[$legendProperty->getName()])
+            if (
+                isset($invisibleProperties[$legendProperty->getName()])
                 || !$propertiesDefinition->hasProperty($legendProperty->getName() . '.dummy')
             ) {
                 continue;
@@ -681,7 +684,8 @@ abstract class AbstractPropertyVisibilityHandler
 
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
-            if (($idProperty === $intersectProperty)
+            if (
+                ($idProperty === $intersectProperty)
                 || !$propertiesDefinition->hasProperty($intersectProperty)
                 || (false === $this->useIntersectValue(
                     $intersectProperty,
@@ -730,12 +734,12 @@ abstract class AbstractPropertyVisibilityHandler
         $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
         $useIntersectValue    = (bool) $defaultPalette;
 
-        if ($defaultPalette && !$propertiesDefinition->getProperty($intersectPropertyName)->getWidgetType()
-        ) {
+        if ($defaultPalette && !$propertiesDefinition->getProperty($intersectPropertyName)->getWidgetType()) {
             $useIntersectValue = true;
         }
 
-        if ($defaultPalette
+        if (
+            $defaultPalette
             && (false === $useIntersectValue)
             && \in_array($intersectPropertyName, $legendPropertyNames)
         ) {

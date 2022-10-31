@@ -293,9 +293,7 @@ class Ajax3X extends Ajax
             return $fieldName;
         }
 
-        if (('select' !== $inputProvider->getParameter('act'))
-            && ('edit' !== $inputProvider->getParameter('mode'))
-        ) {
+        if (('select' !== $inputProvider->getParameter('act')) && ('edit' !== $inputProvider->getParameter('mode'))) {
             return $fieldName;
         }
 
@@ -337,9 +335,7 @@ class Ajax3X extends Ajax
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
 
-        if (('select' !== $inputProvider->getParameter('act'))
-            && ('edit' !== $inputProvider->getParameter('mode'))
-        ) {
+        if (('select' !== $inputProvider->getParameter('act')) && ('edit' !== $inputProvider->getParameter('mode'))) {
             echo $widget->parse();
 
             return;

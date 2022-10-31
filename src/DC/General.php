@@ -139,7 +139,8 @@ class General extends DataContainer implements DataContainerInterface
      */
     private function checkAjaxCall()
     {
-        if (!empty($_POST)
+        if (
+            !empty($_POST)
             && (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
             && 'XMLHttpRequest' === $_SERVER['HTTP_X_REQUESTED_WITH'])
         ) {
@@ -159,7 +160,8 @@ class General extends DataContainer implements DataContainerInterface
      */
     protected function getTablenameCallback($tableName)
     {
-        if (isset($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
+        if (
+            isset($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
             && \is_array($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
         ) {
             foreach ($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'] as $callback) {

@@ -293,10 +293,12 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!\in_array(
-            $event->getAction()->getName(),
-            ['copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show']
-        )
+        if (
+            !\in_array(
+                $event->getAction()->getName(),
+                ['copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show'],
+                true
+            )
         ) {
             return;
         }
@@ -305,7 +307,8 @@ class Subscriber implements EventSubscriberInterface
         $definition  = $environment->getDataDefinition();
         $view        = $environment->getView();
 
-        if (!$view instanceof BaseView
+        if (
+            !$view instanceof BaseView
             || !$view->getPanel()
             || !$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
         ) {
@@ -403,9 +406,11 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderTimestampReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if (!isset($extra['rgxp'])
+        if (
+            !isset($extra['rgxp'])
             || !(('date' === $extra['rgxp']) || ('time' === $extra['rgxp']) || ('datim' === $extra['rgxp']))
-            || (null !== $event->getRendered())) {
+            || (null !== $event->getRendered())
+        ) {
             return;
         }
 
@@ -449,7 +454,8 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderSimpleCheckbox(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
     {
-        if ((null !== $event->getRendered())
+        if (
+            (null !== $event->getRendered())
             || !(!($extra['multiple'] ?? false) && ('checkbox' === $property->getWidgetType()))
         ) {
             return;
@@ -492,9 +498,11 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
     {
-        if (!isset($extra['reference'])
+        if (
+            !isset($extra['reference'])
             || !\array_key_exists($value, (array) $extra['reference'])
-            || (null !== $event->getRendered())) {
+            || (null !== $event->getRendered())
+        ) {
             return;
         }
 
@@ -519,9 +527,11 @@ class Subscriber implements EventSubscriberInterface
      */
     private static function renderTextAreaReadable(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
     {
-        if ((empty($extra['allowHtml']) && empty($extra['preserveTags']))
+        if (
+            (empty($extra['allowHtml']) && empty($extra['preserveTags']))
             || (null !== $event->getRendered())
-            || ('textarea' !== $property->getWidgetType())) {
+            || ('textarea' !== $property->getWidgetType())
+        ) {
             return;
         }
 

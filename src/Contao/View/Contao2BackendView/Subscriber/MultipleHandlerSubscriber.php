@@ -117,8 +117,10 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     public function deactivateGlobalButton(ActionEvent $event)
     {
         $allowedAction = ['selectModelAll', 'selectPropertyAll', 'editAll', 'overrideAll'];
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || !\in_array($event->getAction()->getName(), $allowedAction)) {
+        if (
+            !$this->scopeDeterminator->currentScopeIsBackend()
+            || !\in_array($event->getAction()->getName(), $allowedAction)
+        ) {
             return;
         }
 
@@ -151,7 +153,8 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     {
         $environment = $event->getEnvironment();
 
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
+        if (
+            !$this->scopeDeterminator->currentScopeIsBackend()
             || ('select' !== $environment->getInputProvider()->getParameter('act'))
             || ('edit' !== $environment->getInputProvider()->getParameter('select'))
         ) {
@@ -160,7 +163,8 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
 
         $model = $event->getModel();
 
-        if (!($propertyName = $this->getOriginalPropertyName($event->getPropertyName(), ModelId::fromModel($model)))
+        if (
+            !($propertyName = $this->getOriginalPropertyName($event->getPropertyName(), ModelId::fromModel($model)))
             || !$model->getProperty($propertyName)
         ) {
             return;
@@ -198,7 +202,8 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     {
         $environment = $event->getEnvironment();
 
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
+        if (
+            !$this->scopeDeterminator->currentScopeIsBackend()
             || ('select' !== $environment->getInputProvider()->getParameter('act'))
             || ('edit' !== $environment->getInputProvider()->getParameter('select'))
         ) {
@@ -213,7 +218,8 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $modelId = ModelId::fromModel($model);
 
         $originalPropertyName = $this->getOriginalPropertyName($event->getProperty()->getName(), $modelId);
-        if ((null === $originalPropertyName)
+        if (
+            (null === $originalPropertyName)
             || ((null !== $originalPropertyName) && (false === $properties->hasProperty($originalPropertyName)))
         ) {
             return;

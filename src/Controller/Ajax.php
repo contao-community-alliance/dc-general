@@ -208,35 +208,39 @@ abstract class Ajax implements EnvironmentAwareInterface
 
         $action = $this->getEnvironment()->getInputProvider()->getValue('action');
 
-        if (\in_array(
-            $action,
-            [
-                // This is impossible to handle generically in DcGeneral.
-                'toggleFeatured',
-                // DcGeneral handles sub palettes differently.
-                'toggleSubpalette'
-            ]
-        )) {
+        if (
+            \in_array(
+                $action,
+                [
+                    // This is impossible to handle generically in DcGeneral.
+                    'toggleFeatured',
+                    // DcGeneral handles sub palettes differently.
+                    'toggleSubpalette'
+                ]
+            )
+        ) {
             return;
         }
 
-        if (\in_array(
-            $action,
-            [
-                // Load nodes of the page structure tree. Compatible between 2.X and 3.X.
-                'loadStructure',
-                // Load nodes of the file manager tree.
-                'loadFileManager',
-                // Load nodes of the page tree.
-                'loadPagetree',
-                // Load nodes of the file tree.
-                'loadFiletree',
-                // Reload the page/file picker.
-                'reloadPagetree',
-                'reloadFiletree',
-                'setLegendState'
-            ]
-        )) {
+        if (
+            \in_array(
+                $action,
+                [
+                    // Load nodes of the page structure tree. Compatible between 2.X and 3.X.
+                    'loadStructure',
+                    // Load nodes of the file manager tree.
+                    'loadFileManager',
+                    // Load nodes of the page tree.
+                    'loadPagetree',
+                    // Load nodes of the file tree.
+                    'loadFiletree',
+                    // Reload the page/file picker.
+                    'reloadPagetree',
+                    'reloadFiletree',
+                    'setLegendState'
+                ]
+            )
+        ) {
             $this->{$action}();
             return;
         }

@@ -97,9 +97,7 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
         $property             = $propertiesDefinition->getProperty($event->getProperty());
 
 
-        if (!\array_key_exists('rte', $property->getExtra())
-            || (0 !== \strpos($property->getExtra()['rte'], 'tiny'))
-        ) {
+        if (!\array_key_exists('rte', $property->getExtra()) || (0 !== \strpos($property->getExtra()['rte'], 'tiny'))) {
             return;
         }
 
@@ -126,9 +124,7 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
         $property             = $propertiesDefinition->getProperty($event->getProperty());
 
 
-        if (!\array_key_exists('rte', $property->getExtra())
-            || \strpos($property->getExtra()['rte'], 'tiny') !== 0
-        ) {
+        if (!\array_key_exists('rte', $property->getExtra()) || \strpos($property->getExtra()['rte'], 'tiny') !== 0) {
             return;
         }
 

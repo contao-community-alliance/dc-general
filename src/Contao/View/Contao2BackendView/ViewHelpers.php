@@ -158,7 +158,8 @@ class ViewHelpers
         $sorting = static::getCurrentSorting($environment);
 
         // If no sorting defined, exit.
-        if ((!$sorting)
+        if (
+            (!$sorting)
             || (!$sorting->getCount())
             || $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM
         ) {

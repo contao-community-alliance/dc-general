@@ -62,8 +62,10 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ('editAll' !== $event->getAction()->getName())) {
+        if (
+            !$this->scopeDeterminator->currentScopeIsBackend()
+            || ('editAll' !== $event->getAction()->getName())
+        ) {
             return;
         }
 
@@ -217,12 +219,14 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $fields = [];
         foreach ($selectProperties as $selectProperty) {
-            if (!$this->ensurePropertyVisibleInModel(
-                $action,
-                $selectProperty->getName(),
-                $visibleModel,
-                $environment
-            )) {
+            if (
+                !$this->ensurePropertyVisibleInModel(
+                    $action,
+                    $selectProperty->getName(),
+                    $visibleModel,
+                    $environment
+                )
+            ) {
                 $fields[] =
                     $this->injectSelectParentPropertyInformation($action, $selectProperty, $editModel, $environment);
 
@@ -342,7 +346,8 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         PropertyInterface $selectProperty,
         PropertyValueBagInterface $propertyValuesBag
     ) {
-        if (($editErrors = $propertyValuesBag->getInvalidPropertyErrors())
+        if (
+            ($editErrors = $propertyValuesBag->getInvalidPropertyErrors())
             && \array_key_exists($selectProperty->getName(), $editErrors)
         ) {
             $propertyValuesBag->markPropertyValueAsInvalid(

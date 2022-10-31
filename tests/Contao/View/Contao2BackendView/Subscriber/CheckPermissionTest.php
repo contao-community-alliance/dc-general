@@ -75,7 +75,9 @@ class CheckPermissionTest extends TestCase
         );
         $propertyNotExist = new Property('property13');
         $property21       = new Property('property21');
-        $property21->setVisibleCondition($prop21chain = new PropertyConditionChain([], PropertyConditionChain::OR_CONJUNCTION));
+        $property21->setVisibleCondition(
+            $prop21chain = new PropertyConditionChain([], PropertyConditionChain::OR_CONJUNCTION)
+        );
         $property22 = new Property('property22');
         $property22->setVisibleCondition($prop22chain = new PropertyConditionChain());
         $palette1 = $this->getMockBuilder(PaletteInterface::class)->getMockForAbstractClass();

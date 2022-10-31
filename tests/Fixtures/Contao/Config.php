@@ -24,7 +24,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao;
  */
 class Config
 {
-
     /**
      * Object instance (Singleton)
      * @var \Config
@@ -38,8 +37,7 @@ class Config
      */
     public static function getInstance()
     {
-        if (static::$objInstance === null)
-        {
+        if (static::$objInstance === null) {
             static::$objInstance = new static();
         }
 
@@ -57,8 +55,7 @@ class Config
      */
     public static function get($strKey)
     {
-        if (isset($GLOBALS['TL_CONFIG'][$strKey]))
-        {
+        if (isset($GLOBALS['TL_CONFIG'][$strKey])) {
             return $GLOBALS['TL_CONFIG'][$strKey];
         }
 

@@ -33,5 +33,5 @@ interface PalettesDefinitionInterface extends DefinitionInterface, PaletteCollec
     /**
      * The name of the definition.
      */
-    const NAME = 'palettes';
+    public const NAME = 'palettes';
 }

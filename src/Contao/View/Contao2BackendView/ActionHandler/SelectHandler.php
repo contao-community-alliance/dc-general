@@ -126,7 +126,8 @@ class SelectHandler
      */
     private function getSubmitAction(EnvironmentInterface $environment, $regardSelectMode = false)
     {
-        if (!$regardSelectMode
+        if (
+            !$regardSelectMode
             && $environment->getInputProvider()->hasParameter('select')
             && !$environment->getInputProvider()->hasValue('properties')
         ) {
@@ -155,7 +156,8 @@ class SelectHandler
     private function determineAction(EnvironmentInterface $environment)
     {
         foreach (['delete', 'cut', 'copy', 'override', 'edit'] as $action) {
-            if ($environment->getInputProvider()->hasValue($action)
+            if (
+                $environment->getInputProvider()->hasValue($action)
                 || $environment->getInputProvider()->hasValue($action . '_save')
                 || $environment->getInputProvider()->hasValue($action . '_saveNback')
             ) {
@@ -192,7 +194,8 @@ class SelectHandler
             ['edit_save', 'edit_saveNback', 'override_save', 'override_saveNback', 'delete', 'copy', 'cut']
         );
 
-        if (('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
+        if (
+            ('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
             && ('edit' === $inputProvider->getParameter('select'))
         ) {
             return true;

@@ -93,7 +93,7 @@ class DefaultEditInformation implements EditInformationInterface
             $this->modelErrors[$modelId->getSerialized()] = [];
         }
 
-        if(isset($this->modelErrors[$modelId->getSerialized()][$property->getName()])){
+        if (isset($this->modelErrors[$modelId->getSerialized()][$property->getName()])) {
             $this->modelErrors[$modelId->getSerialized()][$property->getName()] = \array_merge(
                 (array) $this->modelErrors[$modelId->getSerialized()][$property->getName()],
                 $error
@@ -101,7 +101,6 @@ class DefaultEditInformation implements EditInformationInterface
         } else {
             $this->modelErrors[$modelId->getSerialized()][$property->getName()] = $error;
         }
-
     }
 
     /**

@@ -31,7 +31,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class PropertyValueBag implements PropertyValueBagInterface
 {
-
     /**
      * All properties and its values in this bag.
      *

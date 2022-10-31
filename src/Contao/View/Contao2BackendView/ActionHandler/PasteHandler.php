@@ -98,10 +98,12 @@ class PasteHandler
         }
 
         // Check if it is a simple create-paste of a single model, if so, redirect to edit view.
-        if ($this->isSimpleCreatePaste(
-            $clipboard,
-            $environment->getDataDefinition()->getBasicDefinition()->getDataProvider()
-        )) {
+        if (
+            $this->isSimpleCreatePaste(
+                $clipboard,
+                $environment->getDataDefinition()->getBasicDefinition()->getDataProvider()
+            )
+        ) {
             return $this->callAction($environment, 'create');
         }
 

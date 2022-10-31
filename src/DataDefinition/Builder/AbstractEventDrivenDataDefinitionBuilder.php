@@ -36,8 +36,10 @@ abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitio
     /**
      * Priority of the listener.
      * Just here for sanity, must be overwritten by implementation.
+     *
+     * @deprecated Should not be used at all.
      */
-    const PRIORITY = null;
+    public const PRIORITY = null;
 
     /**
      * The event dispatcher currently calling.

@@ -174,7 +174,8 @@ class TreeCollector implements EnvironmentAwareInterface
                     ->setIdOnly(true)
             );
 
-        if (($childIds instanceof CollectionInterface && !$childIds->count())
+        if (
+            ($childIds instanceof CollectionInterface && !$childIds->count())
             || (\is_array($childIds) && !\count($childIds))
         ) {
             return null;
@@ -282,10 +283,12 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // Apply parent filtering, do this only for root elements.
-        if ($parentCondition = $definition->getModelRelationshipDefinition()->getChildCondition(
-            $basicDefinition->getParentDataProvider(),
-            $basicDefinition->getRootDataProvider()
-        )) {
+        if (
+            $parentCondition = $definition->getModelRelationshipDefinition()->getChildCondition(
+                $basicDefinition->getParentDataProvider(),
+                $basicDefinition->getRootDataProvider()
+            )
+        ) {
             $baseFilter = $config->getFilter();
             $filter     = $parentCondition->getFilter($parentModel);
 

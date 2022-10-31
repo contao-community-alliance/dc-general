@@ -134,7 +134,8 @@ class FileSelect
         $template->manager     = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
         $template->managerHref = '';
 
-        if ('tl_files' !== $inputProvider->getValue('do')
+        if (
+            'tl_files' !== $inputProvider->getValue('do')
             && (null === $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'])
         ) {
             Backend::addFilesBreadcrumb('tl_files_picker');

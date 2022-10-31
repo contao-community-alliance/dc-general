@@ -33,7 +33,7 @@ interface ModelRelationshipDefinitionInterface extends DefinitionInterface
     /**
      * The name of the definition.
      */
-    const NAME = 'model-relationships';
+    public const NAME = 'model-relationships';
 
     /**
      * Set the root condition for the current table.

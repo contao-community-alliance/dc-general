@@ -73,9 +73,7 @@ class PasteAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ('pasteAll' !== $event->getAction()->getName())
-        ) {
+        if (!$this->scopeDeterminator->currentScopeIsBackend() || ('pasteAll' !== $event->getAction()->getName())) {
             return;
         }
 
@@ -223,9 +221,7 @@ class PasteAllHandler
         $previousItem = null;
         foreach ($clipboardItems as $clipboardItem) {
             $modelId = $clipboardItem->getModelId();
-            if (!$modelId
-                || \array_key_exists($modelId->getSerialized(), $collection)
-            ) {
+            if (!$modelId || \array_key_exists($modelId->getSerialized(), $collection)) {
                 continue;
             }
 

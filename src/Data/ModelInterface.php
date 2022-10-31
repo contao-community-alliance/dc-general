@@ -34,67 +34,67 @@ interface ModelInterface extends \IteratorAggregate
     /**
      * Name of the parent provider.
      */
-    const PARENT_PROVIDER_NAME = 'ptable';
+    public const PARENT_PROVIDER_NAME = 'ptable';
 
     /**
      * Id value of the parent model.
      */
-    const PARENT_ID = 'pid';
+    public const PARENT_ID = 'pid';
 
     /**
      * State if we have children.
      */
-    const HAS_CHILDREN = 'dc_gen_tv_children';
+    public const HAS_CHILDREN = 'dc_gen_tv_children';
 
     /**
      * If the children shall be shown (i.e. unfolded in tree mode).
      */
-    const SHOW_CHILDREN = 'dc_gen_tv_open';
+    public const SHOW_CHILDREN = 'dc_gen_tv_open';
 
     /**
      * All child collections.
      */
-    const CHILD_COLLECTIONS = 'dc_gen_children_collection';
+    public const CHILD_COLLECTIONS = 'dc_gen_children_collection';
 
     /**
      * Meta name for the model operation buttons.
      */
-    const OPERATION_BUTTONS = '%buttons%';
+    public const OPERATION_BUTTONS = '%buttons%';
 
     /**
      * Meta name for the model label arguments.
      */
-    const LABEL_ARGS = '%args%';
+    public const LABEL_ARGS = '%args%';
 
     /**
      * Meta name for the model label (sprintf string).
      */
-    const LABEL_VALUE = '%content%';
+    public const LABEL_VALUE = '%content%';
 
     /**
      * Meta name for the model group header.
      */
-    const GROUP_HEADER = '%header%';
+    public const GROUP_HEADER = '%header%';
 
     /**
      * Meta name for the model group value.
      */
-    const GROUP_VALUE = '%group%';
+    public const GROUP_VALUE = '%group%';
 
     /**
      * Meta name for the model label class.
      */
-    const CSS_CLASS = '%class%';
+    public const CSS_CLASS = '%class%';
 
     /**
      * Meta name for the model label class.
      */
-    const CSS_ROW_CLASS = '%rowClass%';
+    public const CSS_ROW_CLASS = '%rowClass%';
 
     /**
      * State if the model is changed
      */
-    const IS_CHANGED = 'isChanged';
+    public const IS_CHANGED = 'isChanged';
 
     /**
      * Copy this model, without the id.

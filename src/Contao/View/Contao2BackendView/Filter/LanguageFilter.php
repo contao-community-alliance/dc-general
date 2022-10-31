@@ -156,7 +156,8 @@ class LanguageFilter implements EventSubscriberInterface
         }
 
         // Get/Check the new language.
-        if ($inputProvider->hasValue('language')
+        if (
+            $inputProvider->hasValue('language')
             && \array_key_exists($inputProvider->getValue('language'), $languages)
         ) {
             $session['ml_support'][$environment->getDataDefinition()->getName()] = $inputProvider->getValue('language');

@@ -66,8 +66,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage  = $environment->getSessionStorage();
         $eventDispatcher = $environment->getEventDispatcher();
 
-        if (('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
-            || !$inputProvider->hasValue($this->getMode($action) . '_saveNback')) {
+        if (
+            ('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
+            || !$inputProvider->hasValue($this->getMode($action) . '_saveNback')
+        ) {
             return;
         }
 
@@ -179,8 +181,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             $clonePropertyValueBag->resetPropertyValueErrors($propertyName);
 
             if ($this->ensurePropertyVisibleInModel($action, $propertyName, $model, $environment)) {
-                if (!\array_key_exists($propertyName, $sessionProperties)
-                ) {
+                if (!\array_key_exists($propertyName, $sessionProperties)) {
                     $clonePropertyValueBag->setPropertyValue($propertyName, $model->getProperty($propertyName));
                 }
 
@@ -707,8 +708,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             $revertModel->setId($revertModel->getId());
 
             foreach ($properties as $property) {
-                if (('edit' === $this->getMode($action))
-                    && !\in_array($property->getName(), $modelErrors)) {
+                if (('edit' === $this->getMode($action)) && !\in_array($property->getName(), $modelErrors)) {
                     continue;
                 }
 

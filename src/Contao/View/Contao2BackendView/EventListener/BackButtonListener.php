@@ -53,15 +53,18 @@ class BackButtonListener
         $environment   = $event->getEnvironment();
         $inputProvider = $environment->getInputProvider();
 
-        if (!(\in_array($inputProvider->getParameter('act'), ['edit', 'create'])
-              || (null !== $inputProvider->getParameter('pid')
-                  || (null !== $inputProvider->getParameter('select'))))
+        if (
+            !(
+                \in_array($inputProvider->getParameter('act'), ['edit', 'create'])
+                || (null !== $inputProvider->getParameter('pid') || (null !== $inputProvider->getParameter('select')))
+            )
         ) {
             $event->setHtml('');
             return;
         }
 
-        if (('select' === $inputProvider->getParameter('act'))
+        if (
+            ('select' === $inputProvider->getParameter('act'))
             && ('models' !== $inputProvider->getParameter('select'))
         ) {
             return;

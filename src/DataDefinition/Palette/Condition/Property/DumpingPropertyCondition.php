@@ -33,7 +33,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class DumpingPropertyCondition implements PropertyConditionInterface
 {
-
     /**
      * The condition to dump.
      *

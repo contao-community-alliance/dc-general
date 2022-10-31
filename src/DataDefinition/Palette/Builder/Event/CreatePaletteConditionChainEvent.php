@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
  */
 class CreatePaletteConditionChainEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-palette-condition-chain';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-palette-condition-chain';
 
     /**
      * The palette condition chain being created.

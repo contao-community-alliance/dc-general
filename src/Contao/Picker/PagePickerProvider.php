@@ -112,7 +112,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             return (int) $value;
         }
 
-        return '{{link_url::'.$value.'}}';
+        return '{{link_url::' . $value . '}}';
     }
 
     /**

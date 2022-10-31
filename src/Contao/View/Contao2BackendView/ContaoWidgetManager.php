@@ -167,7 +167,8 @@ class ContaoWidgetManager
      */
     public function loadRichTextEditor($buffer, Widget $widget)
     {
-        if ((null === $widget->rte)
+        if (
+            (null === $widget->rte)
             || ((0 !== (\strncmp($widget->rte, 'tiny', 4)))
                 && (0 !== \strncmp($widget->rte, 'ace', 3)))
         ) {
@@ -212,7 +213,8 @@ class ContaoWidgetManager
 
         $selector = 'ctrl_' . $propertyName;
 
-        if (('select' !== $inputProvider->getParameter('act'))
+        if (
+            ('select' !== $inputProvider->getParameter('act'))
             || (false === $inputProvider->hasValue('edit') && false === $inputProvider->hasValue('edit_save'))
         ) {
             return $selector;
@@ -331,7 +333,8 @@ class ContaoWidgetManager
         $label      = $propInfo->getDescription();
         $widgetType = $propInfo->getWidgetType();
 
-        if (empty($label)
+        if (
+            empty($label)
             || ('password' === $widgetType)
             || !\is_string($label)
             || !$GLOBALS['TL_CONFIG']['showHelp']
@@ -526,7 +529,8 @@ class ContaoWidgetManager
         PropertyValueBagInterface $inputValues = null,
         $ignoreErrors = false
     ) {
-        if (!(!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
+        if (
+            !(!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
             && $inputValues->isPropertyValueInvalid($property))
         ) {
             return;

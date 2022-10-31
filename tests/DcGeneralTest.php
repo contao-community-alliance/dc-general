@@ -78,9 +78,12 @@ class DcGeneralTest extends TestCase
             ->method('get')
             ->willReturnCallback(function ($name) use ($eventDispatcher, $definitionContainer) {
                 switch ($name) {
-                    case 'event_dispatcher': return $eventDispatcher;
-                    case 'cca.translator.contao_translator': return new StaticTranslator();
-                    case 'cca.dc-general.data-definition-container': return $definitionContainer;
+                    case 'event_dispatcher':
+                        return $eventDispatcher;
+                    case 'cca.translator.contao_translator':
+                        return new StaticTranslator();
+                    case 'cca.dc-general.data-definition-container':
+                        return $definitionContainer;
                 }
                 return null;
             });

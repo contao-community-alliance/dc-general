@@ -576,7 +576,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function parseDynamicParentTableProperty(ContainerInterface $container)
     {
-        if ((null === ($propertyName = $this->getFromDca('dca_config/parent_table_property')))
+        if (
+            (null === ($propertyName = $this->getFromDca('dca_config/parent_table_property')))
             || (null === ($sourceProvider = $this->getFromDca('config/ptable')))
             || (null === ($dynamicParentTable = $this->getFromDca('config/dynamicPtable')))
         ) {
