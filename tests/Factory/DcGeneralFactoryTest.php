@@ -49,14 +49,14 @@ class DcGeneralFactoryTest extends TestCase
 
         System::setContainer($container = $this->getMockForAbstractClass(ContainerInterface::class));
 
-        $mockDefinitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
+        $definitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
         $container
             ->expects(self::once())
             ->method('get')
             ->with('cca.dc-general.data-definition-container')
-            ->willReturn($mockDefinitionContainer);
+            ->willReturn($definitionContainer);
 
-        $mockDefinitionContainer
+        $definitionContainer
             ->expects(self::once())
             ->method('hasDefinition')
             ->with('test-container')

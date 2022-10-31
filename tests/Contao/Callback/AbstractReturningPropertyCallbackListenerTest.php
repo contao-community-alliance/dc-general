@@ -56,9 +56,13 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
  * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener::wantToExecute
  * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getEnvironment
  * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getProperty
+ *
+ * @SuppressWarnings(PHPMD.LongClassName)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class AbstractReturningPropertyCallbackListenerTest extends TestCase
 {
+    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) - phpmd can not handle the use syntax. */
     protected function getCallback($value)
     {
         return function () use($value) {

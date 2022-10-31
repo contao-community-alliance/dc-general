@@ -38,6 +38,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * This abstract visibility handler provide methods for the visibility of properties.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 abstract class AbstractPropertyVisibilityHandler
 {
@@ -247,6 +248,8 @@ abstract class AbstractPropertyVisibilityHandler
      * @param EnvironmentInterface $environment The environment.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     private function matchVisibilityOfPropertyInAnyPalette(
         Action $action,
@@ -297,6 +300,8 @@ abstract class AbstractPropertyVisibilityHandler
      * @param EnvironmentInterface                     $environment      The environment.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     private function matchPaletteProperty(
         PropertyInterface $property,
@@ -713,6 +718,8 @@ abstract class AbstractPropertyVisibilityHandler
      * @param PaletteInterface|null $defaultPalette        The default palette.
      *
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     private function useIntersectValue(
         $intersectPropertyName,

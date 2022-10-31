@@ -50,6 +50,9 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 /**
  * Build the container config from legacy DCA syntax.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
@@ -206,6 +209,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      *                                                     container.
      *
      * @return ContaoDataProviderInformation|null
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function parseSingleDataProvider(
         ContainerInterface $container,

@@ -48,6 +48,9 @@ use Symfony\Component\HttpFoundation\Response;
  * @property bool   isDownloads If true only allowed download files are listed.
  *
  * @see https://github.com/contao/core/blob/master/system/modules/core/widgets/FileTree.php
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class FileTree extends AbstractWidget
 {

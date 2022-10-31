@@ -63,6 +63,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 abstract class AbstractListShowAllHandler
 {

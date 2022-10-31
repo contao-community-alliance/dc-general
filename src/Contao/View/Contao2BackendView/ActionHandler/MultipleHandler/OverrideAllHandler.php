@@ -133,6 +133,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * @return void
      *
      * @deprecated Deprecated since 2.1 and where remove in 3.0.
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function handleInvalidPropertyValueBag(
         PropertyValueBagInterface $propertyValueBag = null,

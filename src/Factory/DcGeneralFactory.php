@@ -41,6 +41,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Factory to create a DcGeneral instance.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {

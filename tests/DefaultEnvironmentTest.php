@@ -39,6 +39,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * Test all methods for the default environment.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\DefaultEnvironment
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DefaultEnvironmentTest extends TestCase
 {

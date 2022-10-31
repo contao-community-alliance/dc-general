@@ -42,6 +42,8 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Handler class for handling the "show" action.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ShowHandler
 {

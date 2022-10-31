@@ -47,6 +47,7 @@ use Doctrine\DBAL\Schema\Table;
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)     - We have to keep them as we implement the interfaces.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) - There is no elegant way to reduce this class more without
  *                                                     reducing the interface.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)   - Can not reduce without changing the interface.
  */
 class DefaultDataProvider implements DataProviderInterface
 {

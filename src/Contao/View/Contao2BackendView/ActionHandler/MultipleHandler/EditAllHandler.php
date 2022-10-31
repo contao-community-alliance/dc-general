@@ -39,6 +39,8 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
  * The class handle the "editAll" commands.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 {
@@ -127,16 +129,16 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             $model   = $collection->shift();
             $modelId = ModelId::fromModel($model);
 
-            $editPropertyValuesBag = $this->getPropertyValueBagFromModel($action, $model, $environment);
+            $propertyValuesBag = $this->getPropertyValueBagFromModel($action, $model, $environment);
             if ($formInputs) {
-                $this->handleEditCollection($action, $editPropertyValuesBag, $model, $renderInformation, $environment);
+                $this->handleEditCollection($action, $propertyValuesBag, $model, $renderInformation, $environment);
             }
 
             $fields = $this->renderEditFields(
                 $action,
                 new ContaoWidgetManager($environment, $model),
                 $model,
-                $editPropertyValuesBag,
+                $propertyValuesBag,
                 $environment
             );
 
@@ -399,17 +401,17 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     /**
      * Handle edit collection of models.
      *
-     * @param Action                    $action                The action.
-     * @param PropertyValueBagInterface $editPropertyValuesBag The property values.
-     * @param ModelInterface            $model                 The model.
-     * @param \ArrayObject              $renderInformation     The render information.
-     * @param EnvironmentInterface      $environment           The environment.
+     * @param Action                    $action            The action.
+     * @param PropertyValueBagInterface $propertyValuesBag The property values.
+     * @param ModelInterface            $model             The model.
+     * @param \ArrayObject              $renderInformation The render information.
+     * @param EnvironmentInterface      $environment       The environment.
      *
      * @return void
      */
     private function handleEditCollection(
         Action $action,
-        PropertyValueBagInterface $editPropertyValuesBag,
+        PropertyValueBagInterface $propertyValuesBag,
         ModelInterface $model,
         \ArrayObject $renderInformation,
         EnvironmentInterface $environment
@@ -424,7 +426,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $revertModel->setId($model->getId());
         $revertCollection->push($model);
 
-        $this->editCollection($action, $editCollection, $editPropertyValuesBag, $renderInformation, $environment);
+        $this->editCollection($action, $editCollection, $propertyValuesBag, $renderInformation, $environment);
 
         $this->revertValuesByErrors($action, $revertCollection, $environment);
     }

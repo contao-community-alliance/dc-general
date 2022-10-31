@@ -44,6 +44,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class ClipboardController.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ClipboardController implements EventSubscriberInterface
 {
@@ -337,9 +339,9 @@ class ClipboardController implements EventSubscriberInterface
                     continue;
                 }
 
-                $formatModelLabelEvent = new FormatModelLabelEvent($environment, $model);
-                $eventDispatcher->dispatch($formatModelLabelEvent, DcGeneralEvents::FORMAT_MODEL_LABEL);
-                $label = $formatModelLabelEvent->getLabel();
+                $formatModelLabel = new FormatModelLabelEvent($environment, $model);
+                $eventDispatcher->dispatch($formatModelLabel, DcGeneralEvents::FORMAT_MODEL_LABEL);
+                $label = $formatModelLabel->getLabel();
                 $label = \array_shift($label);
                 $label = $label['content'];
             } else {

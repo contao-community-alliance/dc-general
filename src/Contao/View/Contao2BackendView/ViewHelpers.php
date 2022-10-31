@@ -94,12 +94,12 @@ class ViewHelpers
 
         if (null === $definition) {
             /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-            $dataDefinition            = $environment->getDataDefinition();
-            $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-            $groupAndSortingDefinition = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
+            $dataDefinition  = $environment->getDataDefinition();
+            $viewDefinition  = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+            $groupAndSorting = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
 
-            if ($groupAndSortingDefinition->hasDefault()) {
-                $definition = $groupAndSortingDefinition->getDefault();
+            if ($groupAndSorting->hasDefault()) {
+                $definition = $groupAndSorting->getDefault();
             }
         }
 

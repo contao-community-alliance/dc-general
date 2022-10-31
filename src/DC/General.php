@@ -47,6 +47,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class General extends DataContainer implements DataContainerInterface
 {

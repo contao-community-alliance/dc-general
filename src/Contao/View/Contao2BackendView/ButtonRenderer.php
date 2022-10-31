@@ -53,6 +53,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class is an helper for rendering the operation buttons in the views.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ButtonRenderer
 {
@@ -518,8 +521,8 @@ class ButtonRenderer
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($parentDataProviderName);
+        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
         }

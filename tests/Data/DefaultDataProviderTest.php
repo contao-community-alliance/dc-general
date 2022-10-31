@@ -37,6 +37,8 @@ use PHPUnit\Framework\MockObject\MockObject;
  * This class tests the DefaultDataProvider class.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DefaultDataProviderTest extends TestCase
 {

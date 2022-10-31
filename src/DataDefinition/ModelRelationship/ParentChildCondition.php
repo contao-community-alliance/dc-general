@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a parent child relationship.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ParentChildCondition extends AbstractCondition implements ParentChildConditionInterface
 {

@@ -43,6 +43,8 @@ use PHPUnit\Framework\TestCase;
  * Test the base configuration registry.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class BaseConfigRegistryTest extends TestCase
 {
@@ -59,6 +61,10 @@ class BaseConfigRegistryTest extends TestCase
         self::assertSame($environment, $configRegistry->getEnvironment());
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.LongVariable)
+     */
     public function testGetBaseConfig()
     {
         // Common test settings.
@@ -193,6 +199,7 @@ class BaseConfigRegistryTest extends TestCase
         self::assertSame($exceptedFilterWithChildCondition, $singleDataProviderConfig->getFilter());
     }
 
+    /** @SuppressWarnings(PHPMD.LongVariable) */
     public function testGetBaseConfigParentListMode()
     {
         $basicDefinition    =

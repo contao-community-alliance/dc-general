@@ -37,6 +37,8 @@ use PHPUnit_Framework_MockObject_MockObject;
 
 /**
  * This tests the CheckPermission subscriber.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class CheckPermissionTest extends TestCase
 {

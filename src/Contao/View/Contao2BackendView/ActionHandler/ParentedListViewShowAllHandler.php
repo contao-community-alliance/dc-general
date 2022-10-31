@@ -50,6 +50,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * This class handles the rendering of parented list view "showAll" actions.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 {
@@ -441,8 +444,8 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($parentDataProviderName);
+        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
         }

@@ -44,6 +44,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  * Class LegacyPalettesParser.
  *
  * This class parses the palettes from a legacy DCA into the palette collection definitions being used in DcGeneral.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class LegacyPalettesParser
 {
@@ -143,6 +146,8 @@ class LegacyPalettesParser
      * @param PaletteInterface                   $palette              The palette to be populated [optional].
      *
      * @return Palette
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function parsePalette(
         $paletteSelector,

@@ -29,6 +29,9 @@ use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\ContaoTwig;
 
 /**
  * Base TestCase class.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {

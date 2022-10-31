@@ -47,6 +47,7 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
  *
  * This class handles multiple actions.
  *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class SelectHandler

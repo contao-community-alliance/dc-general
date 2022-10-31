@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Class DefaultListingConfig.
  *
  * Default implementation of a listing config.
+ *
+ * @SuppressWarnings(PHPMD.LongVariable)
  */
 class DefaultListingConfig implements ListingConfigInterface
 {

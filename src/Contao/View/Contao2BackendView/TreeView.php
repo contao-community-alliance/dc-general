@@ -56,6 +56,9 @@ use Symfony\Component\HttpFoundation\Response;
  * Class TreeView.
  *
  * Implementation for tree displaying.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TreeView extends BaseView
 {
@@ -444,8 +447,8 @@ class TreeView extends BaseView
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($parentDataProviderName);
+        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
         }

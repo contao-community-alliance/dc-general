@@ -51,6 +51,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * This class is responsible for creating widgets and processing data through them.
  *
  * @SuppressWarnings(PHPMD.LongClassName)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ContaoWidgetManager
 {
@@ -172,14 +174,14 @@ class ContaoWidgetManager
             return $buffer;
         }
 
-        $backendAdapter        = $this->framework->getAdapter(Backend::class);
-        $templateLoaderAdapter = $this->framework->getAdapter(TemplateLoader::class);
+        $backendAdapter = $this->framework->getAdapter(Backend::class);
+        $templateLoader = $this->framework->getAdapter(TemplateLoader::class);
 
         [$file, $type] = \explode('|', $widget->rte) + [null, null];
 
         $templateName = 'be_' . $file;
         // This test if the rich text editor template exist.
-        $templateLoaderAdapter->getPath($templateName, 'html5');
+        $templateLoader->getPath($templateName, 'html5');
 
         $template = new ContaoBackendViewTemplate($templateName);
         $template

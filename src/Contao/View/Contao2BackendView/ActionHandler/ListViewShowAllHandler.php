@@ -64,16 +64,16 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
      */
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
-        $dataDefinition            = $environment->getDataDefinition();
-        $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        $groupAndSortingDefinition = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
+        $dataDefinition  = $environment->getDataDefinition();
+        $viewDefinition  = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $groupAndSorting = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
 
-        $pasteButton = $this->renderPasteTopButton($environment, $groupAndSortingDefinition);
+        $pasteButton = $this->renderPasteTopButton($environment, $groupAndSorting);
 
         parent::renderTemplate($template, $environment);
         $template
             ->set('header', $pasteButton ? $this->getEmptyHeader() : null)
-            ->set('headerButtons', $this->renderPasteTopButton($environment, $groupAndSortingDefinition));
+            ->set('headerButtons', $this->renderPasteTopButton($environment, $groupAndSorting));
     }
 
     /**

@@ -47,6 +47,8 @@ use Symfony\Component\Routing\Annotation\Route;
  * Handles the backend tree.
  *
  * @Route("/contao/cca", defaults={"_scope" = "backend", "_token_check" = true})
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class BackendTreeController implements ContainerAwareInterface
 {

@@ -55,6 +55,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Subscriber implements EventSubscriberInterface
 {

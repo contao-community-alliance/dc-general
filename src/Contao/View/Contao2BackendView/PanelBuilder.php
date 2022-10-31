@@ -39,6 +39,8 @@ use ContaoCommunityAlliance\DcGeneral\Panel\PanelElementInterface;
 
 /**
  * This class builds a panel for an environment.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PanelBuilder
 {

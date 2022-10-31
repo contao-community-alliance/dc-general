@@ -25,6 +25,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties
  * Class DefaultProperty.
  *
  * Default implementation of a property definition.
+ *
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInterface
 {

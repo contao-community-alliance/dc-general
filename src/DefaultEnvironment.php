@@ -32,6 +32,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Default implementation of an environment.
+ *
+ * @SuppressWarnings(PHPMD.LongVariable)
  */
 class DefaultEnvironment implements EnvironmentInterface
 {

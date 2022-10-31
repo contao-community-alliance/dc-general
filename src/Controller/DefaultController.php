@@ -70,6 +70,9 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DefaultController implements ControllerInterface
 {
@@ -949,6 +952,8 @@ class DefaultController implements ControllerInterface
      * @param array $deepCopyList The deep copy list.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function doDeepCopy(array $deepCopyList)
     {

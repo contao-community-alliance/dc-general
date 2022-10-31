@@ -113,6 +113,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Build the container config from legacy DCA syntax.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
@@ -239,6 +244,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * @param EventDispatcherInterface $dispatcher The event dispatcher in use.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
@@ -469,6 +477,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * @param ContainerInterface $container The container where the data shall be stored.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function parseDataProvider(ContainerInterface $container)
     {
@@ -831,6 +842,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * @return array
      *
      * @throws DcGeneralRuntimeException In case unsupported values are encountered.
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
     {
@@ -1507,6 +1521,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * @param array  $commandDca  The chunk from the DCA containing the command specification.
      *
      * @return CommandInterface
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function createCommand($commandName, array $commandDca)
     {

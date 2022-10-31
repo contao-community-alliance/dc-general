@@ -43,6 +43,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * This class is the abstract base for override/edit all "overrideAll/editAll" commands.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVisibilityHandler
 {
@@ -88,6 +91,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * @param EnvironmentInterface      $environment       The environment.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function editCollection(
         Action $action,
@@ -158,6 +163,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * @param EnvironmentInterface      $environment      The environment.
      *
      * @return PropertyValueBagInterface
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     private function cloneCleanPropertyValueBag(
         Action $action,
@@ -273,44 +280,44 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     /**
      * Update property value bag.
      *
-     * @param Action                    $action                 The action.
-     * @param ModelInterface            $model                  The model.
-     * @param PropertyValueBagInterface $sourcePropertyValueBag The source property value bag.
-     * @param PropertyValueBagInterface $updatePropertyValueBag The update property value bag.
-     * @param EnvironmentInterface      $environment            The environment.
+     * @param Action                    $action      The action.
+     * @param ModelInterface            $model       The model.
+     * @param PropertyValueBagInterface $sourceBag   The source property value bag.
+     * @param PropertyValueBagInterface $updateBag   The update property value bag.
+     * @param EnvironmentInterface      $environment The environment.
      *
      * @return void
      */
     private function updatePropertyValueBag(
         Action $action,
         ModelInterface $model,
-        PropertyValueBagInterface $sourcePropertyValueBag,
-        PropertyValueBagInterface $updatePropertyValueBag,
+        PropertyValueBagInterface $sourceBag,
+        PropertyValueBagInterface $updateBag,
         EnvironmentInterface $environment
     ) {
         $dataProvider      = $environment->getDataProvider();
         $sessionProperties = $this->getPropertiesFromSession($action, $environment);
 
         foreach (\array_keys($sessionProperties) as $sessionPropertyName) {
-            if (!$sourcePropertyValueBag->hasPropertyValue($sessionPropertyName)) {
+            if (!$sourceBag->hasPropertyValue($sessionPropertyName)) {
                 continue;
             }
 
-            if (!$updatePropertyValueBag->isPropertyValueInvalid($sessionPropertyName)) {
+            if (!$updateBag->isPropertyValueInvalid($sessionPropertyName)) {
                 $editModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($model->getId()));
-                $updatePropertyValueBag->setPropertyValue(
+                $updateBag->setPropertyValue(
                     $sessionPropertyName,
                     $editModel->getProperty($sessionPropertyName)
                 );
             }
 
-            if ($updatePropertyValueBag->isPropertyValueInvalid($sessionPropertyName)) {
+            if ($updateBag->isPropertyValueInvalid($sessionPropertyName)) {
                 continue;
             }
 
-            $updatePropertyValueBag->markPropertyValueAsInvalid(
+            $updateBag->markPropertyValueAsInvalid(
                 $sessionPropertyName,
-                $sourcePropertyValueBag->getPropertyValueErrors(
+                $sourceBag->getPropertyValueErrors(
                     $sessionPropertyName
                 )
             );

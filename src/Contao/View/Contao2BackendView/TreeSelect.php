@@ -42,6 +42,8 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
  * Class TreeSelect.
  *
  * Back end tree picker for usage in generaltree.php.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TreeSelect
 {

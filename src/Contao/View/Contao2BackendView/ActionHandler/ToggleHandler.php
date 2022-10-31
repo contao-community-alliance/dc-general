@@ -41,6 +41,8 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class handles toggle commands.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ToggleHandler
 {

@@ -41,6 +41,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * This class handles the rendering of list view "showAllProperties" actions.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SelectPropertyAllHandler extends AbstractListShowAllHandler
 {

@@ -62,9 +62,14 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  * This class test the subscriber.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SubscriberTest extends TestCase
 {
+    /** @SuppressWarnings(PHPMD.Superglobals) */
     public static function setUpBeforeClass(): void
     {
         $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';

@@ -40,7 +40,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 /**
  * Class CreateHandler
  *
- * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class EditHandler
 {

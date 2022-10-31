@@ -46,6 +46,8 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
  * Class DeleteHandler handles the delete action.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DeleteHandler
 {

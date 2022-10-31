@@ -52,6 +52,8 @@ class Config
      * @param string $strKey The short key (e.g. "displayErrors")
      *
      * @return mixed|null The configuration value
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public static function get($strKey)
     {

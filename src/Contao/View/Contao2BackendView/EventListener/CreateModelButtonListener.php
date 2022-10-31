@@ -65,8 +65,8 @@ class CreateModelButtonListener
         ) {
             $filter = new Filter();
             $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-                $filter->andParentIsFromProvider($parentDataProviderName);
+            if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->andParentIsFromProvider($parentProviderName);
             } else {
                 $filter->andHasNoParent();
             }

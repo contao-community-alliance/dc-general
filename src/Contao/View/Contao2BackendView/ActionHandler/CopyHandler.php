@@ -45,6 +45,8 @@ use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 
 /**
  * Class CopyModelController handles copy action on a model.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class CopyHandler
 {
@@ -227,8 +229,8 @@ class CopyHandler
         }
 
         // Manual sorting mode. The ClipboardController should pick it up.
-        $manualSortingProperty = ViewHelpers::getManualSortingProperty($environment);
-        if ($manualSortingProperty && $environment->getDataProvider()->fieldExists($manualSortingProperty)) {
+        $manualSorting = ViewHelpers::getManualSortingProperty($environment);
+        if ($manualSorting && $environment->getDataProvider()->fieldExists($manualSorting)) {
             return false;
         }
 

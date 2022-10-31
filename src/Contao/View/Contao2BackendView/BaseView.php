@@ -53,6 +53,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * This class is the base class for the different backend view mode sub classes.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class BaseView implements BackendViewInterface, EventSubscriberInterface
 {
