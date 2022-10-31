@@ -40,8 +40,8 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Doctrine\Common\Cache\Cache;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
@@ -62,15 +62,15 @@ class General extends DataContainer implements DataContainerInterface
     /**
      * Create a new instance.
      *
-     * @param string     $tableName The table name.
-     * @param array      $module    The modules.
-     * @param Cache|null $cache     The cache.
+     * @param string              $tableName The table name.
+     * @param array               $module    The modules.
+     * @param CacheInterface|null $cache     The cache.
      *
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __construct($tableName, array $module = [], Cache $cache = null)
+    public function __construct($tableName, array $module = [], CacheInterface $cache = null)
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\DC_General given" in callbacks.
