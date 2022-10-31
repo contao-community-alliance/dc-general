@@ -166,7 +166,7 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'resolveWidgetErrorMessage']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
         self::assertSame($excepted, $event->getError());
     }

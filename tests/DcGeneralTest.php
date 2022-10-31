@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
-use Doctrine\Common\Cache\Cache;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -122,7 +122,7 @@ class DcGeneralTest extends TestCase
             'palettes'   => []
         ];
 
-        $cache = $this->getMockForAbstractClass(Cache::class);
+        $cache = new ArrayAdapter();
 
         $dataContainerFoo = new \DC_General('tl_foo', [], $cache);
 
