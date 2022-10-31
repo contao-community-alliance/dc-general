@@ -50,7 +50,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the Controller from the current setup.
      *
-     * @return ControllerInterface
+     * @return ControllerInterface|null
      */
     public function getController();
 
@@ -66,7 +66,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the View from the current setup.
      *
-     * @return ViewInterface
+     * @return ViewInterface|null
      */
     public function getView();
 
@@ -82,7 +82,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the data definition for this instance.
      *
-     * @return ContainerInterface
+     * @return ContainerInterface|null
      */
     public function getDataDefinition();
 
@@ -98,7 +98,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the data definition for the parent container. This applies only when in parented mode.
      *
-     * @return ContainerInterface
+     * @return ContainerInterface|null
      */
     public function getParentDataDefinition();
 
@@ -114,7 +114,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the data definition for the root container. This applies only when in hierarchical mode.
      *
-     * @return ContainerInterface
+     * @return ContainerInterface|null
      */
     public function getRootDataDefinition();
 
@@ -130,7 +130,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the session storage.
      *
-     * @return SessionStorageInterface
+     * @return SessionStorageInterface|null
      */
     public function getSessionStorage();
 
@@ -146,7 +146,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the input provider.
      *
-     * @return InputProviderInterface
+     * @return InputProviderInterface|null
      */
     public function getInputProvider();
 
@@ -162,7 +162,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the base config registry.
      *
-     * @return BaseConfigRegistryInterface
+     * @return BaseConfigRegistryInterface|null
      */
     public function getBaseConfigRegistry();
 
@@ -183,7 +183,7 @@ interface EnvironmentInterface
      *
      * @param string|null $strSource The name of the source.
      *
-     * @return DataProviderInterface
+     * @return DataProviderInterface|null
      */
     public function getDataProvider($strSource = null);
 
@@ -209,7 +209,7 @@ interface EnvironmentInterface
     /**
      * Return the clipboard.
      *
-     * @return ClipboardInterface
+     * @return ClipboardInterface|null
      */
     public function getClipboard();
 
@@ -234,7 +234,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the translation manager to use.
      *
-     * @return TranslatorInterface
+     * @return TranslatorInterface|null
      */
     public function getTranslator();
 
@@ -250,7 +250,7 @@ interface EnvironmentInterface
     /**
      * Get the event dispatcher to use.
      *
-     * @return EventDispatcherInterface
+     * @return EventDispatcherInterface|null
      */
     public function getEventDispatcher();
 }

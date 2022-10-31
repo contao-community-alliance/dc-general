@@ -40,86 +40,86 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * The controller.
      *
-     * @var ControllerInterface
+     * @var ControllerInterface|null
      */
-    protected $objController;
+    protected $objController = null;
 
     /**
      * The view in use.
      *
-     * @var ViewInterface
+     * @var ViewInterface|null
      */
-    protected $objView;
+    protected $objView = null;
 
     /**
      * The data container definition.
      *
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
-    protected $objDataDefinition;
+    protected $objDataDefinition = null;
 
     /**
      * The data container definition of the parent table.
      *
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
-    protected $objParentDataDefinition;
+    protected $objParentDataDefinition = null;
 
     /**
      * The data container definition of the root table.
      *
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
-    protected $objRootDataDefinition;
+    protected $objRootDataDefinition = null;
 
     /**
      * The session storage.
      *
-     * @var SessionStorageInterface
+     * @var SessionStorageInterface|null
      */
-    protected $sessionStorage;
+    protected $sessionStorage = null;
 
     /**
      * The attached input provider.
      *
-     * @var InputProviderInterface
+     * @var InputProviderInterface|null
      */
-    protected $objInputProvider;
+    protected $objInputProvider = null;
 
     /**
      * The attached base config registry.
      *
-     * @var BaseConfigRegistryInterface
+     * @var BaseConfigRegistryInterface|null
      */
-    protected $baseConfigRegistry;
+    protected $baseConfigRegistry = null;
 
     /**
      * The registered data providers.
      *
-     * @var DataProviderInterface[]
+     * @var array<string, DataProviderInterface>
      */
-    protected $arrDataProvider;
+    protected $arrDataProvider = [];
 
     /**
      * The clipboard in use.
      *
-     * @var ClipboardInterface
+     * @var ClipboardInterface|null
      */
-    protected $objClipboard;
+    protected $objClipboard = null;
 
     /**
      * The translator in use.
      *
-     * @var TranslatorInterface
+     * @var TranslatorInterface|null
      */
-    protected $translator;
+    protected $translator = null;
 
     /**
      * The event propagator in use.
      *
-     * @var EventDispatcherInterface
+     * @var EventDispatcherInterface|null
      */
-    protected $eventDispatcher;
+    protected $eventDispatcher = null;
 
     /**
      * {@inheritdoc}
