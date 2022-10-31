@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
@@ -68,7 +69,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     public function populate(EnvironmentInterface $environment)
     {
         if (!$environment->getSessionStorage()) {
-            $sessionStorage = \System::getContainer()->get('cca.dc-general.session_factory')->createService();
+            $sessionStorage = System::getContainer()->get('cca.dc-general.session_factory')->createService();
             $sessionStorage->setScope('DC_GENERAL_' . \strtoupper($environment->getDataDefinition()->getName()));
             $environment->setSessionStorage($sessionStorage);
             // @codingStandardsIgnoreStart
