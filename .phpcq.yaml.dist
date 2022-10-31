@@ -75,7 +75,6 @@ tasks:
     - phpunit
   default:
     - verify
-    - composer-normalize
     - analyze
 
   phpmd:
