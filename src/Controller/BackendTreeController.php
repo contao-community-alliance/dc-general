@@ -145,14 +145,14 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('theme', Backend::getTheme())
             ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
-            ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
+            ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker'] ?? ''))
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
             ->set('action', \ampersand($request->getUri()))
             ->set('value', $sessionBag->get($treeSelector->getSearchSessionKey()))
-            ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
-            ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb']);
+            ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'] ?? '')
+            ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'] ?? '');
 
         return $template->getResponse();
     }
@@ -350,7 +350,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->getPropertiesDefinition()
             ->getProperty($picker->getConfig()->getExtra('propertyName'));
 
-        $information = (array) $GLOBALS['TL_DCA'][$table]['fields'][$field];
+        $information = (array) ($GLOBALS['TL_DCA'][$table]['fields'][$field] ?? []);
         if (!isset($information['eval'])) {
             $information['eval'] = array();
         }
