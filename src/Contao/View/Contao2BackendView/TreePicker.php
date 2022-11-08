@@ -338,7 +338,7 @@ class TreePicker extends Widget
                     $this->nodeStates->setAllOpen($this->nodeStates->isAllOpen())->getStates()
                 );
 
-                $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+                $environment->getEventDispatcher()->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
             }
         }
 
@@ -580,7 +580,7 @@ class TreePicker extends Widget
         $template    = new ContaoBackendViewTemplate('widget_treepicker');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
+        $environment->getEventDispatcher()->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
 
         $template
             ->setTranslator($translator)
@@ -588,7 +588,7 @@ class TreePicker extends Widget
             ->set('name', $this->strName)
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
-            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', [$this->sourceName]))
+            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', null, [$this->sourceName]))
             ->set('changeSelection', $translator->translate('MSC.changeSelection'))
             ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
             ->set('fieldType', $this->fieldType)
@@ -712,7 +712,7 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         return System::getContainer()->get('router')->generate(
             'cca_dc_general_tree_breadcrumb',
@@ -733,7 +733,7 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
+        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         return System::getContainer()->get('router')->generate(
             'cca_dc_general_tree_toggle',
@@ -801,7 +801,7 @@ class TreePicker extends Widget
         $template    = new ContaoBackendViewTemplate('widget_treepicker_popup');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
+        $environment->getEventDispatcher()->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
 
         $template
             ->setTranslator($translator)
@@ -809,7 +809,7 @@ class TreePicker extends Widget
             ->set('name', $this->strName)
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
-            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', [$this->sourceName]))
+            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', null, [$this->sourceName]))
             ->set('fieldType', $this->fieldType)
             ->set('resetSelected', $translator->translate('MSC.resetSelected'))
             ->set('selectAll', $translator->translate('MSC.selectAll'))
@@ -1223,7 +1223,7 @@ class TreePicker extends Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
 
         $labelList = [];
         $this->prepareLabelWithDisplayedProperties($formatter, $event->getArgs(), $firstSorting, $labelList);
