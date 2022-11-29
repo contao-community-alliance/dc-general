@@ -448,7 +448,7 @@ class TreePicker extends Widget
                 return $this->titleIcon;
 
             case 'mandatory':
-                return $this->arrConfiguration['mandatory'];
+                return $this->arrConfiguration['mandatory'] ?? false;
 
             case 'orderField':
                 return $this->orderField;
