@@ -596,7 +596,8 @@ class TreePicker extends Widget
             ->set('label', $this->label)
             ->set('popupUrl', $this->generatePickerUrl())
             ->set('updateUrl', $this->generateUpdateUrl())
-            ->set('providerName', $this->sourceName);
+            ->set('providerName', $this->sourceName)
+            ->set('readonly', $this->readonly);
 
         $this->addOrderFieldToTemplate($template);
 
