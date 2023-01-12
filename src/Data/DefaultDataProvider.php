@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,7 +24,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Alex Wuttke <alex@das-l.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -428,6 +428,7 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->select('DISTINCT(' . $property . ')');
         $queryBuilder->from($this->source);
         DefaultDataProviderDBalUtils::addWhere($internalConfig, $queryBuilder);
+        $queryBuilder->addOrderBy($property);
 
         $statement = $queryBuilder->executeQuery();
 
@@ -640,7 +641,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @return void
      */
-    private function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0)
+    private function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0): void
     {
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
         if ($this->getIdGenerator()) {
@@ -653,7 +654,16 @@ class DefaultDataProvider implements DataProviderInterface
         $insertId = $this->connection->lastInsertId($this->source);
 
         if (('' !== $insertId) && !isset($data[$this->idProperty])) {
-            $model->setId($insertId);
+            // Retrieve id with query to set type.
+            $modelId = $this->connection->createQueryBuilder()
+                ->select('t.id')
+                ->from($this->source, 't')
+                ->where('t.id=:id')
+                ->setParameter('id', $insertId)
+                ->executeQuery()
+                ->fetchOne();
+
+            $model->setId(($modelId ?? $insertId));
         }
     }
 
