@@ -10,3 +10,9 @@ services:
         public: true
         tags:
             -   name: kernel.event_subscriber
+
+    ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\CreateSubHeadlineListener:
+        public: false
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-edit-mask-subheadline
