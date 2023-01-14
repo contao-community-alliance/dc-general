@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\Config;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -147,32 +148,57 @@ class ShowHandler
      *
      * @throws DcGeneralRuntimeException When a property could not be retrieved.
      */
-    protected function convertModel($model, $environment)
+    protected function convertModel(ModelInterface $model, EnvironmentInterface $environment): array
     {
         $definition = $environment->getDataDefinition();
         $properties = $definition->getPropertiesDefinition();
         $palette    = $definition->getPalettesDefinition()->findPalette($model);
-        $values     = [];
-        $labels     = [];
-        // Show only allowed fields.
+        $values     = [
+            'system'  => [],
+            'visible' => []
+        ];
+        $labels     = [
+            'system'  => [],
+            'visible' => []
+        ];
+
+        // Add only visible properties.
         foreach ($palette->getVisibleProperties($model) as $paletteProperty) {
-            if (!($property = $properties->getProperty($paletteProperty->getName()))) {
+            $palettePropertyName = $paletteProperty->getName();
+            if (!($visibleProperty = $properties->getProperty($palettePropertyName))) {
                 throw new DcGeneralRuntimeException('Unable to retrieve property ' . $paletteProperty->getName());
             }
 
-            // Make it human readable.
-            $values[$paletteProperty->getName()] = ViewHelpers::getReadableFieldValue(
+            // Make it human-readable.
+            $values['visible'][$palettePropertyName] = ViewHelpers::getReadableFieldValue(
                 $environment,
-                $property,
+                $visibleProperty,
                 $model
             );
 
-            $labels[$paletteProperty->getName()] = $this->getPropertyLabel($environment, $property);
+            $labels['visible'][$palettePropertyName] =
+                \sprintf('%s [%s]', $this->getPropertyLabel($environment, $visibleProperty), $palettePropertyName);
+        }
+
+        // Add system column properties.
+        foreach ($properties as $property) {
+            $propertyName = $property->getName();
+            if (isset($values['visible'][$propertyName])) {
+                continue;
+            }
+
+            if (!($systemProperty = $properties->getProperty($propertyName))) {
+                throw new DcGeneralRuntimeException('Unable to retrieve property ' . $propertyName);
+            }
+
+            $values['system'][$propertyName] = $model->getProperty($propertyName);
+            $labels['system'][$propertyName] =
+                \sprintf('%s [%s]', $this->getPropertyLabel($environment, $systemProperty), $propertyName);
         }
 
         return [
-            'labels' => $labels,
-            'values' => $values
+            'labels' => \array_merge(...\array_values($labels)),
+            'values' => \array_merge(...\array_values($values))
         ];
     }
 
