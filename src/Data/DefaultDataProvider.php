@@ -641,7 +641,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @return void
      */
-    private function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0)
+    private function insertModelIntoDatabase(ModelInterface $model, $timestamp = 0): void
     {
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
         if ($this->getIdGenerator()) {
@@ -654,7 +654,16 @@ class DefaultDataProvider implements DataProviderInterface
         $insertId = $this->connection->lastInsertId($this->source);
 
         if (('' !== $insertId) && !isset($data[$this->idProperty])) {
-            $model->setId($insertId);
+            // Retrieve id with query to set type.
+            $modelId = $this->connection->createQueryBuilder()
+                ->select('t.id')
+                ->from($this->source, 't')
+                ->where('t.id=:id')
+                ->setParameter('id', $insertId)
+                ->executeQuery()
+                ->fetchOne();
+
+            $model->setId(($modelId ?? $insertId));
         }
     }
 
