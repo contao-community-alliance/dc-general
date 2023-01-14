@@ -126,7 +126,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                 $models = $dataProvider->fetchAll($config);
 
                 foreach ($models as $resetModel) {
-                    if ($model->getId() == $resetModel->getId()) {
+                    if ($model->getId() === $resetModel->getId()) {
                         continue;
                     }
                     $resetModel->setProperty($propertyName, ModelManipulator::sanitizeValue($property, null));
