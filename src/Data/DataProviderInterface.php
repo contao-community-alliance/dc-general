@@ -74,7 +74,7 @@ interface DataProviderInterface
      *
      * @param ConfigInterface $config The configuration to use.
      *
-     * @return ModelInterface
+     * @return null|ModelInterface
      */
     public function fetch(ConfigInterface $config);
 
