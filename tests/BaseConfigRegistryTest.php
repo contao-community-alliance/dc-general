@@ -54,11 +54,18 @@ class BaseConfigRegistryTest extends TestCase
 
         $configRegistry = new BaseConfigRegistry();
 
-        self::assertNull($configRegistry->getEnvironment());
-
         self::assertInstanceOf(BaseConfigRegistryInterface::class, $configRegistry->setEnvironment($environment));
         self::assertInstanceOf(EnvironmentInterface::class, $configRegistry->getEnvironment());
         self::assertSame($environment, $configRegistry->getEnvironment());
+    }
+
+    public function testGetterThrowsWhenEnvironmentNotSet()
+    {
+        $configRegistry = new BaseConfigRegistry();
+
+        $this->expectException(\LogicException::class);
+
+        $configRegistry->getEnvironment();
     }
 
     /**
@@ -73,7 +80,7 @@ class BaseConfigRegistryTest extends TestCase
         $dataDefinition       =
             $this->getMockBuilder(DefaultContainer::class)->disableOriginalConstructor()->getMock();
         $environment          =
-            $this->getMockBuilder(DefaultEnvironment::class)->setMethods(['getDataDefinition'])->getMock();
+            $this->getMockBuilder(DefaultEnvironment::class)->onlyMethods(['getDataDefinition'])->getMock();
         $viewDefinition       = $this->createMock(Contao2BackendViewDefinitionInterface::class);
         $listingConfig        = $this->getMockBuilder(ListingConfigInterface::class)->getMock();
         $modelRelationShip    = $this->createMock(ModelRelationshipDefinitionInterface::class);

@@ -26,6 +26,9 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use LogicException;
+
+use function array_merge;
 
 /**
  * Registry for default data provider configurations to only resolve them once.
@@ -35,16 +38,16 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
     /**
      * The attached environment.
      *
-     * @var EnvironmentInterface
+     * @var EnvironmentInterface|null
      */
-    private $environment;
+    private ?EnvironmentInterface $environment = null;
 
     /**
      * The cached configurations.
      *
-     * @var ConfigInterface[]
+     * @var array<string, ConfigInterface>
      */
-    private $configs;
+    private array $configs = [];
 
     /**
      * Set the environment to use.
@@ -65,6 +68,10 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      */
     public function getEnvironment()
     {
+        if (null === $this->environment) {
+            throw new LogicException('Property environment not initialized');
+        }
+
         return $this->environment;
     }
 
@@ -78,18 +85,22 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      *
      * @throws DcGeneralRuntimeException When the parent item is not found.
      */
-    private function addParentFilter($idParent, $config)
+    private function addParentFilter(ModelIdInterface $idParent, ConfigInterface $config): ConfigInterface
     {
-        $environment        = $this->getEnvironment();
-        $definition         = $environment->getDataDefinition();
-        $providerName       = $definition->getBasicDefinition()->getDataProvider();
+        $environment = $this->getEnvironment();
+        $definition  = $environment->getDataDefinition();
+        if (null === $definition) {
+            throw new DcGeneralRuntimeException('Data definition not set.');
+        }
+        $basicDefinition    = $definition->getBasicDefinition();
+        $providerName       = $basicDefinition->getDataProvider();
         $parentProviderName = $idParent->getDataProviderName();
         $parentProvider     = $environment->getDataProvider($parentProviderName);
 
-        if ($definition->getBasicDefinition()->getParentDataProvider() !== $parentProviderName) {
+        if ($basicDefinition->getParentDataProvider() !== $parentProviderName) {
             throw new DcGeneralRuntimeException(
                 'Unexpected parent provider ' . $parentProviderName .
-                ' (expected ' . $definition->getBasicDefinition()->getParentDataProvider() . ')'
+                ' (expected ' . $basicDefinition->getParentDataProvider() . ')'
             );
         }
 
@@ -111,7 +122,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
                 $filter     = $condition->getFilter($parent);
 
                 if ($baseFilter) {
-                    $filter = \array_merge($baseFilter, $filter);
+                    $filter = array_merge($baseFilter, $filter);
                 }
 
                 $config->setFilter([['operation' => 'AND', 'children'  => $filter]]);
@@ -130,12 +141,19 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      *
      * @return ConfigInterface
      */
-    private function buildBaseConfig($parentId)
+    private function buildBaseConfig(?ModelIdInterface $parentId): ConfigInterface
     {
         $environment = $this->getEnvironment();
-        $config      = $environment->getDataProvider()->getEmptyConfig();
+        $provider    = $environment->getDataProvider();
+        if (null === $provider) {
+            throw new DcGeneralRuntimeException('Data provider not set.');
+        }
+        $config      = $provider->getEmptyConfig();
         $definition  = $environment->getDataDefinition();
-        $additional  = $definition->getBasicDefinition()->getAdditionalFilter();
+        if (null === $definition) {
+            throw new DcGeneralRuntimeException('Data definition not set.');
+        }
+        $additional = $definition->getBasicDefinition()->getAdditionalFilter();
 
         // Custom filter common for all modes.
         if ($additional) {
@@ -145,6 +163,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
         if (!$config->getSorting()) {
             /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
             $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+            /** @psalm-suppress DeprecatedMethod - we can not change this in 2.x */
             $config->setSorting($viewDefinition->getListingConfig()->getDefaultSortingFields());
         }
 
@@ -152,7 +171,11 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
         if ($parentId) {
             $this->addParentFilter($parentId, $config);
         } elseif (BasicDefinitionInterface::MODE_PARENTEDLIST === $definition->getBasicDefinition()->getMode()) {
-            $pid        = $environment->getInputProvider()->getParameter('pid');
+            $input = $environment->getInputProvider();
+            if (null === $input) {
+                throw new DcGeneralRuntimeException('Input provider not set.');
+            }
+            $pid        = $input->getParameter('pid');
             $pidDetails = ModelId::fromSerialized($pid);
 
             $this->addParentFilter($pidDetails, $config);
@@ -172,7 +195,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      */
     public function getBaseConfig(ModelIdInterface $parentId = null)
     {
-        $key = $parentId ? $parentId->getSerialized() : null;
+        $key = $parentId ? $parentId->getSerialized() : '';
 
         if (!isset($this->configs[$key])) {
             $this->configs[$key] = $this->buildBaseConfig($parentId);
