@@ -22,7 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 
 /**
  * Interface ItemInterface.
@@ -93,14 +93,14 @@ interface ItemInterface
     /**
      * Retrieve the id of the parent model from this item.
      *
-     * @return ModelId|null
+     * @return ModelIdInterface|null
      */
     public function getParentId();
 
     /**
      * Retrieve the id of the model from this item.
      *
-     * @return ModelId|null
+     * @return ModelIdInterface|null
      */
     public function getModelId();
 
