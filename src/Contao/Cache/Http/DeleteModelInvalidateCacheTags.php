@@ -49,7 +49,7 @@ final class DeleteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
             throw new LogicException('No event dispatcher given');
         }
         if (null === $translator = $environment->getTranslator()) {
-            throw new LogicException('No event translator given');
+            throw new LogicException('No translator given');
         }
         return $this->factory
             ->createFactory()
