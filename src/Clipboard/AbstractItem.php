@@ -34,14 +34,14 @@ abstract class AbstractItem implements ItemInterface
      *
      * @var string
      */
-    private $action;
+    private string $action;
 
     /**
      * The id of the parent model.
      *
-     * @var ModelIdInterface
+     * @var ModelIdInterface|null
      */
-    private $parentId;
+    private ?ModelIdInterface $parentId;
 
     /**
      * Create a new instance.
@@ -51,7 +51,7 @@ abstract class AbstractItem implements ItemInterface
      *
      * @throws \InvalidArgumentException When the action is not one of create, cut, copy or deep copy.
      */
-    public function __construct($action, $parentId)
+    public function __construct(string $action, ?ModelIdInterface $parentId)
     {
         if (
             ItemInterface::CREATE !== $action
@@ -64,7 +64,7 @@ abstract class AbstractItem implements ItemInterface
             );
         }
 
-        $this->action   = (string) $action;
+        $this->action   = $action;
         $this->parentId = $parentId;
     }
 
@@ -133,28 +133,34 @@ abstract class AbstractItem implements ItemInterface
         if ($this->getAction() !== $item->getAction()) {
             return false;
         }
+        $thisParent = $this->getParentId();
+        $thatParent = $item->getParentId();
 
         // One has a parent ID, the other not.
-        if (($this->getParentId() && !$item->getParentId()) || (!$this->getParentId() && $item->getParentId())) {
+        if (($thisParent && !$thatParent) || (!$thisParent && $thatParent)) {
             return false;
         }
 
         // The parent IDs are not equal.
-        if ($this->getParentId() && !$this->getParentId()->equals($item->getParentId())) {
+        if ($thisParent && !$thisParent->equals($thatParent)) {
             return false;
         }
 
+        $thisModel = $this->getModelId();
+        $thatModel = $item->getModelId();
+
         // One has a model ID, the other not.
-        if (($this->getModelId() && !$item->getModelId()) || (!$this->getModelId() && $item->getModelId())) {
+        if (($thisModel && !$thatModel) || (!$thisModel && $thatModel)) {
             return false;
         }
 
         // Both have no model id and the data provider is different.
-        if (!($this->getModelId() || $item->getModelId())) {
+        if ((null === $thisModel) && (null === $thatModel)) {
             return ($this->getDataProviderName() === $item->getDataProviderName());
         }
-
+        assert($thisModel instanceof ModelIdInterface);
+        assert($thatModel instanceof ModelIdInterface);
         // The model IDs are not equal
-        return $this->getModelId()->equals($item->getModelId());
+        return $thisModel->equals($thatModel);
     }
 }

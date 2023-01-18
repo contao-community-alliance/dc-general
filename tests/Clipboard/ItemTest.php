@@ -37,23 +37,11 @@ class ItemTest extends TestCase
     public const TEST_PROVIDER = 'dummy-provider';
 
     /**
-     * Test the the Item requires an valid model id.
-     *
-     * @return void
-     */
-    public function testItemRequiresModelId()
-    {
-        $this->expectException('InvalidArgumentException');
-
-        new Item(ItemInterface::CREATE, null, null);
-    }
-
-    /**
      * Run the tests with a parent id.
      *
      * @param ModelIdInterface|null $parentId Optional parent id.
      */
-    private function runAssertsWithParentId($parentId)
+    private function runAssertsWithParentId(?ModelIdInterface $parentId): void
     {
         $item        = new MockedAbstractItem(ItemInterface::CREATE, $parentId, self::TEST_PROVIDER);
         $unsavedItem = new UnsavedItem(ItemInterface::CREATE, $parentId, self::TEST_PROVIDER);
@@ -85,7 +73,7 @@ class ItemTest extends TestCase
      *
      * @return void
      */
-    public function testCompare()
+    public function testCompare(): void
     {
         // Test without a parent id.
         $this->runAssertsWithParentId(null);
