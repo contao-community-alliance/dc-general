@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Event;
 
+use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\DcGeneral\ViewAwareInterface;
 
 /**
@@ -33,6 +34,9 @@ class AbstractViewAwareEvent extends AbstractEnvironmentAwareEvent implements Vi
      */
     public function getView()
     {
-        return $this->getEnvironment()->getView();
+        $view = $this->getEnvironment()->getView();
+        assert($view instanceof ViewInterface);
+
+        return $view;
     }
 }

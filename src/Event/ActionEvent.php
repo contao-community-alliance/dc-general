@@ -31,17 +31,18 @@ class ActionEvent extends AbstractActionAwareEvent
      *
      * @var string|null
      */
-    protected $response;
+    protected $response = null;
 
     /**
      * Set the action response.
      *
-     * @param string $response The response.
+     * @param string|null $response The response.
      *
      * @return ActionEvent
      */
     public function setResponse($response)
     {
+        /** @psalm-suppress RedundantCastGivenDocblockType - only redundant when strict typed */
         $this->response = (null !== $response) ? (string) $response : null;
         return $this;
     }

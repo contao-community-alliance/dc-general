@@ -36,79 +36,79 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Determinator if there is a circular reference from an item in the clipboard to the current model.
      *
-     * @var bool
+     * @var bool|null
      */
-    protected $circularReference;
+    protected $circularReference = null;
 
     /**
      * The href information to use for the paste after button.
      *
-     * @var string
+     * @var string|null
      */
-    protected $hrefAfter;
+    protected $hrefAfter = null;
 
     /**
      * The href information to use for the paste into button.
      *
-     * @var string
+     * @var string|null
      */
-    protected $hrefInto;
+    protected $hrefInto = null;
 
     /**
      * The Html code to use for the "paste after" button.
      *
-     * @var string
+     * @var string|null
      */
-    protected $htmlPasteAfter;
+    protected $htmlPasteAfter = null;
 
     /**
      * The Html code to use for the "paste into" button.
      *
-     * @var string
+     * @var string|null
      */
-    protected $htmlPasteInto;
+    protected $htmlPasteInto = null;
 
     /**
      * The model to which the command shall be applied to.
      *
-     * @var ModelInterface
+     * @var ModelInterface|null
      */
-    protected $model;
+    protected $model = null;
 
     /**
      * The next model in the list.
      *
-     * @var ModelInterface
+     * @var ModelInterface|null
      */
-    protected $next;
+    protected $next = null;
 
     /**
      * The previous model in the list.
      *
-     * @var ModelInterface
+     * @var ModelInterface|null
      */
-    protected $previous;
+    protected $previous = null;
 
     /**
      * Determinator if the paste into button shall be disabled.
      *
-     * @var bool
+     * @var bool|null
      */
-    protected $pasteIntoDisabled;
+    protected $pasteIntoDisabled = null;
 
     /**
      * Determinator if the paste after button shall be disabled.
      *
-     * @var bool
+     * @var bool|null
      */
-    protected $pasteAfterDisabled;
+    protected $pasteAfterDisabled = null;
 
     /**
      * The models currently in the clipboard.
      *
-     * @var CollectionInterface
+     * @var CollectionInterface|null
      */
-    protected $containedModels;
+    protected $containedModels = null;
 
     /**
      * Set determinator if there exists a circular reference.
@@ -133,7 +133,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
      * This flag determines if there exists a circular reference between the item currently in the clipboard and the
      * current model. A circular reference is of relevance when performing a cut and paste operation for example.
      *
-     * @return boolean
+     * @return bool|null
      */
     public function isCircularReference()
     {
@@ -157,7 +157,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Get the href for the paste after button.
      *
-     * @return string
+     * @return string|null
      */
     public function getHrefAfter()
     {
@@ -181,7 +181,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Get the href for the paste into button.
      *
-     * @return string
+     * @return string|null
      */
     public function getHrefInto()
     {
@@ -205,7 +205,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Get the html code for the paste after button.
      *
-     * @return string
+     * @return string|null
      */
     public function getHtmlPasteAfter()
     {
@@ -229,7 +229,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Get the html code for the paste after button.
      *
-     * @return string
+     * @return string|null
      */
     public function getHtmlPasteInto()
     {
@@ -253,7 +253,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Get the model currently in scope.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getModel()
     {
@@ -277,7 +277,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Get the next model.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getNext()
     {
@@ -301,7 +301,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Get the previous model.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getPrevious()
     {
@@ -325,7 +325,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Check if the paste after button shall be disabled.
      *
-     * @return boolean
+     * @return bool|null
      */
     public function isPasteAfterDisabled()
     {
@@ -349,7 +349,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Check if the paste into button shall be disabled.
      *
-     * @return boolean
+     * @return bool|null
      */
     public function isPasteIntoDisabled()
     {
@@ -359,7 +359,7 @@ class GetPasteButtonEvent extends BaseButtonEvent
     /**
      * Retrieve the collection of contained models.
      *
-     * @return CollectionInterface
+     * @return CollectionInterface|null
      */
     public function getContainedModels()
     {
