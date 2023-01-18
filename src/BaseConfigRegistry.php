@@ -100,7 +100,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
         if ($basicDefinition->getParentDataProvider() !== $parentProviderName) {
             throw new DcGeneralRuntimeException(
                 'Unexpected parent provider ' . $parentProviderName .
-                ' (expected ' . $basicDefinition->getParentDataProvider() . ')'
+                ' (expected ' . ((string) $basicDefinition->getParentDataProvider()) . ')'
             );
         }
 
@@ -114,7 +114,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
 
             $condition = $definition->getModelRelationshipDefinition()->getChildCondition(
                 $parentProviderName,
-                $providerName
+                (string) $providerName
             );
 
             if ($condition) {
