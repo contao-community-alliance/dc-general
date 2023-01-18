@@ -41,7 +41,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
     /**
      * The cached instances of the data provider.
      *
-     * @var DataProviderInterface[]
+     * @var array<string, DataProviderInterface>
      */
     private $instances = [];
 
@@ -71,7 +71,10 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
      */
     public function populate(EnvironmentInterface $environment)
     {
-        foreach ($environment->getDataDefinition()->getDataProviderDefinition() as $information) {
+        if (null === $definition = $environment->getDataDefinition()) {
+            return;
+        }
+        foreach ($definition->getDataProviderDefinition() as $information) {
             if ($information instanceof ContaoDataProviderInformation) {
                 if ($environment->hasDataProvider($information->getName())) {
                     throw new DcGeneralRuntimeException(

@@ -36,21 +36,21 @@ class ExtendedDca implements DefinitionInterface
     /**
      * Controller class to use.
      *
-     * @var string
+     * @var class-string|null
      */
-    protected $controllerClass;
+    protected $controllerClass = null;
 
     /**
      * View class to use.
      *
-     * @var string
+     * @var class-string|null
      */
-    protected $viewClass;
+    protected $viewClass = null;
 
     /**
      * Set the class name of the controller class.
      *
-     * @param string $controllerClass The class name.
+     * @param class-string $controllerClass The class name.
      *
      * @return void
      */
@@ -62,7 +62,7 @@ class ExtendedDca implements DefinitionInterface
     /**
      * Get the class name of the controller class.
      *
-     * @return string
+     * @return class-string|null
      */
     public function getControllerClass()
     {
@@ -72,7 +72,7 @@ class ExtendedDca implements DefinitionInterface
     /**
      * Set the class name of the view class.
      *
-     * @param string $viewClass The class name.
+     * @param class-string $viewClass The class name.
      *
      * @return void
      */
@@ -84,7 +84,7 @@ class ExtendedDca implements DefinitionInterface
     /**
      * Get the class name of the view class.
      *
-     * @return string
+     * @return class-string|null
      */
     public function getViewClass()
     {

@@ -37,6 +37,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * This class is the default fallback populator in the Contao Backend to instantiate a BackendView.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor - can not make setScopeDeterminator() final without major release.
  */
 class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
@@ -72,7 +74,7 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
 
         $dataDefinition = $environment->getDataDefinition();
 
-        if (!$dataDefinition->hasBasicDefinition()) {
+        if (!$dataDefinition || !$dataDefinition->hasBasicDefinition()) {
             return;
         }
 
@@ -88,7 +90,9 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
                 break;
             default:
                 $mode = $dataDefinition->getBasicDefinition()->getMode();
-                throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $mode);
+                throw new DcGeneralInvalidArgumentException(
+                    'Unknown view mode encountered: ' . var_export($mode, true)
+                );
         }
 
         $view->setEnvironment($environment);
@@ -114,7 +118,8 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
             return;
         }
 
-        if (!$environment->getDataDefinition()->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)) {
+        $definition = $environment->getDataDefinition();
+        if (!$definition || !$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)) {
             return;
         }
 
