@@ -88,7 +88,7 @@ interface GroupAndSortingDefinitionCollectionInterface extends \IteratorAggregat
     /**
      * Retrieve the default definition.
      *
-     * @return GroupAndSortingDefinitionInterface|GroupAndSortingInformationInterface[]
+     * @return GroupAndSortingDefinitionInterface
      */
     public function getDefault();
 

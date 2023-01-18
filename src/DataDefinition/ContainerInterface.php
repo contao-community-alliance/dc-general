@@ -117,7 +117,7 @@ interface ContainerInterface
     /**
      * Convenience method to check if a basic definition is contained.
      *
-     * @return BasicDefinitionInterface
+     * @return bool
      */
     public function hasBasicDefinition();
 

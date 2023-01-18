@@ -66,7 +66,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @var RequestScopeDeterminator
      */
-    private $scopeDeterminator;
+    private RequestScopeDeterminator $scopeDeterminator;
 
     /**
      * ClipboardController constructor.
@@ -81,9 +81,9 @@ class Subscriber implements EventSubscriberInterface
     /**
      * The config instance.
      *
-     * @var \Contao\Config
+     * @var \Contao\Config|null
      */
-    private static $config;
+    private static $config = null;
 
     /**
      * {@inheritDoc}
@@ -166,15 +166,18 @@ class Subscriber implements EventSubscriberInterface
      * @param ModelInterface       $model       The model.
      * @param PropertyInterface    $property    The property.
      *
-     * @return array
+     * @return array|null
      */
     protected static function getOptions($environment, $model, $property)
     {
+        if (null === $dispatcher = $environment->getEventDispatcher()) {
+            return $property->getOptions();
+        }
         $event = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($property->getName());
         $event->setOptions($property->getOptions());
 
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher->dispatch($event, $event::NAME);
 
         return $event->getOptions();
     }

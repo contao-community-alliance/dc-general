@@ -20,10 +20,14 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
+use IteratorAggregate;
+
 /**
  * This interface defines a grouping and sorting information for the view.
+ *
+ * @extends IteratorAggregate<GroupAndSortingInformationInterface>
  */
-interface GroupAndSortingDefinitionInterface extends \IteratorAggregate
+interface GroupAndSortingDefinitionInterface extends IteratorAggregate
 {
     /**
      * Add a new information - optionally at the given position.

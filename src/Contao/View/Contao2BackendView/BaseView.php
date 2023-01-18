@@ -83,16 +83,16 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * The attached environment.
      *
-     * @var EnvironmentInterface
+     * @var EnvironmentInterface|null
      */
-    protected $environment;
+    protected $environment = null;
 
     /**
      * The panel container in use.
      *
-     * @var PanelContainerInterface
+     * @var PanelContainerInterface|null
      */
-    protected $panel;
+    protected $panel = null;
 
     /**
      * {@inheritDoc}

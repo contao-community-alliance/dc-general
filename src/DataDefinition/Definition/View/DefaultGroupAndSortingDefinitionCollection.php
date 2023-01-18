@@ -32,7 +32,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * The information stored.
      *
-     * @var GroupAndSortingDefinitionInterface[]
+     * @var list<GroupAndSortingDefinitionInterface>
      */
     protected $information = [];
 

@@ -62,7 +62,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
     /**
      * Get the mode the data definition is in.
      *
-     * @return int
+     * @return int|null
      */
     public function getMode();
 
@@ -88,7 +88,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
      *
      * Note: This does only apply when in tree mode or parenting mode. For flat mode this does not make sense.
      *
-     * @return string
+     * @return string|null
      */
     public function getRootDataProvider();
 
@@ -108,7 +108,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
      *
      * Note: This does only apply when in tree mode or parenting mode. For flat mode this does not make sense.
      *
-     * @return string
+     * @return string|null
      */
     public function getParentDataProvider();
 
@@ -124,7 +124,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
     /**
      * Retrieve the name of data provider which holds the models that we work on.
      *
-     * @return string
+     * @return string|null
      */
     public function getDataProvider();
 
@@ -152,7 +152,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
      *
      * @param string $dataProvider The name of the data provider for which additional filters shall be retrieved.
      *
-     * @return array
+     * @return array|null
      */
     public function getAdditionalFilter($dataProvider = null);
 
@@ -267,7 +267,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
     /**
      * Get the ids of the root elements (only valid when in hierarchical mode).
      *
-     * @return mixed[]
+     * @return mixed[]|null
      */
     public function getRootEntries();
 

@@ -42,28 +42,28 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * The properties to display in the heder (parented mode only).
      *
-     * @var array
+     * @var array|null
      */
     protected $headerProperties;
 
     /**
      * The root icon to use (hierarchical mode only).
      *
-     * @var string
+     * @var string|null
      */
     protected $rootIcon;
 
     /**
      * The root label.
      *
-     * @var string
+     * @var string|null
      */
     protected $rootLabel;
 
     /**
      * The CSS class to apply to each item in the listing.
      *
-     * @var string
+     * @var string|null
      */
     protected $itemCssClass;
 
@@ -72,19 +72,19 @@ class DefaultListingConfig implements ListingConfigInterface
      *
      * @var DefaultModelFormatterConfig[]
      */
-    protected $itemFormatter;
+    protected $itemFormatter = [];
 
     /**
      * Flag if the properties displayed shall be shown as table layout.
      *
-     * @var bool
+     * @var bool|null
      */
     protected $showColumns;
 
     /**
      * The parent table property name.
      *
-     * @var string
+     * @var string|null
      */
     protected $parentTablePropertyName;
 

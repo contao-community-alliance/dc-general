@@ -53,7 +53,7 @@ class DcCompat extends General
      *
      * @param EnvironmentInterface $environment  The Dc instance to use for delegating.
      * @param ModelInterface       $model        The model within scope (optional).
-     * @param null                 $propertyName The name of the property within scope (optional).
+     * @param string|null          $propertyName The name of the property within scope (optional).
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model = null, $propertyName = null)
     {
