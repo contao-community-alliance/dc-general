@@ -28,22 +28,27 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
  * Class ContainerPasteRootButtonCallbackListener.
  *
  * Handler for the paste into root buttons.
+ *
+ * @extends AbstractReturningCallbackListener<GetPasteRootButtonEvent>
  */
 class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetPasteRootButtonEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
+        if (null === $provider = $event->getEnvironment()->getDataProvider()) {
+            throw new \LogicException('No data provider given.');
+        }
+        if (null === $definition = $event->getEnvironment()->getDataDefinition()) {
+            throw new \LogicException('No data definition given.');
+        }
+
         return [
             new DcCompat($event->getEnvironment()),
-            $event->getEnvironment()->getDataProvider()->getEmptyModel()->getPropertiesAsArray(),
-            $event->getEnvironment()->getDataDefinition()->getName(),
+            $provider->getEmptyModel()->getPropertiesAsArray(),
+            $definition->getName(),
             false,
             [],
             null,
@@ -52,12 +57,7 @@ class ContainerPasteRootButtonCallbackListener extends AbstractReturningCallback
     }
 
     /**
-     * Set the HTML code for the button.
-     *
-     * @param GetPasteRootButtonEvent $event The event being emitted.
-     * @param string                  $value The value returned by the callback.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

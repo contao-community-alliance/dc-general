@@ -29,31 +29,24 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
  * Class PropertyInputFieldCallbackListener.
  *
  * Handle input_field_callbacks.
+ *
+ * @extends AbstractReturningPropertyCallbackListener<BuildWidgetEvent>
  */
 class PropertyInputFieldCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param BuildWidgetEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
         return [
             $event->getProperty(),
-            new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty())
+            new DcCompat($event->getEnvironment(), $event->getModel(), $event->getProperty()->getName())
         ];
     }
 
     /**
-     * Update the widget in the event.
-     *
-     * @param BuildWidgetEvent $event The event being emitted.
-     * @param Widget           $value The widget that has been constructed.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

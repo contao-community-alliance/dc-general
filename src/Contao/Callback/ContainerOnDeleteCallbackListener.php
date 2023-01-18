@@ -29,15 +29,13 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
  * Class ContainerOnDeleteCallbackListener.
  *
  * Handler for delete callbacks.
+ *
+ * @extends AbstractCallbackListener<PostDeleteModelEvent>
  */
 class ContainerOnDeleteCallbackListener extends AbstractCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param PostDeleteModelEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {

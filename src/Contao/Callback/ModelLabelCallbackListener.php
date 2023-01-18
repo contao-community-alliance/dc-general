@@ -30,15 +30,13 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
  * Class ModelLabelCallbackListener.
  *
  * Handle the label_callbacks.
+ *
+ * @extends AbstractReturningCallbackListener<ModelToLabelEvent>
  */
 class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param ModelToLabelEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -51,12 +49,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
     }
 
     /**
-     * Set the value in the event.
-     *
-     * @param ModelToLabelEvent $event The event being emitted.
-     * @param string|array      $value The label text to use.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {
@@ -83,11 +76,11 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event The event being emitted.
-     * @param string            $value The label text to use.
+     * @param string|null       $value The label text to use.
      *
      * @return void
      */
-    private function updateNonTableMode(ModelToLabelEvent $event, $value)
+    private function updateNonTableMode(ModelToLabelEvent $event, ?string $value): void
     {
         if (null === $value) {
             return;
@@ -112,9 +105,9 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      *
      * @return void
      */
-    private function updateTableMode(ModelToLabelEvent $event, array $arguments)
+    private function updateTableMode(ModelToLabelEvent $event, array $arguments): void
     {
-        if ((null === $arguments) || empty($arguments)) {
+        if (empty($arguments)) {
             return;
         }
 

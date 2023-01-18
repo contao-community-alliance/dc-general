@@ -28,15 +28,13 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
  * Class ContainerOnCutCallbackListener.
  *
  * Handle callbacks to be invoked when a cut operation is made.
+ *
+ * @extends AbstractCallbackListener<PostPasteModelEvent>
  */
 class ContainerOnCutCallbackListener extends AbstractCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param PostPasteModelEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {

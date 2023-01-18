@@ -29,16 +29,14 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
  *
  * Handle the property wizard callbacks.
  *
+ * @extends AbstractReturningPropertyCallbackListener<BuildWidgetEvent>
+ *
  * @SuppressWarnings(PHPMD.LongClassName)
  */
 class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param BuildWidgetEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -48,12 +46,7 @@ class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningPrope
     }
 
     /**
-     * Update the wizard HTML string in the widget.
-     *
-     * @param BuildWidgetEvent $event The event being emitted.
-     * @param string           $value The HTML for the wizard of the widget.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

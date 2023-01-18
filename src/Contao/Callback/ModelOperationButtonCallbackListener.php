@@ -25,11 +25,16 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
+use LogicException;
+
+use function sprintf;
 
 /**
  * Class ModelOperationButtonCallbackListener.
  *
  * Handle the button_callbacks.
+ *
+ * @extends AbstractReturningCallbackListener<GetOperationButtonEvent>
  */
 class ModelOperationButtonCallbackListener extends AbstractReturningCallbackListener
 {
@@ -55,11 +60,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     }
 
     /**
-     * Check the restrictions against the information within the event and determine if the callback shall be executed.
-     *
-     * @param GetOperationButtonEvent $event The Event for which the callback shall be invoked.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function wantToExecute($event)
     {
@@ -74,39 +75,35 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
     }
 
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetOperationButtonEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
-        $extra = $event->getCommand()->getExtra();
+        $command = $event->getCommand();
+        assert($command instanceof CommandInterface);
+        $extra = $command->getExtra();
+        if (null === $definition = $event->getEnvironment()->getDataDefinition()) {
+            throw new LogicException('No data definition given.');
+        }
 
         return [
-            $event->getModel()->getPropertiesAsArray(),
-            $this->buildHref($event->getCommand()),
+            ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
+            $this->buildHref($command),
             $event->getLabel(),
             $event->getTitle(),
             ($extra['icon'] ?? null),
             $event->getAttributes(),
-            $event->getEnvironment()->getDataDefinition()->getName(),
-            $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries(),
+            $definition->getName(),
+            $definition->getBasicDefinition()->getRootEntries(),
             $event->getChildRecordIds(),
             $event->isCircularReference(),
-            $event->getPrevious() ? $event->getPrevious()->getId() : null,
-            $event->getNext() ? $event->getNext()->getId() : null
+            ($previous = $event->getPrevious()) ? $previous->getId() : null,
+            ($next = $event->getNext()) ? $next->getId() : null
         ];
     }
 
     /**
-     * Set the value in the event.
-     *
-     * @param GetOperationButtonEvent $event The event being emitted.
-     * @param string                  $value The value returned by the callback.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {
@@ -130,7 +127,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
         $strHref       = '';
 
         foreach ($arrParameters as $key => $value) {
-            $strHref .= \sprintf('&%s=%s', $key, $value);
+            $strHref .= sprintf('&%s=%s', $key, $value);
         }
 
         return $strHref;

@@ -24,8 +24,23 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Exception;
+use ReflectionClass;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+
+use function array_shift;
+use function call_user_func_array;
+use function class_exists;
+use function count;
+use function func_get_args;
+use function get_class;
+use function implode;
+use function is_array;
+use function is_object;
+use function is_string;
+use function sprintf;
+use function strpos;
 
 /**
  * Class Callbacks.
@@ -49,9 +64,9 @@ class Callbacks
     public static function call($callback, $_ = null)
     {
         // Get method parameters as callback parameters.
-        $args = \func_get_args();
+        $args = func_get_args();
         // But skip $callback.
-        \array_shift($args);
+        array_shift($args);
 
         return static::callArgs($callback, $args);
     }
@@ -72,25 +87,25 @@ class Callbacks
         try {
             $callback = static::evaluateCallback($callback);
 
-            return \call_user_func_array($callback, $args);
+            return call_user_func_array($callback, $args);
         } catch (ResponseException $e) {
             throw $e;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $message = $e->getMessage();
         }
 
-        if (\is_array($callback) && \is_object($callback[0])) {
-            $callback[0] = \get_class($callback[0]);
+        if (is_array($callback) && is_object($callback[0])) {
+            $callback[0] = get_class($callback[0]);
         }
 
         throw new DcGeneralRuntimeException(
-            \sprintf(
+            sprintf(
                 'Execute callback %s failed - Exception message: %s',
-                (\is_array($callback)
-                    ? \implode('::', $callback)
-                    : (\is_string($callback)
+                (is_array($callback)
+                    ? implode('::', $callback)
+                    : (is_string($callback)
                         ? $callback
-                        : \get_class(
+                        : get_class(
                             $callback
                         ))),
                 $message
@@ -103,7 +118,7 @@ class Callbacks
     /**
      * Evaluate the callback and create an object instance if required and possible.
      *
-     * @param array|callable $callback The callback to invoke.
+     * @param array|array{0: class-string, 1: string}|callable $callback The callback to invoke.
      *
      * @return array|callable
      *
@@ -111,13 +126,13 @@ class Callbacks
      */
     protected static function evaluateCallback($callback)
     {
-        if (\is_array($callback) && (2 === \count($callback)) && \is_string($callback[0]) && \is_string($callback[1])) {
+        if (is_array($callback) && (2 === count($callback)) && class_exists($callback[0]) && is_string($callback[1])) {
             $serviceCallback = static::evaluateServiceCallback($callback);
             if ($serviceCallback[0] !== $callback[0]) {
                 return $serviceCallback;
             }
 
-            $class = new \ReflectionClass($callback[0]);
+            $class = new ReflectionClass($callback[0]);
 
             // Ff the method is static, do not create an instance.
             if ($class->hasMethod($callback[1]) && $class->getMethod($callback[1])->isStatic()) {
@@ -165,7 +180,7 @@ class Callbacks
 
         if (
             $container->has($callback[0])
-            && ((false !== \strpos($callback[0], '\\')) || !\class_exists($callback[0]))
+            && ((false !== strpos($callback[0], '\\')) || !class_exists($callback[0]))
         ) {
             $callback[0] = $container->get($callback[0]);
 
