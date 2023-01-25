@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -33,6 +33,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditMaskSubHeadlineEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
@@ -656,27 +657,32 @@ class EditMask
      * Determine the headline to use.
      *
      * @return string.
+     *
+     * @deprecated This is deprecated since 2.3 and will be removed in 3.0.
      */
-    protected function getHeadline()
+    private function getHeadline(): string
     {
-        $definitionName = $this->getDataDefinition()->getName();
-        $translator     = $this->getEnvironment()->getTranslator();
+        // @codingStandardsIgnoreStart
+        @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - use getSubHeadline()!', E_USER_DEPRECATED);
+        // @codingStandardsIgnoreEnd
 
-        if ($this->model->getId()) {
-            $headline = $translator->translate('editRecord', $definitionName, [$this->model->getId()]);
+        $this->getSubHeadline();
+    }
 
-            if ('editRecord' !== $headline) {
-                return $headline;
-            }
-            return $translator->translate('MSC.editRecord', null, [$this->model->getId()]);
-        }
+    /**
+     * Determine the headline to use.
+     *
+     * @return string.
+     */
+    protected function getSubHeadline(): string
+    {
+        $environment = $this->getEnvironment();
 
-        $headline = $translator->translate('newRecord', $definitionName, [$this->model->getId()]);
-        if ('newRecord' !== $headline) {
-            return $headline;
-        }
+        $event = new GetEditMaskSubHeadlineEvent($this->environment, $this->model);
 
-        return $translator->translate('MSC.editRecord', null, ['']);
+        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+
+        return $event->getHeadline();
     }
 
     /**
@@ -869,7 +875,7 @@ class EditMask
                 'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
                     $this->model->getId()
                 ) : null,
-                'subHeadline' => $this->getHeadline(),
+                'subHeadline' => $this->getSubHeadline(),
                 'table'       => $definition->getName(),
                 'enctype'     => 'multipart/form-data',
                 'error'       => $editInformation->getFlatModelErrors($this->model),
