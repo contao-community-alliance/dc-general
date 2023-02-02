@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -311,10 +311,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
         if (('textarea' === $propInfo->getWidgetType()) && !\array_key_exists('rte', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'wrap.svg',
-                $translator->translate('wordWrap', 'MSC'),
+                $translator->translate('MSC.wordWrap'),
                 \sprintf(
                     'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
-                    StringUtil::specialchars($translator->translate('wordWrap', 'MSC')),
+                    StringUtil::specialchars($translator->translate('MSC.wordWrap')),
                     $propInfo->getName()
                 )
             );
@@ -355,7 +355,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         if ($propInfo->getExtra() && \array_key_exists('helpwizard', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'about.svg',
-                $translator->translate('helpWizard', 'MSC'),
+                $translator->translate('MSC.helpWizard'),
                 'style="vertical-align:text-bottom;"'
             );
 
@@ -367,7 +367,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
                 $environment->getDataDefinition()->getName(),
                 $propInfo->getName(),
-                StringUtil::specialchars($translator->translate('helpWizard', 'MSC')),
+                StringUtil::specialchars($translator->translate('MSC.helpWizard')),
                 $event->getHtml()
             );
         }
