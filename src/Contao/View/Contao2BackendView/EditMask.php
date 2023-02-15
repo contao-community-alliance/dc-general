@@ -789,7 +789,7 @@ class EditMask
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
                     $editInformation->setModelError(
                         $this->model,
-                        [$translator->translate('not_unique', 'MSC', [$propertyName])],
+                        [$translator->translate('MSC.not_unique', null, [$propertyName])],
                         $definition
                     );
 

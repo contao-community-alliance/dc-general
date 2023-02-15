@@ -1328,9 +1328,9 @@ class TreePicker extends Widget
         $model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
 
         if ($model->getMeta($model::SHOW_CHILDREN)) {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
+            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('MSC.collapseNode');
         } else {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
+            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('MSC.expandNode');
         }
 
         $toggleScript = \sprintf(

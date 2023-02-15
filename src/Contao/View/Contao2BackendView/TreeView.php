@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -271,9 +271,9 @@ class TreeView extends BaseView
         $template = $this->getTemplate('dcbe_general_treeview_entry');
 
         if ($model->getMeta($model::SHOW_CHILDREN)) {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
+            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('MSC.collapseNode');
         } else {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
+            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('MSC.expandNode');
         }
 
         $toggleUrlEvent = new AddToUrlEvent(

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,16 +17,13 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Event;
 
-use Contao\ArrayUtil;
-use Contao\Config;
-use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -39,8 +36,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -50,6 +47,9 @@ use ContaoCommunityAlliance\DcGeneral\Panel\SearchElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SubmitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
+use Contao\ArrayUtil;
+use Contao\Config;
+use Contao\StringUtil;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -81,14 +81,14 @@ class Subscriber implements EventSubscriberInterface
     /**
      * The config instance.
      *
-     * @var \Contao\Config|null
+     * @var Config|null
      */
-    private static $config = null;
+    private static Config $config = null;
 
     /**
      * {@inheritDoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             DcGeneralEvents::ACTION                => ['initializePanels', 10],
@@ -106,7 +106,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function getPanelElementTemplate(GetPanelElementTemplateEvent $event)
+    public function getPanelElementTemplate(GetPanelElementTemplateEvent $event): void
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
@@ -138,7 +138,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event)
+    public function resolveWidgetErrorMessage(ResolveWidgetErrorMessageEvent $event): void
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
@@ -168,7 +168,11 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return array|null
      */
-    protected static function getOptions($environment, $model, $property)
+    protected static function getOptions(
+        EnvironmentInterface $environment,
+        ModelInterface $model,
+        PropertyInterface $property
+    ): array
     {
         if (null === $dispatcher = $environment->getEventDispatcher()) {
             return $property->getOptions();
@@ -179,7 +183,7 @@ class Subscriber implements EventSubscriberInterface
 
         $dispatcher->dispatch($event, $event::NAME);
 
-        return $event->getOptions();
+        return $event->getOptions() ?? [];
     }
 
     /**
@@ -192,7 +196,12 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return mixed
      */
-    private static function decodeValue($environment, $model, $property, $value)
+    private static function decodeValue(
+        EnvironmentInterface $environment,
+        ModelInterface $model,
+        string $property,
+        mixed $value
+    ): mixed
     {
         $event = new DecodePropertyValueForWidgetEvent($environment, $model);
         $event
@@ -213,7 +222,11 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return string
      */
-    private static function parseDateTime(EventDispatcherInterface $dispatcher, $dateFormat, $timeStamp)
+    private static function parseDateTime(
+        EventDispatcherInterface $dispatcher,
+        string $dateFormat,
+        int $timeStamp
+    ): string
     {
         $dateEvent = new ParseDateEvent($timeStamp, $dateFormat);
         $dispatcher->dispatch($dateEvent, ContaoEvents::DATE_PARSE);
@@ -228,7 +241,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event)
+    public function renderReadablePropertyValue(RenderReadablePropertyValueEvent $event): void
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
@@ -248,19 +261,31 @@ class Subscriber implements EventSubscriberInterface
 
         $extra = $property->getExtra();
 
+        switch (true) {
+            case (\is_string($value));
+                self::renderTextAreaReadable($event, $property, $extra, $value);
+                self::renderReferenceReadable($event, $extra, $value);
+                break;
+            case (\is_array($value));
+                self::renderArrayReadable($event, $value);
+                break;
+            case (\is_int($value));
+                self::renderTimestampReadable($event, $extra, $value);
+                self::renderDateTimePropertyIsTstamp($event, $property, $value);
+                self::renderSimpleCheckbox($event, $property, $extra, $value);
+                break;
+        }
+
         self::renderForeignKeyReadable($event, $extra, $value);
-        self::renderArrayReadable($event, $value);
-        self::renderTimestampReadable($event, $extra, $value);
-        self::renderDateTimePropertyIsTstamp($event, $property, $value);
-        self::renderSimpleCheckbox($event, $property, $extra, $value);
-        self::renderTextAreaReadable($event, $property, $extra, $value);
-        self::renderReferenceReadable($event, $extra, $value);
 
         if (null !== $event->getRendered()) {
             return;
         }
 
-        self::renderDateTimeValueInstance($event, $value);
+        if (\is_int($value)) {
+            self::renderDateTimeValueInstance($event, $value);
+        }
+
         self::renderOptionValueReadable($event, $property, $value);
     }
 
@@ -271,7 +296,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function initTwig(\ContaoTwigInitializeEvent $event)
+    public function initTwig(\ContaoTwigInitializeEvent $event): void
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
@@ -290,7 +315,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public function initializePanels(ActionEvent $event)
+    public function initializePanels(ActionEvent $event): void
     {
         if (!$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
@@ -335,7 +360,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    public static function setConfig(Config $config)
+    public static function setConfig(Config $config): void
     {
         self::$config = $config;
     }
@@ -345,7 +370,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return Config
      */
-    public static function getConfig()
+    public static function getConfig(): Config
     {
         if (!self::$config) {
             return self::$config = Config::getInstance();
@@ -365,7 +390,11 @@ class Subscriber implements EventSubscriberInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    private static function renderForeignKeyReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    private static function renderForeignKeyReadable(
+        RenderReadablePropertyValueEvent $event,
+        array $extra,
+        mixed $value
+    ): void
     {
         if (!isset($extra['foreignKey']) || (null !== $event->getRendered())) {
             return;
@@ -382,9 +411,9 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, $value)
+    private static function renderArrayReadable(RenderReadablePropertyValueEvent $event, array $value): void
     {
-        if (!\is_array($value) || (null !== $event->getRendered())) {
+        if (null !== $event->getRendered()) {
             return;
         }
 
@@ -407,7 +436,11 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    private static function renderTimestampReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    private static function renderTimestampReadable(
+        RenderReadablePropertyValueEvent $event,
+        array $extra,
+        int $value
+    ): void
     {
         if (
             !isset($extra['rgxp'])
@@ -433,7 +466,11 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    private static function renderDateTimePropertyIsTstamp(RenderReadablePropertyValueEvent $event, $property, $value)
+    private static function renderDateTimePropertyIsTstamp(
+        RenderReadablePropertyValueEvent $event,
+        PropertyInterface $property,
+        int $value
+    ): void
     {
         if ((null !== $event->getRendered()) || ('tstamp' !== $property->getName())) {
             return;
@@ -455,7 +492,12 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    private static function renderSimpleCheckbox(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
+    private static function renderSimpleCheckbox(
+        RenderReadablePropertyValueEvent $event,
+        PropertyInterface $property,
+        array $extra,
+        int $value
+    ): void
     {
         if (
             (null !== $event->getRendered())
@@ -470,19 +512,15 @@ class Subscriber implements EventSubscriberInterface
     }
 
     /**
-     * Render datetime if the value is instance of datetime .
+     * Render datetime if the value is instance of datetime.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
      * @param int                              $value The value to format.
      *
      * @return void
      */
-    private static function renderDateTimeValueInstance($event, $value)
+    private static function renderDateTimeValueInstance(RenderReadablePropertyValueEvent $event, int $value): void
     {
-        if (!($value instanceof \DateTime)) {
-            return;
-        }
-
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
 
         $event->setRendered(
@@ -499,11 +537,15 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    private static function renderReferenceReadable(RenderReadablePropertyValueEvent $event, $extra, $value)
+    private static function renderReferenceReadable(
+        RenderReadablePropertyValueEvent $event,
+        array $extra,
+        string $value
+    ): void
     {
         if (
             !isset($extra['reference'])
-            || !\array_key_exists($value, (array) $extra['reference'])
+            || !\array_key_exists($value, (array)$extra['reference'])
             || (null !== $event->getRendered())
         ) {
             return;
@@ -528,7 +570,12 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    private static function renderTextAreaReadable(RenderReadablePropertyValueEvent $event, $property, $extra, $value)
+    private static function renderTextAreaReadable(
+        RenderReadablePropertyValueEvent $event,
+        PropertyInterface $property,
+        array $extra,
+        string $value
+    ): void
     {
         if (
             (empty($extra['allowHtml']) && empty($extra['preserveTags']))
@@ -538,7 +585,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        $event->setRendered(\nl2br_html5(StringUtil::specialchars($value)));
+        $event->setRendered(\nl2br(StringUtil::specialchars($value)));
     }
 
     /**
@@ -550,7 +597,11 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      */
-    private static function renderOptionValueReadable(RenderReadablePropertyValueEvent $event, $property, $value)
+    private static function renderOptionValueReadable(
+        RenderReadablePropertyValueEvent $event,
+        PropertyInterface $property,
+        mixed $value
+    ): void
     {
         if (!($options = $property->getOptions())) {
             $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
