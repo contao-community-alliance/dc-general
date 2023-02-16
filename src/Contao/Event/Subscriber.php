@@ -50,6 +50,7 @@ use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEven
 use Contao\ArrayUtil;
 use Contao\Config;
 use Contao\StringUtil;
+use DateTime;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -276,7 +277,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        if (\is_int($value)) {
+        if ($value instanceof DateTime) {
             self::renderDateTimeValueInstance($event, $value);
         }
 
@@ -503,11 +504,11 @@ class Subscriber implements EventSubscriberInterface
      * Render datetime if the value is instance of datetime.
      *
      * @param RenderReadablePropertyValueEvent $event The event to store the value to.
-     * @param int                              $value The value to format.
+     * @param DateTime                         $value The value to format.
      *
      * @return void
      */
-    private static function renderDateTimeValueInstance(RenderReadablePropertyValueEvent $event, int $value): void
+    private static function renderDateTimeValueInstance(RenderReadablePropertyValueEvent $event, DateTime $value): void
     {
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
 
