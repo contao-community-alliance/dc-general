@@ -364,7 +364,7 @@ class Subscriber implements EventSubscriberInterface
      */
     public static function getConfig(): Config
     {
-        if (!self::$config) {
+        if (!isset(self::$config)) {
             return self::$config = Config::getInstance();
         }
 
