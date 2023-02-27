@@ -39,5 +39,5 @@ $GLOBALS['TL_LANG']['MSC']['edit_all_select_properties']  = 'Eigenschaften ausw�
 $GLOBALS['TL_LANG']['MSC']['no_properties_available']     = 'Bitte überprüfen Sie die ausgewählten Eigenschaften!';
 $GLOBALS['TL_LANG']['MSC']['select_models']               = 'Elemente auswählen';
 $GLOBALS['TL_LANG']['MSC']['dc_general_disabled']         = 'Gesperrt: %s';
-$GLOBALS['TL_LANG']['MSC']['newRecord']                   = 'Neuen Datensatz erstellen.';
+$GLOBALS['TL_LANG']['MSC']['newRecord']                   = 'Neuen Datensatz erstellen';
 // @codingStandardsIgnoreEnd
