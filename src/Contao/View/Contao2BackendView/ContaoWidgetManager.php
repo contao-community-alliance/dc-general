@@ -187,7 +187,8 @@ class ContaoWidgetManager
         $template = new ContaoBackendViewTemplate($templateName);
         $template
             ->set('selector', 'ctrl_' . $widget->id)
-            ->set('type', $type);
+            ->set('type', $type)
+            ->set('readonly', (bool) $widget->readonly);
 
         if (0 !== \strncmp($widget->rte, 'tiny', 4)) {
             /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */

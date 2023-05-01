@@ -892,7 +892,7 @@ class EditMask
     }
 
     /**
-     * Execute the multi language support.
+     * Execute the multi-language support.
      *
      * @param ContaoBackendViewTemplate $template The template.
      *
@@ -912,8 +912,7 @@ class EditMask
         ) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $dataProvider = $this->getEnvironment()->getDataProvider();
-
-            $languages = System::getLanguages();
+            $languages    = System::getLanguages();
 
             $template->set(
                 'languages',
@@ -922,6 +921,7 @@ class EditMask
                 ->set('language', $dataProvider->getCurrentLanguage())
                 ->set('languageSubmit', $this->environment->getTranslator()->translate('MSC.showSelected'))
                 ->set('languageHeadline', $languages[$dataProvider->getCurrentLanguage()] ?? '');
+
             return;
         }
 
