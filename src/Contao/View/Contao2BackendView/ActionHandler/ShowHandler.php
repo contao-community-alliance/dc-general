@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,15 +15,14 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
-use Contao\Config;
-use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -32,14 +31,19 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Contao\StringUtil;
+use LogicException;
+use function array_merge;
+use function array_values;
+use function sprintf;
 
 /**
  * Handler class for handling the "show" action.
@@ -92,7 +96,7 @@ class ShowHandler
 
         $eventDispatcher->dispatch(
             new LogEvent(
-                \sprintf(
+                sprintf(
                     'Could not find ID %s in %s. DC_General show()',
                     $modelId->getId(),
                     $environment->getDataDefinition()->getName()
@@ -119,21 +123,26 @@ class ShowHandler
     protected function getPropertyLabel(EnvironmentInterface $environment, PropertyInterface $property)
     {
         $translator = $environment->getTranslator();
+        $key        = $property->getLabel();
 
-        $label = $translator->translate($property->getLabel(), $environment->getDataDefinition()->getName());
-        if (!$label) {
-            $label = $translator->translate('MSC.' . $property->getName());
+        if (null === $key) {
+            throw new LogicException('Missing label for property ' . $property->getName());
         }
 
-        if (\is_array($label)) {
-            $label = $label[0];
+        if ('' !== $key) {
+            $label = $translator->translate($key, $environment->getDataDefinition()->getName());
+            if ($label !== $key) {
+                return $label;
+            }
         }
 
-        if (!$label) {
-            $label = $property->getName();
+        $mscKey = 'MSC.' . $property->getName() . '.0';
+        $label  = $translator->translate($mscKey);
+        if ($label !== $mscKey) {
+            return $label;
         }
 
-        return $label;
+        return $key;
     }
 
     /**
@@ -175,7 +184,7 @@ class ShowHandler
             );
 
             $labels['visible'][$palettePropertyName] =
-                \sprintf('%s [%s]', $this->getPropertyLabel($environment, $visibleProperty), $palettePropertyName);
+                sprintf('%s [%s]', $this->getPropertyLabel($environment, $visibleProperty), $palettePropertyName);
         }
 
         // Add system column properties.
@@ -191,12 +200,12 @@ class ShowHandler
 
             $values['system'][$propertyName] = $model->getProperty($propertyName);
             $labels['system'][$propertyName] =
-                \sprintf('%s [%s]', $this->getPropertyLabel($environment, $systemProperty), $propertyName);
+                sprintf('%s [%s]', $this->getPropertyLabel($environment, $systemProperty), $propertyName);
         }
 
         return [
-            'labels' => \array_merge(...\array_values($labels)),
-            'values' => \array_merge(...\array_values($values))
+            'labels' => array_merge(...array_values($labels)),
+            'values' => array_merge(...array_values($values))
         ];
     }
 
