@@ -388,6 +388,8 @@ class ContaoWidgetManager
             ->set('hiddenName', $widget->name)
             ->set('value', $widget->value)
             ->set('hiddenFields', $hiddenFields)
+            // See: \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask::buildFieldSet
+            ->set('disabled', $propInfo->getExtra()['readonly'] ?? false)
             ->parse();
 
         return $this->loadRichTextEditor($content, $widget);

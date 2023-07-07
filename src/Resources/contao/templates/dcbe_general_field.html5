@@ -1,5 +1,7 @@
 <div id="widget_<?php echo $this->strName; ?>" class="widget <?php echo $this->strClass; ?>">
-  <input type="hidden" value="<?php echo $this->strName; ?>" name="FORM_INPUTS[]" />
+  <?php if (!$this->disabled): ?>
+    <input type="hidden" value="<?php echo $this->strName; ?>" name="FORM_INPUTS[]" />
+  <?php endif; ?>
   <?php if (true === $this->isHideInput): ?>
   <?php foreach ($this->hiddenFields as $hiddenFieldName => $hiddenFieldValue): ?>
   <input type="hidden" value="<?= $hiddenFieldValue ?>" name="<?= $hiddenFieldName ?>">
