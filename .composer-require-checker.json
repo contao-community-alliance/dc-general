@@ -1,6 +1,6 @@
 {
   "symbol-whitelist": [
-    "array", "bool", "false", "int", "null", "self", "static", "parent", "string", "true", "void",
+    "array", "bool", "false", "int", "mixed", "null", "self", "static", "parent", "string", "true", "void",
     "ampersand", "array_insert", "array_is_assoc", "nl2br_html5", "TL_ERROR",
     "ContaoTwigInitializeEvent",
     "ContaoCommunityAlliance\\DcGeneral\\Contao\\View\\Contao2BackendView\\Exception\\EditOnlyModeException",

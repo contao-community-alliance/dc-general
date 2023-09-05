@@ -84,7 +84,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @var Config|null
      */
-    private static Config $config = null;
+    private static ?Config $config = null;
 
     /**
      * {@inheritDoc}
@@ -173,8 +173,7 @@ class Subscriber implements EventSubscriberInterface
         EnvironmentInterface $environment,
         ModelInterface $model,
         PropertyInterface $property
-    ): array
-    {
+    ): array {
         if (null === $dispatcher = $environment->getEventDispatcher()) {
             return $property->getOptions();
         }
@@ -202,8 +201,7 @@ class Subscriber implements EventSubscriberInterface
         ModelInterface $model,
         string $property,
         mixed $value
-    ): mixed
-    {
+    ): mixed {
         $event = new DecodePropertyValueForWidgetEvent($environment, $model);
         $event
             ->setProperty($property)
@@ -227,8 +225,7 @@ class Subscriber implements EventSubscriberInterface
         EventDispatcherInterface $dispatcher,
         string $dateFormat,
         int $timeStamp
-    ): string
-    {
+    ): string {
         $dateEvent = new ParseDateEvent($timeStamp, $dateFormat);
         $dispatcher->dispatch($dateEvent, ContaoEvents::DATE_PARSE);
 
@@ -395,8 +392,7 @@ class Subscriber implements EventSubscriberInterface
         RenderReadablePropertyValueEvent $event,
         array $extra,
         mixed $value
-    ): void
-    {
+    ): void {
         if (!isset($extra['foreignKey']) || (null !== $event->getRendered())) {
             return;
         }
@@ -441,8 +437,7 @@ class Subscriber implements EventSubscriberInterface
         RenderReadablePropertyValueEvent $event,
         array $extra,
         int $value
-    ): void
-    {
+    ): void {
         if (
             !isset($extra['rgxp'])
             || !(('date' === $extra['rgxp']) || ('time' === $extra['rgxp']) || ('datim' === $extra['rgxp']))
@@ -471,8 +466,7 @@ class Subscriber implements EventSubscriberInterface
         RenderReadablePropertyValueEvent $event,
         PropertyInterface $property,
         int $value
-    ): void
-    {
+    ): void {
         if ((null !== $event->getRendered()) || ('tstamp' !== $property->getName())) {
             return;
         }
@@ -498,8 +492,7 @@ class Subscriber implements EventSubscriberInterface
         PropertyInterface $property,
         array $extra,
         int $value
-    ): void
-    {
+    ): void {
         if (
             (null !== $event->getRendered())
             || !(!($extra['multiple'] ?? false) && ('checkbox' === $property->getWidgetType()))
@@ -542,8 +535,7 @@ class Subscriber implements EventSubscriberInterface
         RenderReadablePropertyValueEvent $event,
         array $extra,
         string $value
-    ): void
-    {
+    ): void {
         if (
             !isset($extra['reference'])
             || !\array_key_exists($value, (array)$extra['reference'])
@@ -576,8 +568,7 @@ class Subscriber implements EventSubscriberInterface
         PropertyInterface $property,
         array $extra,
         string $value
-    ): void
-    {
+    ): void {
         if (
             (empty($extra['allowHtml']) && empty($extra['preserveTags']))
             || (null !== $event->getRendered())
@@ -602,8 +593,7 @@ class Subscriber implements EventSubscriberInterface
         RenderReadablePropertyValueEvent $event,
         PropertyInterface $property,
         mixed $value
-    ): void
-    {
+    ): void {
         if (!($options = $property->getOptions())) {
             $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
             if ($options) {
