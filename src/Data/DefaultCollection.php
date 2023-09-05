@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,13 +18,15 @@
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
+use Contao\ArrayUtil;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -44,14 +46,14 @@ class DefaultCollection implements CollectionInterface
      *
      * @var ModelInterface[]
      */
-    protected $arrCollection = [];
+    protected array $arrCollection = [];
 
     /**
      * Get length of this collection.
      *
      * @return int
      */
-    public function length()
+    public function length(): int
     {
         return \count($this->arrCollection);
     }
@@ -59,7 +61,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return $this->length();
     }
@@ -67,7 +69,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return \array_key_exists($offset, $this->arrCollection);
     }
@@ -190,7 +192,7 @@ class DefaultCollection implements CollectionInterface
     public function insert($index, ModelInterface $model)
     {
         if ($model->hasProperties()) {
-            \array_insert($this->arrCollection, $index, [$model]);
+            ArrayUtil::arrayInsert($this->arrCollection, $index, [$model]);
         }
     }
 

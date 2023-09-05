@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +25,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Tim Gatzky <info@tim-gatzky.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -676,7 +676,8 @@ class DefaultController implements ControllerInterface
         /** @var ModelInterface|null $model */
         $model = $action['model'];
         /** @var ItemInterface $item */
-        $item = $action['item'];
+        $item       = $action['item'];
+        $isDeepCopy = false;
 
         if ($item->isCreate()) {
             // create new model
@@ -686,7 +687,7 @@ class DefaultController implements ControllerInterface
             $model       = $this->modelCollector->getModel(ModelId::fromModel($model));
             $clonedModel = $this->doCloneAction($model);
 
-            if (isset($isDeepCopy) && $isDeepCopy) {
+            if ($isDeepCopy) {
                 $deepCopyList[] = [
                     'origin' => $model,
                     'model'  => $clonedModel,

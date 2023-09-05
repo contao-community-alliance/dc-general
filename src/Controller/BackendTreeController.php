@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Kim Wormer <hallo@heartcodiert.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -151,7 +152,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', \ampersand($request->getUri()))
+            ->set('action', StringUtil::ampersand($request->getUri()))
             ->set('value', $sessionBag->get($treeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'] ?? '')
             ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'] ?? '');
@@ -197,7 +198,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', \ampersand($request->getUri()))
+            ->set('action', StringUtil::ampersand($request->getUri()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager']);
 
         return $template->getResponse();

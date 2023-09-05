@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -311,7 +311,7 @@ abstract class AbstractListShowAllHandler
             ->set('subHeadline', $this->translate('MSC.select_models', 'contao_default'))
             ->set('tableName', ($definition->getName() ?? 'none'))
             ->set('select', 'select' === $environment->getInputProvider()->getParameter('act'))
-            ->set('action', \ampersand(Environment::get('request')))
+            ->set('action', StringUtil::ampersand(Environment::get('request')))
             ->set('selectButtons', $this->getSelectButtons($environment))
             ->set('sortable', $this->isSortable($environment))
             ->set('showColumns', $showColumn)

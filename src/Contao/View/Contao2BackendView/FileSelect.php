@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -129,7 +130,7 @@ class FileSelect
         $template->charset     = $GLOBALS['TL_CONFIG']['characterSet'];
         $template->addSearch   = $fileSelector->searchField;
         $template->search      = $GLOBALS['TL_LANG']['MSC']['search'];
-        $template->action      = \ampersand(Environment::get('request'));
+        $template->action      = StringUtil::ampersand(Environment::get('request'));
         $template->value       = $sessionStorage->get('file_selector_search');
         $template->manager     = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
         $template->managerHref = '';
@@ -152,7 +153,7 @@ class FileSelect
         if (Input::get('switch') && $user->hasAccess('page', 'modules')) {
             $template->switch     = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
             $template->switchHref =
-                \str_replace('contao/file.php', 'contao/page.php', \ampersand(Environment::get('request')));
+                \str_replace('contao/file.php', 'contao/page.php', StringUtil::ampersand(Environment::get('request')));
         }
 
         // Prevent debug output at all cost.

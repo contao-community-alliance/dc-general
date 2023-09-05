@@ -41,6 +41,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Contao\StringUtil;
 use LogicException;
+
 use function array_merge;
 use function array_values;
 use function sprintf;

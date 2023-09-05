@@ -259,7 +259,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
-            \ampersand($urlEvent->getUrl()),
+            StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($translator->translate('importTable.1', $defName)),
             $importTableEvent->getHtml(),
             $shrinkEvent->getHtml(),
@@ -292,7 +292,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
-            \ampersand($urlEvent->getUrl()),
+            StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($translator->translate('importList.1', $defName)),
             $importListEvent->getHtml()
         );

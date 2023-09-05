@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2034 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2034 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -97,7 +98,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @throws DcGeneralRuntimeException When the current position is invalid.
      */
-    public function current()
+    public function current(): ?BaseFilterBuilder
     {
         if (-1 === $this->index) {
             return $this->first();
@@ -115,7 +116,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @return BaseFilterBuilder
      */
-    public function next()
+    public function next(): ?BaseFilterBuilder
     {
         $this->index++;
 
@@ -137,7 +138,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @return boolean Returns true on success or false on failure.
      */
-    public function valid()
+    public function valid(): bool
     {
         return ($this->index > -1) && ($this->index < \count($this->children));
     }
@@ -149,7 +150,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @return BaseFilterBuilder
      */
-    public function rewind()
+    public function rewind(): ?BaseFilterBuilder
     {
         return $this->first();
     }
@@ -177,7 +178,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @return boolean true on success or false on failure.
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->children[$offset]);
     }
@@ -189,7 +190,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @return BaseFilterBuilder
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): BaseFilterBuilder
     {
         return $this->children[$offset];
     }
@@ -202,7 +203,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @return FilterBuilderWithChildren The current builder.
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): FilterBuilderWithChildren
     {
         $this->children[$offset] = $value;
 
@@ -216,7 +217,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @return FilterBuilderWithChildren The current builder.
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): FilterBuilderWithChildren
     {
         unset($this->children[$offset]);
 

@@ -260,14 +260,14 @@ class Subscriber implements EventSubscriberInterface
         $extra = $property->getExtra();
 
         switch (true) {
-            case (\is_string($value));
+            case (\is_string($value)):
                 self::renderTextAreaReadable($event, $property, $extra, $value);
                 self::renderReferenceReadable($event, $extra, $value);
                 break;
-            case (\is_array($value));
+            case (\is_array($value)):
                 self::renderArrayReadable($event, $value);
                 break;
-            case (\is_int($value));
+            case (\is_int($value)):
                 self::renderTimestampReadable($event, $extra, $value);
                 self::renderDateTimePropertyIsTstamp($event, $property, $value);
                 self::renderSimpleCheckbox($event, $property, $extra, $value);
