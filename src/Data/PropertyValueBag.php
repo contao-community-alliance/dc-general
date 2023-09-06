@@ -214,7 +214,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->properties);
     }
@@ -238,7 +238,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->getPropertyValue($offset);
     }
@@ -246,7 +246,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->setPropertyValue($offset, $value);
     }
@@ -254,7 +254,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->removePropertyValue($offset);
     }

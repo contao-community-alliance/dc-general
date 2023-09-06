@@ -130,7 +130,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->information);
     }
@@ -146,7 +146,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->hasInformation($offset);
     }
@@ -154,7 +154,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->getInformation($offset);
     }
@@ -162,7 +162,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->setInformation($offset, $value);
     }
@@ -170,7 +170,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->removeInformation($offset);
     }
