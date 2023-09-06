@@ -39,6 +39,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Handles the group header formatting.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GetGroupHeaderSubscriber
 {

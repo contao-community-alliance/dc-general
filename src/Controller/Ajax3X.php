@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,8 @@
  * @author     Andreas Nölke <zero@brothers-project.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -123,7 +124,6 @@ class Ajax3X extends Ajax
         $widget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
         $widget->value = $this->getTreeValue('page', $input->getValue('value'));
 
-
         $response = new Response($widget->generateAjax($ajaxId, $field, $level));
 
         throw new ResponseException($response);
@@ -216,7 +216,7 @@ class Ajax3X extends Ajax
                 'A record with the ID "' . $serializedId . '" does not exist in "' .
                 $this->getEnvironment()->getDataDefinition()->getName() . '"',
                 'Ajax executePostActions()',
-                TL_ERROR
+                'ERROR'
             );
             $this->getEnvironment()->getEventDispatcher()->dispatch($event, ContaoEvents::SYSTEM_LOG);
 

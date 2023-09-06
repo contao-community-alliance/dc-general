@@ -293,6 +293,8 @@ class Subscriber implements EventSubscriberInterface
      * @param \ContaoTwigInitializeEvent $event The event.
      *
      * @return void
+     *
+     * @psalm-suppress UndefinedClass
      */
     public function initTwig(\ContaoTwigInitializeEvent $event): void
     {

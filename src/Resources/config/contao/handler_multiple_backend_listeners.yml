@@ -46,6 +46,8 @@ services:
             - "@cca.dc-general.scope-matcher"
             - "@translator"
             - "@cca.translator.contao_translator"
+            - "@security.csrf.token_manager"
+            - "%contao.csrf_token_name%"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action

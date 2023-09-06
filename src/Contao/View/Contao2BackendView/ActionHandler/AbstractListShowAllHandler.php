@@ -27,6 +27,7 @@ use Contao\Backend;
 use Contao\Environment;
 use Contao\Message;
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -59,7 +60,16 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function implode;
+use function in_array;
+use function sprintf;
+use function str_replace;
+use function strpos;
+use function trigger_error;
 
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
@@ -77,7 +87,7 @@ abstract class AbstractListShowAllHandler
      *
      * @var TranslatorInterface
      */
-    protected $translator;
+    protected TranslatorInterface $translator;
 
     /**
      * The cca translator.
@@ -87,21 +97,63 @@ abstract class AbstractListShowAllHandler
     private $ccaTranslator;
 
     /**
+     * The token manager.
+     *
+     * @var CsrfTokenManagerInterface
+     */
+    private CsrfTokenManagerInterface $tokenManager;
+
+    /**
+     * The token name.
+     *
+     * @var string
+     */
+    private string $tokenName;
+
+    /**
      * AbstractHandler constructor.
      *
      * @param RequestScopeDeterminator          $scopeDeterminator The request mode determinator.
      * @param TranslatorInterface               $translator        The translator.
      * @param CcaTranslator|TranslatorInterface $ccaTranslator     The cca translator.
+     * @param CsrfTokenManagerInterface|null    $tokenManager      The token manager.
+     * @param string|null                       $tokenName         The token name.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
         TranslatorInterface $translator,
-        CcaTranslator $ccaTranslator
+        CcaTranslator $ccaTranslator,
+        ?CsrfTokenManagerInterface $tokenManager = null,
+        ?string $tokenName = null
     ) {
         $this->setScopeDeterminator($scopeDeterminator);
 
         $this->translator    = $translator;
         $this->ccaTranslator = $ccaTranslator;
+
+        if (null === $tokenManager) {
+            $tokenManager = System::getContainer()->get('security.csrf.token_manager');
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token manager as 4th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+        if (null === $tokenName) {
+            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token name as 5th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+
+        $this->tokenManager  = $tokenManager;
+        $this->tokenName     = $tokenName;
     }
 
     /**
@@ -167,7 +219,7 @@ abstract class AbstractListShowAllHandler
         $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
         $environment->getEventDispatcher()->dispatch($clipboard, DcGeneralEvents::VIEW);
 
-        return \implode(
+        return implode(
             "\n",
             [
                 'language'  => $this->languageSwitcher($environment),
@@ -201,7 +253,7 @@ abstract class AbstractListShowAllHandler
             ->set('languages', $environment->getController()->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
             ->set('submit', $this->translator->trans('MSC.showSelected', [], 'contao_default'))
-            ->set('REQUEST_TOKEN', REQUEST_TOKEN)
+            ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }
 
@@ -243,7 +295,7 @@ abstract class AbstractListShowAllHandler
         // Fallback translate for non symfony domain.
         if ($translated === $key) {
             // @codingStandardsIgnoreStart
-            @\trigger_error(
+            @trigger_error(
                 'Fallback translation for contao lang in the global array. ' .
                 'This will remove in the future, use the symfony domain translation.',
                 E_USER_DEPRECATED
@@ -251,7 +303,7 @@ abstract class AbstractListShowAllHandler
             // @codingStandardsIgnoreEnd
 
             $translated =
-                $this->translator->trans(\sprintf('%s.%s', $domain, $key), $parameters, sprintf('contao_%s', $domain));
+                $this->translator->trans(sprintf('%s.%s', $domain, $key), $parameters, sprintf('contao_%s', $domain));
         }
 
         return $translated;
@@ -325,9 +377,9 @@ abstract class AbstractListShowAllHandler
 
         if (
             (null !== $template->get('action'))
-            && (false !== \strpos($template->get('action'), 'select=models'))
+            && (false !== strpos($template->get('action'), 'select=models'))
         ) {
-            $template->set('action', \str_replace('select=models', 'select=properties', $template->get('action')));
+            $template->set('action', str_replace('select=models', 'select=properties', $template->get('action')));
         }
     }
 
@@ -403,7 +455,7 @@ abstract class AbstractListShowAllHandler
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
-            $model->setMeta($model::CSS_ROW_CLASS, \implode(' ', $cssClasses));
+            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             $this->renderModel($model, $environment);
         }
@@ -484,7 +536,7 @@ abstract class AbstractListShowAllHandler
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
+                'class'   => 'tl_folder_tlist col_' . $field . (in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $properties->hasProperty($field)
                     ? $properties->getProperty($field)->getLabel()
                     : $this->translate($definition->getName() . '.' . $field . '.0', 'contao_' . $definition->getName())
@@ -602,7 +654,7 @@ abstract class AbstractListShowAllHandler
             ContaoEvents::IMAGE_GET_HTML
         );
 
-        return \sprintf(
+        return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
             StringUtil::specialchars($this->translate('pasteafter.0', $languageDomain)),
@@ -685,7 +737,7 @@ abstract class AbstractListShowAllHandler
         }
 
         $session = $sessionStorage->get($sessionName);
-        if (!\array_key_exists($selectAction, $session)) {
+        if (!array_key_exists($selectAction, $session)) {
             return [];
         }
 

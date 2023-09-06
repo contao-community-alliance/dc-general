@@ -105,7 +105,7 @@ class ShowHandler
                     $environment->getDataDefinition()->getName()
                 ),
                 __CLASS__ . '::' . __FUNCTION__,
-                TL_ERROR
+                'ERROR'
             ),
             ContaoEvents::SYSTEM_LOG
         );

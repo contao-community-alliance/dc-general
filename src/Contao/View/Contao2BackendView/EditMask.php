@@ -201,7 +201,7 @@ class EditMask
         if ($model->getId() && !$definition->getBasicDefinition()->isEditable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
             $environment->getEventDispatcher()->dispatch(
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()'),
+                new LogEvent($message, 'ERROR', 'DC_General - edit()'),
                 ContaoEvents::SYSTEM_LOG
             );
             throw new DcGeneralRuntimeException($message);
@@ -222,11 +222,11 @@ class EditMask
         $environment = $this->getEnvironment();
         $definition  = $this->getDataDefinition();
 
-        // Check if table is closed but we are adding a new item.
+        // Check if table is closed, but we are adding a new item.
         if (!($model->getId() || $definition->getBasicDefinition()->isCreatable())) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
             $environment->getEventDispatcher()->dispatch(
-                new LogEvent($message, TL_ERROR, 'DC_General - edit()'),
+                new LogEvent($message, 'ERROR', 'DC_General - edit()'),
                 ContaoEvents::SYSTEM_LOG
             );
             throw new DcGeneralRuntimeException($message);
@@ -660,13 +660,13 @@ class EditMask
      *
      * @deprecated This is deprecated since 2.3 and will be removed in 3.0.
      */
-    private function getHeadline(): string
+    protected function getHeadline(): string
     {
         // @codingStandardsIgnoreStart
         @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - use getSubHeadline()!', E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
-        $this->getSubHeadline();
+        return $this->getSubHeadline();
     }
 
     /**

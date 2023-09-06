@@ -27,11 +27,13 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use Contao\Backend;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
@@ -51,6 +53,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * Class TreeView.
@@ -62,6 +65,58 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class TreeView extends BaseView
 {
+    /**
+     * The token manager.
+     *
+     * @var CsrfTokenManagerInterface
+     */
+    private CsrfTokenManagerInterface $tokenManager;
+
+    /**
+     * The token name.
+     *
+     * @var string
+     */
+    private string $tokenName;
+
+    /**
+     * TreeView constructor.
+     *
+     * @param CsrfTokenManagerInterface|null $tokenManager The token manager.
+     * @param string|null                    $tokenName    The token name.
+     */
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        ?CsrfTokenManagerInterface $tokenManager = null,
+        ?string $tokenName = null
+    ) {
+        parent::__construct($scopeDeterminator);
+
+        if (null === $tokenManager) {
+            $tokenManager = System::getContainer()->get('security.csrf.token_manager');
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+        if (null === $tokenName) {
+            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+
+        $this->tokenManager = $tokenManager;
+        $this->tokenName    = $tokenName;
+    }
+
     /**
      * Retrieve the id for this view.
      *
