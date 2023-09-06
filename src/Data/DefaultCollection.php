@@ -77,7 +77,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->get($offset);
     }
@@ -85,7 +85,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->arrCollection[$offset] = $value;
     }
@@ -93,7 +93,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->arrCollection[$offset]);
     }
