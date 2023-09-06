@@ -649,7 +649,7 @@ class TreeView extends BaseView
             ->set('languages', $environment->getController()->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
             ->set('submit', $this->environment->getTranslator()->translate('MSC.showSelected'))
-            ->set('REQUEST_TOKEN', REQUEST_TOKEN)
+            ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }
 

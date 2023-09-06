@@ -27,6 +27,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\Dbafs;
+use Contao\PageSelector;
 use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -35,6 +36,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidge
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -99,6 +102,11 @@ class Ajax3X extends Ajax
         $environment = $this->getEnvironment();
         $input       = $environment->getInputProvider();
         $session     = $environment->getSessionStorage();
+
+        assert($input instanceof InputProviderInterface);
+
+        assert($session instanceof SessionStorageInterface);
+
         $field       = $input->getValue('field');
         $name        = $input->getValue('name');
         $level       = (int) $input->getValue('level');
@@ -120,7 +128,7 @@ class Ajax3X extends Ajax
         $arrData['id']       = $ajaxName ?: $rootId;
         $arrData['name']     = $name;
 
-        /** @var \PageSelector $widget */
+        /** @var PageSelector $widget */
         $widget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
         $widget->value = $this->getTreeValue('page', $input->getValue('value'));
 

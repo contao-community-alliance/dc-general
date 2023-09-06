@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Kim Wormer <hallo@heartcodiert.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -1204,12 +1204,15 @@ class TreePicker extends Widget
     public function formatModel(ModelInterface $model, $treeMode = true)
     {
         /** @var ListingConfigInterface $listing */
-        $environment  = $this->getEnvironment();
-        $definition   = $environment->getDataDefinition();
-        $listing      = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
-        $properties   = $definition->getPropertiesDefinition();
-        $firstSorting = \reset(\array_keys((array) $listing->getDefaultSortingFields()));
-        $formatter    = $this->getFormatter($model, $treeMode);
+        $environment       = $this->getEnvironment();
+        $definition        = $environment->getDataDefinition();
+        $listing           = $definition
+            ->getDefinition(Contao2BackendViewDefinitionInterface::NAME)
+            ->getListingConfig();
+        $properties        = $definition->getPropertiesDefinition();
+        $defaultSortFields = \array_keys((array) $listing->getDefaultSortingFields());
+        $firstSorting      = \reset($defaultSortFields);
+        $formatter         = $this->getFormatter($model, $treeMode);
 
         $arguments = [];
         foreach ($formatter->getPropertyNames() as $propertyName) {
@@ -1259,20 +1262,12 @@ class TreePicker extends Widget
 
         $fieldList = $formatter->getPropertyNames();
 
-        if (!\is_array($arguments)) {
+        foreach ($fieldList as $j => $propertyName) {
             $labelList[] = [
-                'colspan' => \count($fieldList),
-                'class'   => 'tl_file_list col_1',
-                'content' => $arguments
+                'colspan' => 1,
+                'class'   => 'tl_file_list col_' . $j . (($propertyName === $firstSorting) ? ' ordered_by' : ''),
+                'content' => ('' !== $arguments[$propertyName]) ? $arguments[$propertyName] : '-'
             ];
-        } else {
-            foreach ($fieldList as $j => $propertyName) {
-                $labelList[] = [
-                    'colspan' => 1,
-                    'class'   => 'tl_file_list col_' . $j . (($propertyName === $firstSorting) ? ' ordered_by' : ''),
-                    'content' => ('' !== $arguments[$propertyName]) ? $arguments[$propertyName] : '-'
-                ];
-            }
         }
     }
 
@@ -1298,11 +1293,7 @@ class TreePicker extends Widget
             return;
         }
 
-        if (!\is_array($arguments)) {
-            $string = $arguments;
-        } else {
-            $string = \vsprintf($label, $arguments);
-        }
+        $string = \vsprintf($label, $arguments);
 
         if (($maxLength = null !== $formatter->getMaxLength()) && \strlen($string) > $maxLength) {
             $string = \substr($string, 0, $maxLength);

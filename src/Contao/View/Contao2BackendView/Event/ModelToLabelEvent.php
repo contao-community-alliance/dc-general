@@ -40,7 +40,7 @@ class ModelToLabelEvent extends AbstractModelAwareEvent
      *
      * @var string
      */
-    protected $label;
+    protected $label = '';
 
     /**
      * The label information instance.
@@ -54,7 +54,7 @@ class ModelToLabelEvent extends AbstractModelAwareEvent
      *
      * @var array
      */
-    protected $args;
+    protected $args = [];
 
     /**
      * Set the arguments to use when generating the final string representation using the format string.
