@@ -43,6 +43,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
  * Contao handling.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Ajax3X extends Ajax
 {

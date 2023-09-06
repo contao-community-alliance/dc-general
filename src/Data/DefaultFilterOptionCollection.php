@@ -49,7 +49,7 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
      *
      * @return \Traversable
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->filterValues);
     }
