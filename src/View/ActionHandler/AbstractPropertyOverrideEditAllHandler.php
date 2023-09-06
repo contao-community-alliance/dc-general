@@ -41,6 +41,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use LogicException;
 
@@ -65,8 +66,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      */
     protected function handleSubmit(Action $action, EnvironmentInterface $environment)
     {
-        $inputProvider   = $environment->getInputProvider();
-        $sessionStorage  = $environment->getSessionStorage();
+        $inputProvider   = $this->getInputProvider($environment);
+        $sessionStorage  = $this->getSessionStorage($environment);
         $eventDispatcher = $environment->getEventDispatcher();
 
         if (
@@ -268,7 +269,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                     if ($modelEditError && isset($modelEditError[$errorPropertyName])) {
                         $propertyValueBag->setPropertyValue(
                             $errorPropertyName,
-                            $environment->getInputProvider()->getValue($errorPropertyName)
+                            $this->getInputProvider($environment)->getValue($errorPropertyName)
                         );
 
                         $propertyValueBag->markPropertyValueAsInvalid(
@@ -347,7 +348,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         PropertyValueBagInterface $propertyValueBag,
         EnvironmentInterface $environment
     ) {
-        $inputProvider   = $environment->getInputProvider();
+        $inputProvider   = $this->getInputProvider($environment);
         $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
 
         $inputValues = $this->handleInputValues($action, $model, $environment);
@@ -405,7 +406,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return [];
         }
 
-        $inputProvider = $environment->getInputProvider();
+        $inputProvider = $this->getInputProvider($environment);
 
         $inputValues = [];
         foreach (\array_keys($_POST) as $valueName) {
@@ -460,7 +461,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return;
         }
 
-        $inputProvider = $environment->getInputProvider();
+        $inputProvider = $this->getInputProvider($environment);
 
         unset($_POST);
         foreach (\array_keys($inputValues) as $postName) {
@@ -589,8 +590,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      */
     protected function getCollectionFromSession(Action $action, EnvironmentInterface $environment)
     {
-        $inputProvider  = $environment->getInputProvider();
-        $sessionStorage = $environment->getSessionStorage();
+        $inputProvider  = $this->getInputProvider($environment);
+        $sessionStorage = $this->getSessionStorage($environment);
         $dataDefinition = $this->getDataDefinition($environment);
         $dataProvider   = $environment->getDataProvider($dataDefinition->getName());
 
@@ -794,6 +795,16 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         }
 
         return $properties;
+    }
+
+    private function getInputProvider(EnvironmentInterface $environment): InputProviderInterface
+    {
+        $inputProvider = $environment->getInputProvider();
+        if (null === $inputProvider) {
+            throw new LogicException('No input provider found in environment.');
+        }
+
+        return $inputProvider;
     }
 
     private function getSessionStorage(EnvironmentInterface $environment): SessionStorageInterface
