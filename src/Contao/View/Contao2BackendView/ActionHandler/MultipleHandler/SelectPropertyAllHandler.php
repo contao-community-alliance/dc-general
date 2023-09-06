@@ -61,7 +61,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (
-            !$this->scopeDeterminator->currentScopeIsBackend()
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
             || ('selectPropertyAll' !== $event->getAction()->getName())
         ) {
             return null;

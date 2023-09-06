@@ -23,6 +23,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 
 /**
  * Contains multiple palettes, organised by its name.
@@ -91,12 +92,12 @@ interface PaletteCollectionInterface
     /**
      * Find the palette matching model and input parameters.
      *
-     * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
+     * @param ModelInterface|null            $model If given, selectors will be evaluated depending on the model.
+     * @param PropertyValueBagInterface|null $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PaletteInterface
      */
-    public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null);
+    public function findPalette(ModelInterface $model = null, PropertyValueBagInterface $input = null);
 
     /**
      * Check if a palette for the given name exists in this collection.

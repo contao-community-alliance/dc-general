@@ -63,7 +63,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (
-            !$this->scopeDeterminator->currentScopeIsBackend()
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
             || ('editAll' !== $event->getAction()->getName())
         ) {
             return;

@@ -43,7 +43,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
      *
      * @var array<string, DataProviderInterface>
      */
-    private $instances = [];
+    private array $instances = [];
 
     /**
      * Creates an instance of itself and processes the event.

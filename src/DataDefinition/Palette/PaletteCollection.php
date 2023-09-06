@@ -22,7 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
@@ -108,7 +108,7 @@ class PaletteCollection implements PaletteCollectionInterface
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palettes found.
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette found or more than one palette.
      */
-    public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function findPalette(ModelInterface $model = null, PropertyValueBagInterface $input = null)
     {
         $matches = [];
 

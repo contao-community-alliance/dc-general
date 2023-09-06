@@ -23,6 +23,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
@@ -127,16 +128,16 @@ interface LegendInterface
     /**
      * Get all properties in this legend.
      *
-     * @param ModelInterface|null $model If given, subpalettes will be evaluated depending on the model.
-     *                                   If no model is given, all properties will be returned, including subpalette
-     *                                   properties.
-     * @param PropertyValueBag    $input If given, subpalettes will be evaluated depending on the input data.
-     *                                   If no model and no input data is given, all properties will be returned,
-     *                                   including subpalette properties.
+     * @param ModelInterface|null            $model If given, subpalettes will be evaluated depending on the model.
+     *                                              If no model is given, all properties will be returned, including
+     *                                              subpalette properties.
+     * @param PropertyValueBagInterface|null $input If given, subpalettes will be evaluated depending on the input data.
+     *                                              If no model and no input data is given, all properties will be
+     *                                              returned, including subpalette properties.
      *
      * @return PropertyInterface[]
      */
-    public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+    public function getProperties(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null);
 
     /**
      * Determine if a property with the name exists in this legend.

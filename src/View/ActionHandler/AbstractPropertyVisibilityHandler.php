@@ -27,12 +27,27 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionChainInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use LogicException;
+use ReturnTypeWillChange;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
+use function array_key_exists;
+use function array_keys;
+use function count;
+use function get_class;
+use function implode;
+use function in_array;
+use function method_exists;
+use function sprintf;
 
 /**
  * This abstract visibility handler provide methods for the visibility of properties.
@@ -50,11 +65,11 @@ abstract class AbstractPropertyVisibilityHandler
      *
      * @return void
      */
+    #[ReturnTypeWillChange]
     protected function invisibleUnusedProperties(Action $action, EnvironmentInterface $environment)
     {
-        $properties     = $environment->getDataDefinition()->getPropertiesDefinition();
+        $properties     = $this->getDataDefinition($environment)->getPropertiesDefinition();
         $editProperties = $this->getPropertiesFromSession($action, $environment);
-
 
         foreach ($properties->getPropertyNames() as $propertyName) {
             $property = $properties->getProperty($propertyName);
@@ -66,8 +81,10 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            $propertyClass = \get_class($property);
+            /** @var class-string<PropertyInterface> $propertyClass */
+            $propertyClass = get_class($property);
 
+            /** @var PropertyInterface $newProperty */
             $newProperty = new $propertyClass($propertyName . '.dummy');
             $newProperty->setLabel($property->getLabel());
             $newProperty->setDescription($property->getDescription());
@@ -78,7 +95,9 @@ abstract class AbstractPropertyVisibilityHandler
             $newProperty->setWidgetType($property->getWidgetType());
             $newProperty->setExplanation($property->getExplanation());
             $newProperty->setExtra($property->getExtra());
-            $newProperty->setOptions($property->getOptions());
+            if (null !== $options = $property->getOptions()) {
+                $newProperty->setOptions($options);
+            }
 
             $properties->addProperty($newProperty);
             $properties->removeProperty($property);
@@ -100,10 +119,10 @@ abstract class AbstractPropertyVisibilityHandler
         Action $action,
         PropertyInterface $property,
         EnvironmentInterface $environment
-    ) {
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+    ): bool {
+        $palettesDefinition = $this->getDataDefinition($environment)->getPalettesDefinition();
 
-        if (1 === \count($palettesDefinition->getPalettes())) {
+        if (1 === count($palettesDefinition->getPalettes())) {
             return false;
         }
 
@@ -125,7 +144,7 @@ abstract class AbstractPropertyVisibilityHandler
         EnvironmentInterface $environment,
         PropertyInterface $property,
         PalettesDefinitionInterface $palettesDefinition
-    ) {
+    ): bool {
         $defaultPalette    = $palettesDefinition->findPalette();
         $defaultProperties = $defaultPalette->getProperties();
 
@@ -144,20 +163,21 @@ abstract class AbstractPropertyVisibilityHandler
             $event = new GetPropertyOptionsEvent($environment, $emptyModel);
             $event->setPropertyName($property->getName());
             $event->setOptions($property->getOptions());
-            $environment->getEventDispatcher()->dispatch($event, GetPropertyOptionsEvent::NAME);
-            if ((null === $event->getOptions()) || (0 > \count($event->getOptions()))) {
+            $this->getEventDispatcher($environment)->dispatch($event, GetPropertyOptionsEvent::NAME);
+            $options = $event->getOptions();
+            if ((null === $options) || ([] === $options)) {
                 continue;
             }
 
             $paletteCounter = 0;
-            foreach (\array_keys($event->getOptions()) as $paletteName) {
+            foreach (array_keys($options) as $paletteName) {
                 $palettesDefinition->hasPaletteByName($paletteName) ? ++$paletteCounter : null;
             }
-            if ($paletteCounter !== \count($event->getOptions())) {
+            if ($paletteCounter !== count($options)) {
                 continue;
             }
 
-            $property->setOptions($event->getOptions());
+            $property->setOptions($options);
             $excludeProperty = true;
         }
 
@@ -167,16 +187,16 @@ abstract class AbstractPropertyVisibilityHandler
     /**
      * Make the property invisible in all legends of each palette.
      *
-     * @param DataDefinition\Definition\Properties\PropertyInterface $property    The property.
-     * @param EnvironmentInterface                                   $environment The environment.
+     * @param PropertyInterface    $property    The property.
+     * @param EnvironmentInterface $environment The environment.
      *
      * @return void
      */
     private function makePropertyInvisibleByPalette(
-        DataDefinition\Definition\Properties\PropertyInterface $property,
+        PropertyInterface $property,
         EnvironmentInterface $environment
-    ) {
-        $palettes = $environment->getDataDefinition()->getPalettesDefinition();
+    ): void {
+        $palettes = $this->getDataDefinition($environment)->getPalettesDefinition();
 
         foreach ($palettes->getPalettes() as $palette) {
             foreach ($palette->getLegends() as $legend) {
@@ -204,13 +224,15 @@ abstract class AbstractPropertyVisibilityHandler
      *
      * @return bool
      */
+    #[ReturnTypeWillChange]
     protected function ensurePropertyVisibleInModel(
         Action $action,
         $propertyName,
         ModelInterface $model,
         EnvironmentInterface $environment
     ) {
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+        $definition         = $this->getDataDefinition($environment);
+        $palettesDefinition = $definition->getPalettesDefinition();
         $propertyValues     = $this->getPropertyValueBagFromModel($action, $model, $environment);
         $palette            = $palettesDefinition->findPalette($model, $propertyValues);
 
@@ -233,8 +255,7 @@ abstract class AbstractPropertyVisibilityHandler
             }
         }
 
-        $findProperty =
-            $environment->getDataDefinition()->getPropertiesDefinition()->getProperty($propertyName);
+        $findProperty = $definition->getPropertiesDefinition()->getProperty($propertyName);
 
         return $this->matchVisibilityOfPropertyInAnyPalette($action, $findProperty, $invisible, $environment);
     }
@@ -254,15 +275,16 @@ abstract class AbstractPropertyVisibilityHandler
     private function matchVisibilityOfPropertyInAnyPalette(
         Action $action,
         PropertyInterface $property,
-        $invisible,
+        bool $invisible,
         EnvironmentInterface $environment
-    ) {
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
-        if (true === $invisible || 1 === \count($palettesDefinition->getPalettes())) {
+    ): bool {
+        $definition         = $this->getDataDefinition($environment);
+        $palettesDefinition = $definition->getPalettesDefinition();
+        if (true === $invisible || 1 === count($palettesDefinition->getPalettes())) {
             return $invisible;
         }
 
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
+        $propertiesDefinition = $definition->getPropertiesDefinition();
         $defaultPalette       = $palettesDefinition->findPalette();
         $defaultProperties    = $defaultPalette->getProperties();
         $intersectModel       = $this->getIntersectionModel($action, $environment);
@@ -308,13 +330,14 @@ abstract class AbstractPropertyVisibilityHandler
         ModelInterface $intersectModel,
         DataDefinition\Palette\PropertyInterface $selectorProperty,
         EnvironmentInterface $environment
-    ) {
-        $palettesDefinition   = $environment->getDataDefinition()->getPalettesDefinition();
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
+    ): bool {
+        $definition           = $this->getDataDefinition($environment);
+        $palettesDefinition   = $definition->getPalettesDefinition();
+        $propertiesDefinition = $definition->getPropertiesDefinition();
 
         $invisibleProperty       = false;
         $paletteSelectorProperty = $propertiesDefinition->getProperty($selectorProperty->getName());
-        foreach (\array_keys($paletteSelectorProperty->getOptions()) as $paletteName) {
+        foreach (array_keys($paletteSelectorProperty->getOptions() ?? []) as $paletteName) {
             if (!$palettesDefinition->hasPaletteByName($paletteName)) {
                 continue;
             }
@@ -352,10 +375,10 @@ abstract class AbstractPropertyVisibilityHandler
         PropertyInterface $property,
         ModelInterface $intersectModel,
         DataDefinition\Palette\PropertyInterface $selectorProperty,
-        $paletteName,
+        string $paletteName,
         EnvironmentInterface $environment
-    ) {
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+    ): bool {
+        $palettesDefinition = $this->getDataDefinition($environment)->getPalettesDefinition();
 
         $intersectModel->setProperty($selectorProperty->getName(), $paletteName);
         $searchPalette = $palettesDefinition->findPalette($intersectModel);
@@ -381,21 +404,22 @@ abstract class AbstractPropertyVisibilityHandler
      * Inject select parent property information,
      * if select an sub selector and their parent property don´t select for edit.
      *
-     * @param Action                                                 $action      The action.
-     * @param DataDefinition\Definition\Properties\PropertyInterface $property    The property.
-     * @param ModelInterface                                         $model       The model.
-     * @param EnvironmentInterface                                   $environment The environment.
+     * @param Action               $action      The action.
+     * @param PropertyInterface    $property    The property.
+     * @param ModelInterface       $model       The model.
+     * @param EnvironmentInterface $environment The environment.
      *
      * @return null|string
      */
+    #[ReturnTypeWillChange]
     protected function injectSelectParentPropertyInformation(
         Action $action,
-        DataDefinition\Definition\Properties\PropertyInterface $property,
+        PropertyInterface $property,
         ModelInterface $model,
         EnvironmentInterface $environment
     ) {
-        $translator         = $environment->getTranslator();
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+        $translator         = $this->getTranslator($environment);
+        $palettesDefinition = $this->getDataDefinition($environment)->getPalettesDefinition();
 
         $palette = $palettesDefinition->findPalette($model);
 
@@ -429,34 +453,35 @@ abstract class AbstractPropertyVisibilityHandler
             $labelParentProperty = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
             $labelEditProperty   = !$property->getLabel() ? $property->getName() : $property->getLabel();
 
-            $information[] = \sprintf(
+            $information[] = sprintf(
                 '<p class="tl_new">' . $translator->translate('MSC.select_parent_property_info') . '</p>',
                 $labelParentProperty,
                 $labelEditProperty
             );
         }
 
-        return \implode('', $information);
+        return implode('', $information);
     }
 
     /**
      * Inject select sub properties information,
      * if select an sub selector and their properties don´t select for edit.
      *
-     * @param DataDefinition\Definition\Properties\PropertyInterface $property         The property.
-     * @param ModelInterface                                         $model            The model.
-     * @param PropertyValueBagInterface                              $propertyValueBag The property values.
-     * @param EnvironmentInterface                                   $environment      The environment.
+     * @param PropertyInterface         $property         The property.
+     * @param ModelInterface            $model            The model.
+     * @param PropertyValueBagInterface $propertyValueBag The property values.
+     * @param EnvironmentInterface      $environment      The environment.
      *
      * @return null|string
      */
+    #[ReturnTypeWillChange]
     protected function injectSelectSubPropertiesInformation(
-        DataDefinition\Definition\Properties\PropertyInterface $property,
+        PropertyInterface $property,
         ModelInterface $model,
         PropertyValueBagInterface $propertyValueBag,
         EnvironmentInterface $environment
     ) {
-        $translator = $environment->getTranslator();
+        $translator = $this->getTranslator($environment);
 
         $properties = $this->matchInvisibleSubProperties($model, $property, $propertyValueBag, $environment);
         if (empty($properties)) {
@@ -467,13 +492,13 @@ abstract class AbstractPropertyVisibilityHandler
         foreach ($properties as $propertyName => $informationProperty) {
             $label = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
 
-            $information[] = \sprintf(
+            $information[] = sprintf(
                 '<p class="tl_new">' . $translator->translate('MSC.select_property_info') . '</p>',
                 $label
             );
         }
 
-        return \implode('', $information);
+        return implode('', $information);
     }
 
     /**
@@ -491,20 +516,21 @@ abstract class AbstractPropertyVisibilityHandler
         ModelInterface $model,
         array &$invisibleProperties,
         EnvironmentInterface $environment
-    ) {
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+    ): void {
+        $definition         = $this->getDataDefinition($environment);
+        $palettesDefinition = $definition->getPalettesDefinition();
 
-        if (!empty($invisibleProperties) || 1 > \count($palettesDefinition->getPalettes())) {
+        if (!empty($invisibleProperties) || 1 > count($palettesDefinition->getPalettes())) {
             return;
         }
 
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
+        $propertiesDefinition = $definition->getPropertiesDefinition();
 
         $session = $this->getSession($action, $environment);
 
         $palette = $palettesDefinition->findPalette($model);
         foreach ($palette->getProperties() as $paletteProperty) {
-            if (!\array_key_exists($paletteProperty->getName(), $session['intersectValues'])) {
+            if (!array_key_exists($paletteProperty->getName(), $session['intersectValues'])) {
                 continue;
             }
 
@@ -533,15 +559,17 @@ abstract class AbstractPropertyVisibilityHandler
         ConditionInterface $visibleCondition,
         array &$invisibleProperties,
         EnvironmentInterface $environment
-    ) {
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
-
+    ): void {
+        $propertiesDefinition = $this->getDataDefinition($environment)->getPropertiesDefinition();
+        if (!$visibleCondition instanceof ConditionChainInterface) {
+            return;
+        }
         foreach ($visibleCondition->getConditions() as $condition) {
             if ($condition instanceof ConditionChainInterface) {
                 $this->matchInvisibleProperty($condition, $invisibleProperties, $environment);
             }
 
-            if (!\method_exists($condition, 'getPropertyName')) {
+            if (!method_exists($condition, 'getPropertyName')) {
                 continue;
             }
 
@@ -560,20 +588,20 @@ abstract class AbstractPropertyVisibilityHandler
     /**
      * Match invisible sub properties.
      *
-     * @param ModelInterface                                         $model            The model.
-     * @param DataDefinition\Definition\Properties\PropertyInterface $property         The property.
-     * @param PropertyValueBagInterface                              $propertyValueBag The property values.
-     * @param EnvironmentInterface                                   $environment      The environment.
+     * @param ModelInterface            $model            The model.
+     * @param PropertyInterface         $property         The property.
+     * @param PropertyValueBagInterface $propertyValueBag The property values.
+     * @param EnvironmentInterface      $environment      The environment.
      *
      * @return array
      */
     private function matchInvisibleSubProperties(
         ModelInterface $model,
-        DataDefinition\Definition\Properties\PropertyInterface $property,
+        PropertyInterface $property,
         PropertyValueBagInterface $propertyValueBag,
         EnvironmentInterface $environment
-    ) {
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+    ): array {
+        $palettesDefinition = $this->getDataDefinition($environment)->getPalettesDefinition();
 
         $testPropertyValueBag = clone $propertyValueBag;
         $testPropertyValueBag->setPropertyValue('dummyNotVisible', true);
@@ -586,7 +614,7 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            $legendProperties = (array) $legend->getProperties($model, $testPropertyValueBag);
+            $legendProperties = $legend->getProperties($model, $testPropertyValueBag);
             if (empty($legendProperties)) {
                 continue;
             }
@@ -612,22 +640,25 @@ abstract class AbstractPropertyVisibilityHandler
     /**
      * Match the parent invisible property.
      *
-     * @param ConditionInterface                                     $visibleCondition    The visible condition.
-     * @param DataDefinition\Definition\Properties\PropertyInterface $property            The property.
-     * @param DataDefinition\Palette\PropertyInterface               $legendProperty      The legend property.
-     * @param array                                                  $invisibleProperties The invisible properties.
-     * @param EnvironmentInterface                                   $environment         The environment.
+     * @param ConditionInterface                       $visibleCondition    The visible condition.
+     * @param PropertyInterface                        $property            The property.
+     * @param DataDefinition\Palette\PropertyInterface $legendProperty      The legend property.
+     * @param array                                    $invisibleProperties The invisible properties.
+     * @param EnvironmentInterface                     $environment         The environment.
      *
      * @return void
      */
     private function matchParentInvisibleProperty(
         ConditionInterface $visibleCondition,
-        DataDefinition\Definition\Properties\PropertyInterface $property,
+        PropertyInterface $property,
         DataDefinition\Palette\PropertyInterface $legendProperty,
         array &$invisibleProperties,
         EnvironmentInterface $environment
-    ) {
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
+    ): void {
+        $propertiesDefinition = $this->getDataDefinition($environment)->getPropertiesDefinition();
+        if (!$visibleCondition instanceof ConditionChainInterface) {
+            return;
+        }
 
         foreach ($visibleCondition->getConditions() as $condition) {
             if ($condition instanceof ConditionChainInterface) {
@@ -641,7 +672,7 @@ abstract class AbstractPropertyVisibilityHandler
             }
 
             if (
-                !\method_exists($condition, 'getPropertyName')
+                !method_exists($condition, 'getPropertyName')
                 || ($property->getName() !== $condition->getPropertyName())
             ) {
                 continue;
@@ -669,20 +700,24 @@ abstract class AbstractPropertyVisibilityHandler
      *
      * @return ModelInterface
      */
+    #[ReturnTypeWillChange]
     protected function getIntersectionModel(Action $action, EnvironmentInterface $environment)
     {
-        $inputProvider        = $environment->getInputProvider();
+        $inputProvider        = $this->getInputProvider($environment);
         $dataProvider         = $environment->getDataProvider();
-        $dataDefinition       = $environment->getDataDefinition();
+        $dataDefinition       = $this->getDataDefinition($environment);
         $propertiesDefinition = $dataDefinition->getPropertiesDefinition();
         $session              = $this->getSession($action, $environment);
+        if (null === $dataProvider) {
+            throw new LogicException('No data provider found in environment.');
+        }
 
         $intersectModel = $dataProvider->getEmptyModel();
 
         $defaultPalette      = null;
         $legendPropertyNames = $this->getLegendPropertyNames($intersectModel, $environment, $defaultPalette);
 
-        $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
             if (
                 ($idProperty === $intersectProperty)
@@ -730,8 +765,8 @@ abstract class AbstractPropertyVisibilityHandler
         array $legendPropertyNames,
         EnvironmentInterface $environment,
         PaletteInterface $defaultPalette = null
-    ) {
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
+    ): bool {
+        $propertiesDefinition = $this->getDataDefinition($environment)->getPropertiesDefinition();
         $useIntersectValue    = (bool) $defaultPalette;
 
         if ($defaultPalette && !$propertiesDefinition->getProperty($intersectPropertyName)->getWidgetType()) {
@@ -741,7 +776,7 @@ abstract class AbstractPropertyVisibilityHandler
         if (
             $defaultPalette
             && (false === $useIntersectValue)
-            && \in_array($intersectPropertyName, $legendPropertyNames)
+            && in_array($intersectPropertyName, $legendPropertyNames)
         ) {
             $useIntersectValue = true;
         }
@@ -764,7 +799,7 @@ abstract class AbstractPropertyVisibilityHandler
         $intersectModel,
         $idProperty,
         EnvironmentInterface $environment
-    ) {
+    ): void {
         if (null !== $intersectModel->getId()) {
             return;
         }
@@ -785,9 +820,9 @@ abstract class AbstractPropertyVisibilityHandler
      *
      * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
-    private function intersectModelSetParentId(ModelInterface $intersectModel, EnvironmentInterface $environment)
+    private function intersectModelSetParentId(ModelInterface $intersectModel, EnvironmentInterface $environment): void
     {
-        $dataDefinition       = $environment->getDataDefinition();
+        $dataDefinition       = $this->getDataDefinition($environment);
         $parentDataDefinition = $environment->getParentDataDefinition();
 
         if (null === $parentDataDefinition) {
@@ -805,7 +840,7 @@ abstract class AbstractPropertyVisibilityHandler
 
         $parentField = null;
         foreach ($childCondition->getSetters() as $setter) {
-            if (!\array_key_exists('to_field', $setter)) {
+            if (!array_key_exists('to_field', $setter)) {
                 continue;
             }
 
@@ -816,7 +851,7 @@ abstract class AbstractPropertyVisibilityHandler
         if (null !== $parentField) {
             $intersectModel->setProperty(
                 $parentField,
-                ModelId::fromSerialized($environment->getInputProvider()->getParameter('pid'))
+                ModelId::fromSerialized($this->getInputProvider($environment)->getParameter('pid'))
                     ->getId()
             );
         }
@@ -835,12 +870,12 @@ abstract class AbstractPropertyVisibilityHandler
         ModelInterface $intersectModel,
         EnvironmentInterface $environment,
         PaletteInterface &$defaultPalette = null
-    ) {
-        $inputProvider      = $environment->getInputProvider();
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+    ): array {
+        $inputProvider      = $this->getInputProvider($environment);
+        $palettesDefinition = $this->getDataDefinition($environment)->getPalettesDefinition();
 
         $legendPropertyNames = [];
-        if ($inputProvider->hasValue('FORM_INPUTS') && (1 === \count($palettesDefinition->getPalettes()))) {
+        if ($inputProvider->hasValue('FORM_INPUTS') && (1 === count($palettesDefinition->getPalettes()))) {
             return $legendPropertyNames;
         }
 
@@ -860,6 +895,7 @@ abstract class AbstractPropertyVisibilityHandler
      *
      * @return array
      */
+    #[ReturnTypeWillChange]
     abstract protected function getSession(Action $action, EnvironmentInterface $environment);
 
     /**
@@ -870,5 +906,66 @@ abstract class AbstractPropertyVisibilityHandler
      *
      * @return array
      */
+    #[ReturnTypeWillChange]
     abstract protected function getPropertiesFromSession(Action $action, EnvironmentInterface $environment);
+
+    /**
+     * Get property value bag from the model.
+     *
+     * @param Action               $action      The action.
+     * @param ModelInterface       $model       The model.
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return PropertyValueBagInterface
+     *
+     * @throws DcGeneralInvalidArgumentException If create property value bug, the construct argument isn´t right.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    abstract protected function getPropertyValueBagFromModel(
+        Action $action,
+        ModelInterface $model,
+        EnvironmentInterface $environment
+    );
+
+    private function getDataDefinition(EnvironmentInterface $environment): ContainerInterface
+    {
+        $definition = $environment->getDataDefinition();
+        if (null === $definition) {
+            throw new LogicException('No data definition found in environment.');
+        }
+
+        return $definition;
+    }
+
+    private function getEventDispatcher(EnvironmentInterface $environment): EventDispatcherInterface
+    {
+        $dispatcher = $environment->getEventDispatcher();
+        if (null === $dispatcher) {
+            throw new LogicException('No event dispatcher found in environment.');
+        }
+
+        return $dispatcher;
+    }
+
+    private function getInputProvider(EnvironmentInterface $environment): InputProviderInterface
+    {
+        $input = $environment->getInputProvider();
+        if (null === $input) {
+            throw new LogicException('No input provider found in environment.');
+        }
+
+        return $input;
+    }
+
+    private function getTranslator(EnvironmentInterface $environment): TranslatorInterface
+    {
+        $translator = $environment->getTranslator();
+
+        if (null === $translator) {
+            throw new LogicException('No translator found in environment.');
+        }
+
+        return $translator;
+    }
 }

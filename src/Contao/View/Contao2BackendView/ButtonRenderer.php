@@ -649,6 +649,9 @@ class ButtonRenderer
             $label = $command->getName();
         }
 
+        if (\is_array($label)) {
+            return $this->translate($label[0]);
+        }
         $label = $this->translate($label);
 
         return \is_array($label) ? $label[0] : $label;

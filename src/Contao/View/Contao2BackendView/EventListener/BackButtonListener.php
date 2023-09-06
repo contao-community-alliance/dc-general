@@ -42,7 +42,7 @@ class BackButtonListener
      */
     public function handle(GetGlobalButtonEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 

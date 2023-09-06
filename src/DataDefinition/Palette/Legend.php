@@ -22,7 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -205,7 +205,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
-    public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getProperties(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null)
     {
         if ($model || $input) {
             $selectedProperties = [];

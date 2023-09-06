@@ -59,7 +59,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     public function handleEvent(ActionEvent $event)
     {
         if (
-            !$this->scopeDeterminator->currentScopeIsBackend()
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
             || ('overrideAll' !== $event->getAction()->getName())
         ) {
             return;

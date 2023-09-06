@@ -21,6 +21,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Factory;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\SessionStorage;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * This factory create a new session storage
@@ -51,9 +52,12 @@ class SessionStorageFactory
      */
     public function createService()
     {
-        return new SessionStorage(
-            $this->container->get('session'),
-            $this->container->getParameter('cca.dc-general.session.database_keys')
-        );
+        $session = $this->container->get('session');
+        assert($session instanceof SessionInterface);
+        $keys = $this->container->getParameter('cca.dc-general.session.database_keys');
+        assert(is_array($keys));
+        /** @var list<string> $keys */
+
+        return new SessionStorage($session, $keys);
     }
 }

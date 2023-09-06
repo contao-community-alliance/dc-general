@@ -126,7 +126,7 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPo
      */
     public function populate(EnvironmentInterface $environment)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 

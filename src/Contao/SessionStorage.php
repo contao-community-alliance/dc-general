@@ -222,8 +222,8 @@ class SessionStorage implements SessionStorageInterface
     private function filterAttributes($determineDatabase = false)
     {
         $databaseAttributes = \array_merge(
-            isset($this->databaseKeys['common']) ? $this->databaseKeys['common'] : [],
-            isset($this->databaseKeys[$this->getScope()]) ? $this->databaseKeys[$this->getScope()] : []
+            $this->databaseKeys['common'] ?? [],
+            $this->databaseKeys[$this->getScope()] ?? []
         );
 
         if ($determineDatabase) {
@@ -238,7 +238,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @return string|null
      */
-    private function getScope()
+    private function getScope(): ?string
     {
         if (!$this->scope) {
             // @codingStandardsIgnoreStart

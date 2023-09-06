@@ -91,7 +91,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      */
     public function prepareGlobalAllButton(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend() || ('showAll' !== $event->getAction()->getName())) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend() || ('showAll' !== $event->getAction()->getName())) {
             return;
         }
 
@@ -118,7 +118,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     {
         $allowedAction = ['selectModelAll', 'selectPropertyAll', 'editAll', 'overrideAll'];
         if (
-            !$this->scopeDeterminator->currentScopeIsBackend()
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
             || !\in_array($event->getAction()->getName(), $allowedAction)
         ) {
             return;
@@ -154,7 +154,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $environment = $event->getEnvironment();
 
         if (
-            !$this->scopeDeterminator->currentScopeIsBackend()
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
             || ('select' !== $environment->getInputProvider()->getParameter('act'))
             || ('edit' !== $environment->getInputProvider()->getParameter('select'))
         ) {
@@ -203,7 +203,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $environment = $event->getEnvironment();
 
         if (
-            !$this->scopeDeterminator->currentScopeIsBackend()
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
             || ('select' !== $environment->getInputProvider()->getParameter('act'))
             || ('edit' !== $environment->getInputProvider()->getParameter('select'))
         ) {

@@ -130,7 +130,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $name   = $action->getName();
 
         if ('show' === $name) {
-            $handler = new ShowHandler($this->scopeDeterminator);
+            $handler = new ShowHandler($this->getScopeDeterminator());
             $handler->handleEvent($event);
 
             return;

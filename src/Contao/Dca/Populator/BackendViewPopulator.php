@@ -126,13 +126,13 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
 
         switch ($dataDefinition->getBasicDefinition()->getMode()) {
             case BasicDefinitionInterface::MODE_FLAT:
-                $view = new ListView($this->scopeDeterminator);
+                $view = new ListView($this->getScopeDeterminator());
                 break;
             case BasicDefinitionInterface::MODE_PARENTEDLIST:
-                $view = new ParentView($this->scopeDeterminator);
+                $view = new ParentView($this->getScopeDeterminator());
                 break;
             case BasicDefinitionInterface::MODE_HIERARCHICAL:
-                $view = new TreeView($this->scopeDeterminator, $this->tokenManager, $this->tokenName);
+                $view = new TreeView($this->getScopeDeterminator(), $this->tokenManager, $this->tokenName);
                 break;
             default:
                 $mode = $dataDefinition->getBasicDefinition()->getMode();
@@ -186,7 +186,7 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
      */
     public function populate(EnvironmentInterface $environment)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 

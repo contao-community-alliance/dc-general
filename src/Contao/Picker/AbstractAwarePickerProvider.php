@@ -50,9 +50,9 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * The token storage.
      *
-     * @var TokenStorageInterface
+     * @var ?TokenStorageInterface
      */
-    private $tokenStorage;
+    private $tokenStorage = null;
 
     /**
      * The translator.

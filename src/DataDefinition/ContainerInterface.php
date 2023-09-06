@@ -64,7 +64,7 @@ interface ContainerInterface
     /**
      * Set the definitions of this container.
      *
-     * @param array|DefinitionInterface[] $definitions The definitons.
+     * @param array<string, DefinitionInterface> $definitions The definitons.
      *
      * @return ContainerInterface
      */
@@ -73,7 +73,7 @@ interface ContainerInterface
     /**
      * Add multiple definitions to this container.
      *
-     * @param array|DefinitionInterface[] $definitions The definitons.
+     * @param array<string, DefinitionInterface> $definitions The definitons.
      *
      * @return ContainerInterface
      */

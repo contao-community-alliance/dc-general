@@ -36,6 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
@@ -173,7 +174,7 @@ class Subscriber implements EventSubscriberInterface
         EnvironmentInterface $environment,
         ModelInterface $model,
         PropertyInterface $property
-    ): array {
+    ): ?array {
         if (null === $dispatcher = $environment->getEventDispatcher()) {
             return $property->getOptions();
         }
@@ -207,7 +208,7 @@ class Subscriber implements EventSubscriberInterface
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventDispatcher()->dispatch($event, \sprintf('%s', $event::NAME));
+        $environment->getEventDispatcher()?->dispatch($event, \sprintf('%s', $event::NAME));
 
         return $event->getValue();
     }
@@ -219,13 +220,13 @@ class Subscriber implements EventSubscriberInterface
      * @param string                   $dateFormat The date format to use.
      * @param int                      $timeStamp  The timestamp.
      *
-     * @return string
+     * @return ?string
      */
     private static function parseDateTime(
         EventDispatcherInterface $dispatcher,
         string $dateFormat,
         int $timeStamp
-    ): string {
+    ): ?string {
         $dateEvent = new ParseDateEvent($timeStamp, $dateFormat);
         $dispatcher->dispatch($dateEvent, ContaoEvents::DATE_PARSE);
 
@@ -270,7 +271,9 @@ class Subscriber implements EventSubscriberInterface
             case (\is_int($value)):
                 self::renderTimestampReadable($event, $extra, $value);
                 self::renderDateTimePropertyIsTstamp($event, $property, $value);
-                self::renderSimpleCheckbox($event, $property, $extra, $value);
+                // No break here.
+            case (\is_bool($value)):
+                self::renderSimpleCheckbox($event, $property, $extra, (int) $value);
                 break;
         }
 
@@ -294,7 +297,7 @@ class Subscriber implements EventSubscriberInterface
      *
      * @return void
      *
-     * @psalm-suppress UndefinedClass
+     * @psalm-suppress UndefinedClass - The class is only available when a twig bundle is installed.
      */
     public function initTwig(\ContaoTwigInitializeEvent $event): void
     {
@@ -334,12 +337,18 @@ class Subscriber implements EventSubscriberInterface
         $environment = $event->getEnvironment();
         $definition  = $environment->getDataDefinition();
         $view        = $environment->getView();
+        if (!$definition instanceof ContainerInterface) {
+            return;
+        }
 
         if (
             !$view instanceof BaseView
-            || !$view->getPanel()
             || !$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)
         ) {
+            return;
+        }
+        $panel = $view->getPanel();
+        if (null === $panel) {
             return;
         }
 
@@ -347,8 +356,10 @@ class Subscriber implements EventSubscriberInterface
         $backendDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         $listingConfig     = $backendDefinition->getListingConfig();
 
-        $dataConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $panel      = $view->getPanel();
+        $dataConfig = $environment->getBaseConfigRegistry()?->getBaseConfig();
+        if (null === $dataConfig) {
+            return;
+        }
 
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
     }
@@ -449,6 +460,9 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
+        if (null === $dispatcher) {
+            return;
+        }
 
         $event->setRendered(
             self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
@@ -474,6 +488,9 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
+        if (null === $dispatcher) {
+            return;
+        }
 
         // Date and time format.
         $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
@@ -502,9 +519,13 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
-        $map = [false => 'no', true => 'yes'];
+        $map = [0 => 'no', 1 => 'yes'];
+        $translator = $event->getEnvironment()->getTranslator();
+        if (null === $translator) {
+            return;
+        }
 
-        $event->setRendered($event->getEnvironment()->getTranslator()->translate('MSC.' . $map[(bool) $value]));
+        $event->setRendered($translator->translate('MSC.' . $map[$value]));
     }
 
     /**
@@ -518,9 +539,12 @@ class Subscriber implements EventSubscriberInterface
     private static function renderDateTimeValueInstance(RenderReadablePropertyValueEvent $event, DateTime $value): void
     {
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
+        if (null === $dispatcher) {
+            return;
+        }
 
         $event->setRendered(
-            self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat'), $value->getTimestamp())
+            self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat') ?? '', $value->getTimestamp())
         );
     }
 
@@ -596,6 +620,11 @@ class Subscriber implements EventSubscriberInterface
         PropertyInterface $property,
         mixed $value
     ): void {
+        // Can not be an array key.
+        if ((null !== $value) && !is_scalar($value)) {
+            return;
+        }
+
         if (!($options = $property->getOptions())) {
             $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
             if ($options) {

@@ -73,7 +73,7 @@ class PasteAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend() || ('pasteAll' !== $event->getAction()->getName())) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend() || ('pasteAll' !== $event->getAction()->getName())) {
             return;
         }
 

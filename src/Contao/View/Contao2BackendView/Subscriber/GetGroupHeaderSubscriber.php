@@ -81,7 +81,7 @@ class GetGroupHeaderSubscriber
      */
     public function handle(GetGroupHeaderEvent $event)
     {
-        if ((null !== $event->getValue()) || !$this->scopeDeterminator->currentScopeIsBackend()) {
+        if ((null !== $event->getValue()) || !$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 

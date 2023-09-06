@@ -36,10 +36,13 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use LogicException;
 
 /**
  * This class is the abstract base for override/edit all "overrideAll/editAll" commands.
@@ -72,10 +75,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         ) {
             return;
         }
+        $definition = $this->getDataDefinition($environment);
 
-        $sessionStorage->remove($environment->getDataDefinition()->getName() . '.' . $this->getMode($action));
+        $sessionStorage->remove($definition->getName() . '.' . $this->getMode($action));
 
-        $urlEvent = new GetReferrerEvent(false, $environment->getDataDefinition()->getName());
+        $urlEvent = new GetReferrerEvent(false, $definition->getName());
 
         $eventDispatcher->dispatch($urlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
         $eventDispatcher->dispatch(new RedirectEvent($urlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
@@ -531,7 +535,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * @param ModelInterface       $model       The model.
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return PropertyValueBag
+     * @return PropertyValueBagInterface
      *
      * @throws DcGeneralInvalidArgumentException If create property value bug, the construct argument isn´t right.
      *
@@ -542,7 +546,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         ModelInterface $model,
         EnvironmentInterface $environment
     ) {
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
+        $propertiesDefinition = $this->getDataDefinition($environment)->getPropertiesDefinition();
         $editInformation      = System::getContainer()->get('cca.dc-general.edit-information');
 
         $propertyValueBag = new PropertyValueBag();
@@ -587,7 +591,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     {
         $inputProvider  = $environment->getInputProvider();
         $sessionStorage = $environment->getSessionStorage();
-        $dataDefinition = $environment->getDataDefinition();
+        $dataDefinition = $this->getDataDefinition($environment);
         $dataProvider   = $environment->getDataProvider($dataDefinition->getName());
 
         $addEditProperties =
@@ -758,7 +762,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      */
     protected function getSession(Action $action, EnvironmentInterface $environment)
     {
-        $dataDefinition = $environment->getDataDefinition();
+        $dataDefinition = $this->getDataDefinition($environment);
         $sessionStorage = $environment->getSessionStorage();
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getMode($action));
@@ -771,7 +775,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      */
     protected function getPropertiesFromSession(Action $action, EnvironmentInterface $environment)
     {
-        $dataDefinition = $environment->getDataDefinition();
+        $dataDefinition = $this->getDataDefinition($environment);
 
         $session = $this->getSession($action, $environment);
 
@@ -790,5 +794,25 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         }
 
         return $properties;
+    }
+
+    private function getSessionStorage(EnvironmentInterface $environment): SessionStorageInterface
+    {
+        $sessionStorage = $environment->getSessionStorage();
+        if (null === $sessionStorage) {
+            throw new LogicException('No session storage found in environment.');
+        }
+
+        return $sessionStorage;
+    }
+
+    private function getDataDefinition(EnvironmentInterface $environment): ContainerInterface
+    {
+        $definition = $environment->getDataDefinition();
+        if (null === $definition) {
+            throw new LogicException('No data definition found in environment.');
+        }
+
+        return $definition;
     }
 }

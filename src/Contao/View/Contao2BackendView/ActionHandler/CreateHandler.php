@@ -72,7 +72,7 @@ class CreateHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
