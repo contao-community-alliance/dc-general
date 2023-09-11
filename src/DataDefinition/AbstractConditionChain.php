@@ -122,7 +122,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
             );
         }
 
-        $this->conjunction = (string) $conjunction;
+        $this->conjunction = $conjunction;
 
         return $this;
     }

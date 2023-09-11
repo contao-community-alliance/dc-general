@@ -20,24 +20,33 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Action handler for paste all action.
  *
  * @return void
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PasteAllHandler
 {
@@ -47,16 +56,16 @@ class PasteAllHandler
     /**
      * The copied model is available by paste mode copy.
      *
-     * @var ModelIdInterface
+     * @var ModelInterface|null
      */
-    protected $copiedModel;
+    protected $copiedModel = null;
 
     /**
      * The original model is available by paste mode copy.
      *
-     * @var ModelIdInterface
+     * @var ModelInterface|null
      */
-    protected $originalModel;
+    protected $originalModel = null;
 
 
     /**
@@ -72,7 +81,7 @@ class PasteAllHandler
     /**
      * {@inheritDoc}
      */
-    public function handleEvent(ActionEvent $event)
+    public function handleEvent(ActionEvent $event): void
     {
         if (
             !$this->getScopeDeterminator()->currentScopeIsBackend()
@@ -101,7 +110,10 @@ class PasteAllHandler
         }
 
         $inputProvider = $environment->getInputProvider();
-        $clipboard     = $environment->getClipboard();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
 
         $inputProvider->setParameter('pasteAll', true);
 
@@ -131,17 +143,30 @@ class PasteAllHandler
      */
     protected function getClipboardItems(EnvironmentInterface $environment)
     {
-        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
+
+        $provider = $basicDefinition->getDataProvider();
+        assert(\is_string($provider));
+
+        $parentProvider = $basicDefinition->getParentDataProvider();
+        assert(\is_string($parentProvider));
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        $filter->andModelIsFromProvider($provider);
         if ($basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
+            $filter->andParentIsFromProvider($parentProvider);
         } else {
             $filter->andHasNoParent();
         }
 
-        return $environment->getClipboard()->fetch($filter);
+        $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
+
+        return $clipboard->fetch($filter);
     }
 
     /**
@@ -154,6 +179,8 @@ class PasteAllHandler
     protected function getCollection(EnvironmentInterface $environment)
     {
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $relationShip   = $dataDefinition->getModelRelationshipDefinition();
 
         if (!$relationShip->getChildCondition($dataDefinition->getName(), $dataDefinition->getName())) {
@@ -173,6 +200,7 @@ class PasteAllHandler
     protected function getFlatCollection(EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         $previousItem = null;
         $collection   = [];
@@ -207,9 +235,15 @@ class PasteAllHandler
      */
     protected function getHierarchyCollection(array $clipboardItems, EnvironmentInterface $environment)
     {
-        $dataProvider   = $environment->getDataProvider();
+        $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
         $inputProvider  = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $relationShip   = $dataDefinition->getModelRelationshipDefinition();
         $childCondition = $relationShip->getChildCondition($dataDefinition->getName(), $dataDefinition->getName());
         if (null === $childCondition) {
@@ -241,19 +275,19 @@ class PasteAllHandler
 
             $previousItem = $clipboardItem;
 
-            $model =
-                $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            assert($model instanceof ModelInterface);
 
             $itemCollection =
                 $dataProvider->fetchAll($dataProvider->getEmptyConfig()->setFilter($childCondition->getFilter($model)));
-            if ($itemCollection) {
-                $collection = $this->setSubItemsToCollection(
-                    $clipboardItem,
-                    $this->getSubClipboardItems($clipboardItems, $itemCollection),
-                    $collection,
-                    $environment
-                );
-            }
+            assert($itemCollection instanceof CollectionInterface);
+
+            $collection = $this->setSubItemsToCollection(
+                $clipboardItem,
+                $this->getSubClipboardItems($clipboardItems, $itemCollection),
+                $collection,
+                $environment
+            );
         }
 
         return $collection;
@@ -307,7 +341,11 @@ class PasteAllHandler
         }
 
         $dataProvider   = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $relationShip   = $dataDefinition->getModelRelationshipDefinition();
         $childCondition = $relationShip->getChildCondition($dataDefinition->getName(), $dataDefinition->getName());
         if (null === $childCondition) {
@@ -338,19 +376,19 @@ class PasteAllHandler
                 'pasteMode'  => $intoItem ? 'after' : 'into'
             ];
 
-            $model          =
-                $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            assert($model instanceof ModelInterface);
+
             $itemCollection =
                 $dataProvider->fetchAll($dataProvider->getEmptyConfig()->setFilter($childCondition->getFilter($model)));
+            assert($itemCollection instanceof CollectionInterface);
 
-            if ($itemCollection) {
-                $collection = $this->setSubItemsToCollection(
-                    $subClipboardItem,
-                    $this->getSubClipboardItems($this->getClipboardItems($environment), $itemCollection),
-                    $collection,
-                    $environment
-                );
-            }
+            $collection = $this->setSubItemsToCollection(
+                $subClipboardItem,
+                $this->getSubClipboardItems($this->getClipboardItems($environment), $itemCollection),
+                $collection,
+                $environment
+            );
         }
 
         return $collection;
@@ -365,7 +403,10 @@ class PasteAllHandler
      */
     protected function addDispatchDuplicateModel(EnvironmentInterface $environment)
     {
-        $environment->getEventDispatcher()->addListener(
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->addListener(
             PostDuplicateModelEvent::NAME,
             function (PostDuplicateModelEvent $event) {
                 $this->copiedModel   = $event->getModel();
@@ -385,6 +426,8 @@ class PasteAllHandler
     protected function setParameterForPaste(array $collectionItem, EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $clipboardItem = $collectionItem['item'];
 
         $inputProvider->unsetParameter('after');
@@ -405,6 +448,7 @@ class PasteAllHandler
             return;
         }
 
+        assert($this->copiedModel instanceof ModelInterface);
         $copiedModelId = ModelId::fromModel($this->copiedModel);
 
         $inputProvider->setParameter($collectionItem['pasteMode'], $copiedModelId->getSerialized());

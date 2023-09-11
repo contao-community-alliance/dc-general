@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,9 +25,12 @@ namespace ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class takes care of enforcing a tree relationship on a model.
@@ -43,17 +47,23 @@ class TreeEnforcingListener
     public function process(EnforceModelRelationshipEvent $event)
     {
         $environment = $event->getEnvironment();
-        $mode        = $environment->getDataDefinition()->getBasicDefinition()->getMode();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $mode = $definition->getBasicDefinition()->getMode();
 
         if (BasicDefinitionInterface::MODE_HIERARCHICAL !== $mode) {
             return;
         }
 
-        $input         = $environment->getInputProvider();
+        $input = $environment->getInputProvider();
+        assert($input instanceof InputProviderInterface);
+
         $model         = $event->getModel();
         $collector     = new ModelCollector($environment);
         $relationships = new RelationshipManager(
-            $environment->getDataDefinition()->getModelRelationshipDefinition(),
+            $definition->getModelRelationshipDefinition(),
             $mode
         );
 
@@ -76,6 +86,7 @@ class TreeEnforcingListener
         // Also enforce the parent condition of the parent provider (if any).
         if ($input->hasParameter('pid')) {
             $parent = $collector->getModel($input->getParameter('pid'));
+            assert($parent instanceof ModelInterface);
             $relationships->setParent($model, $parent);
         }
     }
@@ -83,7 +94,7 @@ class TreeEnforcingListener
     /**
      * Handle paste into.
      *
-     * @param ModelId             $into          The id of the new parenting model.
+     * @param ModelIdInterface    $into          The id of the new parenting model.
      * @param RelationshipManager $relationships The relationship manager.
      * @param ModelCollector      $collector     The model collector.
      * @param ModelInterface      $model         The model.
@@ -91,11 +102,11 @@ class TreeEnforcingListener
      * @return void
      */
     private function handleInto(
-        ModelId $into,
+        ModelIdInterface $into,
         RelationshipManager $relationships,
         ModelCollector $collector,
         ModelInterface $model
-    ) {
+    ): void {
         // If we have a null, it means insert into the tree root.
         if (0 === $into->getId() || null === $parent = $collector->getModel($into)) {
             $relationships->setRoot($model);
@@ -108,7 +119,7 @@ class TreeEnforcingListener
     /**
      * Handle paste after.
      *
-     * @param ModelId             $after         The id of the sibling model.
+     * @param ModelIdInterface    $after         The id of the sibling model.
      * @param RelationshipManager $relationships The relationship manager.
      * @param ModelCollector      $collector     The model collector.
      * @param ModelInterface      $model         The model.
@@ -116,7 +127,7 @@ class TreeEnforcingListener
      * @return void
      */
     private function handleAfter(
-        ModelId $after,
+        ModelIdInterface $after,
         RelationshipManager $relationships,
         ModelCollector $collector,
         ModelInterface $model
@@ -129,6 +140,8 @@ class TreeEnforcingListener
         }
 
         $parent = $collector->searchParentOf($sibling);
+        assert($parent instanceof ModelInterface);
+
         $relationships->setParent($model, $parent);
     }
 }

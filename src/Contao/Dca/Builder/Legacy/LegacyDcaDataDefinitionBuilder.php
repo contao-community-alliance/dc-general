@@ -876,8 +876,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $parsedProperties = [];
         $sortingDca       = ($listDca['sorting'] ?? []);
 
-        if (isset($sortingDca['headerFields'])) {
-            $listing->setHeaderPropertyNames((array) $sortingDca['headerFields']);
+        if ($headerFields = ($sortingDca['headerFields'] ?? [])) {
+            assert(\is_array($headerFields));
+            /** @var list<string> $headerFields */
+            $listing->setHeaderPropertyNames($headerFields);
         }
 
         if (isset($sortingDca['icon'])) {

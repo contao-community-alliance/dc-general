@@ -21,30 +21,38 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 
+use ArrayAccess;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Iterator;
+use ReturnTypeWillChange;
+
+use function count;
 
 /**
  * Handy helper class to generate and manipulate filter arrays containing children.
  *
  * This class is intended to be only used as base class of other filters and via the FilterBuilder main class.
  *
+ * @implements Iterator<int, BaseFilterBuilder>
+ * @implements ArrayAccess<int, BaseFilterBuilder>
+ *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
  */
-class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, \ArrayAccess
+class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, ArrayAccess
 {
     /**
      * The operation string.
      *
      * @var string
      */
-    protected $operation;
+    protected $operation = '';
 
     /**
      * The children within this filter builder.
      *
-     * @var BaseFilterBuilder[]
+     * @var array<int, BaseFilterBuilder>
      */
     protected $children;
 
@@ -58,18 +66,12 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
     /**
      * Create a new instance.
      *
-     * @param array $children The initial children to absorb.
+     * @param list<BaseFilterBuilder> $children The initial children to absorb.
      *
      * @throws DcGeneralInvalidArgumentException When invalid children have been passed.
      */
     public function __construct($children = [])
     {
-        if (!\is_array($children)) {
-            throw new DcGeneralInvalidArgumentException(
-                __CLASS__ . ' needs a valid child filter array ' . \gettype($children) . 'given'
-            );
-        }
-
         $this->children = [];
 
         foreach ($children as $child) {
@@ -79,7 +81,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
     }
 
     /**
-     * {@inheritdoc}
+     * Clone the object.
      */
     public function __clone()
     {
@@ -98,10 +100,10 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * @throws DcGeneralRuntimeException When the current position is invalid.
      */
-    public function current(): ?BaseFilterBuilder
+    public function current(): BaseFilterBuilder
     {
         if (-1 === $this->index) {
-            return $this->first();
+            $this->first();
         }
 
         if (!$this->valid()) {
@@ -114,8 +116,11 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
     /**
      * Move forward to next element and return it.
      *
-     * @return BaseFilterBuilder
+     * @return BaseFilterBuilder|null
+     *
+     * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[ReturnTypeWillChange]
     public function next(): ?BaseFilterBuilder
     {
         $this->index++;
@@ -126,9 +131,9 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
     /**
      * Return the key of the current element.
      *
-     * @return mixed scalar on success, or null on failure.
+     * @return int scalar on success, or null on failure.
      */
-    public function key(): mixed
+    public function key(): int
     {
         return $this->index;
     }
@@ -140,7 +145,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      */
     public function valid(): bool
     {
-        return ($this->index > -1) && ($this->index < \count($this->children));
+        return ($this->index > -1) && ($this->index < count($this->children));
     }
 
     /**
@@ -148,8 +153,11 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      *
      * This is an alias for {@link FilterBuilderWithChildren::first()} only present for implementing Iterator interface.
      *
-     * @return BaseFilterBuilder
+     * @return BaseFilterBuilder|null
+     *
+     * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[ReturnTypeWillChange]
     public function rewind(): ?BaseFilterBuilder
     {
         return $this->first();
@@ -158,11 +166,11 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
     /**
      * Rewind the Iterator to the first element and return it.
      *
-     * @return BaseFilterBuilder
+     * @return BaseFilterBuilder|null
      */
     public function first()
     {
-        $this->index = \count($this->children) ? 0 : (-1);
+        $this->index = count($this->children) ? 0 : (-1);
 
         if ($this->index === -1) {
             return null;
@@ -202,7 +210,10 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      * @param mixed $value  The value to set.
      *
      * @return FilterBuilderWithChildren The current builder.
+     *
+     * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): FilterBuilderWithChildren
     {
         $this->children[$offset] = $value;
@@ -216,7 +227,10 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
      * @param int $offset The offset to unset.
      *
      * @return FilterBuilderWithChildren The current builder.
+     *
+     * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[ReturnTypeWillChange]
     public function offsetUnset($offset): FilterBuilderWithChildren
     {
         unset($this->children[$offset]);
@@ -269,7 +283,10 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
 
         if ($index === -1) {
             $this->children[] = $filter;
-            $filter->setBuilder($this->builder)->setParent($this);
+            $filter->setParent($this);
+            if (null !== $this->builder) {
+                $filter->setBuilder($this->builder);
+            }
         }
 
         return $this;
@@ -308,6 +325,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements \Iterator, 
             $children[] = FilterBuilder::getBuilderFromArray($child, $builder);
         }
 
+        /** @psalm-suppress UnsafeInstantiation */
         return (new static($children))->setBuilder($builder);
     }
 

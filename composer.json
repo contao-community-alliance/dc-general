@@ -32,7 +32,7 @@
     "source": "https://github.com/contao-community-alliance/dc-general"
   },
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^8.1",
     "ext-json": "*",
     "ext-pdo": "*",
     "contao-community-alliance/events-contao-bindings": "^4.13",

@@ -114,7 +114,7 @@ interface ClipboardInterface
      *
      * @param FilterInterface $filter An item filter.
      *
-     * @return ItemInterface[]
+     * @return list<ItemInterface>
      */
     public function fetch(FilterInterface $filter);
 

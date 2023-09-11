@@ -24,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * Default implementation of a panel container.
@@ -33,31 +34,36 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * The environment in use.
      *
-     * @var EnvironmentInterface
+     * @var EnvironmentInterface|null
      */
-    private $objEnvironment;
+    private $objEnvironment = null;
 
     /**
      * The panels contained within this container.
      *
-     * @var PanelInterface[]
+     * @var array<string, PanelInterface>
      */
-    private $arrPanels = [];
+    private array $panels = [];
 
     /**
      * {@inheritdoc}
      */
     public function getEnvironment()
     {
+        if (null === $this->objEnvironment) {
+            throw new \LogicException('Environment for panel is not set.');
+        }
+
         return $this->objEnvironment;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setEnvironment(EnvironmentInterface $environment)
+    public function setEnvironment(EnvironmentInterface $objEnvironment)
     {
-        $this->objEnvironment = $environment;
+        $this->objEnvironment = $objEnvironment;
+
         return $this;
     }
 
@@ -66,7 +72,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function addPanel($panelName, $panel)
     {
-        $this->arrPanels[$panelName] = $panel;
+        $this->panels[$panelName] = $panel;
         $panel->setContainer($this);
 
         return $this;
@@ -77,7 +83,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function getPanel($panelName)
     {
-        return $this->arrPanels[$panelName];
+        return $this->panels[$panelName];
     }
 
     /**
@@ -89,6 +95,8 @@ class DefaultPanelContainer implements PanelContainerInterface
         foreach ($this as $panel) {
             $panel->initialize($config, $element);
         }
+
+        return $this;
     }
 
     /**
@@ -96,7 +104,10 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function updateValues()
     {
-        return ('tl_filters' === $this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT'));
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        return ('tl_filters' === $inputProvider->getValue('FORM_SUBMIT'));
     }
 
     /**
@@ -104,7 +115,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function getIterator(): \Traversable
     {
-        return new \ArrayIterator($this->arrPanels);
+        return new \ArrayIterator($this->panels);
     }
 
     /**
@@ -112,6 +123,6 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function count(): int
     {
-        return \count($this->arrPanels);
+        return \count($this->panels);
     }
 }

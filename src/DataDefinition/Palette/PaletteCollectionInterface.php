@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,7 +23,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 
 /**
@@ -33,7 +33,7 @@ interface PaletteCollectionInterface
     /**
      * Remove all palettes from this collection.
      *
-     * @return PaletteCollectionInterface
+     * @return self
      */
     public function clearPalettes();
 
@@ -42,7 +42,7 @@ interface PaletteCollectionInterface
      *
      * @param array|PaletteInterface[] $palettes The palettes.
      *
-     * @return PaletteCollectionInterface
+     * @return self
      */
     public function setPalettes(array $palettes);
 
@@ -51,7 +51,7 @@ interface PaletteCollectionInterface
      *
      * @param array|PaletteInterface[] $palettes The palettes.
      *
-     * @return PaletteInterface
+     * @return self
      */
     public function addPalettes(array $palettes);
 
@@ -60,7 +60,7 @@ interface PaletteCollectionInterface
      *
      * @param PaletteInterface $palette The palette.
      *
-     * @return PaletteInterface
+     * @return self
      */
     public function addPalette(PaletteInterface $palette);
 
@@ -69,7 +69,7 @@ interface PaletteCollectionInterface
      *
      * @param PaletteInterface $palette The palette.
      *
-     * @return PaletteInterface
+     * @return self
      */
     public function removePalette(PaletteInterface $palette);
 

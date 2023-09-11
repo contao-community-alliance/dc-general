@@ -35,42 +35,35 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
      *
      * @var string
      */
-    protected $operation;
+    protected $operation = '';
 
     /**
      * The property to be checked.
      *
      * @var string
      */
-    protected $property;
-
-    /**
-     * The property to be checked.
-     *
-     * @var string
-     */
-    protected $remoteProperty;
+    protected $property = '';
 
     /**
      * The value to compare against.
      *
      * @var mixed
      */
-    protected $value;
+    protected $value = '';
 
     /**
      * Flag determining if the passed value is a remote property name or not.
      *
      * @var bool
      */
-    protected $isRemote;
+    protected $isRemote = false;
 
     /**
      * Flag determining if the remote value is a property or literal value.
      *
      * @var bool
      */
-    protected $isRemoteProp;
+    protected $isRemoteProp = false;
 
     /**
      * Create a new instance.
@@ -124,6 +117,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
             throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 
+        /** @psalm-suppress UnsafeInstantiation */
         return new static($property, $value, $isRemote, $isRemoteProp);
     }
 

@@ -117,6 +117,8 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
         }
 
         $this->default = $information;
+
+        return $this;
     }
 
     /**

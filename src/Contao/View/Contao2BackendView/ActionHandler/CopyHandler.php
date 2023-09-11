@@ -32,17 +32,22 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotCreatableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDuplicateModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\ActionGuardTrait;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\UrlBuilder\Contao\CsrfUrlBuilderFactory;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class CopyModelController handles copy action on a model.
@@ -89,7 +94,12 @@ class CopyHandler
         }
 
         $environment = $event->getEnvironment();
-        if (!$environment->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+
+        if (null === ($definition = $environment->getDataDefinition())) {
+            return;
+        }
+
+        if (!$definition->getBasicDefinition()->isCreatable()) {
             return;
         }
 
@@ -98,7 +108,7 @@ class CopyHandler
         }
 
         if (true !== ($response = $this->checkPermission($environment))) {
-            $event->setResponse($response);
+            $event->setResponse((string) $response);
             $event->stopPropagation();
 
             return;
@@ -123,12 +133,15 @@ class CopyHandler
     protected function guardIsCreatable(EnvironmentInterface $environment, ModelIdInterface $modelId, $redirect = false)
     {
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         if ($dataDefinition->getBasicDefinition()->isCreatable()) {
             return;
         }
 
         if ($redirect) {
             $eventDispatcher = $environment->getEventDispatcher();
+            assert($eventDispatcher instanceof EventDispatcherInterface);
 
             $eventDispatcher->dispatch(
                 new LogEvent(
@@ -161,26 +174,44 @@ class CopyHandler
      */
     public function copy(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
-        $this->guardNotEditOnly($environment->getDataDefinition(), $modelId);
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $this->guardNotEditOnly($definition, $modelId);
         $this->guardIsCreatable($environment, $modelId);
 
         $dataProvider = $environment->getDataProvider();
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        assert($dataProvider instanceof DataProviderInterface);
+        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
+        if (!$model) {
+            throw new DcGeneralRuntimeException(
+                'Model not found with ID ' . $modelId->getId()
+            );
+        }
+
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
         // We need to keep the original data here.
-        $copyModel = $environment->getController()->createClonedModel($model);
+        $copyModel = $controller->createClonedModel($model);
 
-        $eventDispatcher = $environment->getEventDispatcher();
-        // Dispatch pre duplicate event.
-        $preCopyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
-        $eventDispatcher->dispatch($preCopyEvent, $preCopyEvent::NAME);
+        $dispatcher = $environment->getEventDispatcher();
+        if (null !== $dispatcher) {
+            // Dispatch pre duplicate event.
+            $preCopyEvent = new PreDuplicateModelEvent($environment, $copyModel, $model);
+            $dispatcher->dispatch($preCopyEvent, $preCopyEvent::NAME);
+        }
 
         // Save the copy.
-        $environment->getDataProvider($copyModel->getProviderName())->save($copyModel);
+        $dataProvider = $environment->getDataProvider($copyModel->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+        $dataProvider->save($copyModel);
 
-        // Dispatch post duplicate event.
-        $postCopyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
-        $eventDispatcher->dispatch($postCopyEvent, $postCopyEvent::NAME);
+        if (null !== $dispatcher) {
+            // Dispatch post duplicate event.
+            $postCopyEvent = new PostDuplicateModelEvent($environment, $copyModel, $model);
+            $dispatcher->dispatch($postCopyEvent, $postCopyEvent::NAME);
+        }
 
         return $copyModel;
     }
@@ -195,18 +226,27 @@ class CopyHandler
      */
     protected function redirect($environment, $copiedModelId)
     {
+        if (null === ($inputProvider = $environment->getInputProvider())) {
+            return;
+        }
+
         // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
         $urlBuilder = new UrlBuilder();
         $urlBuilder
             ->setPath('contao')
-            ->setQueryParameter('do', $environment->getInputProvider()->getParameter('do'))
+            ->setQueryParameter('do', $inputProvider->getParameter('do'))
             ->setQueryParameter('table', $copiedModelId->getDataProviderName())
             ->setQueryParameter('act', 'edit')
             ->setQueryParameter('id', $copiedModelId->getSerialized())
-            ->setQueryParameter('pid', $environment->getInputProvider()->getParameter('pid'));
+            ->setQueryParameter('pid', $inputProvider->getParameter('pid'));
 
         $redirectEvent = new RedirectEvent($this->securityUrlBuilder->create($urlBuilder->getUrl())->getUrl());
-        $environment->getEventDispatcher()->dispatch($redirectEvent, ContaoEvents::CONTROLLER_REDIRECT);
+
+        if (null === ($dispatcher = $environment->getEventDispatcher())) {
+            return;
+        }
+
+        $dispatcher->dispatch($redirectEvent, ContaoEvents::CONTROLLER_REDIRECT);
     }
 
     /**
@@ -214,31 +254,43 @@ class CopyHandler
      *
      * @param EnvironmentInterface $environment Current dc-general environment.
      *
-     * @return string|bool|null
+     * @return string|false|null
      */
     protected function process(EnvironmentInterface $environment)
     {
-        $modelId = ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'));
+        if (null === ($inputProvider = $environment->getInputProvider())) {
+            return false;
+        }
 
-        $dataDefinition = $environment->getDataDefinition();
-        $this->guardValidEnvironment($dataDefinition, $modelId);
+        $modelId = ModelId::fromSerialized($inputProvider->getParameter('source'));
+
+        if (null === ($definition = $environment->getDataDefinition())) {
+            return false;
+        }
+
+        $this->guardValidEnvironment($definition, $modelId);
         // We want a redirect here if not creatable.
         $this->guardIsCreatable($environment, $modelId, true);
 
-        if ($dataDefinition->getBasicDefinition()->isEditOnlyMode()) {
+        if ($definition->getBasicDefinition()->isEditOnlyMode()) {
             return $this->callAction($environment, 'edit');
         }
 
         // Manual sorting mode. The ClipboardController should pick it up.
         $manualSorting = ViewHelpers::getManualSortingProperty($environment);
-        if ($manualSorting && $environment->getDataProvider()->fieldExists($manualSorting)) {
+
+        if (null === ($provider = $environment->getDataProvider())) {
+            return false;
+        }
+
+        if ($manualSorting && $provider->fieldExists($manualSorting)) {
             return false;
         }
 
         $copiedModel = $this->copy($environment, $modelId);
 
         // If edit several don´t redirect do home.
-        if ('select' === $environment->getInputProvider()->getParameter('act')) {
+        if ('select' === $inputProvider->getParameter('act')) {
             return false;
         }
 
@@ -256,15 +308,23 @@ class CopyHandler
      */
     private function checkPermission(EnvironmentInterface $environment)
     {
-        if (true === $environment->getDataDefinition()->getBasicDefinition()->isCreatable()) {
+        if (null === ($definition = $environment->getDataDefinition())) {
+            return false;
+        }
+
+        if (true === $definition->getBasicDefinition()->isCreatable()) {
             return true;
+        }
+
+        if (null === ($inputProvider = $environment->getInputProvider())) {
+            return '';
         }
 
         return \sprintf(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for copy model %s.
             </div>',
-            ModelId::fromSerialized($environment->getInputProvider()->getParameter('source'))->getSerialized()
+            ModelId::fromSerialized($inputProvider->getParameter('source'))->getSerialized()
         );
     }
 }

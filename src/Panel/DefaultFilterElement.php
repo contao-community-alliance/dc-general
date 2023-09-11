@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -25,7 +25,11 @@
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -38,7 +42,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      *
      * @var string
      */
-    private $strProperty;
+    private $strProperty = 'string';
 
     /**
      * The current value of this filter.
@@ -52,7 +56,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      *
      * @var array
      */
-    private $arrFilterOptions;
+    private $arrFilterOptions = [];
 
     /**
      * Retrieve the persistent value from the input provider.
@@ -66,8 +70,11 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             $values = $this->getSessionStorage()->get('filter');
         }
 
-        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $values)) {
-            $values = $values[$this->getEnvironment()->getDataDefinition()->getName()];
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        if (\array_key_exists($definition->getName(), $values)) {
+            $values = $values[$definition->getName()];
 
             if (\array_key_exists($this->getPropertyName(), $values)) {
                 return $values[$this->getPropertyName()];
@@ -86,7 +93,10 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      */
     protected function setPersistent($value)
     {
-        $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $definitionName = $definition->getName();
 
         $values = [];
 
@@ -95,7 +105,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         }
 
         if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
-            $values[$this->getEnvironment()->getDataDefinition()->getName()] = [];
+            $values[$definition->getName()] = [];
         }
 
         if ((null !== $values) && ($value !== 'tl_' . $this->getPropertyName())) {
@@ -115,10 +125,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     private function updateValue()
     {
         $session = $this->getSessionStorage();
-        $input   = $this->getInputProvider();
+        assert($session instanceof SessionStorageInterface);
+
+        $input = $this->getInputProvider();
+        assert($input instanceof InputProviderInterface);
+
         $value   = null;
 
-        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
+        if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue($this->getPropertyName()) && $this->getPanel()->getContainer()->updateValues()) {
                 $value = $input->getValue($this->getPropertyName());
 
@@ -148,14 +162,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $otherConfig = $this->getOtherConfig();
         $otherConfig->setFields([$this->getPropertyName()]);
 
-        $filterOptions = $this
-            ->getEnvironment()
-            ->getDataProvider()
-            ->getFilterOptions($otherConfig);
+        $dataProvider = $this->getEnvironment()->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $filterOptions = $dataProvider->getFilterOptions($otherConfig);
 
         $options = [];
         foreach ($filterOptions as $filterKey => $filterValue) {
-            $options[(string) $filterKey] = $filterValue;
+            $options[$filterKey] = $filterValue;
         }
 
         $this->arrFilterOptions = $options;
@@ -193,10 +207,10 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
      */
     public function render(ViewTemplateInterface $viewTemplate)
     {
-        $labels = $this
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getPropertiesDefinition()
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $labels = $definition->getPropertiesDefinition()
             ->getProperty($this->getPropertyName())->getLabel();
 
         $options = [
@@ -216,7 +230,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             ];
         }
 
-        $viewTemplate->set('label', (\is_array($labels) ? $labels[0] : $labels));
+        $viewTemplate->set('label', $labels);
         $viewTemplate->set('name', $this->getPropertyName());
         $viewTemplate->set('id', $this->getPropertyName());
         $viewTemplate->set('class', 'tl_select' . ((null !== $selectedValue) ? ' active' : ''));

@@ -37,13 +37,19 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Build
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class ContaoWidgetManager.
@@ -60,6 +66,8 @@ class ContaoWidgetManager
      * The environment in use.
      *
      * @var ContaoFrameworkInterface
+     *
+     * @psalm-suppress DeprecatedInterface
      */
     protected $framework;
 
@@ -87,7 +95,10 @@ class ContaoWidgetManager
     {
         $this->environment = $environment;
         $this->model       = $model;
-        $this->framework   = System::getContainer()->get('contao.framework');
+        $framework         = System::getContainer()->get('contao.framework');
+        assert($framework instanceof ContaoFrameworkInterface);
+
+        $this->framework = $framework;
     }
 
     /**
@@ -102,13 +113,15 @@ class ContaoWidgetManager
     public function encodeValue($property, $value, PropertyValueBag $propertyValues)
     {
         $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $event = new EncodePropertyValueFromWidgetEvent($environment, $this->model, $propertyValues);
         $event
             ->setProperty($property)
             ->setValue($value);
 
-        $environment->getEventDispatcher()->dispatch($event, EncodePropertyValueFromWidgetEvent::NAME);
+        $dispatcher->dispatch($event, EncodePropertyValueFromWidgetEvent::NAME);
 
         return $event->getValue();
     }
@@ -124,18 +137,20 @@ class ContaoWidgetManager
     public function decodeValue($property, $value)
     {
         $environment = $this->getEnvironment();
+        $dispatcher  = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $event = new DecodePropertyValueForWidgetEvent($environment, $this->model);
         $event
             ->setProperty($property)
             ->setValue($value);
-        $environment->getEventDispatcher()->dispatch($event, DecodePropertyValueForWidgetEvent::NAME);
+        $dispatcher->dispatch($event, DecodePropertyValueForWidgetEvent::NAME);
 
         return $event->getValue();
     }
 
     /**
-     * {@inheritdoc}
+     * @return EnvironmentInterface
      */
     public function getEnvironment()
     {
@@ -143,12 +158,14 @@ class ContaoWidgetManager
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $property
+     *
+     * @return bool
      */
     public function hasWidget($property)
     {
         try {
-            return null !== $this->getWidget($property);
+            return ($this->getWidget($property) instanceof Widget);
             // @codingStandardsIgnoreStart
         } catch (\Exception $e) {
             // Fall though and return false.
@@ -167,10 +184,12 @@ class ContaoWidgetManager
      */
     public function loadRichTextEditor($buffer, Widget $widget)
     {
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        $rte = $widget->rte;
         if (
-            (null === $widget->rte)
-            || ((0 !== (\strncmp($widget->rte, 'tiny', 4)))
-                && (0 !== \strncmp($widget->rte, 'ace', 3)))
+            (null === $rte)
+            || ((0 !== (\strncmp($rte, 'tiny', 4)))
+                && (0 !== \strncmp($rte, 'ace', 3)))
         ) {
             return $buffer;
         }
@@ -178,7 +197,7 @@ class ContaoWidgetManager
         $backendAdapter = $this->framework->getAdapter(Backend::class);
         $templateLoader = $this->framework->getAdapter(TemplateLoader::class);
 
-        [$file, $type] = \explode('|', $widget->rte) + [null, null];
+        [$file, $type] = \explode('|', $rte) + ['', ''];
 
         $templateName = 'be_' . $file;
         // This test if the rich text editor template exist.
@@ -188,9 +207,9 @@ class ContaoWidgetManager
         $template
             ->set('selector', 'ctrl_' . $widget->id)
             ->set('type', $type)
-            ->set('readonly', (bool) $widget->readonly);
+            ->set('readonly', $widget->readonly);
 
-        if (0 !== \strncmp($widget->rte, 'tiny', 4)) {
+        if (0 !== \strncmp($rte, 'tiny', 4)) {
             /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
             $template->set('language', $backendAdapter->getTinyMceLanguage());
         }
@@ -210,7 +229,10 @@ class ContaoWidgetManager
     protected function getUniqueId($propertyName)
     {
         $inputProvider  = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         $selector = 'ctrl_' . $propertyName;
 
@@ -237,21 +259,25 @@ class ContaoWidgetManager
     /**
      * Retrieve the instance of a widget for the given property.
      *
-     * @param string           $property    Name of the property for which the widget shall be retrieved.
-     * @param PropertyValueBag $inputValues The input values to use (optional).
+     * @param string                    $property    Name of the property for which the widget shall be retrieved.
+     * @param PropertyValueBagInterface $inputValues The input values to use (optional).
      *
-     * @return Widget
+     * @return Widget|null
      *
-     * @throws DcGeneralRuntimeException         When No widget could be build.
+     * @throws DcGeneralRuntimeException         When No widget could be built.
      * @throws DcGeneralInvalidArgumentException When property is not defined in the property definitions.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function getWidget($property, PropertyValueBag $inputValues = null)
+    public function getWidget($property, PropertyValueBagInterface $inputValues = null)
     {
-        $environment         = $this->getEnvironment();
-        $propertyDefinitions = $environment->getDataDefinition()->getPropertiesDefinition();
+        $environment = $this->getEnvironment();
+        $definition  = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+
+        $propertyDefinitions = $definition->getPropertiesDefinition();
 
         if (!$propertyDefinitions->hasProperty($property)) {
             throw new DcGeneralInvalidArgumentException(
@@ -263,18 +289,19 @@ class ContaoWidgetManager
         $model->setId($this->model->getId());
 
         if ($inputValues) {
+            $controller = $environment->getController();
+            assert($controller instanceof ControllerInterface);
+
             $values = new PropertyValueBag($inputValues->getArrayCopy());
-            $this->environment->getController()->updateModelFromPropertyBag($model, $values);
+            $controller->updateModelFromPropertyBag($model, $values);
         }
 
         $event = new BuildWidgetEvent($environment, $model, $propertyDefinitions->getProperty($property));
 
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
-        if (!$event->getWidget()) {
-            throw new DcGeneralRuntimeException(
-                \sprintf('Widget was not build for property %s::%s.', $this->model->getProviderName(), $property)
-            );
-        }
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, $event::NAME);
 
         return $event->getWidget();
     }
@@ -292,7 +319,9 @@ class ContaoWidgetManager
     protected function buildDatePicker($objWidget)
     {
         $translator = $this->getEnvironment()->getTranslator();
-        $strFormat  = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
+        assert($translator instanceof TranslatorInterface);
+
+        $strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
         switch ($objWidget->rgxp) {
             case 'datim':
@@ -330,14 +359,15 @@ class ContaoWidgetManager
      */
     protected function generateHelpText($property)
     {
-        $propInfo   = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $propInfo   = $definition->getPropertiesDefinition()->getProperty($property);
         $label      = $propInfo->getDescription();
         $widgetType = $propInfo->getWidgetType();
 
         if (
-            empty($label)
-            || ('password' === $widgetType)
-            || !\is_string($label)
+            ('password' === $widgetType)
             || !$GLOBALS['TL_CONFIG']['showHelp']
         ) {
             return '';
@@ -349,31 +379,34 @@ class ContaoWidgetManager
     /**
      * Render the widget for the named property.
      *
-     * @param string           $property     The name of the property for which the widget shall be rendered.
-     * @param bool             $ignoreErrors Flag if the error property of the widget shall get cleared prior rendering.
-     * @param PropertyValueBag $inputValues  The input values to use (optional).
+     * @param string                    $property     The name of the property for which the widget shall be rendered.
+     * @param bool                      $ignoreErrors Flag if the error property of the widget shall get
+     *                                                cleared prior rendering.
+     * @param PropertyValueBagInterface $inputValues  The input values to use (optional).
      *
      * @return string
      *
      * @throws DcGeneralRuntimeException For unknown properties.
      */
-    public function renderWidget($property, $ignoreErrors = false, PropertyValueBag $inputValues = null)
+    public function renderWidget($property, $ignoreErrors = false, PropertyValueBagInterface $inputValues = null)
     {
         /** @var Widget $widget */
         $widget = $this->getWidget($property, $inputValues);
-        if (!$widget) {
-            throw new DcGeneralRuntimeException('No widget for property ' . $property);
-        }
 
         $this->cleanErrors($widget, $ignoreErrors);
         $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
-        $propInfo = $this->getEnvironment()->getDataDefinition()->getPropertiesDefinition()->getProperty($property);
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
+        $propInfo = $definition->getPropertiesDefinition()->getProperty($property);
+
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
         $isHideInput = (bool) $widget->hideInput;
 
         $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
 
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
         $content = (new ContaoBackendViewTemplate('dcbe_general_field'))
             ->set('strName', $property)
             ->set('strClass', $widget->tl_class)
@@ -406,7 +439,7 @@ class ContaoWidgetManager
      */
     public function buildHiddenFields($value, string $propertyName): array
     {
-        if (is_string($value)) {
+        if (\is_string($value)) {
             return [$propertyName => $value];
         }
 
@@ -415,7 +448,7 @@ class ContaoWidgetManager
             $values[] = $this->buildHiddenFields($item, $propertyName . '[' . $key . ']');
         }
 
-        return array_merge(...$values);
+        return \array_merge(...$values);
     }
 
     /**
@@ -424,7 +457,7 @@ class ContaoWidgetManager
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    public function processInput(PropertyValueBag $propertyValues)
+    public function processInput(PropertyValueBag $propertyValues): void
     {
         // @codingStandardsIgnoreStart - Remember current POST data and clear it.
         $post  = $_POST;
@@ -441,8 +474,10 @@ class ContaoWidgetManager
         foreach (\array_keys($propertyValues->getArrayCopy()) as $property) {
             // NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
             // native data as in the model.
-            // Therefore we do not need to decode them but MUST encode them.
+            // Therefore, we do not need to decode them but MUST encode them.
             $widget = $this->getWidget($property, $propertyValues);
+            assert($widget instanceof Widget);
+
             $widget->validate();
 
             if ($widget->hasErrors()) {
@@ -471,7 +506,7 @@ class ContaoWidgetManager
     /**
      * {@inheritDoc}
      */
-    public function processErrors(PropertyValueBag $propertyValues)
+    public function processErrors(PropertyValueBag $propertyValues): void
     {
         $propertyErrors = $propertyValues->getInvalidPropertyErrors();
 
@@ -480,9 +515,11 @@ class ContaoWidgetManager
         }
 
         $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         foreach ($propertyErrors as $property => $errors) {
             $widget = $this->getWidget($property);
+            assert($widget instanceof Widget);
 
             foreach ($errors as $error) {
                 $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
@@ -499,6 +536,8 @@ class ContaoWidgetManager
      * @param bool   $ignoreErrors The flag for errors cleared.
      *
      * @return void
+     *
+     * @throws \ReflectionException
      */
     protected function cleanErrors(Widget $widget, $ignoreErrors = false)
     {

@@ -24,6 +24,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * A generic bag containing properties and their values.
+ *
+ * @extends \IteratorAggregate<string, mixed>
+ * @extends \ArrayAccess<string, mixed>
  */
 interface PropertyValueBagInterface extends \IteratorAggregate, \Countable, \ArrayAccess
 {
@@ -103,9 +106,9 @@ interface PropertyValueBagInterface extends \IteratorAggregate, \Countable, \Arr
     /**
      * Mark a property as invalid and add an error message to the property.
      *
-     * @param string             $property The name of the property to mark.
-     * @param string|array|mixed $error    The error message to attach for this property.
-     * @param bool               $append   Append this error and keep previous errors (optional).
+     * @param string              $property The name of the property to mark.
+     * @param string|list<string> $error    The error message to attach for this property.
+     * @param bool                $append   Append this error and keep previous errors (optional).
      *
      * @return PropertyValueBag
      */
@@ -132,7 +135,7 @@ interface PropertyValueBagInterface extends \IteratorAggregate, \Countable, \Arr
      *
      * @param string $property The name of the property to retrieve the errors for.
      *
-     * @return array
+     * @return list<string>
      */
     public function getPropertyValueErrors($property);
 
@@ -146,7 +149,7 @@ interface PropertyValueBagInterface extends \IteratorAggregate, \Countable, \Arr
     /**
      * Exports the {@link PropertyValueBag} to an array.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getArrayCopy();
 }

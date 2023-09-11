@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\NoOpDataProvider;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\DefaultProperty;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -38,6 +39,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultMode
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * This class handles the rendering of list view "showAllProperties" actions.
@@ -64,11 +68,10 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             !$this->getScopeDeterminator()->currentScopeIsBackend()
             || ('selectPropertyAll' !== $event->getAction()->getName())
         ) {
-            return null;
+            return;
         }
 
-        $response = $this->process($event->getAction(), $event->getEnvironment());
-        if (false !== $response) {
+        if (null !== $response = $this->process($event->getAction(), $event->getEnvironment())) {
             $event->setResponse($response);
         }
     }
@@ -79,10 +82,13 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     protected function process(Action $action, EnvironmentInterface $environment)
     {
         $dataDefinition = $environment->getDataDefinition();
-        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $backendView = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
 
         $backendView->getListingConfig()->setShowColumns(false);
-        $environment->getDataDefinition()->getBasicDefinition()->setMode(BasicDefinitionInterface::MODE_FLAT);
+        $dataDefinition->getBasicDefinition()->setMode(BasicDefinitionInterface::MODE_FLAT);
 
         return parent::process($action, $environment);
     }
@@ -112,7 +118,10 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     private function getPropertyDataProvider(EnvironmentInterface $environment)
     {
-        $providerName = 'property.' . $environment->getDataDefinition()->getName();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $providerName = 'property.' . $definition->getName();
 
         $dataProvider = new NoOpDataProvider();
         $dataProvider->setBaseConfig(['name' => $providerName]);
@@ -132,13 +141,19 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     private function setPropertyLabelFormatter($providerName, EnvironmentInterface $environment)
     {
-        $properties = $environment->getDataDefinition()->getPropertiesDefinition();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $properties = $definition->getPropertiesDefinition();
 
         $labelFormatter = (new DefaultModelFormatterConfig())
             ->setPropertyNames(['name', 'description'])
             ->setFormat('%s <span style="color:#b3b3b3; padding-left:3px">[%s]</span>');
 
-        $this->getViewSection($environment->getDataDefinition())
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $this->getViewSection($definition)
             ->getListingConfig()
             ->setLabelFormatter($providerName, $labelFormatter);
 
@@ -154,7 +169,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     }
 
     /**
-     * Return the field collection for each properties.
+     * Return the field collection for each property.
      *
      * @param DataProviderInterface $dataProvider The field data provider.
      * @param EnvironmentInterface  $environment  The environment.
@@ -165,7 +180,10 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     {
         $collection = $dataProvider->getEmptyCollection();
 
-        foreach ($environment->getDataDefinition()->getPropertiesDefinition() as $property) {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        foreach ($definition->getPropertiesDefinition() as $property) {
             if (!$this->isPropertyAllowed($property, $environment)) {
                 continue;
             }
@@ -205,17 +223,21 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         }
 
         $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
-        $extra = (array) $property->getExtra();
+        $extra = $property->getExtra();
         if (
             $this->isPropertyAllowedByEdit($extra, $environment)
             || $this->isPropertyAllowedByOverride($extra, $environment)
         ) {
+            $inputProvider = $environment->getInputProvider();
+            assert($inputProvider instanceof InputProviderInterface);
+
             Message::addInfo(
                 \sprintf(
                     $translator->translate('MSC.not_allowed_property_info'),
                     $property->getLabel() ?: $property->getName(),
-                    $translator->translate('MSC.' . $environment->getInputProvider()->getParameter('mode') . 'Selected')
+                    $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected')
                 )
             );
 
@@ -235,8 +257,11 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     private function isPropertyAllowedByEdit(array $extra, EnvironmentInterface $environment)
     {
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         return (true === ($extra['doNotEditMultiple'] ?? false))
-               && ('edit' === $environment->getInputProvider()->getParameter('mode'));
+               && ('edit' === $inputProvider->getParameter('mode'));
     }
 
     /**
@@ -249,10 +274,13 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     private function isPropertyAllowedByOverride(array $extra, EnvironmentInterface $environment)
     {
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         return ((true === ($extra['unique'] ?? false))
                 || isset($extra['readonly'])
                 || (true === ($extra['doNotOverrideMultiple'] ?? false)))
-               && ('override' === $environment->getInputProvider()->getParameter('mode'));
+               && ('override' === $inputProvider->getParameter('mode'));
     }
 
     /**
@@ -268,8 +296,13 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         EnvironmentInterface $environment
     ) {
         $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
         $inputProvider  = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
@@ -341,8 +374,11 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
-        $inputProvider  = $environment->getInputProvider();
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
 
         $languageDomain = 'contao_' . $dataDefinition->getName();
 
@@ -388,7 +424,10 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      */
     protected function getSelectButtons(EnvironmentInterface $environment)
     {
-        $languageDomain = 'contao_' . $environment->getDataDefinition()->getName();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $languageDomain = 'contao_' . $definition->getName();
 
         $confirmMessage = \htmlentities(
             \sprintf(
@@ -403,29 +442,34 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                 'BackendGeneral.hideMessage(); return false;'
             )
         );
-        $onClick        = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'properties[]\', \'' .
-                          $confirmMessage . '\'); return false;';
 
-        $continueName        = $environment->getInputProvider()->getParameter('mode');
-        $buttons['continue'] = \sprintf(
-            '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">',
-            $continueName,
-            $continueName,
-            'c',
-            StringUtil::specialchars($this->translate('MSC.continue', $languageDomain)),
-            $onClick
-        );
+        $onClick = 'BackendGeneral.confirmSelectOverrideEditAll(this, \'properties[]\', \'' .
+                   $confirmMessage . '\'); return false;';
 
-        return $buttons;
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $continueName = $inputProvider->getParameter('mode');
+
+        return [
+            'continue' => \sprintf(
+                '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">',
+                $continueName,
+                $continueName,
+                'c',
+                StringUtil::specialchars($this->translate('MSC.continue', $languageDomain)),
+                $onClick
+            )
+        ];
     }
 
     /**
      * Check if the action should be handled.
      *
-     * @param string $mode   The list mode.
+     * @param int    $mode   The list mode.
      * @param Action $action The action.
      *
-     * @return mixed
+     * @return bool
      */
     protected function wantToHandle($mode, Action $action)
     {

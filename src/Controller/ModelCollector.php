@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,13 +16,14 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
@@ -30,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
@@ -55,7 +57,7 @@ class ModelCollector
     /**
      * The mode the definition is in.
      *
-     * @var int
+     * @var int|null
      */
     private $definitionMode;
 
@@ -76,35 +78,35 @@ class ModelCollector
     /**
      * The root data provider.
      *
-     * @var DataProviderInterface
+     * @var DataProviderInterface|null
      */
     private $rootProvider;
 
     /**
      * The root data provider name.
      *
-     * @var string
+     * @var string|null
      */
     private $rootProviderName;
 
     /**
      * The parent data provider.
      *
-     * @var DataProviderInterface
+     * @var DataProviderInterface|null
      */
     private $parentProvider;
 
     /**
      * The parent data provider name.
      *
-     * @var string
+     * @var string|null
      */
     private $parentProviderName;
 
     /**
      * The default data provider name.
      *
-     * @var string
+     * @var string|null
      */
     private $defaultProviderName;
 
@@ -117,9 +119,14 @@ class ModelCollector
      */
     public function __construct(EnvironmentInterface $environment)
     {
-        $this->environment         = $environment;
-        $definition                = $this->environment->getDataDefinition();
-        $basicDefinition           = $definition->getBasicDefinition();
+        $this->environment = $environment;
+
+        $definition = $this->environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
+
         $this->definitionMode      = $basicDefinition->getMode();
         $this->relationships       = $definition->getModelRelationshipDefinition();
         $this->defaultProviderName = $basicDefinition->getDataProvider();
@@ -147,20 +154,20 @@ class ModelCollector
     /**
      * Fetch a certain model from its provider.
      *
-     * @param string|ModelIdInterface $modelId      This is either the id of the model or a serialized id.
+     * @param ModelIdInterface|string $modelId      This is either the id of the model or a serialized id.
      * @param string|null             $providerName The name of the provider, if this is empty, the id will be
      *                                              deserialized and the provider name will get extracted from there.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      *
      * @throws \InvalidArgumentException When the model id is invalid.
      */
     public function getModel($modelId, $providerName = null)
     {
         if (\is_string($modelId)) {
-            try {
+            if (null !== $providerName) {
                 $modelId = ModelId::fromValues($providerName, $modelId);
-            } catch (\Exception $swallow) {
+            } else {
                 $modelId = ModelId::fromSerialized($modelId);
             }
         }
@@ -169,14 +176,19 @@ class ModelCollector
             throw new \InvalidArgumentException('Invalid model id passed: ' . \var_export($modelId, true));
         }
 
-        $definition       = $this->environment->getDataDefinition();
+        $definition = $this->environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         $parentDefinition = $this->environment->getParentDataDefinition();
-        $dataProvider     = $this->environment->getDataProvider($modelId->getDataProviderName());
-        $config           = $dataProvider->getEmptyConfig();
+
+        $dataProvider = $this->environment->getDataProvider($modelId->getDataProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $config = $dataProvider->getEmptyConfig();
 
         if ($definition->getName() === $modelId->getDataProviderName()) {
             $propertyDefinition = $definition->getPropertiesDefinition();
-        } elseif ($parentDefinition->getName() === $modelId->getDataProviderName()) {
+        } elseif ($parentDefinition && $parentDefinition->getName() === $modelId->getDataProviderName()) {
             $propertyDefinition = $parentDefinition->getPropertiesDefinition();
         } else {
             throw new \InvalidArgumentException('Invalid provider name ' . $modelId->getDataProviderName());
@@ -228,8 +240,12 @@ class ModelCollector
                 }
 
                 $provider = $this->environment->getDataProvider($condition->getDestinationName());
-                $config   = $provider->getEmptyConfig()->setFilter($condition->getFilter($candidate));
-                $result   = $this->searchParentOfIn($model, $provider->fetchAll($config));
+                assert($provider instanceof DataProviderInterface);
+
+                $config = $provider->getEmptyConfig()->setFilter($condition->getFilter($candidate));
+                $parentCollection = $provider->fetchAll($config);
+                assert($parentCollection instanceof CollectionInterface);
+                $result = $this->searchParentOfIn($model, $parentCollection);
                 if (null !== $result) {
                     return $result;
                 }
@@ -289,12 +305,18 @@ class ModelCollector
         if ($this->rootProviderName !== $model->getProviderName()) {
             throw new DcGeneralInvalidArgumentException(
                 'Model originates from ' . $model->getProviderName() .
-                ' but is expected to be from ' . $this->rootProviderName .
+                ' but is expected to be from ' . ($this->rootProviderName ?? '') .
                 ' can not determine parent.'
             );
         }
 
-        $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->rootProviderName);
+        $parentProviderName = $this->parentProviderName;
+        assert(\is_string($parentProviderName));
+
+        $rootProviderName = $this->rootProviderName;
+        assert(\is_string($rootProviderName));
+
+        $condition = $this->relationships->getChildCondition($parentProviderName, $rootProviderName);
         if (null === $condition) {
             throw new DcGeneralInvalidArgumentException(
                 'Invalid configuration. Child condition must be defined!'
@@ -304,7 +326,9 @@ class ModelCollector
             return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
         }
 
-        foreach ($this->parentProvider->fetchAll($this->parentProvider->getEmptyConfig()) as $candidate) {
+        $parentCollection = $this->parentProvider->fetchAll($this->parentProvider->getEmptyConfig());
+        assert($parentCollection instanceof CollectionInterface);
+        foreach ($parentCollection as $candidate) {
             if ($condition->matches($candidate, $model)) {
                 return $candidate;
             }
@@ -316,39 +340,46 @@ class ModelCollector
     /**
      * Retrieve all siblings of a given model.
      *
-     * @param ModelInterface   $model           The model for which the siblings shall be retrieved from.
-     * @param string|null      $sortingProperty The property name to use for sorting.
-     * @param ModelIdInterface $parentId        The (optional) parent id to use.
+     * @param ModelInterface        $model           The model for which the siblings shall be retrieved from.
+     * @param string|null           $sortingProperty The property name to use for sorting.
+     * @param ModelIdInterface|null $parentId        The (optional) parent id to use.
      *
      * @return CollectionInterface
      *
-     * @throws DcGeneralRuntimeException When no parent model can be located.
      */
     public function collectSiblingsOf(
         ModelInterface $model,
         $sortingProperty = null,
         ModelIdInterface $parentId = null
     ) {
-        $config = $this->environment->getBaseConfigRegistry()->getBaseConfig($parentId);
+        $registry = $this->environment->getBaseConfigRegistry();
+        assert($registry instanceof BaseConfigRegistryInterface);
+
+        $config = $registry->getBaseConfig($parentId);
         // Add the parent filter.
         $this->addParentFilter($model, $config);
 
         if (null !== $sortingProperty) {
-            $config->setSorting([(string) $sortingProperty => 'ASC']);
+            $config->setSorting([$sortingProperty => 'ASC']);
         }
 
         // Handle grouping.
         $definition = $this->environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
         $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        if ($viewDefinition && ($viewDefinition instanceof Contao2BackendViewDefinitionInterface)) {
+        if ($viewDefinition instanceof Contao2BackendViewDefinitionInterface) {
             $listingConfig        = $viewDefinition->getListingConfig();
-            $sortingProperties    = \array_keys((array) $listingConfig->getDefaultSortingFields());
+            /** @psalm-suppress DeprecatedMethod */
+            $sortingProperties    = \array_keys($listingConfig->getDefaultSortingFields());
             $sortingPropertyIndex = \array_search($sortingProperty, $sortingProperties);
 
             if (false !== $sortingPropertyIndex && $sortingPropertyIndex > 0) {
                 $sortingProperties = \array_slice($sortingProperties, 0, $sortingPropertyIndex);
-                $filters           = $config->getFilter();
+
+                $filters = $config->getFilter();
+                assert(\is_array($filters));
 
                 foreach ($sortingProperties as $propertyName) {
                     $filters[] = [
@@ -362,7 +393,12 @@ class ModelCollector
             }
         }
 
-        return $this->environment->getDataProvider($model->getProviderName())->fetchAll($config);
+        $dataProvider = $this->environment->getDataProvider($model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $siblingCollection = $dataProvider->fetchAll($config);
+        assert($siblingCollection instanceof CollectionInterface);
+        return $siblingCollection;
     }
 
     /**
@@ -406,12 +442,15 @@ class ModelCollector
      * @param string         $providerName The name of the data provider to fetch children from.
      * @param bool           $recursive    Determine for recursive sampling. For models with included child models.
      *
-     * @return array
+     * @return list<string>
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    private function internalCollectChildrenOf(ModelInterface $model, $providerName = '', $recursive = false)
-    {
+    private function internalCollectChildrenOf(
+        ModelInterface $model,
+        string $providerName = '',
+        bool $recursive = false
+    ) {
         if ('' === $providerName) {
             $providerName = $model->getProviderName();
         }
@@ -422,10 +461,13 @@ class ModelCollector
         $childIds = [];
         foreach ($this->relationships->getChildConditions($model->getProviderName()) as $condition) {
             $provider = $this->environment->getDataProvider($condition->getDestinationName());
-            $config   = $provider->getEmptyConfig();
+            assert($provider instanceof DataProviderInterface);
+
+            $config = $provider->getEmptyConfig();
             $config->setFilter($condition->getFilter($model));
 
             $result = $provider->fetchAll($config);
+            assert($result instanceof CollectionInterface);
             if (!$recursive && $result->length() === 0) {
                 return [];
             }
@@ -444,7 +486,7 @@ class ModelCollector
             }
         }
 
-        return \array_merge($ids, ...$childIds);
+        return \array_values(\array_merge($ids, ...$childIds));
     }
 
     /**
@@ -460,7 +502,13 @@ class ModelCollector
     {
         $this->guardParentProviderDefined();
 
-        $condition = $this->relationships->getChildCondition($this->parentProviderName, $this->defaultProviderName);
+        $defaultProviderName = $this->defaultProviderName;
+        assert(\is_string($defaultProviderName));
+
+        $parentProviderName = $this->parentProviderName;
+        assert(\is_string($parentProviderName));
+
+        $condition = $this->relationships->getChildCondition($parentProviderName, $defaultProviderName);
 
         if (null === $condition) {
             throw new DcGeneralInvalidArgumentException(
@@ -468,11 +516,15 @@ class ModelCollector
             );
         }
 
-        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
-            return $this->parentProvider->fetch($this->parentProvider->getEmptyConfig()->setFilter($inverseFilter));
-        }
+        $parentProvider = $this->parentProvider;
+        assert($parentProvider instanceof DataProviderInterface);
 
-        foreach ($this->parentProvider->fetchAll($this->parentProvider->getEmptyConfig()) as $candidate) {
+        if (null !== ($inverseFilter = $condition->getInverseFilterFor($model))) {
+            return $parentProvider->fetch($parentProvider->getEmptyConfig()->setFilter($inverseFilter));
+        }
+        $parentCollection = $parentProvider->fetchAll($parentProvider->getEmptyConfig());
+        assert($parentCollection instanceof CollectionInterface);
+        foreach ($parentCollection as $candidate) {
             if ($condition->matches($candidate, $model)) {
                 return $candidate;
             }
@@ -508,8 +560,10 @@ class ModelCollector
             }
 
             $provider = $this->environment->getDataProvider($condition->getSourceName());
+            assert($provider instanceof DataProviderInterface);
+
             $config   = $provider->getEmptyConfig()->setFilter($inverseFilter);
-            $parent   = $this->environment->getDataProvider($condition->getSourceName())->fetch($config);
+            $parent   = $provider->fetch($config);
 
             if (null !== $parent) {
                 return $parent;
@@ -517,9 +571,14 @@ class ModelCollector
         }
         // Start from the root data provider and walk through the whole tree.
         // To speed up, some conditions have an inverse filter - we should use them!
-        $config = $this->rootProvider->getEmptyConfig()->setFilter($this->rootCondition->getFilterArray());
-
-        return $this->searchParentOfIn($model, $this->rootProvider->fetchAll($config));
+        $rootProvider = $this->rootProvider;
+        assert($rootProvider instanceof DataProviderInterface);
+        $rootCondition = $this->rootCondition;
+        assert($rootCondition instanceof RootConditionInterface);
+        $config = $rootProvider->getEmptyConfig()->setFilter($rootCondition->getFilterArray());
+        $parentCollection = $rootProvider->fetchAll($config);
+        assert($parentCollection instanceof CollectionInterface);
+        return $this->searchParentOfIn($model, $parentCollection);
     }
 
     /**
@@ -542,7 +601,10 @@ class ModelCollector
 
         // Root model?
         if ($this->isRootModel($model)) {
-            $config->setFilter($this->rootCondition->getFilterArray());
+            $rootCondition = $this->rootCondition;
+            assert($rootCondition instanceof RootConditionInterface);
+
+            $config->setFilter($rootCondition->getFilterArray());
             return;
         }
 
@@ -626,7 +688,7 @@ class ModelCollector
 
         throw new DcGeneralInvalidArgumentException(
             'Model originates from ' . $model->getProviderName() .
-            ' but is expected to be from ' . $this->defaultProviderName .
+            ' but is expected to be from ' . ($this->defaultProviderName ?? '') .
             ' can not determine parent.'
         );
     }

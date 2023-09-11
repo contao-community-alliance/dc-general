@@ -171,7 +171,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Set the next model in the list, succeeding the current model.
      *
-     * @param ModelInterface $next The successor.
+     * @param ModelInterface|null $next The successor.
      *
      * @return $this
      */
@@ -195,7 +195,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Set the previous model in the list, preceding the current model.
      *
-     * @param ModelInterface $previous The id of the predecessor.
+     * @param ModelInterface|null $previous The id of the predecessor.
      *
      * @return $this
      */

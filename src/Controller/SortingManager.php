@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -32,35 +32,35 @@ class SortingManager
     /**
      * The collection containing the models to be inserted.
      *
-     * @var CollectionInterface
+     * @var CollectionInterface|null
      */
     protected $models;
 
     /**
      * The collection containing the models that are siblings.
      *
-     * @var CollectionInterface
+     * @var CollectionInterface|null
      */
-    protected $siblings;
+    protected $siblings = null;
 
     /**
      * The collection containing the models that are siblings (working copy).
      *
-     * @var CollectionInterface
+     * @var CollectionInterface|null
      */
     protected $siblingsCopy;
 
     /**
      * The result collection.
      *
-     * @var CollectionInterface
+     * @var CollectionInterface|null
      */
     protected $results;
 
     /**
      * The model preceding the target position of the first model from the collection.
      *
-     * @var null|ModelInterface
+     * @var ModelInterface|null
      */
     protected $previousModel;
 
@@ -69,12 +69,12 @@ class SortingManager
      *
      * @var string
      */
-    protected $sortingProperty;
+    protected $sortingProperty = '';
 
     /**
      * Temporary marker containing the model currently in scope.
      *
-     * @var null|ModelInterface
+     * @var ModelInterface|null
      */
     protected $marker;
 
@@ -83,21 +83,21 @@ class SortingManager
      *
      * @var int
      */
-    protected $position;
+    protected $position = 0;
 
     /**
      * Create a new instance.
      *
-     * @param CollectionInterface $models        The collection containing the models to be inserted.
-     * @param CollectionInterface $siblings      The collection containing the models that are siblings.
-     * @param string              $sortedBy      The property that is used for sorting.
-     * @param ModelInterface      $previousModel The model preceding the target position of the first model from the
-     *                                           collection.
+     * @param CollectionInterface|null $models        The collection containing the models to be inserted.
+     * @param CollectionInterface|null $siblings      The collection containing the models that are siblings.
+     * @param string|null              $sortedBy      The property that is used for sorting.
+     * @param ModelInterface|null      $previousModel The model preceding the target position of the first model from
+     *                                                the collection.
      */
     public function __construct(
         CollectionInterface $models = null,
         CollectionInterface $siblings = null,
-        $sortedBy = null,
+        string $sortedBy = null,
         ModelInterface $previousModel = null
     ) {
         if ($models) {
@@ -135,7 +135,7 @@ class SortingManager
     /**
      * Get the collection containing the models to be inserted.
      *
-     * @return CollectionInterface
+     * @return CollectionInterface|null
      */
     public function getModels()
     {
@@ -171,7 +171,7 @@ class SortingManager
     /**
      * Get the result collection.
      *
-     * @return CollectionInterface
+     * @return CollectionInterface|null
      */
     public function getResults()
     {
@@ -227,8 +227,11 @@ class SortingManager
      */
     protected function getModelIds()
     {
-        $ids = [];
+        if (null === $this->models) {
+            return [];
+        }
 
+        $ids = [];
         foreach ($this->models as $model) {
             /** @var ModelInterface $model */
             $ids[] = $model->getId();
@@ -248,32 +251,37 @@ class SortingManager
         $this->marker   = null;
         $this->position = 0;
         $ids            = $this->getModelIds();
+
+        $siblingsCopy = $this->siblingsCopy;
+        assert($siblingsCopy instanceof CollectionInterface);
+
         // If no previous model, insert at beginning.
         if (null === $this->previousModel) {
-            if ($this->siblingsCopy->length()) {
-                $this->marker = $this->siblingsCopy->shift();
+            if ($siblingsCopy->length()) {
+                $this->marker = $siblingsCopy->shift();
             }
 
             return;
         }
 
-        if ($this->siblingsCopy->length()) {
+        $previousModel = $this->getPreviousModel();
+        assert($previousModel instanceof ModelInterface);
+
+        if ($siblingsCopy->length()) {
             // Search for "previous" sibling.
             do {
-                $this->marker = $this->siblingsCopy->shift();
-
-                if (\in_array($this->marker->getId(), $ids)) {
-                    continue;
-                }
-
+                $this->marker = $siblingsCopy->shift();
                 if ($this->marker) {
+                    if (\in_array($this->marker->getId(), $ids, true)) {
+                        continue;
+                    }
                     $this->position = $this->marker->getProperty($this->getSortingProperty());
                 }
-            } while ($this->marker && $this->marker->getId() !== $this->getPreviousModel()->getId());
+            } while ($this->marker && $this->marker->getId() !== $previousModel->getId());
 
             // Remember the "next" sibling.
             if ($this->marker) {
-                $this->marker = $this->siblingsCopy->shift();
+                $this->marker = $siblingsCopy->shift();
             }
         }
     }
@@ -287,14 +295,20 @@ class SortingManager
      */
     private function determineDelta()
     {
+        $marker = $this->marker;
+        assert($marker instanceof ModelInterface);
+
+        $results = $this->results;
+        assert($results instanceof CollectionInterface);
+
         $delta = (
-            ($this->marker->getProperty($this->getSortingProperty()) - $this->position) / $this->results->length()
+            ($marker->getProperty($this->getSortingProperty()) - $this->position) / $results->length()
         );
 
         // If delta too narrow, we need to make room.
         // Prevent delta to exceed, also. Use minimum delta which is calculated as multiple of 128.
         if (($delta < 2) || ($delta > 128)) {
-            return (\ceil($this->results->length() / 128) * 128);
+            return (\ceil($results->length() / 128) * 128);
         }
 
         return $delta;
@@ -307,6 +321,8 @@ class SortingManager
      */
     private function updateSorting()
     {
+        // Called from calculate() only when siblings exist.
+        assert($this->results instanceof CollectionInterface);
         $ids = $this->getModelIds();
         // If no "next" sibling, simply increment the sorting as we are at the end of the list.
         if (!$this->marker) {
@@ -323,7 +339,7 @@ class SortingManager
 
         // Loop over all models and increment sorting value.
         foreach ($this->results as $model) {
-            $this->position += $delta;
+            $this->position += (int) $delta;
             /** @var ModelInterface $model */
             $model->setProperty($this->getSortingProperty(), $this->position);
         }
@@ -332,17 +348,20 @@ class SortingManager
         // end of the list.
         if ($this->marker->getProperty($this->getSortingProperty()) <= $this->position) {
             do {
+                $siblingsCopy = $this->siblingsCopy;
+                assert($siblingsCopy instanceof CollectionInterface);
+
                 // Skip models about to be pasted.
                 if (\in_array($this->marker->getId(), $ids)) {
-                    $this->marker = $this->siblingsCopy->shift();
+                    $this->marker = $siblingsCopy->shift();
                     continue;
                 }
 
-                $this->position += $delta;
+                $this->position += (int) $delta;
                 $this->marker->setProperty($this->getSortingProperty(), $this->position);
                 $this->results->push($this->marker);
 
-                $this->marker = $this->siblingsCopy->shift();
+                $this->marker = $siblingsCopy->shift();
             } while ($this->marker);
         }
     }
@@ -356,16 +375,22 @@ class SortingManager
      */
     protected function calculate()
     {
-        if (isset($this->results) || (0 === $this->models->length())) {
+        $models = $this->models;
+        assert($models instanceof CollectionInterface);
+
+        if (isset($this->results) || (0 === $models->length())) {
             return;
         }
 
         if (!$this->getSortingProperty()) {
-            throw new \RuntimeException('No sorting property defined for ' . $this->models->get(0)->getProviderName());
+            $firstModel = $models->get(0);
+            assert($firstModel instanceof ModelInterface);
+
+            throw new \RuntimeException('No sorting property defined for ' . $firstModel->getProviderName());
         }
 
-        $this->results      = clone $this->models;
-        $this->siblingsCopy = clone $this->siblings;
+        $this->results = clone $models;
+        $this->siblingsCopy = $this->siblings ? clone $this->siblings : null;
 
         $this->scanToDesiredPosition();
         $this->updateSorting();

@@ -27,6 +27,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  *
  * Base implementation of an no operational data provider. This data provider is simply a stub endpoint without any
  * logic at all. It is useful as parent class for drivers that only implement a fraction of all DcGeneral features.
+ *
+ * @psalm-suppress MissingConstructor - properties will get set in setBaseConfig().
  */
 class NoOpDataProvider implements DataProviderInterface
 {
@@ -72,7 +74,7 @@ class NoOpDataProvider implements DataProviderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return DefaultFilterOptionCollection
      */
     public function getEmptyFilterOptionCollection()
     {
@@ -122,6 +124,7 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function save(ModelInterface $item, $timestamp = 0)
     {
+        return $item;
     }
 
     /**
@@ -161,7 +164,7 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function getVersions($mixID, $onlyActive = false)
     {
-        return null;
+        return new DefaultCollection();
     }
 
     /**

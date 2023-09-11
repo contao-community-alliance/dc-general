@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -41,11 +42,11 @@ interface EnvironmentInterface
     /**
      * Set the Controller for the current setup.
      *
-     * @param ControllerInterface $objController The controller to use.
+     * @param ControllerInterface $controller The controller to use.
      *
      * @return EnvironmentInterface
      */
-    public function setController($objController);
+    public function setController($controller);
 
     /**
      * Retrieve the Controller from the current setup.
@@ -57,11 +58,11 @@ interface EnvironmentInterface
     /**
      * Set the View for the current setup.
      *
-     * @param ViewInterface $objView The view to use.
+     * @param ViewInterface $view The view to use.
      *
      * @return EnvironmentInterface
      */
-    public function setView($objView);
+    public function setView($view);
 
     /**
      * Retrieve the View from the current setup.
@@ -73,11 +74,11 @@ interface EnvironmentInterface
     /**
      * Set the data definition for this instance.
      *
-     * @param ContainerInterface $objContainer The data definition container to store.
+     * @param ContainerInterface $dataDefinition The data definition container to store.
      *
      * @return EnvironmentInterface
      */
-    public function setDataDefinition($objContainer);
+    public function setDataDefinition($dataDefinition);
 
     /**
      * Retrieve the data definition for this instance.
@@ -89,11 +90,13 @@ interface EnvironmentInterface
     /**
      * Set the data definition of the parent container.
      *
-     * @param ContainerInterface $objContainer The data definition container to store.
+     * @param ContainerInterface $objParentDataDefinition The data definition container to store.
      *
      * @return EnvironmentInterface
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
-    public function setParentDataDefinition($objContainer);
+    public function setParentDataDefinition($objParentDataDefinition);
 
     /**
      * Retrieve the data definition for the parent container. This applies only when in parented mode.
@@ -105,11 +108,11 @@ interface EnvironmentInterface
     /**
      * Set the data definition of the root container.
      *
-     * @param ContainerInterface $objContainer The data definition container to store.
+     * @param ContainerInterface $rootDataDefinition The data definition container to store.
      *
      * @return EnvironmentInterface
      */
-    public function setRootDataDefinition($objContainer);
+    public function setRootDataDefinition($rootDataDefinition);
 
     /**
      * Retrieve the data definition for the root container. This applies only when in hierarchical mode.
@@ -137,11 +140,11 @@ interface EnvironmentInterface
     /**
      * Set the input provider to use.
      *
-     * @param InputProviderInterface $objInputProvider The input provider to use.
+     * @param InputProviderInterface $inputProvider The input provider to use.
      *
      * @return EnvironmentInterface
      */
-    public function setInputProvider($objInputProvider);
+    public function setInputProvider($inputProvider);
 
     /**
      * Retrieve the input provider.
@@ -169,11 +172,11 @@ interface EnvironmentInterface
     /**
      * Determine if the data provider with the given name exists.
      *
-     * @param string|null $strSource The source name to check the providers for.
+     * @param string|null $source The source name to check the providers for.
      *
      * @return mixed
      */
-    public function hasDataProvider($strSource = null);
+    public function hasDataProvider($source = null);
 
     /**
      * Retrieve the data provider for the named source.
@@ -214,9 +217,9 @@ interface EnvironmentInterface
     public function getClipboard();
 
     /**
-     * Set the the clipboard.
+     * Set the clipboard.
      *
-     * @param ClipboardInterface $objClipboard Clipboard instance.
+     * @param ClipboardInterface|null $objClipboard Clipboard instance.
      *
      * @return EnvironmentInterface
      */

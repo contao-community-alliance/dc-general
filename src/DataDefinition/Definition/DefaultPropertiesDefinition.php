@@ -106,7 +106,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
     /**
      * {@inheritdoc}
      *
-     * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
+     * @throws DcGeneralInvalidArgumentException When a property with the given name has not been registered.
      */
     public function getProperty($name)
     {

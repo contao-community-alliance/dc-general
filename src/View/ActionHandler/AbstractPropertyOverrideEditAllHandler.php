@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023s Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -31,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -43,7 +45,9 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use LogicException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class is the abstract base for override/edit all "overrideAll/editAll" commands.
@@ -53,6 +57,8 @@ use LogicException;
  */
 abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVisibilityHandler
 {
+    use CallActionTrait;
+
     /**
      * Handle submit triggered button.
      *
@@ -69,6 +75,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputProvider   = $this->getInputProvider($environment);
         $sessionStorage  = $this->getSessionStorage($environment);
         $eventDispatcher = $environment->getEventDispatcher();
+        assert($eventDispatcher instanceof EventDispatcherInterface);
 
         if (
             ('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
@@ -110,6 +117,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     ) {
         while ($collection->count() > 0) {
             $model = $collection->shift();
+            assert($model instanceof ModelInterface);
 
             $persistPropertyValueBag =
                 $this->cloneCleanPropertyValueBag($action, $propertyValueBag, $model, $environment);
@@ -131,6 +139,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     protected function updateErrorInformation(
         \ArrayObject $renderInformation
     ) {
+        /** @var array<string, array<string, list<string>>>|null $modelError */
         $modelError =
             $renderInformation->offsetExists('modelError') ? $renderInformation->offsetGet('modelError') : null;
 
@@ -232,8 +241,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $editInformation  = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
+
         $errorInformation = $editInformation->getModelError($model);
-        if (null === $errorInformation) {
+        if (!$errorInformation) {
             return;
         }
 
@@ -301,7 +312,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         PropertyValueBagInterface $updateBag,
         EnvironmentInterface $environment
     ) {
-        $dataProvider      = $environment->getDataProvider();
+        $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
         $sessionProperties = $this->getPropertiesFromSession($action, $environment);
 
         foreach (\array_keys($sessionProperties) as $sessionPropertyName) {
@@ -311,6 +324,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
             if (!$updateBag->isPropertyValueInvalid($sessionPropertyName)) {
                 $editModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($model->getId()));
+                assert($editModel instanceof ModelInterface);
+
                 $updateBag->setPropertyValue(
                     $sessionPropertyName,
                     $editModel->getProperty($sessionPropertyName)
@@ -348,8 +363,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         PropertyValueBagInterface $propertyValueBag,
         EnvironmentInterface $environment
     ) {
-        $inputProvider   = $this->getInputProvider($environment);
+        $inputProvider = $this->getInputProvider($environment);
+        assert($inputProvider instanceof InputProviderInterface);
+
         $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
 
         $inputValues = $this->handleInputValues($action, $model, $environment);
 
@@ -370,7 +388,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $this->restoreInputValues($action, $model, $propertyValueBag, $inputValues, $environment);
 
         $errorInformation = $editInformation->getModelError($model);
-        if (null !== $errorInformation) {
+        if ($errorInformation) {
             foreach (\array_keys($errorInformation) as $errorPropertyName) {
                 if (false === $propertyValueBag->hasPropertyValue($errorPropertyName)) {
                     continue;
@@ -407,9 +425,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         }
 
         $inputProvider = $this->getInputProvider($environment);
+        assert($inputProvider instanceof InputProviderInterface);
 
         $inputValues = [];
         foreach (\array_keys($_POST) as $valueName) {
+            $valueName = (string) $valueName;
             $inputValues[$valueName] = $inputProvider->getValue($valueName, true);
             $inputProvider->unsetValue($valueName);
 
@@ -479,11 +499,12 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return array
+     * @return string
      */
     protected function getEditButtons(Action $action, EnvironmentInterface $environment)
     {
         $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
         $mode = $this->getMode($action);
 
@@ -548,7 +569,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $propertiesDefinition = $this->getDataDefinition($environment)->getPropertiesDefinition();
-        $editInformation      = System::getContainer()->get('cca.dc-general.edit-information');
+
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
 
         $propertyValueBag = new PropertyValueBag();
 
@@ -594,6 +617,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage = $this->getSessionStorage($environment);
         $dataDefinition = $this->getDataDefinition($environment);
         $dataProvider   = $environment->getDataProvider($dataDefinition->getName());
+        assert($dataProvider instanceof DataProviderInterface);
 
         $addEditProperties =
             $inputProvider->hasValue('FORM_INPUTS')
@@ -608,8 +632,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
 
             if ($addEditProperties) {
-                $modelEditProperties = $inputProvider->getValue(\str_replace('::', '____', $modelId) . '_', true);
-                $inputProvider->unsetValue(\str_replace('::', '____', $modelId) . '_');
+                $transformed         = \str_replace('::', '____', (string) $modelId) . '_';
+                $modelEditProperties = $inputProvider->getValue($transformed, true);
+                $inputProvider->unsetValue($transformed);
 
                 $editProperties[$modelId] = $modelEditProperties;
             }
@@ -621,6 +646,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                 [['operation' => 'IN', 'property' => $idProperty, 'values' => $modelIds]]
             )
         );
+        assert($collection instanceof CollectionInterface);
 
         $session['editProperties'] = $editProperties;
 
@@ -644,7 +670,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $session = $this->getSession($action, $environment);
-//dd($session['editProperties']);
+
         return $session['editProperties'][$modelId->getSerialized()] ?? [];
     }
 
@@ -660,8 +686,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      */
     protected function renderBreadcrumb(EnvironmentInterface $environment)
     {
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $event = new GetBreadcrumbEvent($environment);
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher->dispatch($event, $event::NAME);
         $elements = $event->getElements();
         if (empty($elements)) {
             return null;
@@ -692,15 +721,20 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
+
         if (!$editInformation->hasAnyModelError()) {
             return;
         }
 
         $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
         $properties   = $this->getPropertiesFromSession($action, $environment);
 
         while ($collection->count() > 0) {
             $model = $collection->shift();
+            assert($model instanceof ModelInterface);
 
             $modelErrors = $editInformation->getModelError($model);
             if (!$modelErrors && ('edit' === $this->getMode($action))) {
@@ -708,6 +742,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             }
 
             $revertModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($model->getId()));
+            assert($revertModel instanceof ModelInterface);
 
             $originalModel = clone $revertModel;
             $revertModel->setId($revertModel->getId());
@@ -741,7 +776,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         EnvironmentInterface $environment
     ) {
         $event = new PostPersistModelEvent($environment, $model, $originalModel);
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, $event::NAME);
     }
 
     /**
@@ -765,6 +804,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     {
         $dataDefinition = $this->getDataDefinition($environment);
         $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getMode($action));
 

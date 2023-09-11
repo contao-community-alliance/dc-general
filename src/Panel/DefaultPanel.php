@@ -32,16 +32,16 @@ class DefaultPanel implements PanelInterface
     /**
      * The panel container this panel is contained within.
      *
-     * @var PanelContainerInterface
+     * @var PanelContainerInterface|null
      */
-    private $objContainer;
+    private ?PanelContainerInterface $objContainer = null;
 
     /**
      * The elements contained within this panel.
      *
-     * @var PanelElementInterface[]
+     * @var array<string, PanelElementInterface>
      */
-    private $arrElements;
+    private array $arrElements;
 
     /**
      * Create a new instance.
@@ -56,6 +56,10 @@ class DefaultPanel implements PanelInterface
      */
     public function getContainer()
     {
+        if (null === $this->objContainer) {
+             throw new \LogicException('Container for panel is not set.');
+        }
+
         return $this->objContainer;
     }
 

@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -389,7 +390,10 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            if (false === $searchProperty->getVisibleCondition()->match($intersectModel)) {
+            $visibleCondition = $searchProperty->getVisibleCondition();
+            assert($visibleCondition instanceof PropertyConditionInterface);
+
+            if (false === $visibleCondition->match($intersectModel)) {
                 continue;
             }
 

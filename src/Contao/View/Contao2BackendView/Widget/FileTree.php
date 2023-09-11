@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -25,9 +25,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widge
 
 use Contao\Config;
 use Contao\CoreBundle\Exception\ResponseException;
+use Contao\CoreBundle\Image\ImageFactoryInterface;
+use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\DataContainer;
 use Contao\Environment;
 use Contao\File;
+use Contao\FileSelector;
 use Contao\FilesModel;
 use Contao\Image;
 use Contao\Image\ResizeConfiguration;
@@ -36,21 +39,33 @@ use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * File tree widget being compatible with the dc general.
  *
- * @property string strField    The field name.
- * @property bool   mandatory   If true the field is required.
- * @property bool   multiple    If true multiple values are allowed.
- * @property bool   isGallery   If true the a image gallery is rendered.
- * @property bool   isDownloads If true only allowed download files are listed.
+ * @property string      $strField    The field name.
+ * @property bool        $mandatory   If true the field is required.
+ * @property bool        $multiple    If true multiple values are allowed.
+ * @property bool        $isGallery   If true the image gallery is rendered.
+ * @property bool        $isDownloads If true only allowed download files are listed.
+ * @property string      $fieldType   Either 'radio' or 'checkbox'.
+ * @property bool|null   $files       Flag if files shall be shown.
+ * @property bool|null   $filesOnly   Flag if only files shall be selectable.
+ * @property string|null $path        The root path.
+ * @property string|null $extensions  The list of valid file extensions.
  *
  * @see https://github.com/contao/core/blob/master/system/modules/core/widgets/FileTree.php
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @psalm-suppress PropertyNotSetInConstructor
+ *
+ * @deprecated Deprecated since Contao 4.13 as the used FilePicker has been deprecated. Use the picker instead.
  */
 class FileTree extends AbstractWidget
 {
@@ -71,16 +86,16 @@ class FileTree extends AbstractWidget
     /**
      * The order field attribute name.
      *
-     * @var string.
+     * @var string
      */
-    protected $orderField;
+    protected $orderField = '';
 
     /**
      * The order field value.
      *
-     * @var array.
+     * @var null|list<string>
      */
-    protected $orderFieldValue;
+    protected $orderFieldValue = null;
 
     /**
      * The default width of the thumbnail.
@@ -171,7 +186,9 @@ class FileTree extends AbstractWidget
      *
      * @param string $strKey The property name.
      *
-     * @return string The property value
+     * @return bool|int|null|object|string The property value
+     *
+     * @psalm-suppress ImplementedReturnTypeMismatch - Widget incorrectly annotates that it only returns string.
      */
     public function __get($strKey)
     {
@@ -199,7 +216,7 @@ class FileTree extends AbstractWidget
      *
      * @param string $strKey The property name.
      *
-     * @return boolean True if the property exists
+     * @return bool True if the property exists
      */
     public function __isset($strKey)
     {
@@ -217,12 +234,12 @@ class FileTree extends AbstractWidget
                 return isset($this->placeholderImage);
 
             default:
-                return parent::__get($strKey);
+                return (bool) parent::__get($strKey);
         }
     }
 
     /**
-     * Setup the file tree widget.
+     * Set up the file tree widget.
      *
      * @return void
      *
@@ -234,75 +251,93 @@ class FileTree extends AbstractWidget
         // Load the fonts for the drag hint (see #4838)
         $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
-        $this->projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        $projectDir = System::getContainer()->getParameter('kernel.project_dir');
+        assert(\is_string($projectDir));
+        $this->projectDir = $projectDir;
 
-        if (!$this->dataContainer || !$this->orderField) {
+        if (!$this->orderField) {
             return;
         }
 
-        $value = $this->dataContainer->getModel()->getProperty($this->orderField);
+        assert($this->dataContainer instanceof DcCompat);
+        $model = $this->dataContainer->getModel();
+        assert($model instanceof ModelInterface);
+
+        $value = $model->getProperty($this->orderField);
 
         // support serialized values.
         if (!\is_array($value)) {
             $value = StringUtil::deserialize($value, true);
+            assert(\is_array($value));
         }
+        $value = \array_values($value);
+        /** @var list<string> $value */
 
-        $this->orderId         = $this->orderField . \str_replace($this->strField, '', $this->strId);
-        $this->orderFieldValue = (!empty($value) && \is_array($value)) ? \array_filter($value) : [];
+        $this->orderId         = $this->orderField . \str_replace($this->strField, '', (string) $this->strId);
+        $this->orderFieldValue = \array_values(\array_filter($value));
     }
 
     /**
      * Process the validation.
      *
-     * @param mixed $inputValue The input value.
+     * @param mixed $varInput The input value.
      *
      * @return array|string
      */
-    protected function validator($inputValue)
+    protected function validator($varInput)
     {
-        if ('' === $inputValue) {
+        if ('' === $varInput) {
             if ($this->mandatory) {
+                $translator = $this->getEnvironment()->getTranslator();
+                assert($translator instanceof TranslatorInterface);
+
                 $this->addError(
-                    $this->getEnvironment()->getTranslator()->translate('mandatory', 'ERR', [$this->strLabel])
+                    $translator->translate('mandatory', 'ERR', [$this->strLabel])
                 );
             }
 
             return '';
         }
 
-        $inputValue = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $inputValue)));
+        $varInput = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
 
-        return $this->multiple ? $inputValue : $inputValue[0];
+        return $this->multiple ? $varInput : $varInput[0];
     }
 
     /**
      * Render the file list.
      *
      * @param array           $icons         The generated icons.
-     * @param Collection|null $collection    The files collection.
+     * @param Collection|null $collection    The file's collection.
      *
-     * @param bool            $followSubDirs If true subfolders get rendered.
+     * @param bool            $followSubDirs If true sub-folders get rendered.
      *
      * @return void
      */
-    private function renderList(array &$icons, Collection $collection = null, $followSubDirs = false)
+    private function renderList(array &$icons, Collection $collection = null, bool $followSubDirs = false)
     {
         if (!$collection) {
             return;
         }
 
         foreach ($collection->getModels() as $model) {
+            assert($model instanceof FilesModel);
+            $uuid = $model->uuid;
+            assert(is_string($uuid));
             // File system and database seem not in sync
             if (!\file_exists($this->projectDir . '/' . $model->path)) {
                 continue;
             }
 
             if (('folder' === $model->type) && $followSubDirs) {
-                $this->renderList($icons, FilesModel::findByPid($model->uuid));
+                $files = FilesModel::findByPid($uuid);
+                assert($files instanceof Collection);
+                $this->renderList($icons, $files);
                 continue;
             }
+
             if (false !== ($icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads))) {
-                $icons[\md5($model->uuid)] = ['uuid' => $model->uuid, 'image' => $icon];
+                $icons[\md5($uuid)] = ['uuid' => $uuid, 'image' => $icon];
             }
         }
     }
@@ -397,14 +432,16 @@ class FileTree extends AbstractWidget
             )
         ) {
             // Inline the image if no preview image will be generated (see #636).
-            if (
-                $file->height !== null && $file->height <= $this->thumbnailHeight
-                && $file->width !== null && $file->width <= $this->thumbnailWidth
-            ) {
+            if ($file->height <= $this->thumbnailHeight && $file->width <= $this->thumbnailWidth) {
                 $image = $file->dataUri;
             } else {
                 $projectDir = System::getContainer()->getParameter('kernel.project_dir');
-                $image      = System::getContainer()->get('contao.image.image_factory')->create(
+                assert(\is_string($projectDir));
+
+                $imageFactory = System::getContainer()->get('contao.image.image_factory');
+                assert($imageFactory instanceof ImageFactoryInterface);
+
+                $image = $imageFactory->create(
                     $projectDir . '/' . $file->path,
                     [$this->thumbnailWidth, $this->thumbnailHeight, ResizeConfiguration::MODE_BOX]
                 )->getUrl($projectDir);
@@ -468,15 +505,18 @@ class FileTree extends AbstractWidget
             $extras['filesOnly'] = (bool) $this->filesOnly;
         }
 
-        if ($this->path) {
-            $extras['path'] = (string) $this->path;
+        if (\is_string($this->path)) {
+            $extras['path'] = $this->path;
         }
 
-        if ($this->extensions) {
-            $extras['extensions'] = (string) $this->extensions;
+        if (\is_string($this->extensions)) {
+            $extras['extensions'] = $this->extensions;
         }
 
-        return System::getContainer()->get('contao.picker.builder')->getUrl('file', $extras);
+        $pickerBuilder = System::getContainer()->get('contao.picker.builder');
+        assert($pickerBuilder instanceof PickerBuilderInterface);
+
+        return $pickerBuilder->getUrl('file', $extras);
     }
 
     /**
@@ -489,8 +529,12 @@ class FileTree extends AbstractWidget
 
         if (!empty($this->varValue)) {
             $files = FilesModel::findMultipleByUuids((array) $this->varValue);
-            $this->renderList($icons, $files, $this->isGallery || $this->isDownloads);
-            //dump($icons);
+
+            if (null !== $files) {
+                assert($files instanceof Collection);
+                $this->renderList($icons, $files, $this->isGallery || $this->isDownloads);
+            }
+
             $icons = $this->applySorting($icons);
 
             // Files can be null.
@@ -501,12 +545,15 @@ class FileTree extends AbstractWidget
             }
         }
 
+        $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         $content = (new ContaoBackendViewTemplate($this->subTemplate))
-            ->setTranslator($this->getEnvironment()->getTranslator())
+            ->setTranslator($translator)
             ->set('name', $this->strName)
             ->set('id', $this->strId)
             ->set('value', \implode(',', $values))
-            ->set('hasOrder', $this->orderField != '' && \is_array($this->orderFieldValue))
+            ->set('hasOrder', $this->orderField !== '' && \is_array($this->orderFieldValue))
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)
             ->set('orderId', $this->orderId)
@@ -538,14 +585,20 @@ class FileTree extends AbstractWidget
             return '';
         }
 
+        assert($dataContainer instanceof DcCompat);
         $this->dataContainer = $dataContainer;
         $this->setUp();
 
-        $environment    = $this->dataContainer->getEnvironment();
+        $environment = $this->dataContainer->getEnvironment();
+
         $dataDefinition = $environment->getDataDefinition();
-        $inputProvider  = $environment->getInputProvider();
-        $propertyName   = $inputProvider->getValue('name');
-        $information    = (array) $GLOBALS['TL_DCA'][$dataContainer->getName()]['fields'][$propertyName];
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $propertyName = $inputProvider->getValue('name');
+        $information  = (array) $GLOBALS['TL_DCA'][$dataContainer->getName()]['fields'][$propertyName];
 
         // Merge with the information from the data container.
         $information['eval'] = \array_merge(
@@ -555,10 +608,11 @@ class FileTree extends AbstractWidget
 
         $combat = new DcCompat($environment, null, $propertyName);
 
-        /** @var \FileSelector $widgetClass */
+        /** @var class-string<FileSelector> $widgetClass */
+        /** @psalm-suppress DeprecatedClass - we know we are deprecated ourselves. :D */
         $widgetClass = $GLOBALS['BE_FFL']['fileSelector'];
 
-        /** @var \FileSelector $widget */
+        /** @psalm-suppress UnsafeInstantiation - no better way to instantiate :( */
         $widget = new $widgetClass(
             $widgetClass::getAttributesFromDca(
                 $information,

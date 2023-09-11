@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,21 +36,21 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
      *
      * @var string
      */
-    protected $name;
+    protected $name = '';
 
     /**
      * The label of the property.
      *
      * @var string
      */
-    protected $label;
+    protected $label = '';
 
     /**
      * The description of the property.
      *
      * @var string
      */
-    protected $description;
+    protected $description = '';
 
     /**
      * The default value of the property.
@@ -63,60 +64,35 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
      *
      * @var bool
      */
-    protected $excluded;
+    protected $excluded = false;
 
     /**
      * Flag if this property shall be searchable.
      *
      * @var bool
      */
-    protected $searchable;
+    protected $searchable = false;
 
     /**
      * Flag if this property shall be sortable.
      *
      * @var bool
      */
-    protected $sortable;
+    protected $sortable = false;
 
     /**
      * Flag if this property shall be filterable.
      *
      * @var bool
      */
-    protected $filterable;
-
-    /**
-     * The grouping mode for this property.
-     *
-     * See ListingConfigInterface::GROUP_* flags.
-     *
-     * @var string
-     */
-    protected $groupingMode;
-
-    /**
-     * The grouing length of this property. See grouping mode.
-     *
-     * @var string
-     */
-    protected $groupingLength;
-
-    /**
-     * The sorting mode for this property.
-     *
-     * See ListingConfigInterface::SORT_* flags.
-     *
-     * @var string
-     */
-    protected $sortingMode;
+    protected $filterable = false;
 
     /**
      * The input widget type to use.
      *
      * @var string
      */
-    protected $widgetType;
+    protected $widgetType = '';
 
     /**
      * The value options for this property.
@@ -130,7 +106,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
      *
      * @var string
      */
-    protected $explanation;
+    protected $explanation = '';
 
     /**
      * The extra information for this property.

@@ -26,6 +26,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\BackendUser;
+use Contao\CoreBundle\Intl\Locales;
 use Contao\Image;
 use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -33,13 +34,18 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditMaskSubHeadlineEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
+use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
@@ -53,6 +59,10 @@ use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class manages the displaying of the edit/create mask containing the widgets.
@@ -61,6 +71,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  */
 class EditMask
 {
@@ -109,20 +120,20 @@ class EditMask
     /**
      * The default edit information.
      *
-     * @var DefaultEditInformation
+     * @var EditInformationInterface
      */
-    private DefaultEditInformation $editInformation;
+    private EditInformationInterface $editInformation;
 
     /**
      * Create the edit mask.
      *
-     * @param BackendViewInterface   $view            The view in use.
-     * @param ModelInterface         $model           The model with the current data.
-     * @param ModelInterface         $originalModel   The data from the original data.
-     * @param callable               $preFunction     The function to call before saving an item.
-     * @param callable               $postFunction    The function to call after saving an item.
-     * @param string                 $breadcrumb      The rendered breadcrumb.
-     * @param DefaultEditInformation $editInformation The default edit information.
+     * @param BackendViewInterface          $view            The view in use.
+     * @param ModelInterface                $model           The model with the current data.
+     * @param ModelInterface                $originalModel   The data from the original data.
+     * @param callable|null                 $preFunction     The function to call before saving an item.
+     * @param callable|null                 $postFunction    The function to call after saving an item.
+     * @param string                        $breadcrumb      The rendered breadcrumb.
+     * @param EditInformationInterface|null $editInformation The default edit information.
      */
     public function __construct(
         $view,
@@ -131,9 +142,12 @@ class EditMask
         $preFunction,
         $postFunction,
         $breadcrumb,
-        ?DefaultEditInformation $editInformation = null
+        ?EditInformationInterface $editInformation = null
     ) {
-        $this->environment   = $view->getEnvironment();
+        if (null === $environment = $view->getEnvironment()) {
+            throw new \InvalidArgumentException('View has no environment');
+        }
+        $this->environment   = $environment;
         $this->model         = $model;
         $this->originalModel = $originalModel;
         $this->preFunction   = $preFunction;
@@ -148,6 +162,7 @@ class EditMask
             );
             // @codingStandardsIgnoreEnd
             $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+            assert($editInformation instanceof EditInformationInterface);
         }
 
         $this->editInformation = $editInformation;
@@ -170,7 +185,10 @@ class EditMask
      */
     protected function getDataDefinition()
     {
-        return $this->getEnvironment()->getDataDefinition();
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        return $definition;
     }
 
     /**
@@ -180,7 +198,10 @@ class EditMask
      */
     protected function isPopup()
     {
-        return $this->getEnvironment()->getInputProvider()->getParameter('popup');
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        return $inputProvider->getParameter('popup');
     }
 
     /**
@@ -200,7 +221,11 @@ class EditMask
         // Check if table is editable.
         if ($model->getId() && !$definition->getBasicDefinition()->isEditable()) {
             $message = 'DataContainer ' . $definition->getName() . ' is not editable';
-            $environment->getEventDispatcher()->dispatch(
+
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch(
                 new LogEvent($message, 'ERROR', 'DC_General - edit()'),
                 ContaoEvents::SYSTEM_LOG
             );
@@ -225,7 +250,11 @@ class EditMask
         // Check if table is closed, but we are adding a new item.
         if (!($model->getId() || $definition->getBasicDefinition()->isCreatable())) {
             $message = 'DataContainer ' . $definition->getName() . ' is closed';
-            $environment->getEventDispatcher()->dispatch(
+
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch(
                 new LogEvent($message, 'ERROR', 'DC_General - edit()'),
                 ContaoEvents::SYSTEM_LOG
             );
@@ -265,6 +294,7 @@ class EditMask
     protected function processInput($widgetManager)
     {
         $input = $this->getEnvironment()->getInputProvider();
+        assert($input instanceof InputProviderInterface);
 
         if ($input->getValue('FORM_SUBMIT') === $this->getDataDefinition()->getName()) {
             $propertyValues = new PropertyValueBag();
@@ -295,11 +325,15 @@ class EditMask
     protected function handlePrePersist()
     {
         $environment = $this->getEnvironment();
+
         if (null !== $this->preFunction) {
             \call_user_func($this->preFunction, $environment, $this->model, $this->originalModel);
         }
 
-        $environment->getEventDispatcher()->dispatch(
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch(
             new PrePersistModelEvent($environment, $this->model, $this->originalModel),
             PrePersistModelEvent::NAME,
         );
@@ -313,12 +347,16 @@ class EditMask
     protected function handlePostPersist()
     {
         $environment = $this->getEnvironment();
+
         if (null !== $this->postFunction) {
             \call_user_func($this->postFunction, $environment, $this->model, $this->originalModel);
         }
 
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $event = new PostPersistModelEvent($environment, $this->model, $this->originalModel);
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher->dispatch($event, $event::NAME);
     }
 
     /**
@@ -336,6 +374,8 @@ class EditMask
     protected function getButtonLabel($buttonLabel)
     {
         $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         if (($label = $translator->translate($buttonLabel, $this->getDataDefinition()->getName())) !== $buttonLabel) {
             return $label;
         }
@@ -358,6 +398,9 @@ class EditMask
      */
     protected function getEditButtons()
     {
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $buttons         = [];
         $basicDefinition = $this->getDataDefinition()->getBasicDefinition();
 
@@ -377,7 +420,7 @@ class EditMask
         );
         $buttons['save'] = $buttonTemplate->parse();
 
-        if (!$this->getEnvironment()->getInputProvider()->getParameter('nb')) {
+        if (!$inputProvider->getParameter('nb')) {
             $buttonTemplate->setData(
                 [
                     'label'      => $this->getButtonLabel('saveNclose'),
@@ -395,7 +438,7 @@ class EditMask
 
         if (
             $basicDefinition->isCreatable()
-            && !$this->getEnvironment()->getInputProvider()->getParameter('nc')
+            && !$inputProvider->getParameter('nc')
         ) {
             $buttonTemplate->setData(
                 [
@@ -412,7 +455,7 @@ class EditMask
             $buttons['saveNcreate'] = $buttonTemplate->parse();
         }
 
-        if ($this->getEnvironment()->getInputProvider()->hasParameter('s2e')) {
+        if ($inputProvider->hasParameter('s2e')) {
             $buttonTemplate->setData(
                 [
                     'label'      => $this->getButtonLabel('saveNedit'),
@@ -452,7 +495,10 @@ class EditMask
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
         $event->setButtons($buttons);
 
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, $event::NAME);
 
         $submitButtons = ['toggleIcon' => Image::getHtml('navcol.svg')];
         $editButtons   = $event->getButtons();
@@ -474,9 +520,9 @@ class EditMask
     /**
      * Build the field sets.
      *
-     * @param ContaoWidgetManager $widgetManager  The widget manager in use.
-     * @param PaletteInterface    $palette        The palette to use.
-     * @param PropertyValueBag    $propertyValues The property values.
+     * @param ContaoWidgetManager   $widgetManager  The widget manager in use.
+     * @param PaletteInterface      $palette        The palette to use.
+     * @param PropertyValueBag|null $propertyValues The property values.
      *
      * @return array
      *
@@ -485,13 +531,21 @@ class EditMask
      */
     protected function buildFieldSet($widgetManager, $palette, $propertyValues)
     {
-        $environment         = $this->getEnvironment();
-        $definition          = $this->getDataDefinition();
-        $translator          = $environment->getTranslator();
+        $environment = $this->getEnvironment();
+        $definition  = $this->getDataDefinition();
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $propertyDefinitions = $definition->getPropertiesDefinition();
-        $isAutoSubmit        = ('auto' === $environment->getInputProvider()->getValue('SUBMIT_TYPE'));
+        $isAutoSubmit        = ('auto' === $inputProvider->getValue('SUBMIT_TYPE'));
         $legendStates        = $this->getLegendStates();
-        $editInformation     = System::getContainer()->get('cca.dc-general.edit-information');
+
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
 
         $fieldSets = [];
         $first     = true;
@@ -501,6 +555,7 @@ class EditMask
                 $definition->getName()
             );
             $fields     = [];
+            $fieldSet   = [];
             $properties = $legend->getProperties($this->model, $propertyValues);
 
             if (!$properties) {
@@ -534,7 +589,7 @@ class EditMask
                 if (!$property->isEditable($this->model, $propertyValues, $legend)) {
                     $propertyDefinition = $propertyDefinitions->getProperty($property->getName());
                     $propertyDefinition->setExtra(
-                        array_merge(($propertyDefinition->getExtra() ?? []), ['readonly' => true])
+                        \array_merge(($propertyDefinition->getExtra()), ['readonly' => true])
                     );
                 }
 
@@ -571,10 +626,13 @@ class EditMask
      */
     protected function storeVersion(ModelInterface $model)
     {
-        $modelId                 = $model->getId();
-        $environment             = $this->getEnvironment();
-        $definition              = $this->getDataDefinition();
-        $dataProvider            = $environment->getDataProvider($model->getProviderName());
+        $modelId     = $model->getId();
+        $environment = $this->getEnvironment();
+        $definition  = $this->getDataDefinition();
+
+        $dataProvider = $environment->getDataProvider($model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
         $dataProviderDefinition  = $definition->getDataProviderDefinition();
         $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
 
@@ -584,13 +642,18 @@ class EditMask
 
         // Compare version and current record.
         $currentVersion = $dataProvider->getActiveVersion($modelId);
+        $model = $dataProvider->getVersion($modelId, $currentVersion);
+        assert($model instanceof ModelInterface);
         if (
             !$currentVersion
-            || !$dataProvider->sameModels($model, $dataProvider->getVersion($modelId, $currentVersion))
+            || !$dataProvider->sameModels($model, $model)
         ) {
             $user = BackendUser::getInstance();
 
-            $dataProvider->saveVersion($model, $user->username);
+            $username = $user->username;
+            assert(\is_string($username));
+
+            $dataProvider->saveVersion($model, $username);
         }
     }
 
@@ -618,9 +681,13 @@ class EditMask
      */
     protected function handleSubmit(ModelInterface $model)
     {
-        $environment   = $this->getEnvironment();
-        $dispatcher    = $environment->getEventDispatcher();
+        $environment = $this->getEnvironment();
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         if ($inputProvider->hasValue('save')) {
             $newUrlEvent = new AddToUrlEvent('act=edit&btn=s&id=' . ModelId::fromModel($model)->getSerialized());
@@ -645,7 +712,10 @@ class EditMask
         } elseif ($inputProvider->hasValue('saveNback')) {
             $this->clearBackendStates();
 
-            $parentProviderName = $environment->getDataDefinition()->getBasicDefinition()->getParentDataProvider();
+            $definition = $environment->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
+            $parentProviderName = $definition->getBasicDefinition()->getParentDataProvider();
             $newUrlEvent        = new GetReferrerEvent(false, $parentProviderName);
 
             $dispatcher->dispatch($newUrlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
@@ -656,7 +726,7 @@ class EditMask
     /**
      * Determine the headline to use.
      *
-     * @return string.
+     * @return string
      *
      * @deprecated This is deprecated since 2.3 and will be removed in 3.0.
      */
@@ -672,7 +742,7 @@ class EditMask
     /**
      * Determine the headline to use.
      *
-     * @return string.
+     * @return string
      */
     protected function getSubHeadline(): string
     {
@@ -680,9 +750,12 @@ class EditMask
 
         $event = new GetEditMaskSubHeadlineEvent($this->environment, $this->model);
 
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
-        return $event->getHeadline();
+        $dispatcher->dispatch($event, $event::NAME);
+
+        return (string) $event->getHeadline();
     }
 
     /**
@@ -692,12 +765,17 @@ class EditMask
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function doPersist()
     {
-        $environment   = $this->getEnvironment();
-        $dataProvider  = $environment->getDataProvider($this->model->getProviderName());
+        $environment = $this->getEnvironment();
+
+        $dataProvider = $environment->getDataProvider($this->model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         if (!$this->model->getMeta(ModelInterface::IS_CHANGED)) {
             return true;
@@ -714,38 +792,49 @@ class EditMask
             $models->push($this->model);
 
             $controller = $environment->getController();
+            assert($controller instanceof ControllerInterface);
+
+            $manualSortingProperty = $this->getManualSortingProperty();
+            assert(\is_string($manualSortingProperty));
 
             if ($inputProvider->hasParameter('after')) {
                 $after = ModelId::fromSerialized($inputProvider->getParameter('after'));
 
                 $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
+                assert($previousDataProvider instanceof DataProviderInterface);
+
                 $previousFetchConfig  = $previousDataProvider->getEmptyConfig();
                 $previousFetchConfig->setId($after->getId());
                 $previousModel = $previousDataProvider->fetch($previousFetchConfig);
 
                 if ($previousModel) {
-                    $controller->pasteAfter($previousModel, $models, $this->getManualSortingProperty());
+                    $controller->pasteAfter($previousModel, $models, $manualSortingProperty);
                 } else {
-                    $controller->pasteTop($models, $this->getManualSortingProperty());
+                    $controller->pasteTop($models, $manualSortingProperty);
                 }
             } elseif ($inputProvider->hasParameter('into')) {
                 $into = ModelId::fromSerialized($inputProvider->getParameter('into'));
 
                 $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
+                assert($parentDataProvider instanceof DataProviderInterface);
+
                 $parentFetchConfig  = $parentDataProvider->getEmptyConfig();
                 $parentFetchConfig->setId($into->getId());
                 $parentModel = $parentDataProvider->fetch($parentFetchConfig);
 
                 if ($parentModel) {
-                    $controller->pasteInto($parentModel, $models, $this->getManualSortingProperty());
+                    $controller->pasteInto($parentModel, $models, $manualSortingProperty);
                 } else {
-                    $controller->pasteTop($models, $this->getManualSortingProperty());
+                    $controller->pasteTop($models, $manualSortingProperty);
                 }
             } else {
-                $controller->pasteTop($models, $this->getManualSortingProperty());
+                $controller->pasteTop($models, $manualSortingProperty);
             }
 
-            $environment->getClipboard()->clear()->saveTo($environment);
+            $clipboard = $environment->getClipboard();
+            assert($clipboard instanceof ClipboardInterface);
+
+            $clipboard->clear()->saveTo($environment);
         } else {
             if (!$this->allValuesUnique()) {
                 return false;
@@ -772,10 +861,16 @@ class EditMask
     protected function allValuesUnique()
     {
         // Init some vars.
-        $environment     = $this->getEnvironment();
-        $translator      = $environment->getTranslator();
-        $dataProvider    = $environment->getDataProvider($this->model->getProviderName());
+        $environment = $this->getEnvironment();
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $dataProvider = $environment->getDataProvider($this->model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
         $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
 
         // Run each and check the unique flag.
         foreach ($this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames() as $propertyName) {
@@ -812,60 +907,85 @@ class EditMask
      *
      * @SuppressWarnings(PHPMD.LongVariable)
      * @SuppressWarnings(PHPMD.Superglobals)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function execute()
     {
-        $environment             = $this->getEnvironment();
-        $definition              = $this->getDataDefinition();
-        $dataProvider            = $environment->getDataProvider($this->model->getProviderName());
+        $environment = $this->getEnvironment();
+        $definition  = $this->getDataDefinition();
+
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $model = $this->model;
+        assert($model instanceof ModelInterface);
+
+        $dataProvider = $environment->getDataProvider($model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
         $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProviderInformation = $dataProviderDefinition->getInformation($this->model->getProviderName());
-        $inputProvider           = $environment->getInputProvider();
-        $palettesDefinition      = $definition->getPalettesDefinition();
-        $submitted               = ($definition->getName() === $inputProvider->getValue('FORM_SUBMIT'));
-        $isAutoSubmit            = ('auto' === $inputProvider->getValue('SUBMIT_TYPE'));
-        $editInformation         = System::getContainer()->get('cca.dc-general.edit-information');
+        $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
 
-        $widgetManager = new ContaoWidgetManager($environment, $this->model);
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
-        $this->checkEditable($this->model);
-        $this->checkCreatable($this->model);
+        $palettesDefinition = $definition->getPalettesDefinition();
+        $submitted          = ($definition->getName() === $inputProvider->getValue('FORM_SUBMIT'));
+        $isAutoSubmit       = ('auto' === $inputProvider->getValue('SUBMIT_TYPE'));
 
-        $environment->getEventDispatcher()->dispatch(
-            new PreEditModelEvent($environment, $this->model),
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
+
+        $widgetManager = new ContaoWidgetManager($environment, $model);
+
+        $this->checkEditable($model);
+        $this->checkCreatable($model);
+
+        $dispatcher->dispatch(
+            new PreEditModelEvent($environment, $model),
             PreEditModelEvent::NAME
         );
 
-        $environment->getEventDispatcher()->dispatch(
-            new EnforceModelRelationshipEvent($this->getEnvironment(), $this->model),
+        $dispatcher->dispatch(
+            new EnforceModelRelationshipEvent($this->getEnvironment(), $model),
             DcGeneralEvents::ENFORCE_MODEL_RELATIONSHIP
         );
 
         // Pass 1: Get the palette for the values stored in the model.
-        $palette = $palettesDefinition->findPalette($this->model);
+        $palette = $palettesDefinition->findPalette($model);
 
         // Check if input mask has visible properties.
-        if (!\count($palette->getProperties($this->model))) {
+        if (!\count($palette->getProperties($model))) {
             // @codingStandardsIgnoreStart
             \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
             // @codingStandardsIgnoreEnd
         }
 
         $propertyValues = $this->processInput($widgetManager);
+
         if ($submitted && $propertyValues) {
             // Pass 2: Determine the real palette we want to work on if we have some data submitted.
-            $palette = $palettesDefinition->findPalette($this->model, $propertyValues);
+            $palette = $palettesDefinition->findPalette($model, $propertyValues);
 
             // Update the model - the model might add some more errors to the propertyValueBag via exceptions.
-            $this->getEnvironment()->getController()->updateModelFromPropertyBag($this->model, $propertyValues);
+            $controller->updateModelFromPropertyBag($model, $propertyValues);
         }
 
         $fieldSets = $this->buildFieldSet($widgetManager, $palette, $propertyValues);
 
-        if ((!$isAutoSubmit) && $submitted && !$editInformation->getModelError($this->model)) {
+        if ((!$isAutoSubmit) && $submitted && !$editInformation->getModelError($model)) {
             if ($this->doPersist()) {
-                $this->handleSubmit($this->model);
+                $this->handleSubmit($model);
             }
+        }
+
+        $errors = null;
+        if ($editInformation instanceof DefaultEditInformation) {
+            $errors = $editInformation->getFlatModelErrors($model);
         }
 
         $viewTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
@@ -873,16 +993,16 @@ class EditMask
             [
                 'fieldsets'   => $fieldSets,
                 'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
-                    $this->model->getId()
+                    $model->getId()
                 ) : null,
                 'subHeadline' => $this->getSubHeadline(),
                 'table'       => $definition->getName(),
                 'enctype'     => 'multipart/form-data',
-                'error'       => $editInformation->getFlatModelErrors($this->model),
+                'error'       => $errors,
                 'editButtons' => $this->getEditButtons(),
                 'noReload'    => $editInformation->hasAnyModelError(),
                 'breadcrumb'  => $this->breadcrumb,
-                'model'       => $this->model
+                'model'       => $model
             ]
         );
 
@@ -900,26 +1020,35 @@ class EditMask
      */
     private function executeMultiLanguage(ContaoBackendViewTemplate $template)
     {
+        $dataProvider = $this->getEnvironment()->getDataProvider($this->model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
         if (
             \in_array(
                 MultiLanguageDataProviderInterface::class,
-                \class_implements(
-                    $this->getEnvironment()->getDataProvider(
-                        $this->model->getProviderName()
-                    )
-                )
+                \class_implements($dataProvider)
             )
         ) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $dataProvider = $this->getEnvironment()->getDataProvider();
-            $languages    = System::getLanguages();
+
+            $locales = System::getContainer()->get('contao.intl.locales');
+            assert($locales instanceof Locales);
+
+            $languages = $locales->getLocales(null, true);
+
+            $controller = $this->environment->getController();
+            assert($controller instanceof ControllerInterface);
+
+            $translator = $this->environment->getTranslator();
+            assert($translator instanceof TranslatorInterface);
 
             $template->set(
                 'languages',
-                $this->getEnvironment()->getController()->getSupportedLanguages($this->model->getId())
+                $controller->getSupportedLanguages($this->model->getId())
             )
                 ->set('language', $dataProvider->getCurrentLanguage())
-                ->set('languageSubmit', $this->environment->getTranslator()->translate('MSC.showSelected'))
+                ->set('languageSubmit', $translator->translate('MSC.showSelected'))
                 ->set('languageHeadline', $languages[$dataProvider->getCurrentLanguage()] ?? '');
 
             return;
@@ -940,7 +1069,7 @@ class EditMask
      */
     protected function clearBackendStates()
     {
-        \setcookie('BE_PAGE_OFFSET', 0, 0, '/');
+        \setcookie('BE_PAGE_OFFSET', '', 0, '/');
 
         $_SESSION['TL_INFO']    = [];
         $_SESSION['TL_ERROR']   = [];
@@ -971,19 +1100,21 @@ class EditMask
      */
     private function getLegendStates()
     {
-        $environment  = $this->getEnvironment();
-        $definition   = $environment->getDataDefinition();
-        $legendStates = $environment->getSessionStorage()->get('LEGENDS') ?: [];
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        $legendStates = $sessionStorage->get('LEGENDS') ?: [];
 
         if (\array_key_exists($definition->getName(), $legendStates)) {
-            $legendStates = $legendStates[$definition->getName()];
-
-            return $legendStates;
+            return $legendStates[$definition->getName()];
         }
 
-        $legendStates = [];
-
-        return $legendStates;
+        return [];
     }
 
     /**

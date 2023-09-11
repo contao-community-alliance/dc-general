@@ -72,7 +72,7 @@ interface CommandInterface
     /**
      * Return the label of the command.
      *
-     * @return array
+     * @return string
      */
     public function getLabel();
 
@@ -88,7 +88,7 @@ interface CommandInterface
     /**
      * Return the description of the command.
      *
-     * @return array
+     * @return string
      */
     public function getDescription();
 

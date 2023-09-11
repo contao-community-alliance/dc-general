@@ -35,7 +35,7 @@ interface LanguageInformationInterface
     /**
      * Retrieve the ISO 3166 country code.
      *
-     * @return string
+     * @return string|null
      */
     public function getCountryCode();
 

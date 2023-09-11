@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -71,11 +72,15 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     public function populate(EnvironmentInterface $environment)
     {
         if (!$environment->getSessionStorage()) {
-            /** @var SessionStorageFactory $sessionFactory */
             $sessionFactory = System::getContainer()->get('cca.dc-general.session_factory');
-            $definition     = $environment->getDataDefinition();
+            assert($sessionFactory instanceof SessionStorageFactory);
+
+            $definition = $environment->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
             $sessionStorage = $sessionFactory->createService();
             assert($definition instanceof ContainerInterface);
+
             $sessionStorage->setScope('DC_GENERAL_' . \strtoupper($definition->getName()));
             $environment->setSessionStorage($sessionStorage);
             // @codingStandardsIgnoreStart

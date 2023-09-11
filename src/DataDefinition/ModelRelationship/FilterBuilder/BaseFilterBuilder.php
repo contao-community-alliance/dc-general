@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -33,16 +34,16 @@ abstract class BaseFilterBuilder
     /**
      * The filter builder holding the scope.
      *
-     * @var FilterBuilder
+     * @var null|FilterBuilder
      */
-    protected $builder;
+    protected $builder = null;
 
     /**
-     * The current parenting Builder.
+     * The current parenting builder.
      *
-     * @var FilterBuilderWithChildren
+     * @var null|FilterBuilderWithChildren
      */
-    protected $parent;
+    protected $parent = null;
 
     /**
      * Get the filter builder.
@@ -51,6 +52,10 @@ abstract class BaseFilterBuilder
      */
     public function getBuilder()
     {
+        if (null === $this->builder) {
+            throw new \LogicException('Builder has not been set.');
+        }
+
         return $this->builder;
     }
 
@@ -73,7 +78,7 @@ abstract class BaseFilterBuilder
      *
      * @param FilterBuilderWithChildren $parent The new parent.
      *
-     * @return FilterBuilderWithChildren
+     * @return BaseFilterBuilder
      */
     public function setParent(FilterBuilderWithChildren $parent)
     {
@@ -94,6 +99,10 @@ abstract class BaseFilterBuilder
      */
     public function getParent()
     {
+        if (null === $this->parent) {
+            throw new \LogicException('Parent has not been set.');
+        }
+
         return $this->parent;
     }
 
@@ -111,7 +120,10 @@ abstract class BaseFilterBuilder
      */
     public function getAllAsArray()
     {
-        return $this->builder->getAllAsArray();
+        $builder = $this->builder;
+        assert($builder instanceof FilterBuilder);
+
+        return $builder->getAllAsArray();
     }
 
     /**
@@ -121,12 +133,11 @@ abstract class BaseFilterBuilder
      */
     protected function ensureAndEncapsulation()
     {
-        $parent = $this->getParent();
-
         if ($this instanceof AndFilterBuilder) {
             return $this;
         }
 
+        $parent = $this->getParent();
         if (($parent instanceof AndFilterBuilder) && !($this instanceof FilterBuilderWithChildren)) {
             return $parent;
         }
@@ -227,7 +238,7 @@ abstract class BaseFilterBuilder
      * @param string $property The property name.
      * @param mixed  $value    The property value.
      *
-     * @return PropertyEqualsFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andPropertyEquals($property, $value)
     {
@@ -240,7 +251,7 @@ abstract class BaseFilterBuilder
      * @param string $property The property name.
      * @param mixed  $value    The property value.
      *
-     * @return PropertyEqualsFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function orPropertyEquals($property, $value)
     {
@@ -254,7 +265,7 @@ abstract class BaseFilterBuilder
      * @param string $remoteProperty The name of the remote property.
      * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
      *
-     * @return PropertyEqualsFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andRemotePropertyEquals($property, $remoteProperty, $remoteIsValue = false)
     {
@@ -271,7 +282,7 @@ abstract class BaseFilterBuilder
      * @param string $property The property name.
      * @param mixed  $value    The property value.
      *
-     * @return PropertyGreaterThanFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andPropertyGreaterThan($property, $value)
     {
@@ -285,7 +296,7 @@ abstract class BaseFilterBuilder
      * @param string $remoteProperty The name of the remote property.
      * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
      *
-     * @return PropertyGreaterThanFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andRemotePropertyGreaterThan($property, $remoteProperty, $remoteIsValue = false)
     {
@@ -302,7 +313,7 @@ abstract class BaseFilterBuilder
      * @param string $property The property name.
      * @param mixed  $value    The property value.
      *
-     * @return PropertyLessThanFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andPropertyLessThan($property, $value)
     {
@@ -316,7 +327,7 @@ abstract class BaseFilterBuilder
      * @param string $remoteProperty The name of the remote property.
      * @param bool   $remoteIsValue  True if the passed remote value is a value, false if it is a property name.
      *
-     * @return PropertyLessThanFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andRemotePropertyLessThan($property, $remoteProperty, $remoteIsValue = false)
     {
@@ -333,7 +344,7 @@ abstract class BaseFilterBuilder
      * @param string $property The property name.
      * @param mixed  $value    The property value.
      *
-     * @return PropertyValueInFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andPropertyValueIn($property, $value)
     {
@@ -346,7 +357,7 @@ abstract class BaseFilterBuilder
      * @param string $property The property name.
      * @param mixed  $value    The property value.
      *
-     * @return PropertyValueInFilterBuilder The newly created filter.
+     * @return BaseFilterBuilder The newly created filter.
      */
     public function andPropertyValueLike($property, $value)
     {

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,18 +14,22 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\ModelRelationshipDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
@@ -35,6 +39,8 @@ use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 
 /**
  * Generic class to retrieve a tree collection for tree views.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TreeCollector implements EnvironmentAwareInterface
 {
@@ -82,7 +88,7 @@ class TreeCollector implements EnvironmentAwareInterface
     ) {
         $this->environment = $environment;
         $this->panel       = $panel;
-        $this->sorting     = (array) $sorting;
+        $this->sorting     = $sorting;
         $this->states      = $states;
     }
 
@@ -144,7 +150,10 @@ class TreeCollector implements EnvironmentAwareInterface
     private function getChildProvidersOf($parentProvider, $relationships = null)
     {
         if (null === $relationships) {
-            $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
+            $definition = $this->getEnvironment()->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
+            $relationships = $definition->getModelRelationshipDefinition();
         }
 
         $mySubTables = [];
@@ -164,8 +173,11 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @return CollectionInterface|null
      */
-    private function getChildrenOfModel($dataProvider, $model, $childCondition)
-    {
+    private function getChildrenOfModel(
+        DataProviderInterface $dataProvider,
+        ModelInterface $model,
+        ParentChildConditionInterface $childCondition
+    ): ?CollectionInterface {
         $childIds = $dataProvider
             ->fetchAll(
                 $dataProvider
@@ -173,15 +185,13 @@ class TreeCollector implements EnvironmentAwareInterface
                     ->setFilter($childCondition->getFilter($model))
                     ->setIdOnly(true)
             );
+        assert(\is_array($childIds));
 
-        if (
-            ($childIds instanceof CollectionInterface && !$childIds->count())
-            || (\is_array($childIds) && !\count($childIds))
-        ) {
+        if (!\count($childIds)) {
             return null;
         }
 
-        return $dataProvider->fetchAll(
+        $children = $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
                 ->setSorting(['sorting' => 'ASC'])
@@ -192,6 +202,10 @@ class TreeCollector implements EnvironmentAwareInterface
                         ->getAllAsArray()
                 )
         );
+
+        assert($children instanceof CollectionInterface);
+
+        return $children;
     }
 
     /**
@@ -203,10 +217,14 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @return void
      */
-    private function treeWalkModel(ModelInterface $model, $intLevel, $subTables = [])
+    private function treeWalkModel(ModelInterface $model, int $intLevel, array $subTables = []): void
     {
-        $environment   = $this->getEnvironment();
-        $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $relationships = $definition->getModelRelationshipDefinition();
         $hasChildren   = false;
 
         $this->determineModelState($model, $intLevel);
@@ -223,18 +241,19 @@ class TreeCollector implements EnvironmentAwareInterface
                 continue;
             }
 
-            $dataProvider    = $environment->getDataProvider($subTable);
-            $childCollection = $this->getChildrenOfModel($dataProvider, $model, $childFilter);
-            $hasChildren     = (bool) $childCollection;
+            $dataProvider = $environment->getDataProvider($subTable);
+            assert($dataProvider instanceof DataProviderInterface);
 
-            // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-            if ($hasChildren && !$model->getMeta($model::SHOW_CHILDREN)) {
-                break;
-            }
+            $childCollection = $this->getChildrenOfModel($dataProvider, $model, $childFilter);
+            $hasChildren     = null !== $childCollection;
 
             if ($hasChildren) {
+                // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
+                if (!$model->getMeta($model::SHOW_CHILDREN)) {
+                    break;
+                }
                 foreach ($childCollection as $childModel) {
-                    // Let the child know about it's parent.
+                    // Let the child know about its parent.
                     $model->setMeta(ModelInterface::PARENT_ID, $model->getID());
                     $model->setMeta(ModelInterface::PARENT_PROVIDER_NAME, $providerName);
 
@@ -264,29 +283,35 @@ class TreeCollector implements EnvironmentAwareInterface
      */
     private function addParentFilter(ConfigInterface $config, ModelInterface $parentModel)
     {
-        $environment     = $this->getEnvironment();
-        $definition      = $environment->getDataDefinition();
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
 
-        if (!$basicDefinition->getParentDataProvider()) {
-            return;
-        }
+        $parentDataProvider = $basicDefinition->getParentDataProvider();
+        assert(\is_string($parentDataProvider));
 
-        if ($basicDefinition->getParentDataProvider() !== $parentModel->getProviderName()) {
+        if ($parentDataProvider !== $parentModel->getProviderName()) {
             throw new \RuntimeException(
                 \sprintf(
                     'Parent provider mismatch: %s vs. %s',
-                    $basicDefinition->getParentDataProvider(),
+                    $parentDataProvider,
                     $parentModel->getProviderName()
                 )
             );
         }
 
+        $rootDataProvider = $basicDefinition->getRootDataProvider();
+        assert(\is_string($rootDataProvider));
+
         // Apply parent filtering, do this only for root elements.
         if (
             $parentCondition = $definition->getModelRelationshipDefinition()->getChildCondition(
-                $basicDefinition->getParentDataProvider(),
-                $basicDefinition->getRootDataProvider()
+                $parentDataProvider,
+                $rootDataProvider
             )
         ) {
             $baseFilter = $config->getFilter();
@@ -307,9 +332,10 @@ class TreeCollector implements EnvironmentAwareInterface
      */
     private function calculateRootConfig()
     {
-        $rootConfig = $this
-            ->getEnvironment()
-            ->getBaseConfigRegistry()
+        $registry = $this->getEnvironment()->getBaseConfigRegistry();
+        assert($registry instanceof BaseConfigRegistryInterface);
+
+        $rootConfig = $registry
             ->getBaseConfig()
             ->setSorting($this->getSorting());
         $this->getPanel()->initialize($rootConfig);
@@ -330,9 +356,11 @@ class TreeCollector implements EnvironmentAwareInterface
     {
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider($providerName);
+        assert($dataProvider instanceof DataProviderInterface);
 
         // Fetch root element.
         $rootModel = $dataProvider->fetch($this->calculateRootConfig()->setId($rootId));
+        assert($rootModel instanceof ModelInterface);
 
         $this->treeWalkModel($rootModel, $level, $this->getChildProvidersOf($rootModel->getProviderName()));
         $rootCollection = $dataProvider->getEmptyCollection();
@@ -352,11 +380,17 @@ class TreeCollector implements EnvironmentAwareInterface
      */
     public function getChildrenOf($providerName, $level = 0, $parentModel = null)
     {
-        $environment  = $this->getEnvironment();
-        $dataProvider = $environment->getDataProvider($providerName);
-        $rootConfig   = $this->calculateRootConfig();
+        $environment = $this->getEnvironment();
 
-        $rootCondition = $environment->getDataDefinition()->getModelRelationshipDefinition()->getRootCondition();
+        $dataProvider = $environment->getDataProvider($providerName);
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $rootConfig = $this->calculateRootConfig();
+
+        $rootCondition = $definition->getModelRelationshipDefinition()->getRootCondition();
         if (null !== $rootCondition) {
             $baseFilter = $rootConfig->getFilter();
             $filter     = $rootCondition->getFilterArray();
@@ -374,6 +408,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
         $rootCollection = $dataProvider->fetchAll($rootConfig);
         $tableTreeData  = $dataProvider->getEmptyCollection();
+        assert($rootCollection instanceof CollectionInterface);
 
         if ($rootCollection->length() > 0) {
             $mySubTables = $this->getChildProvidersOf($providerName);

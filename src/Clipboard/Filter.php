@@ -22,7 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 
 use function count;
@@ -252,11 +252,11 @@ EXPR;
     /**
      * And model is.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function andModelIs(ModelId $modelId)
+    public function andModelIs(ModelIdInterface $modelId)
     {
         $this->modelIs('and', $modelId);
 
@@ -266,11 +266,11 @@ EXPR;
     /**
      * Or model is.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function orModelIs(ModelId $modelId)
+    public function orModelIs(ModelIdInterface $modelId)
     {
         $this->modelIs('or', $modelId);
 
@@ -280,12 +280,12 @@ EXPR;
     /**
      * Add model is.
      *
-     * @param string  $conjunction AND or OR.
-     * @param ModelId $modelId     The model id.
+     * @param string           $conjunction AND or OR.
+     * @param ModelIdInterface $modelId     The model id.
      *
      * @return static
      */
-    private function modelIs($conjunction, ModelId $modelId)
+    private function modelIs($conjunction, ModelIdInterface $modelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -302,11 +302,11 @@ EXPR;
     /**
      * And model is not.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function andModelIsNot(ModelId $modelId)
+    public function andModelIsNot(ModelIdInterface $modelId)
     {
         $this->modelIsNot('and', $modelId);
 
@@ -316,11 +316,11 @@ EXPR;
     /**
      * Or model is not.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function orModelIsNot(ModelId $modelId)
+    public function orModelIsNot(ModelIdInterface $modelId)
     {
         $this->modelIsNot('or', $modelId);
 
@@ -330,12 +330,12 @@ EXPR;
     /**
      * Add model is not.
      *
-     * @param string  $conjunction AND or OR.
-     * @param ModelId $modelId     The model id.
+     * @param string           $conjunction AND or OR.
+     * @param ModelIdInterface $modelId     The model id.
      *
      * @return static
      */
-    private function modelIsNot($conjunction, ModelId $modelId)
+    private function modelIsNot($conjunction, ModelIdInterface $modelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -495,11 +495,11 @@ EXPR;
     /**
      * And parent is.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function andParentIs(ModelId $parentModelId)
+    public function andParentIs(ModelIdInterface $parentModelId)
     {
         $this->parentIs('and', $parentModelId);
 
@@ -509,11 +509,11 @@ EXPR;
     /**
      * Or parent is.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function orParentIs(ModelId $parentModelId)
+    public function orParentIs(ModelIdInterface $parentModelId)
     {
         $this->parentIs('or', $parentModelId);
 
@@ -523,12 +523,12 @@ EXPR;
     /**
      * Add parent is.
      *
-     * @param string  $conjunction   AND or OR.
-     * @param ModelId $parentModelId The parent id.
+     * @param string           $conjunction   AND or OR.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    private function parentIs($conjunction, ModelId $parentModelId)
+    private function parentIs($conjunction, ModelIdInterface $parentModelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -545,7 +545,7 @@ EXPR;
     /**
      * And parent is in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -559,7 +559,7 @@ EXPR;
     /**
      * Or parent is in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -574,7 +574,7 @@ EXPR;
      * Add parent is in.
      *
      * @param string          $conjunction    AND or OR.
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -599,11 +599,11 @@ EXPR;
     /**
      * And parent is not.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function andParentIsNot(ModelId $parentModelId)
+    public function andParentIsNot(ModelIdInterface $parentModelId)
     {
         $this->parentIsNot('and', $parentModelId);
 
@@ -613,11 +613,11 @@ EXPR;
     /**
      * Or parent is not.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function orParentIsNot(ModelId $parentModelId)
+    public function orParentIsNot(ModelIdInterface $parentModelId)
     {
         $this->parentIsNot('and', $parentModelId);
 
@@ -627,12 +627,12 @@ EXPR;
     /**
      * Add parent is not.
      *
-     * @param string  $conjunction   AND or OR.
-     * @param ModelId $parentModelId The parent id.
+     * @param string           $conjunction   AND or OR.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    private function parentIsNot($conjunction, ModelId $parentModelId)
+    private function parentIsNot($conjunction, ModelIdInterface $parentModelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
@@ -649,7 +649,7 @@ EXPR;
     /**
      * And parent is not in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -663,7 +663,7 @@ EXPR;
     /**
      * Or parent is not in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -678,7 +678,7 @@ EXPR;
      * Add parent is not in.
      *
      * @param string          $conjunction    AND or OR.
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */

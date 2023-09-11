@@ -35,7 +35,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * The data provider information stored in the definition.
      *
-     * @var DataProviderInformationInterface[]
+     * @var array<string, DataProviderInformationInterface>
      */
     protected $information = [];
 
@@ -58,6 +58,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
         }
 
         $this->information[$name] = $information;
+
+        return $this;
     }
 
     /**
@@ -80,10 +82,6 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
             $information = $information->getName();
         }
 
-        if (!\is_string($information)) {
-            throw new DcGeneralInvalidArgumentException('Invalid value passed.');
-        }
-
         return $information;
     }
 
@@ -93,6 +91,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     public function removeInformation($information)
     {
         unset($this->information[$this->makeName($information)]);
+
+        return $this;
     }
 
     /**
@@ -101,6 +101,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     public function setInformation($name, $information)
     {
         $this->information[$name] = $information;
+
+        return $this;
     }
 
     /**
@@ -164,6 +166,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function offsetSet($offset, $value): void
     {
+        assert(\is_string($offset));
         $this->setInformation($offset, $value);
     }
 
@@ -176,7 +179,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __isset($name)
     {
@@ -184,7 +187,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __get($name)
     {
@@ -192,7 +195,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     * @param mixed  $value
      */
     public function __set($name, $value)
     {
@@ -200,7 +204,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __unset($name)
     {
