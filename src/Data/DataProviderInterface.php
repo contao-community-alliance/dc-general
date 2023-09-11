@@ -86,7 +86,7 @@ interface DataProviderInterface
      *
      * @param ConfigInterface $config The configuration to use.
      *
-     * @return CollectionInterface|ModelInterface[]|string[]
+     * @return CollectionInterface|list<string>
      */
     public function fetchAll(ConfigInterface $config);
 
@@ -170,7 +170,7 @@ interface DataProviderInterface
      * @param mixed $mixID      The ID of the record.
      * @param mixed $mixVersion The ID of the version.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getVersion($mixID, $mixVersion);
 

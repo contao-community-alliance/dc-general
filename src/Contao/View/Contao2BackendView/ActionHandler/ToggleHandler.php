@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Benedict Zinke <bz@presentprogressive.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,9 +27,13 @@ use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
@@ -38,6 +42,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class handles toggle commands.
@@ -110,7 +115,12 @@ class ToggleHandler
         ModelIdInterface $modelId = null
     ) {
         $dataProvider = $environment->getDataProvider();
-        $newState     = $this->determineNewState($environment->getInputProvider(), $operation->isInverse());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $newState = $this->determineNewState($inputProvider, $operation->isInverse());
 
         // Override the language for language aware toggling.
         if (
@@ -122,11 +132,21 @@ class ToggleHandler
             $dataProvider->setCurrentLanguage($operation->getLanguage());
         }
 
-        $model         = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        $provider = $dataProvider->getEmptyConfig();
+        assert($provider instanceof ConfigInterface);
+        assert($modelId instanceof ModelIdInterface);
+        $config = $provider->setId($modelId->getId());
+        assert($config instanceof ConfigInterface);
+
+        $model = $dataProvider->fetch($config);
+        assert($model instanceof ModelInterface);
+
         $originalModel = clone $model;
         $originalModel->setId($model->getId());
         $model->setProperty($operation->getToggleProperty(), $newState);
+
         $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $dispatcher->dispatch(
             new PrePersistModelEvent($environment, $model, $originalModel),
@@ -142,6 +162,7 @@ class ToggleHandler
 
         // Select the previous language.
         if (isset($language)) {
+            /** @var MultiLanguageDataProviderInterface $dataProvider */
             $dataProvider->setCurrentLanguage($language);
         }
     }
@@ -159,16 +180,22 @@ class ToggleHandler
     {
         $environment = $event->getEnvironment();
 
-        if (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable() && !$command->isDisabled()) {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        if (true === !$command->isDisabled() && $definition->getBasicDefinition()->isEditable()) {
             return true;
         }
+
+        $operation = $this->getOperation($event->getAction(), $environment);
+        assert($operation instanceof ToggleCommandInterface);
 
         $event->setResponse(
             \sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for toggle %s.
                 </div>',
-                $this->getOperation($event->getAction(), $environment)->getToggleProperty()
+                $operation->getToggleProperty()
             )
         );
 
@@ -185,12 +212,16 @@ class ToggleHandler
     private function getModelId(EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
             $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
         }
 
-        if (!(isset($modelId) && ($environment->getDataDefinition()->getName() === $modelId->getDataProviderName()))) {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        if (!(isset($modelId) && ($definition->getName() === $modelId->getDataProviderName()))) {
             return null;
         }
 
@@ -203,14 +234,18 @@ class ToggleHandler
      * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return CommandInterface
+     * @return CommandInterface|null
      */
     private function getOperation(Action $action, EnvironmentInterface $environment)
     {
-        /** @var Contao2BackendViewDefinitionInterface $definition */
-        $definition = $environment->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        $name       = $action->getName();
-        $commands   = $definition->getModelCommands();
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $definition = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($definition instanceof Contao2BackendViewDefinitionInterface);
+
+        $name     = $action->getName();
+        $commands = $definition->getModelCommands();
 
         if (!$commands->hasCommandNamed($name)) {
             return null;

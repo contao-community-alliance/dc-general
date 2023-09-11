@@ -276,7 +276,7 @@ interface BasicDefinitionInterface extends DefinitionInterface
      *
      * @param bool $dynamicParentTable The flag - if the data container is an dynamic.
      *
-     * @return bool
+     * @return BasicDefinitionInterface
      */
     public function setDynamicParentTable($dynamicParentTable);
 

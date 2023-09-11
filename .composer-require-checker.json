@@ -1,11 +1,12 @@
 {
   "symbol-whitelist": [
     "array", "bool", "false", "int", "mixed", "null", "self", "static", "parent", "string", "true", "void",
-    "ContaoTwigInitializeEvent",
+    "ContaoCommunityAlliance\\Contao\\EventDispatcher\\CcaEventDispatcherBundle",
     "ContaoCommunityAlliance\\DcGeneral\\Contao\\View\\Contao2BackendView\\Exception\\EditOnlyModeException",
     "ContaoCommunityAlliance\\DcGeneral\\Contao\\View\\Contao2BackendView\\Exception\\NotCreatableException",
     "ContaoCommunityAlliance\\DcGeneral\\Contao\\View\\Contao2BackendView\\Exception\\NotDeletableException",
-    "ContaoCommunityAlliance\\Contao\\EventDispatcher\\CcaEventDispatcherBundle",
+    "ContaoCommunityAlliance\\DcGeneral\\DataDefinition\\Palette\\Condition\\Property\\PropertyBooleanConditionTrait",
+    "ContaoTwigInitializeEvent",
     "Contao\\Calendar",
     "Contao\\CalendarEventsModel",
     "Contao\\CalendarModel",
@@ -18,6 +19,7 @@
     "Contao\\NewsArchiveModel",
     "Contao\\NewsModel",
     "FOS\\HttpCache\\CacheInvalidator",
-    "MenAtWork\\MultiColumnWizardBundle\\Event\\GetOptionsEvent"
+    "MenAtWork\\MultiColumnWizardBundle\\Event\\GetOptionsEvent",
+    "Symfony\\Cmf\\Component\\Routing\\ChainRouterInterface"
   ]
 }

@@ -33,7 +33,7 @@ class DefaultPanelRow implements PanelRowInterface
     /**
      * The contained elements.
      *
-     * @var ElementInformationInterface[]
+     * @var list<ElementInformationInterface>
      */
     protected $elements = [];
 
@@ -93,7 +93,7 @@ class DefaultPanelRow implements PanelRowInterface
                     break;
                 }
             }
-        } elseif (\is_numeric($indexOrNameOrInstance)) {
+        } else {
             unset($this->elements[$indexOrNameOrInstance]);
         }
 
@@ -111,18 +111,14 @@ class DefaultPanelRow implements PanelRowInterface
             return \in_array($instanceOrName, $this->elements);
         }
 
-        if (\is_string($instanceOrName)) {
-            foreach ($this as $element) {
-                /** @var ElementInformationInterface $element */
-                if ($instanceOrName === $element->getName()) {
-                    return true;
-                }
+        foreach ($this as $element) {
+            /** @var ElementInformationInterface $element */
+            if ($instanceOrName === $element->getName()) {
+                return true;
             }
-
-            return false;
         }
 
-        throw new DcGeneralInvalidArgumentException('Invalid value for element name given.');
+        return false;
     }
 
     /**
@@ -148,8 +144,7 @@ class DefaultPanelRow implements PanelRowInterface
                     return $element;
                 }
             }
-        } elseif (!\is_numeric($indexOrName)) {
-            throw new DcGeneralInvalidArgumentException('Invalid value for element name given.');
+            throw new DcGeneralInvalidArgumentException('Value out of bounds: ' . $indexOrName . '.');
         }
 
         if (!isset($this->elements[$indexOrName])) {

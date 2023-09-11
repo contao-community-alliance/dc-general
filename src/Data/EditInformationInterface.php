@@ -39,7 +39,7 @@ interface EditInformationInterface
      *
      * @param ModelInterface $model The model.
      *
-     * @return array
+     * @return array<string, list<string>>
      */
     public function getModelError(ModelInterface $model);
 
@@ -47,7 +47,7 @@ interface EditInformationInterface
      * Set the error information for the model.
      *
      * @param ModelInterface    $model    The model.
-     * @param array             $error    The error information.
+     * @param list<string>      $error    The error information.
      * @param PropertyInterface $property The property.
      *
      * @return void

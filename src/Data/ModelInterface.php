@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Interface ModelInterface.
  *
  * This interface describes a model used in data providers.
+ *
+ * @extends \IteratorAggregate<string, mixed>
  */
 interface ModelInterface extends \IteratorAggregate
 {
@@ -115,14 +118,14 @@ interface ModelInterface extends \IteratorAggregate
      *
      * This method returns null if an unknown property is retrieved.
      *
-     * @param string $strPropertyName The property name to be retrieved.
+     * @param string $propertyName The property name to be retrieved.
      *
      * @return mixed The value of the given property.
      */
-    public function getProperty($strPropertyName);
+    public function getProperty($propertyName);
 
     /**
-     * Fetch all properties from the model as an name => value array.
+     * Fetch all properties from the model as a name => value array.
      *
      * @return array
      */
@@ -140,11 +143,11 @@ interface ModelInterface extends \IteratorAggregate
     /**
      * Set the id for this object.
      *
-     * NOTE: when the Id has been set once to a non null value, it can NOT be changed anymore.
+     *  NOTE: when the ID has been set once to a non-null value, it can NOT be changed anymore.
      *
-     * Normally this should only be called from inside of the implementing provider.
+     *  Normally this should only be called from inside the implementing provider.
      *
-     * @param mixed $mixId Could be a integer, string or anything else - depends on the provider implementation.
+     * @param mixed $mixId Could be integer, string or anything else - depends on the provider implementation.
      *
      * @return void
      */
@@ -163,11 +166,11 @@ interface ModelInterface extends \IteratorAggregate
     /**
      * Update all properties in the model.
      *
-     * @param array $arrProperties The property values as name => value pairs.
+     * @param array $properties The property values as name => value pairs.
      *
      * @return void
      */
-    public function setPropertiesAsArray($arrProperties);
+    public function setPropertiesAsArray($properties);
 
     /**
      * Update meta information in the model.

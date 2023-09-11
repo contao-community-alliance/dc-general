@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,7 +27,10 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -74,7 +78,7 @@ class PasteHandler
             return;
         }
 
-        if (false !== ($response = $this->process($event->getEnvironment()))) {
+        if (null !== ($response = $this->process($event->getEnvironment()))) {
             $event->setResponse($response);
         }
     }
@@ -88,20 +92,31 @@ class PasteHandler
      */
     protected function process(EnvironmentInterface $environment)
     {
-        $input      = $environment->getInputProvider();
-        $clipboard  = $environment->getClipboard();
-        $definition = $environment->getDataDefinition()->getBasicDefinition();
+        $input = $environment->getInputProvider();
+        assert($input instanceof InputProviderInterface);
+
+        $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
 
         // Tree mode needs special handling.
-        if ($this->needTreeModeShowAll($definition, $input)) {
+        if ($this->needTreeModeShowAll($basicDefinition, $input)) {
             return $this->callAction($environment, 'showAll');
         }
+
+        $providerName = $basicDefinition->getDataProvider();
+        assert(\is_string($providerName));
 
         // Check if it is a simple create-paste of a single model, if so, redirect to edit view.
         if (
             $this->isSimpleCreatePaste(
                 $clipboard,
-                $environment->getDataDefinition()->getBasicDefinition()->getDataProvider()
+                $providerName
             )
         ) {
             return $this->callAction($environment, 'create');
@@ -113,11 +128,15 @@ class PasteHandler
         $parentModelId = $this->modelIdFromParameter($input, 'pid');
         $items         = [];
 
-        $environment->getController()->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
+        $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
         foreach ($items as $item) {
             $clipboard->remove($item);
         }
+
         $clipboard->saveTo($environment);
 
         // If we use paste all handler don´t redirect yet.
@@ -139,7 +158,10 @@ class PasteHandler
      */
     private function checkPermission(ActionEvent $event)
     {
-        if (true === $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditable()) {
+        $definition = $event->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        if (true === $definition->getBasicDefinition()->isEditable()) {
             return true;
         }
 
@@ -200,7 +222,7 @@ class PasteHandler
      * @param InputProviderInterface $input The input provider.
      * @param string                 $name  The parameter to retrieve.
      *
-     * @return ModelId|null
+     * @return ModelIdInterface|null
      */
     private function modelIdFromParameter(InputProviderInterface $input, $name)
     {

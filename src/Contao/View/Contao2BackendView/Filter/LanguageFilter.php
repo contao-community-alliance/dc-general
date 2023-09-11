@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,16 +26,24 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filte
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * Handler class for handling the show events.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class LanguageFilter implements EventSubscriberInterface
 {
@@ -83,7 +91,7 @@ class LanguageFilter implements EventSubscriberInterface
     }
 
     /**
-     * Check if the data provider is multi language and prepare the data provider with the selected language.
+     * Check if the data provider is multi-language and prepare the data provider with the selected language.
      *
      * @param EnvironmentInterface $environment     The environment.
      * @param bool                 $resetToFallback Flag if the language must be reset to the fallback.
@@ -96,26 +104,45 @@ class LanguageFilter implements EventSubscriberInterface
     private function checkLanguage($environment, $resetToFallback)
     {
         $sessionStorage = $environment->getSessionStorage();
-        $dataProvider   = $environment->getDataProvider();
-        $providerName   = $environment->getDataDefinition()->getName();
-        $modelId        = $this->modelIdFromInput($environment->getInputProvider());
-        $languages      = $environment->getController()->getSupportedLanguages($modelId);
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        $dataProvider = $environment->getDataProvider();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $providerName = $definition->getName();
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $modelId      = $this->modelIdFromInput($inputProvider);
+
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
+        $languages = $controller->getSupportedLanguages($modelId);
 
         if (!$languages) {
             return;
         }
 
-        // Exit out when not a multi language provider.
+        // Exit out when not a multi-language provider.
         if (!($dataProvider instanceof MultiLanguageDataProviderInterface)) {
             return;
         }
 
         // If a new item, we MUST reset to the fallback as that is the first language that has to be stored
         // and set this language to session.
+        $session = [];
         if ((null === $modelId) && $resetToFallback) {
-            $dataProvider->setCurrentLanguage($dataProvider->getFallbackLanguage(null)->getLocale());
+            $fallbackLanguage = $dataProvider->getFallbackLanguage(null);
+            assert($fallbackLanguage instanceof LanguageInformationInterface);
+
+            $dataProvider->setCurrentLanguage($fallbackLanguage->getLocale());
             $session['ml_support'][$providerName] = $dataProvider->getCurrentLanguage();
             $sessionStorage->set('dc_general', $session);
+
             return;
         }
 
@@ -128,7 +155,10 @@ class LanguageFilter implements EventSubscriberInterface
         $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
 
         if (!\array_key_exists($currentLanguage, $languages)) {
-            $currentLanguage = $dataProvider->getFallbackLanguage($modelId)->getLocale();
+            $fallbackLanguage = $dataProvider->getFallbackLanguage($modelId);
+            assert($fallbackLanguage instanceof LanguageInformationInterface);
+
+            $currentLanguage = $fallbackLanguage->getLocale();
         }
 
         $session['ml_support'][$providerName] = $currentLanguage;
@@ -150,21 +180,33 @@ class LanguageFilter implements EventSubscriberInterface
     private function checkLanguageSubmit($environment, $languages)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         if ('language_switch' !== $inputProvider->getValue('FORM_SUBMIT')) {
             return;
         }
 
         // Get/Check the new language.
+        $session = [];
         if (
             $inputProvider->hasValue('language')
             && \array_key_exists($inputProvider->getValue('language'), $languages)
         ) {
-            $session['ml_support'][$environment->getDataDefinition()->getName()] = $inputProvider->getValue('language');
-            $environment->getSessionStorage()->set('dc_general', $session);
+            $definition = $environment->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
+            $session['ml_support'][$definition->getName()] = $inputProvider->getValue('language');
+
+            $sessionStorage = $environment->getSessionStorage();
+            assert($sessionStorage instanceof SessionStorageInterface);
+
+            $sessionStorage->set('dc_general', $session);
         }
 
-        $environment->getEventDispatcher()->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
     }
 
     /**
@@ -172,7 +214,7 @@ class LanguageFilter implements EventSubscriberInterface
      *
      * @param InputProviderInterface $inputProvider The input provider.
      *
-     * @return mixed|null
+     * @return ModelIdInterface|null
      */
     private function modelIdFromInput(InputProviderInterface $inputProvider)
     {

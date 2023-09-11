@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * This event gets emitted when a condition is created.
+ *
+ * @template TCondition of PaletteConditionInterface|PropertyConditionInterface
  */
 class CreateConditionEvent extends BuilderEvent
 {
@@ -36,16 +39,16 @@ class CreateConditionEvent extends BuilderEvent
     /**
      * The condition being created.
      *
-     * @var PaletteConditionInterface|PropertyConditionInterface
+     * @var TCondition
      */
     protected $condition;
 
     /**
      * Create a new instance.
      *
-     * @param PaletteConditionInterface|PropertyConditionInterface $condition      The condition that has been created.
-     * @param PaletteBuilder                                       $paletteBuilder The palette builder that created the
-     *                                                                             condition.
+     * @param TCondition     $condition      The condition that has been created.
+     * @param PaletteBuilder $paletteBuilder The palette builder that created the
+     *                                       condition.
      */
     public function __construct($condition, PaletteBuilder $paletteBuilder)
     {
@@ -57,7 +60,7 @@ class CreateConditionEvent extends BuilderEvent
     /**
      * Set the condition.
      *
-     * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition to use.
+     * @param TCondition $condition The condition to use.
      *
      * @return CreateConditionEvent
      *
@@ -83,7 +86,7 @@ class CreateConditionEvent extends BuilderEvent
     /**
      * Retrieve the condition.
      *
-     * @return PaletteConditionInterface|PropertyConditionInterface
+     * @return TCondition
      */
     public function getCondition()
     {

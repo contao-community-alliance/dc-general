@@ -32,6 +32,9 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractContainerAwareEvent;
  */
 abstract class BuilderEvent extends AbstractContainerAwareEvent
 {
+    /**
+     * @var string
+     */
     public const NAME = 'dc-general.data-definition.palette.builder.builder';
 
     /**
@@ -48,7 +51,7 @@ abstract class BuilderEvent extends AbstractContainerAwareEvent
      */
     public function __construct(PaletteBuilder $paletteBuilder)
     {
-        parent::__construct($this->paletteBuilder->getContainer());
+        parent::__construct($paletteBuilder->getContainer());
 
         $this->paletteBuilder = $paletteBuilder;
     }

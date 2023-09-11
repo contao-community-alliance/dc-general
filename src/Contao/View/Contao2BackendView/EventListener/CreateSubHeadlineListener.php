@@ -20,6 +20,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditMaskSubHeadlineEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * This class handles events to handle sub-headline at input mask.
@@ -53,9 +55,15 @@ class CreateSubHeadlineListener
      */
     private function createSubHeadline(string $status, GetEditMaskSubHeadlineEvent $event): void
     {
-        $environment    = $event->getEnvironment();
-        $definitionName = $environment->getDataDefinition()->getName();
-        $translator     = $environment->getTranslator();
+        $environment = $event->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $definitionName = $definition->getName();
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
         $headline = $translator->translate($status, $definitionName, [$event->getModel()->getId()]);
 

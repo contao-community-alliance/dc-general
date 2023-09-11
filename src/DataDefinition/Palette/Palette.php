@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,12 +38,12 @@ class Palette implements PaletteInterface
      *
      * @var string
      */
-    protected $name;
+    protected $name = '';
 
     /**
      * List of all legends in this palette.
      *
-     * @var array|LegendInterface[]
+     * @var array<string, LegendInterface>
      */
     protected $legends = [];
 
@@ -58,7 +59,7 @@ class Palette implements PaletteInterface
      */
     public function setName($name)
     {
-        $this->name = (string) $name;
+        $this->name = $name;
 
         return $this;
     }
@@ -220,9 +221,9 @@ class Palette implements PaletteInterface
             $position = \array_search($beforeHash, $hashes);
 
             $this->legends = \array_merge(
-                \array_slice($this->legends, 0, $position),
+                \array_slice($this->legends, 0, (int) $position),
                 [$hash => $legend],
-                \array_slice($this->legends, $position)
+                \array_slice($this->legends, (int) $position)
             );
 
             $legend->setPalette($this);

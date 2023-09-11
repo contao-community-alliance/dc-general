@@ -33,11 +33,17 @@ use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class TreeSelect.
@@ -45,16 +51,13 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
  * Back end tree picker for usage in generaltree.php.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @deprecated Do not use - here for legacy reasons only.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class TreeSelect
 {
-    /**
-     * Current ajax object.
-     *
-     * @var object
-     */
-    protected $objAjax;
-
     /**
      * The DcGeneral Object.
      *
@@ -78,9 +81,11 @@ class TreeSelect
         Config::getInstance();
         Database::getInstance();
 
+        /** @psalm-suppress DeprecatedMethod */
         BackendUser::getInstance()->authenticate();
 
         System::loadLanguageFile('default');
+        /** @psalm-suppress DeprecatedMethod */
         Backend::setStaticUrls();
     }
 
@@ -89,14 +94,20 @@ class TreeSelect
      *
      * @return void
      *
+     * @throws \Exception
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function run()
     {
-        $environment    = $this->itemContainer->getEnvironment();
+        $environment = $this->itemContainer->getEnvironment();
+
         $inputProvider  = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         // Ajax request.
         // @codingStandardsIgnoreStart - We need POST access here.
@@ -114,6 +125,7 @@ class TreeSelect
         \define('CURRENT_ID', ($inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId));
 
         $dispatcher = System::getContainer()->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
@@ -131,8 +143,10 @@ class TreeSelect
         }
 
         // Merge with the information from the data container.
-        $property = $environment
-            ->getDataDefinition()
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $property = $definition
             ->getPropertiesDefinition()
             ->getProperty($inputField);
         $extra    = $property->getExtra();
@@ -142,14 +156,19 @@ class TreeSelect
         $property->setExtra(\array_merge($property->getExtra(), $information['eval']));
 
         $dataProvider = $environment->getDataProvider();
-        $model        = $dataProvider->getEmptyModel();
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $model = $dataProvider->getEmptyModel();
         if ($inputProvider->getParameter('id')) {
             $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
             $model   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            assert($model instanceof ModelInterface);
         }
 
+        $widgetBuilder = new WidgetBuilder($environment);
+
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $treeSelector */
-        $treeSelector        = (new WidgetBuilder($environment))->buildWidget($property, $model);
+        $treeSelector        = $widgetBuilder->buildWidget($property, $model);
         $treeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
 
         // AJAX request.
@@ -160,6 +179,7 @@ class TreeSelect
 
 
         $template = new ContaoBackendViewTemplate('be_main');
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
         $template
             ->set('isPopup', true)
             ->set('main', $treeSelector->generatePopup())
@@ -177,6 +197,10 @@ class TreeSelect
             ->set('managerHref', '');
 
         // Add the manager link.
+        /**
+         * @psalm-suppress UndefinedThisPropertyFetch
+         * @psalm-suppress UndefinedMagicPropertyFetch
+         */
         if ($treeSelector->managerHref) {
             $template
                 ->set('managerHref', 'contao?' . StringUtil::ampersand($treeSelector->managerHref) . '&amp;popup=1');

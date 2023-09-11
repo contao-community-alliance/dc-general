@@ -31,7 +31,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
      *
      * @var string
      */
-    protected $property;
+    protected $property = '';
 
     /**
      * The sorting method to use.
@@ -59,7 +59,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
      *
      * @var bool
      */
-    protected $manualSorting;
+    protected $manualSorting = false;
 
     /**
      * {@inheritDoc}

@@ -33,6 +33,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
@@ -48,6 +50,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
@@ -61,6 +64,8 @@ use ContaoCommunityAlliance\DcGeneral\Event\PrePasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class serves as main controller class in dc general.
@@ -73,6 +78,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @psalm-suppress MissingConstructor
  */
 class DefaultController implements ControllerInterface
 {
@@ -133,11 +139,17 @@ class DefaultController implements ControllerInterface
      */
     public function setEnvironment(EnvironmentInterface $environment)
     {
-        $this->environment         = $environment;
-        $definition                = $environment->getDataDefinition();
+        $this->environment = $environment;
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $mode = $definition->getBasicDefinition()->getMode();
+        assert(\is_int($mode));
+
         $this->relationshipManager = new RelationshipManager(
             $definition->getModelRelationshipDefinition(),
-            $definition->getBasicDefinition()->getMode()
+            $mode
         );
         $this->modelCollector      = new ModelCollector($this->environment);
 
@@ -158,9 +170,13 @@ class DefaultController implements ControllerInterface
     public function handle(Action $action)
     {
         $event = new ActionEvent($this->getEnvironment(), $action);
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event, DcGeneralEvents::ACTION);
 
-        return $event->getResponse();
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, DcGeneralEvents::ACTION);
+
+        return (string) $event->getResponse();
     }
 
     /**
@@ -168,7 +184,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().
+     * @see ModelCollector::searchParentOfIn
      */
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
     {
@@ -179,7 +195,12 @@ class DefaultController implements ControllerInterface
         );
         // @codingStandardsIgnoreEnd
 
-        return $this->modelCollector->searchParentOfIn($model, $models);
+        $parent = $this->modelCollector->searchParentOfIn($model, $models);
+        if (null === $parent) {
+            throw new \RuntimeException('Not found');
+        }
+
+        return $parent;
     }
 
     /**
@@ -189,7 +210,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().
+     * @see ModelCollector::searchParentOf
      */
     public function searchParentOf(ModelInterface $model)
     {
@@ -200,7 +221,12 @@ class DefaultController implements ControllerInterface
         );
         // @codingStandardsIgnoreEnd
 
-        return $this->modelCollector->searchParentOf($model);
+        $parent = $this->modelCollector->searchParentOf($model);
+        if (null === $parent) {
+            throw new \RuntimeException('Not found');
+        }
+
+        return $parent;
     }
 
     /**
@@ -208,7 +234,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
+     * @see ModelCollector::collectChildrenOf
      */
     public function assembleAllChildrenFrom($model, $providerName = '')
     {
@@ -225,17 +251,15 @@ class DefaultController implements ControllerInterface
     /**
      * Retrieve all siblings of a given model.
      *
-     * @param ModelInterface   $model           The model for which the siblings shall be retrieved from.
-     * @param string|null      $sortingProperty The property name to use for sorting.
-     * @param ModelIdInterface $parentId        The (optional) parent id to use.
+     * @param ModelInterface        $model           The model for which the siblings shall be retrieved from.
+     * @param null                  $sortingProperty The property name to use for sorting.
+     * @param ModelIdInterface|null $parentId        The (optional) parent id to use.
      *
      * @return CollectionInterface
      *
-     * @throws DcGeneralRuntimeException When no parent model can be located.
-     *
      * @deprecated Use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf().
+     * @see        ModelCollector::collectSiblingsOf
      */
     protected function assembleSiblingsFor(
         ModelInterface $model,
@@ -260,15 +284,23 @@ class DefaultController implements ControllerInterface
      *
      * @return CollectionInterface
      *
-     * @throws DcGeneralRuntimeException Unable to retrieve children in non hierarchical mode.
+     * @throws DcGeneralRuntimeException Unable to retrieve children in non-hierarchical mode.
      * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
     protected function assembleChildrenFor(ModelInterface $model, $sortingProperty = null)
     {
-        $environment   = $this->getEnvironment();
-        $definition    = $environment->getDataDefinition();
-        $provider      = $environment->getDataProvider($model->getProviderName());
-        $config        = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $provider = $environment->getDataProvider($model->getProviderName());
+        assert($provider instanceof DataProviderInterface);
+
+        $registry = $environment->getBaseConfigRegistry();
+        assert($registry instanceof BaseConfigRegistryInterface);
+
+        $config        = $registry->getBaseConfig();
         $relationships = $definition->getModelRelationshipDefinition();
 
         if (BasicDefinitionInterface::MODE_HIERARCHICAL !== $definition->getBasicDefinition()->getMode()) {
@@ -284,10 +316,12 @@ class DefaultController implements ControllerInterface
         $config->setFilter($condition->getFilter($model));
 
         if ($sortingProperty) {
-            $config->setSorting([(string) $sortingProperty => 'ASC']);
+            $config->setSorting([$sortingProperty => 'ASC']);
         }
 
-        return $provider->fetchAll($config);
+        $childrenCollection = $provider->fetchAll($config);
+        assert($childrenCollection instanceof CollectionInterface);
+        return $childrenCollection;
     }
 
     /**
@@ -295,11 +329,12 @@ class DefaultController implements ControllerInterface
      */
     public function updateModelFromPropertyBag($model, $propertyValues)
     {
-        if (!$propertyValues) {
-            return $this;
-        }
         $environment = $this->getEnvironment();
-        $properties  = $environment->getDataDefinition()->getPropertiesDefinition();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $properties = $definition->getPropertiesDefinition();
 
         ModelManipulator::updateModelFromPropertyBag($properties, $model, $propertyValues);
 
@@ -309,18 +344,18 @@ class DefaultController implements ControllerInterface
     /**
      * Return all supported languages from the default data data provider.
      *
-     * @param mixed $currentID The id of the item for which to retrieve the valid languages.
+     * @param mixed $mixID The id of the item for which to retrieve the valid languages.
      *
      * @return array
      */
-    public function getSupportedLanguages($currentID)
+    public function getSupportedLanguages($mixID)
     {
         $environment  = $this->getEnvironment();
         $dataProvider = $environment->getDataProvider();
 
         // Check if current data provider supports multi language.
         if ($dataProvider instanceof MultiLanguageDataProviderInterface) {
-            $supportedLanguages = $dataProvider->getLanguages($currentID);
+            $supportedLanguages = $dataProvider->getLanguages($mixID);
         } else {
             $supportedLanguages = null;
         }
@@ -331,6 +366,7 @@ class DefaultController implements ControllerInterface
         }
 
         $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
         // Make an array from the collection.
         $languages = [];
@@ -388,9 +424,14 @@ class DefaultController implements ControllerInterface
         $clone = clone $model;
         $clone->setId(null);
 
-        $environment  = $this->getEnvironment();
-        $properties   = $environment->getDataDefinition()->getPropertiesDefinition();
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $properties   = $definition->getPropertiesDefinition();
         $dataProvider = $environment->getDataProvider($clone->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
 
         foreach (\array_keys($clone->getPropertiesAsArray()) as $propName) {
             // If the property is not known, remove it.
@@ -412,7 +453,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel().
+     * @see ModelCollector::getModel
      */
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
@@ -423,7 +464,12 @@ class DefaultController implements ControllerInterface
         );
         // @codingStandardsIgnoreEnd
 
-        return $this->modelCollector->getModel($modelId, $providerName);
+        $model = $this->modelCollector->getModel($modelId, $providerName);
+        if (null === $model) {
+            throw new \RuntimeException('Not found');
+        }
+
+        return $model;
     }
 
     /**
@@ -431,9 +477,14 @@ class DefaultController implements ControllerInterface
      */
     public function createEmptyModelWithDefaults()
     {
-        $environment        = $this->getEnvironment();
-        $definition         = $environment->getDataDefinition();
-        $dataProvider       = $environment->getDataProvider();
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
         $propertyDefinition = $definition->getPropertiesDefinition();
         $properties         = $propertyDefinition->getProperties();
         $model              = $dataProvider->getEmptyModel();
@@ -481,7 +532,10 @@ class DefaultController implements ControllerInterface
                 continue;
             }
 
-            $models->push($environment->getDataProvider($item->getDataProviderName())->getEmptyModel());
+            $dataProvider = $environment->getDataProvider($item->getDataProviderName());
+            assert($dataProvider instanceof DataProviderInterface);
+
+            $models->push($dataProvider->getEmptyModel());
         }
 
         return $models;
@@ -492,11 +546,17 @@ class DefaultController implements ControllerInterface
      */
     public function getModelsFromClipboard(ModelIdInterface $parentModelId = null)
     {
-        $environment       = $this->getEnvironment();
-        $dataDefinition    = $environment->getDataDefinition();
+        $environment = $this->getEnvironment();
+
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $basicDefinition   = $dataDefinition->getBasicDefinition();
         $modelProviderName = $basicDefinition->getDataProvider();
-        $clipboard         = $environment->getClipboard();
+        assert(\is_string($modelProviderName));
+
+        $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($modelProviderName);
@@ -541,67 +601,87 @@ class DefaultController implements ControllerInterface
      */
     private function getActionsFromSource(ModelIdInterface $source, ModelIdInterface $parentModelId = null)
     {
-        $basicDefinition = $this->getEnvironment()->getDataDefinition()->getBasicDefinition();
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
+
+        $dataProvider = $basicDefinition->getDataProvider();
+        assert(\is_string($dataProvider));
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
+        $filter->andModelIsFromProvider($dataProvider);
         if ($basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
+            $parentDataProvider = $basicDefinition->getDataProvider();
+            assert(\is_string($parentDataProvider));
+
+            $filter->andParentIsFromProvider($parentDataProvider);
         } else {
             $filter->andHasNoParent();
         }
         $filter->andModelIs($source);
 
-        $item = $this->getEnvironment()->getClipboard()->fetch($filter)[0] ?? null;
+        $clipboard = $this->getEnvironment()->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
 
-        $action  = $item ? $item->getAction() : ItemInterface::CUT;
-        $model   = $this->modelCollector->getModel($source);
-        $actions = [
+        $item = $clipboard->fetch($filter)[0] ?? null;
+
+        $action = $item ? $item->getAction() : ItemInterface::CUT;
+        $model  = $this->modelCollector->getModel($source);
+        assert($model instanceof ModelInterface);
+
+        return [
             [
                 'model' => $model,
                 'item'  => new Item($action, $parentModelId, ModelId::fromModel($model))
             ]
         ];
-
-        return $actions;
     }
 
     /**
      * Fetch actions from the clipboard.
      *
-     * @param FilterInterface|null $filter        The clipboard filter.
-     * @param ModelIdInterface     $parentModelId The parent id.
+     * @param FilterInterface|null  $filter        The clipboard filter.
+     * @param ModelIdInterface|null $parentModelId The parent id.
      *
      * @return array
      */
     private function fetchModelsFromClipboard(FilterInterface $filter = null, ModelIdInterface $parentModelId = null)
     {
-        $environment    = $this->getEnvironment();
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
 
         if (!$filter) {
             $filter = new Filter();
         }
 
-        $basicDefinition   = $dataDefinition->getBasicDefinition();
-        $modelProviderName = $basicDefinition->getDataProvider();
-        $filter->andModelIsFromProvider($modelProviderName);
-        if ($parentModelId) {
-            $filter->andParentIsFromProvider($parentModelId->getDataProviderName());
-        } else {
-            $filter->andHasNoParent();
+        if ($filter instanceof Filter) {
+            $basicDefinition   = $dataDefinition->getBasicDefinition();
+            $modelProviderName = $basicDefinition->getDataProvider();
+            assert(\is_string($modelProviderName));
+            $filter->andModelIsFromProvider($modelProviderName);
+            if ($parentModelId) {
+                $filter->andParentIsFromProvider($parentModelId->getDataProviderName());
+            } else {
+                $filter->andHasNoParent();
+            }
         }
 
-        $environment = $this->getEnvironment();
-        $clipboard   = $environment->getClipboard();
-        $items       = $clipboard->fetch($filter);
-        $actions     = [];
+        $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
+
+        $items   = $clipboard->fetch($filter);
+        $actions = [];
 
         foreach ($items as $item) {
             $model = null;
 
-            if (!$item->isCreate() && $item->getModelId()) {
-                $model = $this->modelCollector->getModel($item->getModelId()->getId(), $item->getDataProviderName());
+            if (!$item->isCreate() && null !== ($model = $item->getModelId())) {
+                $model = $this->modelCollector->getModel((string) $model->getId(), $item->getDataProviderName());
             }
 
             $actions[] = [
@@ -616,11 +696,11 @@ class DefaultController implements ControllerInterface
     /**
      * Effectively do the actions.
      *
-     * @param array            $actions       The actions collection.
-     * @param ModelIdInterface $after         The previous model id.
-     * @param ModelIdInterface $into          The hierarchical parent model id.
-     * @param ModelIdInterface $parentModelId The parent model id.
-     * @param array            $items         Write-back clipboard items.
+     * @param array                 $actions       The action's collection.
+     * @param ModelIdInterface|null $after         The previous model id.
+     * @param ModelIdInterface|null $into          The hierarchical parent model id.
+     * @param ModelIdInterface|null $parentModelId The parent model id.
+     * @param array                 $items         Write-back clipboard items.
      *
      * @return CollectionInterface
      */
@@ -637,22 +717,22 @@ class DefaultController implements ControllerInterface
             $parentModel = null;
         }
 
-        // Holds models, that need deep-copy
+        // Holds models, that need deep-copy.
         $deepCopyList = [];
 
-        // Apply create and copy actions
+        // Apply to create and copy actions.
         foreach ($actions as &$action) {
             $this->applyAction($action, $deepCopyList, $parentModel);
         }
         unset($action);
 
-        // When pasting after another model, apply same grouping information
+        // When pasting after another model, apply same grouping information.
         $this->ensureSameGrouping($actions, $after);
 
-        // Now apply sorting and persist all models
+        // Now apply sorting and persist all models.
         $models = $this->sortAndPersistModels($actions, $after, $into, $parentModelId, $items);
 
-        // At least, go ahead with the deep copy
+        // At least, go ahead with the deep copy.
         $this->doDeepCopy($deepCopyList);
 
         return $models;
@@ -663,13 +743,12 @@ class DefaultController implements ControllerInterface
      *
      * This will create or clone the model in the action.
      *
-     * @param array          $action       The action, containing a model and an item.
-     * @param array          $deepCopyList A list of models that need deep copy.
-     * @param ModelInterface $parentModel  The parent model.
+     * @param array               $action       The action, containing a model and an item.
+     * @param array               $deepCopyList A list of models that need deep copy.
+     * @param ModelInterface|null $parentModel  The parent model.
      *
      * @return void
      *
-     * @throws \UnexpectedValueException When the action is neither create, copy or deep copy.
      */
     private function applyAction(array &$action, array &$deepCopyList, ModelInterface $parentModel = null)
     {
@@ -683,8 +762,10 @@ class DefaultController implements ControllerInterface
             // create new model
             $model = $this->createEmptyModelWithDefaults();
         } elseif ($item->isCopy() || $isDeepCopy = $item->isDeepCopy()) {
+            assert($model instanceof ModelInterface);
             // copy model
-            $model       = $this->modelCollector->getModel(ModelId::fromModel($model));
+            $model = $this->modelCollector->getModel(ModelId::fromModel($model));
+            assert($model instanceof ModelInterface);
             $clonedModel = $this->doCloneAction($model);
 
             if ($isDeepCopy) {
@@ -721,16 +802,19 @@ class DefaultController implements ControllerInterface
     {
         $environment = $this->getEnvironment();
 
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         // Make a duplicate.
         $clonedModel = $this->createClonedModel($model);
 
         // Trigger the pre duplicate event.
         $duplicateEvent = new PreDuplicateModelEvent($environment, $clonedModel, $model);
-        $environment->getEventDispatcher()->dispatch($duplicateEvent, $duplicateEvent::NAME);
+        $dispatcher->dispatch($duplicateEvent, $duplicateEvent::NAME);
 
         // And trigger the post event for it.
         $duplicateEvent = new PostDuplicateModelEvent($environment, $clonedModel, $model);
-        $environment->getEventDispatcher()->dispatch($duplicateEvent, $duplicateEvent::NAME);
+        $dispatcher->dispatch($duplicateEvent, $duplicateEvent::NAME);
 
         return $clonedModel;
     }
@@ -738,8 +822,8 @@ class DefaultController implements ControllerInterface
     /**
      * Ensure all models have the same grouping.
      *
-     * @param array            $actions The actions collection.
-     * @param ModelIdInterface $after   The previous model id.
+     * @param array                 $actions The action's collection.
+     * @param ModelIdInterface|null $after   The previous model id.
      *
      * @return void
      */
@@ -751,6 +835,8 @@ class DefaultController implements ControllerInterface
             // when pasting after another item, inherit the grouping field
             $groupingField = $groupingMode['property'];
             $previous      = $this->modelCollector->getModel($after);
+            assert($previous instanceof ModelInterface);
+
             $groupingValue = $previous->getProperty($groupingField);
 
             foreach ($actions as $action) {
@@ -764,15 +850,14 @@ class DefaultController implements ControllerInterface
     /**
      * Apply sorting and persist all models.
      *
-     * @param array            $actions       The actions collection.
-     * @param ModelIdInterface $after         The previous model id.
-     * @param ModelIdInterface $into          The hierarchical parent model id.
-     * @param ModelIdInterface $parentModelId The parent model id.
-     * @param array            $items         Write-back clipboard items.
+     * @param array                 $actions       The actions collection.
+     * @param ModelIdInterface|null $after         The previous model id.
+     * @param ModelIdInterface|null $into          The hierarchical parent model id.
+     * @param ModelIdInterface|null $parentModelId The parent model id.
+     * @param array                 $items         Write-back clipboard items.
      *
-     * @return DefaultCollection|ModelInterface[]
+     * @return DefaultCollection
      *
-     * @throws DcGeneralRuntimeException When the parameters for the pasting destination are invalid.
      */
     private function sortAndPersistModels(
         array $actions,
@@ -781,8 +866,8 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $parentModelId = null,
         array &$items = []
     ) {
-        /** @var DefaultCollection|ModelInterface[] $models */
         $models = $this->createModelCollectionFromActions($actions, $items);
+        assert($models instanceof CollectionInterface);
 
         $this->triggerPrePasteModel($models);
 
@@ -801,8 +886,8 @@ class DefaultController implements ControllerInterface
     /**
      * Process paste the collection of models after the a model.
      *
-     * @param CollectionInterface $models The collection of models.
-     * @param ModelIdInterface    $after  The paste after model.
+     * @param CollectionInterface   $models The collection of models.
+     * @param ModelIdInterface|null $after  The paste after model.
      *
      * @return void
      */
@@ -810,8 +895,12 @@ class DefaultController implements ControllerInterface
     {
         if ($after && $models->count() && $after->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+            assert(\is_string($manualSorting));
 
-            $this->pasteAfter($this->modelCollector->getModel($after), $models, $manualSorting);
+            $model = $this->modelCollector->getModel($after);
+            assert($model instanceof ModelInterface);
+
+            $this->pasteAfter($model, $models, $manualSorting);
 
             $this->triggerPostPasteModel($models);
             $this->clearModelCollection($models);
@@ -819,10 +908,10 @@ class DefaultController implements ControllerInterface
     }
 
     /**
-     * Process paste the collection of models into the a model.
+     * Process paste the collection of models into the model.
      *
-     * @param CollectionInterface $models The collection of models.
-     * @param ModelIdInterface    $into   The paste into model.
+     * @param CollectionInterface   $models The collection of models.
+     * @param ModelIdInterface|null $into   The paste into model.
      *
      * @return void
      */
@@ -830,8 +919,12 @@ class DefaultController implements ControllerInterface
     {
         if ($into && $models->count() && $into->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+            assert(\is_string($manualSorting));
 
-            $this->pasteInto($this->modelCollector->getModel($into), $models, $manualSorting);
+            $model = $this->modelCollector->getModel($into);
+            assert($model instanceof ModelInterface);
+
+            $this->pasteInto($model, $models, $manualSorting);
 
             $this->triggerPostPasteModel($models);
             $this->clearModelCollection($models);
@@ -841,10 +934,10 @@ class DefaultController implements ControllerInterface
     /**
      * Process paste the content of the clipboard onto the top after a model without reference.
      *
-     * @param CollectionInterface $models The collection of models.
-     * @param ModelIdInterface    $after  The previous model id.
-     * @param ModelIdInterface    $into   The hierarchical parent model id.
-     * @param ModelIdInterface    $parent The parent model id.
+     * @param CollectionInterface   $models The collection of models.
+     * @param ModelIdInterface|null $after  The previous model id.
+     * @param ModelIdInterface|null $into   The hierarchical parent model id.
+     * @param ModelIdInterface|null $parent The parent model id.
      *
      * @return void
      */
@@ -859,8 +952,11 @@ class DefaultController implements ControllerInterface
             && (($after && (0 === (int) $after->getId()))
                 || ($into && (0 === (int) $into->getId())))
         ) {
-            $manualSorting  = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+            $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
+            assert(\is_string($manualSorting));
+
             $dataDefinition = $this->getEnvironment()->getDataDefinition();
+            assert($dataDefinition instanceof ContainerInterface);
 
             if (BasicDefinitionInterface::MODE_HIERARCHICAL === $dataDefinition->getBasicDefinition()->getMode()) {
                 $this->relationshipManager->setAllRoot($models);
@@ -893,6 +989,8 @@ class DefaultController implements ControllerInterface
             }
 
             $dataProvider = $this->getEnvironment()->getDataProvider();
+            assert($dataProvider instanceof DataProviderInterface);
+
             $dataProvider->saveEach($models);
 
             $this->triggerPostPasteModel($models);
@@ -930,7 +1028,11 @@ class DefaultController implements ControllerInterface
     {
         foreach ($collection as $model) {
             $event = new PrePasteModelEvent($this->getEnvironment(), $model);
-            $this->getEnvironment()->getEventDispatcher()->dispatch($event, $event::NAME);
+
+            $dispatcher = $this->getEnvironment()->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch($event, $event::NAME);
         }
     }
 
@@ -945,7 +1047,11 @@ class DefaultController implements ControllerInterface
     {
         foreach ($collection as $model) {
             $event = new PostPasteModelEvent($this->getEnvironment(), $model);
-            $this->getEnvironment()->getEventDispatcher()->dispatch($event, $event::NAME);
+
+            $dispatcher = $this->getEnvironment()->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch($event, $event::NAME);
         }
     }
 
@@ -964,8 +1070,11 @@ class DefaultController implements ControllerInterface
             return;
         }
 
-        $factory                     = DcGeneralFactory::deriveFromEnvironment($this->getEnvironment());
-        $dataDefinition              = $this->getEnvironment()->getDataDefinition();
+        $factory = DcGeneralFactory::deriveFromEnvironment($this->getEnvironment());
+
+        $dataDefinition = $this->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $modelRelationshipDefinition = $dataDefinition->getModelRelationshipDefinition();
         $childConditions             = $modelRelationshipDefinition->getChildConditions($dataDefinition->getName());
 
@@ -981,13 +1090,22 @@ class DefaultController implements ControllerInterface
                 // create new destination environment
                 $destinationName = $childCondition->getDestinationName();
                 $factory->setContainerName($destinationName);
-                $destinationEnvironment    = $factory->createEnvironment();
+                $destinationEnvironment = $factory->createEnvironment();
+
                 $destinationDataDefinition = $destinationEnvironment->getDataDefinition();
+                assert($destinationDataDefinition instanceof ContainerInterface);
+
                 $destinationViewDefinition = $destinationDataDefinition->getDefinition(
                     Contao2BackendViewDefinitionInterface::NAME
                 );
-                $destinationDataProvider   = $destinationEnvironment->getDataProvider();
-                $destinationController     = $destinationEnvironment->getController();
+                assert($destinationViewDefinition instanceof Contao2BackendViewDefinitionInterface);
+
+                $destinationDataProvider = $destinationEnvironment->getDataProvider();
+                assert($destinationDataProvider instanceof DataProviderInterface);
+
+                $destinationController = $destinationEnvironment->getController();
+                assert($destinationController instanceof ControllerInterface);
+
                 /** @var Contao2BackendViewDefinitionInterface $destinationViewDefinition */
                 /** @var DefaultController $destinationController */
                 $listingConfig             = $destinationViewDefinition->getListingConfig();
@@ -1017,6 +1135,10 @@ class DefaultController implements ControllerInterface
 
                 // build the copy actions
                 foreach ($children as $childModel) {
+                    if (!($childModel instanceof ModelInterface)) {
+                        continue;
+                    }
+
                     $childModelId = ModelId::fromModel($childModel);
 
                     $actions[] = [
@@ -1044,11 +1166,18 @@ class DefaultController implements ControllerInterface
     {
         $environment = $this->getEnvironment();
 
-        // Enforce proper sorting now.
-        $siblings = $this->modelCollector->collectSiblingsOf($models->get(0), $sortedBy, $parentId);
-        $newList  = (new SortingManager($models, $siblings, $sortedBy, null))->getResults();
+        $firstModel = $models->get(0);
+        assert($firstModel instanceof ModelInterface);
 
-        $environment->getDataProvider($models->get(0)->getProviderName())->saveEach($newList);
+        // Enforce proper sorting now.
+        $siblings = $this->modelCollector->collectSiblingsOf($firstModel, $sortedBy, $parentId);
+        $newList  = (new SortingManager($models, $siblings, $sortedBy, null))->getResults();
+        assert($newList instanceof CollectionInterface);
+
+        $dataProvider = $environment->getDataProvider($firstModel->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $dataProvider->saveEach($newList);
     }
 
     /**
@@ -1061,11 +1190,15 @@ class DefaultController implements ControllerInterface
         if (0 === $models->length()) {
             throw new \RuntimeException('No models passed to pasteAfter().');
         }
+
         $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
         if (
             \in_array(
-                $environment->getDataDefinition()->getBasicDefinition()->getMode(),
+                $definition->getBasicDefinition()->getMode(),
                 [
                     BasicDefinitionInterface::MODE_HIERARCHICAL,
                     BasicDefinitionInterface::MODE_PARENTEDLIST
@@ -1074,6 +1207,8 @@ class DefaultController implements ControllerInterface
         ) {
             if (!$this->relationshipManager->isRoot($previousModel)) {
                 $parentModel = $this->modelCollector->searchParentOf($previousModel);
+                assert($parentModel instanceof ModelInterface);
+
                 $parentName  = $parentModel->getProviderName();
                 $this->relationshipManager->setSameParentForAll($models, $previousModel, $parentName);
             } else {
@@ -1084,8 +1219,12 @@ class DefaultController implements ControllerInterface
         // Enforce proper sorting now.
         $siblings = $this->modelCollector->collectSiblingsOf($previousModel, $sortedBy);
         $newList  = (new SortingManager($models, $siblings, $sortedBy, $previousModel))->getResults();
+        assert($newList instanceof CollectionInterface);
 
-        $environment->getDataProvider($previousModel->getProviderName())->saveEach($newList);
+        $dataProvider = $environment->getDataProvider($previousModel->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $dataProvider->saveEach($newList);
     }
 
     /**
@@ -1100,8 +1239,15 @@ class DefaultController implements ControllerInterface
         // Enforce proper sorting now.
         $siblings = $this->assembleChildrenFor($parentModel, $sortedBy);
         $newList  = (new SortingManager($models, $siblings, $sortedBy))->getResults();
+        assert($newList instanceof CollectionInterface);
 
-        $environment->getDataProvider($newList->get(0)->getProviderName())->saveEach($newList);
+        $firstItem = $newList->get(0);
+        assert($firstItem instanceof ModelInterface);
+
+        $dataProvider = $environment->getDataProvider($firstItem->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $dataProvider->saveEach($newList);
     }
 
     /**

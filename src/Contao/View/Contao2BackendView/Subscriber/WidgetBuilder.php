@@ -24,7 +24,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
-use Contao\CheckBox;
 use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -43,16 +42,21 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\Page
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\PageTreeOrder;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\TreePickerOrder;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Widget Builder build Contao backend widgets.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @final
  */
 class WidgetBuilder implements EnvironmentAwareInterface
 {
@@ -61,19 +65,21 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @var RequestScopeDeterminator
      */
-    private static $scopeDeterminator;
+    private static RequestScopeDeterminator $scopeDeterminator;
 
     /**
      * The environment.
      *
      * @var EnvironmentInterface
      */
-    private $environment;
+    private EnvironmentInterface $environment;
 
     /**
      * Mapping list of widget types where the DC General has it own widgets.
      *
      * @var array
+     *
+     * @psalm-suppress DeprecatedClass - we know. :D
      */
     protected static $widgetMapping = [
         'fileTree'        => FileTree::class,
@@ -112,8 +118,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return;
         }
 
-        $event
-            ->setWidget((new static($event->getEnvironment()))->buildWidget($event->getProperty(), $event->getModel()));
+        $widget = (new static($event->getEnvironment()))->buildWidget($event->getProperty(), $event->getModel());
+        assert($widget instanceof Widget);
+
+        $event->setWidget($widget);
     }
 
     /**
@@ -131,7 +139,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @param PropertyInterface $property The property to get the widget class name for.
      *
-     * @return string
+     * @return class-string
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -142,13 +150,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return static::$widgetMapping[$property->getWidgetType()];
         }
 
-        if (!isset($GLOBALS['BE_FFL'][$property->getWidgetType()])) {
-            return null;
-        }
-
-        $className = $GLOBALS['BE_FFL'][$property->getWidgetType()];
+        $className = $GLOBALS['BE_FFL'][$property->getWidgetType()] ?? '';
         if (!\class_exists($className)) {
-            return null;
+            throw new DcGeneralRuntimeException(
+                \sprintf('Failed to get widget class for property "%s".', $property->getName())
+            );
         }
 
         return $className;
@@ -160,7 +166,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * @param PropertyInterface $propInfo The property for which the X label shall be generated.
      * @param ModelInterface    $model    The model.
      *
-     * @return array
+     * @return array|null
      */
     protected function getOptionsForWidget($propInfo, $model): ?array
     {
@@ -173,7 +179,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $event       = new GetPropertyOptionsEvent($environment, $model);
         $event->setPropertyName($propInfo->getName());
         $event->setOptions($options);
-        $environment->getEventDispatcher()->dispatch($event, GetPropertyOptionsEvent::NAME);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, GetPropertyOptionsEvent::NAME);
 
         if ($event->getOptions() !== $options) {
             return $event->getOptions();
@@ -193,10 +203,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
     {
         $propExtra = $property->getExtra();
 
-        // Check the overwrite param.
+        // Check to overwrite param.
         if (
-            \is_array($propExtra)
-            && \array_key_exists('fetchOptions', $propExtra)
+            \array_key_exists('fetchOptions', $propExtra)
             && (true === $propExtra['fetchOptions'])
         ) {
             return true;
@@ -219,10 +228,19 @@ class WidgetBuilder implements EnvironmentAwareInterface
     protected function getTableWizard()
     {
         $environment = $this->getEnvironment();
+
         $dispatcher  = $environment->getEventDispatcher();
-        $defName     = $environment->getDataDefinition()->getName();
-        $translator  = $environment->getTranslator();
-        $urlEvent    = new AddToUrlEvent('key=table');
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $defName = $definition->getName();
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $urlEvent = new AddToUrlEvent('key=table');
 
         $importTableEvent = new GenerateHtmlEvent(
             'tablewizard.svg',
@@ -261,9 +279,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
             StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($translator->translate('importTable.1', $defName)),
-            $importTableEvent->getHtml(),
-            $shrinkEvent->getHtml(),
-            $expandEvent->getHtml()
+            $importTableEvent->getHtml() ?? '',
+            $shrinkEvent->getHtml() ?? '',
+            $expandEvent->getHtml() ?? ''
         );
     }
 
@@ -275,9 +293,17 @@ class WidgetBuilder implements EnvironmentAwareInterface
     protected function getListWizard()
     {
         $environment = $this->getEnvironment();
-        $dispatcher  = $environment->getEventDispatcher();
-        $defName     = $environment->getDataDefinition()->getName();
-        $translator  = $environment->getTranslator();
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $defName = $definition->getName();
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
         $urlEvent = new AddToUrlEvent('key=list');
 
@@ -294,7 +320,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
             StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($translator->translate('importList.1', $defName)),
-            $importListEvent->getHtml()
+            $importListEvent->getHtml() ?? ''
         );
     }
 
@@ -310,6 +336,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $xLabel      = '';
         $environment = $this->getEnvironment();
         $translator  = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
         // Toggle line wrap (textarea).
         if (('textarea' === $propInfo->getWidgetType()) && !\array_key_exists('rte', $propInfo->getExtra())) {
@@ -323,9 +350,12 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 )
             );
 
-            $environment->getEventDispatcher()->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
 
-            $xLabel .= ' ' . $event->getHtml();
+            $dispatcher->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
+
+            $xLabel .= ' ' . ($event->getHtml() ?? '');
         }
 
         $xLabel .= $this->getHelpWizard($propInfo);
@@ -355,6 +385,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $helpWizard  = '';
         $environment = $this->getEnvironment();
         $translator  = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         // Add the help wizard.
         if ($propInfo->getExtra() && \array_key_exists('helpwizard', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
@@ -363,16 +395,22 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'style="vertical-align:text-bottom;"'
             );
 
-            $environment->getEventDispatcher()->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
+
+            $definition = $environment->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
 
             $helpWizard .= \sprintf(
                 ' <a href="contao/help?table=%s&amp;field=%s" ' .
                 'title="%s" ' .
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
-                $environment->getDataDefinition()->getName(),
+                $definition->getName(),
                 $propInfo->getName(),
                 StringUtil::specialchars($translator->translate('MSC.helpWizard')),
-                $event->getHtml()
+                $event->getHtml() ?? ''
             );
         }
 
@@ -385,7 +423,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * @param PropertyInterface $property The property.
      * @param ModelInterface    $model    The current model.
      *
-     * @return Widget
+     * @return Widget|null
      *
      * @throws DcGeneralRuntimeException When not running in TL_MODE BE.
      *
@@ -413,14 +451,18 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $prepareAttributes = $this->prepareWidgetAttributes($model, $property);
         $widget            = new $class($prepareAttributes, new DcCompat($environment, $model, $property->getName()));
+        assert($widget instanceof Widget);
 
         // OH: what is this? source: DataContainer 232.
         $widget->currentRecord = $model->getId();
 
         $widget->xlabel .= $this->getXLabel($property);
 
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $event = new ManipulateWidgetEvent($environment, $model, $property, $widget);
-        $environment->getEventDispatcher()->dispatch($event, ManipulateWidgetEvent::NAME);
+        $dispatcher->dispatch($event, ManipulateWidgetEvent::NAME);
 
         return $widget;
     }
@@ -442,7 +484,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
             ->setProperty($property->getName())
             ->setValue($model->getProperty($property->getName()));
 
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, $event::NAME);
         $value = $event->getValue();
 
         $propExtra = $property->getExtra();
@@ -472,11 +517,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
     private function prepareWidgetAttributes(ModelInterface $model, PropertyInterface $property)
     {
         $environment = $this->getEnvironment();
-        $defName     = $environment->getDataDefinition()->getName();
 
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $defName   = $definition->getName();
         $propExtra = $property->getExtra();
-
-        $value = $this->valueToWidget($model, $property);
+        $value     = $this->valueToWidget($model, $property);
 
         $propExtra['required'] = ('' === $value) && !empty($propExtra['mandatory']);
 
@@ -505,7 +552,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
             new DcCompat($environment, $model, $property->getName())
         );
 
-        $environment->getEventDispatcher()->dispatch($event, ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, ContaoEvents::WIDGET_GET_ATTRIBUTES_FROM_DCA);
         $prepareAttributes = $event->getResult();
 
         if (

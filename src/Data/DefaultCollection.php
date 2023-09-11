@@ -65,7 +65,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function length(): int
     {
-        return count($this->arrCollection);
+        return \count($this->arrCollection);
     }
 
     /**
@@ -81,7 +81,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function offsetExists($offset): bool
     {
-        return array_key_exists($offset, $this->arrCollection);
+        return \array_key_exists($offset, $this->arrCollection);
     }
 
     /**
@@ -97,6 +97,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function offsetSet($offset, $value): void
     {
+        assert(\is_int($offset));
         $this->arrCollection[$offset] = $value;
     }
 
@@ -113,7 +114,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function get($index): ?ModelInterface
     {
-        if (array_key_exists($index, $this->arrCollection)) {
+        if (\array_key_exists($index, $this->arrCollection)) {
             return $this->arrCollection[$index];
         }
 
@@ -133,8 +134,8 @@ class DefaultCollection implements CollectionInterface
      */
     public function pop(): ?ModelInterface
     {
-        if (count($this->arrCollection)) {
-            return array_pop($this->arrCollection);
+        if (\count($this->arrCollection)) {
+            return \array_pop($this->arrCollection);
         }
 
         return null;
@@ -146,7 +147,7 @@ class DefaultCollection implements CollectionInterface
     public function unshift(ModelInterface $model): void
     {
         if ($model->hasProperties()) {
-            array_unshift($this->arrCollection, $model);
+            \array_unshift($this->arrCollection, $model);
         }
     }
 
@@ -155,8 +156,8 @@ class DefaultCollection implements CollectionInterface
      */
     public function shift(): ?ModelInterface
     {
-        if (count($this->arrCollection)) {
-            return array_shift($this->arrCollection);
+        if (\count($this->arrCollection)) {
+            return \array_shift($this->arrCollection);
         }
 
         return null;
@@ -177,7 +178,7 @@ class DefaultCollection implements CollectionInterface
      */
     public function remove($mixedValue): void
     {
-        if (is_object($mixedValue)) {
+        if (\is_object($mixedValue)) {
             foreach ($this->arrCollection as $collectionIndex => $model) {
                 if ($mixedValue === $model) {
                     unset($this->arrCollection[$collectionIndex]);
@@ -187,7 +188,7 @@ class DefaultCollection implements CollectionInterface
             unset($this->arrCollection[$mixedValue]);
         }
 
-        $this->arrCollection = array_values($this->arrCollection);
+        $this->arrCollection = \array_values($this->arrCollection);
     }
 
     /**

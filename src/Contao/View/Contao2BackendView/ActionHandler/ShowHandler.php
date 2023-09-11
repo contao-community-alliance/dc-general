@@ -31,16 +31,23 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Contao\StringUtil;
 use LogicException;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use function array_merge;
 use function array_values;
@@ -87,22 +94,31 @@ class ShowHandler
      */
     protected function getModel(EnvironmentInterface $environment)
     {
-        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         if ($model) {
             return $model;
         }
 
         $eventDispatcher = $environment->getEventDispatcher();
+        assert($eventDispatcher instanceof EventDispatcherInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
         $eventDispatcher->dispatch(
             new LogEvent(
                 sprintf(
                     'Could not find ID %s in %s. DC_General show()',
                     $modelId->getId(),
-                    $environment->getDataDefinition()->getName()
+                    $definition->getName()
                 ),
                 __CLASS__ . '::' . __FUNCTION__,
                 'ERROR'
@@ -126,17 +142,20 @@ class ShowHandler
     protected function getPropertyLabel(EnvironmentInterface $environment, PropertyInterface $property)
     {
         $translator = $environment->getTranslator();
-        $key        = $property->getLabel();
+        assert($translator instanceof TranslatorInterface);
 
-        if (null === $key) {
+        $key = $property->getLabel();
+
+        if ('' === $key) {
             throw new LogicException('Missing label for property ' . $property->getName());
         }
 
-        if ('' !== $key) {
-            $label = $translator->translate($key, $environment->getDataDefinition()->getName());
-            if ($label !== $key) {
-                return $label;
-            }
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $label = $translator->translate($key, $definition->getName());
+        if ($label !== $key) {
+            return $label;
         }
 
         $mscKey = 'MSC.' . $property->getName() . '.0';
@@ -161,7 +180,11 @@ class ShowHandler
     protected function convertModel(ModelInterface $model, EnvironmentInterface $environment): array
     {
         $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         $properties = $definition->getPropertiesDefinition();
+        assert($properties instanceof PropertiesDefinitionInterface);
+
         $palette    = $definition->getPalettesDefinition()->findPalette($model);
         $values     = [
             'system'  => [],
@@ -175,9 +198,10 @@ class ShowHandler
         // Add only visible properties.
         foreach ($palette->getVisibleProperties($model) as $paletteProperty) {
             $palettePropertyName = $paletteProperty->getName();
-            if (!($visibleProperty = $properties->getProperty($palettePropertyName))) {
-                throw new DcGeneralRuntimeException('Unable to retrieve property ' . $paletteProperty->getName());
+            if (!$properties->hasProperty($palettePropertyName)) {
+                throw new DcGeneralRuntimeException('Unable to retrieve property ' . $palettePropertyName);
             }
+            $visibleProperty = $properties->getProperty($palettePropertyName);
 
             // Make it human-readable.
             $values['visible'][$palettePropertyName] = ViewHelpers::getReadableFieldValue(
@@ -196,14 +220,9 @@ class ShowHandler
             if (isset($values['visible'][$propertyName])) {
                 continue;
             }
-
-            if (!($systemProperty = $properties->getProperty($propertyName))) {
-                throw new DcGeneralRuntimeException('Unable to retrieve property ' . $propertyName);
-            }
-
             $values['system'][$propertyName] = $model->getProperty($propertyName);
             $labels['system'][$propertyName] =
-                sprintf('%s [%s]', $this->getPropertyLabel($environment, $systemProperty), $propertyName);
+                sprintf('%s [%s]', $this->getPropertyLabel($environment, $property), $propertyName);
         }
 
         return [
@@ -249,24 +268,41 @@ class ShowHandler
      */
     protected function process(Action $action, EnvironmentInterface $environment)
     {
-        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
-            return $environment->getView()->edit($action);
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $view = $environment->getView();
+        assert($view instanceof ViewInterface);
+
+        if ($definition->getBasicDefinition()->isEditOnlyMode()) {
+            return $view->edit($action);
         }
 
-        $modelId      = ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'));
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $translator   = $environment->getTranslator();
-        $model        = $this->getModel($environment);
-        $data         = $this->convertModel($model, $environment);
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $model = $this->getModel($environment);
+        assert($model instanceof ModelInterface);
+
+        $data = $this->convertModel($model, $environment);
 
         $template = (new ContaoBackendViewTemplate('dcbe_general_show'))
             ->set('headline', $this->getHeadline($translator, $model))
             ->set('arrFields', $data['values'])
             ->set('arrLabels', $data['labels']);
 
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
         if ($dataProvider instanceof MultiLanguageDataProviderInterface) {
             $template
-                ->set('languages', $environment->getController()->getSupportedLanguages($model->getId()))
+                ->set('languages', $controller->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
                 ->set('languageSubmit', $translator->translate('MSC.showSelected'))
                 ->set('backBT', StringUtil::specialchars($translator->translate('MSC.backBT')));

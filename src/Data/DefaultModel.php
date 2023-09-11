@@ -17,6 +17,7 @@
  * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
+ * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -36,12 +37,12 @@ class DefaultModel extends AbstractModel
     /**
      * A list with all properties.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $arrProperties = [];
 
     /**
-     * The Id of this model.
+     * The ID of this model.
      *
      * @var mixed
      */
@@ -52,7 +53,7 @@ class DefaultModel extends AbstractModel
      *
      * @var string
      */
-    protected $strProviderName;
+    protected $strProviderName = '';
 
     /**
      * Copy this model, without the id.
@@ -109,18 +110,18 @@ class DefaultModel extends AbstractModel
     /**
      * Set the id for this object.
      *
-     * NOTE: when the Id has been set once to a non null value, it can NOT be changed anymore.
+     * NOTE: when the ID has been set once to a non-null value, it can NOT be changed anymore.
      *
-     * Normally this should only be called from inside of the implementing provider.
+     * Normally this should only be called from inside the implementing provider.
      *
-     * @param mixed $mixID Could be a integer, string or anything else - depends on the provider implementation.
+     * @param mixed $mixId Could be integer, string or anything else - depends on the provider implementation.
      *
      * @return void
      */
-    public function setID($mixID)
+    public function setId($mixId)
     {
         if (null === $this->mixID) {
-            $this->setIdRaw($mixID);
+            $this->setIdRaw($mixId);
             $this->setMeta(static::IS_CHANGED, true);
         }
     }
@@ -130,13 +131,13 @@ class DefaultModel extends AbstractModel
      *
      * This method is not interfaced and MUST only be used for initial values from the data provider.
      *
-     * @param mixed $mixID Could be a integer, string or anything else - depends on the provider implementation.
+     * @param mixed $mixId Could be a integer, string or anything else - depends on the provider implementation.
      *
      * @return void
      */
-    public function setIdRaw($mixID)
+    public function setIdRaw($mixId)
     {
-        $this->mixID = $mixID;
+        $this->mixID = $mixId;
     }
 
     /**
@@ -157,16 +158,16 @@ class DefaultModel extends AbstractModel
     /**
      * Update the property value in the model.
      *
-     * @param string $propertyName The property name to be set.
-     * @param mixed  $value        The value to be set.
+     * @param string $strPropertyName The property name to be set.
+     * @param mixed  $varValue        The value to be set.
      *
      * @return void
      */
-    public function setProperty($propertyName, $value)
+    public function setProperty($strPropertyName, $varValue)
     {
-        if ($value !== $this->getProperty($propertyName)) {
+        if ($varValue !== $this->getProperty($strPropertyName)) {
             $this->setMeta(static::IS_CHANGED, true);
-            $this->setPropertyRaw($propertyName, $value);
+            $this->setPropertyRaw($strPropertyName, $varValue);
         }
     }
 
@@ -179,14 +180,12 @@ class DefaultModel extends AbstractModel
      */
     public function setPropertiesAsArray($properties)
     {
-        if (\is_array($properties)) {
-            if (\array_key_exists('id', $properties)) {
-                unset($properties['id']);
-            }
+        if (\array_key_exists('id', $properties)) {
+            unset($properties['id']);
+        }
 
-            foreach ($properties as $propertyName => $value) {
-                $this->setProperty($propertyName, $value);
-            }
+        foreach ($properties as $propertyName => $value) {
+            $this->setProperty($propertyName, $value);
         }
     }
 

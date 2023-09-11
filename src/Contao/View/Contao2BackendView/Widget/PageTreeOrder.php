@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widge
  * This widget is a supporting widget to store the page tree orderings.
  *
  * The ContaoWidgetManager does not allow input values without a widget. This is used as helper widget instead.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class PageTreeOrder extends AbstractWidget
 {

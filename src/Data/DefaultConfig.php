@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -73,12 +74,12 @@ class DefaultConfig implements ConfigInterface
      *
      * @var array|null
      */
-    protected $arrFilter;
+    protected $arrFilter = null;
 
     /**
      * The properties to use for sorting.
      *
-     * @var array(string => string)
+     * @var array<string, string>
      */
     protected $arrSorting = [];
 
@@ -87,7 +88,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var array|null
      */
-    protected $arrFields;
+    protected $arrFields = null;
 
     /**
      * Miscellaneous arbitrary data stored in the config.
@@ -106,7 +107,6 @@ class DefaultConfig implements ConfigInterface
      */
     private function __construct()
     {
-        return $this;
     }
 
     /**
@@ -116,6 +116,7 @@ class DefaultConfig implements ConfigInterface
      */
     public static function init()
     {
+        /** @psalm-suppress UnsafeInstantiation */
         return new static();
     }
 
@@ -132,13 +133,13 @@ class DefaultConfig implements ConfigInterface
     /**
      * Set a specific id for an element to be retrieved.
      *
-     * @param mixed $currentId The id of the element to be retrieved.
+     * @param mixed $mixId The id of the element to be retrieved.
      *
      * @return ConfigInterface
      */
-    public function setId($currentId)
+    public function setId($mixId)
     {
-        $this->mixId = $currentId;
+        $this->mixId = $mixId;
 
         return $this;
     }
@@ -147,16 +148,19 @@ class DefaultConfig implements ConfigInterface
      * Get list of specific ids to be retrieved.
      *
      * @return array
+     *
+     * @deprecated Use filters instead.
      */
     public function getIds()
     {
         // @codingStandardsIgnoreStart
         @\trigger_error(
             'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.',
-            E_NOTICE
+            E_USER_NOTICE
         );
         // @codingStandardsIgnoreEnd
 
+        /** @psalm-suppress DeprecatedProperty */
         return $this->arrIds;
     }
 
@@ -166,18 +170,21 @@ class DefaultConfig implements ConfigInterface
      * @param array $arrIds The list of ids to be retrieved.
      *
      * @return ConfigInterface
+     *
+     * @deprecated Use filters instead.
      */
     public function setIds($arrIds)
     {
         // @codingStandardsIgnoreStart
         @\trigger_error(
-            'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0. 
-            Use set filter 
+            'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.
+            Use set filter
             $dataConfig->setFilter([[\'operation\' => \'IN\', \'property\' => \'id\', \'values\' => [4,3,2,1]]]).',
-            E_NOTICE
+            E_USER_NOTICE
         );
         // @codingStandardsIgnoreEnd
 
+        /** @psalm-suppress DeprecatedProperty */
         $this->arrIds = $arrIds;
 
         return $this;
@@ -198,13 +205,13 @@ class DefaultConfig implements ConfigInterface
     /**
      * Set flag for return id only.
      *
-     * @param boolean $idOnly Boolean flag to determine that only Ids shall be returned when calling fetchAll().
+     * @param boolean $blnIdOnly Boolean flag to determine that only Ids shall be returned when calling fetchAll().
      *
      * @return DefaultConfig
      */
-    public function setIdOnly($idOnly)
+    public function setIdOnly($blnIdOnly)
     {
-        $this->blnIdOnly = $idOnly;
+        $this->blnIdOnly = $blnIdOnly;
 
         return $this;
     }
@@ -226,13 +233,13 @@ class DefaultConfig implements ConfigInterface
      *
      * This is the offset to use for pagination.
      *
-     * @param integer $start Number of first element to return.
+     * @param integer $intStart Number of first element to return.
      *
      * @return ConfigInterface
      */
-    public function setStart($start)
+    public function setStart($intStart)
     {
-        $this->intStart = $start;
+        $this->intStart = $intStart;
 
         return $this;
     }
@@ -254,13 +261,13 @@ class DefaultConfig implements ConfigInterface
      *
      * This is the amount of items to return for pagination.
      *
-     * @param int $amount The amount to use.
+     * @param int $intAmount The amount to use.
      *
      * @return ConfigInterface
      */
-    public function setAmount($amount)
+    public function setAmount($intAmount)
     {
-        $this->intAmount = $amount;
+        $this->intAmount = $intAmount;
 
         return $this;
     }
@@ -278,13 +285,13 @@ class DefaultConfig implements ConfigInterface
     /**
      * Set the list with filter options.
      *
-     * @param array $filters The array containing the filter values.
+     * @param array $arrFilter The array containing the filter values.
      *
      * @return ConfigInterface
      */
-    public function setFilter($filters)
+    public function setFilter($arrFilter)
     {
-        $this->arrFilter = $filters;
+        $this->arrFilter = $arrFilter;
 
         return $this;
     }
@@ -294,7 +301,7 @@ class DefaultConfig implements ConfigInterface
      *
      * The returning array will be of 'property name' => 'ASC|DESC' nature.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function getSorting()
     {
@@ -306,13 +313,13 @@ class DefaultConfig implements ConfigInterface
      *
      * The array must be of 'property name' => 'ASC|DESC' nature.
      *
-     * @param array $sortingProperties The sorting array to use.
+     * @param array<string, string> $arrSorting The sorting array to use.
      *
      * @return ConfigInterface
      */
-    public function setSorting($sortingProperties)
+    public function setSorting($arrSorting)
     {
-        $this->arrSorting = $sortingProperties;
+        $this->arrSorting = $arrSorting;
 
         return $this;
     }
@@ -330,13 +337,13 @@ class DefaultConfig implements ConfigInterface
     /**
      * Set the list of fields to be retrieved.
      *
-     * @param array $fields Array of property names.
+     * @param array $arrFields Array of property names.
      *
      * @return ConfigInterface
      */
-    public function setFields($fields)
+    public function setFields($arrFields)
     {
-        $this->arrFields = $fields;
+        $this->arrFields = $arrFields;
 
         return $this;
     }
@@ -344,14 +351,14 @@ class DefaultConfig implements ConfigInterface
     /**
      * Get the additional information.
      *
-     * @param string $informationName The name of the information to retrieve.
+     * @param string $strKey The name of the information to retrieve.
      *
      * @return mixed || null
      */
-    public function get($informationName)
+    public function get($strKey)
     {
-        if (isset($this->arrData[$informationName])) {
-            return $this->arrData[$informationName];
+        if (isset($this->arrData[$strKey])) {
+            return $this->arrData[$strKey];
         }
 
         return null;
@@ -360,14 +367,14 @@ class DefaultConfig implements ConfigInterface
     /**
      * Set the additional information.
      *
-     * @param string $informationName The name of the information to retrieve.
-     * @param mixed  $value           The value to store.
+     * @param string $strKey   The name of the information to retrieve.
+     * @param mixed  $varValue The value to store.
      *
      * @return ConfigInterface
      */
-    public function set($informationName, $value)
+    public function set($strKey, $varValue)
     {
-        $this->arrData[$informationName] = $value;
+        $this->arrData[$strKey] = $varValue;
 
         return $this;
     }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,6 +25,7 @@ use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -64,7 +66,7 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
      *  * array('eventName' => array('methodName', $priority))
      *  * array('eventName' => array(array('methodName1', $priority), array('methodName2')))
      *
-     * @return array The event names to listen to
+     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
     public static function getSubscribedEvents()
     {
@@ -93,7 +95,10 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $propertiesDefinition = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+        $definition = $event->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $propertiesDefinition = $definition->getPropertiesDefinition();
         $property             = $propertiesDefinition->getProperty($event->getProperty());
 
 
@@ -120,7 +125,10 @@ class RichTextFileUuidSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $propertiesDefinition = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+        $definition = $event->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $propertiesDefinition = $definition->getPropertiesDefinition();
         $property             = $propertiesDefinition->getProperty($event->getProperty());
 
 

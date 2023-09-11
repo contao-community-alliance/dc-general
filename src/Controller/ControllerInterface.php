@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -53,7 +53,7 @@ interface ControllerInterface
     public function getEnvironment();
 
     /**
-     * Handle a action within this environment.
+     * Handle an action within this environment.
      *
      * @param Action $action The action to be executed.
      *
@@ -95,8 +95,8 @@ interface ControllerInterface
      * (or originating table of the model, if no provider name has been given) for all levels and parent child
      * conditions.
      *
-     * @param ModelInterface $objModel        The model to assemble children from.
-     * @param string         $strDataProvider The name of the data provider to fetch children from.
+     * @param ModelInterface $model        The model to assemble children from.
+     * @param string         $providerName The name of the data provider to fetch children from.
      *
      * @return array
      *
@@ -104,7 +104,7 @@ interface ControllerInterface
      *
      * @see \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
      */
-    public function assembleAllChildrenFrom($objModel, $strDataProvider = '');
+    public function assembleAllChildrenFrom($model, $providerName = '');
 
     /**
      * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
@@ -171,9 +171,9 @@ interface ControllerInterface
     /**
      * Retrieve models from the clipboard items.
      *
-     * @param array|ItemInterface[] $items The clipboard items.
+     * @param list<ItemInterface> $items The clipboard items.
      *
-     * @return CollectionInterface|ModelInterface[]
+     * @return CollectionInterface
      */
     public function getModelsFromClipboardItems(array $items);
 
@@ -184,21 +184,21 @@ interface ControllerInterface
      *
      * @param ModelIdInterface $parentModelId The optional parent id. If not given, the models must not have a parent.
      *
-     * @return CollectionInterface|\ContaoCommunityAlliance\DcGeneral\Data\ModelInterface[]
+     * @return CollectionInterface
      */
     public function getModelsFromClipboard(ModelIdInterface $parentModelId = null);
 
     /**
      * Evaluate clipboard items, then return the corresponding models.
      *
-     * @param ModelIdInterface $source        The source model id.
-     * @param ModelIdInterface $after         The previous model id.
-     * @param ModelIdInterface $into          The hierarchical parent model id.
-     * @param ModelIdInterface $parentModelId The parent model id.
-     * @param FilterInterface  $filter        Clipboard filter.
-     * @param array            $items         Write-back evaluated clipboard items.
+     * @param ModelIdInterface|null $source        The source model id.
+     * @param ModelIdInterface|null $after         The previous model id.
+     * @param ModelIdInterface|null $into          The hierarchical parent model id.
+     * @param ModelIdInterface|null $parentModelId The parent model id.
+     * @param FilterInterface|null  $filter        Clipboard filter.
+     * @param array                 $items         Write-back evaluated clipboard items.
      *
-     * @return CollectionInterface|ModelInterface[]
+     * @return CollectionInterface
      */
     public function applyClipboardActions(
         ModelIdInterface $source = null,
@@ -212,9 +212,9 @@ interface ControllerInterface
     /**
      * Paste the content of the clipboard onto the top.
      *
-     * @param CollectionInterface $models   The models to be inserted.
-     * @param string              $sortedBy The name of the sorting property.
-     * @param ModelIdInterface    $parentId The parent model ID.
+     * @param CollectionInterface   $models   The models to be inserted.
+     * @param string                $sortedBy The name of the sorting property.
+     * @param ModelIdInterface|null $parentId The parent model ID.
      *
      * @return void
      */

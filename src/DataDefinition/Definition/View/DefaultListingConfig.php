@@ -40,11 +40,11 @@ class DefaultListingConfig implements ListingConfigInterface
     protected $groupAndSorting;
 
     /**
-     * The properties to display in the heder (parented mode only).
+     * The properties to display in the header (parented mode only).
      *
-     * @var array|null
+     * @var list<string>
      */
-    protected $headerProperties;
+    protected $headerProperties = [];
 
     /**
      * The root icon to use (hierarchical mode only).
@@ -70,7 +70,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * The item formatter to use.
      *
-     * @var DefaultModelFormatterConfig[]
+     * @var array<string, ModelFormatterConfigInterface>
      */
     protected $itemFormatter = [];
 

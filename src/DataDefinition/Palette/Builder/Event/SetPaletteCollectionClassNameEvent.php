@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionInterface;
 
 /**
  * This event gets emitted when a palette collection class name is set.
@@ -33,15 +34,15 @@ class SetPaletteCollectionClassNameEvent extends BuilderEvent
     /**
      * The palette collection class name.
      *
-     * @var string
+     * @var class-string<PaletteCollectionInterface>
      */
     protected $className;
 
     /**
      * Create a new instance.
      *
-     * @param string         $className      The class name.
-     * @param PaletteBuilder $paletteBuilder The palette builder.
+     * @param class-string<PaletteCollectionInterface> $className      The class name.
+     * @param PaletteBuilder                           $paletteBuilder The palette builder.
      */
     public function __construct($className, PaletteBuilder $paletteBuilder)
     {
@@ -52,13 +53,13 @@ class SetPaletteCollectionClassNameEvent extends BuilderEvent
     /**
      * Set the class name.
      *
-     * @param string $className The class name.
+     * @param class-string<PaletteCollectionInterface> $className The class name.
      *
      * @return SetPaletteCollectionClassNameEvent
      */
     public function setPaletteCollectionClassName($className)
     {
-        $this->className = (string) $className;
+        $this->className = $className;
 
         return $this;
     }
@@ -66,7 +67,7 @@ class SetPaletteCollectionClassNameEvent extends BuilderEvent
     /**
      * Retrieve the class name.
      *
-     * @return string
+     * @return class-string<PaletteCollectionInterface>
      */
     public function getPaletteCollectionClassName()
     {

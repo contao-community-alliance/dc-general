@@ -56,7 +56,7 @@ interface ListingConfigInterface
     /**
      * Set the list of parent's model property names.
      *
-     * @param array $value The property names to use.
+     * @param list<string> $value The property names to use.
      *
      * @return ListingConfigInterface
      */
@@ -65,7 +65,7 @@ interface ListingConfigInterface
     /**
      * Return a list of parent's model property names, which are shown above the item list.
      *
-     * @return array
+     * @return list<string>
      */
     public function getHeaderPropertyNames();
 

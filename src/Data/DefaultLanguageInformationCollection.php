@@ -29,7 +29,7 @@ class DefaultLanguageInformationCollection implements LanguageInformationCollect
     /**
      * The language information stored in this collection.
      *
-     * @var LanguageInformationInterface[]
+     * @var list<LanguageInformationInterface>
      */
     protected $languages = [];
 

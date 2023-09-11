@@ -30,7 +30,7 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
     /**
      * The language information stored in this collection.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $filterValues = [];
 
@@ -47,7 +47,7 @@ class DefaultFilterOptionCollection implements FilterOptionCollectionInterface
     /**
      * Get a iterator for this collection.
      *
-     * @return \Traversable
+     * @return \Traversable<string, string>
      */
     public function getIterator(): \Traversable
     {

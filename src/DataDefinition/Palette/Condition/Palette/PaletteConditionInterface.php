@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -40,10 +41,10 @@ interface PaletteConditionInterface extends ConditionInterface
      * When the condition does match, it must return a numeric value, the value may be negative or positive and even
      * zero.
      *
-     * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
+     * @param ModelInterface|null   $model If given, selectors will be evaluated depending on the model.
+     * @param PropertyValueBag|null $input If given, selectors will be evaluated depending on the input data.
      *
-     * @return bool|int
+     * @return false|int
      */
     public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null);
 

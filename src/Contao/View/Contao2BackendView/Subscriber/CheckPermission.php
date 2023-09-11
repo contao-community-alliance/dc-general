@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -126,7 +127,9 @@ class CheckPermission implements EventSubscriberInterface
             return;
         }
 
-        $view          = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $view = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($view instanceof Contao2BackendViewDefinitionInterface);
+
         $modelCommands = $view->getModelCommands();
 
         $this->disableCommandByActionName($modelCommands, 'edit');
@@ -153,7 +156,9 @@ class CheckPermission implements EventSubscriberInterface
             return;
         }
 
-        $view          = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $view = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($view instanceof Contao2BackendViewDefinitionInterface);
+
         $modelCommands = $view->getModelCommands();
 
         $this->disableCommandByActionName($modelCommands, 'delete');
@@ -178,7 +183,9 @@ class CheckPermission implements EventSubscriberInterface
             return;
         }
 
-        $view          = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $view = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($view instanceof Contao2BackendViewDefinitionInterface);
+
         $modelCommands = $view->getModelCommands();
 
         $this->disableCommandByActionName($modelCommands, 'copy');
@@ -210,7 +217,7 @@ class CheckPermission implements EventSubscriberInterface
     /**
      * Disable command by action name.
      *
-     * @param CommandCollectionInterface $commands   The commands collection.
+     * @param CommandCollectionInterface $commands   The command's collection.
      * @param string                     $actionName The action name.
      *
      * @return void

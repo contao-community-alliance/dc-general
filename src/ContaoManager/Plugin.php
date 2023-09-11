@@ -29,6 +29,7 @@ use Contao\ManagerPlugin\Routing\RoutingPluginInterface;
 use ContaoCommunityAlliance\Contao\Bindings\CcaEventsContaoBindingsBundle;
 use ContaoCommunityAlliance\DcGeneral\CcaDcGeneralBundle;
 use ContaoCommunityAlliance\UrlBuilder\CcaUrlBuilderBundle;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Loader\LoaderResolverInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -59,8 +60,8 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
      */
     public function getRouteCollection(LoaderResolverInterface $resolver, KernelInterface $kernel)
     {
-        return $resolver
-            ->resolve(__DIR__ . '/../Resources/config/routing.yml')
-            ->load(__DIR__ . '/../Resources/config/routing.yml');
+        $loader = $resolver->resolve(__DIR__ . '/../Resources/config/routing.yml');
+        assert($loader instanceof LoaderInterface);
+        return $loader->load(__DIR__ . '/../Resources/config/routing.yml');
     }
 }

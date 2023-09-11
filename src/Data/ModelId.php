@@ -90,6 +90,7 @@ class ModelId implements ModelIdInterface
      */
     public static function fromValues($dataProviderName, $modelId)
     {
+        /** @psalm-suppress UnsafeInstantiation */
         return new static($dataProviderName, $modelId);
     }
 

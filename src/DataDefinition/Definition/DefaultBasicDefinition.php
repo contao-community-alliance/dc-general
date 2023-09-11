@@ -94,9 +94,9 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * Determines if the view shall switch automatically into edit mode.
      *
-     * @var bool|null
+     * @var bool
      */
-    protected $switchToEditEnabled;
+    protected $switchToEditEnabled = false;
 
     /**
      * The ids of the root entries.
@@ -224,6 +224,8 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     public function setEditOnlyMode($value)
     {
         $this->isEditOnlyMode = $value;
+
+        return $this;
     }
 
     /**

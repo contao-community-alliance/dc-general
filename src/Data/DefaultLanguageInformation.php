@@ -35,7 +35,7 @@ class DefaultLanguageInformation implements LanguageInformationInterface
     /**
      * The ISO 3166 country code.
      *
-     * @var string
+     * @var null|string
      */
     protected $country;
 
@@ -72,8 +72,8 @@ class DefaultLanguageInformation implements LanguageInformationInterface
      */
     public function getLocale()
     {
-        if ($this->getCountryCode()) {
-            return $this->getLanguageCode() . '_' . $this->getCountryCode();
+        if (null !== $country = $this->getCountryCode()) {
+            return $this->getLanguageCode() . '_' . $country;
         }
 
         return $this->getLanguageCode();

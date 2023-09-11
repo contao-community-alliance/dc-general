@@ -62,6 +62,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
             if (!\is_array($value)) {
                 return;
             }
+            /** @var list<string> $value */
 
             $this->updateTableMode($event, $value);
         }
@@ -102,12 +103,12 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
     /**
      * Set the value in the event.
      *
-     * @param ModelToLabelEvent $event     The event being emitted.
-     * @param array             $arguments The label arguments.
+     * @param ModelToLabelEvent   $event     The event being emitted.
+     * @param string|list<string> $arguments The label arguments.
      *
      * @return void
      */
-    private function updateTableMode(ModelToLabelEvent $event, array $arguments): void
+    private function updateTableMode(ModelToLabelEvent $event, array|string $arguments): void
     {
         if (empty($arguments)) {
             return;

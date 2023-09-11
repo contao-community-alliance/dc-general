@@ -75,6 +75,8 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
     ) {
         if (null === $tokenManager) {
             $tokenManager = System::getContainer()->get('security.csrf.token_manager');
+            assert($tokenManager instanceof CsrfTokenManagerInterface);
+
             // @codingStandardsIgnoreStart
             @trigger_error(
                 'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
@@ -85,6 +87,8 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
         }
         if (null === $tokenName) {
             $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
+            assert(\is_string($tokenName));
+
             // @codingStandardsIgnoreStart
             @trigger_error(
                 'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .

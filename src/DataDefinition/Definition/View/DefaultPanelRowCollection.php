@@ -31,7 +31,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     /**
      * The panel rows.
      *
-     * @var PanelRowInterface[]
+     * @var list<PanelRowInterface>
      */
     protected $rows = [];
 

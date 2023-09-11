@@ -57,7 +57,7 @@ class DefaultContainer implements ContainerInterface
      */
     public function __construct($name)
     {
-        $this->name = (string) $name;
+        $this->name = $name;
     }
 
     /**
@@ -171,9 +171,9 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function setBasicDefinition(BasicDefinitionInterface $definition)
+    public function setBasicDefinition(BasicDefinitionInterface $basicDefinition)
     {
-        return $this->setDefinition(BasicDefinitionInterface::NAME, $definition);
+        return $this->setDefinition(BasicDefinitionInterface::NAME, $basicDefinition);
     }
 
     /**
@@ -181,7 +181,10 @@ class DefaultContainer implements ContainerInterface
      */
     public function getBasicDefinition()
     {
-        return $this->getDefinition(BasicDefinitionInterface::NAME);
+        $definition = $this->getDefinition(BasicDefinitionInterface::NAME);
+        assert($definition instanceof BasicDefinitionInterface);
+
+        return $definition;
     }
 
     /**
@@ -195,9 +198,9 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function setPropertiesDefinition(PropertiesDefinitionInterface $definition)
+    public function setPropertiesDefinition(PropertiesDefinitionInterface $propertiesDefinition)
     {
-        return $this->setDefinition(PropertiesDefinitionInterface::NAME, $definition);
+        return $this->setDefinition(PropertiesDefinitionInterface::NAME, $propertiesDefinition);
     }
 
     /**
@@ -205,7 +208,10 @@ class DefaultContainer implements ContainerInterface
      */
     public function getPropertiesDefinition()
     {
-        return $this->getDefinition(PropertiesDefinitionInterface::NAME);
+        $definition = $this->getDefinition(PropertiesDefinitionInterface::NAME);
+        assert($definition instanceof PropertiesDefinitionInterface);
+
+        return $definition;
     }
 
     /**
@@ -219,9 +225,9 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function setPalettesDefinition(PalettesDefinitionInterface $definition)
+    public function setPalettesDefinition(PalettesDefinitionInterface $palettesDefinition)
     {
-        return $this->setDefinition(PalettesDefinitionInterface::NAME, $definition);
+        return $this->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
     }
 
     /**
@@ -229,7 +235,10 @@ class DefaultContainer implements ContainerInterface
      */
     public function getPalettesDefinition()
     {
-        return $this->getDefinition(PalettesDefinitionInterface::NAME);
+        $definition = $this->getDefinition(PalettesDefinitionInterface::NAME);
+        assert($definition instanceof PalettesDefinitionInterface);
+
+        return $definition;
     }
 
     /**
@@ -253,7 +262,10 @@ class DefaultContainer implements ContainerInterface
      */
     public function getDataProviderDefinition()
     {
-        return $this->getDefinition(DataProviderDefinitionInterface::NAME);
+        $definition = $this->getDefinition(DataProviderDefinitionInterface::NAME);
+        assert($definition instanceof DataProviderDefinitionInterface);
+
+        return $definition;
     }
 
     /**
@@ -277,7 +289,10 @@ class DefaultContainer implements ContainerInterface
      */
     public function getModelRelationshipDefinition()
     {
-        return $this->getDefinition(ModelRelationshipDefinitionInterface::NAME);
+        $definition = $this->getDefinition(ModelRelationshipDefinitionInterface::NAME);
+        assert($definition instanceof ModelRelationshipDefinitionInterface);
+
+        return $definition;
     }
 
     /**
