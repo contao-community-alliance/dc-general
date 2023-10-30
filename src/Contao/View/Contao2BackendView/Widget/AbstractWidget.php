@@ -68,6 +68,7 @@ abstract class AbstractWidget extends Widget
     {
         parent::__construct($attributes);
 
+        /** @psalm-suppress PossiblyNullPropertyAssignmentValue - not defined as nullable in contao widget class */
         $this->dataContainer = $dataContainer ?: $this->objDca;
     }
 
