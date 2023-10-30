@@ -68,9 +68,7 @@ abstract class AbstractWidget extends Widget
     {
         parent::__construct($attributes);
 
-        $dataContainer = $dataContainer ?: $this->objDca;
-        assert(null === $dataContainer || $dataContainer instanceof DcCompat);
-        $this->dataContainer = $dataContainer;
+        $this->dataContainer = $dataContainer ?: $this->objDca;
     }
 
     /**
