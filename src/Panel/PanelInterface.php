@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
  * This interface describes a panel.
  *
  * A panel is a row of a panel container.
+ *
+ * @extends \IteratorAggregate<string, PanelElementInterface>
  */
 interface PanelInterface extends \IteratorAggregate, \Countable
 {
@@ -40,38 +43,38 @@ interface PanelInterface extends \IteratorAggregate, \Countable
     /**
      * Set the parenting container.
      *
-     * @param PanelContainerInterface $objContainer The Container to be used as parent.
+     * @param PanelContainerInterface $container The Container to be used as parent.
      *
      * @return PanelInterface
      */
-    public function setContainer(PanelContainerInterface $objContainer);
+    public function setContainer(PanelContainerInterface $container);
 
     /**
      * Add an element to the panel.
      *
-     * @param string                $strKey     Name of the panel.
-     * @param PanelElementInterface $objElement The element instance to add.
+     * @param string                $panelName Name of the panel.
+     * @param PanelElementInterface $element   The element instance to add.
      *
      * @return mixed
      */
-    public function addElement($strKey, $objElement);
+    public function addElement($panelName, $element);
 
     /**
      * Retrieve an element with the given name.
      *
-     * @param string $strKey The name of the element.
+     * @param string $elementName The name of the element.
      *
-     * @return PanelElementInterface
+     * @return PanelElementInterface|null
      */
-    public function getElement($strKey);
+    public function getElement($elementName);
 
     /**
      * Initialize the passed config via all contained elements.
      *
-     * @param ConfigInterface       $objConfig  The config to which the initialization shall be applied to.
-     * @param PanelElementInterface $objElement The element to be initialized (if any).
+     * @param ConfigInterface            $config  The config to which the initialization shall be applied to.
+     * @param PanelElementInterface|null $element The element to be initialized (if any).
      *
      * @return void
      */
-    public function initialize(ConfigInterface $objConfig, PanelElementInterface $objElement = null);
+    public function initialize(ConfigInterface $config, PanelElementInterface $element = null);
 }

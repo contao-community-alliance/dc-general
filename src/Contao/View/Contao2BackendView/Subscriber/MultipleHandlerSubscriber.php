@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,26 +12,35 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use MenAtWork\MultiColumnWizardBundle\Event\GetOptionsEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * The multiple handler subscriber provides functions for edit/override all.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class MultipleHandlerSubscriber implements EventSubscriberInterface
 {
@@ -63,7 +72,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      *  * array('eventName' => array('methodName', $priority))
      *  * array('eventName' => array(array('methodName1', $priority), array('methodName2')))
      *
-     * @return array The event names to listen to
+     * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>
      */
     public static function getSubscribedEvents()
     {
@@ -91,12 +100,16 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      */
     public function prepareGlobalAllButton(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend() || ('showAll' !== $event->getAction()->getName())) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend() || ('showAll' !== $event->getAction()->getName())) {
             return;
         }
 
         $dataDefinition = $event->getEnvironment()->getDataDefinition();
-        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $backendView = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
         $globalCommands = $backendView->getGlobalCommands();
 
         if ($globalCommands->hasCommandNamed('all')) {
@@ -108,7 +121,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Deactivate global button their are not useful.
+     * Deactivate global button there are not useful.
      *
      * @param ActionEvent $event The event.
      *
@@ -117,13 +130,19 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     public function deactivateGlobalButton(ActionEvent $event)
     {
         $allowedAction = ['selectModelAll', 'selectPropertyAll', 'editAll', 'overrideAll'];
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || !\in_array($event->getAction()->getName(), $allowedAction)) {
+        if (
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
+            || !\in_array($event->getAction()->getName(), $allowedAction)
+        ) {
             return;
         }
 
         $dataDefinition = $event->getEnvironment()->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
         $globalCommands = $backendView->getGlobalCommands();
 
         $allowedButton = ['close_all_button'];
@@ -151,16 +170,21 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     {
         $environment = $event->getEnvironment();
 
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ('select' !== $environment->getInputProvider()->getParameter('act'))
-            || ('edit' !== $environment->getInputProvider()->getParameter('select'))
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if (
+            ('select' !== $inputProvider->getParameter('act'))
+            || ('edit' !== $inputProvider->getParameter('select'))
+            || !$this->getScopeDeterminator()->currentScopeIsBackend()
         ) {
             return;
         }
 
         $model = $event->getModel();
 
-        if (!($propertyName = $this->getOriginalPropertyName($event->getPropertyName(), ModelId::fromModel($model)))
+        if (
+            !($propertyName = $this->getOriginalPropertyName($event->getPropertyName(), ModelId::fromModel($model)))
             || !$model->getProperty($propertyName)
         ) {
             return;
@@ -180,7 +204,10 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
                 $event->getOptions()
             );
 
-        $environment->getEventDispatcher()->dispatch($originalOptionsEvent, GetOptionsEvent::NAME);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($originalOptionsEvent, GetOptionsEvent::NAME);
 
         $event->setOptions($originalOptionsEvent->getOptions());
 
@@ -198,14 +225,21 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
     {
         $environment = $event->getEnvironment();
 
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ('select' !== $environment->getInputProvider()->getParameter('act'))
-            || ('edit' !== $environment->getInputProvider()->getParameter('select'))
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if (
+            'select' !== $inputProvider->getParameter('act')
+            || 'edit' !== $inputProvider->getParameter('select')
+            || !$this->getScopeDeterminator()->currentScopeIsBackend()
         ) {
             return;
         }
 
-        $properties = $environment->getDataDefinition()->getPropertiesDefinition();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $properties = $definition->getPropertiesDefinition();
 
         $this->findModelIdByPropertyName($event);
 
@@ -213,9 +247,8 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $modelId = ModelId::fromModel($model);
 
         $originalPropertyName = $this->getOriginalPropertyName($event->getProperty()->getName(), $modelId);
-        if ((null === $originalPropertyName)
-            || ((null !== $originalPropertyName) && (false === $properties->hasProperty($originalPropertyName)))
-        ) {
+
+        if (null === $originalPropertyName) {
             return;
         }
 
@@ -238,15 +271,22 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $originalEvent =
             new BuildWidgetEvent($environment, $model, $originalProperty);
 
-        $environment->getEventDispatcher()->dispatch($originalEvent, BuildWidgetEvent::NAME);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
-        $originalEvent->getWidget()->id   = $event->getProperty()->getName();
-        $originalEvent->getWidget()->name =
+        $dispatcher->dispatch($originalEvent, BuildWidgetEvent::NAME);
+
+        $widget = $originalEvent->getWidget();
+        assert($widget instanceof Widget);
+
+        $widget->id   = $event->getProperty()->getName();
+        $widget->name =
             \str_replace('::', '____', $modelId->getSerialized()) . '_[' . $originalPropertyName . ']';
 
-        $originalEvent->getWidget()->tl_class = '';
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $widget->tl_class = '';
 
-        $event->setWidget($originalEvent->getWidget());
+        $event->setWidget($widget);
 
         $originalProperty->setExtra($originalExtra);
 
@@ -266,22 +306,33 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $environment    = $event->getEnvironment();
-        $dataDefinition = $environment->getDataDefinition();
-        $inputProvider  = $environment->getInputProvider();
-        $sessionStorage = $environment->getSessionStorage();
+        $environment = $event->getEnvironment();
 
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        /** @var array{models: list<string>} $session */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
         $model = null;
         foreach ($session['models'] as $sessionModel) {
             $model = $sessionModel;
 
-            if (0 !== \strpos($event->getProperty()->getName(), \str_replace('::', '____', $sessionModel))) {
+            if (!str_starts_with($event->getProperty()->getName(), \str_replace('::', '____', $sessionModel))) {
                 continue;
             }
 
             break;
+        }
+
+        if (null === $model) {
+            throw new DcGeneralException('Failed to find a model.');
         }
 
         $modelId = ModelId::fromSerialized($model);

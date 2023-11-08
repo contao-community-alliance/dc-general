@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,16 +31,19 @@ use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CopyCommandInterface;
@@ -48,25 +51,30 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CutCommandI
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\TranslatedToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * This class is an helper for rendering the operation buttons in the views.
+ * This class is a helper for rendering the operation buttons in the views.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ButtonRenderer
 {
     /**
      * The ids of all circular contained models.
      *
-     * @var string[]
+     * @var list<string>
      */
     private $circularModelIds;
 
     /**
      * The clipboard items in use.
      *
-     * @var ItemInterface[]
+     * @var list<ItemInterface>
      */
     private $clipboardItems;
 
@@ -112,23 +120,37 @@ class ButtonRenderer
      */
     public function __construct(EnvironmentInterface $environment)
     {
-        $this->environment      = $environment;
-        $this->translator       = $environment->getTranslator();
-        $this->eventDispatcher  = $environment->getEventDispatcher();
-        $this->clipboardItems   = $this->calculateClipboardItems();
-        $dataDefinition         = $environment->getDataDefinition();
-        $this->commands         = $dataDefinition
-            ->getDefinition(Contao2BackendViewDefinitionInterface::NAME)
-            ->getModelCommands();
-        $controller             = $environment->getController();
+        $this->environment = $environment;
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+        $this->translator = $translator;
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+        $this->eventDispatcher = $dispatcher;
+
+
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $this->clipboardItems = $this->calculateClipboardItems();
+
+        $backendView = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
+        $this->commands = $backendView->getModelCommands();
+        $controller     = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
         $this->clipboardModels  = $controller->getModelsFromClipboardItems($this->clipboardItems);
         $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems  = \array_filter($this->clipboardItems, function ($item) {
-            /** @var ItemInterface $item */
-            return $item->getAction() === $item::CUT;
-        });
+        $cutItems  = \array_values(\array_filter(
+            $this->clipboardItems,
+            static fn (ItemInterface $item): bool => $item->getAction() === $item::CUT
+        ));
         $cutModels = $controller->getModelsFromClipboardItems($cutItems);
         $collector = new ModelCollector($environment);
         foreach ($cutModels as $model) {
@@ -160,9 +182,9 @@ class ButtonRenderer
     /**
      * Render the operation buttons for the passed model.
      *
-     * @param ModelInterface $model    The model to render the buttons for.
-     * @param ModelInterface $previous The previous model in the collection.
-     * @param ModelInterface $next     The next model in the collection.
+     * @param ModelInterface      $model    The model to render the buttons for.
+     * @param ModelInterface|null $previous The previous model in the collection.
+     * @param ModelInterface|null $next     The next model in the collection.
      *
      * @return void
      */
@@ -200,14 +222,18 @@ class ButtonRenderer
             $buttonEvent
                 ->setModel($model)
                 ->setCircularReference($isCircular)
-                ->setPrevious($previous)
-                ->setNext($next)
                 ->setHrefAfter($urlAfter)
                 ->setHrefInto($urlInto)
                 // Check if the id is in the ignore list.
                 ->setPasteAfterDisabled($isCircular)
                 ->setPasteIntoDisabled($isCircular)
                 ->setContainedModels($this->clipboardModels);
+            if (null !== $previous) {
+                $buttonEvent->setPrevious($previous);
+            }
+            if (null !== $next) {
+                $buttonEvent->setNext($next);
+            }
             $this->eventDispatcher->dispatch($buttonEvent, GetPasteButtonEvent::NAME);
 
             $buttons['pasteafter'] = $this->renderPasteAfterButton($buttonEvent);
@@ -230,6 +256,8 @@ class ButtonRenderer
     private function isHierarchical()
     {
         $dataDefinition  = $this->environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $basicDefinition = $dataDefinition->getBasicDefinition();
 
         return $basicDefinition::MODE_HIERARCHICAL === $basicDefinition->getMode();
@@ -253,8 +281,11 @@ class ButtonRenderer
      */
     private function hasPasteNewButton()
     {
-        $environment     = $this->environment;
-        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
+        $environment = $this->environment;
+        $definition  = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basicDefinition = $definition->getBasicDefinition();
 
         return ((true === (bool) ViewHelpers::getManualSortingProperty($environment))
                 && (true === empty($this->clipboardItems))
@@ -265,13 +296,13 @@ class ButtonRenderer
     /**
      * Render a command button.
      *
-     * @param CommandInterface $command             The command to render the button for.
-     * @param ModelInterface   $model               The model to which the command shall get applied.
-     * @param ModelInterface   $previous            The previous model in the collection.
-     * @param ModelInterface   $next                The next model in the collection.
-     * @param bool             $isCircularReference Determinator if there exists a circular reference between the model
-     *                                              and the model(s) contained in the clipboard.
-     * @param string[]         $childIds            The ids of all child models.
+     * @param CommandInterface    $command             The command to render the button for.
+     * @param ModelInterface      $model               The model to which the command shall get applied.
+     * @param ModelInterface|null $previous            The previous model in the collection.
+     * @param ModelInterface|null $next                The next model in the collection.
+     * @param bool                $isCircularReference Determinator if there exists a circular reference between the
+     *                                                 model and the model(s) contained in the clipboard.
+     * @param string[]            $childIds            The ids of all child models.
      *
      * @return string
      */
@@ -306,7 +337,7 @@ class ButtonRenderer
             ->setObjModel($model)
             ->setAttributes($attributes)
             ->setLabel($this->getCommandLabel($command))
-            ->setTitle(\sprintf($this->translate((string) $command->getDescription()), $model->getID()))
+            ->setTitle(\sprintf($this->translate($command->getDescription()), $model->getID()))
             ->setHref($this->calculateHref($command, $model))
             ->setChildRecordIds($childIds)
             ->setCircularReference($isCircularReference)
@@ -328,12 +359,12 @@ class ButtonRenderer
                 if ($icon !== Image::getPath($icon)) {
                     $iconDisabledSuffix = '_';
                 }
-                $icon = \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.'), 0);
+                $icon = \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.') ?: \strlen($icon), 0);
             }
 
             return $this->renderImageAsHtml(
                 $icon,
-                ($buttonEvent->getLabel() ?? ''),
+                $buttonEvent->getLabel(),
                 \sprintf(
                     'title="%s" class="%s"',
                     StringUtil::specialchars($this->translator->translate(
@@ -349,10 +380,10 @@ class ButtonRenderer
         return \sprintf(
             ' <a class="%s" href="%s" title="%s" %s>%s</a>',
             $command->getName(),
-            $buttonEvent->getHref(),
+            $buttonEvent->getHref() ?? '',
             StringUtil::specialchars($buttonEvent->getTitle()),
             \ltrim($buttonEvent->getAttributes()),
-            $this->renderImageAsHtml($icon, ($buttonEvent->getLabel() ?? ''))
+            $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
         );
     }
 
@@ -405,6 +436,8 @@ class ButtonRenderer
             $parameters['act'] = $command->getName();
 
             $inputProvider = $this->environment->getInputProvider();
+            assert($inputProvider instanceof InputProviderInterface);
+
             // If we have a pid add it, used for mode 4 and all parent -> current views.
             if ($inputProvider->hasParameter('pid')) {
                 $parameters['pid'] = $inputProvider->getParameter('pid');
@@ -459,15 +492,18 @@ class ButtonRenderer
             return $this->renderImageAsHtml('pasteinto_.svg', $label, 'class="blink"');
         }
 
+        $model = $event->getModel();
+        assert($model instanceof ModelInterface);
+
         if ('pasteinto.1' !== ($opDesc = $this->translate('pasteinto.1'))) {
-            $title = \sprintf($opDesc, $event->getModel()->getId());
+            $title = \sprintf($opDesc, $model->getId());
         } else {
-            $title = \sprintf('%s id %s', $label, $event->getModel()->getId());
+            $title = \sprintf('%s id %s', $label, $model->getId());
         }
 
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-            $event->getHrefInto(),
+            $event->getHrefInto() ?? '',
             StringUtil::specialchars($title),
             $this->renderImageAsHtml('pasteinto.svg', $label, 'class="blink"')
         );
@@ -491,15 +527,18 @@ class ButtonRenderer
             return $this->renderImageAsHtml('pasteafter_.svg', $label, 'class="blink"');
         }
 
+        $model = $event->getModel();
+        assert($model instanceof ModelInterface);
+
         if ('pasteafter.1' !== ($opDesc = $this->translate('pasteafter.1'))) {
-            $title = \sprintf($opDesc, $event->getModel()->getId());
+            $title = \sprintf($opDesc, $model->getId());
         } else {
-            $title = \sprintf('%s id %s', $label, $event->getModel()->getId());
+            $title = \sprintf('%s id %s', $label, $model->getId());
         }
 
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
-            $event->getHrefAfter(),
+            $event->getHrefAfter() ?? '',
             StringUtil::specialchars($title),
             $this->renderImageAsHtml('pasteafter.svg', $label, 'class="blink"')
         );
@@ -508,18 +547,25 @@ class ButtonRenderer
     /**
      * Calculate all clipboard items for the current view.
      *
-     * @return ItemInterface[]
+     * @return list<ItemInterface>
      */
     private function calculateClipboardItems()
     {
         $dataDefinition  = $this->environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         $basicDefinition = $dataDefinition->getBasicDefinition();
         $clipboard       = $this->environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($parentDataProviderName);
+
+        $dataProvider = $basicDefinition->getDataProvider();
+        assert(\is_string($dataProvider));
+
+        $filter->andModelIsFromProvider($dataProvider);
+        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
         }
@@ -536,7 +582,10 @@ class ButtonRenderer
      */
     protected function translate($path)
     {
-        $value = $this->translator->translate($path, $this->environment->getDataDefinition()->getName());
+        $definition = $this->environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $value = $this->translator->translate($path, $definition->getName());
         if ($path !== $value) {
             return $value;
         }
@@ -561,7 +610,7 @@ class ButtonRenderer
             ContaoEvents::IMAGE_GET_HTML
         );
 
-        return $imageEvent->getHtml();
+        return $imageEvent->getHtml() ?? '';
     }
 
     /**
@@ -589,10 +638,12 @@ class ButtonRenderer
      */
     private function isTogglerInActiveState($command, $model)
     {
-        $dataProvider = $this->environment->getDataProvider($model->getProviderName());
-        $propModel    = $model;
+        $dataProvider   = $this->environment->getDataProvider($model->getProviderName());
+        $propModel      = $model;
+        $toggleProperty = $command->getToggleProperty();
 
-        if ($command instanceof TranslatedToggleCommandInterface
+        if (
+            $command instanceof TranslatedToggleCommandInterface
             && $dataProvider instanceof MultiLanguageDataProviderInterface
         ) {
             $language = $dataProvider->getCurrentLanguage();
@@ -601,16 +652,19 @@ class ButtonRenderer
                 $dataProvider
                     ->getEmptyConfig()
                     ->setId($model->getId())
-                    ->setFields([$command->getToggleProperty()])
+                    ->setFields([$toggleProperty])
             );
+            if (null === $propModel) {
+                throw new DcGeneralInvalidArgumentException('Model not found: ' . $model->getId());
+            }
             $dataProvider->setCurrentLanguage($language);
         }
 
         if ($command->isInverse()) {
-            return !$propModel->getProperty($command->getToggleProperty());
+            return !$propModel->getProperty($toggleProperty);
         }
 
-        return (bool) $propModel->getProperty($command->getToggleProperty());
+        return (bool) $propModel->getProperty($toggleProperty);
     }
 
     /**
@@ -641,12 +695,10 @@ class ButtonRenderer
      */
     private function getCommandLabel(CommandInterface $command)
     {
-        if (null === $label = $command->getLabel()) {
+        if ('' === $label = $command->getLabel()) {
             $label = $command->getName();
         }
 
-        $label = $this->translate($label);
-
-        return \is_array($label) ? $label[0] : $label;
+        return $this->translate($label);
     }
 }

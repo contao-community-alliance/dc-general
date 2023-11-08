@@ -31,35 +31,35 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * The mode.
      *
-     * @var int
+     * @var int|null
      */
     protected $mode;
 
     /**
      * The name of the data provider of the root elements.
      *
-     * @var string
+     * @var string|null
      */
     protected $rootProviderName;
 
     /**
      * The name of the data provider of the parent element.
      *
-     * @var string
+     * @var string|null
      */
     protected $parentProviderName;
 
     /**
      * The name of the data provider of the elements being processed.
      *
-     * @var string
+     * @var string|null
      */
     protected $providerName;
 
     /**
      * Array of filter rules.
      *
-     * @var array
+     * @var array|null
      */
     protected $additionalFilter;
 
@@ -96,12 +96,12 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      *
      * @var bool
      */
-    protected $switchToEditEnabled;
+    protected $switchToEditEnabled = false;
 
     /**
      * The ids of the root entries.
      *
-     * @var mixed[]
+     * @var mixed[]|null
      */
     protected $rootEntries = [];
 
@@ -224,6 +224,8 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     public function setEditOnlyMode($value)
     {
         $this->isEditOnlyMode = $value;
+
+        return $this;
     }
 
     /**

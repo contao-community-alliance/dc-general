@@ -57,14 +57,20 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * This class test the subscriber.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SubscriberTest extends TestCase
 {
+    /** @SuppressWarnings(PHPMD.Superglobals) */
     public static function setUpBeforeClass(): void
     {
         $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
@@ -161,7 +167,7 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher->addListener($event::NAME, [new Subscriber($scopeDeterminator), 'resolveWidgetErrorMessage']);
-        $dispatcher->dispatch($event::NAME, $event);
+        $dispatcher->dispatch($event, $event::NAME);
 
         self::assertSame($excepted, $event->getError());
     }
@@ -467,79 +473,85 @@ class SubscriberTest extends TestCase
 
     public function initializePanelsDataProvider()
     {
+        $treeConstructorArgs = [
+            $this->mockScopeDeterminator(),
+            $this->getMockForAbstractClass(CsrfTokenManagerInterface::class),
+            'csrf-token-name'
+        ];
+
         return [
             ['select', NonBaseView::class, [], [1, 2]],
             ['select', BaseView::class, [$this->mockScopeDeterminator()], [1, 2]],
             ['select', ListView::class, [$this->mockScopeDeterminator()], [1, 2]],
             ['select', ParentView::class, [$this->mockScopeDeterminator()], [1, 2]],
-            ['select', TreeView::class, [$this->mockScopeDeterminator()], [1, 2]],
+            ['select', TreeView::class, $treeConstructorArgs, [1, 2]],
 
             ['copy', NonBaseView::class, [], [1, 2]],
             ['copy', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['copy', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['copy', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['copy', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['copy', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['create', NonBaseView::class, [], [1, 2]],
             ['create', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['create', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['create', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['create', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['create', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['paste', NonBaseView::class, [], [1, 2]],
             ['paste', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['paste', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['paste', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['paste', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['paste', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['delete', NonBaseView::class, [], [1, 2]],
             ['delete', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['delete', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['delete', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['delete', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['delete', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['move', NonBaseView::class, [], [1, 2]],
             ['move', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['move', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['move', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['move', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['move', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['undo', NonBaseView::class, [], [1, 2]],
             ['undo', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['undo', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['undo', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['undo', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['undo', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['edit', NonBaseView::class, [], [1, 2]],
             ['edit', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['edit', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['edit', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['edit', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['edit', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['toggle', NonBaseView::class, [], [1, 2]],
             ['toggle', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['toggle', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['toggle', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['toggle', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['toggle', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['showAll', NonBaseView::class, [], [1, 2]],
             ['showAll', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['showAll', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['showAll', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['showAll', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['showAll', TreeView::class, $treeConstructorArgs, [3, 4]],
 
             ['show', NonBaseView::class, [], [1, 2]],
             ['show', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['show', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
             ['show', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['show', TreeView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['show', TreeView::class, $treeConstructorArgs, [3, 4]],
         ];
     }
 
     /**
      * @dataProvider initializePanelsDataProvider
      */
-    public function testInitializePanels($actionName, $viewClass, $constructor, $excepted)
+    public function testInitializePanels(string $actionName, string $viewClass, array $constructor, array $excepted)
     {
         $dispatcher = new EventDispatcher();
 
@@ -718,7 +730,7 @@ class SubscriberTest extends TestCase
     {
         $scopeDeterminator = $this
             ->getMockBuilder(RequestScopeDeterminator::class)
-            ->setMethods(['currentScopeIsBackend'])
+            ->onlyMethods(['currentScopeIsBackend'])
             ->disableOriginalConstructor()
             ->getMock();
 

@@ -27,15 +27,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGr
  * Class ModelGroupCallbackListener.
  *
  * Handler for the group header callbacks of a property.
+ *
+ * @extends AbstractReturningCallbackListener<GetGroupHeaderEvent>
  */
 class ModelGroupCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetGroupHeaderEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -48,12 +46,7 @@ class ModelGroupCallbackListener extends AbstractReturningCallbackListener
     }
 
     /**
-     * Set the value in the event.
-     *
-     * @param GetGroupHeaderEvent $event The event being emitted.
-     * @param string              $value The value returned by the callback.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

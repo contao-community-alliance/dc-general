@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -44,7 +45,7 @@ class DynamicParentTableSubscriber implements EventSubscriberInterface
      *  * array('eventName' => array('methodName', $priority))
      *  * array('eventName' => array(array('methodName1', $priority), array('methodName2'))
      *
-     * @return array The event names to listen to.
+     * @return array<string, array{0: string, 1: int}> The event names to listen to.
      */
     public static function getSubscribedEvents()
     {
@@ -62,10 +63,12 @@ class DynamicParentTableSubscriber implements EventSubscriberInterface
      */
     public function handlePrePersistModelEvent(PrePersistModelEvent $event)
     {
-        $enviroment     = $event->getEnvironment();
-        $dataDefinition = $enviroment->getDataDefinition();
+        $environment    = $event->getEnvironment();
+        $dataDefinition = $environment->getDataDefinition();
 
-        if (null === ($parentDataDefinition = $enviroment->getParentDataDefinition())
+        if (
+            null === $dataDefinition
+            || null === ($parentDataDefinition = $environment->getParentDataDefinition())
             || (false === $dataDefinition->getPropertiesDefinition()->hasProperty('ptable'))
             || (false === $dataDefinition->getBasicDefinition()->isDynamicParentTable())
         ) {

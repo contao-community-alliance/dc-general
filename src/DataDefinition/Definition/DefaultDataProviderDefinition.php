@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -34,7 +35,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * The data provider information stored in the definition.
      *
-     * @var DataProviderInformationInterface[]
+     * @var array<string, DataProviderInformationInterface>
      */
     protected $information = [];
 
@@ -57,6 +58,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
         }
 
         $this->information[$name] = $information;
+
+        return $this;
     }
 
     /**
@@ -79,10 +82,6 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
             $information = $information->getName();
         }
 
-        if (!\is_string($information)) {
-            throw new DcGeneralInvalidArgumentException('Invalid value passed.');
-        }
-
         return $information;
     }
 
@@ -92,6 +91,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     public function removeInformation($information)
     {
         unset($this->information[$this->makeName($information)]);
+
+        return $this;
     }
 
     /**
@@ -100,6 +101,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     public function setInformation($name, $information)
     {
         $this->information[$name] = $information;
+
+        return $this;
     }
 
     /**
@@ -129,7 +132,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->information);
     }
@@ -137,7 +140,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return \count($this->information);
     }
@@ -145,7 +148,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->hasInformation($offset);
     }
@@ -153,7 +156,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->getInformation($offset);
     }
@@ -161,21 +164,22 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
+        assert(\is_string($offset));
         $this->setInformation($offset, $value);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->removeInformation($offset);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __isset($name)
     {
@@ -183,7 +187,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __get($name)
     {
@@ -191,7 +195,8 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     * @param mixed  $value
      */
     public function __set($name, $value)
     {
@@ -199,7 +204,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __unset($name)
     {

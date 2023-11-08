@@ -47,8 +47,8 @@ class EnforceModelRelationshipEvent extends AbstractModelAwareEvent
      *
      * @param EnvironmentInterface $environment The environment.
      * @param ModelInterface       $model       The model attached to the event.
-     * @param ModelInterface       $parentModel The parent model (if model is parented).
-     * @param ModelInterface       $rootModel   The root model (if model is in a tree).
+     * @param ModelInterface|null  $parentModel The parent model (if model is parented).
+     * @param ModelInterface|null  $rootModel   The root model (if model is in a tree).
      */
     public function __construct(
         EnvironmentInterface $environment,

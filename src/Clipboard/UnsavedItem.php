@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use InvalidArgumentException;
 
 /**
  * UnsavedItem is designed for new items being created which does not have an id yet.
@@ -35,7 +36,7 @@ class UnsavedItem extends AbstractItem
      *
      * @var string
      */
-    private $providerName;
+    private string $providerName;
 
     /**
      * Create a new instance.
@@ -44,14 +45,14 @@ class UnsavedItem extends AbstractItem
      * @param ModelIdInterface|null $parentId     The id of the parent model (null for no parent).
      * @param string                $providerName The provider name of the item being created.
      *
-     * @throws \InvalidArgumentException When the action is not create.
+     * @throws InvalidArgumentException When the action is not create.
      */
-    public function __construct($action, $parentId, $providerName)
+    public function __construct(string $action, ?ModelIdInterface $parentId, string $providerName)
     {
         parent::__construct($action, $parentId);
 
         if ($action !== ItemInterface::CREATE) {
-            throw new \InvalidArgumentException('UnsavedItem is designed for create actions only.');
+            throw new InvalidArgumentException('UnsavedItem is designed for create actions only.');
         }
 
         $this->providerName = $providerName;

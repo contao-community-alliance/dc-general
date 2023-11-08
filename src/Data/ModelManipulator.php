@@ -86,7 +86,8 @@ class ModelManipulator
     public static function sanitizeValue(PropertyInterface $property, $value)
     {
         // If value empty, then override with empty value in property (if it has any).
-        if (empty($value)
+        if (
+            empty($value)
             && ($property instanceof EmptyValueAwarePropertyInterface)
             && $property->hasEmptyValue()
         ) {

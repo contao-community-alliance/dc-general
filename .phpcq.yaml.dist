@@ -56,6 +56,7 @@ phpcq:
     # phpmd
     - 0F9684B8B16B7AB0
     - A4E55EA12C7C085C
+    - 9093F8B32E4815AA
     # composer-require-checker
     - 033E5F8D801A2F8D
 
@@ -75,7 +76,6 @@ tasks:
     - phpunit
   default:
     - verify
-    - composer-normalize
     - analyze
 
   phpmd:

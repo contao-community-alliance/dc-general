@@ -27,19 +27,26 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use Contao\Backend;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -48,17 +55,82 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * Class TreeView.
  *
  * Implementation for tree displaying.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TreeView extends BaseView
 {
+    /**
+     * The token manager.
+     *
+     * @var CsrfTokenManagerInterface
+     */
+    private CsrfTokenManagerInterface $tokenManager;
+
+    /**
+     * The token name.
+     *
+     * @var string
+     */
+    private string $tokenName;
+
+    /**
+     * TreeView constructor.
+     *
+     * @param CsrfTokenManagerInterface|null $tokenManager The token manager.
+     * @param string|null                    $tokenName    The token name.
+     */
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        ?CsrfTokenManagerInterface $tokenManager = null,
+        ?string $tokenName = null
+    ) {
+        parent::__construct($scopeDeterminator);
+
+        if (null === $tokenManager) {
+            $tokenManager = System::getContainer()->get('security.csrf.token_manager');
+            assert($tokenManager instanceof CsrfTokenManagerInterface);
+
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+        if (null === $tokenName) {
+            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
+            assert(\is_string($tokenName));
+
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+
+        $this->tokenManager = $tokenManager;
+        $this->tokenName    = $tokenName;
+    }
+
     /**
      * Retrieve the id for this view.
      *
@@ -76,8 +148,13 @@ class TreeView extends BaseView
      */
     protected function getTreeNodeStates()
     {
-        $sessionStorage = $this->getEnvironment()->getSessionStorage();
-        $openElements   = $sessionStorage->get($this->getToggleId());
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        $openElements = $sessionStorage->get($this->getToggleId());
 
         if (!\is_array($openElements)) {
             $openElements = [];
@@ -95,7 +172,12 @@ class TreeView extends BaseView
      */
     protected function saveTreeNodeStates(TreeNodeStates $states)
     {
-        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
         $sessionStorage->set($this->getToggleId(), $states->getStates());
     }
 
@@ -108,7 +190,12 @@ class TreeView extends BaseView
      */
     private function handleNodeStateChanges()
     {
-        $input = $this->getEnvironment()->getInputProvider();
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $input = $environment->getInputProvider();
+        assert($input instanceof InputProviderInterface);
+
         if (($modelId = $input->getParameter('ptg')) && ($providerName = $input->getParameter('provider'))) {
             $states = $this->getTreeNodeStates();
             // Check if the open/close all has been triggered or just a model.
@@ -121,7 +208,7 @@ class TreeView extends BaseView
                 $this->toggleModel($providerName, $modelId);
             }
 
-            ViewHelpers::redirectHome($this->environment);
+            ViewHelpers::redirectHome($environment);
         }
     }
 
@@ -161,27 +248,40 @@ class TreeView extends BaseView
      */
     public function loadCollection($rootId = null, $level = 0, $providerName = null)
     {
-        $environment  = $this->getEnvironment();
-        $dataDriver   = $environment->getDataProvider($providerName);
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dataDriver = $environment->getDataProvider($providerName);
+        assert($dataDriver instanceof DataProviderInterface);
+
+        $panel = $this->getPanel();
+        assert($panel instanceof PanelContainerInterface);
+
         $realProvider = $dataDriver->getEmptyModel()->getProviderName();
-        $collector    = new TreeCollector(
+
+        /** @psalm-suppress DeprecatedMethod */
+        $collector = new TreeCollector(
             $environment,
-            $this->getPanel(),
+            $panel,
             $this->getViewSection()->getListingConfig()->getDefaultSortingFields(),
             $this->getTreeNodeStates()
         );
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         $collection = $rootId
             ? $collector->getTreeCollectionRecursive($rootId, $level, $realProvider)
             : $collector->getChildrenOf(
                 $realProvider,
                 $level,
-                $environment->getInputProvider()->hasParameter('pid') ? $this->loadParentModel() : null
+                $inputProvider->hasParameter('pid') ? $this->loadParentModel() : null
             );
 
         if ($rootId) {
             $treeData = $dataDriver->getEmptyCollection();
             $model    = $collection->get(0);
+            assert($model instanceof ModelInterface);
 
             if (!$model->getMeta(ModelInterface::HAS_CHILDREN)) {
                 return $treeData;
@@ -210,8 +310,12 @@ class TreeView extends BaseView
     protected function loadParentModel()
     {
         $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
 
-        if (!($parentId = $environment->getInputProvider()->getParameter('pid'))) {
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if (!($parentId = $inputProvider->getParameter('pid'))) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent id defined, somehow none is defined?',
                 1
@@ -220,8 +324,7 @@ class TreeView extends BaseView
 
         $pid = ModelId::fromSerialized($parentId);
 
-        if (!($parentProvider = $environment->getDataProvider($pid->getDataProviderName()))
-        ) {
+        if (!($parentProvider = $environment->getDataProvider($pid->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent data provider defined, somehow none is defined?',
                 1
@@ -261,23 +364,36 @@ class TreeView extends BaseView
      */
     protected function parseModel($model, $toggleID)
     {
-        $event = new FormatModelLabelEvent($this->environment, $model);
-        $this->environment->getEventDispatcher()->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
+        $environment = $this->environment;
+        assert($environment instanceof EnvironmentInterface);
+
+        $event = new FormatModelLabelEvent($environment, $model);
+
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
         $model->setMeta($model::LABEL_VALUE, $event->getLabel());
 
         $template = $this->getTemplate('dcbe_general_treeview_entry');
 
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         if ($model->getMeta($model::SHOW_CHILDREN)) {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('MSC.collapseNode');
+            $toggleTitle = $translator->translate('MSC.collapseNode');
         } else {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('MSC.expandNode');
+            $toggleTitle = $translator->translate('MSC.expandNode');
         }
 
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+        $dispatcher->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $toggleData = [
             'url'          => \html_entity_decode($toggleUrlEvent->getUrl()),
@@ -320,9 +436,12 @@ class TreeView extends BaseView
     {
         $content = [];
 
+        $environment = $this->environment;
+        assert($environment instanceof EnvironmentInterface);
+
         // Generate buttons - only if not in select mode!
         if (!$this->isSelectModeActive()) {
-            (new ButtonRenderer($this->environment))->renderButtonsForCollection($collection);
+            (new ButtonRenderer($environment))->renderButtonsForCollection($collection);
         }
 
         foreach ($collection as $model) {
@@ -363,17 +482,30 @@ class TreeView extends BaseView
      */
     public static function renderPasteRootButton(GetPasteRootButtonEvent $event)
     {
-        if (null !== $event->getHtml()) {
-            return $event->getHtml();
+        if (null !== ($button = $event->getHtml())) {
+            return $button;
         }
+
         $environment = $event->getEnvironment();
-        $label       = $environment->getTranslator()->translate(
+        assert($environment instanceof EnvironmentInterface);
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $label       = $translator->translate(
             'pasteinto.0',
-            $environment->getDataDefinition()->getName()
+            $definition->getName()
         );
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         if ($event->isPasteDisabled()) {
             /** @var GenerateHtmlEvent $imageEvent */
-            $imageEvent = $environment->getEventDispatcher()->dispatch(
+            $imageEvent = $dispatcher->dispatch(
                 new GenerateHtmlEvent(
                     'pasteinto_.svg',
                     $label,
@@ -382,11 +514,11 @@ class TreeView extends BaseView
                 ContaoEvents::IMAGE_GET_HTML
             );
 
-            return $imageEvent->getHtml();
+            return $imageEvent->getHtml() ?? '';
         }
 
         /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $environment->getEventDispatcher()->dispatch(
+        $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'pasteinto.svg',
                 $label,
@@ -400,7 +532,7 @@ class TreeView extends BaseView
             $event->getHref(),
             StringUtil::specialchars($label),
             'onclick="Backend.getScrollOffset()"',
-            $imageEvent->getHtml()
+            $imageEvent->getHtml() ?? ''
         );
     }
 
@@ -410,14 +542,20 @@ class TreeView extends BaseView
      * @param CollectionInterface $collection The collection of items.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function viewTree($collection)
     {
         $definition      = $this->getDataDefinition();
         $listing         = $this->getViewSection()->getListingConfig();
         $basicDefinition = $definition->getBasicDefinition();
-        $environment     = $this->getEnvironment();
-        $dispatcher      = $environment->getEventDispatcher();
+
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         // Init some Vars
         switch (6) {
@@ -439,19 +577,26 @@ class TreeView extends BaseView
         if (null === $listing->getRootIcon()) {
             $labelIcon = 'pagemounts.svg';
         } else {
-            $labelIcon = $listing->getRootIcon();
+            $labelIcon = $listing->getRootIcon() ?? '';
         }
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-        if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($parentDataProviderName);
+
+        $dataProvider = $basicDefinition->getDataProvider();
+        assert(\is_string($dataProvider));
+
+        $filter->andModelIsFromProvider($dataProvider);
+        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+            $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
         }
 
+        $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
+
         // Root paste into.
-        if ($environment->getClipboard()->isNotEmpty($filter)) {
+        if ($clipboard->isNotEmpty($filter)) {
             /** @var AddToUrlEvent $urlEvent */
             $urlEvent = $dispatcher->dispatch(
                 new AddToUrlEvent(
@@ -463,7 +608,7 @@ class TreeView extends BaseView
                 ContaoEvents::BACKEND_ADD_TO_URL
             );
 
-            $buttonEvent = new GetPasteRootButtonEvent($this->getEnvironment());
+            $buttonEvent = new GetPasteRootButtonEvent($environment);
             $buttonEvent
                 ->setHref($urlEvent->getUrl())
                 ->setPasteDisabled(false);
@@ -494,7 +639,7 @@ class TreeView extends BaseView
         $this->formActionForSelect($template);
 
         // Add breadcrumb, if we have one.
-        if (null !== ($breadcrumb = $this->breadcrumb())) {
+        if ('' !== ($breadcrumb = $this->breadcrumb())) {
             $template->set('breadcrumb', $breadcrumb);
         }
 
@@ -511,14 +656,20 @@ class TreeView extends BaseView
     protected function formActionForSelect(ContaoBackendViewTemplate $template)
     {
         $environment = $this->getEnvironment();
-        if (!$template->get('select')
-            || ('select' !== $environment->getInputProvider()->getParameter('act'))
-        ) {
+        assert($environment instanceof EnvironmentInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if (!$template->get('select') || ('select' !== $inputProvider->getParameter('act'))) {
             return;
         }
 
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $actionUrlEvent = new AddToUrlEvent('select=properties');
-        $environment->getEventDispatcher()->dispatch($actionUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+        $dispatcher->dispatch($actionUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $template->set('action', $actionUrlEvent->getUrl());
     }
@@ -526,17 +677,22 @@ class TreeView extends BaseView
     /**
      * {@inheritDoc}
      *
+     * @param ModelInterface $model
+     *
      * @deprecated Use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener
+     * @see TreeEnforcingListener
      *
      * @return void
      */
     public function enforceModelRelationship($model)
     {
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
         // Fallback implementation.
         $listener = new TreeEnforcingListener();
-        $listener->process(new EnforceModelRelationshipEvent($this->getEnvironment(), $model));
+        $listener->process(new EnforceModelRelationshipEvent($environment, $model));
     }
 
     /**
@@ -545,7 +701,12 @@ class TreeView extends BaseView
     public function showAll(Action $action)
     {
         $environment = $this->getEnvironment();
-        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        assert($environment instanceof EnvironmentInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        if ($definition->getBasicDefinition()->isEditOnlyMode()) {
             return $this->edit($action);
         }
 
@@ -554,8 +715,11 @@ class TreeView extends BaseView
         $collection = $this->loadCollection();
         $content    = [];
 
-        $viewEvent = new ViewEvent($this->environment, $action, DcGeneralViews::CLIPBOARD, []);
-        $environment->getEventDispatcher()->dispatch($viewEvent, DcGeneralEvents::VIEW);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $viewEvent = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
+        $dispatcher->dispatch($viewEvent, DcGeneralEvents::VIEW);
 
         // A list with ignored panels.
         $ignoredPanels = [
@@ -563,7 +727,7 @@ class TreeView extends BaseView
             SortElementInterface::class
         ];
 
-        $content['language']  = $this->languageSwitcher($this->environment);
+        $content['language']  = $this->languageSwitcher($environment);
         $content['panel']     = $this->panel($ignoredPanels);
         $content['buttons']   = $this->generateHeaderButtons();
         $content['clipboard'] = $viewEvent->getResponse();
@@ -573,7 +737,7 @@ class TreeView extends BaseView
     }
 
     /**
-     * Execute the multi language support.
+     * Execute the multi-language support.
      *
      * @param EnvironmentInterface $environment The environment.
      *
@@ -590,11 +754,17 @@ class TreeView extends BaseView
 
         /** @var MultiLanguageDataProviderInterface $dataProvider */
 
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         return $template
-            ->set('languages', $environment->getController()->getSupportedLanguages(null))
+            ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
-            ->set('submit', $this->environment->getTranslator()->translate('MSC.showSelected'))
-            ->set('REQUEST_TOKEN', REQUEST_TOKEN)
+            ->set('submit', $translator->translate('MSC.showSelected'))
+            ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }
 
@@ -611,7 +781,11 @@ class TreeView extends BaseView
      */
     public function handleAjaxCall()
     {
-        $input = $this->getEnvironment()->getInputProvider();
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $input = $environment->getInputProvider();
+        assert($input instanceof InputProviderInterface);
 
         if ('DcGeneralLoadSubTree' !== $input->getValue('action')) {
             parent::handleAjaxCall();
@@ -646,6 +820,8 @@ class TreeView extends BaseView
         $collection = $this->loadCollection($rootId, $level, $providerName);
 
         $treeClass = '';
+        // The switch is already prepared for more modes.
+        /** @psalm-suppress TypeDoesNotContainType */
         switch (6) {
             case 5:
                 $treeClass = 'tree';
@@ -662,17 +838,27 @@ class TreeView extends BaseView
     }
 
     /**
-     * Get the the container of selections.
+     * Get the container of selections.
      *
      * @return array
      */
-    private function getSelectContainer()
+    private function getSelectContainer(): array
     {
         $environment   = $this->getEnvironment();
-        $inputProvider = $environment->getInputProvider();
+        assert($environment instanceof EnvironmentInterface);
 
-        $sessionName = $environment->getDataDefinition()->getName() . '.' . $inputProvider->getParameter('mode');
-        if (!$environment->getSessionStorage()->has($sessionName)) {
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $sessionName = $definition->getName() . '.' . $inputProvider->getParameter('mode');
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        if (!$sessionStorage->has($sessionName)) {
             return [];
         }
 
@@ -681,7 +867,7 @@ class TreeView extends BaseView
             return [];
         }
 
-        $session = $environment->getSessionStorage()->get($sessionName);
+        $session = $sessionStorage->get($sessionName);
         if (!\array_key_exists($selectAction, $session)) {
             return [];
         }

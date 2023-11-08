@@ -39,24 +39,24 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
     /**
      * The model ids.
      *
-     * @var ModelIdInterface[]
+     * @var list<ModelIdInterface>
      */
-    private $modelIds;
+    private array $modelIds;
 
     /**
      * The submit action.
      *
      * @var string
      */
-    private $submitAction;
+    private string $submitAction;
 
     /**
      * Create a new instance.
      *
-     * @param EnvironmentInterface $environment  The environment.
-     * @param Action               $action       The called action.
-     * @param ModelIdInterface[]   $modelIds     The list of model ids being parsed.
-     * @param string               $submitAction The submit action name.
+     * @param EnvironmentInterface   $environment  The environment.
+     * @param Action                 $action       The called action.
+     * @param list<ModelIdInterface> $modelIds     The list of model ids being parsed.
+     * @param string                 $submitAction The submit action name.
      */
     public function __construct(EnvironmentInterface $environment, Action $action, array $modelIds, $submitAction)
     {
@@ -69,7 +69,7 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
     /**
      * Get modelIds.
      *
-     * @return ModelIdInterface[]
+     * @return list<ModelIdInterface>
      */
     public function getModelIds()
     {
@@ -79,7 +79,7 @@ class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
     /**
      * Set the model ids.
      *
-     * @param ModelIdInterface[] $modelIds The new model ids.
+     * @param list<ModelIdInterface> $modelIds The new model ids.
      *
      * @return $this
      */

@@ -30,14 +30,14 @@ class DataProviderInformation implements DataProviderInformationInterface
      *
      * @var string
      */
-    protected $name;
+    protected $name = '';
 
     /**
      * Flag determining if versioning is enabled for this provider or not.
      *
      * @var bool
      */
-    protected $versioningEnabled;
+    protected $versioningEnabled = false;
 
     /**
      * {@inheritdoc}

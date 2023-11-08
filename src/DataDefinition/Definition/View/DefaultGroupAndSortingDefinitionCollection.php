@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -32,7 +33,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * The information stored.
      *
-     * @var GroupAndSortingDefinitionInterface[]
+     * @var list<GroupAndSortingDefinitionInterface>
      */
     protected $information = [];
 
@@ -116,6 +117,8 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
         }
 
         $this->default = $information;
+
+        return $this;
     }
 
     /**
@@ -152,7 +155,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * {@inheritDoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->information);
     }

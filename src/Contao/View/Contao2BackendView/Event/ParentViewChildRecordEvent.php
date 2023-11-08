@@ -37,7 +37,7 @@ class ParentViewChildRecordEvent extends AbstractModelAwareEvent
      *
      * @var string
      */
-    protected $html;
+    protected $html = '';
 
     /**
      * Set the html code to use as child record.

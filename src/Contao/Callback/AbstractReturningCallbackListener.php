@@ -22,18 +22,23 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
+use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
+
 /**
  * Class AbstractReturningCallbackListener.
  *
  * Abstract base class for callbacks that are returning a value.
+ *
+ * @template TEvent of AbstractEnvironmentAwareEvent
+ * @extends AbstractCallbackListener<TEvent>
  */
 abstract class AbstractReturningCallbackListener extends AbstractCallbackListener
 {
     /**
      * Update the values in the event with the value returned by the callback.
      *
-     * @param \Symfony\Contracts\EventDispatcher\Event $event The event being emitted.
-     * @param mixed                                    $value The value returned by the callback.
+     * @param TEvent $event The event being emitted.
+     * @param mixed  $value The value returned by the callback.
      *
      * @return void
      */

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,31 +31,30 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  */
 class PropertyValueBag implements PropertyValueBagInterface
 {
-
     /**
      * All properties and its values in this bag.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $properties = [];
 
     /**
      * All properties that are marked as invalid and their error messages.
      *
-     * @var array
+     * @var array<string, list<string>>
      */
     protected $errors = [];
 
     /**
      * Create a new instance of a property bag.
      *
-     * @param array|null $properties The initial property values to use.
+     * @param iterable<string, mixed>|null|mixed $properties The initial property values to use.
      *
      * @throws DcGeneralInvalidArgumentException If the passed properties aren't null or an array.
      */
     public function __construct($properties = null)
     {
-        if (\is_array($properties) || $properties instanceof \Traversable) {
+        if (\is_iterable($properties)) {
             foreach ($properties as $property => $value) {
                 $this->setPropertyValue($property, $value);
             }
@@ -201,7 +200,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     public function getPropertyValueErrors($property)
     {
         $this->requirePropertyValue($property);
-        return (array) ($this->errors[$property] ?? []);
+        return $this->errors[$property] ?? [];
     }
 
     /**
@@ -215,7 +214,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->properties);
     }
@@ -223,7 +222,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return \count($this->properties);
     }
@@ -231,7 +230,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return $this->hasPropertyValue($offset);
     }
@@ -239,7 +238,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->getPropertyValue($offset);
     }
@@ -247,21 +246,22 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
+        assert(\is_string($offset));
         $this->setPropertyValue($offset, $value);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->removePropertyValue($offset);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __isset($name)
     {
@@ -269,7 +269,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __get($name)
     {
@@ -277,7 +277,8 @@ class PropertyValueBag implements PropertyValueBagInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     * @param mixed $value
      */
     public function __set($name, $value)
     {
@@ -285,7 +286,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
      */
     public function __unset($name)
     {
@@ -295,7 +296,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * Exports the {@link PropertyValueBag} to an array.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getArrayCopy()
     {

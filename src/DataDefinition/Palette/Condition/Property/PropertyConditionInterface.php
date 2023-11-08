@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,14 +36,14 @@ interface PropertyConditionInterface extends ConditionInterface
     /**
      * Check if the condition match.
      *
-     * @param ModelInterface|null $model    If given, subpalettes will be evaluated depending on the model.
-     *                                      If no model is given, all properties will be returned, including subpalette
-     *                                      properties.
-     * @param PropertyValueBag    $input    If given, subpalettes will be evaluated depending on the input data.
-     *                                      If no model and no input data is given, all properties will be returned,
-     *                                      including subpalette properties.
-     * @param PropertyInterface   $property The defined property.
-     * @param LegendInterface     $legend   The legend the property is assigned to.
+     * @param ModelInterface|null    $model    If given, subpalettes will be evaluated depending on the model.
+     *                                         If no model is given, all properties will be returned, including
+     *                                         subpalette properties.
+     * @param PropertyValueBag|null  $input    If given, subpalettes will be evaluated depending on the input data.
+     *                                         If no model and no input data is given, all properties will be returned,
+     *                                         including subpalette properties.
+     * @param PropertyInterface|null $property The defined property.
+     * @param LegendInterface|null   $legend   The legend the property is assigned to.
      *
      * @return bool
      */

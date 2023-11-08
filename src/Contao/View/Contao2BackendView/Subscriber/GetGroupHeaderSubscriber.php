@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,13 +16,14 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\ArrayUtil;
 use Contao\Config;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Date\ParseDateEvent;
@@ -30,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -38,6 +40,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Handles the group header formatting.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GetGroupHeaderSubscriber
 {
@@ -78,21 +82,22 @@ class GetGroupHeaderSubscriber
      */
     public function handle(GetGroupHeaderEvent $event)
     {
-        if ((null !== $event->getValue()) || !$this->scopeDeterminator->currentScopeIsBackend()) {
+        if ((null !== $event->getValue()) || !$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
         $environment = $event->getEnvironment();
-        $property    = $environment
-            ->getDataDefinition()
-            ->getPropertiesDefinition()
-            ->getProperty($event->getGroupField());
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
         // No property? Get out!
-        if (!$property) {
+        if (!$definition->getPropertiesDefinition()->hasProperty($event->getGroupField())) {
             $event->setValue('-');
             return;
         }
+
+        $property = $definition->getPropertiesDefinition()->getProperty($event->getGroupField());
 
         $value = $this->formatGroupHeader(
             $environment,
@@ -113,10 +118,10 @@ class GetGroupHeaderSubscriber
      * @param EnvironmentInterface $environment    The environment.
      * @param ModelInterface       $model          The model.
      * @param PropertyInterface    $property       The property.
-     * @param int                  $groupingMode   The grouping mode.
+     * @param string               $groupingMode   The grouping mode.
      * @param int                  $groupingLength The grouping length.
      *
-     * @return string
+     * @return string|null
      */
     protected function formatGroupHeader(
         EnvironmentInterface $environment,
@@ -137,10 +142,10 @@ class GetGroupHeaderSubscriber
         $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
 
         if (isset($evaluation['reference'])) {
-            $remoteNew = $evaluation['reference'][$value];
-        } elseif (\array_is_assoc($property->getOptions())) {
+            $remoteNew = $evaluation['reference'][$value] ?? null;
+        } elseif (ArrayUtil::isAssoc($property->getOptions())) {
             $options   = $property->getOptions();
-            $remoteNew = $options[$value];
+            $remoteNew = $options[$value] ?? null;
         } else {
             $remoteNew = $value;
         }
@@ -173,13 +178,13 @@ class GetGroupHeaderSubscriber
     /**
      * Format the group header by the grouping mode.
      *
-     * @param int                  $groupingMode   The grouping mode.
+     * @param string               $groupingMode   The grouping mode.
      * @param int                  $groupingLength The grouping length.
      * @param EnvironmentInterface $environment    The environment.
      * @param PropertyInterface    $property       The current property definition.
      * @param ModelInterface       $model          The current data model.
      *
-     * @return string
+     * @return string|null
      */
     private function formatByGroupingMode(
         $groupingMode,
@@ -223,7 +228,7 @@ class GetGroupHeaderSubscriber
             return '-';
         }
 
-        return mb_strtoupper(mb_substr($value, 0, $groupingLength ?: null));
+        return \mb_strtoupper(\mb_substr($value, 0, $groupingLength ?: null));
     }
 
     /**
@@ -231,14 +236,16 @@ class GetGroupHeaderSubscriber
      *
      * @param int $value The value.
      *
-     * @return string
+     * @return string|null
      */
-    private function formatByDayGrouping($value)
+    private function formatByDayGrouping(int $value): ?string
     {
         $value = $this->getTimestamp($value);
-        if ('' === $value) {
+
+        if (0 === $value) {
             return '-';
         }
+
         $event = new ParseDateEvent($value, Config::get('dateFormat'));
         $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
 
@@ -250,12 +257,13 @@ class GetGroupHeaderSubscriber
      *
      * @param int $value The value.
      *
-     * @return string
+     * @return string|null
      */
-    private function formatByMonthGrouping($value)
+    private function formatByMonthGrouping(int $value): ?string
     {
         $value = $this->getTimestamp($value);
-        if ('' === $value) {
+
+        if (0 === $value) {
             return '-';
         }
         $event = new ParseDateEvent($value, 'F Y');
@@ -274,11 +282,12 @@ class GetGroupHeaderSubscriber
     private function formatByYearGrouping($value)
     {
         $value = $this->getTimestamp($value);
-        if ('' === $value) {
+
+        if (0 === $value) {
             return '-';
         }
 
-        return date('Y', $value);
+        return \date('Y', $value);
     }
 
     /**

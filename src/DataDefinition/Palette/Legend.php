@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -36,7 +38,7 @@ class Legend implements LegendInterface
      *
      * @var PaletteInterface|null
      */
-    protected $palette;
+    protected $palette = null;
 
     /**
      * The name of this legend.
@@ -55,7 +57,7 @@ class Legend implements LegendInterface
     /**
      * The properties in this legend.
      *
-     * @var PropertyInterface[]|array
+     * @var array<string, PropertyInterface>
      */
     protected $properties = [];
 
@@ -95,7 +97,7 @@ class Legend implements LegendInterface
      */
     public function setName($name)
     {
-        $this->name = (string) $name;
+        $this->name = $name;
         return $this;
     }
 
@@ -112,7 +114,7 @@ class Legend implements LegendInterface
      */
     public function setInitialVisibility($value)
     {
-        $this->initiallyVisible = (bool) $value;
+        $this->initiallyVisible = $value;
 
         return $this;
     }
@@ -176,13 +178,15 @@ class Legend implements LegendInterface
                 );
             }
 
-            $hashes   = \array_keys($this->properties);
-            $position = \array_search($beforeHash, $hashes);
+            $hashes = \array_keys($this->properties);
+            if (false === ($position = \array_search($beforeHash, $hashes))) {
+                $position = null;
+            }
 
             $this->properties = \array_merge(
                 \array_slice($this->properties, 0, $position),
                 [$hash => $property],
-                \array_slice($this->properties, $position)
+                \array_slice($this->properties, $position ?? 0)
             );
 
             return $this;
@@ -205,14 +209,15 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
-    public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getProperties(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null)
     {
         if ($model || $input) {
             $selectedProperties = [];
 
             foreach ($this->properties as $property) {
                 $condition = $property->getVisibleCondition();
-
+                // We should have defined the interfaces back in 2013... :/
+                assert($input === null || $input instanceof PropertyValueBag);
                 if (!$condition || $condition->match($model, $input, $property, $this)) {
                     $selectedProperties[] = $property;
                 }

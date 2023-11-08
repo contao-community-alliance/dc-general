@@ -22,12 +22,17 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
-use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
+use Symfony\Contracts\EventDispatcher\Event;
+
+use function call_user_func_array;
 
 /**
  * Class AbstractCallbackListener.
  *
  * Abstract base class for a callback listener.
+ *
+ * @template TEvent of Event
  */
 abstract class AbstractCallbackListener
 {
@@ -51,12 +56,12 @@ abstract class AbstractCallbackListener
      * @param array|callable $callback     The callback to call when invoked.
      * @param array|null     $restrictions The restrictions for the callback.
      */
-    public function __construct($callback = null, $restrictions = null)
+    public function __construct($callback, $restrictions = null)
     {
         $this->callback = $callback;
 
         if ($restrictions) {
-            \call_user_func_array([$this, 'setRestrictions'], $restrictions);
+            call_user_func_array([$this, 'setRestrictions'], $restrictions);
         }
     }
 
@@ -67,7 +72,7 @@ abstract class AbstractCallbackListener
      *
      * @return void
      */
-    public function setRestrictions($dataContainerName = null)
+    public function setRestrictions(?string $dataContainerName = null)
     {
         $this->dataContainerName = $dataContainerName;
     }
@@ -75,15 +80,22 @@ abstract class AbstractCallbackListener
     /**
      * Check the restrictions against the information within the event and determine if the callback shall be executed.
      *
-     * @param AbstractEnvironmentAwareEvent $event The Event for which the callback shall be invoked.
+     * @param TEvent $event The Event for which the callback shall be invoked.
      *
      * @return bool
      */
     public function wantToExecute($event)
     {
-        return (empty($this->dataContainerName)
-            || ($this->dataContainerName === $event->getEnvironment()->getDataDefinition()->getName())
-        );
+        if (empty($this->dataContainerName)) {
+            return true;
+        }
+        if (!$event instanceof EnvironmentAwareInterface) {
+            throw new \LogicException('Event is not an instance of ' . EnvironmentAwareInterface::class);
+        }
+        if (null === $definition = $event->getEnvironment()->getDataDefinition()) {
+            return false;
+        }
+        return ($this->dataContainerName === $definition->getName());
     }
 
     /**
@@ -99,7 +111,7 @@ abstract class AbstractCallbackListener
     /**
      * Retrieve the arguments for the callback.
      *
-     * @param \Symfony\Contracts\EventDispatcher\Event $event The event being emitted.
+     * @param TEvent $event The event being emitted.
      *
      * @return array
      */
@@ -108,7 +120,7 @@ abstract class AbstractCallbackListener
     /**
      * Invoke the callback.
      *
-     * @param AbstractEnvironmentAwareEvent $event The Event for which the callback shall be invoked.
+     * @param TEvent $event The Event for which the callback shall be invoked.
      *
      * @return void
      */

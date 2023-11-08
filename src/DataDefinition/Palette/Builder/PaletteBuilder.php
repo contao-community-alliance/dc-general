@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -75,14 +76,26 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ReflectionClass;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+use function array_shift;
+use function count;
+use function func_get_args;
+use function is_object;
 
 /**
  * The palette builder is used to build palette collections, palettes, legends, properties and conditions.
+ *
+ * @psalm-type TPaletteConditionChainInterface=ConditionChainInterface&PaletteConditionInterface
+ * @psalm-type TPropertyConditionChainInterface=ConditionChainInterface&PropertyConditionInterface
  *
  * @SuppressWarnings(PHPMD.LongVariable)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PaletteBuilder
 {
@@ -106,126 +119,126 @@ class PaletteBuilder
     /**
      * The class name of the class to use for palette collections.
      *
-     * @var string
+     * @var class-string<PaletteCollectionInterface>
      */
     protected $paletteCollectionClassName = PaletteCollection::class;
 
     /**
      * The class to use for palette collections.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<PaletteCollectionInterface>
      */
     protected $paletteCollectionClass;
 
     /**
      * The class name of the class to use for palettes.
      *
-     * @var string
+     * @var class-string<PaletteInterface>
      */
     protected $paletteClassName = Palette::class;
 
     /**
      * The class to use for palettes.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<PaletteInterface>
      */
     protected $paletteClass;
 
     /**
      * The class name of the class to use for palette legends.
      *
-     * @var string
+     * @var class-string<LegendInterface>
      */
     protected $legendClassName = Legend::class;
 
     /**
      * The class to use for palette legends.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<LegendInterface>
      */
     protected $legendClass;
 
     /**
      * The class name of the class to use for palette properties.
      *
-     * @var string
+     * @var class-string<PropertyInterface>
      */
     protected $propertyClassName = Property::class;
 
     /**
      * The class to use for palette properties.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<PropertyInterface>
      */
     protected $propertyClass;
 
     /**
      * The class name of the class to use for palette condition chains.
      *
-     * @var string
+     * @var class-string<TPaletteConditionChainInterface>
      */
     protected $paletteConditionChainClassName = PaletteConditionChain::class;
 
     /**
-     * The the class to use for palette condition chains.
+     * The class to use for palette condition chains.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<TPaletteConditionChainInterface>
      */
     protected $paletteConditionChainClass;
 
     /**
      * The class name of the class to use for palette conditions.
      *
-     * @var string
+     * @var class-string<PaletteConditionInterface>
      */
     protected $defaultPaletteConditionClassName = DefaultPaletteCondition::class;
 
     /**
-     * The the class to use for palette conditions.
+     * The class to use for palette conditions.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<PaletteConditionInterface>
      */
     protected $defaultPaletteConditionClass;
 
     /**
      * The class name of the class to use for property value conditions.
      *
-     * @var string
+     * @var class-string<PaletteConditionInterface>
      */
     protected $palettePropertyValueConditionClassName = PropertyValueCondition::class;
 
     /**
      * The class to use for property value conditions.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<PaletteConditionInterface>
      */
     protected $palettePropertyValueConditionClass;
 
     /**
      * The class name of the class to use for property condition chains.
      *
-     * @var string
+     * @var class-string<TPropertyConditionChainInterface>
      */
     protected $propertyConditionChainClassName = PropertyConditionChain::class;
 
     /**
      * The class to use for property condition chains.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<TPropertyConditionChainInterface>
      */
     protected $propertyConditionChainClass;
 
     /**
      * The class name of the class to use for property value conditions.
      *
-     * @var string
+     * @var class-string<PropertyConditionInterface>
      */
     protected $propertyValueConditionClassName = PropertyPropertyValueCondition::class;
 
     /**
-     * The the class to use for property value conditions.
+     * The class to use for property value conditions.
      *
-     * @var \ReflectionClass
+     * @var ReflectionClass<PropertyConditionInterface>
      */
     protected $propertyValueConditionClass;
 
@@ -253,14 +266,14 @@ class PaletteBuilder
     /**
      * The property currently working on.
      *
-     * @var PropertyInterface|null
+     * @var list<PropertyInterface>|PropertyInterface|null
      */
     protected $property;
 
     /**
      * The condition currently working on.
      *
-     * @var PropertyConditionInterface|PaletteConditionInterface|ConditionChainInterface|null
+     * @var PropertyConditionInterface|PaletteConditionInterface|null
      */
     protected $condition;
 
@@ -269,7 +282,7 @@ class PaletteBuilder
      *
      * @param ContainerInterface $container The data definition container for which the palettes shall get built.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public static function create(ContainerInterface $container)
     {
@@ -285,17 +298,17 @@ class PaletteBuilder
     {
         $this->container = $container;
 
-        $this->paletteCollectionClass = new \ReflectionClass($this->paletteCollectionClassName);
-        $this->paletteClass           = new \ReflectionClass($this->paletteClassName);
-        $this->legendClass            = new \ReflectionClass($this->legendClassName);
-        $this->propertyClass          = new \ReflectionClass($this->propertyClassName);
+        $this->paletteCollectionClass = new ReflectionClass($this->paletteCollectionClassName);
+        $this->paletteClass           = new ReflectionClass($this->paletteClassName);
+        $this->legendClass            = new ReflectionClass($this->legendClassName);
+        $this->propertyClass          = new ReflectionClass($this->propertyClassName);
 
-        $this->paletteConditionChainClass         = new \ReflectionClass($this->paletteConditionChainClassName);
-        $this->defaultPaletteConditionClass       = new \ReflectionClass($this->defaultPaletteConditionClassName);
-        $this->palettePropertyValueConditionClass = new \ReflectionClass($this->palettePropertyValueConditionClassName);
+        $this->paletteConditionChainClass         = new ReflectionClass($this->paletteConditionChainClassName);
+        $this->defaultPaletteConditionClass       = new ReflectionClass($this->defaultPaletteConditionClassName);
+        $this->palettePropertyValueConditionClass = new ReflectionClass($this->palettePropertyValueConditionClassName);
 
-        $this->propertyConditionChainClass = new \ReflectionClass($this->propertyConditionChainClassName);
-        $this->propertyValueConditionClass = new \ReflectionClass($this->propertyValueConditionClassName);
+        $this->propertyConditionChainClass = new ReflectionClass($this->propertyConditionChainClassName);
+        $this->propertyValueConditionClass = new ReflectionClass($this->propertyValueConditionClassName);
     }
 
     /**
@@ -311,9 +324,9 @@ class PaletteBuilder
     /**
      * Set the palette collection class name.
      *
-     * @param string $paletteCollectionClassName The class name.
+     * @param class-string<PaletteCollectionInterface> $paletteCollectionClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setPaletteCollectionClassName($paletteCollectionClassName)
     {
@@ -321,15 +334,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $paletteCollectionClassName = $event->getPaletteCollectionClassName();
 
-        $this->paletteCollectionClassName = (string) $paletteCollectionClassName;
-        $this->paletteCollectionClass     = new \ReflectionClass($this->paletteCollectionClassName);
+        $this->paletteCollectionClassName = $paletteCollectionClassName;
+        $this->paletteCollectionClass     = new ReflectionClass($this->paletteCollectionClassName);
+
         return $this;
     }
 
     /**
      * Return the palette collection class name.
      *
-     * @return string
+     * @return class-string<PaletteCollectionInterface>
      */
     public function getPaletteCollectionClassName()
     {
@@ -339,9 +353,9 @@ class PaletteBuilder
     /**
      * Set the palette class name.
      *
-     * @param string $paletteClassName The class name.
+     * @param class-string<PaletteInterface> $paletteClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setPaletteClassName($paletteClassName)
     {
@@ -349,15 +363,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $paletteClassName = $event->getPaletteClassName();
 
-        $this->paletteClassName = (string) $paletteClassName;
-        $this->paletteClass     = new \ReflectionClass($this->paletteClassName);
+        $this->paletteClassName = $paletteClassName;
+        $this->paletteClass     = new ReflectionClass($this->paletteClassName);
+
         return $this;
     }
 
     /**
      * Return the palette class name.
      *
-     * @return string
+     * @return class-string<PaletteInterface>
      */
     public function getPaletteClassName()
     {
@@ -367,9 +382,9 @@ class PaletteBuilder
     /**
      * Set the legend class name.
      *
-     * @param string $legendClassName The class name.
+     * @param class-string<LegendInterface> $legendClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setLegendClassName($legendClassName)
     {
@@ -377,15 +392,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $legendClassName = $event->getLegendClassName();
 
-        $this->legendClassName = (string) $legendClassName;
-        $this->legendClass     = new \ReflectionClass($this->legendClassName);
+        $this->legendClassName = $legendClassName;
+        $this->legendClass     = new ReflectionClass($this->legendClassName);
+
         return $this;
     }
 
     /**
      * Return the legend class name.
      *
-     * @return string
+     * @return class-string<LegendInterface>
      */
     public function getLegendClassName()
     {
@@ -395,9 +411,9 @@ class PaletteBuilder
     /**
      * Set the property class name.
      *
-     * @param string $propertyClassName The class name.
+     * @param class-string<PropertyInterface> $propertyClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setPropertyClassName($propertyClassName)
     {
@@ -405,15 +421,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $propertyClassName = $event->getPropertyClassName();
 
-        $this->propertyClassName = (string) $propertyClassName;
-        $this->propertyClass     = new \ReflectionClass($this->propertyClassName);
+        $this->propertyClassName = $propertyClassName;
+        $this->propertyClass     = new ReflectionClass($this->propertyClassName);
+
         return $this;
     }
 
     /**
      * Return the property class name.
      *
-     * @return string
+     * @return class-string<PropertyInterface>
      */
     public function getPropertyClassName()
     {
@@ -423,9 +440,9 @@ class PaletteBuilder
     /**
      * Set the palette condition chain class name.
      *
-     * @param string $paletteConditionChainClassName The class name.
+     * @param class-string<TPaletteConditionChainInterface> $paletteConditionChainClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setPaletteConditionChainClassName($paletteConditionChainClassName)
     {
@@ -433,15 +450,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $paletteConditionChainClassName = $event->getPaletteConditionChainClassName();
 
-        $this->paletteConditionChainClassName = (string) $paletteConditionChainClassName;
-        $this->paletteConditionChainClass     = new \ReflectionClass($this->paletteConditionChainClassName);
+        $this->paletteConditionChainClassName = $paletteConditionChainClassName;
+        $this->paletteConditionChainClass     = new ReflectionClass($this->paletteConditionChainClassName);
+
         return $this;
     }
 
     /**
      * Return the palette condition chain class name.
      *
-     * @return string
+     * @return class-string<TPaletteConditionChainInterface>
      */
     public function getPaletteConditionChainClassName()
     {
@@ -461,9 +479,9 @@ class PaletteBuilder
     /**
      * Set the default palette condition class name.
      *
-     * @param string $defaultPaletteConditionClassName The class name.
+     * @param class-string<PaletteConditionInterface> $defaultPaletteConditionClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setDefaultPaletteConditionClassName($defaultPaletteConditionClassName)
     {
@@ -471,15 +489,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $defaultPaletteConditionClassName = $event->getDefaultPaletteConditionClassName();
 
-        $this->defaultPaletteConditionClassName = (string) $defaultPaletteConditionClassName;
-        $this->defaultPaletteConditionClass     = new \ReflectionClass($this->defaultPaletteConditionClassName);
+        $this->defaultPaletteConditionClassName = $defaultPaletteConditionClassName;
+        $this->defaultPaletteConditionClass     = new ReflectionClass($this->defaultPaletteConditionClassName);
+
         return $this;
     }
 
     /**
      * Return the default palette condition class name.
      *
-     * @return string
+     * @return class-string<PaletteConditionInterface>
      */
     public function getDefaultPaletteConditionClassName()
     {
@@ -489,9 +508,9 @@ class PaletteBuilder
     /**
      * Set the palette property value condition class name.
      *
-     * @param string $palettePropertyValueConditionClassName The class name.
+     * @param class-string<PaletteConditionInterface> $palettePropertyValueConditionClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setPalettePropertyValueConditionClassName($palettePropertyValueConditionClassName)
     {
@@ -499,17 +518,18 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $palettePropertyValueConditionClassName = $event->getPalettePropertyValueConditionClassName();
 
-        $this->palettePropertyValueConditionClassName = (string) $palettePropertyValueConditionClassName;
-        $this->palettePropertyValueConditionClass     = new \ReflectionClass(
+        $this->palettePropertyValueConditionClassName = $palettePropertyValueConditionClassName;
+        $this->palettePropertyValueConditionClass     = new ReflectionClass(
             $this->palettePropertyValueConditionClassName
         );
+
         return $this;
     }
 
     /**
      * Return the palette property value condition class name.
      *
-     * @return string
+     * @return class-string<PaletteConditionInterface>
      */
     public function getPalettePropertyValueConditionClassName()
     {
@@ -519,9 +539,9 @@ class PaletteBuilder
     /**
      * Set the property condition chain class name.
      *
-     * @param string $propertyConditionChainClassName The class name.
+     * @param class-string<TPropertyConditionChainInterface> $propertyConditionChainClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setPropertyConditionChainClassName($propertyConditionChainClassName)
     {
@@ -529,15 +549,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $propertyConditionChainClassName = $event->getPalettePropertyConditionChainClassName();
 
-        $this->propertyConditionChainClassName = (string) $propertyConditionChainClassName;
-        $this->propertyConditionChainClass     = new \ReflectionClass($this->propertyConditionChainClassName);
+        $this->propertyConditionChainClassName = $propertyConditionChainClassName;
+        $this->propertyConditionChainClass     = new ReflectionClass($this->propertyConditionChainClassName);
+
         return $this;
     }
 
     /**
      * Return the property condition chain class name.
      *
-     * @return string
+     * @return class-string<TPropertyConditionChainInterface>
      */
     public function getPropertyConditionChainClassName()
     {
@@ -547,9 +568,9 @@ class PaletteBuilder
     /**
      * Set the property value condition class name.
      *
-     * @param string $propertyValueConditionClassName The class name.
+     * @param class-string<PropertyConditionInterface> $propertyValueConditionClassName The class name.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function setPropertyValueConditionClassName($propertyValueConditionClassName)
     {
@@ -557,15 +578,16 @@ class PaletteBuilder
         $this->dispatchEvent($event);
         $propertyValueConditionClassName = $event->getPropertyValueConditionClassName();
 
-        $this->propertyValueConditionClassName = (string) $propertyValueConditionClassName;
-        $this->propertyValueConditionClass     = new \ReflectionClass($this->propertyValueConditionClassName);
+        $this->propertyValueConditionClassName = $propertyValueConditionClassName;
+        $this->propertyValueConditionClass     = new ReflectionClass($this->propertyValueConditionClassName);
+
         return $this;
     }
 
     /**
      * Return the property value condition class name.
      *
-     * @return string
+     * @return class-string<PropertyConditionInterface>
      */
     public function getPropertyValueConditionClassName()
     {
@@ -595,7 +617,7 @@ class PaletteBuilder
     /**
      * Return the current property object.
      *
-     * @return PropertyInterface|null
+     * @return list<PropertyInterface>|PropertyInterface|null
      */
     public function getProperty()
     {
@@ -605,7 +627,7 @@ class PaletteBuilder
     /**
      * Return the current condition object.
      *
-     * @return PaletteConditionInterface|PropertyConditionInterface|null
+     * @return PropertyConditionInterface|PaletteConditionInterface|null
      */
     public function getCondition()
     {
@@ -617,7 +639,7 @@ class PaletteBuilder
      *
      * @param PaletteCollectionInterface $paletteCollection The palette collection to reuse.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function usePaletteCollection(PaletteCollectionInterface $paletteCollection)
     {
@@ -635,7 +657,7 @@ class PaletteBuilder
     /**
      * Start a new palette collection.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function createPaletteCollection()
     {
@@ -657,7 +679,7 @@ class PaletteBuilder
      *
      * @param PaletteCollectionInterface $collection Return the final palette collection.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException When no collection is stored.
      */
@@ -687,7 +709,7 @@ class PaletteBuilder
      *
      * @param PaletteInterface $palette The palette to reuse.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function usePalette(PaletteInterface $palette)
     {
@@ -708,7 +730,7 @@ class PaletteBuilder
      * @param string|null $name Only for backwards compatibility, We will remove palette names in the future
      *                          (deprecated).
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function createPalette($name = null)
     {
@@ -734,7 +756,7 @@ class PaletteBuilder
      *
      * @param PaletteInterface $palette Return the final palette.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException When no palette is stored in the builder.
      */
@@ -769,7 +791,7 @@ class PaletteBuilder
      *
      * @param LegendInterface $legend The legend.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function useLegend(LegendInterface $legend)
     {
@@ -789,7 +811,7 @@ class PaletteBuilder
      *
      * @param string $name Name of the legend.
      *
-     * @return PaletteBuilder
+     * @return self
      */
     public function createLegend($name)
     {
@@ -811,7 +833,7 @@ class PaletteBuilder
      *
      * @param LegendInterface $legend Return the final legend.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException When no legend is stored in the builder.
      */
@@ -844,7 +866,7 @@ class PaletteBuilder
      * @param PropertyInterface $property The first property.
      * @param PropertyInterface $_        Any more subsequent properties to be used.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ShortVariable)
@@ -856,7 +878,8 @@ class PaletteBuilder
             $this->finishProperty();
         }
 
-        $properties = \func_get_args();
+        /** @var list<PropertyInterface> $properties */
+        $properties = func_get_args();
 
         $this->property = [];
         foreach ($properties as $property) {
@@ -866,8 +889,8 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (1 === \count($this->property)) {
-            $this->property = \array_shift($this->property);
+        if (1 === count($this->property)) {
+            $this->property = array_shift($this->property);
         }
 
         return $this;
@@ -879,7 +902,7 @@ class PaletteBuilder
      * @param string            $propertyName The name of the property.
      * @param PropertyInterface $_            Any more subsequent property names to be used.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ShortVariable)
@@ -891,7 +914,7 @@ class PaletteBuilder
             $this->finishProperty();
         }
 
-        $propertyNames = \func_get_args();
+        $propertyNames = func_get_args();
 
         $this->property = [];
         foreach ($propertyNames as $propertyName) {
@@ -904,8 +927,8 @@ class PaletteBuilder
             $this->property[] = $property;
         }
 
-        if (1 === \count($this->property)) {
-            $this->property = \array_shift($this->property);
+        if (1 === count($this->property)) {
+            $this->property = array_shift($this->property);
         }
 
         return $this;
@@ -916,7 +939,7 @@ class PaletteBuilder
      *
      * @param PropertyInterface|PropertyInterface[] $property Return the final property or set of properties.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException When no property is stored in the builder.
      */
@@ -930,7 +953,7 @@ class PaletteBuilder
             $this->finishCondition();
         }
 
-        $properties = \is_object($this->property) ? [$this->property] : $this->property;
+        $properties = is_object($this->property) ? [$this->property] : $this->property;
 
         foreach ($properties as $index => $tempProperty) {
             $event = new FinishPropertyEvent($tempProperty, $this);
@@ -952,11 +975,13 @@ class PaletteBuilder
     /**
      * Create a palette condition chain.
      *
-     * @return PaletteBuilder
+     * @return self
+     *
+     * @psalm-assert ConditionChainInterface $this->condition
      */
     protected function createPaletteConditionChain()
     {
-        if (!$this->condition instanceof PaletteConditionChain) {
+        if (!$this->condition instanceof ConditionChainInterface) {
             $previousCondition = $this->condition;
 
             $condition = $this->paletteConditionChainClass->newInstance();
@@ -967,8 +992,12 @@ class PaletteBuilder
             $event = new CreateConditionEvent($condition, $this);
             $this->dispatchEvent($event);
             $condition = $event->getCondition();
-            /** @var ConditionChainInterface $condition */
-            $condition->addCondition($previousCondition);
+            assert($condition instanceof PaletteConditionInterface);
+            assert($condition instanceof ConditionChainInterface);
+
+            if ($previousCondition) {
+                $condition->addCondition($previousCondition);
+            }
 
             $this->condition = $condition;
         }
@@ -981,11 +1010,15 @@ class PaletteBuilder
      *
      * @param string $conjunction The conjunction to use (defaults to AND).
      *
-     * @return PaletteBuilder
+     * @return self
+     *
+     * @psalm-assert ConditionChainInterface $this->condition
      */
-    protected function createPropertyConditionChain($conjunction = PropertyConditionChain::AND_CONJUNCTION)
+    protected function createPropertyConditionChain($conjunction = ConditionChainInterface::AND_CONJUNCTION)
     {
-        if (!($this->condition instanceof PropertyConditionChain)
+        if (
+            // FIXME: We need a condition chain interface here to allow proper overriding.
+            !($this->condition instanceof ConditionChainInterface)
             || ($conjunction !== $this->condition->getConjunction())
         ) {
             $previousCondition = $this->condition;
@@ -998,8 +1031,9 @@ class PaletteBuilder
             $event = new CreateConditionEvent($condition, $this);
             $this->dispatchEvent($event);
             $condition = $event->getCondition();
-            /** @var ConditionChainInterface $condition */
-            $condition->addCondition($previousCondition);
+            if (null !== $previousCondition) {
+                $condition->addCondition($previousCondition);
+            }
 
             $this->condition = $condition;
         }
@@ -1010,7 +1044,7 @@ class PaletteBuilder
     /**
      * Start a new default-palette condition.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException When no palette or property has been stored.
      */
@@ -1041,7 +1075,7 @@ class PaletteBuilder
     /**
      * Start a new default-palette condition and chain with previous condition.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException When no palette or property has been stored.
      */
@@ -1076,7 +1110,7 @@ class PaletteBuilder
      * @param mixed  $propertyValue The value of the property.
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException If neither a palette nor a property is stored in the builder.
      */
@@ -1095,15 +1129,17 @@ class PaletteBuilder
                 'Does not know where to create the property-value condition, please create a palette or property first'
             );
         }
-
+        // FIXME: we need an interface for PropertyValueCondition
+        assert(
+            ($condition instanceof PropertyValueCondition)
+            || ($condition instanceof PropertyPropertyValueCondition)
+        );
         $condition->setPropertyName($propertyName);
         $condition->setPropertyValue($propertyValue);
         $condition->setStrict($strict);
-
         $event = new CreatePropertyValueConditionEvent($condition, $this);
         $this->dispatchEvent($event);
         $condition = $event->getPropertyValueCondition();
-
         $event = new CreateConditionEvent($condition, $this);
         $this->dispatchEvent($event);
         $condition = $event->getCondition();
@@ -1121,7 +1157,7 @@ class PaletteBuilder
      * @param bool   $strict        Flag if the comparison shall be strict (type safe).
      * @param string $conjunction   The conjunction.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException If neither a palette nor a property is stored in the builder.
      */
@@ -1143,14 +1179,17 @@ class PaletteBuilder
             );
         }
 
+        // FIXME: we need an interface for PropertyValueCondition
+        assert(
+            ($condition instanceof PropertyValueCondition)
+            || ($condition instanceof PropertyPropertyValueCondition)
+        );
         $condition->setPropertyName($propertyName);
         $condition->setPropertyValue($propertyValue);
         $condition->setStrict($strict);
-
         $event = new CreatePropertyValueConditionEvent($condition, $this);
         $this->dispatchEvent($event);
         $condition = $event->getPropertyValueCondition();
-
         $event = new CreateConditionEvent($condition, $this);
         $this->dispatchEvent($event);
         $condition = $event->getCondition();
@@ -1165,7 +1204,7 @@ class PaletteBuilder
      *
      * @param PropertyConditionInterface|PaletteConditionInterface $condition Return the final condition.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralRuntimeException If no condition is stored in the builder.
      */
@@ -1227,17 +1266,19 @@ class PaletteBuilder
      * @return void
      *
      * @throws DcGeneralRuntimeException If the the property is missing.
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function addPropertyCondition(PropertyConditionInterface $condition, $scope = self::VISIBLE)
     {
-        if (!$this->property) {
+        if (null === $this->property || [] === $this->property) {
             throw new DcGeneralRuntimeException('Property is missing, please create a property first');
         }
 
-        $properties = \is_object($this->property) ? [$this->property] : $this->property;
+        $properties = ($this->property instanceof PropertyInterface) ? [$this->property] : $this->property;
 
         foreach ($properties as $property) {
-            /** @var PropertyInterface $property */
+            /** @var AddConditionEvent<PropertyConditionInterface, PropertyInterface> $event */
             $event = new AddConditionEvent($condition, $property, $this);
             $this->dispatchEvent($event);
             $condition = $event->getCondition();
@@ -1274,7 +1315,7 @@ class PaletteBuilder
      * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition to add.
      * @param string                                               $scope     The scope.
      *
-     * @return PaletteBuilder
+     * @return self
      *
      * @throws DcGeneralInvalidArgumentException When an unknown condition type is passed.
      */
@@ -1290,8 +1331,9 @@ class PaletteBuilder
             return $this;
         }
 
-        $type = \is_object($condition) ? \get_class($condition) : \gettype($condition);
-        throw new DcGeneralInvalidArgumentException('Cannot handle condition of type [' . $type . ']');
+        throw new DcGeneralInvalidArgumentException(
+            'Cannot handle condition of type [' . \get_debug_type($condition) . ']'
+        );
     }
 
     /**
@@ -1306,6 +1348,8 @@ class PaletteBuilder
     protected function dispatchEvent(BuilderEvent $event): void
     {
         $dispatcher = System::getContainer()->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $dispatcher->dispatch($event, $event::NAME);
     }
 }

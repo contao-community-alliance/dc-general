@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,7 +25,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
 /**
  * Class AbstractModel.
  * Abstract base class for data provider models.
- * This class implements the setter and getter for meta data.
+ * This class implements the setter and getter for meta-data.
  */
 abstract class AbstractModel implements ModelInterface
 {
@@ -38,16 +39,16 @@ abstract class AbstractModel implements ModelInterface
     /**
      * {@inheritdoc}
      */
-    public function getMeta($metaName)
+    public function getMeta($strMetaName)
     {
-        return ($this->arrMetaInformation[$metaName] ?? null);
+        return ($this->arrMetaInformation[$strMetaName] ?? null);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setMeta($metaName, $value)
+    public function setMeta($strMetaName, $varValue)
     {
-        $this->arrMetaInformation[$metaName] = $value;
+        $this->arrMetaInformation[$strMetaName] = $varValue;
     }
 }

@@ -29,16 +29,16 @@ class InvalidHttpCacheTagsEvent extends AbstractEnvironmentAwareEvent
     /**
      * The http cache namespace.
      *
-     * @var string
+     * @var string|null
      */
-    private $namespace;
+    private ?string $namespace = null;
 
     /**
      * The cache tags.
      *
      * @var array
      */
-    private $tags;
+    private array $tags = [];
 
     /**
      * Get the http cache namespace.
@@ -47,6 +47,10 @@ class InvalidHttpCacheTagsEvent extends AbstractEnvironmentAwareEvent
      */
     public function getNamespace(): string
     {
+        if (null === $this->namespace) {
+            throw new \RuntimeException('The namespace is not set.');
+        }
+
         return $this->namespace;
     }
 

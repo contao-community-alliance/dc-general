@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,21 +28,25 @@ use Contao\BackendTemplate;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
+use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class is used for the contao backend view as template.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateInterface, TranslatorInterface
 {
     /**
      * The translator.
      *
-     * @var TranslatorInterface
+     * @var TranslatorInterface|null
      */
-    protected $translator;
+    protected $translator = null;
 
     /**
      * Get the translator.
@@ -50,6 +55,9 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
      */
     public function getTranslator()
     {
+        if (null === $this->translator) {
+            throw new \RuntimeException('Translator not set.');
+        }
         return $this->translator;
     }
 
@@ -63,16 +71,6 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     public function setTranslator(TranslatorInterface $translator)
     {
         $this->translator = $translator;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setData($data)
-    {
-        parent::setData($data);
 
         return $this;
     }
@@ -100,11 +98,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
      */
     public function translate($string, $domain = null, array $parameters = [], $locale = null)
     {
-        if ($this->translator) {
-            return $this->translator->translate($string, $domain, $parameters, $locale);
-        }
-
-        return $string;
+        return $this->getTranslator()->translate($string, $domain, $parameters, $locale);
     }
 
     /**
@@ -112,11 +106,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
      */
     public function translatePluralized($string, $number, $domain = null, array $parameters = [], $locale = null)
     {
-        if ($this->translator) {
-            return $this->translator->translatePluralized($string, $number, $domain, $parameters, $locale);
-        }
-
-        return $string;
+        return $this->getTranslator()->translatePluralized($string, $number, $domain, $parameters, $locale);
     }
 
     /**
@@ -124,17 +114,28 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
      *
      * @return string
      *
-     * @SuppressWarnings(PHPMD.Superglobals)
+     * @deprecated Do not use
      */
     public function getBackButton(): string
     {
-        $dataContainer  = System::getContainer()->get('cca.dc-general.data-definition-container');
-        $dataDefinition = $dataContainer->getDefinition($this->table);
+        $dataContainer = System::getContainer()->get('cca.dc-general.data-definition-container');
+        assert($dataContainer instanceof DataDefinitionContainerInterface);
+
+        /** @psalm-suppress UndefinedThisPropertyFetch */
+        $table = $this->table;
+        assert(\is_string($table));
+        $dataDefinition = $dataContainer->getDefinition($table);
+
+        $translator = System::getContainer()->get('cca.translator.contao_translator');
+        assert($translator instanceof TranslatorInterface);
+
+        $dispatcher = System::getContainer()->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $environment = new DefaultEnvironment();
         $environment->setDataDefinition($dataDefinition);
-        $environment->setTranslator(System::getContainer()->get('cca.translator.contao_translator'));
-        $environment->setEventDispatcher(System::getContainer()->get('event_dispatcher'));
+        $environment->setTranslator($translator);
+        $environment->setEventDispatcher($dispatcher);
         $environment->setInputProvider(new InputProvider());
         $environment->setClipboard(new Clipboard());
 
@@ -153,6 +154,16 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritDoc}
      */
+    public function setData($arrData)
+    {
+        parent::setData($arrData);
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function parse()
     {
         return parent::parse();
@@ -163,6 +174,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
      */
     public function output()
     {
+        /** @psalm-suppress DeprecatedMethod */
         parent::output();
     }
     // @codingStandardsIgnoreEnd

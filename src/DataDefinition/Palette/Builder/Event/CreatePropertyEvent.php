@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class CreatePropertyEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-property';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-property';
 
     /**
      * The property.

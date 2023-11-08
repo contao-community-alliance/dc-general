@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,6 +27,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widge
  * This widget is a supporting widget to store the file tree orderings.
  *
  * The ContaoWidgetManager does not allow input values without a widget. This is used as helper widget instead.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class FileTreeOrder extends AbstractWidget
 {
@@ -39,11 +42,9 @@ class FileTreeOrder extends AbstractWidget
     /**
      * {@inheritdoc}
      */
-    protected function validator($inputValue)
+    protected function validator($varInput)
     {
-        $inputValue = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $inputValue)));
-
-        return $inputValue;
+        return \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
     }
 
     /**

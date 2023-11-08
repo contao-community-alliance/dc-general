@@ -58,7 +58,7 @@ class UnsavedItemTest extends TestCase
         $modelId = ModelId::fromValues('parent', 'foo');
         return [
             [null, 'parent-null', 'parent-null', 'createparent-nullnull'],
-            [$modelId, 'parent', 'parent', 'createparent'. $modelId->getSerialized()]
+            [$modelId, 'parent', 'parent', 'createparent' . $modelId->getSerialized()]
         ];
     }
 

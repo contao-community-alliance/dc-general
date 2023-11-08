@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widge
  * This widget is a supporting widget to store the page tree orderings.
  *
  * The ContaoWidgetManager does not allow input values without a widget. This is used as helper widget instead.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class TreePickerOrder extends AbstractWidget
 {
@@ -45,9 +47,9 @@ class TreePickerOrder extends AbstractWidget
     /**
      * {@inheritdoc}
      */
-    protected function validator($inputValue)
+    protected function validator($varInput)
     {
-        return \array_filter(\explode(',', $inputValue));
+        return \array_filter(\explode(',', $varInput));
     }
 
     /**

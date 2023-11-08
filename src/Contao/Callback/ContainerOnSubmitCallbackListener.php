@@ -29,15 +29,13 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
  * Class ContainerOnSubmitCallbackListener.
  *
  * Handle onsubmit_callbacks.
+ *
+ * @extends AbstractCallbackListener<PostPersistModelEvent>
  */
 class ContainerOnSubmitCallbackListener extends AbstractCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param PostPersistModelEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,10 +31,12 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeletableException;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
@@ -41,11 +44,15 @@ use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreDeleteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\ActionGuardTrait;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class DeleteHandler handles the delete action.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DeleteHandler
 {
@@ -72,7 +79,7 @@ class DeleteHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
@@ -81,7 +88,7 @@ class DeleteHandler
         }
 
         if (true !== ($response = $this->checkPermission($event->getEnvironment()))) {
-            $event->setResponse($response);
+            $event->setResponse((string) $response);
             $event->stopPropagation();
 
             return;
@@ -105,6 +112,8 @@ class DeleteHandler
     protected function guardIsDeletable(EnvironmentInterface $environment, ModelIdInterface $modelId, $redirect = false)
     {
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         if ($dataDefinition->getBasicDefinition()->isDeletable()) {
             return;
         }
@@ -114,6 +123,7 @@ class DeleteHandler
         }
 
         $eventDispatcher = $environment->getEventDispatcher();
+        assert($eventDispatcher instanceof EventDispatcherInterface);
 
         $eventDispatcher->dispatch(
             new LogEvent(
@@ -122,7 +132,7 @@ class DeleteHandler
                     $dataDefinition->getName()
                 ),
                 __CLASS__ . '::delete()',
-                TL_ERROR
+                'ERROR'
             ),
             ContaoEvents::SYSTEM_LOG
         );
@@ -143,7 +153,9 @@ class DeleteHandler
     protected function fetchModel(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
-        $model        = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         if (!$model || !$model->getId()) {
             throw new DcGeneralRuntimeException(
@@ -168,21 +180,28 @@ class DeleteHandler
      */
     public function delete(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
-        $this->guardNotEditOnly($environment->getDataDefinition(), $modelId);
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $this->guardNotEditOnly($definition, $modelId);
         $this->guardIsDeletable($environment, $modelId);
 
         $model = $this->fetchModel($environment, $modelId);
 
         // Trigger event before the model will be deleted.
         $preDeleteEvent = new PreDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($preDeleteEvent, $preDeleteEvent::NAME);
+        $dispatcher     = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($preDeleteEvent, $preDeleteEvent::NAME);
 
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
         $dataProvider->delete($model);
 
         // Trigger event after the model is deleted.
         $postDeleteEvent = new PostDeleteModelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($postDeleteEvent, $postDeleteEvent::NAME);
+        $dispatcher->dispatch($postDeleteEvent, $postDeleteEvent::NAME);
     }
 
     /**
@@ -190,16 +209,19 @@ class DeleteHandler
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return string
+     * @return string|null
      */
     protected function process(EnvironmentInterface $environment)
     {
-        $inputProvider  = $environment->getInputProvider();
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
 
         $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
-        // Guard that we are in the preloaded environment. Otherwise checking the data definition could belong to
+        // Guard that we are in the preloaded environment. Otherwise, checking the data definition could belong to
         // another model.
         $this->guardValidEnvironment($dataDefinition, $modelId);
 
@@ -231,15 +253,21 @@ class DeleteHandler
      */
     private function checkPermission(EnvironmentInterface $environment)
     {
-        if (true === $environment->getDataDefinition()->getBasicDefinition()->isDeletable()) {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        if (true === $definition->getBasicDefinition()->isDeletable()) {
             return true;
         }
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         return \sprintf(
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for delete model %s.
             </div>',
-            ModelId::fromSerialized($environment->getInputProvider()->getParameter('id'))->getSerialized()
+            ModelId::fromSerialized($inputProvider->getParameter('id'))->getSerialized()
         );
     }
 
@@ -255,8 +283,11 @@ class DeleteHandler
      */
     protected function deepDelete(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         /** @var DefaultModelRelationshipDefinition $relationships */
-        $relationships = $environment->getDataDefinition()->getDefinition('model-relationships');
+        $relationships = $definition->getDefinition('model-relationships');
 
         $childConditions = $relationships->getChildConditions($modelId->getDataProviderName());
 
@@ -268,11 +299,15 @@ class DeleteHandler
                 continue;
             }
 
-            $dataProvider                 = $environment->getDataProvider($modelId->getDataProviderName());
-            $model                        = $dataProvider->fetch(
-                $dataProvider->getEmptyConfig()->setId($modelId->getId())
-            );
+            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+            assert($dataProvider instanceof DataProviderInterface);
+
+            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            assert($model instanceof ModelInterface);
+
             $destinationChildDataProvider = $environment->getDataProvider($childCondition->getDestinationName());
+            assert($destinationChildDataProvider instanceof DataProviderInterface);
+
 
             /** @var DefaultCollection $destinationChildModels */
             $destinationChildModels = $destinationChildDataProvider->fetchAll(
@@ -288,9 +323,14 @@ class DeleteHandler
         }
 
         foreach ($childConditions as $childCondition) {
-            $dataProvider      = $environment->getDataProvider($modelId->getDataProviderName());
-            $model             = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+            assert($dataProvider instanceof DataProviderInterface);
+
+            $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            assert($model instanceof ModelInterface);
+
             $childDataProvider = $environment->getDataProvider($childCondition->getDestinationName());
+            assert($childDataProvider instanceof DataProviderInterface);
 
             $filters = $childCondition->getFilter($model);
             /** @var DefaultCollection $childModels */
@@ -300,15 +340,19 @@ class DeleteHandler
             }
 
             foreach ($childModels as $childModel) {
+                if (null === ($dispatcher = $environment->getEventDispatcher())) {
+                    continue;
+                }
+
                 // Trigger event before the model will be deleted.
                 $preDeleteEvent = new PreDeleteModelEvent($environment, $childModel);
-                $environment->getEventDispatcher()->dispatch($preDeleteEvent, $preDeleteEvent::NAME);
+                $dispatcher->dispatch($preDeleteEvent, $preDeleteEvent::NAME);
 
                 $childDataProvider->delete($childModel);
 
                 // Trigger event after the model is deleted.
                 $postDeleteEvent = new PostDeleteModelEvent($environment, $childModel);
-                $environment->getEventDispatcher()->dispatch($postDeleteEvent, $postDeleteEvent::NAME);
+                $dispatcher->dispatch($postDeleteEvent, $postDeleteEvent::NAME);
             }
         }
     }

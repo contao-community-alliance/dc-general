@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,13 +14,15 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
@@ -31,22 +33,21 @@ use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
  */
 abstract class AbstractElement implements PanelElementInterface
 {
-
     /**
      * The panel this element is contained within.
      *
-     * @var PanelInterface
+     * @var PanelInterface|null
      */
-    protected $objPanel;
+    protected $objPanel = null;
 
     /**
      * The base configuration that contains all filter, sorting and limit information for all other panel elements.
      *
      * This is used for determining the valid values in filters etc.
      *
-     * @var ConfigInterface
+     * @var ConfigInterface|null
      */
-    private $objOtherConfig;
+    private $objOtherConfig = null;
 
     /**
      * Convenience method to retrieve Environment for this element.
@@ -65,7 +66,10 @@ abstract class AbstractElement implements PanelElementInterface
      */
     public function getSessionStorage()
     {
-        return $this->getEnvironment()->getSessionStorage();
+        $sessionStorage = $this->getEnvironment()->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        return $sessionStorage;
     }
 
     /**
@@ -75,7 +79,10 @@ abstract class AbstractElement implements PanelElementInterface
      */
     public function getInputProvider()
     {
-        return $this->getEnvironment()->getInputProvider();
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        return $inputProvider;
     }
 
     /**
@@ -83,15 +90,19 @@ abstract class AbstractElement implements PanelElementInterface
      */
     public function getPanel()
     {
+        if (null === $this->objPanel) {
+            throw new \LogicException('Panel not set');
+        }
+
         return $this->objPanel;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setPanel(PanelInterface $panel)
+    public function setPanel(PanelInterface $panelElement)
     {
-        $this->objPanel = $panel;
+        $this->objPanel = $panelElement;
 
         return $this;
     }
@@ -103,11 +114,11 @@ abstract class AbstractElement implements PanelElementInterface
      */
     protected function getOtherConfig()
     {
-        if (!isset($this->objOtherConfig)) {
-            $this->objOtherConfig = $this
-                ->getEnvironment()
-                ->getBaseConfigRegistry()
-                ->getBaseConfig();
+        if (null === $this->objOtherConfig) {
+            $registry = $this->getEnvironment()->getBaseConfigRegistry();
+            assert($registry instanceof BaseConfigRegistryInterface);
+
+            $this->objOtherConfig = $registry->getBaseConfig();
 
             $this
                 ->getPanel()

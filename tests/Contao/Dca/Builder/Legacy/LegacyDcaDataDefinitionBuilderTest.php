@@ -29,6 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -53,7 +54,7 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      * @param string          $eventName
      * @param Eventdispatcher $dispatcher
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|LegacyDcaDataDefinitionBuilder
+     * @return MockObject|LegacyDcaDataDefinitionBuilder
      */
     public function mockBuilderWithDca($dca, $eventName, $dispatcher)
     {
@@ -69,14 +70,15 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
             ->method('loadDca')
             ->will(
                 self::returnCallback(
-                function () use ($mock, $dca, $class) {
-                    $reflection = new \ReflectionProperty($class, 'dca');
-                    $reflection->setAccessible(true);
-                    $reflection->setValue($mock, $dca);
+                    function () use ($mock, $dca, $class) {
+                        $reflection = new \ReflectionProperty($class, 'dca');
+                        $reflection->setAccessible(true);
+                        $reflection->setValue($mock, $dca);
 
-                    return true;
-                }
-            ));
+                        return true;
+                    }
+                )
+            );
 
         $reflection = new \ReflectionProperty($class, 'eventName');
         $reflection->setAccessible(true);

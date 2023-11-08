@@ -25,10 +25,12 @@ namespace ContaoCommunityAlliance\DcGeneral\View\ActionHandler;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use LogicException;
 
 /**
  * Abstract base class for handling dc-general action events.
@@ -40,9 +42,9 @@ abstract class AbstractHandler
     /**
      * The event.
      *
-     * @var ActionEvent
+     * @var ActionEvent|null
      */
-    private $event;
+    private ?ActionEvent $event = null;
 
     /**
      * Method to buffer the event and then process it.
@@ -65,6 +67,9 @@ abstract class AbstractHandler
      */
     protected function getEvent()
     {
+        if (null === $this->event) {
+            throw new LogicException('No event set.');
+        }
         return $this->event;
     }
 
@@ -89,7 +94,7 @@ abstract class AbstractHandler
      */
     protected function guardValidEnvironment(ModelIdInterface $modelId)
     {
-        if ($this->getEnvironment()->getDataDefinition()->getName() !== $modelId->getDataProviderName()) {
+        if ($this->getDataDefinition()->getName() !== $modelId->getDataProviderName()) {
             throw new DcGeneralRuntimeException(
                 \sprintf(
                     'Not able to perform action. Environment is not prepared for model "%s"',
@@ -110,7 +115,7 @@ abstract class AbstractHandler
      */
     protected function guardNotEditOnly(ModelIdInterface $modelId)
     {
-        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($this->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             throw new EditOnlyModeException($modelId->getDataProviderName());
         }
     }
@@ -124,7 +129,7 @@ abstract class AbstractHandler
      */
     protected function isEditOnlyResponse()
     {
-        if ($this->getEnvironment()->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($this->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
             $this->callAction('edit');
 
             return true;
@@ -143,10 +148,15 @@ abstract class AbstractHandler
      */
     protected function callAction($actionName, $arguments = [])
     {
+        $environment = $this->getEnvironment();
         // Keep the event as we might get called recursively.
-        $keepEvent = $this->event;
-        $event     = new ActionEvent($this->getEnvironment(), new Action($actionName, $arguments));
-        $this->getEnvironment()->getEventDispatcher()->dispatch($event, DcGeneralEvents::ACTION);
+        $keepEvent  = $this->event;
+        $event      = new ActionEvent($environment, new Action($actionName, $arguments));
+        $dispatcher = $environment->getEventDispatcher();
+        if (null === $dispatcher) {
+            throw new LogicException('No event dispatcher found in environment.');
+        }
+        $dispatcher->dispatch($event, DcGeneralEvents::ACTION);
         // Restore the event as we might get called recursively.
         $this->event = $keepEvent;
 
@@ -159,4 +169,13 @@ abstract class AbstractHandler
      * @return void
      */
     abstract public function process();
+
+    private function getDataDefinition(): ContainerInterface
+    {
+        if (null === $definition = $this->getEnvironment()->getDataDefinition()) {
+            throw new LogicException('No data definition found in environment.');
+        }
+
+        return $definition;
+    }
 }

@@ -28,15 +28,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPr
  * Class ModelOptionsCallbackListener.
  *
  * Handle the options_callback for a model in edit view.
+ *
+ * @extends AbstractReturningPropertyCallbackListener<GetPropertyOptionsEvent>
  */
 class ModelOptionsCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetPropertyOptionsEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -46,12 +44,7 @@ class ModelOptionsCallbackListener extends AbstractReturningPropertyCallbackList
     }
 
     /**
-     * Update the options list in the event.
-     *
-     * @param GetPropertyOptionsEvent $event The event being emitted.
-     * @param array                   $value The options array.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -23,20 +24,29 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\AbstractWidget;
+use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\AbstractPropertyOverrideEditAllHandler;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * The class handle the "overrideAll" commands.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 {
@@ -56,14 +66,16 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     /**
      * {@inheritDoc}
      */
-    public function handleEvent(ActionEvent $event)
+    public function handleEvent(ActionEvent $event): void
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
-            || ('overrideAll' !== $event->getAction()->getName())) {
+        if (
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
+            || ('overrideAll' !== $event->getAction()->getName())
+        ) {
             return;
         }
 
-        if (false !== ($response = $this->process($event->getAction(), $event->getEnvironment()))) {
+        if ('' !== ($response = $this->process($event->getAction(), $event->getEnvironment()))) {
             $event->setResponse($response);
             $event->stopPropagation();
         }
@@ -81,9 +93,14 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function process(Action $action, EnvironmentInterface $environment)
     {
-        $inputProvider   = $environment->getInputProvider();
-        $translator      = $environment->getTranslator();
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
 
         $renderInformation = new \ArrayObject();
 
@@ -107,6 +124,9 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             $this->handleSubmit($action, $environment);
         }
 
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         return $this->renderTemplate(
             $action,
             [
@@ -114,11 +134,11 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
                     $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected') . ': ' .
                     $translator->translate('MSC.all.0'),
                 'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
-                'table'       => $environment->getDataDefinition()->getName(),
+                'table'       => $definition->getName(),
                 'error'       => $renderInformation->offsetGet('error'),
                 'breadcrumb'  => $this->renderBreadcrumb($environment),
                 'editButtons' => $this->getEditButtons($action, $environment),
-                'noReload'    => (bool) $editInformation->hasAnyModelError()
+                'noReload'    => $editInformation->hasAnyModelError()
             ]
         );
     }
@@ -133,6 +153,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * @return void
      *
      * @deprecated Deprecated since 2.1 and where remove in 3.0.
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function handleInvalidPropertyValueBag(
         PropertyValueBagInterface $propertyValueBag = null,
@@ -143,13 +165,12 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         @\trigger_error('This function where remove in 3.0. ' . __CLASS__  . '::' . __FUNCTION__, E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
-        if ((null === $propertyValueBag)
-            || (null === $model)
-        ) {
+        if ((null === $propertyValueBag) || (null === $model)) {
             return;
         }
 
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         foreach (\array_keys($propertyValueBag->getArrayCopy()) as $propertyName) {
             $allErrors    = $propertyValueBag->getPropertyValueErrors($propertyName);
@@ -170,7 +191,11 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             $event = new EncodePropertyValueFromWidgetEvent($environment, $model, $eventPropertyValueBag);
             $event->setProperty($propertyName)
                 ->setValue($inputProvider->getValue($propertyName, true));
-            $environment->getEventDispatcher()->dispatch($event, EncodePropertyValueFromWidgetEvent::NAME);
+
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch($event, EncodePropertyValueFromWidgetEvent::NAME);
 
             $propertyValueBag->setPropertyValue($propertyName, $event->getValue());
 
@@ -237,17 +262,17 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     /**
      * Render the field sets.
      *
-     * @param Action                         $action            The action.
-     * @param \ArrayObject                   $renderInformation The render information.
-     * @param PropertyValueBagInterface|null $propertyValues    The property values.
-     * @param EnvironmentInterface           $environment       The environment.
+     * @param Action                    $action            The action.
+     * @param \ArrayObject              $renderInformation The render information.
+     * @param PropertyValueBagInterface $propertyValues    The property values.
+     * @param EnvironmentInterface      $environment       The environment.
      *
      * @return void
      */
     private function renderFieldSets(
         Action $action,
         \ArrayObject $renderInformation,
-        PropertyValueBagInterface $propertyValues = null,
+        PropertyValueBagInterface $propertyValues,
         EnvironmentInterface $environment
     ) {
         $properties = $this->getOverrideProperties($action, $environment);
@@ -258,7 +283,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $errors   = [];
         $fieldSet = ['palette' => '', 'class' => 'tl_box'];
 
-        $propertyNames = $propertyValues ? \array_keys($propertyValues->getArrayCopy()) : \array_keys($properties);
+        $propertyNames = \array_keys($propertyValues->getArrayCopy());
 
         foreach ($propertyNames as $propertyName) {
             $errors = $this->getPropertyValueErrors($propertyValues, $propertyName, $errors);
@@ -272,12 +297,13 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             $this->setDefaultValue($model, $propertyValues, $propertyName, $environment);
 
             $widget = $widgetManager->getWidget($property->getName(), $propertyValues);
+            assert($widget instanceof Widget);
 
             $widgetModel = $this->getModelFromWidget($widget);
 
             if (!$this->ensurePropertyVisibleInModel($action, $property->getName(), $widgetModel, $environment)) {
                 $fieldSet['palette'] .=
-                    $this->injectSelectParentPropertyInformation($action, $property, $widgetModel, $environment);
+                    $this->injectSelectParentPropertyInformation($action, $property, $widgetModel, $environment) ?? '';
 
                 continue;
             }
@@ -297,13 +323,16 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
                 $widgetModel,
                 $propertyValues,
                 $environment
-            );
+            ) ?? '';
         }
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
         if (empty($fieldSet['palette'])) {
             $fieldSet['palette'] = \sprintf(
                 '<p>&nbsp;</p><strong>%s</strong><p>&nbsp;</p>',
-                $environment->getTranslator()->translate('MSC.no_properties_available')
+                $translator->translate('MSC.no_properties_available')
             );
         }
 
@@ -318,13 +347,16 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      *
      * @return ModelInterface
      */
-    private function getModelFromWidget(Widget $widget)
+    private function getModelFromWidget(Widget $widget): ModelInterface
     {
-        if ($widget->dataContainer) {
+        if ($widget->dataContainer instanceof DcCompat) {
             return $widget->dataContainer->getModel();
         }
+        if ($widget instanceof AbstractWidget) {
+            return $widget->getModel();
+        }
 
-        return $widget->getModel();
+        throw new \InvalidArgumentException('Expected an instance of ' . AbstractWidget::class);
     }
 
     /**
@@ -336,10 +368,13 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      *
      * @return array
      */
-    private function getPropertyValueErrors(PropertyValueBagInterface $propertyValueBag, $propertyName, array $errors)
-    {
-        if ((null !== $propertyValueBag)
-            && $propertyValueBag->hasPropertyValue($propertyName)
+    private function getPropertyValueErrors(
+        PropertyValueBagInterface $propertyValueBag,
+        string $propertyName,
+        array $errors
+    ): array {
+        if (
+            $propertyValueBag->hasPropertyValue($propertyName)
             && $propertyValueBag->isPropertyValueInvalid($propertyName)
         ) {
             $errors = \array_merge(
@@ -364,10 +399,13 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     private function setDefaultValue(
         ModelInterface $model,
         PropertyValueBagInterface $propertyValueBag,
-        $propertyName,
+        string $propertyName,
         EnvironmentInterface $environment
-    ) {
-        $propertiesDefinition = $environment->getDataDefinition()->getPropertiesDefinition();
+    ): void {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $propertiesDefinition = $definition->getPropertiesDefinition();
 
         // If in the intersect model the value available, then set it as default.
         if ($modelValue = $model->getProperty($propertyName)) {
@@ -376,8 +414,10 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             return;
         }
 
-        if ($propertiesDefinition->hasProperty($propertyName)
-            && !$environment->getInputProvider()->hasValue($propertyName)
+        if (
+            $propertiesDefinition->hasProperty($propertyName)
+            && null !== ($inputProvider = $environment->getInputProvider())
+            && !$inputProvider->hasValue($propertyName)
         ) {
             $propertyValueBag->setPropertyValue(
                 $propertyName,

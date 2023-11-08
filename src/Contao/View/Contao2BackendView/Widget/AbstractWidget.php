@@ -30,6 +30,10 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  * Abstract widget class as base for dc general backend widgets.
  *
  * This widget is only prepared to run in DcCompat mode!
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
+ *
+ * @property ?DcCompat $objDca
  */
 abstract class AbstractWidget extends Widget
 {
@@ -50,9 +54,9 @@ abstract class AbstractWidget extends Widget
     /**
      * The data Container.
      *
-     * @var DcCompat
+     * @var DcCompat|null
      */
-    protected $dataContainer;
+    protected $dataContainer = null;
 
     /**
      * Create a new instance.
@@ -64,6 +68,7 @@ abstract class AbstractWidget extends Widget
     {
         parent::__construct($attributes);
 
+        /** @psalm-suppress PossiblyNullPropertyAssignmentValue - not defined as nullable in contao widget class */
         $this->dataContainer = $dataContainer ?: $this->objDca;
     }
 
@@ -74,6 +79,7 @@ abstract class AbstractWidget extends Widget
      */
     public function getEnvironment()
     {
+        assert($this->dataContainer instanceof DcCompat);
         return $this->dataContainer->getEnvironment();
     }
 
@@ -84,6 +90,7 @@ abstract class AbstractWidget extends Widget
      */
     public function getModel()
     {
+        assert($this->dataContainer instanceof DcCompat);
         return $this->dataContainer->getModel();
     }
 }

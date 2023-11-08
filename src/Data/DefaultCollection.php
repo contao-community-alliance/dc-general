@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,14 +18,28 @@
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
+use ArrayIterator;
+use Contao\ArrayUtil;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Traversable;
+
+use function array_key_exists;
+use function array_pop;
+use function array_reverse;
+use function array_shift;
+use function array_unshift;
+use function array_values;
+use function count;
+use function is_object;
+use function uasort;
 
 /**
  * Class DefaultCollection.
@@ -34,22 +48,22 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * Internally it simply holds an array.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) - There is no elegant way to reduce this class more without
+ *                                                     reducing the interface.
  */
 class DefaultCollection implements CollectionInterface
 {
     /**
      * The list of contained models.
      *
-     * @var ModelInterface[]
+     * @var array<int, ModelInterface>
      */
-    protected $arrCollection = [];
+    protected array $arrCollection = [];
 
     /**
-     * Get length of this collection.
-     *
-     * @return int
+     * {@inheritDoc}
      */
-    public function length()
+    public function length(): int
     {
         return \count($this->arrCollection);
     }
@@ -57,7 +71,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
         return $this->length();
     }
@@ -65,7 +79,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return \array_key_exists($offset, $this->arrCollection);
     }
@@ -73,7 +87,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?ModelInterface
     {
         return $this->get($offset);
     }
@@ -81,27 +95,24 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
+        assert(\is_int($offset));
         $this->arrCollection[$offset] = $value;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->arrCollection[$offset]);
     }
 
     /**
-     * Get the model at a specific index.
-     *
-     * @param int $index The index of the model to retrieve.
-     *
-     * @return ModelInterface
+     * {@inheritDoc}
      */
-    public function get($index)
+    public function get($index): ?ModelInterface
     {
         if (\array_key_exists($index, $this->arrCollection)) {
             return $this->arrCollection[$index];
@@ -111,31 +122,17 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Append a model to the end of this collection.
-     *
-     * @param ModelInterface $model The model to append to the collection.
-     *
-     * @return void
-     *
-     * @throws DcGeneralRuntimeException When no model has been passed.
+     * {@inheritDoc}
      */
-    public function push(ModelInterface $model)
+    public function push(ModelInterface $model): void
     {
-        if (!$model) {
-            throw new DcGeneralRuntimeException('push() - no model passed', 1);
-        }
-
         $this->arrCollection[] = $model;
     }
 
     /**
-     * Remove the model at the end of the collection and return it.
-     *
-     * If the collection is empty, null will be returned.
-     *
-     * @return ModelInterface
+     * {@inheritDoc}
      */
-    public function pop()
+    public function pop(): ?ModelInterface
     {
         if (\count($this->arrCollection)) {
             return \array_pop($this->arrCollection);
@@ -145,13 +142,9 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Insert a model at the beginning of the collection.
-     *
-     * @param ModelInterface $model The model to insert into the collection.
-     *
-     * @return void
+     * {@inheritDoc}
      */
-    public function unshift(ModelInterface $model)
+    public function unshift(ModelInterface $model): void
     {
         if ($model->hasProperties()) {
             \array_unshift($this->arrCollection, $model);
@@ -159,13 +152,9 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Remove the model from the beginning of the collection and return it.
-     *
-     * If the collection is empty, null will be returned.
-     *
-     * @return ModelInterface
+     * {@inheritDoc}
      */
-    public function shift()
+    public function shift(): ?ModelInterface
     {
         if (\count($this->arrCollection)) {
             return \array_shift($this->arrCollection);
@@ -175,53 +164,37 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Insert a record at the specific position.
-     *
-     * Move all records at position >= $index one index up.
-     * If $index is out of bounds, just add at the end (does not fill with empty records!).
-     *
-     * @param int            $index The index where the model shall be placed.
-     * @param ModelInterface $model The model to insert.
-     *
-     * @return void
+     * {@inheritDoc}
      */
-    public function insert($index, ModelInterface $model)
+    public function insert($index, ModelInterface $model): void
     {
         if ($model->hasProperties()) {
-            \array_insert($this->arrCollection, $index, [$model]);
+            ArrayUtil::arrayInsert($this->arrCollection, $index, [$model]);
         }
     }
 
     /**
-     * Remove the given index or model from the collection and renew the index.
-     *
-     * ATTENTION: Don't use key to unset in foreach because of the new index.
-     *
-     * @param mixed $indexValue The index (integer) or InterfaceGeneralModel instance to remove.
-     *
-     * @return void
+     * {@inheritDoc}
      */
-    public function remove($indexValue)
+    public function remove($mixedValue): void
     {
-        if (\is_object($indexValue)) {
+        if (\is_object($mixedValue)) {
             foreach ($this->arrCollection as $collectionIndex => $model) {
-                if ($indexValue === $model) {
+                if ($mixedValue === $model) {
                     unset($this->arrCollection[$collectionIndex]);
                 }
             }
         } else {
-            unset($this->arrCollection[$indexValue]);
+            unset($this->arrCollection[$mixedValue]);
         }
 
         $this->arrCollection = \array_values($this->arrCollection);
     }
 
     /**
-     * Retrieve the ids of the models.
-     *
-     * @return array
+     * {@inheritDoc}
      */
-    public function getModelIds()
+    public function getModelIds(): array
     {
         $ids = [];
         foreach ($this as $model) {
@@ -233,13 +206,9 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Remove the model with the given id from the collection.
-     *
-     * @param mixed $modelId The id of the model to remove.
-     *
-     * @return void
+     * {@inheritDoc}
      */
-    public function removeById($modelId)
+    public function removeById($modelId): void
     {
         foreach ($this->arrCollection as $index => $model) {
             if ($modelId === $model->getId()) {
@@ -249,13 +218,9 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Check whether the given model is contained in the collection.
-     *
-     * @param ModelInterface $model The model to search.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
-    public function contains($model)
+    public function contains($model): bool
     {
         /** @var ModelInterface $localModel */
         foreach ($this as $localModel) {
@@ -268,13 +233,9 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Check whether the given model is contained in the collection.
-     *
-     * @param mixed $modelId The model id to search.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
-    public function containsById($modelId)
+    public function containsById($modelId): bool
     {
         /** @var ModelInterface $localModel */
         foreach ($this as $localModel) {
@@ -287,20 +248,17 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Intersect the given collection with this collection and return the result.
-     *
-     * @param CollectionInterface $collection The collection to intersect.
-     *
-     * @return CollectionInterface
+     * {@inheritDoc}
      */
-    public function intersect($collection)
+    public function intersect($collection): CollectionInterface
     {
         $intersection = new DefaultCollection();
         /** @var ModelInterface $localModel */
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                if (
+                    ($localModel->getProviderName() === $otherModel->getProviderName())
                     && ($localModel->getId() === $otherModel->getId())
                 ) {
                     $intersection->push($localModel);
@@ -312,13 +270,9 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Compute the union of this collection and the given collection.
-     *
-     * @param CollectionInterface $collection The collection to intersect.
-     *
-     * @return CollectionInterface
+     * {@inheritDoc}
      */
-    public function union($collection)
+    public function union($collection): CollectionInterface
     {
         $union = clone $this;
 
@@ -331,21 +285,17 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Computes the difference of the collection.
-     *
-     * @param CollectionInterface $collection The collection to compute the difference for.
-     *
-     * @return CollectionInterface The collection containing all the entries from this collection that are not present
-     *                             in the given collection.
+     * {@inheritDoc}
      */
-    public function diff($collection)
+    public function diff($collection): CollectionInterface
     {
         $diff = new DefaultCollection();
         /** @var ModelInterface $localModel */
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                if (
+                    ($localModel->getProviderName() === $otherModel->getProviderName())
                     && ($localModel->getId() === $otherModel->getId())
                 ) {
                     continue;
@@ -358,19 +308,16 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Check if the given collection is an subset of the given collection.
-     *
-     * @param CollectionInterface $collection The collection to check.
-     *
-     * @return boolean
+     * {@inheritDoc}
      */
-    public function isSubsetOf($collection)
+    public function isSubsetOf($collection): bool
     {
         /** @var ModelInterface $localModel */
         foreach ($this as $localModel) {
             /** @var ModelInterface $otherModel */
             foreach ($collection as $otherModel) {
-                if (($localModel->getProviderName() === $otherModel->getProviderName())
+                if (
+                    ($localModel->getProviderName() === $otherModel->getProviderName())
                     && ($localModel->getId() === $otherModel->getId())
                 ) {
                     continue;
@@ -382,43 +329,37 @@ class DefaultCollection implements CollectionInterface
     }
 
     /**
-     * Make a reverse sorted collection of this collection.
-     *
-     * @return CollectionInterface
+     * {@inheritDoc}
      */
-    public function reverse()
+    public function reverse(): CollectionInterface
     {
         $newCollection = clone $this;
 
-        $newCollection->arrCollection = \array_reverse($this->arrCollection);
+        $newCollection->arrCollection = array_reverse($this->arrCollection);
 
         return $newCollection;
     }
 
     /**
-     * Sort the records with the given callback and return the new sorted collection.
-     *
-     * @param callback $callback The callback function to use.
-     *
-     * @return CollectionInterface
+     * {@inheritDoc}
      */
-    public function sort($callback)
+    public function sort($callback): CollectionInterface
     {
         $newCollection = clone $this;
-        \uasort($newCollection->arrCollection, $callback);
+        uasort($newCollection->arrCollection, $callback);
 
-        $newCollection->arrCollection = \array_values($newCollection->arrCollection);
+        $newCollection->arrCollection = array_values($newCollection->arrCollection);
 
         return $newCollection;
     }
 
     /**
-     * Get a iterator for this collection.
+     * {@inheritDoc}
      *
-     * @return \Traversable
+     * @return Traversable<int, ModelInterface>
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
-        return new \ArrayIterator($this->arrCollection);
+        return new ArrayIterator($this->arrCollection);
     }
 }

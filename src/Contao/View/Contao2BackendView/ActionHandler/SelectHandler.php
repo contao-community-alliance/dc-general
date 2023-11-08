@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,16 +16,18 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use ArrayObject;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
@@ -33,20 +35,45 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\PrepareMultipleModelsActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+use function array_filter;
+use function array_intersect;
+use function array_intersect_key;
+use function array_map;
+use function array_unique;
+use function assert;
+use function count;
+use function in_array;
+use function is_array;
+use function is_string;
+use function method_exists;
+use function serialize;
+use function sprintf;
+use function ucfirst;
+use function unserialize;
 
 /**
  * Class SelectController.
  *
  * This class handles multiple actions.
  *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class SelectHandler
@@ -73,7 +100,7 @@ class SelectHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
@@ -83,12 +110,12 @@ class SelectHandler
             return;
         }
 
-        if (false !== ($response = $this->process($action, $event->getEnvironment()))) {
+        if (null !== ($response = $this->process($action, $event->getEnvironment()))) {
             $event->setResponse($response);
 
             // Stop the event here.
             // Don´t allow any listener for manipulation here.
-            // Use the sub events their are called.
+            // Use the sub events there are called.
             $event->stopPropagation();
         }
     }
@@ -99,16 +126,16 @@ class SelectHandler
      * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return string
+     * @return string|null
      */
     private function process(Action $action, EnvironmentInterface $environment)
     {
-        $actionMethod = \sprintf(
+        $actionMethod = sprintf(
             'handle%sAllAction',
-            \ucfirst($this->getSubmitAction($environment, $this->regardSelectMode($environment)))
+            ucfirst($this->getSubmitAction($environment, $this->regardSelectMode($environment)))
         );
 
-        if (false !== ($response = $this->{$actionMethod}($environment, $action))) {
+        if (null !== ($response = $this->{$actionMethod}($environment, $action))) {
             return $response;
         }
 
@@ -125,11 +152,15 @@ class SelectHandler
      */
     private function getSubmitAction(EnvironmentInterface $environment, $regardSelectMode = false)
     {
-        if (!$regardSelectMode
-            && $environment->getInputProvider()->hasParameter('select')
-            && !$environment->getInputProvider()->hasValue('properties')
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if (
+            !$regardSelectMode
+            && $inputProvider->hasParameter('select')
+            && !$inputProvider->hasValue('properties')
         ) {
-            return 'select' . \ucfirst($environment->getInputProvider()->getParameter('select'));
+            return 'select' . ucfirst($inputProvider->getParameter('select'));
         }
 
         if (null !== ($action = $this->determineAction($environment))) {
@@ -137,11 +168,11 @@ class SelectHandler
         }
 
         if ($regardSelectMode) {
-            return $environment->getInputProvider()->getParameter('mode') ?: null;
+            return $inputProvider->getParameter('mode') ?: '';
         }
 
-        return $environment->getInputProvider()->getParameter('select') ?
-            'select' . \ucfirst($environment->getInputProvider()->getParameter('select')) : null;
+        return $inputProvider->getParameter('select') ?
+            'select' . ucfirst($inputProvider->getParameter('select')) : '';
     }
 
     /**
@@ -153,12 +184,16 @@ class SelectHandler
      */
     private function determineAction(EnvironmentInterface $environment)
     {
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         foreach (['delete', 'cut', 'copy', 'override', 'edit'] as $action) {
-            if ($environment->getInputProvider()->hasValue($action)
-                || $environment->getInputProvider()->hasValue($action . '_save')
-                || $environment->getInputProvider()->hasValue($action . '_saveNback')
+            if (
+                $inputProvider->hasValue($action)
+                || $inputProvider->hasValue($action . '_save')
+                || $inputProvider->hasValue($action . '_saveNback')
             ) {
-                $environment->getInputProvider()->setParameter('mode', $action);
+                $inputProvider->setParameter('mode', $action);
 
                 return $action;
             }
@@ -177,9 +212,10 @@ class SelectHandler
     private function regardSelectMode(EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         $regardSelectMode = false;
-        \array_map(
+        array_map(
             function ($value) use ($inputProvider, &$regardSelectMode) {
                 if (!$inputProvider->hasValue($value)) {
                     return false;
@@ -191,7 +227,8 @@ class SelectHandler
             ['edit_save', 'edit_saveNback', 'override_save', 'override_saveNback', 'delete', 'copy', 'cut']
         );
 
-        if (('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
+        if (
+            ('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
             && ('edit' === $inputProvider->getParameter('select'))
         ) {
             return true;
@@ -207,28 +244,31 @@ class SelectHandler
      * @param Action               $action       The dcg action.
      * @param string               $submitAction The submit action name.
      *
-     * @return ModelId[]
+     * @return list<ModelIdInterface>
      */
-    private function getModelIds(EnvironmentInterface $environment, Action $action, $submitAction)
+    private function getModelIds(EnvironmentInterface $environment, Action $action, string $submitAction): array
     {
-        $valueKey = \in_array($submitAction, ['edit', 'override']) ? 'properties' : 'models';
-        $modelIds = (array) $environment->getInputProvider()->getValue($valueKey);
+        $valueKey = in_array($submitAction, ['edit', 'override']) ? 'properties' : 'models';
 
-        if (!empty($modelIds)) {
-            $modelIds = \array_map(
-                function ($modelId) {
-                    return ModelId::fromSerialized($modelId);
-                },
-                $modelIds
-            );
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
-            $event = new PrepareMultipleModelsActionEvent($environment, $action, $modelIds, $submitAction);
-            $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $modelIds = array_values((array) $inputProvider->getValue($valueKey));
 
-            $modelIds = $event->getModelIds();
+        if (empty($modelIds)) {
+            return [];
         }
+        $modelIds = array_map(
+            static fn (string $modelId): ModelIdInterface => ModelId::fromSerialized($modelId),
+            $modelIds
+        );
 
-        return $modelIds;
+        $event = new PrepareMultipleModelsActionEvent($environment, $action, $modelIds, $submitAction);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+        $dispatcher->dispatch($event, $event::NAME);
+
+        return $event->getModelIds();
     }
 
     /**
@@ -247,11 +287,7 @@ class SelectHandler
         $this->clearClipboard($environment);
         $this->handleGlobalCommands($environment);
 
-        if ($response = $this->callAction($environment, 'selectModelAll')) {
-            return $response;
-        }
-
-        return null;
+        return $this->callAction($environment, 'selectModelAll');
     }
 
     /**
@@ -278,11 +314,7 @@ class SelectHandler
         $this->setIntersectProperties($collection, $environment);
         $this->setIntersectValues($collection, $environment);
 
-        if ($response = $this->callAction($environment, 'selectPropertyAll')) {
-            return $response;
-        }
-
-        return null;
+        return $this->callAction($environment, 'selectPropertyAll');
     }
 
     /**
@@ -301,6 +333,8 @@ class SelectHandler
         $this->handleGlobalCommands($environment);
 
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         foreach ($this->getModelIds($environment, $action, $this->getSubmitAction($environment)) as $modelId) {
             $inputProvider->setParameter('id', $modelId->getSerialized());
 
@@ -327,6 +361,8 @@ class SelectHandler
     private function handleCutAllAction(EnvironmentInterface $environment, Action $action)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         foreach ($this->getModelIds($environment, $action, $this->getSubmitAction($environment)) as $modelId) {
             $inputProvider->setParameter('source', $modelId->getSerialized());
 
@@ -353,6 +389,8 @@ class SelectHandler
     private function handleCopyAllAction(EnvironmentInterface $environment, Action $action)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         foreach ($this->getModelIds($environment, $action, $this->getSubmitAction($environment)) as $modelId) {
             $inputProvider->setParameter('source', $modelId->getSerialized());
 
@@ -372,7 +410,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return string
+     * @return string|null
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
@@ -396,7 +434,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return string
+     * @return string|null
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
@@ -424,11 +462,17 @@ class SelectHandler
     private function handleGlobalCommands(EnvironmentInterface $environment)
     {
         $dataDefinition = $environment->getDataDefinition();
-        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $backendView = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
+        $globalCommands = $backendView->getGlobalCommands();
+        assert($globalCommands instanceof CommandCollectionInterface);
 
         $backButton = null;
-        if ($backendView->getGlobalCommands()->hasCommandNamed('back_button')) {
-            $backButton = $backendView->getGlobalCommands()->getCommandNamed('back_button');
+        if ($globalCommands->hasCommandNamed('back_button')) {
+            $backButton = $globalCommands->getCommandNamed('back_button');
         }
 
         if (!$backButton) {
@@ -437,7 +481,7 @@ class SelectHandler
 
         $parametersBackButton = $backButton->getParameters();
 
-        if (\in_array($this->getSelectAction($environment), ['properties', 'edit'])) {
+        if (in_array($this->getSelectAction($environment), ['properties', 'edit'])) {
             $parametersBackButton->offsetSet('act', 'select');
             $parametersBackButton->offsetSet(
                 'select',
@@ -460,8 +504,8 @@ class SelectHandler
             ->setName('close_all_button')
             ->setLabel('MSC.closeAll.0')
             ->setDescription('MSC.closeAll.1')
-            ->setParameters(new \ArrayObject())
-            ->setExtra(new \ArrayObject($closeExtra))
+            ->setParameters(new ArrayObject())
+            ->setExtra(new ArrayObject($closeExtra))
             ->setDisabled(false);
     }
 
@@ -474,7 +518,10 @@ class SelectHandler
      */
     private function getSelectAction(EnvironmentInterface $environment)
     {
-        return $environment->getInputProvider()->getParameter('select');
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        return $inputProvider->getParameter('select');
     }
 
     /**
@@ -486,14 +533,21 @@ class SelectHandler
      */
     private function getReferrerUrl(EnvironmentInterface $environment)
     {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $parentDefinition = $environment->getParentDataDefinition();
         $event = new GetReferrerEvent(
             true,
-            (null !== $environment->getParentDataDefinition())
-                ? $environment->getParentDataDefinition()->getName()
-                : $environment->getDataDefinition()->getName()
+            (null !== $parentDefinition)
+                ? $parentDefinition->getName()
+                : $definition->getName()
         );
 
-        $environment->getEventDispatcher()->dispatch($event, ContaoEvents::SYSTEM_GET_REFERRER);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, ContaoEvents::SYSTEM_GET_REFERRER);
 
         return $event->getReferrerUrl();
     }
@@ -507,20 +561,29 @@ class SelectHandler
      */
     private function clearClipboard(EnvironmentInterface $environment)
     {
-        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-        if ($basicDefinition->getParentDataProvider()) {
-            $filter->andParentIsFromProvider($basicDefinition->getParentDataProvider());
+
+        $dataProvider = $basicDefinition->getDataProvider();
+        assert(is_string($dataProvider));
+
+        $filter->andModelIsFromProvider($dataProvider);
+        if (null !== ($parentProvider = $basicDefinition->getParentDataProvider())) {
+            $filter->andParentIsFromProvider($parentProvider);
         } else {
             $filter->andHasNoParent();
         }
 
         $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
 
         $items = $clipboard->fetch($filter);
-        if (\count($items) < 1) {
+        if (count($items) < 1) {
             return;
         }
 
@@ -538,19 +601,25 @@ class SelectHandler
      */
     private function getSelectCollection(EnvironmentInterface $environment)
     {
-        $sessionStorage = $environment->getSessionStorage();
         $dataDefinition = $environment->getDataDefinition();
-        $dataProvider   = $environment->getDataProvider();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
         $session        =
             $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
         $modelIds = [];
-        foreach ($session['models'] as $modelId) {
+        foreach (($session['models'] ?? []) as $modelId) {
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
         }
 
-        $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
-        return $dataProvider->fetchAll(
+        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 [
                     [
@@ -561,6 +630,8 @@ class SelectHandler
                 ]
             )
         );
+        assert($collection instanceof CollectionInterface);
+        return $collection;
     }
 
     /**
@@ -573,8 +644,11 @@ class SelectHandler
      */
     private function setIntersectProperties(CollectionInterface $collection, EnvironmentInterface $environment)
     {
-        $sessionStorage = $environment->getSessionStorage();
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         $session =
             $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
@@ -593,12 +667,15 @@ class SelectHandler
      */
     private function setIntersectValues(CollectionInterface $collection, EnvironmentInterface $environment)
     {
-        $sessionStorage = $environment->getSessionStorage();
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
-        if (!$session['intersectProperties'] || !\count($session['intersectProperties'])) {
+        if (!$session['intersectProperties'] || !count($session['intersectProperties'])) {
             return;
         }
 
@@ -616,7 +693,10 @@ class SelectHandler
      */
     private function collectIntersectModelProperties(CollectionInterface $collection, EnvironmentInterface $environment)
     {
-        $palettesDefinition = $environment->getDataDefinition()->getPalettesDefinition();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $palettesDefinition = $definition->getPalettesDefinition();
 
         $properties = [];
         foreach ($collection->getIterator() as $model) {
@@ -632,7 +712,13 @@ class SelectHandler
             }
         }
 
-        return \array_filter(
+        // We always have to keep the id in the array.
+        $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $properties[$idProperty] = $collection->count();
+
+        return array_filter(
             $properties,
             function ($count) use ($collection) {
                 return $count === $collection->count();
@@ -650,27 +736,20 @@ class SelectHandler
      */
     private function collectIntersectValues(CollectionInterface $collection, EnvironmentInterface $environment)
     {
-        $sessionStorage = $environment->getSessionStorage();
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
         $values = [];
         foreach ($collection->getIterator() as $model) {
-            $modelValues = \array_intersect_key($model->getPropertiesAsArray(), $session['intersectProperties']);
+            $modelValues = array_intersect_key($model->getPropertiesAsArray(), $session['intersectProperties']);
             foreach ($modelValues as $modelProperty => $modelValue) {
-                if (1 === $collection->count()) {
-                    $values[$modelProperty] = $modelValue;
-
-                    continue;
-                }
-
                 $values[$modelProperty][] = $modelValue;
             }
-        }
-
-        if (1 === $collection->count()) {
-            return $values;
         }
 
         $intersectValues = [];
@@ -695,14 +774,14 @@ class SelectHandler
      */
     private function getVisibleAndEditAbleProperties(PaletteInterface $palette, ModelInterface $model)
     {
-        return \array_intersect(
-            \array_map(
+        return array_intersect(
+            array_map(
                 function (PropertyInterface $property) {
                     return $property->getName();
                 },
                 $palette->getVisibleProperties($model)
             ),
-            \array_map(
+            array_map(
                 function (PropertyInterface $property) {
                     return $property->getName();
                 },
@@ -722,63 +801,63 @@ class SelectHandler
     {
         $serializedValues = false;
         foreach ($values as $key => $value) {
-            if (!\is_array($value)) {
+            if (!is_array($value)) {
                 continue;
             }
 
-            $values[$key] = \serialize($value);
+            $values[$key] = serialize($value);
 
             $serializedValues = true;
         }
 
         if (!$serializedValues) {
-            return 1 === \count(\array_unique($values)) ? $values[0] : null;
+            return 1 === count(array_unique($values)) ? $values[0] : null;
         }
 
-        return 1 === \count(\array_unique($values)) ? \unserialize($values[0], ['allowed_classes' => true]) : null;
+        return 1 === count(array_unique($values)) ? unserialize($values[0], ['allowed_classes' => true]) : null;
     }
 
     /**
      * Handle session data for override/edit all.
      *
-     * @param array                $collection  The collection.
-     * @param string               $index       The session index for the collection.
-     * @param EnvironmentInterface $environment The environment.
+     * @param list<ModelIdInterface> $collection  The collection.
+     * @param 'models'|'properties'  $index       The session index for the collection.
+     * @param EnvironmentInterface   $environment The environment.
      *
-     * @return array The collection.
+     * @return list<
+     *     ModelIdInterface> The collection.
      */
-    private function handleSessionOverrideEditAll(array $collection, $index, EnvironmentInterface $environment)
+    private function handleSessionOverrideEditAll(array $collection, string $index, EnvironmentInterface $environment)
     {
         $dataDefinition = $environment->getDataDefinition();
-        $sessionStorage = $environment->getSessionStorage();
+        assert($dataDefinition instanceof ContainerInterface);
 
-        $session = [];
-        if ($sessionStorage->has($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true))) {
-            $session =
-                $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        /** @var array{
+         *     models: list<string>,
+         *     intersectProperties: array<string, int>,
+         *     intersectValues: array<string, mixed>,
+         *     properties?: list<string>,
+         *     editProperties?: list<string>,
+         * } $session */
+        $session = ['models' => [], 'intersectProperties' => [], 'intersectValues' => []];
+        $sessionKey = $dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true);
+        if ($sessionStorage->has($sessionKey)) {
+            $session = $sessionStorage->get($sessionKey);
         }
 
         // If collection not empty set to the session and return it.
         if (!empty($collection)) {
-            $sessionCollection = \array_map(
-                function ($item) use ($index) {
-                    if (!\in_array($index, ['models', 'properties'])) {
-                        return $item;
-                    }
-
-                    if (!$item instanceof ModelId) {
-                        $item = ModelId::fromSerialized($item);
-                    }
-
-                    return $item->getSerialized();
-                },
+            $sessionCollection = array_map(
+                static fn (ModelIdInterface $item): string => $item->getSerialized(),
                 $collection
             );
 
             $session[$index] = $sessionCollection;
 
-            $sessionStorage
-                ->set($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true), $session);
+            $sessionStorage->set($sessionKey, $session);
 
             return $collection;
         }
@@ -789,17 +868,9 @@ class SelectHandler
         }
 
         // Get the verify collection from the session and return it.
-        $collection = \array_map(
-            function ($item) use ($index) {
-                if (!\in_array($index, ['models', 'properties'])) {
-                    return $item;
-                }
-
-                return ModelId::fromSerialized($item);
-            },
-            $session[$index]
+        return array_map(
+            static fn (string $item): ModelIdInterface => ModelId::fromSerialized($item),
+            array_values($session[$index])
         );
-
-        return $collection;
     }
 }

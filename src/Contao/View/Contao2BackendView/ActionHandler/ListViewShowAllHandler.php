@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,8 +25,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
@@ -46,7 +49,8 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
      */
     protected function determineTemplate($groupingInformation)
     {
-        if (isset($groupingInformation['mode'])
+        if (
+            isset($groupingInformation['mode'])
             && (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingInformation['mode'])
         ) {
             return $this->getTemplate('dcbe_general_grouping');
@@ -64,16 +68,23 @@ class ListViewShowAllHandler extends AbstractListShowAllHandler
      */
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
-        $dataDefinition            = $environment->getDataDefinition();
-        $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-        $groupAndSortingDefinition = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
 
-        $pasteButton = $this->renderPasteTopButton($environment, $groupAndSortingDefinition);
+        $viewDefinition = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($viewDefinition instanceof Contao2BackendViewDefinitionInterface);
+
+        $listingConfig = $viewDefinition->getListingConfig();
+        assert($listingConfig instanceof ListingConfigInterface);
+
+        $groupAndSorting = $listingConfig->getGroupAndSortingDefinition();
+
+        $pasteButton = $this->renderPasteTopButton($environment, $groupAndSorting);
 
         parent::renderTemplate($template, $environment);
         $template
             ->set('header', $pasteButton ? $this->getEmptyHeader() : null)
-            ->set('headerButtons', $this->renderPasteTopButton($environment, $groupAndSortingDefinition));
+            ->set('headerButtons', $this->renderPasteTopButton($environment, $groupAndSorting));
     }
 
     /**

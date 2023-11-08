@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,15 +31,13 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
  * Class ModelLabelCallbackListener.
  *
  * Handle the label_callbacks.
+ *
+ * @extends AbstractReturningCallbackListener<ModelToLabelEvent>
  */
 class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param ModelToLabelEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -51,12 +50,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
     }
 
     /**
-     * Set the value in the event.
-     *
-     * @param ModelToLabelEvent $event The event being emitted.
-     * @param string|array      $value The label text to use.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {
@@ -68,6 +62,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
             if (!\is_array($value)) {
                 return;
             }
+            /** @var list<string> $value */
 
             $this->updateTableMode($event, $value);
         }
@@ -83,11 +78,11 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      * Set the value in the event.
      *
      * @param ModelToLabelEvent $event The event being emitted.
-     * @param string            $value The label text to use.
+     * @param string|null       $value The label text to use.
      *
      * @return void
      */
-    private function updateNonTableMode(ModelToLabelEvent $event, $value)
+    private function updateNonTableMode(ModelToLabelEvent $event, ?string $value): void
     {
         if (null === $value) {
             return;
@@ -101,20 +96,21 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
             $value
         );
 
+        assert(\is_string($value));
         $event->setLabel($value);
     }
 
     /**
      * Set the value in the event.
      *
-     * @param ModelToLabelEvent $event     The event being emitted.
-     * @param array             $arguments The label arguments.
+     * @param ModelToLabelEvent   $event     The event being emitted.
+     * @param string|list<string> $arguments The label arguments.
      *
      * @return void
      */
-    private function updateTableMode(ModelToLabelEvent $event, array $arguments)
+    private function updateTableMode(ModelToLabelEvent $event, array|string $arguments): void
     {
-        if ((null === $arguments) || empty($arguments)) {
+        if (empty($arguments)) {
             return;
         }
 

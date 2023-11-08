@@ -29,12 +29,12 @@ interface ConditionChainInterface extends ConditionInterface
     /**
      * All conditions must match.
      */
-    const AND_CONJUNCTION = 'AND';
+    public const AND_CONJUNCTION = 'AND';
 
     /**
      * Only one condition must match.
      */
-    const OR_CONJUNCTION = 'OR';
+    public const OR_CONJUNCTION = 'OR';
 
     /**
      * Clear the chain.

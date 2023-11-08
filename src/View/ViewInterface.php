@@ -42,7 +42,7 @@ interface ViewInterface
     /**
      * Retrieve the attached environment.
      *
-     * @return EnvironmentInterface
+     * @return EnvironmentInterface|null
      */
     public function getEnvironment();
 

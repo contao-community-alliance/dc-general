@@ -34,7 +34,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * The commands contained within the collection.
      *
-     * @var CommandInterface[]
+     * @var array<string, CommandInterface>
      */
     protected $commands = [];
 
@@ -123,9 +123,9 @@ class CommandCollection implements CommandCollectionInterface
                 $position = \array_search($beforeHash, $hashes);
 
                 $this->commands = \array_merge(
-                    \array_slice($this->commands, 0, $position),
+                    \array_slice($this->commands, 0, (int) $position),
                     [$hash => $command],
-                    \array_slice($this->commands, $position)
+                    \array_slice($this->commands, (int) $position)
                 );
             } else {
                 throw new DcGeneralInvalidArgumentException(

@@ -33,6 +33,8 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
  *
  * This class only populates the environment with the extended information available via the ExtendedDca data definition
  * section.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor - can not make setScopeDeterminator() final without major release.
  */
 class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
@@ -67,12 +69,13 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPo
         $definition = $environment->getDataDefinition();
 
         // If we encounter an extended definition, that one may override.
-        if (!$definition->hasDefinition(ExtendedDca::NAME)) {
+        if (!$definition || !$definition->hasDefinition(ExtendedDca::NAME)) {
             return;
         }
 
         /** @var ExtendedDca $extendedDefinition */
-        if (!($class = $definition->getDefinition(ExtendedDca::NAME)->getViewClass())) {
+        $extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
+        if (!($class = $extendedDefinition->getViewClass())) {
             return;
         }
 
@@ -101,11 +104,13 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPo
         $definition = $environment->getDataDefinition();
 
         // If we encounter an extended definition, that one may override.
-        if (!$definition->hasDefinition(ExtendedDca::NAME)) {
+        if (!$definition || !$definition->hasDefinition(ExtendedDca::NAME)) {
             return;
         }
 
-        if (!($class = $definition->getDefinition(ExtendedDca::NAME)->getControllerClass())) {
+        /** @var ExtendedDca $extendedDefinition */
+        $extendedDefinition = $definition->getDefinition(ExtendedDca::NAME);
+        if (!($class = $extendedDefinition->getControllerClass())) {
             return;
         }
 
@@ -121,7 +126,7 @@ class ExtendedLegacyDcaPopulator extends AbstractEventDrivenBackendEnvironmentPo
      */
     public function populate(EnvironmentInterface $environment)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 

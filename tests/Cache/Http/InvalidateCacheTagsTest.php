@@ -42,6 +42,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  * @covers \ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidateCacheTags
  * @covers \ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent
  * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class InvalidateCacheTagsTest extends TestCase
 {
@@ -168,6 +170,7 @@ class InvalidateCacheTagsTest extends TestCase
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.foo.2'], $actualInvalidTags);
     }
 
+    /** @SuppressWarnings(PHPMD.ExcessiveMethodLength) */
     public function testPurgeHttpCacheWithParentNotHierarchical(): void
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -274,6 +277,7 @@ class InvalidateCacheTagsTest extends TestCase
         self::assertSame(['namespace.foo', 'namespace.foo.1', 'namespace.bar', 'namespace.bar.2'], $actualInvalidTags);
     }
 
+    /** @SuppressWarnings(PHPMD.ExcessiveMethodLength) */
     public function testPurgeHttpCacheWithParentHierarchical(): void
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);

@@ -45,7 +45,8 @@ class RootConditionTest extends TestCase
 
         $condition = new RootCondition();
         $condition
-            ->setFilterArray([
+            ->setFilterArray(
+                [
                     [
                         'value'     => '0',
                         'operation' => '=',
@@ -72,7 +73,8 @@ class RootConditionTest extends TestCase
 
         $condition = new RootCondition();
         $condition
-            ->setFilterArray([
+            ->setFilterArray(
+                [
                     [
                         'value'     => '0',
                         'operation' => '=',

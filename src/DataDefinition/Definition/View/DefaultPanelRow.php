@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -32,7 +33,7 @@ class DefaultPanelRow implements PanelRowInterface
     /**
      * The contained elements.
      *
-     * @var ElementInformationInterface[]
+     * @var list<ElementInformationInterface>
      */
     protected $elements = [];
 
@@ -92,7 +93,7 @@ class DefaultPanelRow implements PanelRowInterface
                     break;
                 }
             }
-        } elseif (\is_numeric($indexOrNameOrInstance)) {
+        } else {
             unset($this->elements[$indexOrNameOrInstance]);
         }
 
@@ -110,18 +111,14 @@ class DefaultPanelRow implements PanelRowInterface
             return \in_array($instanceOrName, $this->elements);
         }
 
-        if (\is_string($instanceOrName)) {
-            foreach ($this as $element) {
-                /** @var ElementInformationInterface $element */
-                if ($instanceOrName === $element->getName()) {
-                    return true;
-                }
+        foreach ($this as $element) {
+            /** @var ElementInformationInterface $element */
+            if ($instanceOrName === $element->getName()) {
+                return true;
             }
-
-            return false;
         }
 
-        throw new DcGeneralInvalidArgumentException('Invalid value for element name given.');
+        return false;
     }
 
     /**
@@ -147,8 +144,7 @@ class DefaultPanelRow implements PanelRowInterface
                     return $element;
                 }
             }
-        } elseif (!\is_numeric($indexOrName)) {
-            throw new DcGeneralInvalidArgumentException('Invalid value for element name given.');
+            throw new DcGeneralInvalidArgumentException('Value out of bounds: ' . $indexOrName . '.');
         }
 
         if (!isset($this->elements[$indexOrName])) {
@@ -161,7 +157,7 @@ class DefaultPanelRow implements PanelRowInterface
     /**
      * {@inheritDoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->elements);
     }

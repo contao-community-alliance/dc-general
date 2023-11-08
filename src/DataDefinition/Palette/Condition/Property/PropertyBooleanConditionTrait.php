@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,25 +11,20 @@
  * This project is provided in good faith and hope to be usable by anyone.
  *
  * @package    contao-community-alliance/dc-general
- * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
- * @author     Tristan Lins <tristan.lins@bit3.de>
- * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
-
 /**
- * Condition checking that a property is visible.
+ * Condition checking that the value of a property is false.
+ *
+ * @require-implements PropertyConditionInterface
  */
-class PropertyVisibleCondition implements PropertyConditionInterface
+trait PropertyBooleanConditionTrait
 {
     /**
      * The property name.
@@ -39,13 +34,22 @@ class PropertyVisibleCondition implements PropertyConditionInterface
     protected $propertyName;
 
     /**
+     * Use strict compare mode.
+     *
+     * @var bool
+     */
+    protected $strict;
+
+    /**
      * Create a new instance.
      *
      * @param string $propertyName The name of the property.
+     * @param bool   $strict       Flag if the comparison shall be strict (type safe).
      */
-    public function __construct($propertyName = '')
+    public function __construct($propertyName, $strict = false)
     {
         $this->propertyName = $propertyName;
+        $this->strict       = $strict;
     }
 
     /**
@@ -53,11 +57,12 @@ class PropertyVisibleCondition implements PropertyConditionInterface
      *
      * @param string $propertyName The property name.
      *
-     * @return PropertyVisibleCondition
+     * @return self
      */
     public function setPropertyName($propertyName)
     {
         $this->propertyName = $propertyName;
+
         return $this;
     }
 
@@ -72,23 +77,29 @@ class PropertyVisibleCondition implements PropertyConditionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Set the flag if the comparison shall be strict (type safe).
+     *
+     * @param boolean $strict The flag.
+     *
+     * @return self
      */
-    public function match(
-        ModelInterface $model = null,
-        PropertyValueBag $input = null,
-        PropertyInterface $property = null,
-        LegendInterface $legend = null
-    ) {
-        if (!$legend) {
-            return false;
-        }
+    public function setStrict($strict)
+    {
+        $this->strict = $strict;
 
-        if (null !== ($palette = $legend->getPalette())) {
-            return $palette->getProperty($this->propertyName)->isVisible($model, $input, $legend);
-        }
+        return $this;
+    }
 
-        return $legend->getProperty($this->propertyName)->isVisible($model, $input, $legend);
+    /**
+     * Retrieve the flag if the comparison shall be strict (type safe).
+     *
+     * @return boolean
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
+     */
+    public function getStrict()
+    {
+        return $this->strict;
     }
 
     /**

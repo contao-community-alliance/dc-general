@@ -35,21 +35,21 @@ class GetPropertyOptionsEvent extends AbstractModelAwareEvent
     /**
      * The name of the property to retrieve the options for.
      *
-     * @var string
+     * @var string|null
      */
-    protected $propertyName;
+    protected $propertyName = null;
 
     /**
      * The options for the properties.
      *
-     * @var array
+     * @var array|null
      */
-    protected $options;
+    protected $options = null;
 
     /**
      * Set the property name to retrieve the options for.
      *
-     * @param string $propertyName The name of the property.
+     * @param string|null $propertyName The name of the property.
      *
      * @return $this
      */
@@ -63,7 +63,7 @@ class GetPropertyOptionsEvent extends AbstractModelAwareEvent
     /**
      * Get the property name to retrieve the options for.
      *
-     * @return string
+     * @return string|null
      */
     public function getPropertyName()
     {
@@ -73,7 +73,7 @@ class GetPropertyOptionsEvent extends AbstractModelAwareEvent
     /**
      * Set the options for the property in the event.
      *
-     * @param array $options The options.
+     * @param array|null $options The options.
      *
      * @return $this
      */
@@ -87,7 +87,7 @@ class GetPropertyOptionsEvent extends AbstractModelAwareEvent
     /**
      * Retrieve the options for the property from the event.
      *
-     * @return array
+     * @return array|null
      */
     public function getOptions()
     {

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -41,80 +42,82 @@ interface EnvironmentInterface
     /**
      * Set the Controller for the current setup.
      *
-     * @param ControllerInterface $objController The controller to use.
+     * @param ControllerInterface $controller The controller to use.
      *
      * @return EnvironmentInterface
      */
-    public function setController($objController);
+    public function setController($controller);
 
     /**
      * Retrieve the Controller from the current setup.
      *
-     * @return ControllerInterface
+     * @return ControllerInterface|null
      */
     public function getController();
 
     /**
      * Set the View for the current setup.
      *
-     * @param ViewInterface $objView The view to use.
+     * @param ViewInterface $view The view to use.
      *
      * @return EnvironmentInterface
      */
-    public function setView($objView);
+    public function setView($view);
 
     /**
      * Retrieve the View from the current setup.
      *
-     * @return ViewInterface
+     * @return ViewInterface|null
      */
     public function getView();
 
     /**
      * Set the data definition for this instance.
      *
-     * @param ContainerInterface $objContainer The data definition container to store.
+     * @param ContainerInterface $dataDefinition The data definition container to store.
      *
      * @return EnvironmentInterface
      */
-    public function setDataDefinition($objContainer);
+    public function setDataDefinition($dataDefinition);
 
     /**
      * Retrieve the data definition for this instance.
      *
-     * @return ContainerInterface
+     * @return ContainerInterface|null
      */
     public function getDataDefinition();
 
     /**
      * Set the data definition of the parent container.
      *
-     * @param ContainerInterface $objContainer The data definition container to store.
+     * @param ContainerInterface $objParentDataDefinition The data definition container to store.
      *
      * @return EnvironmentInterface
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
-    public function setParentDataDefinition($objContainer);
+    public function setParentDataDefinition($objParentDataDefinition);
 
     /**
      * Retrieve the data definition for the parent container. This applies only when in parented mode.
      *
-     * @return ContainerInterface
+     * @return ContainerInterface|null
      */
     public function getParentDataDefinition();
 
     /**
      * Set the data definition of the root container.
      *
-     * @param ContainerInterface $objContainer The data definition container to store.
+     * @param ContainerInterface $rootDataDefinition The data definition container to store.
      *
      * @return EnvironmentInterface
      */
-    public function setRootDataDefinition($objContainer);
+    public function setRootDataDefinition($rootDataDefinition);
 
     /**
      * Retrieve the data definition for the root container. This applies only when in hierarchical mode.
      *
-     * @return ContainerInterface
+     * @return ContainerInterface|null
      */
     public function getRootDataDefinition();
 
@@ -130,23 +133,23 @@ interface EnvironmentInterface
     /**
      * Retrieve the session storage.
      *
-     * @return SessionStorageInterface
+     * @return SessionStorageInterface|null
      */
     public function getSessionStorage();
 
     /**
      * Set the input provider to use.
      *
-     * @param InputProviderInterface $objInputProvider The input provider to use.
+     * @param InputProviderInterface $inputProvider The input provider to use.
      *
      * @return EnvironmentInterface
      */
-    public function setInputProvider($objInputProvider);
+    public function setInputProvider($inputProvider);
 
     /**
      * Retrieve the input provider.
      *
-     * @return InputProviderInterface
+     * @return InputProviderInterface|null
      */
     public function getInputProvider();
 
@@ -162,18 +165,18 @@ interface EnvironmentInterface
     /**
      * Retrieve the base config registry.
      *
-     * @return BaseConfigRegistryInterface
+     * @return BaseConfigRegistryInterface|null
      */
     public function getBaseConfigRegistry();
 
     /**
      * Determine if the data provider with the given name exists.
      *
-     * @param string|null $strSource The source name to check the providers for.
+     * @param string|null $source The source name to check the providers for.
      *
      * @return mixed
      */
-    public function hasDataProvider($strSource = null);
+    public function hasDataProvider($source = null);
 
     /**
      * Retrieve the data provider for the named source.
@@ -183,7 +186,7 @@ interface EnvironmentInterface
      *
      * @param string|null $strSource The name of the source.
      *
-     * @return DataProviderInterface
+     * @return DataProviderInterface|null
      */
     public function getDataProvider($strSource = null);
 
@@ -209,14 +212,14 @@ interface EnvironmentInterface
     /**
      * Return the clipboard.
      *
-     * @return ClipboardInterface
+     * @return ClipboardInterface|null
      */
     public function getClipboard();
 
     /**
-     * Set the the clipboard.
+     * Set the clipboard.
      *
-     * @param ClipboardInterface $objClipboard Clipboard instance.
+     * @param ClipboardInterface|null $objClipboard Clipboard instance.
      *
      * @return EnvironmentInterface
      */
@@ -234,7 +237,7 @@ interface EnvironmentInterface
     /**
      * Retrieve the translation manager to use.
      *
-     * @return TranslatorInterface
+     * @return TranslatorInterface|null
      */
     public function getTranslator();
 
@@ -250,7 +253,7 @@ interface EnvironmentInterface
     /**
      * Get the event dispatcher to use.
      *
-     * @return EventDispatcherInterface
+     * @return EventDispatcherInterface|null
      */
     public function getEventDispatcher();
 }

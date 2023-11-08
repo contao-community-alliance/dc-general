@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,17 +30,22 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EditMask;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\BackCommand;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class CreateHandler
  *
- * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class EditHandler
 {
@@ -74,7 +79,7 @@ class EditHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
@@ -100,15 +105,18 @@ class EditHandler
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return string|bool
+     * @return string|false
      *
      * @throws DcGeneralRuntimeException When the requested model could not be located in the database.
      */
     protected function process(EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
-        $modelId       = ModelId::fromSerialized($inputProvider->getParameter('id'));
-        $dataProvider  = $environment->getDataProvider($modelId->getDataProviderName());
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
 
         $view = $environment->getView();
         if (!$view instanceof BaseView) {
@@ -143,11 +151,15 @@ class EditHandler
     {
         $environment = $event->getEnvironment();
 
-        if (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable()) {
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        if (true === $dataDefinition->getBasicDefinition()->isEditable()) {
             return true;
         }
 
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         $event->setResponse(
             \sprintf(
@@ -168,7 +180,7 @@ class EditHandler
      * reload of the page.
      *
      * @param EnvironmentInterface $environment The environment.
-     * @param ModelId              $modelId     The model id.
+     * @param ModelIdInterface     $modelId     The model id.
      *
      * @return void
      *
@@ -176,19 +188,29 @@ class EditHandler
      *
      * @SuppressWarnings(PHPMD.LongVariable)
      */
-    private function checkRestoreVersion(EnvironmentInterface $environment, ModelId $modelId)
+    private function checkRestoreVersion(EnvironmentInterface $environment, ModelIdInterface $modelId)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
-        $dataProviderDefinition = $environment->getDataDefinition()->getDataProviderDefinition();
-        $dataProvider           = $environment->getDataProvider($modelId->getDataProviderName());
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
 
-        if (!((null !== ($modelVersion = $inputProvider->getValue('version')))
-              && ('tl_version' === $inputProvider->getValue('FORM_SUBMIT'))
-              && $dataProviderDefinition->getInformation($modelId->getDataProviderName())->isVersioningEnabled())
+        $dataProviderDefinition = $dataDefinition->getDataProviderDefinition();
+
+        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        if (
+            !((null !== ($modelVersion = $inputProvider->getValue('version')))
+            && ('tl_version' === $inputProvider->getValue('FORM_SUBMIT'))
+            && $dataProviderDefinition->getInformation($modelId->getDataProviderName())->isVersioningEnabled())
         ) {
             return;
         }
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         if (null === ($model = $dataProvider->getVersion($modelId->getId(), $modelVersion))) {
             $message = \sprintf(
@@ -198,8 +220,8 @@ class EditHandler
                 $modelId->getDataProviderName()
             );
 
-            $environment->getEventDispatcher()->dispatch(
-                new LogEvent($message, TL_ERROR, 'DC_General - checkRestoreVersion()'),
+            $dispatcher->dispatch(
+                new LogEvent($message, 'ERROR', 'DC_General - checkRestoreVersion()'),
                 ContaoEvents::SYSTEM_LOG
             );
 
@@ -208,7 +230,7 @@ class EditHandler
 
         $dataProvider->save($model);
         $dataProvider->setVersionActive($modelId->getId(), $modelVersion);
-        $environment->getEventDispatcher()->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
+        $dispatcher->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
     }
 
     /**
@@ -220,7 +242,12 @@ class EditHandler
      */
     protected function handleGlobalCommands(EnvironmentInterface $environment)
     {
-        $backendView    = $environment->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $backendView = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
         $globalCommands = $backendView->getGlobalCommands();
 
         $globalCommands->clearCommands();

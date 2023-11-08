@@ -51,6 +51,8 @@ class MockedAbstractItem extends AbstractItem
      * @param string                       $action                The clipboard action name.
      * @param ModelIdInterface|null        $parentId              The parent id.
      * @param ModelIdInterface|string|null $modelIdOrProviderName The model id or provider name.
+     *
+     * @SuppressWarnings(PHPMD.LongVariable)
      */
     public function __construct($action, ModelIdInterface $parentId = null, $modelIdOrProviderName = null)
     {

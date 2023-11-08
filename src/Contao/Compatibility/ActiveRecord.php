@@ -46,7 +46,11 @@ class ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Magic getter.
+     *
+     * @param string $name The name of the property to get.
+     *
+     * @return mixed
      */
     public function __get($name)
     {
@@ -54,7 +58,11 @@ class ActiveRecord
     }
 
     /**
-     * {@inheritdoc}
+     * Magic setter.
+     *
+     * @param string $name  The name of the property to set.
+     * @param mixed  $value The value of the property to set.
+     *
      */
     public function __set($name, $value)
     {

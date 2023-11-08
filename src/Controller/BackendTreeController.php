@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Kim Wormer <hallo@heartcodiert.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,6 +24,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use Contao\Backend;
 use Contao\Config;
+use Contao\Controller;
+use Contao\CoreBundle\Framework\ContaoFramework;
+use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
 use Contao\Environment;
 use Contao\StringUtil;
@@ -32,15 +36,20 @@ use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
-use ContaoCommunityAlliance\DcGeneral\DcGeneral;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
-use http\Exception\BadQueryStringException;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -48,17 +57,12 @@ use Symfony\Component\Routing\Annotation\Route;
  * Handles the backend tree.
  *
  * @Route("/contao/cca", defaults={"_scope" = "backend", "_token_check" = true})
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class BackendTreeController implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
-
-    /**
-     * The DcGeneral Object.
-     *
-     * @var DcGeneral
-     */
-    private $itemContainer;
 
     /**
      * Handles the installation process.
@@ -69,9 +73,7 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeAction()
     {
-        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
-
-        return $this->runBackendTree($this->container->get('request_stack')->getCurrentRequest());
+        return $this->runBackendTree($this->initializeAndExtractRequest());
     }
 
     /**
@@ -83,9 +85,7 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeToggleAction()
     {
-        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
-
-        return $this->runBackendTreeToggle($this->container->get('request_stack')->getCurrentRequest());
+        return $this->runBackendTreeToggle($this->initializeAndExtractRequest());
     }
 
     /**
@@ -97,9 +97,7 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeBreadCrumbAction()
     {
-        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
-
-        return $this->runBackendTreeBreadCrumb($this->container->get('request_stack')->getCurrentRequest());
+        return $this->runBackendTreeBreadCrumb($this->initializeAndExtractRequest());
     }
 
     /**
@@ -111,9 +109,32 @@ class BackendTreeController implements ContainerAwareInterface
      */
     public function generalTreeUpdateAction()
     {
-        $this->container->get('contao.framework')->getAdapter(\Contao\Controller::class)->setStaticUrls();
+        return $this->runBackendTreeUpdate($this->initializeAndExtractRequest());
+    }
 
-        return $this->runBackendTreeUpdate($this->container->get('request_stack')->getCurrentRequest());
+    private function initializeAndExtractRequest(): Request
+    {
+        $container = $this->container;
+        assert($container instanceof ContainerInterface);
+
+        $framework = $container->get('contao.framework');
+        assert($framework instanceof ContaoFramework);
+
+        /**
+         * @psalm-suppress InternalMethod
+         * @var Controller $controller
+         */
+        $controller = $framework->getAdapter(Controller::class);
+        /** @psalm-suppress DeprecatedMethod */
+        $controller->setStaticUrls();
+
+        $requestStack = $container->get('request_stack');
+        assert($requestStack instanceof RequestStack);
+
+        $currentRequest = $requestStack->getCurrentRequest();
+        assert($currentRequest instanceof Request);
+
+        return $currentRequest;
     }
 
     /**
@@ -129,15 +150,7 @@ class BackendTreeController implements ContainerAwareInterface
      */
     private function runBackendTree(Request $request)
     {
-        if (null === ($request->query->get('picker'))) {
-            throw new \InvalidArgumentException('No picker was given here.');
-        }
-        $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
-
-        $treeSelector = $this->prepareTreeSelector($picker);
-
-        $sessionBag = $this->container->get('session')->getBag('contao_backend');
-        $sessionBag->set($treeSelector->getSearchSessionKey(), $picker->getConfig()->getValue());
+        [$value, $treeSelector] = $this->getTemplateData($request);
 
         $template = new ContaoBackendViewTemplate('be_main');
         $template
@@ -150,8 +163,8 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', \ampersand($request->getUri()))
-            ->set('value', $sessionBag->get($treeSelector->getSearchSessionKey()))
+            ->set('action', StringUtil::ampersand($request->getUri()))
+            ->set('value', $value)
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'] ?? '')
             ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'] ?? '');
 
@@ -171,21 +184,13 @@ class BackendTreeController implements ContainerAwareInterface
      */
     private function runBackendTreeBreadCrumb(Request $request)
     {
-        if (null === ($request->query->get('picker'))) {
-            throw new \InvalidArgumentException('No picker was given here.');
-        }
-        $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
-
-        $treeSelector = $this->prepareTreeSelector($picker);
-        $treeSelector->generatePopup();
-
-        $sessionBag = $this->container->get('session')->getBag('contao_backend');
-        $sessionBag->set($treeSelector->getSearchSessionKey(), $picker->getConfig()->getValue());
+        [, $treeSelector] = $this->getTemplateData($request);
 
         $message = '<stong style="display: table; margin: 20px auto;">
                            The bread crumb method isn´ implement yet.
                     </stong>';
 
+        $treeSelector->generatePopup();
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
@@ -196,7 +201,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', \ampersand($request->getUri()))
+            ->set('action', StringUtil::ampersand($request->getUri()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager']);
 
         return $template->getResponse();
@@ -213,15 +218,7 @@ class BackendTreeController implements ContainerAwareInterface
      */
     private function runBackendTreeToggle(Request $request)
     {
-        if (null === ($request->query->get('picker'))) {
-            throw new \InvalidArgumentException('No picker was given here.');
-        }
-        $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
-
-        $treeSelector = $this->prepareTreeSelector($picker);
-
-        $sessionBag = $this->container->get('session')->getBag('contao_backend');
-        $sessionBag->set($treeSelector->getSearchSessionKey(), $picker->getConfig()->getValue());
+        [, $treeSelector] = $this->getTemplateData($request);
 
         $buffer = $treeSelector->generateAjax();
 
@@ -239,75 +236,115 @@ class BackendTreeController implements ContainerAwareInterface
      * @return Response
      *
      * @throws BadRequestHttpException This request isn`t from type ajax.
-     * @throws BadQueryStringException No picker was given here.
+     * @throws BadRequestHttpException No picker was given here.
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function runBackendTreeUpdate(Request $request)
     {
-        if ((false === (bool) $request->request->count())
-            && (false === $request->isXmlHttpRequest())) {
+        if ((false === (bool) $request->request->count()) && (false === $request->isXmlHttpRequest())) {
             throw new BadRequestHttpException('This request isn`t from type ajax.');
         }
 
-        if (null === ($request->query->get('picker'))) {
-            throw new BadQueryStringException('No picker was given here.');
-        }
-        $picker = $this->container->get('contao.picker.builder')->createFromData($request->query->get('picker'));
-
-        $treeSelector = $this->prepareTreeSelector($picker);
-
-        $sessionBag = $this->container->get('session')->getBag('contao_backend');
-        $sessionBag->set(
-            $treeSelector->getSearchSessionKey(),
-            $treeSelector->widgetToValue($request->request->get('value'))
-        );
+        [$value, , $picker] = $this->getTemplateData($request, true);
 
         $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
+
+        $container = $this->container;
+        assert($container instanceof ContainerInterface);
+        $translator = $container->get('cca.translator.contao_translator');
+        assert($translator instanceof TranslatorInterface);
+
+        $dispatcher = $container->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $factory = new DcGeneralFactory();
         $general = $factory
             ->setContainerName($modelId->getDataProviderName())
-            ->setTranslator($this->container->get('cca.translator.contao_translator'))
-            ->setEventDispatcher($this->container->get('event_dispatcher'))
+            ->setTranslator($translator)
+            ->setEventDispatcher($dispatcher)
             ->createDcGeneral();
 
         $dataProvider = $general->getEnvironment()->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
 
         if (!($model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId())))) {
             $model = $dataProvider->getEmptyModel();
         }
 
-        $widgetValue = $treeSelector->widgetToValue($request->request->get('value'));
-        if (\is_array($widgetValue)) {
+        if (\is_array($value)) {
             $values = [];
-            // Clean keys the have empty value.
-            foreach ($widgetValue as $index => $value) {
-                if (empty($value)
+            // Clean keys they have empty value.
+            foreach ($value as $index => $val) {
+                if (
+                    empty($val)
                     // The first key entry has the value on, if the checkbox for all checked.
-                    || ((0 === $index) && ('on' === $value))
+                    || ((0 === $index) && ('on' === $val))
                 ) {
                     continue;
                 }
 
-                $values[] = $value;
+                $values[] = $val;
             }
 
-            $widgetValue = $values;
+            $value = $values;
         }
 
+        $propertyName   = $picker->getConfig()->getExtra('propertyName');
         $propertyValues = new PropertyValueBag();
-        $propertyValues->setPropertyValue($picker->getConfig()->getExtra('propertyName'), $widgetValue);
-        $general->getEnvironment()->getController()->updateModelFromPropertyBag($model, $propertyValues);
+        $propertyValues->setPropertyValue($propertyName, $value);
+
+        $controller = $general->getEnvironment()->getController();
+        assert($controller instanceof ControllerInterface);
+
+        $controller->updateModelFromPropertyBag($model, $propertyValues);
 
         $widgetManager = new ContaoWidgetManager($general->getEnvironment(), $model);
-        $buffer        =
-            $widgetManager->renderWidget($picker->getConfig()->getExtra('propertyName'), false, $propertyValues);
+        $buffer        = $widgetManager->renderWidget($propertyName, false, $propertyValues);
 
         $response = new Response($buffer);
-        $response->headers->set('Content-Type', 'txt/html; charset=' . Config::get('characterSet'));
+        $response->headers->set('Content-Type', 'txt/html; charset=' . (Config::get('characterSet') ?? ''));
 
         return $response;
+    }
+
+    /**
+     * @param Request $request          The request to obtain information from.
+     * @param bool    $valueFromRequest Flag if the value shall be read from the request.
+     *
+     * @return array{0: string|list<string>, 1: TreePicker, 2: PickerInterface}
+     */
+    private function getTemplateData(Request $request, bool $valueFromRequest = false): array
+    {
+        if ('' === ($getPicker = (string) $request->query->get('picker'))) {
+            throw new BadRequestHttpException('No picker was given here.');
+        }
+        $container = $this->container;
+        assert($container instanceof ContainerInterface);
+        $pickerBuilder = $container->get('contao.picker.builder');
+        assert($pickerBuilder instanceof PickerBuilderInterface);
+        $picker = $pickerBuilder->createFromData($getPicker);
+        assert($picker instanceof PickerInterface);
+        $treeSelector = $this->prepareTreeSelector($picker);
+        $session = $container->get('session');
+        assert($session instanceof SessionInterface);
+        $sessionBag = $session->getBag('contao_backend');
+        assert($sessionBag instanceof AttributeBagInterface);
+        $value = $picker->getConfig()->getValue();
+        if ($valueFromRequest) {
+            if (null !== $reqValue = $request->request->get('value')) {
+                $reqValue = (string) $reqValue;
+            }
+            $value = $treeSelector->widgetToValue($reqValue);
+        }
+
+        $sessionBag->set($treeSelector->getSearchSessionKey(), $value);
+
+        return [
+            $sessionBag->get($treeSelector->getSearchSessionKey()),
+            $treeSelector,
+            $picker
+        ];
     }
 
     /**
@@ -333,21 +370,35 @@ class BackendTreeController implements ContainerAwareInterface
             throw new \InvalidArgumentException('The field name contains invalid characters');
         }
 
-        $sessionBag = $this->container->get('session')->getBag('contao_backend');
+        $container = $this->container;
+        assert($container instanceof ContainerInterface);
+
+        $session = $container->get('session');
+        assert($session instanceof SessionInterface);
+
+        $sessionBag = $session->getBag('contao_backend');
+        assert($sessionBag instanceof AttributeBagInterface);
+
         // Define the current ID.
         \define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
 
-        $this->itemContainer = (new DcGeneralFactory())
+        $translator = $container->get('cca.translator.contao_translator');
+        assert($translator instanceof TranslatorInterface);
+
+        $dispatcher = $container->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $itemContainer = (new DcGeneralFactory())
             ->setContainerName($modelId->getDataProviderName())
-            ->setTranslator($this->container->get('cca.translator.contao_translator'))
-            ->setEventDispatcher($this->container->get('event_dispatcher'))
+            ->setTranslator($translator)
+            ->setEventDispatcher($dispatcher)
             ->createDcGeneral();
 
+        $definition = $itemContainer->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         // Merge with the information from the data container.
-        $property = $this
-            ->itemContainer
-            ->getEnvironment()
-            ->getDataDefinition()
+        $property = $definition
             ->getPropertiesDefinition()
             ->getProperty($picker->getConfig()->getExtra('propertyName'));
 
@@ -357,16 +408,20 @@ class BackendTreeController implements ContainerAwareInterface
         }
         $information['eval'] = array_merge($property->getExtra(), $information['eval']);
 
-        $treeSelector = new $GLOBALS['BE_FFL']['DcGeneralTreePicker'](
+        $dcCompat = new DcCompat($itemContainer->getEnvironment());
+        /** @var class-string<TreePicker> $class */
+        $class = $GLOBALS['BE_FFL']['DcGeneralTreePicker'];
+        /** @psalm-suppress UnsafeInstantiation - No other way to instantiate. */
+        $treeSelector = new $class(
             Widget::getAttributesFromDca(
                 $information,
                 $field,
                 \array_filter(\explode(',', $picker->getConfig()->getValue())),
                 $field,
                 $table,
-                new DcCompat($this->itemContainer->getEnvironment())
+                $dcCompat
             ),
-            new DcCompat($this->itemContainer->getEnvironment())
+            $dcCompat
         );
 
         $treeSelector->id = 'tl_listing';

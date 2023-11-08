@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,8 @@
  * @author     Simon Kusterer <simon@soped.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,23 +31,27 @@ namespace ContaoCommunityAlliance\DcGeneral\DC;
 use Contao\DataContainer;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Doctrine\Common\Cache\Cache;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class General extends DataContainer implements DataContainerInterface
 {
@@ -61,15 +66,15 @@ class General extends DataContainer implements DataContainerInterface
     /**
      * Create a new instance.
      *
-     * @param string     $tableName The table name.
-     * @param array      $module    The modules.
-     * @param Cache|null $cache     The cache.
+     * @param string              $tableName The table name.
+     * @param array               $module    The modules.
+     * @param CacheInterface|null $cache     The cache.
      *
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __construct($tableName, array $module = [], Cache $cache = null)
+    public function __construct($tableName, array $module = [], CacheInterface $cache = null)
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\DC_General given" in callbacks.
@@ -81,8 +86,11 @@ class General extends DataContainer implements DataContainerInterface
 
         $dispatcher = $this->getEventDispatcher();
         $fetcher    = \Closure::bind(function (PopulateEnvironmentEvent $event) use ($tableNameCallback) {
+            $definition = $event->getEnvironment()->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
             // We need to capture the correct environment and save it for later use.
-            if ($tableNameCallback !== $event->getEnvironment()->getDataDefinition()->getName()) {
+            if ($tableNameCallback !== $definition->getName()) {
                 return;
             }
             $this->objEnvironment = $event->getEnvironment();
@@ -96,11 +104,11 @@ class General extends DataContainer implements DataContainerInterface
             ->createDcGeneral();
         $dispatcher->removeListener(PopulateEnvironmentEvent::NAME, $fetcher);
 
+        $clipboard = $this->getEnvironment()->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
+
         // Load the clipboard.
-        $this
-            ->getEnvironment()
-            ->getClipboard()
-            ->loadFrom($this->getEnvironment());
+        $clipboard->loadFrom($this->getEnvironment());
 
         // Execute AJAX request, called from Backend::getBackendModule
         // we have to do this here, as otherwise the script will exit as it only checks for DC_Table and DC_File
@@ -138,7 +146,8 @@ class General extends DataContainer implements DataContainerInterface
      */
     private function checkAjaxCall()
     {
-        if (!empty($_POST)
+        if (
+            !empty($_POST)
             && (isset($_SERVER['HTTP_X_REQUESTED_WITH'])
             && 'XMLHttpRequest' === $_SERVER['HTTP_X_REQUESTED_WITH'])
         ) {
@@ -158,7 +167,8 @@ class General extends DataContainer implements DataContainerInterface
      */
     protected function getTablenameCallback($tableName)
     {
-        if (isset($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
+        if (
+            isset($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
             && \is_array($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
         ) {
             foreach ($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'] as $callback) {
@@ -184,6 +194,7 @@ class General extends DataContainer implements DataContainerInterface
     {
         $environment   = $this->getEnvironment();
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         switch ($name) {
             case 'id':
@@ -197,7 +208,10 @@ class General extends DataContainer implements DataContainerInterface
 
                 return ModelId::fromSerialized($inputProvider->getParameter($idParameter))->getId();
             case 'table':
-                return $environment->getDataDefinition()->getName();
+                $definition = $environment->getDataDefinition();
+                assert($definition instanceof ContainerInterface);
+
+                return $definition->getName();
             default:
         }
 
@@ -211,7 +225,10 @@ class General extends DataContainer implements DataContainerInterface
      */
     public function getName()
     {
-        return $this->getEnvironment()->getDataDefinition()->getName();
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        return $definition->getName();
     }
 
     /**
@@ -260,7 +277,10 @@ class General extends DataContainer implements DataContainerInterface
      */
     public function __call($name, $arguments)
     {
-        return $this->getEnvironment()->getController()->handle(new Action($name, $arguments));
+        $controller = $this->getEnvironment()->getController();
+        assert($controller instanceof ControllerInterface);
+
+        return $controller->handle(new Action($name, $arguments));
     }
 
     /**
@@ -271,9 +291,16 @@ class General extends DataContainer implements DataContainerInterface
     protected function callAction()
     {
         $environment = $this->getEnvironment();
-        $action      = new Action($environment->getInputProvider()->getParameter('act') ?: 'showAll');
 
-        return $environment->getController()->handle($action);
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
+        $action = new Action($inputProvider->getParameter('act') ?: 'showAll');
+
+        return $controller->handle($action);
     }
 
     /**

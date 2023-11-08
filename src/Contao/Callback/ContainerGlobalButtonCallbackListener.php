@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGl
  * Class ContainerGlobalButtonCallbackListener.
  *
  * Handler for the global buttons.
+ *
+ * @extends AbstractReturningCallbackListener<GetGlobalButtonEvent>
  */
 class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackListener
 {
@@ -52,11 +54,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
     }
 
     /**
-     * Check the restrictions against the information within the event and determine if the callback shall be executed.
-     *
-     * @param GetGlobalButtonEvent $event The Event for which the callback shall be invoked.
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function wantToExecute($event)
     {
@@ -67,32 +65,26 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
     }
 
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetGlobalButtonEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
+        if (null === $definition = $event->getEnvironment()->getDataDefinition()) {
+            throw new \LogicException('No data definition given.');
+        }
         return [
             $event->getHref(),
             $event->getLabel(),
             $event->getTitle(),
             $event->getClass(),
             $event->getAttributes(),
-            $event->getEnvironment()->getDataDefinition()->getName(),
-            $event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getRootEntries()
+            $definition->getName(),
+            $definition->getBasicDefinition()->getRootEntries()
         ];
     }
 
     /**
-     * Update the event with the information returned by the callback.
-     *
-     * @param GetGlobalButtonEvent $event The event being emitted.
-     * @param string               $value The HTML representation of the button.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

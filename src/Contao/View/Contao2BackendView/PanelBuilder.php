@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -21,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\ElementInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\FilterElementInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel\LimitElementInformationInterface;
@@ -39,15 +41,17 @@ use ContaoCommunityAlliance\DcGeneral\Panel\PanelElementInterface;
 
 /**
  * This class builds a panel for an environment.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PanelBuilder
 {
     /**
      * The environment.
      *
-     * @var Contao2BackendViewDefinitionInterface
+     * @var EnvironmentInterface
      */
-    private $environment;
+    private EnvironmentInterface $environment;
 
     /**
      * Create a new instance.
@@ -69,15 +73,15 @@ class PanelBuilder
         $panel = new DefaultPanelContainer();
         $panel->setEnvironment($this->environment);
 
-        /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-        $viewDefinition = $this
-            ->environment
-            ->getDataDefinition()
-            ->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $definition = $this->environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($viewDefinition instanceof Contao2BackendViewDefinitionInterface);
 
         foreach ($viewDefinition->getPanelLayout()->getRows() as $panelKey => $row) {
             $panelRow = new DefaultPanel();
-            $panel->addPanel($panelKey, $panelRow);
+            $panel->addPanel((string) $panelKey, $panelRow);
             foreach ($row as $element) {
                 /** @var ElementInformationInterface $element */
                 if (null !== $instance = $this->createElement($element)) {
