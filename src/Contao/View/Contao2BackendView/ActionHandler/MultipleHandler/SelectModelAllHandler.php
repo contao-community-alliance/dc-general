@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -24,6 +24,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 
 /**
@@ -53,13 +54,14 @@ class SelectModelAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()
+        if (
+            !$this->getScopeDeterminator()->currentScopeIsBackend()
             || ('selectModelAll' !== $event->getAction()->getName())
         ) {
             return;
         }
 
-        if (false !== ($response = $this->process($event->getAction(), $event->getEnvironment()))) {
+        if ('' !== ($response = $this->process($event->getAction(), $event->getEnvironment()))) {
             $event->setResponse($response);
         }
     }
@@ -75,6 +77,7 @@ class SelectModelAllHandler
     private function process(Action $action, EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         return $this->callAction(
             $environment,
@@ -86,6 +89,6 @@ class SelectModelAllHandler
                     'select' => $inputProvider->getParameter('select')
                 ]
             )
-        );
+        ) ?? '';
     }
 }

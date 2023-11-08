@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -36,7 +37,7 @@ class DefaultEditInformation implements EditInformationInterface
     /**
      * The model errors.
      *
-     * @var array
+     * @var array<string, array<string, list<string>>>
      */
     protected $modelErrors = [];
 
@@ -70,11 +71,7 @@ class DefaultEditInformation implements EditInformationInterface
     {
         $modelId = ModelId::fromModel($model);
 
-        if (!isset($this->modelErrors[$modelId->getSerialized()])) {
-            return null;
-        }
-
-        return $this->modelErrors[$modelId->getSerialized()];
+        return $this->modelErrors[$modelId->getSerialized()] ?? [];
     }
 
     /**
@@ -82,20 +79,25 @@ class DefaultEditInformation implements EditInformationInterface
      */
     public function setModelError(ModelInterface $model, array $error, PropertyInterface $property)
     {
-        $modelId = ModelId::fromModel($model);
+        $modelId  = ModelId::fromModel($model)->getSerialized();
+        $propName = $property->getName();
 
-        if (!isset($this->models[$modelId->getSerialized()])) {
-            $this->models[$modelId->getSerialized()] = $model;
+        if (!isset($this->models[$modelId])) {
+            $this->models[$modelId] = $model;
         }
 
-        if (!isset($this->modelErrors[$modelId->getSerialized()])) {
-            $this->modelErrors[$modelId->getSerialized()] = [];
+        if (!isset($this->modelErrors[$modelId])) {
+            $this->modelErrors[$modelId] = [];
         }
 
-        $this->modelErrors[$modelId->getSerialized()][$property->getName()] = \array_merge(
-            (array) $this->modelErrors[$modelId->getSerialized()][$property->getName()],
-            $error
-        );
+        if (isset($this->modelErrors[$modelId][$propName])) {
+            $this->modelErrors[$modelId][$propName] = \array_merge(
+                $this->modelErrors[$modelId][$propName],
+                $error
+            );
+        } else {
+            $this->modelErrors[$modelId][$propName] = $error;
+        }
     }
 
     /**

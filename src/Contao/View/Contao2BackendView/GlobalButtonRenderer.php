@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonsEvent;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
@@ -67,8 +68,15 @@ class GlobalButtonRenderer
     public function __construct(EnvironmentInterface $environment)
     {
         $this->environment = $environment;
-        $this->dispatcher  = $environment->getEventDispatcher();
-        $this->translator  = $environment->getTranslator();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+        $this->dispatcher = $dispatcher;
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+        $this->translator = $translator;
     }
 
     /**
@@ -78,17 +86,13 @@ class GlobalButtonRenderer
      */
     public function render()
     {
-        /** @var CommandInterface[] $commands */
-        $commands = $this
-            ->environment
-            ->getDataDefinition()
-            ->getDefinition(Contao2BackendViewDefinitionInterface::NAME)
-            ->getGlobalCommands()
-            ->getCommands();
+        $definition = $this->environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
-        if (!\is_array($commands)) {
-            $commands = [];
-        }
+        $backendView = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
+        $commands = $backendView->getGlobalCommands()->getCommands();
 
         $buttons = [];
         foreach ($commands as $command) {
@@ -134,19 +138,19 @@ class GlobalButtonRenderer
             $href = $event->getUrl();
         }
 
-        if (null === $label) {
+        if ('' === $label) {
             $label = $command->getName();
         }
 
         $buttonEvent = new GetGlobalButtonEvent($this->environment);
         $buttonEvent
-            ->setAccessKey(isset($extra['accesskey']) ? \trim($extra['accesskey']) : null)
-            ->setAttributes(' ' . \ltrim($extra['attributes']))
+            ->setAccessKey(isset($extra['accesskey']) ? \trim($extra['accesskey']) : '')
+            ->setAttributes(' ' . \ltrim($extra['attributes'] ?? ''))
             ->setClass($extra['class'])
             ->setKey($command->getName())
             ->setHref($href)
             ->setLabel($label)
-            ->setTitle($this->translate((string) $command->getDescription()));
+            ->setTitle($this->translate($command->getDescription()));
         $this->dispatcher->dispatch($buttonEvent, GetGlobalButtonEvent::NAME);
 
         // Allow to override the button entirely - if someone sets empty string, we keep it.
@@ -174,7 +178,10 @@ class GlobalButtonRenderer
      */
     private function translate($path)
     {
-        $value = $this->translator->translate($path, $this->environment->getDataDefinition()->getName());
+        $definition = $this->environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $value = $this->translator->translate($path, $definition->getName());
         if ($path !== $value) {
             return $value;
         }

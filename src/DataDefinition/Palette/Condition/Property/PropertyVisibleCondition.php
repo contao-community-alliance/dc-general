@@ -45,7 +45,7 @@ class PropertyVisibleCondition implements PropertyConditionInterface
      */
     public function __construct($propertyName = '')
     {
-        $this->propertyName = (string) $propertyName;
+        $this->propertyName = $propertyName;
     }
 
     /**
@@ -57,7 +57,7 @@ class PropertyVisibleCondition implements PropertyConditionInterface
      */
     public function setPropertyName($propertyName)
     {
-        $this->propertyName = (string) $propertyName;
+        $this->propertyName = $propertyName;
         return $this;
     }
 
@@ -84,8 +84,8 @@ class PropertyVisibleCondition implements PropertyConditionInterface
             return false;
         }
 
-        if ($legend->getPalette()) {
-            return $legend->getPalette()->getProperty($this->propertyName)->isVisible($model, $input, $legend);
+        if (null !== ($palette = $legend->getPalette())) {
+            return $palette->getProperty($this->propertyName)->isVisible($model, $input, $legend);
         }
 
         return $legend->getProperty($this->propertyName)->isVisible($model, $input, $legend);

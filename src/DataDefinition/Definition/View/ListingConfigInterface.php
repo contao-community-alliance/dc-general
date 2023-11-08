@@ -56,7 +56,7 @@ interface ListingConfigInterface
     /**
      * Set the list of parent's model property names.
      *
-     * @param array $value The property names to use.
+     * @param list<string> $value The property names to use.
      *
      * @return ListingConfigInterface
      */
@@ -65,7 +65,7 @@ interface ListingConfigInterface
     /**
      * Return a list of parent's model property names, which are shown above the item list.
      *
-     * @return array
+     * @return list<string>
      */
     public function getHeaderPropertyNames();
 
@@ -81,7 +81,7 @@ interface ListingConfigInterface
     /**
      * Return the icon path to the root item's icon.
      *
-     * @return string
+     * @return string|null
      */
     public function getRootIcon();
 
@@ -97,7 +97,7 @@ interface ListingConfigInterface
     /**
      * Get the root label.
      *
-     * @return string
+     * @return string|null
      */
     public function getRootLabel();
 
@@ -113,7 +113,7 @@ interface ListingConfigInterface
     /**
      * Return css classes that should be added to the items container.
      *
-     * @return string
+     * @return string|null
      */
     public function getItemCssClass();
 
@@ -157,7 +157,7 @@ interface ListingConfigInterface
     /**
      * Get if the listing shall be in table columns.
      *
-     * @return bool
+     * @return bool|null
      *
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
@@ -166,7 +166,7 @@ interface ListingConfigInterface
     /**
      * Get the parent table property name.
      *
-     * @return string
+     * @return string|null
      */
     public function getParentTablePropertyName();
 

@@ -28,15 +28,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
  * Class ContainerHeaderCallbackListener.
  *
  * Handler for the header row in parent list mode.
+ *
+ * @extends AbstractReturningCallbackListener<GetParentHeaderEvent>
  */
 class ContainerHeaderCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetParentHeaderEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -44,12 +42,7 @@ class ContainerHeaderCallbackListener extends AbstractReturningCallbackListener
     }
 
     /**
-     * Update the event with the information returned by the callback.
-     *
-     * @param GetParentHeaderEvent $event The event being emitted.
-     * @param array                $value The additional information.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

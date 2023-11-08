@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,13 +15,15 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
@@ -34,21 +36,71 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
  * This class is the default fallback populator in the Contao Backend to instantiate a BackendView.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor - can not make setScopeDeterminator() final without major release.
  */
 class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
     use RequestScopeDeterminatorAwareTrait;
 
     /**
+     * The token manager.
+     *
+     * @var CsrfTokenManagerInterface
+     */
+    private CsrfTokenManagerInterface $tokenManager;
+
+    /**
+     * The token name.
+     *
+     * @var string
+     */
+    private string $tokenName;
+
+    /**
      * BackendViewPopulator constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     * @param RequestScopeDeterminator       $scopeDeterminator The request mode determinator.
+     * @param CsrfTokenManagerInterface|null $tokenManager      The token manager.
+     * @param string|null                    $tokenName         The token name.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        ?CsrfTokenManagerInterface $tokenManager = null,
+        ?string $tokenName = null
+    ) {
+        if (null === $tokenManager) {
+            $tokenManager = System::getContainer()->get('security.csrf.token_manager');
+            assert($tokenManager instanceof CsrfTokenManagerInterface);
+
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+        if (null === $tokenName) {
+            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
+            assert(\is_string($tokenName));
+
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+
+        $this->tokenManager = $tokenManager;
+        $this->tokenName    = $tokenName;
+
         $this->setScopeDeterminator($scopeDeterminator);
     }
 
@@ -72,23 +124,25 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
 
         $dataDefinition = $environment->getDataDefinition();
 
-        if (!$dataDefinition->hasBasicDefinition()) {
+        if (!$dataDefinition || !$dataDefinition->hasBasicDefinition()) {
             return;
         }
 
         switch ($dataDefinition->getBasicDefinition()->getMode()) {
             case BasicDefinitionInterface::MODE_FLAT:
-                $view = new ListView($this->scopeDeterminator);
+                $view = new ListView($this->getScopeDeterminator());
                 break;
             case BasicDefinitionInterface::MODE_PARENTEDLIST:
-                $view = new ParentView($this->scopeDeterminator);
+                $view = new ParentView($this->getScopeDeterminator());
                 break;
             case BasicDefinitionInterface::MODE_HIERARCHICAL:
-                $view = new TreeView($this->scopeDeterminator);
+                $view = new TreeView($this->getScopeDeterminator(), $this->tokenManager, $this->tokenName);
                 break;
             default:
                 $mode = $dataDefinition->getBasicDefinition()->getMode();
-                throw new DcGeneralInvalidArgumentException('Unknown view mode encountered: ' . $mode);
+                throw new DcGeneralInvalidArgumentException(
+                    'Unknown view mode encountered: ' . var_export($mode, true)
+                );
         }
 
         $view->setEnvironment($environment);
@@ -114,7 +168,8 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
             return;
         }
 
-        if (!$environment->getDataDefinition()->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)) {
+        $definition = $environment->getDataDefinition();
+        if (!$definition || !$definition->hasDefinition(Contao2BackendViewDefinitionInterface::NAME)) {
             return;
         }
 
@@ -135,7 +190,7 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
      */
     public function populate(EnvironmentInterface $environment)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 

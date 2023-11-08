@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
  * Class TableRowsAsRecordsDataProvider.
  *
  * This data provider allows to map multiple rows of a SQL table into a single model for usage in a MultiColumnWizard.
+ *
+ * @psalm-suppress MissingConstructor - properties will get set in setBaseConfig().
  */
 class TableRowsAsRecordsDataProvider extends DefaultDataProvider
 {
@@ -101,7 +104,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @throws DcGeneralException Throws always an exception telling that the method (see param $strMethod) must not be
      *                            called.
      *
-     * @return void
+     * @return never
      */
     protected function youShouldNotCallMe($strMethod)
     {
@@ -119,7 +122,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @param mixed $item Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -160,12 +163,13 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             $queryBuilder->orderBy($this->strSortCol, 'ASC');
         }
 
-        $statement = $queryBuilder->execute();
+        $statement = $queryBuilder->executeQuery();
 
         $model = $this->getEmptyModel();
+        assert($model instanceof DefaultModel);
         $model->setID($config->getId());
         if (0 < $statement->rowCount()) {
-            $model->setPropertyRaw('rows', $statement->fetchAll(\PDO::FETCH_ASSOC));
+            $model->setPropertyRaw('rows', $statement->fetchAllAssociative());
         }
 
         return $model;
@@ -176,7 +180,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @param ConfigInterface $config Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -192,7 +196,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @param ConfigInterface $config Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -210,7 +214,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param mixed  $new       Unused.
      * @param int    $primaryId Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -226,7 +230,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @param string $field Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -255,14 +259,12 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @throws DcGeneralException When the passed model does not contain a property named "rows", an Exception is
      *                            thrown.
+     * @throws \Doctrine\DBAL\Exception
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function save(ModelInterface $item, $timestamp = 0, $recursive = false)
     {
-        if (!\is_int($timestamp)) {
-            throw new DcGeneralException('The parameter for this method has been change!');
-        }
         $data = $item->getProperty('rows');
         if (!($data && $item->getId())) {
             throw new DcGeneralException('invalid input data in model.', 1);
@@ -290,7 +292,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
                     $sqlData,
                     ['id' => $intId, $this->strGroupCol => $item->getId()]
                 );
-                $keep[] = $intId;
+                $keep[] = (string) $intId;
 
                 continue;
             }
@@ -299,18 +301,20 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             $sqlData[$this->strGroupCol] = $item->getId();
 
             $this->connection->insert($this->source, $sqlData);
-
-            $keep[] = $this->connection->lastInsertId($this->source);
+            if (false === $lastInsertId = $this->connection->lastInsertId($this->source)) {
+                throw new \RuntimeException('Failed to insert');
+            }
+            $keep[] = (string) $lastInsertId;
         }
 
         // House keeping, kill the rest.
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->delete($this->source);
         $queryBuilder->andWhere($queryBuilder->expr()->eq($this->strGroupCol, ':' . $this->strGroupCol));
-        $queryBuilder->setParameter(':' . $this->strGroupCol, $item->getId());
+        $queryBuilder->setParameter($this->strGroupCol, $item->getId());
         $queryBuilder->andWhere($queryBuilder->expr()->notIn('id', $keep));
 
-        $queryBuilder->execute();
+        $queryBuilder->executeQuery();
 
         return $item;
     }
@@ -321,7 +325,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param CollectionInterface $items     Unused.
      * @param int                 $timestamp Optional the timestamp.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -352,7 +356,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param mixed $mixID      Unused.
      * @param mixed $mixVersion Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -369,14 +373,14 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param mixed   $mixID      Unused.
      * @param boolean $onlyActive Unused.
      *
-     * @return null
+     * @return CollectionInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getVersions($mixID, $onlyActive = false)
     {
         // Sorry, versioning not supported.
-        return null;
+        return new DefaultCollection();
     }
 
     /**
@@ -385,7 +389,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param ModelInterface $model    Unused.
      * @param string         $username Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -402,7 +406,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param mixed $mixID      Unused.
      * @param mixed $mixVersion Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -418,7 +422,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @param mixed $mixID Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -435,7 +439,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param ModelInterface $firstModel  Unused.
      * @param ModelInterface $secondModel Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *
@@ -453,7 +457,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      * @param string $saveSQL   Unused.
      * @param string $table     Unused.
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralException Always throws exception.
      *

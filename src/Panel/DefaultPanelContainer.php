@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * Default implementation of a panel container.
@@ -32,31 +34,36 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * The environment in use.
      *
-     * @var EnvironmentInterface
+     * @var EnvironmentInterface|null
      */
-    private $objEnvironment;
+    private $objEnvironment = null;
 
     /**
      * The panels contained within this container.
      *
-     * @var PanelInterface[]
+     * @var array<string, PanelInterface>
      */
-    private $arrPanels = [];
+    private array $panels = [];
 
     /**
      * {@inheritdoc}
      */
     public function getEnvironment()
     {
+        if (null === $this->objEnvironment) {
+            throw new \LogicException('Environment for panel is not set.');
+        }
+
         return $this->objEnvironment;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setEnvironment(EnvironmentInterface $environment)
+    public function setEnvironment(EnvironmentInterface $objEnvironment)
     {
-        $this->objEnvironment = $environment;
+        $this->objEnvironment = $objEnvironment;
+
         return $this;
     }
 
@@ -65,7 +72,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function addPanel($panelName, $panel)
     {
-        $this->arrPanels[$panelName] = $panel;
+        $this->panels[$panelName] = $panel;
         $panel->setContainer($this);
 
         return $this;
@@ -76,7 +83,7 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function getPanel($panelName)
     {
-        return $this->arrPanels[$panelName];
+        return $this->panels[$panelName];
     }
 
     /**
@@ -88,6 +95,8 @@ class DefaultPanelContainer implements PanelContainerInterface
         foreach ($this as $panel) {
             $panel->initialize($config, $element);
         }
+
+        return $this;
     }
 
     /**
@@ -95,22 +104,25 @@ class DefaultPanelContainer implements PanelContainerInterface
      */
     public function updateValues()
     {
-        return ('tl_filters' === $this->getEnvironment()->getInputProvider()->getValue('FORM_SUBMIT'));
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        return ('tl_filters' === $inputProvider->getValue('FORM_SUBMIT'));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
-        return new \ArrayIterator($this->arrPanels);
+        return new \ArrayIterator($this->panels);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function count()
+    public function count(): int
     {
-        return \count($this->arrPanels);
+        return \count($this->panels);
     }
 }

@@ -36,22 +36,22 @@ interface ClipboardInterface
     /**
      * Load the content of the clipboard from the input provider stored in the environment.
      *
-     * @param EnvironmentInterface $objEnvironment The environment where the input provider will retrieve the
+     * @param EnvironmentInterface $environment    The environment where the input provider will retrieve the
      *                                             values from.
      *
      * @return static
      */
-    public function loadFrom($objEnvironment);
+    public function loadFrom($environment);
 
     /**
      * Save the content of the clipboard to the input provider stored in the environment.
      *
-     * @param EnvironmentInterface $objEnvironment The environment where the input provider will store the
+     * @param EnvironmentInterface $environment    The environment where the input provider will store the
      *                                             values to.
      *
      * @return static
      */
-    public function saveTo($objEnvironment);
+    public function saveTo($environment);
 
     /**
      * Push an item to the clipboard.
@@ -112,16 +112,16 @@ interface ClipboardInterface
     /**
      * Get all items from the clipboard.
      *
-     * @param FilterInterface|null $filter An item filter.
+     * @param FilterInterface $filter An item filter.
      *
-     * @return ItemInterface[]
+     * @return list<ItemInterface>
      */
     public function fetch(FilterInterface $filter);
 
     /**
      * Determine if the clipboard is empty.
      *
-     * @param FilterInterface|null $filter An item filter.
+     * @param FilterInterface $filter An item filter.
      *
      * @return bool
      */
@@ -130,7 +130,7 @@ interface ClipboardInterface
     /**
      * Determine if the clipboard is not empty.
      *
-     * @param FilterInterface|null $filter An item filter.
+     * @param FilterInterface $filter An item filter.
      *
      * @return bool
      */

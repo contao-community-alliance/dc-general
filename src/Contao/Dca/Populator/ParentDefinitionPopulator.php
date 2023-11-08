@@ -19,9 +19,11 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEnvironmentPopulator;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use LogicException;
 
 /**
  * Class ParentDefinitionPopulator.
@@ -45,17 +47,24 @@ class ParentDefinitionPopulator extends AbstractEventDrivenEnvironmentPopulator
     {
         $definition = $environment->getDataDefinition();
 
-        if (!$definition->getBasicDefinition()->getParentDataProvider()) {
+        if (!$definition || !($parentDataProvider = $definition->getBasicDefinition()->getParentDataProvider())) {
             return;
+        }
+        if (null === $dispatcher = $environment->getEventDispatcher()) {
+            throw new LogicException('No event dispatcher given');
+        }
+        if (null === $translator = $environment->getTranslator()) {
+            throw new LogicException('No translator given');
         }
 
         $parentDefinition = (new DcGeneralFactory())
-            ->setEventDispatcher($environment->getEventDispatcher())
-            ->setTranslator($environment->getTranslator())
-            ->setContainerName($definition->getBasicDefinition()->getParentDataProvider())
+            ->setEventDispatcher($dispatcher)
+            ->setTranslator($translator)
+            ->setContainerName($parentDataProvider)
             ->createDcGeneral()
             ->getEnvironment()
             ->getDataDefinition();
+        assert($parentDefinition instanceof ContainerInterface);
 
         $environment->setParentDataDefinition($parentDefinition);
     }

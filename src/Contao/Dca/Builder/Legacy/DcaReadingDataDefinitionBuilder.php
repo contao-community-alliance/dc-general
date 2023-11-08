@@ -27,21 +27,31 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\System\LoadLanguageFileEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Builder\AbstractEventDrivenDataDefinitionBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+use function array_key_exists;
+use function array_shift;
+use function explode;
+use function is_array;
+use function trim;
+
 /**
  * Build the container config from legacy DCA syntax.
  */
 abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDefinitionBuilder
 {
-
     /**
      * Buffer for the DCA.
      *
-     * @var array
+     * @var array|null
      */
-    protected $dca;
+    protected $dca = null;
 
     /**
-     * {@inheritdoc}
+     * Load the dca data.
+     *
+     * @param string                   $dcaName    The name of the data container.
+     * @param EventDispatcherInterface $dispatcher The event dispatcher to use.
+     *
+     * @return bool
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -71,11 +81,11 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
      */
     protected function getFromDca($path)
     {
-        $chunks = \explode('/', \trim($path, '/'));
+        $chunks = explode('/', trim($path, '/'));
         $dca    = $this->dca;
 
-        while (null !== ($chunk = \array_shift($chunks))) {
-            if (!(\is_array($dca) && \array_key_exists($chunk, $dca))) {
+        while (null !== ($chunk = array_shift($chunks))) {
+            if (!(is_array($dca) && array_key_exists($chunk, $dca))) {
                 return null;
             }
 

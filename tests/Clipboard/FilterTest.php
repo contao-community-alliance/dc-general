@@ -31,6 +31,9 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
  * Test for the Filter.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\Filter
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class FilterTest extends TestCase
 {

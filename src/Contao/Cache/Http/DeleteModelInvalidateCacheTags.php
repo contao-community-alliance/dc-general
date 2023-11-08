@@ -24,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use LogicException;
 
 /**
  * The persist invalidate http cache tags, is for a model be deleted.
@@ -35,15 +36,26 @@ final class DeleteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
      */
     protected function getEnvironment(AbstractModelAwareEvent $event): EnvironmentInterface
     {
-        if ($event->getEnvironment()->getDataDefinition()->getBasicDefinition()->getDataProvider()
-            === $event->getModel()->getProviderName()) {
-            return $event->getEnvironment();
+        $environment = $event->getEnvironment();
+        $definition = $environment->getDataDefinition();
+        $providerName = $event->getModel()->getProviderName();
+        if (
+            $definition
+            && $definition->getBasicDefinition()->getDataProvider() === $providerName
+        ) {
+            return $environment;
         }
-
-        return $this->factory->createFactory()
-            ->setContainerName($event->getModel()->getProviderName())
-            ->setEventDispatcher($event->getEnvironment()->getEventDispatcher())
-            ->setTranslator($event->getEnvironment()->getTranslator())
+        if (null === $dispatcher = $environment->getEventDispatcher()) {
+            throw new LogicException('No event dispatcher given');
+        }
+        if (null === $translator = $environment->getTranslator()) {
+            throw new LogicException('No translator given');
+        }
+        return $this->factory
+            ->createFactory()
+            ->setContainerName($providerName)
+            ->setEventDispatcher($dispatcher)
+            ->setTranslator($translator)
             ->createDcGeneral()
             ->getEnvironment();
     }

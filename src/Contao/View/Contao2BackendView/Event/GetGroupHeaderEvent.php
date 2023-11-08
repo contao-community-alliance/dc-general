@@ -65,7 +65,7 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
     /**
      * The value to be rendered.
      *
-     * @var string
+     * @var string|null
      */
     protected $value;
 
@@ -75,7 +75,7 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
      * @param EnvironmentInterface $environment    The environment.
      * @param ModelInterface       $model          The model being used as group header.
      * @param string               $propertyName   The name of the property being rendered into the group header.
-     * @param mixed                $propertyValue  The value of the property being rendered into the group header.
+     * @param string|null          $propertyValue  The value of the property being rendered into the group header.
      * @param string               $groupingMode   The grouping mode currently active.
      * @param int                  $groupingLength The grouping length currently active.
      */
@@ -146,7 +146,7 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
     /**
      * Retrieve the value to use in the group header.
      *
-     * @return string
+     * @return string|null
      */
     public function getValue()
     {

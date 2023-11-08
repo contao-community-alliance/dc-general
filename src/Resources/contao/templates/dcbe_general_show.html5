@@ -5,7 +5,7 @@
         'languages'     => $this->languages,
         'request'       => $this->Environment->request,
         'submit'        => $this->languageSubmit,
-        'REQUEST_TOKEN' => REQUEST_TOKEN,
+        'REQUEST_TOKEN' => $this->REQUEST_TOKEN,
     ]) ?>
 
 <div id="tl_buttons">

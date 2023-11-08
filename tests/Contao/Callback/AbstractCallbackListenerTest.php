@@ -35,6 +35,7 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
  */
 class AbstractCallbackListenerTest extends TestCase
 {
+    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) - phpmd can not handle the use syntax. */
     protected function getCallback($value)
     {
         return function () use ($value) {

@@ -43,7 +43,7 @@ interface BackendViewInterface extends ViewInterface
     /**
      * Retrieve the panel container from the view.
      *
-     * @return PanelContainerInterface
+     * @return PanelContainerInterface|null
      */
     public function getPanel();
 }

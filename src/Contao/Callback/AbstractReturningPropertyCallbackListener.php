@@ -20,16 +20,20 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
+use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
+use InvalidArgumentException;
+use Symfony\Contracts\EventDispatcher\Event;
+
+use function method_exists;
 
 /**
  * Class AbstractReturningPropertyCallbackListener.
  *
  * Abstract base class for a callback listener.
+ *
+ * @template TEvent of AbstractEnvironmentAwareEvent
+ * @extends AbstractReturningCallbackListener<TEvent>
  *
  * @SuppressWarnings(PHPMD.LongClassName)
  */
@@ -50,32 +54,34 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
      *
      * @return void
      */
-    public function setRestrictions($dataContainerName = null, $propertyName = null)
+    public function setRestrictions(?string $dataContainerName = null, ?string $propertyName = null)
     {
         parent::setRestrictions($dataContainerName);
         $this->propertyName = $propertyName;
     }
 
-    // @codingStandardsIgnoreStart
     /**
-     * Check the restrictions against the information within the event and determine if the callback shall be executed.
-     *
-     * @param BuildWidgetEvent|DecodePropertyValueForWidgetEvent|EncodePropertyValueFromWidgetEvent|GetPropertyOptionsEvent $event The Event for which the callback shall be invoked.
-     * @codingStandardsIgnoreEnd
-     *
-     * @return bool
+     * {@inheritDoc}
      */
     public function wantToExecute($event)
     {
-        if (\method_exists($event, 'getPropertyName')) {
-            $property = $event->getPropertyName();
-        } elseif ($event->getProperty() instanceof PropertyInterface) {
-            $property = $event->getProperty()->getName();
-        } else {
-            $property = $event->getProperty();
+        return parent::wantToExecute($event)
+            && (empty($this->propertyName) || ($this->propertyName === $this->getProperty($event)));
+    }
+
+    private function getProperty(Event $event): string
+    {
+        if (method_exists($event, 'getPropertyName')) {
+            return $event->getPropertyName();
+        }
+        if (method_exists($event, 'getProperty')) {
+            if ($event->getProperty() instanceof PropertyInterface) {
+                return $event->getProperty()->getName();
+            } else {
+                return (string) $event->getProperty();
+            }
         }
 
-        return parent::wantToExecute($event)
-            && (empty($this->propertyName) || ($this->propertyName === $property));
+        throw new InvalidArgumentException('Neither Method getPropertyName() nor method getProperty() found');
     }
 }

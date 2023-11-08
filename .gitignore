@@ -2,7 +2,7 @@
 .DS_Store
 Thumbs.db
 
-# IDEs 
+# IDEs
 .buildpath
 .project
 .settings/
@@ -22,5 +22,4 @@ build/
 
 # PHPCQ and related tools
 .php_cs.cache
-build.properties
-.build
+.phpcq/*

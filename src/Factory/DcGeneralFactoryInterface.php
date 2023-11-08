@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,7 +38,7 @@ interface DcGeneralFactoryInterface
     /**
      * Set the class name to use as environment.
      *
-     * @param string $environmentClassName The class name.
+     * @param class-string<EnvironmentInterface> $environmentClassName The class name.
      *
      * @return DcGeneralFactoryInterface
      */
@@ -46,7 +47,7 @@ interface DcGeneralFactoryInterface
     /**
      * Retrieve the class name to use as environment.
      *
-     * @return string
+     * @return class-string<EnvironmentInterface>
      */
     public function getEnvironmentClassName();
 
@@ -69,7 +70,7 @@ interface DcGeneralFactoryInterface
     /**
      * Set the class name to use as data definition container.
      *
-     * @param string $containerClassName The class name.
+     * @param class-string<ContainerInterface> $containerClassName The class name.
      *
      * @return DcGeneralFactoryInterface
      */
@@ -78,14 +79,14 @@ interface DcGeneralFactoryInterface
     /**
      * Retrieve the class name to use as data definition container.
      *
-     * @return string
+     * @return class-string<ContainerInterface>
      */
     public function getContainerClassName();
 
     /**
      * Set the class name to use as DcGeneral.
      *
-     * @param string $dcGeneralClassName The class name.
+     * @param class-string<DcGeneral> $dcGeneralClassName The class name.
      *
      * @return DcGeneralFactoryInterface
      */
@@ -94,7 +95,7 @@ interface DcGeneralFactoryInterface
     /**
      * Retrieve the class name to use as DcGeneral.
      *
-     * @return string
+     * @return class-string<DcGeneral>
      */
     public function getDcGeneralClassName();
 
@@ -133,32 +134,32 @@ interface DcGeneralFactoryInterface
     /**
      * Set the environment to use.
      *
-     * @param EnvironmentInterface $environment The environment instance.
+     * @param EnvironmentInterface|null $environment The environment instance.
      *
      * @return DcGeneralFactoryInterface
      */
-    public function setEnvironment(EnvironmentInterface $environment = null);
+    public function setEnvironment(?EnvironmentInterface $environment = null);
 
     /**
      * Retrieve the environment to use.
      *
-     * @return EnvironmentInterface
+     * @return EnvironmentInterface|null
      */
     public function getEnvironment();
 
     /**
      * Set the data definition container to use.
      *
-     * @param ContainerInterface $dataContainer The data definition container instance.
+     * @param ContainerInterface|null $dataContainer The data definition container instance.
      *
      * @return DcGeneralFactoryInterface
      */
-    public function setDataContainer(ContainerInterface $dataContainer = null);
+    public function setDataContainer(?ContainerInterface $dataContainer = null);
 
     /**
      * Retrieve the data definition container.
      *
-     * @return ContainerInterface
+     * @return ContainerInterface|null
      */
     public function getDataContainer();
 

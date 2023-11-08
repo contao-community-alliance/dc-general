@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -36,12 +37,19 @@ use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\Callbacks;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\InputProvider;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class FileSelect.
@@ -49,22 +57,17 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
  * Back end tree picker for usage in generalfile.php.
  *
  * @deprecated This is deprecated since 2.1 and where removed in 3.0. Use the file tree widget instead.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class FileSelect
 {
     /**
-     * Current ajax object.
-     *
-     * @var object
-     */
-    protected $objAjax;
-
-    /**
      * The DcGeneral Object.
      *
-     * @var DcGeneral
+     * @var DcGeneral|null
      */
-    protected $itemContainer;
+    protected $itemContainer = null;
 
     /**
      * Initialize the controller.
@@ -81,9 +84,11 @@ class FileSelect
         BackendUser::getInstance();
         Config::getInstance();
         Database::getInstance();
+        /** @psalm-suppress DeprecatedMethod */
         BackendUser::getInstance()->authenticate();
 
         System::loadLanguageFile('default');
+        /** @psalm-suppress DeprecatedMethod */
         Backend::setStaticUrls();
     }
 
@@ -99,7 +104,8 @@ class FileSelect
     {
         $inputProvider = new InputProvider();
 
-        $template       = new BackendTemplate('be_picker');
+        $template = new BackendTemplate('be_picker');
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->main = '';
 
         $ajax = $this->runAjaxRequest();
@@ -108,7 +114,14 @@ class FileSelect
 
         $this->setupItemContainer($modelId);
 
-        $sessionStorage = $this->itemContainer->getEnvironment()->getSessionStorage();
+        $itemContainer = $this->itemContainer;
+        assert($itemContainer instanceof DcGeneral);
+
+        $environment = $itemContainer->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         // Define the current ID.
         \define(
@@ -119,41 +132,64 @@ class FileSelect
 
         $fileSelector = $this->prepareFileSelector($modelId, $ajax);
 
-        $template->main        = $fileSelector->generate();
-        $template->theme       = Backend::getTheme();
-        $template->base        = Environment::get('base');
-        $template->language    = $GLOBALS['TL_LANGUAGE'];
-        $template->title       = StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
-        $template->charset     = $GLOBALS['TL_CONFIG']['characterSet'];
-        $template->addSearch   = $fileSelector->searchField;
-        $template->search      = $GLOBALS['TL_LANG']['MSC']['search'];
-        $template->action      = \ampersand(Environment::get('request'));
-        $template->value       = $sessionStorage->get('file_selector_search');
-        $template->manager     = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->main = $fileSelector->generate();
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->theme = Backend::getTheme();
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->base = Environment::get('base');
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->language = $GLOBALS['TL_LANGUAGE'];
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->title = StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->charset = $GLOBALS['TL_CONFIG']['characterSet'];
+        /**
+         * @psalm-suppress UndefinedMagicPropertyAssignment
+         * @psalm-suppress UndefinedMagicPropertyFetch
+         */
+        $template->addSearch = $fileSelector->searchField;
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->search = $GLOBALS['TL_LANG']['MSC']['search'];
+        $template->action = StringUtil::ampersand(Environment::get('request'));
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->value = $sessionStorage->get('file_selector_search');
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        $template->manager = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->managerHref = '';
 
-        if ('tl_files' !== $inputProvider->getValue('do')
+        if (
+            'tl_files' !== $inputProvider->getValue('do')
             && (null === $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'])
         ) {
             Backend::addFilesBreadcrumb('tl_files_picker');
         }
+        /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->breadcrumb = $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'];
 
         $user = BackendUser::getInstance();
         // Add the manager link.
+        /** @psalm-suppress UndefinedMethod */
         if ($user->hasAccess('files', 'modules')) {
-            $template->manager     = $GLOBALS['TL_LANG']['MSC']['fileManager'];
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
+            $template->manager = $GLOBALS['TL_LANG']['MSC']['fileManager'];
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $template->managerHref = 'contao/main.php?do=files&amp;popup=1';
         }
 
+        /** @psalm-suppress UndefinedMethod */
         if (Input::get('switch') && $user->hasAccess('page', 'modules')) {
-            $template->switch     = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
+            $template->switch = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
+            /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $template->switchHref =
-                \str_replace('contao/file.php', 'contao/page.php', \ampersand(Environment::get('request')));
+                \str_replace('contao/file.php', 'contao/page.php', StringUtil::ampersand(Environment::get('request')));
         }
 
         // Prevent debug output at all cost.
         $GLOBALS['TL_CONFIG']['debugMode'] = false;
+        /** @psalm-suppress DeprecatedMethod */
         $template->output();
     }
 
@@ -169,7 +205,15 @@ class FileSelect
         if (!Database::getInstance()->tableExists($modelId->getDataProviderName())) {
             return null;
         }
-        $dataProvider = $this->itemContainer->getEnvironment()->getDataProvider();
+
+        $itemContainer = $this->itemContainer;
+        assert($itemContainer instanceof DcGeneral);
+
+        $environment = $itemContainer->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
 
         return $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
     }
@@ -180,13 +224,22 @@ class FileSelect
      * @param ModelIdInterface $modelId The model identifier.
      * @param Ajax             $ajax    The ajax request.
      *
+     * @psalm-suppress DeprecatedClass
      * @return FileSelector
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     private function prepareFileSelector(ModelIdInterface $modelId, Ajax $ajax = null)
     {
-        $inputProvider = $this->itemContainer->getEnvironment()->getInputProvider();
+        $itemContainer = $this->itemContainer;
+        assert($itemContainer instanceof DcGeneral);
+
+        $environment = $itemContainer->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $propertyName  = $inputProvider->getParameter('field');
         $information   = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
 
@@ -194,22 +247,29 @@ class FileSelect
             $information['eval'] = [];
         }
 
+        $itemContainer = $this->itemContainer;
+        assert($itemContainer instanceof DcGeneral);
+
+        $definition = $itemContainer->getEnvironment();
+        assert($definition instanceof ContainerInterface);
+
         // Merge with the information from the data container.
-        $property = $this
-            ->itemContainer
-            ->getEnvironment()
-            ->getDataDefinition()
-            ->getPropertiesDefinition()
-            ->getProperty($propertyName);
+        $property = $definition->getPropertiesDefinition()->getProperty($propertyName);
         $extra    = $property->getExtra();
 
         $information['eval'] = \array_merge($extra, (array) $information['eval']);
 
-        $this->session->set('filePickerRef', Environment::get('request'));
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+        $sessionStorage->set('filePickerRef', Environment::get('request'));
 
-        $combat = new DcCompat($this->itemContainer->getEnvironment(), $this->getActiveModel($modelId), $propertyName);
+        $combat = new DcCompat($itemContainer->getEnvironment(), $this->getActiveModel($modelId), $propertyName);
 
-        /** @var FileSelector $fileSelector */
+        /**
+         * @var FileSelector $fileSelector
+         *
+         * @psalm-suppress DeprecatedClass
+         */
         $fileSelector = new $GLOBALS['BE_FFL']['fileSelector'](
             Widget::getAttributesFromDca(
                 $information,
@@ -243,7 +303,14 @@ class FileSelect
      */
     private function prepareValuesForFileSelector($propertyName, ModelIdInterface $modelId, DcCompat $combat)
     {
-        $inputProvider = $this->itemContainer->getEnvironment()->getInputProvider();
+        $itemContainer = $this->itemContainer;
+        assert($itemContainer instanceof DcGeneral);
+
+        $environment = $itemContainer->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         $fileSelectorValues = [];
         foreach (\array_filter(\explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
@@ -269,7 +336,7 @@ class FileSelect
     }
 
     /**
-     * Setup the item container.
+     * Set up the item container.
      *
      * @param ModelIdInterface $modelId The model identifier.
      *
@@ -280,7 +347,11 @@ class FileSelect
     private function setupItemContainer(ModelIdInterface $modelId)
     {
         $dispatcher = System::getContainer()->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $translator = new TranslatorChain();
+        assert($translator instanceof TranslatorInterface);
+
         $translator->add(new LangArrayTranslator($dispatcher));
 
         $this->itemContainer = (new DcGeneralFactory())

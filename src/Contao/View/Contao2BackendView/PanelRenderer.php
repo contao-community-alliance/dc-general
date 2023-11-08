@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,20 +15,25 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     binron <rtb@gmx.ch>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\GetThemeEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class renders a backend view panel including all elements.
@@ -55,7 +60,7 @@ class PanelRenderer
     /**
      * Retrieve the environment.
      *
-     * @return EnvironmentInterface
+     * @return EnvironmentInterface|null
      */
     protected function getEnvironment()
     {
@@ -73,9 +78,13 @@ class PanelRenderer
     protected function renderPanelElement($element, $cssClass)
     {
         $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $event = new GetPanelElementTemplateEvent($environment, $element);
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher->dispatch($event, $event::NAME);
 
         $template = $event->getTemplate();
 
@@ -103,7 +112,7 @@ class PanelRenderer
             return false;
         }
 
-        foreach ((array) $ignoredPanels as $class) {
+        foreach ($ignoredPanels as $class) {
             if ($element instanceof $class) {
                 return true;
             }
@@ -171,9 +180,13 @@ class PanelRenderer
     public function render($ignoredPanels = [])
     {
         $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
         // If in edit/override all mode and list all properties, the panel filter isn´t in use.
-        if ('properties' === $environment->getInputProvider()->getParameter('select')) {
+        if ('properties' === $inputProvider->getParameter('select')) {
             return '';
         }
 
@@ -181,8 +194,11 @@ class PanelRenderer
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }
 
+        $panelContainer = $this->view->getPanel();
+        assert($panelContainer instanceof PanelContainerInterface);
+
         $panels = [];
-        foreach ($this->view->getPanel() as $panel) {
+        foreach ($panelContainer as $panel) {
             $panels[] = $this->renderPanelRow($panel, $ignoredPanels);
         }
 
@@ -190,10 +206,13 @@ class PanelRenderer
             $template   = new ContaoBackendViewTemplate('dcbe_general_panel');
             $themeEvent = new GetThemeEvent();
 
-            $environment->getEventDispatcher()->dispatch($themeEvent, ContaoEvents::BACKEND_GET_THEME);
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch($themeEvent, ContaoEvents::BACKEND_GET_THEME);
 
             $template
-                ->set('action', \ampersand($environment->getInputProvider()->getRequestUrl(), true))
+                ->set('action', StringUtil::ampersand($inputProvider->getRequestUrl(), true))
                 ->set('theme', $themeEvent->getTheme())
                 ->set('panel', $panels);
 

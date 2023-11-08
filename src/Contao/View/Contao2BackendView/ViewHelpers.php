@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,18 +29,23 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Helper class that provides static methods used in views.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ViewHelpers
 {
@@ -48,24 +54,29 @@ class ViewHelpers
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return GroupAndSortingDefinitionInterface
+     * @return GroupAndSortingDefinitionInterface|null
      */
     public static function getCurrentSorting(EnvironmentInterface $environment)
     {
         /** @var BackendViewInterface $view */
         $view = $environment->getView();
 
-        foreach ($view->getPanel() as $panel) {
+        $panelInterface = $view->getPanel();
+        assert($panelInterface instanceof PanelContainerInterface);
+
+        foreach ($panelInterface as $panel) {
             /** @var PanelInterface $panel */
             $sort = $panel->getElement('sort');
-            if ($sort) {
-                /** @var SortElementInterface $sort */
+            if ($sort instanceof SortElementInterface) {
                 return $sort->getSelectedDefinition();
             }
         }
 
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         /** @var Contao2BackendViewDefinitionInterface $viewSection */
-        $viewSection = $environment->getDataDefinition()->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $viewSection = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         $definition  = $viewSection->getListingConfig()->getGroupAndSortingDefinition();
         if ($definition->hasDefault()) {
             return $definition->getDefault();
@@ -76,30 +87,36 @@ class ViewHelpers
 
     /**
      * {@inheritDoc}
+     *
+     * @return string|null
      */
     public static function getManualSortingProperty(EnvironmentInterface $environment)
     {
         /** @var BackendViewInterface $view */
         $view = $environment->getView();
 
+        $panelInterface = $view->getPanel();
+        assert($panelInterface instanceof PanelContainerInterface);
+
         $definition = null;
-        foreach ($view->getPanel() as $panel) {
+        foreach ($panelInterface as $panel) {
             /** @var PanelInterface $panel */
             $sort = $panel->getElement('sort');
-            if ($sort) {
-                /** @var SortElementInterface $sort */
+            if ($sort instanceof SortElementInterface) {
                 $definition = $sort->getSelectedDefinition();
             }
         }
 
         if (null === $definition) {
-            /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
-            $dataDefinition            = $environment->getDataDefinition();
-            $viewDefinition            = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
-            $groupAndSortingDefinition = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
+            $dataDefinition = $environment->getDataDefinition();
+            assert($dataDefinition instanceof ContainerInterface);
 
-            if ($groupAndSortingDefinition->hasDefault()) {
-                $definition = $groupAndSortingDefinition->getDefault();
+            /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
+            $viewDefinition  = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+            $groupAndSorting = $viewDefinition->getListingConfig()->getGroupAndSortingDefinition();
+
+            if ($groupAndSorting->hasDefault()) {
+                $definition = $groupAndSorting->getDefault();
             }
         }
 
@@ -158,7 +175,8 @@ class ViewHelpers
         $sorting = static::getCurrentSorting($environment);
 
         // If no sorting defined, exit.
-        if ((!$sorting)
+        if (
+            (!$sorting)
             || (!$sorting->getCount())
             || $sorting->get(0)->getSortingMode() === GroupAndSortingInformationInterface::SORT_RANDOM
         ) {
@@ -205,7 +223,10 @@ class ViewHelpers
             $model->getProperty($property->getName())
         );
 
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, $event::NAME);
 
         if (null !== $event->getRendered()) {
             return $event->getRendered();
@@ -224,9 +245,10 @@ class ViewHelpers
     public static function redirectHome(EnvironmentInterface $environment)
     {
         $input = $environment->getInputProvider();
+        assert($input instanceof InputProviderInterface);
 
-        if ($input->hasParameter('table') && ($hasParentId = $input->hasParameter('pid'))) {
-            if ($hasParentId) {
+        if ($input->hasParameter('table')) {
+            if ($input->hasParameter('pid')) {
                 $event = new RedirectEvent(
                     \sprintf(
                         'contao?do=%s&table=%s&pid=%s',
@@ -253,6 +275,9 @@ class ViewHelpers
             );
         }
 
-        $environment->getEventDispatcher()->dispatch($event, ContaoEvents::CONTROLLER_REDIRECT);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, ContaoEvents::CONTROLLER_REDIRECT);
     }
 }

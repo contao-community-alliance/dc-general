@@ -28,7 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\StaticTranslator;
-use Doctrine\Common\Cache\Cache;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -68,19 +68,22 @@ class DcGeneralTest extends TestCase
             }
         });
 
-        $mockDefinitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
-        $mockDefinitionContainer
+        $definitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
+        $definitionContainer
             ->method('hasDefinition')
             ->willReturn(false);
 
         System::setContainer($container = $this->getMockForAbstractClass(ContainerInterface::class));
         $container
             ->method('get')
-            ->willReturnCallback(function ($name) use ($eventDispatcher, $mockDefinitionContainer) {
+            ->willReturnCallback(function ($name) use ($eventDispatcher, $definitionContainer) {
                 switch ($name) {
-                    case 'event_dispatcher': return $eventDispatcher;
-                    case 'cca.translator.contao_translator': return new StaticTranslator();
-                    case 'cca.dc-general.data-definition-container': return $mockDefinitionContainer;
+                    case 'event_dispatcher':
+                        return $eventDispatcher;
+                    case 'cca.translator.contao_translator':
+                        return new StaticTranslator();
+                    case 'cca.dc-general.data-definition-container':
+                        return $definitionContainer;
                 }
                 return null;
             });
@@ -119,7 +122,7 @@ class DcGeneralTest extends TestCase
             'palettes'   => []
         ];
 
-        $cache = $this->getMockForAbstractClass(Cache::class);
+        $cache = new ArrayAdapter();
 
         $dataContainerFoo = new \DC_General('tl_foo', [], $cache);
 

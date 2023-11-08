@@ -50,6 +50,9 @@ use PHPUnit\Framework\MockObject\MockObject;
  * Test case for the relationship manager.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ModelCollectorTest extends TestCase
 {
@@ -134,12 +137,14 @@ class ModelCollectorTest extends TestCase
 
         // Test with parent definition
         if (false !== \strpos(\is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
-            $parentPropertiesDefinition = $this->mockPropertiesDefinition();
-            $parentPropertiesDefinition->method('getPropertyNames')->willReturn(['test-parent-property']);
+            $parentProperties = $this->mockPropertiesDefinition();
+            $parentProperties->method('getPropertyNames')->willReturn(['test-parent-property']);
             $parentDataDefinition = $this->mockDefinitionContainer();
-            $parentDataDefinition->method('getName')->willReturn(ModelId::fromSerialized(
-                \is_object($modelId) ? $modelId->getSerialized() : $modelId)->getDataProviderName());
-            $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentPropertiesDefinition);
+            $parentDataDefinition->method('getName')->willReturn(
+                ModelId::fromSerialized(\is_object($modelId) ? $modelId->getSerialized() : $modelId)
+                    ->getDataProviderName()
+            );
+            $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentProperties);
 
             $environment->method('getParentDataDefinition')->willReturn($parentDataDefinition);
         }
@@ -381,7 +386,7 @@ class ModelCollectorTest extends TestCase
                     case 'grandparent':
                         return [$this->createParentChildCondition('grandparent', 'parent')];
 
-                    case  'parent':
+                    case 'parent':
                         return [$this->createParentChildCondition('parent', 'child')];
 
                     default:

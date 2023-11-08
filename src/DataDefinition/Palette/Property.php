@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 
 /**
@@ -40,16 +42,16 @@ class Property implements PropertyInterface
     /**
      * The condition to be examined to determine if this property is visible.
      *
-     * @var PropertyConditionInterface
+     * @var PropertyConditionInterface|null
      */
-    protected $visibleCondition;
+    protected $visibleCondition = null;
 
     /**
      * The condition to be examined to determine if this property is editable.
      *
-     * @var PropertyConditionInterface
+     * @var PropertyConditionInterface|null
      */
-    protected $editableCondition;
+    protected $editableCondition = null;
 
     /**
      * Create a new instance.
@@ -66,7 +68,9 @@ class Property implements PropertyInterface
      */
     public function setName($name)
     {
-        $this->name = (string) $name;
+        $this->name = $name;
+
+        return $this;
     }
 
     /**
@@ -82,10 +86,12 @@ class Property implements PropertyInterface
      */
     public function isVisible(
         ModelInterface $model = null,
-        PropertyValueBag $input = null,
+        PropertyValueBagInterface $input = null,
         LegendInterface $legend = null
     ) {
         if ($this->visibleCondition) {
+            // We should have defined the interfaces back in 2013... :/
+            assert($input === null || $input instanceof PropertyValueBag);
             return $this->visibleCondition->match($model, $input, $this, $legend);
         }
 
@@ -97,10 +103,12 @@ class Property implements PropertyInterface
      */
     public function isEditable(
         ModelInterface $model = null,
-        PropertyValueBag $input = null,
+        PropertyValueBagInterface $input = null,
         LegendInterface $legend = null
     ) {
         if ($this->editableCondition) {
+            // We should have defined the interfaces back in 2013... :/
+            assert($input === null || $input instanceof PropertyValueBag);
             return $this->editableCondition->match($model, $input, $this, $legend);
         }
 

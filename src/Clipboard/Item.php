@@ -23,6 +23,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use InvalidArgumentException;
 
 /**
  * {@inheritdoc}
@@ -32,26 +33,22 @@ class Item extends AbstractItem
     /**
      * The id of the model.
      *
-     * @var ModelIdInterface|null
+     * @var ModelIdInterface
      */
-    private $modelId;
+    private ModelIdInterface $modelId;
 
     /**
      * Create a new instance.
      *
      * @param string                $action   The action being performed.
      * @param ModelIdInterface|null $parentId The id of the parent model (null for no parent).
-     * @param ModelIdInterface|null $modelId  The id of the model the action covers (may be null for "create" only).
+     * @param ModelIdInterface      $modelId  The id of the model the action covers (maybe null for "create" only).
      *
-     * @throws \InvalidArgumentException When the action is not one of create, cut, copy or deep copy.
+     * @throws InvalidArgumentException When the action is not one of create, cut, copy or deep copy.
      */
-    public function __construct($action, $parentId, $modelId)
+    public function __construct(string $action, ?ModelIdInterface $parentId, ModelIdInterface $modelId)
     {
         parent::__construct($action, $parentId);
-
-        if (!$modelId instanceof ModelIdInterface) {
-            throw new \InvalidArgumentException('Invalid $modelId given.');
-        }
 
         $this->modelId = $modelId;
     }
@@ -78,7 +75,7 @@ class Item extends AbstractItem
     public function getClipboardId()
     {
         return $this->getAction() .
-            ($this->modelId ? $this->modelId->getSerialized() : 'null') .
+            $this->modelId->getSerialized() .
             (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
     }
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,7 +36,6 @@ class DefaultDataProviderSqlUtils
      * Returns all values from $objConfig->getFields() as comma separated list.
      *
      * @param ConfigInterface $config     The configuration to use.
-     *
      * @param string          $idProperty The name of the id property.
      *
      * @return string
@@ -47,8 +47,9 @@ class DefaultDataProviderSqlUtils
         if ($config->getIdOnly()) {
             return $idProperty;
         }
+
         if (null !== $config->getFields()) {
-            $fields = \implode(', ', $config->getFields());
+            $fields = \implode(', ', (array) $config->getFields());
             if (false !== \stripos($fields, 'DISTINCT')) {
                 return $fields;
             }
@@ -62,7 +63,6 @@ class DefaultDataProviderSqlUtils
      * Build the WHERE clause for a configuration.
      *
      * @param ConfigInterface $config     The configuration to use.
-     *
      * @param array           $parameters The query parameters will get stored into this array.
      *
      * @return string  The combined WHERE clause (including the word "WHERE").
@@ -94,7 +94,7 @@ class DefaultDataProviderSqlUtils
         $result  = '';
         $fields  = [];
 
-        if (empty($sorting) || !\is_array($sorting)) {
+        if (empty($sorting)) {
             return '';
         }
         foreach ($sorting as $field => $direction) {
@@ -169,12 +169,8 @@ class DefaultDataProviderSqlUtils
      *
      * @throws DcGeneralRuntimeException If an invalid filter entry is encountered.
      */
-    private static function calculateSubfilter($filter, array &$parameters)
+    private static function calculateSubfilter(array $filter, array &$parameters): string
     {
-        if (!\is_array($filter)) {
-            throw new DcGeneralRuntimeException('Error Processing sub filter: ' . \var_export($filter, true), 1);
-        }
-
         switch ($filter['operation']) {
             case 'AND':
             case 'OR':
@@ -264,9 +260,11 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterLike($operation, &$params)
     {
-        $wildcards = \str_replace(['*', '?'], ['%', '_'], $operation['value']);
+        $value = $operation['value'];
+        assert(\is_string($value));
+        $wildcards = \str_replace(['*', '?'], ['%', '_'], $value);
         $params[]  = $wildcards;
 
-        return \sprintf('(%s LIKE ?)', $operation['property'], $wildcards);
+        return \sprintf('(%s LIKE %s)', $operation['property'], $wildcards);
     }
 }

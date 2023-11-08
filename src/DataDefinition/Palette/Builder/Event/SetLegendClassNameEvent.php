@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 
 /**
  * This event gets emitted when a legend class name is set.
@@ -33,15 +34,15 @@ class SetLegendClassNameEvent extends BuilderEvent
     /**
      * The class name.
      *
-     * @var string
+     * @var class-string<LegendInterface>
      */
     protected $legendClassName;
 
     /**
      * Create a new instance.
      *
-     * @param string         $legendClassName The class name.
-     * @param PaletteBuilder $paletteBuilder  The palette builder in use.
+     * @param class-string<LegendInterface> $legendClassName The class name.
+     * @param PaletteBuilder                $paletteBuilder  The palette builder in use.
      */
     public function __construct($legendClassName, PaletteBuilder $paletteBuilder)
     {
@@ -52,13 +53,13 @@ class SetLegendClassNameEvent extends BuilderEvent
     /**
      * Set the legend class name.
      *
-     * @param string $legendClassName The class name.
+     * @param class-string<LegendInterface> $legendClassName The class name.
      *
      * @return SetLegendClassNameEvent
      */
     public function setLegendClassName($legendClassName)
     {
-        $this->legendClassName = (string) $legendClassName;
+        $this->legendClassName = $legendClassName;
 
         return $this;
     }
@@ -66,7 +67,7 @@ class SetLegendClassNameEvent extends BuilderEvent
     /**
      * Retrieve the class name.
      *
-     * @return string
+     * @return class-string<LegendInterface>
      */
     public function getLegendClassName()
     {

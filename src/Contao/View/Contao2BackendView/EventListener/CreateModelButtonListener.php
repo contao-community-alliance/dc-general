@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,18 +13,21 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 
 /**
@@ -43,7 +46,7 @@ class CreateModelButtonListener
      */
     public function handle(GetGlobalButtonEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
@@ -52,33 +55,53 @@ class CreateModelButtonListener
         }
 
         $environment     = $event->getEnvironment();
-        $basicDefinition = $environment->getDataDefinition()->getBasicDefinition();
-        $mode            = $basicDefinition->getMode();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
+
+        $mode = $basicDefinition->getMode();
 
         if (!$basicDefinition->isCreatable()) {
             $event->setHtml('');
+
             return;
         }
 
-        if ((BasicDefinitionInterface::MODE_PARENTEDLIST === $mode)
+        if (
+            (BasicDefinitionInterface::MODE_PARENTEDLIST === $mode)
             || (BasicDefinitionInterface::MODE_HIERARCHICAL === $mode)
         ) {
             $filter = new Filter();
-            $filter->andModelIsFromProvider($basicDefinition->getDataProvider());
-            if ($parentDataProviderName = $basicDefinition->getParentDataProvider()) {
-                $filter->andParentIsFromProvider($parentDataProviderName);
+
+            $provider = $basicDefinition->getDataProvider();
+            assert(\is_string($provider));
+
+            $filter->andModelIsFromProvider($provider);
+            if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+                $filter->andParentIsFromProvider($parentProviderName);
             } else {
                 $filter->andHasNoParent();
             }
 
-            if ($environment->getClipboard()->isNotEmpty($filter)) {
+            $clipboard = $environment->getClipboard();
+            assert($clipboard instanceof ClipboardInterface);
+
+            if ($clipboard->isNotEmpty($filter)) {
                 $event->setHtml('');
+
                 return;
             }
         }
 
         $url = UrlBuilder::fromUrl($event->getHref());
-        if ($serializedPid = $environment->getInputProvider()->getParameter('pid')) {
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if ($serializedPid = $inputProvider->getParameter('pid')) {
             $url->setQueryParameter('pid', ModelId::fromSerialized($serializedPid)->getSerialized());
         }
 

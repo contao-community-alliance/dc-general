@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,73 +14,79 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
+use ArrayAccess;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Countable;
+use IteratorAggregate;
 
 /**
  * This interface represents an iterable collection of Model elements.
+ *
+ * @extends IteratorAggregate<int, ModelInterface>
+ * @extends ArrayAccess<int, ModelInterface>
  */
-interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countable
+interface CollectionInterface extends IteratorAggregate, ArrayAccess, Countable
 {
     /**
      * Get length of this collection.
      *
      * @return int
      */
-    public function length();
+    public function length(): int;
 
     /**
      * Get the model at a specific index.
      *
-     * @param int $intIndex The index of the model to retrieve.
+     * @param int $index The index of the model to retrieve.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
-    public function get($intIndex);
+    public function get($index): ?ModelInterface;
 
     /**
      * Append a model to the end of this collection.
      *
-     * @param ModelInterface $objModel The model to append to the collection.
+     * @param ModelInterface $model The model to append to the collection.
      *
      * @return void
      *
      * @throws DcGeneralRuntimeException When no model has been passed.
      */
-    public function push(ModelInterface $objModel);
+    public function push(ModelInterface $model): void;
 
     /**
      * Remove the model at the end of the collection and return it.
      *
      * If the collection is empty, null will be returned.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
-    public function pop();
+    public function pop(): ?ModelInterface;
 
     /**
      * Insert a model at the beginning of the collection.
      *
-     * @param ModelInterface $objModel The model to insert into the collection.
+     * @param ModelInterface $model The model to insert into the collection.
      *
      * @return void
      */
-    public function unshift(ModelInterface $objModel);
+    public function unshift(ModelInterface $model): void;
 
     /**
      * Remove the model from the beginning of the collection and return it.
      *
      * If the collection is empty, null will be returned.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
-    public function shift();
+    public function shift(): ?ModelInterface;
 
     /**
      * Insert a record at the specific position.
@@ -88,23 +94,23 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      * Move all records at position >= $index one index up.
      * If $index is out of bounds, just add at the end (does not fill with empty records!).
      *
-     * @param int            $intIndex The index where the model shall be placed.
-     * @param ModelInterface $objModel The model to insert.
+     * @param int            $index The index where the model shall be placed.
+     * @param ModelInterface $model The model to insert.
      *
      * @return void
      */
-    public function insert($intIndex, ModelInterface $objModel);
+    public function insert($index, ModelInterface $model): void;
 
     /**
      * Remove the given index or model from the collection and renew the index.
      *
      * ATTENTION: Don't use key to unset in foreach because of the new index.
      *
-     * @param mixed $mixedValue The index (integer) or InterfaceGeneralModel instance to remove.
+     * @param int|ModelInterface $mixedValue The index or instance to remove.
      *
      * @return void
      */
-    public function remove($mixedValue);
+    public function remove($mixedValue): void;
 
     /**
      * Remove the model with the given id from the collection.
@@ -113,7 +119,7 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      *
      * @return void
      */
-    public function removeById($modelId);
+    public function removeById($modelId): void;
 
     /**
      * Check whether the given model is contained in the collection.
@@ -122,7 +128,7 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      *
      * @return bool
      */
-    public function contains($model);
+    public function contains($model): bool;
 
     /**
      * Check whether the given model is contained in the collection.
@@ -131,14 +137,14 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      *
      * @return bool
      */
-    public function containsById($modelId);
+    public function containsById($modelId): bool;
 
     /**
      * Retrieve the ids of the models.
      *
-     * @return array
+     * @return list<mixed>
      */
-    public function getModelIds();
+    public function getModelIds(): array;
 
     /**
      * Intersect the given collection with this collection and return the result.
@@ -147,7 +153,7 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      *
      * @return CollectionInterface
      */
-    public function intersect($collection);
+    public function intersect($collection): CollectionInterface;
 
     /**
      * Compute the union of this collection and the given collection.
@@ -156,7 +162,7 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      *
      * @return CollectionInterface
      */
-    public function union($collection);
+    public function union($collection): CollectionInterface;
 
     /**
      * Computes the difference of the collection.
@@ -166,30 +172,30 @@ interface CollectionInterface extends \IteratorAggregate, \ArrayAccess, \Countab
      * @return CollectionInterface The collection containing all the entries from this collection that are not present
      *                             in the given collection.
      */
-    public function diff($collection);
+    public function diff($collection): CollectionInterface;
 
     /**
      * Check if the given collection is an subset of the given collection.
      *
      * @param CollectionInterface $collection The collection to check.
      *
-     * @return boolean
+     * @return bool
      */
-    public function isSubsetOf($collection);
+    public function isSubsetOf($collection): bool;
 
     /**
      * Make a reverse sorted collection of this collection.
      *
-     * @return ModelInterface
+     * @return CollectionInterface
      */
-    public function reverse();
+    public function reverse(): CollectionInterface;
 
     /**
      * Sort the records with the given callback and return the new sorted collection.
      *
-     * @param callback $callback The callback function to use.
+     * @param callable(ModelInterface, ModelInterface): int $callback The callback function to use.
      *
-     * @return ModelInterface
+     * @return CollectionInterface
      */
-    public function sort($callback);
+    public function sort($callback): CollectionInterface;
 }

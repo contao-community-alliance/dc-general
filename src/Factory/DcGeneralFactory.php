@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,38 +36,43 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PreCreateDcGeneralEvent;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Doctrine\Common\Cache\Cache;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Factory to create a DcGeneral instance.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {
     /**
      * The cache.
      *
-     * @var Cache|null
+     * @var CacheInterface
      */
-    private $cache;
+    private CacheInterface $cache;
 
     /**
      * The constructor.
      *
-     * @param Cache|null $cache The cache.
+     * @param CacheInterface|null $cache The cache.
      */
-    public function __construct(Cache $cache = null)
+    public function __construct(CacheInterface $cache = null)
     {
-        $this->cache = $cache;
-        if (null === $this->cache) {
+        if (null === $cache) {
             // @codingStandardsIgnoreStart
             @\trigger_error(
-                'You should use ' . DcGeneralFactoryCache::class . ' .',
+                'You should pass an instance of ' . CacheInterface::class . ' .',
                 E_USER_DEPRECATED
             );
             // @codingStandardsIgnoreEnd
-            $this->cache = System::getContainer()->get(DcGeneralFactoryCache::class);
+            /** @psalm-suppress DeprecatedClass */
+            $cache = System::getContainer()->get(DcGeneralFactoryCache::class);
+
+            assert($cache instanceof CacheInterface);
         }
+        $this->cache = $cache;
     }
 
     /**
@@ -81,11 +87,20 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public static function deriveEmptyFromEnvironment(EnvironmentInterface $environment)
     {
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         $factory = new DcGeneralFactory();
-        $factory->setEventDispatcher($environment->getEventDispatcher());
-        $factory->setTranslator($environment->getTranslator());
+        $factory->setEventDispatcher($dispatcher);
+        $factory->setTranslator($translator);
         $factory->setEnvironmentClassName(\get_class($environment));
-        $factory->setContainerClassName(\get_class($environment->getDataDefinition()));
+        $factory->setContainerClassName(\get_class($definition));
         return $factory;
     }
 
@@ -101,14 +116,18 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     public static function deriveFromEnvironment(EnvironmentInterface $environment)
     {
         $factory = static::deriveEmptyFromEnvironment($environment);
-        $factory->setContainerName($environment->getDataDefinition()->getName());
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $factory->setContainerName($definition->getName());
         return $factory;
     }
 
     /**
      * The class name to use for the environment.
      *
-     * @var string
+     * @var class-string<EnvironmentInterface>
      */
     protected $environmentClassName = DefaultEnvironment::class;
 
@@ -117,56 +136,56 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @var string
      */
-    protected $containerName;
+    protected $containerName = '';
 
     /**
      * The class name of the class to use for the data definition container.
      *
-     * @var string
+     * @var class-string<ContainerInterface>
      */
     protected $containerClassName = DefaultContainer::class;
 
     /**
      * The class name of the class to use as DcGeneral.
      *
-     * @var string
+     * @var class-string<DcGeneral>
      */
     protected $dcGeneralClassName = DcGeneral::class;
 
     /**
      * The event dispatcher to use.
      *
-     * @var EventDispatcherInterface
+     * @var EventDispatcherInterface|null
      */
-    protected $eventDispatcher;
+    protected $eventDispatcher = null;
 
     /**
      * The translator that shall be used.
      *
-     * @var TranslatorInterface
+     * @var TranslatorInterface|null
      */
-    protected $translator;
+    protected $translator = null;
 
     /**
      * The environment for the new instance.
      *
-     * @var EnvironmentInterface
+     * @var EnvironmentInterface|null
      */
-    protected $environment;
+    protected $environment = null;
 
     /**
      * The data definition container instance.
      *
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
-    protected $dataContainer;
+    protected $dataContainer = null;
 
     /**
      * {@inheritdoc}
      */
     public function setEnvironmentClassName($environmentClassName)
     {
-        $this->environmentClassName = (string) $environmentClassName;
+        $this->environmentClassName = $environmentClassName;
 
         return $this;
     }
@@ -184,7 +203,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function setContainerName($containerName)
     {
-        $this->containerName = (string) $containerName;
+        $this->containerName = $containerName;
 
         return $this;
     }
@@ -202,7 +221,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function setContainerClassName($containerClassName)
     {
-        $this->containerClassName = (string) $containerClassName;
+        $this->containerClassName = $containerClassName;
 
         return $this;
     }
@@ -220,7 +239,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function setDcGeneralClassName($dcGeneralClassName)
     {
-        $this->dcGeneralClassName = (string) $dcGeneralClassName;
+        $this->dcGeneralClassName = $dcGeneralClassName;
 
         return $this;
     }
@@ -248,6 +267,10 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function getEventDispatcher()
     {
+        if (null === $this->eventDispatcher) {
+            throw new DcGeneralRuntimeException('Required event dispatcher is missing');
+        }
+
         return $this->eventDispatcher;
     }
 
@@ -266,6 +289,10 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      */
     public function getTranslator()
     {
+        if (null === $this->translator) {
+            throw new DcGeneralRuntimeException('Required translator is missing');
+        }
+
         return $this->translator;
     }
 
@@ -321,23 +348,22 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
         }
 
         $cacheKey = \md5('dc-general.' . $this->containerName);
-        if ($this->cache->contains($cacheKey)) {
-            return $this->cache->fetch($cacheKey);
-        }
-        // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(new PreCreateDcGeneralEvent($this), PreCreateDcGeneralEvent::NAME);
+        $cache    = $this->cache;
+        assert($cache instanceof CacheInterface);
 
-        $environment = $this->environment ?: $this->createEnvironment();
+        return $cache->get($cacheKey, function (): DcGeneral {
+            // Backwards compatibility.
+            $this->getEventDispatcher()->dispatch(new PreCreateDcGeneralEvent($this), PreCreateDcGeneralEvent::NAME);
 
-        /** @var DcGeneral $dcGeneral */
-        $dcGeneral = (new \ReflectionClass($this->dcGeneralClassName))->newInstance($environment);
+            $environment = $this->environment ?: $this->createEnvironment();
 
-        // Backwards compatibility.
-        $this->getEventDispatcher()->dispatch(new CreateDcGeneralEvent($dcGeneral), CreateDcGeneralEvent::NAME);
+            $dcGeneral = (new \ReflectionClass($this->dcGeneralClassName))->newInstance($environment);
 
-        $this->cache->save($cacheKey, $dcGeneral);
+            // Backwards compatibility.
+            $this->getEventDispatcher()->dispatch(new CreateDcGeneralEvent($dcGeneral), CreateDcGeneralEvent::NAME);
 
-        return $dcGeneral;
+            return $dcGeneral;
+        });
     }
 
     /**
@@ -352,25 +378,16 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name or container is missing');
         }
 
-        if (null === $this->eventDispatcher) {
-            throw new DcGeneralRuntimeException('Required event dispatcher is missing');
-        }
-
-        if (null === $this->translator) {
-            throw new DcGeneralRuntimeException('Required translator is missing');
-        }
-
         if ($this->dataContainer) {
             $dataContainer = clone $this->dataContainer;
         } else {
             $dataContainer = $this->createContainer();
         }
 
-        /** @var EnvironmentInterface $environment */
         $environment = (new \ReflectionClass($this->environmentClassName))->newInstance();
         $environment->setDataDefinition($dataContainer);
-        $environment->setEventDispatcher($this->eventDispatcher);
-        $environment->setTranslator($this->translator);
+        $environment->setEventDispatcher($this->getEventDispatcher());
+        $environment->setTranslator($this->getTranslator());
 
         // Backwards compatibility.
         $this->getEventDispatcher()->dispatch(
@@ -395,12 +412,9 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name is missing');
         }
 
-        if (null === $this->eventDispatcher) {
-            throw new DcGeneralRuntimeException('Required event dispatcher is missing');
-        }
-
         /** @var DataDefinitionContainerInterface $definitions */
         $definitions = System::getContainer()->get('cca.dc-general.data-definition-container');
+        assert($definitions instanceof DataDefinitionContainerInterface);
 
         if ($definitions->hasDefinition($this->containerName)) {
             return clone $definitions->getDefinition($this->containerName);

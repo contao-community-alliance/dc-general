@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,6 +23,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * This event gets emitted when a property class name is set.
@@ -33,15 +35,15 @@ class SetPropertyClassNameEvent extends BuilderEvent
     /**
      * The class name.
      *
-     * @var string
+     * @var class-string<PropertyInterface>
      */
     protected $propertyClassName;
 
     /**
      * Create a new instance.
      *
-     * @param string         $propertyClassName The class name.
-     * @param PaletteBuilder $paletteBuilder    The palette builder in use.
+     * @param class-string<PropertyInterface> $propertyClassName The class name.
+     * @param PaletteBuilder                  $paletteBuilder    The palette builder in use.
      */
     public function __construct($propertyClassName, PaletteBuilder $paletteBuilder)
     {
@@ -52,13 +54,13 @@ class SetPropertyClassNameEvent extends BuilderEvent
     /**
      * Set the class name.
      *
-     * @param string $propertyClassName The class name.
+     * @param class-string<PropertyInterface> $propertyClassName The class name.
      *
      * @return SetPropertyClassNameEvent
      */
     public function setPropertyClassName($propertyClassName)
     {
-        $this->propertyClassName = (string) $propertyClassName;
+        $this->propertyClassName = $propertyClassName;
 
         return $this;
     }
@@ -66,7 +68,7 @@ class SetPropertyClassNameEvent extends BuilderEvent
     /**
      * Retrieve the class name.
      *
-     * @return string
+     * @return class-string<PropertyInterface>
      */
     public function getPropertyClassName()
     {

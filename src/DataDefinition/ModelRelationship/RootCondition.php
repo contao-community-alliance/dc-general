@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -34,7 +35,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
      *
      * @var array
      */
-    protected $filter;
+    protected $filter = [];
 
     /**
      * The setter information to use when a model shall get marked as root item.
@@ -48,7 +49,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
      *
      * @var string
      */
-    protected $sourceProvider;
+    protected $sourceProvider = '';
 
     /**
      * {@inheritdoc}
@@ -140,17 +141,17 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * {@inheritdoc}
      */
-    public function matches($model)
+    public function matches($objModel)
     {
         try {
-            $this->guardProviderName($model);
+            $this->guardProviderName($objModel);
         } catch (\InvalidArgumentException $exception) {
             return false;
         }
 
         if ($this->getFilterArray()) {
             return static::checkCondition(
-                $model,
+                $objModel,
                 [
                     'operation' => 'AND',
                     'children'  => $this->getFilterArray()

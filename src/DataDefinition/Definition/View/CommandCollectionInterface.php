@@ -124,7 +124,7 @@ interface CommandCollectionInterface
     /**
      * Get commands from this collection.
      *
-     * @return CommandInterface[]|array
+     * @return array<string, CommandInterface>
      */
     public function getCommands();
 }

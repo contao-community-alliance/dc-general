@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Widget Builder to append color picker wizards to Contao backend widgets.
@@ -88,20 +91,26 @@ class ColorPickerWizardListener
         $wizard    = '';
         $propExtra = $propInfo->getExtra();
 
-        if (\is_array($propExtra) && \array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
-            $pickerText = $environment->getTranslator()->translate('colorpicker', 'MSC');
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        if (\array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
+            $pickerText = $translator->translate('MSC.colorpicker');
             $event      = new GenerateHtmlEvent(
                 'pickcolor.svg',
                 $pickerText,
                 \sprintf(
                     'style="%s" title="%s" id="moo_%s"',
-                    'vertical-align:top;cursor:pointer',
+                    'vertical-align:-6px; width:20px; height:20px',
                     StringUtil::specialchars($pickerText),
                     $propInfo->getName()
                 )
             );
 
-            $environment->getEventDispatcher()->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
 
             // Support single fields as well (see contao/core#5240)
             $strKey = $propExtra['multiple'] ? $propInfo->getName() . '_0' : $propInfo->getName();
@@ -111,7 +120,7 @@ class ColorPickerWizardListener
                 'id: "ctrl_%3$s", startColor: ((cl = $("ctrl_%3$s").value.hexToRgb(true)) ? cl : [255, 0, 0]),' .
                 'imgPath: "%4$s", onComplete: function(color) {$("ctrl_%3$s").value = color.hex.replace("#", "");}});' .
                 '});</script>',
-                $event->getHtml(),
+                $event->getHtml() ?? '',
                 $propInfo->getName(),
                 $strKey,
                 'assets/colorpicker/images/'

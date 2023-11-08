@@ -28,36 +28,32 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
  * Class ContainerPasteButtonCallbackListener.
  *
  * Invoker for paste_button_callbacks.
+ *
+ * @extends AbstractReturningCallbackListener<GetPasteButtonEvent>
  */
 class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetPasteButtonEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
+        if (null === $definition = $event->getEnvironment()->getDataDefinition()) {
+            throw new \LogicException('No data definition given.');
+        }
         return [
             new DcCompat($event->getEnvironment(), $event->getModel()),
-            $event->getModel()->getPropertiesAsArray(),
-            $event->getEnvironment()->getDataDefinition()->getName(),
+            ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
+            $definition->getName(),
             $event->isCircularReference(),
             $event->getContainedModels(),
-            $event->getPrevious() ? $event->getPrevious()->getId() : null,
-            $event->getNext() ? $event->getNext()->getId() : null
+            ($previous = $event->getPrevious()) ? $previous->getId() : null,
+            ($next = $event->getNext()) ? $next->getId() : null
         ];
     }
 
     /**
-     * Set the HTML code for the button.
-     *
-     * @param GetPasteButtonEvent $event The event being emitted.
-     * @param string              $value The value returned by the callback.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

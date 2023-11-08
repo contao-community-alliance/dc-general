@@ -45,7 +45,7 @@ class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
     /**
      * The template instance.
      *
-     * @var ViewTemplateInterface
+     * @var ViewTemplateInterface|null
      */
     protected $template;
 
@@ -74,7 +74,7 @@ class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
     /**
      * Retrieve the template instance.
      *
-     * @return ViewTemplateInterface
+     * @return ViewTemplateInterface|null
      */
     public function getTemplate()
     {

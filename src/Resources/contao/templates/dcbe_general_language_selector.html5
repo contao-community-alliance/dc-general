@@ -1,20 +1,20 @@
 <?php
 use Contao\StringUtil;
 ?>
-<?php if($this->language): ?>
+<?php if ($this->language && !empty($this->languages)): ?>
   <div class="tl_panel tl_language_panel">
-    <form action="<?= \ampersand($this->request, true); ?>" id="language_switch" class="tl_form" method="post">
+    <form action="<?= StringUtil::ampersand($this->request, true) ?>" id="language_switch" class="tl_form" method="post">
       <div class="tl_formbody">
         <input type="hidden" name="FORM_SUBMIT" value="language_switch" />
-        <input type="hidden" name="REQUEST_TOKEN" value="<?= $this->REQUEST_TOKEN; ?>" />
+        <input type="hidden" name="REQUEST_TOKEN" value="<?= $this->REQUEST_TOKEN ?>" />
         <select name="language" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
             <?php foreach ($this->languages as $langCode => $languageName) : ?>
-            <option value="<?= $langCode; ?>"<?php if($langCode == $this->language): ?> selected="selected"<?php endif; ?>>
-              <?= $languageName; ?>
-            </option>
+              <option value="<?= $langCode; ?>"<?php if ($langCode === $this->language): ?> selected="selected"<?php endif; ?>>
+                <?= $languageName ?>
+              </option>
             <?php endforeach; ?>
         </select>
-        <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?= StringUtil::specialchars($this->submit); ?>" />
+        <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?= StringUtil::specialchars($this->submit) ?>" />
       </div>
     </form>
   </div>

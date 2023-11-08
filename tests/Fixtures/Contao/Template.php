@@ -42,7 +42,7 @@ class Template
      * @param string $strTemplate    The template name
      * @param string $strContentType The content type (defaults to "text/html")
      */
-    public function __construct($strTemplate='', $strContentType='text/html')
+    public function __construct($strTemplate = '', $strContentType = 'text/html')
     {
         $this->strTemplate = $strTemplate;
         $this->strContentType = $strContentType;

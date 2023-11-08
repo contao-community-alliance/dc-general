@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -32,26 +33,31 @@ use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\WidgetBuilder;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\Contao\LangArrayTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Class TreeSelect.
  *
  * Back end tree picker for usage in generaltree.php.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @deprecated Do not use - here for legacy reasons only.
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class TreeSelect
 {
-    /**
-     * Current ajax object.
-     *
-     * @var object
-     */
-    protected $objAjax;
-
     /**
      * The DcGeneral Object.
      *
@@ -75,9 +81,11 @@ class TreeSelect
         Config::getInstance();
         Database::getInstance();
 
+        /** @psalm-suppress DeprecatedMethod */
         BackendUser::getInstance()->authenticate();
 
         System::loadLanguageFile('default');
+        /** @psalm-suppress DeprecatedMethod */
         Backend::setStaticUrls();
     }
 
@@ -86,14 +94,20 @@ class TreeSelect
      *
      * @return void
      *
+     * @throws \Exception
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function run()
     {
-        $environment    = $this->itemContainer->getEnvironment();
+        $environment = $this->itemContainer->getEnvironment();
+
         $inputProvider  = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
 
         // Ajax request.
         // @codingStandardsIgnoreStart - We need POST access here.
@@ -111,6 +125,7 @@ class TreeSelect
         \define('CURRENT_ID', ($inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId));
 
         $dispatcher = System::getContainer()->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
 
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
@@ -128,8 +143,10 @@ class TreeSelect
         }
 
         // Merge with the information from the data container.
-        $property = $environment
-            ->getDataDefinition()
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $property = $definition
             ->getPropertiesDefinition()
             ->getProperty($inputField);
         $extra    = $property->getExtra();
@@ -139,14 +156,19 @@ class TreeSelect
         $property->setExtra(\array_merge($property->getExtra(), $information['eval']));
 
         $dataProvider = $environment->getDataProvider();
-        $model        = $dataProvider->getEmptyModel();
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $model = $dataProvider->getEmptyModel();
         if ($inputProvider->getParameter('id')) {
             $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
             $model   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
+            assert($model instanceof ModelInterface);
         }
 
+        $widgetBuilder = new WidgetBuilder($environment);
+
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $treeSelector */
-        $treeSelector        = (new WidgetBuilder($environment))->buildWidget($property, $model);
+        $treeSelector        = $widgetBuilder->buildWidget($property, $model);
         $treeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
 
         // AJAX request.
@@ -157,6 +179,7 @@ class TreeSelect
 
 
         $template = new ContaoBackendViewTemplate('be_main');
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
         $template
             ->set('isPopup', true)
             ->set('main', $treeSelector->generatePopup())
@@ -167,16 +190,20 @@ class TreeSelect
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $treeSelector->searchField)
             ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', \ampersand(Environment::get('request')))
+            ->set('action', StringUtil::ampersand(Environment::get('request')))
             ->set('value', $sessionStorage->get($treeSelector->getSearchSessionKey()))
             ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
             ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'])
             ->set('managerHref', '');
 
         // Add the manager link.
+        /**
+         * @psalm-suppress UndefinedThisPropertyFetch
+         * @psalm-suppress UndefinedMagicPropertyFetch
+         */
         if ($treeSelector->managerHref) {
             $template
-                ->set('managerHref', 'contao?' . \ampersand($treeSelector->managerHref) . '&amp;popup=1');
+                ->set('managerHref', 'contao?' . StringUtil::ampersand($treeSelector->managerHref) . '&amp;popup=1');
         }
 
         // Prevent debug output at all cost.

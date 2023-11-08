@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
@@ -33,7 +35,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * The palettes contained in the collection.
      *
-     * @var array|PaletteInterface[]
+     * @var array<string, PaletteInterface>
      */
     protected $palettes = [];
 
@@ -108,7 +110,7 @@ class PaletteCollection implements PaletteCollectionInterface
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palettes found.
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette found or more than one palette.
      */
-    public function findPalette(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function findPalette(ModelInterface $model = null, PropertyValueBagInterface $input = null)
     {
         $matches = [];
 
@@ -117,6 +119,8 @@ class PaletteCollection implements PaletteCollectionInterface
             $condition = $palette->getCondition();
 
             if ($condition) {
+                // We should have defined the interfaces back in 2013... :/
+                assert($input === null || $input instanceof PropertyValueBag);
                 $count = $condition->getMatchCount($model, $input);
 
                 if (false !== $count) {

@@ -36,16 +36,16 @@ abstract class AbstractInvalidateCacheTags
     /**
      * The invalid http cache tags service.
      *
-     * @var ContaoInvalidateCacheTags
+     * @var InvalidateCacheTagsInterface
      */
-    private $service;
+    private InvalidateCacheTagsInterface $service;
 
     /**
      * The dc general factory.
      *
-     * @var DcGeneralFactoryService
+     * @var DcGeneralFactoryServiceInterface
      */
-    protected $factory;
+    protected DcGeneralFactoryServiceInterface $factory;
 
     /**
      * The constructor.

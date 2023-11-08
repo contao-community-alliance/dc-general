@@ -74,7 +74,7 @@ $this->insert(
     <?php endif; ?>
 <?php endif; ?>
 
-<?php foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend']): ?>
+<?php foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend'] ?? null): ?>
 <fieldset id="pal_<?php echo StringUtil::specialchars($arrFieldset['legend']); ?>" class="<?php echo $arrFieldset['class']; ?> block">
 <legend onclick="BackendGeneral.setLegendState(this,'<?php echo StringUtil::specialchars($arrFieldset['legend']); ?>','<?php echo StringUtil::specialchars($this->table); ?>')"><?php echo $arrFieldset['label']; ?></legend>
   <?php echo $arrFieldset['palette']; ?>

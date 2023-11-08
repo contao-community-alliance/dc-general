@@ -20,14 +20,20 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
+use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Page tree widget being compatible with the dc general.
  *
  * @see https://github.com/contao/core/blob/master/system/modules/core/widgets/PageTree.php
+ *
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class PageTree extends TreePicker
 {
@@ -41,15 +47,17 @@ class PageTree extends TreePicker
     /**
      * Process the validation.
      *
-     * @param mixed $inputValue The input value.
+     * @param mixed $varInput The input value.
      *
-     * @return array|string
+     * @return null|string|list<string>
+     *
      */
-    protected function validator($inputValue)
+    protected function validator($varInput)
     {
         $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
-        $widgetValue = $this->widgetToValue($inputValue);
+        $widgetValue = $this->widgetToValue($varInput);
         if ((null === $widgetValue) && $this->mandatory) {
             $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
         }
@@ -70,9 +78,14 @@ class PageTree extends TreePicker
     {
         $collection = $this->getTreeCollectionRecursive($rootId, $level, $providerName);
 
-        $treeData = $this->getEnvironment()->getDataProvider($providerName)->getEmptyCollection();
+        $dataProvider = $this->getEnvironment()->getDataProvider($providerName);
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $treeData = $dataProvider->getEmptyCollection();
         if ($rootId) {
             $objModel = $collection->get(0);
+            assert($objModel instanceof ModelInterface);
+
             foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) as $childCollection) {
                 foreach ($childCollection as $subModel) {
                     $treeData->push($subModel);
@@ -103,8 +116,9 @@ class PageTree extends TreePicker
             'fieldType' => $this->fieldType
         ];
 
-        return System::getContainer()
-            ->get('contao.picker.builder')
-            ->getUrl('page', $extra);
+        $pickerBuilder = System::getContainer()->get('contao.picker.builder');
+        assert($pickerBuilder instanceof PickerBuilderInterface);
+
+        return $pickerBuilder->getUrl('page', $extra);
     }
 }

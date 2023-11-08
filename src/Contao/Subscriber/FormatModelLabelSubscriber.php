@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,6 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
@@ -48,7 +50,7 @@ class FormatModelLabelSubscriber
      */
     public function handleFormatModelLabel(FormatModelLabelEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
@@ -56,13 +58,15 @@ class FormatModelLabelSubscriber
         $model       = $event->getModel();
 
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
         /** @var Contao2BackendViewDefinitionInterface $viewSection */
         $viewSection   = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         $listing       = $viewSection->getListingConfig();
         $properties    = $dataDefinition->getPropertiesDefinition();
         $formatter     = $listing->getLabelFormatter($model->getProviderName());
         $sorting       = ViewHelpers::getGroupingMode($environment);
-        $firstSorting  = $this->getFirstSorting($sorting['sorting']);
+        $firstSorting  = $this->getFirstSorting(($sorting['sorting'] ?? null));
         $propertyNames = $formatter->getPropertyNames();
 
         $modelToLabelEvent = new ModelToLabelEvent($environment, $model);
@@ -71,7 +75,11 @@ class FormatModelLabelSubscriber
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $environment->getEventDispatcher()->dispatch($modelToLabelEvent, ModelToLabelEvent::NAME);
+        if (null === ($dispatcher = $environment->getEventDispatcher())) {
+            return;
+        }
+
+        $dispatcher->dispatch($modelToLabelEvent, ModelToLabelEvent::NAME);
 
         // Add columns.
         if ($listing->getShowColumns()) {
@@ -125,7 +133,7 @@ class FormatModelLabelSubscriber
      * @param EnvironmentInterface          $environment   The environment.
      * @param ModelInterface                $model         The model.
      *
-     * @return array
+     * @return array<string, string>
      */
     private function prepareLabelArguments(
         $propertyNames,
@@ -154,13 +162,13 @@ class FormatModelLabelSubscriber
     /**
      * Render for column layout.
      *
-     * @param string[] $propertyNames The properties.
-     * @param string[] $args          The rendered arguments.
-     * @param string   $firstSorting  The sorting column.
+     * @param string[]                     $propertyNames The properties.
+     * @param string|array<string, string> $args          The rendered arguments.
+     * @param string                       $firstSorting  The sorting column.
      *
      * @return array
      */
-    private function renderWithColumns($propertyNames, $args, $firstSorting)
+    private function renderWithColumns(array $propertyNames, array|string $args, string $firstSorting)
     {
         $label = [];
         if (!\is_array($args)) {
@@ -193,13 +201,13 @@ class FormatModelLabelSubscriber
     /**
      * Render as single value.
      *
-     * @param string   $label     The label string.
-     * @param string[] $args      The rendered arguments.
-     * @param null     $maxLength The maximum length for the label or null to allow unlimited.
+     * @param string                       $label     The label string.
+     * @param string|array<string, string> $args      The rendered arguments.
+     * @param null|int                     $maxLength The maximum length for the label or null to allow unlimited.
      *
      * @return string
      */
-    private function renderSingleValue($label, $args, $maxLength = null)
+    private function renderSingleValue(string $label, array|string $args, ?int $maxLength = null)
     {
         // BC: sometimes the label was returned as string in the arguments instead of an array.
         $string = !\is_array($args) ? $args : \vsprintf($label, $args);

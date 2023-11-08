@@ -34,14 +34,14 @@ class ContaoDataProviderInformation extends DataProviderInformation
     /**
      * The table name to use.
      *
-     * @var string
+     * @var string|null
      */
-    protected $tableName;
+    protected $tableName = null;
 
     /**
      * Name of the provider class to use.
      *
-     * @var string
+     * @var class-string
      */
     protected $className = DefaultDataProvider::class;
 
@@ -50,7 +50,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
      *
      * @var mixed
      */
-    protected $initializationData;
+    protected $initializationData = null;
 
     /**
      * Set the table name of the data provider.
@@ -69,7 +69,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
     /**
      * Retrieve the table name of the data provider.
      *
-     * @return string
+     * @return string|null
      */
     public function getTableName()
     {
@@ -79,7 +79,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
     /**
      * Set the data provider class to use, defaults to 'ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider'.
      *
-     * @param string $className The name of the data provider class to use.
+     * @param class-string $className The name of the data provider class to use.
      *
      * @return ContaoDataProviderInformation
      */
@@ -93,7 +93,7 @@ class ContaoDataProviderInformation extends DataProviderInformation
     /**
      * Retrieve the data provider class to use.
      *
-     * @return string
+     * @return class-string
      */
     public function getClassName()
     {

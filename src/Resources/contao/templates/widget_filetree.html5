@@ -3,7 +3,7 @@
 
 <div class="selector_container">
     <?php if ($this->hasOrder && \count($this->icons) > 1): ?>
-        <p class="sort_hint"><?= $this->translate('dragItemsHint', 'MSC') ?></p>
+        <p class="sort_hint"><?= $this->translate('MSC.dragItemsHint') ?></p>
     <?php endif; ?>
     <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
         <?php foreach ($this->icons as $icon): ?>
@@ -14,7 +14,7 @@
     </ul>
     <?php if (!$this->readonly): ?>
         <p>
-            <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('changeSelection', 'MSC') ?></a>
+            <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('MSC.changeSelection') ?></a>
         </p>
     <?php endif; ?>
 </div>

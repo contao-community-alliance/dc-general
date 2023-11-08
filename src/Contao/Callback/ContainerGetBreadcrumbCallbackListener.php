@@ -27,15 +27,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBr
  * Class ContainerGetBreadcrumbCallbackListener.
  *
  * Callback handler for breadcrumbs in backend.
+ *
+ * @extends AbstractReturningCallbackListener<GetBreadcrumbEvent>
  */
 class ContainerGetBreadcrumbCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param GetBreadcrumbEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -45,12 +43,7 @@ class ContainerGetBreadcrumbCallbackListener extends AbstractReturningCallbackLi
     }
 
     /**
-     * Update the information in the event with the list of breadcrumb elements returned by the callback.
-     *
-     * @param GetBreadcrumbEvent $event The event being emitted.
-     * @param array              $value The breadcrumb elements returned by the callback.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

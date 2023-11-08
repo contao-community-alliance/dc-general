@@ -63,7 +63,8 @@ class FinishConditionEvent extends BuilderEvent
      */
     public function setCondition($condition)
     {
-        if ((!$condition instanceof PaletteConditionInterface)
+        if (
+            (!$condition instanceof PaletteConditionInterface)
             && (!$condition instanceof PropertyConditionInterface)
         ) {
             throw new DcGeneralInvalidArgumentException(

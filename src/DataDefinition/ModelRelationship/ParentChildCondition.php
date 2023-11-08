@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,6 +30,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a parent child relationship.
+ *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ParentChildCondition extends AbstractCondition implements ParentChildConditionInterface
 {
@@ -44,43 +47,43 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @var array
      */
-    protected $inverseFilter;
+    protected $inverseFilter = [];
 
     /**
      * The values to use when enforcing a root condition.
      *
      * @var array
      */
-    protected $setOn;
+    protected $setOn = [];
 
     /**
      * The name of the source provider (parent).
      *
      * @var string
      */
-    protected $sourceProvider;
+    protected $sourceProvider = '';
 
     /**
      * The name of the destination provider (child).
      *
      * @var string
      */
-    protected $destinationProvider;
+    protected $destinationProvider = '';
 
     /**
      * Local cache property for the needed properties for filtering.
      *
-     * @var array
+     * @var list<string>|null
      */
-    private $neededProperties;
+    private $neededProperties = null;
 
     /**
      * {@inheritdoc}
      */
     public function setFilterArray($value)
     {
-        $this->filter = (array) $value;
-        unset($this->neededProperties);
+        $this->filter = $value;
+        $this->neededProperties = null;
 
         return $this;
     }
@@ -98,7 +101,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setSetters($value)
     {
-        $this->setOn = (array) $value;
+        $this->setOn = $value;
 
         return $this;
     }
@@ -116,12 +119,8 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setInverseFilterArray($value)
     {
-        if (empty($value)) {
-            $this->inverseFilter = null;
-            return $this;
-        }
+        $this->inverseFilter = $value;
 
-        $this->inverseFilter = (array) $value;
         return $this;
     }
 
@@ -130,7 +129,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function getInverseFilterArray()
     {
-        return ($this->inverseFilter ?? []);
+        return $this->inverseFilter;
     }
 
     /**
@@ -138,7 +137,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setSourceName($value)
     {
-        $this->sourceProvider = (string) $value;
+        $this->sourceProvider = $value;
 
         return $this;
     }
@@ -156,7 +155,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function setDestinationName($value)
     {
-        $this->destinationProvider = (string) $value;
+        $this->destinationProvider = $value;
 
         return $this;
     }
@@ -217,10 +216,6 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function getFilter($parent)
     {
-        if (!$parent) {
-            throw new DcGeneralInvalidArgumentException('No parent model passed.');
-        }
-
         $result = [];
         foreach ($this->getFilterArray() as $child) {
             $result[] = $this->parseFilter($child, $parent);
@@ -232,7 +227,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * Check if the passed value is a valid setter.
      *
-     * @param array $setter The setter.
+     * @param mixed $setter The setter.
      *
      * @return bool
      */
@@ -255,7 +250,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
         $setters = $this->getSetters();
 
-        if (empty($setters) || !\is_array($setters)) {
+        if (empty($setters)) {
             throw new DcGeneralRuntimeException(
                 \sprintf(
                     'No relationship setter defined from %s to %s.',
@@ -298,7 +293,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
         $setters = $this->getSetters();
 
-        if (empty($setters) || !\is_array($setters)) {
+        if (empty($setters)) {
             throw new DcGeneralRuntimeException(
                 \sprintf(
                     'No relationship setter defined from %s to %s.',
@@ -370,7 +365,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      * @param array          $rule  The rule to prepare.
      * @param ModelInterface $child The child to be checked.
      *
-     * @return array.
+     * @return array
      */
     protected function prepareRule($rule, $child)
     {
@@ -434,28 +429,31 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @param array $rule The filter rule from which the properties shall be extracted from.
      *
-     * @return array
+     * @return list<string>
      *
      * @throws \RuntimeException When an unexpected filter rule is encountered.
      */
     private function extractNeededProperties($rule)
     {
         if (\in_array($rule['operation'], ['AND', 'OR'])) {
-            $properties = [];
-            foreach ($rule['children'] as $childRule) {
+            $properties = [[]];
+            foreach ($rule['children'] ?? [] as $childRule) {
                 $properties[] = $this->extractNeededProperties($childRule);
             }
-            return $properties;
+
+            return \array_merge(...$properties);
         }
 
         // Local is child property name.
         if (isset($rule['local'])) {
-            return $rule['local'];
+            /** @var array{local: string} $rule */
+            return [$rule['local']];
         }
 
         // Remote is parent property name.
         if (isset($rule['property'])) {
-            return $rule['property'];
+            /** @var array{property: string} $rule */
+            return [$rule['property']];
         }
 
         throw new \RuntimeException('Unexpected filter rule ' . \var_export($rule, true));
@@ -466,7 +464,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      */
     public function neededProperties()
     {
-        if (!isset($this->neededProperties)) {
+        if (null === $this->neededProperties) {
             $this->neededProperties = $this->extractNeededProperties(
                 [
                     'operation' => 'AND',

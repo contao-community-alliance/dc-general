@@ -22,13 +22,19 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+
+use function count;
+use function implode;
+use function sprintf;
 
 /**
  * Class Filter.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class Filter implements FilterInterface
 {
@@ -37,21 +43,21 @@ class Filter implements FilterInterface
      *
      * @var array
      */
-    private $expression = [];
+    private array $expression = [];
 
     /**
      * The expression variables.
      *
      * @var array
      */
-    private $variables = [];
+    private array $variables = [];
 
     /**
      * Pre-compiled expression.
      *
-     * @var string
+     * @var string|null
      */
-    private $compiled;
+    private ?string $compiled = null;
 
     public const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
@@ -139,6 +145,7 @@ EXPR;
      */
     public static function create()
     {
+        /** @psalm-suppress UnsafeInstantiation - Can not make this final in a minor release. :/ */
         return new static();
     }
 
@@ -184,8 +191,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::MODEL_IS_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::MODEL_IS_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $modelProviderName;
         $this->compiled     = null;
 
@@ -234,8 +241,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $modelProviderName;
         $this->compiled     = null;
 
@@ -245,11 +252,11 @@ EXPR;
     /**
      * And model is.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function andModelIs(ModelId $modelId)
+    public function andModelIs(ModelIdInterface $modelId)
     {
         $this->modelIs('and', $modelId);
 
@@ -259,11 +266,11 @@ EXPR;
     /**
      * Or model is.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function orModelIs(ModelId $modelId)
+    public function orModelIs(ModelIdInterface $modelId)
     {
         $this->modelIs('or', $modelId);
 
@@ -273,19 +280,19 @@ EXPR;
     /**
      * Add model is.
      *
-     * @param string  $conjunction AND or OR.
-     * @param ModelId $modelId     The model id.
+     * @param string           $conjunction AND or OR.
+     * @param ModelIdInterface $modelId     The model id.
      *
      * @return static
      */
-    private function modelIs($conjunction, ModelId $modelId)
+    private function modelIs($conjunction, ModelIdInterface $modelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::MODEL_IS_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::MODEL_IS_EXPRESSION, $index);
         $this->variables[]  = $modelId;
         $this->compiled     = null;
 
@@ -295,11 +302,11 @@ EXPR;
     /**
      * And model is not.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function andModelIsNot(ModelId $modelId)
+    public function andModelIsNot(ModelIdInterface $modelId)
     {
         $this->modelIsNot('and', $modelId);
 
@@ -309,11 +316,11 @@ EXPR;
     /**
      * Or model is not.
      *
-     * @param ModelId $modelId The model id.
+     * @param ModelIdInterface $modelId The model id.
      *
      * @return static
      */
-    public function orModelIsNot(ModelId $modelId)
+    public function orModelIsNot(ModelIdInterface $modelId)
     {
         $this->modelIsNot('or', $modelId);
 
@@ -323,19 +330,19 @@ EXPR;
     /**
      * Add model is not.
      *
-     * @param string  $conjunction AND or OR.
-     * @param ModelId $modelId     The model id.
+     * @param string           $conjunction AND or OR.
+     * @param ModelIdInterface $modelId     The model id.
      *
      * @return static
      */
-    private function modelIsNot($conjunction, ModelId $modelId)
+    private function modelIsNot($conjunction, ModelIdInterface $modelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::MODEL_IS_NOT_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::MODEL_IS_NOT_EXPRESSION, $index);
         $this->variables[]  = $modelId;
         $this->compiled     = null;
 
@@ -384,8 +391,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::PARENT_IS_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::PARENT_IS_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $parentProviderName;
         $this->compiled     = null;
 
@@ -434,8 +441,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION, $index);
         $this->variables[]  = $parentProviderName;
         $this->compiled     = null;
 
@@ -488,11 +495,11 @@ EXPR;
     /**
      * And parent is.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function andParentIs(ModelId $parentModelId)
+    public function andParentIs(ModelIdInterface $parentModelId)
     {
         $this->parentIs('and', $parentModelId);
 
@@ -502,11 +509,11 @@ EXPR;
     /**
      * Or parent is.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function orParentIs(ModelId $parentModelId)
+    public function orParentIs(ModelIdInterface $parentModelId)
     {
         $this->parentIs('or', $parentModelId);
 
@@ -516,19 +523,19 @@ EXPR;
     /**
      * Add parent is.
      *
-     * @param string  $conjunction   AND or OR.
-     * @param ModelId $parentModelId The parent id.
+     * @param string           $conjunction   AND or OR.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    private function parentIs($conjunction, ModelId $parentModelId)
+    private function parentIs($conjunction, ModelIdInterface $parentModelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::PARENT_IS_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::PARENT_IS_EXPRESSION, $index);
         $this->variables[]  = $parentModelId;
         $this->compiled     = null;
 
@@ -538,7 +545,7 @@ EXPR;
     /**
      * And parent is in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -552,7 +559,7 @@ EXPR;
     /**
      * Or parent is in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -567,7 +574,7 @@ EXPR;
      * Add parent is in.
      *
      * @param string          $conjunction    AND or OR.
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -579,11 +586,11 @@ EXPR;
 
         $expression = [];
         foreach ($parentModelIds as $parentModelId) {
-            $index             = \count($this->variables);
-            $expression[]      = \sprintf(self::PARENT_IS_EXPRESSION, $index);
+            $index             = count($this->variables);
+            $expression[]      = sprintf(self::PARENT_IS_EXPRESSION, $index);
             $this->variables[] = $parentModelId;
         }
-        $this->expression[] = '(' . \implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . implode(' or ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -592,11 +599,11 @@ EXPR;
     /**
      * And parent is not.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function andParentIsNot(ModelId $parentModelId)
+    public function andParentIsNot(ModelIdInterface $parentModelId)
     {
         $this->parentIsNot('and', $parentModelId);
 
@@ -606,11 +613,11 @@ EXPR;
     /**
      * Or parent is not.
      *
-     * @param ModelId $parentModelId The parent id.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    public function orParentIsNot(ModelId $parentModelId)
+    public function orParentIsNot(ModelIdInterface $parentModelId)
     {
         $this->parentIsNot('and', $parentModelId);
 
@@ -620,19 +627,19 @@ EXPR;
     /**
      * Add parent is not.
      *
-     * @param string  $conjunction   AND or OR.
-     * @param ModelId $parentModelId The parent id.
+     * @param string           $conjunction   AND or OR.
+     * @param ModelIdInterface $parentModelId The parent id.
      *
      * @return static
      */
-    private function parentIsNot($conjunction, ModelId $parentModelId)
+    private function parentIsNot($conjunction, ModelIdInterface $parentModelId)
     {
         if (!empty($this->expression)) {
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
         $this->variables[]  = $parentModelId;
         $this->compiled     = null;
 
@@ -642,7 +649,7 @@ EXPR;
     /**
      * And parent is not in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -656,7 +663,7 @@ EXPR;
     /**
      * Or parent is not in.
      *
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -671,7 +678,7 @@ EXPR;
      * Add parent is not in.
      *
      * @param string          $conjunction    AND or OR.
-     * @param array|ModelId[] $parentModelIds The parent ids.
+     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -683,11 +690,11 @@ EXPR;
 
         $expression = [];
         foreach ($parentModelIds as $parentModelId) {
-            $index             = \count($this->variables);
-            $expression[]      = \sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
+            $index             = count($this->variables);
+            $expression[]      = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $parentModelId;
         }
-        $this->expression[] = '(' . \implode(' and ', $expression) . ')';
+        $this->expression[] = '(' . implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -735,8 +742,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::ACTION_IS_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::ACTION_IS_EXPRESSION, $index);
         $this->variables[]  = $action;
         $this->compiled     = null;
 
@@ -787,11 +794,11 @@ EXPR;
 
         $expression = [];
         foreach ($actions as $action) {
-            $index             = \count($this->variables);
-            $expression[]      = \sprintf(self::ACTION_IS_EXPRESSION, $index);
+            $index             = count($this->variables);
+            $expression[]      = sprintf(self::ACTION_IS_EXPRESSION, $index);
             $this->variables[] = $action;
         }
-        $this->expression[] = '(' . \implode(' or ', $expression) . ')';
+        $this->expression[] = '(' . implode(' or ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -839,8 +846,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
         $this->variables[]  = $action;
         $this->compiled     = null;
 
@@ -891,11 +898,11 @@ EXPR;
 
         $expression = [];
         foreach ($actions as $action) {
-            $index             = \count($this->variables);
-            $expression[]      = \sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
+            $index             = count($this->variables);
+            $expression[]      = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
             $this->variables[] = $action;
         }
-        $this->expression[] = '(' . \implode(' and ', $expression) . ')';
+        $this->expression[] = '(' . implode(' and ', $expression) . ')';
         $this->compiled     = null;
 
         return $this;
@@ -943,8 +950,8 @@ EXPR;
             $this->expression[] = $conjunction;
         }
 
-        $index              = \count($this->variables);
-        $this->expression[] = \sprintf(self::SUB_FILTER, $index);
+        $index              = count($this->variables);
+        $this->expression[] = sprintf(self::SUB_FILTER, $index);
         $this->variables[]  = $filter;
         $this->compiled     = null;
 
@@ -962,7 +969,7 @@ EXPR;
         if (null === $this->compiled) {
             $language       = new ExpressionLanguage();
             $expression     = $this->getExpression();
-            $this->compiled = \sprintf(
+            $this->compiled = sprintf(
                 'return %s;',
                 $language->compile(
                     $expression,
@@ -986,7 +993,7 @@ EXPR;
      */
     public function getExpression()
     {
-        return $this->expression ? \implode(' ', $this->expression) : 'true';
+        return $this->expression ? implode(' ', $this->expression) : 'true';
     }
 
     /**

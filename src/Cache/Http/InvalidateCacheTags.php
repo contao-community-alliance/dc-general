@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use FOS\HttpCache\CacheInvalidator;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
@@ -41,28 +42,28 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
      *
      * @var string
      */
-    private $namespace;
+    private string $namespace;
 
     /**
      * The event dispatcher.
      *
      * @var EventDispatcherInterface
      */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     /**
      * The http cache manager.
      *
      * @var CacheInvalidator|null
      */
-    private $cacheManager;
+    private ?CacheInvalidator $cacheManager;
 
     /**
      * The cache tags.
      *
      * @var string[]
      */
-    private $tags;
+    private array $tags = [];
 
     /**
      * The constructor.
@@ -123,19 +124,26 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
      */
     private function addParentModelTag(ModelInterface $model, EnvironmentInterface $environment): void
     {
-        if ((null === $environment->getParentDataDefinition())
-        ) {
+        if ((null === $environment->getParentDataDefinition())) {
             return;
         }
+        $dataDefinition  = $environment->getDataDefinition();
+        if (null === $dataDefinition) {
+            throw new DcGeneralRuntimeException('Data definition not set.');
+        }
 
-        $definition = $environment->getDataDefinition()->getBasicDefinition();
+        $definition = $dataDefinition->getBasicDefinition();
         $collector  = new ModelCollector($environment);
         switch ($definition->getMode()) {
             case BasicDefinitionInterface::MODE_HIERARCHICAL:
-                $this->addModelTag($collector->searchParentFromHierarchical($model));
+                if (null !== $parentModel = $collector->searchParentFromHierarchical($model)) {
+                    $this->addModelTag($parentModel);
+                }
                 return;
             case BasicDefinitionInterface::MODE_PARENTEDLIST:
-                $this->addModelTag($collector->searchParentOf($model));
+                if (null !== $parentModel = $collector->searchParentOf($model)) {
+                    $this->addModelTag($parentModel);
+                }
                 return;
             default:
         }

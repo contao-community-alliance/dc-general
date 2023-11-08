@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,31 +31,34 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * This event is emitted when an condition is added by the palette builder.
+ *
+ * @template TCondition of PaletteConditionInterface|PropertyConditionInterface
+ * @template TTarget of PaletteInterface|PropertyInterface
  */
 class AddConditionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.add-condition';
+    public const NAME = 'dc-general.data-definition.palette.builder.add-condition';
 
     /**
      * The condition that is being added.
      *
-     * @var PaletteConditionInterface|PropertyConditionInterface
+     * @var TCondition
      */
     protected $condition;
 
     /**
      * The target to which the condition is being added.
      *
-     * @var PaletteInterface|PropertyInterface
+     * @var TTarget
      */
     protected $target;
 
     /**
      * Create a new instance.
      *
-     * @param PaletteConditionInterface|PropertyConditionInterface $condition      The condition being added.
-     * @param PaletteInterface|PropertyInterface                   $target         The target property or palette.
-     * @param PaletteBuilder                                       $paletteBuilder The palette builder in use.
+     * @param TCondition     $condition      The condition being added.
+     * @param TTarget        $target         The target property or palette.
+     * @param PaletteBuilder $paletteBuilder The palette builder in use.
      */
     public function __construct($condition, $target, PaletteBuilder $paletteBuilder)
     {
@@ -66,7 +70,7 @@ class AddConditionEvent extends BuilderEvent
     /**
      * Set the condition.
      *
-     * @param PaletteConditionInterface|PropertyConditionInterface $condition The condition.
+     * @param TCondition $condition The condition.
      *
      * @return AddConditionEvent
      *
@@ -74,7 +78,8 @@ class AddConditionEvent extends BuilderEvent
      */
     public function setCondition($condition)
     {
-        if ((!$condition instanceof PaletteConditionInterface)
+        if (
+            (!$condition instanceof PaletteConditionInterface)
             && (!$condition instanceof PropertyConditionInterface)
         ) {
             throw new DcGeneralInvalidArgumentException(
@@ -90,7 +95,7 @@ class AddConditionEvent extends BuilderEvent
     /**
      * Retrieve the condition.
      *
-     * @return PaletteConditionInterface|PropertyConditionInterface
+     * @return TCondition
      */
     public function getCondition()
     {
@@ -100,7 +105,7 @@ class AddConditionEvent extends BuilderEvent
     /**
      * Set the target.
      *
-     * @param PaletteInterface|PropertyInterface $target The target property or palette.
+     * @param TTarget $target The target property or palette.
      *
      * @return AddConditionEvent
      *
@@ -119,7 +124,7 @@ class AddConditionEvent extends BuilderEvent
     /**
      * Retrieve the target.
      *
-     * @return PaletteInterface|PropertyInterface
+     * @return TTarget
      */
     public function getTarget()
     {

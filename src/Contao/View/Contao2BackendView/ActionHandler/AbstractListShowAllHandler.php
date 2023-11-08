@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,25 +15,26 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
-use Contao\Backend;
-use Contao\Environment;
-use Contao\Message;
-use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ButtonRenderer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
@@ -42,26 +43,48 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSe
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\GlobalButtonRenderer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\PanelRenderer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionCollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralViews;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
-use Symfony\Component\Translation\TranslatorInterface;
+use Contao\Backend;
+use Contao\Environment;
+use Contao\Message;
+use Contao\StringUtil;
+use Contao\System;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function implode;
+use function str_replace;
+use function strpos;
+use function trigger_error;
 
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 abstract class AbstractListShowAllHandler
 {
@@ -73,31 +96,77 @@ abstract class AbstractListShowAllHandler
      *
      * @var TranslatorInterface
      */
-    protected $translator;
+    protected TranslatorInterface $translator;
 
     /**
      * The cca translator.
      *
-     * @var CcaTranslator|TranslatorInterface
+     * @var CcaTranslator
      */
-    private $ccaTranslator;
+    private CcaTranslator $ccaTranslator;
+
+    /**
+     * The token manager.
+     *
+     * @var CsrfTokenManagerInterface
+     */
+    private CsrfTokenManagerInterface $tokenManager;
+
+    /**
+     * The token name.
+     *
+     * @var string
+     */
+    private string $tokenName;
 
     /**
      * AbstractHandler constructor.
      *
-     * @param RequestScopeDeterminator          $scopeDeterminator The request mode determinator.
-     * @param TranslatorInterface               $translator        The translator.
-     * @param CcaTranslator|TranslatorInterface $ccaTranslator     The cca translator.
+     * @param RequestScopeDeterminator       $scopeDeterminator The request mode determinator.
+     * @param TranslatorInterface            $translator        The translator.
+     * @param CcaTranslator                  $ccaTranslator     The cca translator.
+     * @param CsrfTokenManagerInterface|null $tokenManager      The token manager.
+     * @param string|null                    $tokenName         The token name.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
         TranslatorInterface $translator,
-        CcaTranslator $ccaTranslator
+        CcaTranslator $ccaTranslator,
+        ?CsrfTokenManagerInterface $tokenManager = null,
+        ?string $tokenName = null
     ) {
         $this->setScopeDeterminator($scopeDeterminator);
 
         $this->translator    = $translator;
         $this->ccaTranslator = $ccaTranslator;
+
+        if (null === $tokenManager) {
+            $tokenManager = System::getContainer()->get('security.csrf.token_manager');
+            assert($tokenManager instanceof CsrfTokenManagerInterface);
+
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token manager as 4th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+        if (null === $tokenName) {
+            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
+            assert(\is_string($tokenName));
+
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the csrf token name as 5th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+
+        $this->tokenManager = $tokenManager;
+        $this->tokenName    = $tokenName;
     }
 
     /**
@@ -109,22 +178,28 @@ abstract class AbstractListShowAllHandler
      */
     public function handleEvent(ActionEvent $event)
     {
-        if (!$this->scopeDeterminator->currentScopeIsBackend()) {
+        if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
         }
 
         $environment = $event->getEnvironment();
-        $basic       = $environment->getDataDefinition()->getBasicDefinition();
-        $action      = $event->getAction();
 
-        if (null !== $event->getResponse()
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $basic  = $definition->getBasicDefinition();
+        $action = $event->getAction();
+
+        if (
+            (null === $mode = $basic->getMode())
+            || null !== $event->getResponse()
             || ('showAll' !== $action->getName())
-            || !$this->wantToHandle($basic->getMode(), $action)
+            || !$this->wantToHandle($mode, $action)
         ) {
             return;
         }
 
-        if (false !== ($response = $this->process($action, $environment))) {
+        if (null !== ($response = $this->process($action, $environment))) {
             $event->setResponse($response);
         }
     }
@@ -135,12 +210,15 @@ abstract class AbstractListShowAllHandler
      * @param Action               $action      The action being handled.
      * @param EnvironmentInterface $environment Current dc-general environment.
      *
-     * @return string
+     * @return string|null
      */
     protected function process(Action $action, EnvironmentInterface $environment)
     {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         // Edit only mode, forward to edit action.
-        if ($environment->getDataDefinition()->getBasicDefinition()->isEditOnlyMode()) {
+        if ($definition->getBasicDefinition()->isEditOnlyMode()) {
             return $this->callAction($environment, 'edit', $action->getArguments());
         }
 
@@ -150,19 +228,24 @@ abstract class AbstractListShowAllHandler
 
         // Process now.
         $collection = $this->loadCollection($environment);
+        assert($collection instanceof CollectionInterface);
         $this->handleEditAllButton($collection, $environment);
-        $this->renderCollection($environment, $collection, $grouping);
+        $this->renderCollection($environment, $collection, $grouping ?: []);
 
-        $template = $this->determineTemplate($grouping)
+        $template = $this->determineTemplate($grouping ?: []);
+        $template
             ->set('collection', $collection)
             ->set('mode', ($grouping ? $grouping['mode'] : null))
             ->set('theme', Backend::getTheme());
         $this->renderTemplate($template, $environment);
 
-        $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
-        $environment->getEventDispatcher()->dispatch($clipboard, DcGeneralEvents::VIEW);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
 
-        return \implode(
+        $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
+        $dispatcher->dispatch($clipboard, DcGeneralEvents::VIEW);
+
+        return implode(
             "\n",
             [
                 'language'  => $this->languageSwitcher($environment),
@@ -175,7 +258,7 @@ abstract class AbstractListShowAllHandler
     }
 
     /**
-     * Execute the multi language support.
+     * Execute the multi-language support.
      *
      * @param EnvironmentInterface $environment The environment.
      *
@@ -190,13 +273,15 @@ abstract class AbstractListShowAllHandler
             return '';
         }
 
-        /** @var MultiLanguageDataProviderInterface $dataProvider */
+        $controller = $environment->getController();
+        assert($controller instanceof ControllerInterface);
 
+        /** @var MultiLanguageDataProviderInterface $dataProvider */
         return $template
-            ->set('languages', $environment->getController()->getSupportedLanguages(null))
+            ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
             ->set('submit', $this->translator->trans('MSC.showSelected', [], 'contao_default'))
-            ->set('REQUEST_TOKEN', REQUEST_TOKEN)
+            ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }
 
@@ -205,20 +290,22 @@ abstract class AbstractListShowAllHandler
      *
      * @param ContainerInterface $definition Data container definition.
      *
-     * @return DefinitionInterface|Contao2BackendViewDefinitionInterface
+     * @return Contao2BackendViewDefinitionInterface
      */
     protected function getViewSection(ContainerInterface $definition)
     {
-        return $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($viewDefinition instanceof Contao2BackendViewDefinitionInterface);
+        return $viewDefinition;
     }
 
     /**
      * Check if the action should be handled.
      *
-     * @param string $mode   The list mode.
+     * @param int    $mode   The list mode.
      * @param Action $action The action.
      *
-     * @return mixed
+     * @return bool
      */
     abstract protected function wantToHandle($mode, Action $action);
 
@@ -229,7 +316,7 @@ abstract class AbstractListShowAllHandler
      * @param string|null $domain     The domain name to use.
      * @param array       $parameters Parameters.
      *
-     * @return array|string
+     * @return string
      */
     protected function translate($key, $domain, array $parameters = [])
     {
@@ -238,7 +325,7 @@ abstract class AbstractListShowAllHandler
         // Fallback translate for non symfony domain.
         if ($translated === $key) {
             // @codingStandardsIgnoreStart
-            @\trigger_error(
+            @trigger_error(
                 'Fallback translation for contao lang in the global array. ' .
                 'This will remove in the future, use the symfony domain translation.',
                 E_USER_DEPRECATED
@@ -246,7 +333,11 @@ abstract class AbstractListShowAllHandler
             // @codingStandardsIgnoreEnd
 
             $translated =
-                $this->translator->trans(\sprintf('%s.%s', $domain, $key), $parameters, sprintf('contao_%s', $domain));
+                $this->translator->trans(
+                    \sprintf('%s.%s', $domain ?? '', $key),
+                    $parameters,
+                    \sprintf('contao_%s', $domain ?? '')
+                );
         }
 
         return $translated;
@@ -262,8 +353,11 @@ abstract class AbstractListShowAllHandler
      */
     protected function renderModel(ModelInterface $model, EnvironmentInterface $environment)
     {
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $event = new FormatModelLabelEvent($environment, $model);
-        $environment->getEventDispatcher()->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
+        $dispatcher->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
         $model->setMeta($model::LABEL_VALUE, $event->getLabel());
     }
@@ -300,13 +394,18 @@ abstract class AbstractListShowAllHandler
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
         $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $provider = $environment->getInputProvider();
+        assert($provider instanceof InputProviderInterface);
+
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
         $template
             ->set('subHeadline', $this->translate('MSC.select_models', 'contao_default'))
-            ->set('tableName', ($definition->getName() ?? 'none'))
-            ->set('select', 'select' === $environment->getInputProvider()->getParameter('act'))
-            ->set('action', \ampersand(Environment::get('request')))
+            ->set('tableName', ($definition->getName() ?: 'none'))
+            ->set('select', 'select' === $provider->getParameter('act'))
+            ->set('action', StringUtil::ampersand(Environment::get('request')))
             ->set('selectButtons', $this->getSelectButtons($environment))
             ->set('sortable', $this->isSortable($environment))
             ->set('showColumns', $showColumn)
@@ -318,10 +417,11 @@ abstract class AbstractListShowAllHandler
             ->set('selectCheckBoxIdPrefix', 'models_')
             ->set('selectContainer', $this->getSelectContainer($environment));
 
-        if ((null !== $template->get('action'))
-            && (false !== \strpos($template->get('action'), 'select=models'))
+        if (
+            (null !== $template->get('action'))
+            && (false !== strpos($template->get('action'), 'select=models'))
         ) {
-            $template->set('action', \str_replace('select=models', 'select=properties', $template->get('action')));
+            $template->set('action', str_replace('select=models', 'select=properties', $template->get('action')));
         }
     }
 
@@ -332,17 +432,30 @@ abstract class AbstractListShowAllHandler
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return CollectionInterface
+     * @return CollectionInterface|list<string>
      */
     protected function loadCollection(EnvironmentInterface $environment)
     {
-        $dataConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $listingConfig = $this->getViewSection($environment->getDataDefinition())->getListingConfig();
-        $panel         = $environment->getView()->getPanel();
+        $config = $environment->getBaseConfigRegistry();
+        assert($config instanceof BaseConfigRegistry);
+
+        $view = $environment->getView();
+        assert($view instanceof BackendViewInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $dataConfig    = $config->getBaseConfig();
+        $listingConfig = $this->getViewSection($definition)->getListingConfig();
+        $panel         = $view->getPanel();
+        assert($panel instanceof PanelContainerInterface);
 
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
 
-        return $environment->getDataProvider()->fetchAll($dataConfig);
+        $provider = $environment->getDataProvider();
+        assert($provider instanceof DataProviderInterface);
+
+        return $provider->fetchAll($dataConfig);
     }
 
     /**
@@ -366,15 +479,25 @@ abstract class AbstractListShowAllHandler
      *
      * @return void
      */
-    private function renderCollection(EnvironmentInterface $environment, CollectionInterface $collection, $grouping)
-    {
-        $listing    = $this->getViewSection($environment->getDataDefinition())->getListingConfig();
+    private function renderCollection(
+        EnvironmentInterface $environment,
+        CollectionInterface $collection,
+        array $grouping
+    ) {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $listing    = $this->getViewSection($definition)->getListingConfig();
         $remoteCur  = null;
         $groupClass = 'tl_folder_tlist';
         $eoCount    = -1;
 
+        if (null === ($inputProvider = $environment->getInputProvider())) {
+            return;
+        }
+
         // Generate buttons - only if not in select mode!
-        if ('select' !== $environment->getInputProvider()->getParameter('act')) {
+        if ('select' !== $inputProvider->getParameter('act')) {
             $buttonRenderer = new ButtonRenderer($environment);
             $buttonRenderer->renderButtonsForCollection($collection);
         }
@@ -382,7 +505,7 @@ abstract class AbstractListShowAllHandler
         // Run each model.
         foreach ($collection as $model) {
             /** @var ModelInterface $model */
-            $this->addGroupHeader($environment, (array) $grouping, $model, $groupClass, $eoCount, $remoteCur);
+            $this->addGroupHeader($environment, $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if ($listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
@@ -393,11 +516,15 @@ abstract class AbstractListShowAllHandler
                 $cssClasses[] = $model->getMeta($model::CSS_ROW_CLASS) : null;
 
             $modelId = ModelId::fromModel($model);
-            if ($environment->getClipboard()->hasId($modelId)) {
+
+            if (
+                null !== ($clipboard = $environment->getClipboard())
+                && $clipboard->hasId($modelId)
+            ) {
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
-            $model->setMeta($model::CSS_ROW_CLASS, \implode(' ', $cssClasses));
+            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             $this->renderModel($model, $environment);
         }
@@ -458,7 +585,10 @@ abstract class AbstractListShowAllHandler
      */
     private function panel(EnvironmentInterface $environment, $ignoredPanels = [])
     {
-        return (new PanelRenderer($environment->getView()))->render($ignoredPanels);
+        $view = $environment->getView();
+        assert($view instanceof BackendViewInterface);
+
+        return (new PanelRenderer($view))->render($ignoredPanels);
     }
 
     /**
@@ -470,8 +600,10 @@ abstract class AbstractListShowAllHandler
      */
     private function getTableHead(EnvironmentInterface $environment)
     {
-        $tableHead  = [];
         $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $tableHead  = [];
         $properties = $definition->getPropertiesDefinition();
         $formatter  = $this->getViewSection($definition)->getListingConfig()->getLabelFormatter($definition->getName());
         $sorting    = ViewHelpers::getCurrentSorting($environment);
@@ -502,7 +634,7 @@ abstract class AbstractListShowAllHandler
      * @param int                  $groupLength The length of the value to use for grouping (only used when grouping.
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return string
+     * @return string|null
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -514,13 +646,19 @@ abstract class AbstractListShowAllHandler
         $groupLength,
         EnvironmentInterface $environment
     ) {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         // No property? Get out!
-        if (!$environment->getDataDefinition()->getPropertiesDefinition()->getProperty($field)) {
+        if (!$definition->getPropertiesDefinition()->hasProperty($field)) {
             return '-';
         }
 
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $event = new GetGroupHeaderEvent($environment, $model, $field, null, $groupMode, $groupLength);
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+        $dispatcher->dispatch($event, $event::NAME);
 
         return $event->getValue();
     }
@@ -536,7 +674,11 @@ abstract class AbstractListShowAllHandler
     {
         $event = new GetSelectModeButtonsEvent($environment);
         $event->setButtons([]);
-        $environment->getEventDispatcher()->dispatch($event, GetSelectModeButtonsEvent::NAME);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, GetSelectModeButtonsEvent::NAME);
 
         return $event->getButtons();
     }
@@ -550,32 +692,54 @@ abstract class AbstractListShowAllHandler
      */
     private function isSortable(EnvironmentInterface $environment)
     {
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         return ((true === (bool) ViewHelpers::getManualSortingProperty($environment))
-                && (true === $environment->getDataDefinition()->getBasicDefinition()->isEditable()));
+                && (true === $definition->getBasicDefinition()->isEditable()));
     }
 
     /**
      * Render paste top button. Returns null if no button should be rendered.
      *
-     * @param EnvironmentInterface                    $environment The environment.
-     * @param GroupAndSortingDefinitionInterface|null $sorting     The sorting mode.
+     * @param EnvironmentInterface                                                                 $environment The
+     *                                                                                                          env.
+     * @param GroupAndSortingDefinitionInterface|GroupAndSortingDefinitionCollectionInterface|null $sorting     The
+     *                                                                                                          sorting
+     *                                                                                                          mode.
      *
      * @return string
      */
     protected function renderPasteTopButton(EnvironmentInterface $environment, $sorting)
     {
-        $definition     = $environment->getDataDefinition();
-        $dispatcher     = $environment->getEventDispatcher();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $languageDomain = 'contao_' . $definition->getName();
 
         $filter = new Filter();
-        $filter->andModelIsFromProvider($definition->getBasicDefinition()->getDataProvider());
+        assert($filter instanceof FilterInterface);
 
-        if (!$sorting || $environment->getClipboard()->isEmpty($filter)) {
-            return null;
+        $basicDefinition = $definition->getBasicDefinition();
+        assert($basicDefinition instanceof BasicDefinitionInterface);
+
+        $dataProvider = $basicDefinition->getDataProvider();
+        assert(\is_string($dataProvider));
+
+        $filter->andModelIsFromProvider($dataProvider);
+
+        $clipboard = $environment->getClipboard();
+        assert($clipboard instanceof ClipboardInterface);
+
+        if (!$sorting || $clipboard->isEmpty($filter)) {
+            return '';
         }
+
         if (!ViewHelpers::getManualSortingProperty($environment)) {
-            return null;
+            return '';
         }
 
         /** @var AddToUrlEvent $urlEvent */
@@ -600,7 +764,7 @@ abstract class AbstractListShowAllHandler
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
             StringUtil::specialchars($this->translate('pasteafter.0', $languageDomain)),
-            $imageEvent->getHtml()
+            $imageEvent->getHtml() ?? ''
         );
     }
 
@@ -617,7 +781,11 @@ abstract class AbstractListShowAllHandler
     private function breadcrumb(EnvironmentInterface $environment)
     {
         $event = new GetBreadcrumbEvent($environment);
-        $environment->getEventDispatcher()->dispatch($event, $event::NAME);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, $event::NAME);
         $elements = $event->getElements();
         if (empty($elements)) {
             return null;
@@ -665,10 +833,16 @@ abstract class AbstractListShowAllHandler
      */
     private function getSelectContainer(EnvironmentInterface $environment)
     {
-        $inputProvider  = $environment->getInputProvider();
-        $sessionStorage = $environment->getSessionStorage();
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
 
-        $sessionName = $environment->getDataDefinition()->getName() . '.' . $inputProvider->getParameter('mode');
+        $sessionStorage = $environment->getSessionStorage();
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $sessionName = $definition->getName() . '.' . $inputProvider->getParameter('mode');
         if (!$sessionStorage->has($sessionName)) {
             return [];
         }
@@ -679,7 +853,7 @@ abstract class AbstractListShowAllHandler
         }
 
         $session = $sessionStorage->get($sessionName);
-        if (!\array_key_exists($selectAction, $session)) {
+        if (!array_key_exists($selectAction, $session)) {
             return [];
         }
 
@@ -701,7 +875,11 @@ abstract class AbstractListShowAllHandler
         }
 
         $dataDefinition = $environment->getDataDefinition();
-        $backendView    = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $backendView = $dataDefinition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
         $globalCommands = $backendView->getGlobalCommands();
 
         if (!$globalCommands->hasCommandNamed('all')) {

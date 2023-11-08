@@ -61,11 +61,10 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
                 <?php
                 // If we are grouped, split them up.
                 $this->grouped = (null !== $this->mode && $this->mode !== GroupAndSortingInformationInterface::GROUP_NONE);
-                if ($this->mode !== GroupAndSortingInformationInterface::GROUP_NONE) {
+                if ($this->grouped) {
                     $grouped = [];
                     foreach ($this->collection as $model) {
-                        $group = $model->getMeta($model::GROUP_VALUE);
-
+                        $group                      = $model->getMeta($model::GROUP_VALUE);
                         $grouped[$group['value']][] = $model;
                     }
                 } else {

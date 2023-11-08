@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -79,11 +80,11 @@ interface ParentChildConditionInterface
     /**
      * Get the condition as filter related to the given model.
      *
-     * @param ModelInterface $objParent The model that shall get used as parent.
+     * @param ModelInterface $parent The model that shall get used as parent.
      *
      * @return array
      */
-    public function getFilter($objParent);
+    public function getFilter($parent);
 
     /**
      * Set the name of the source provider.
@@ -142,12 +143,12 @@ interface ParentChildConditionInterface
      *
      * This allows to look up the parent of a child model.
      *
-     * @param ModelInterface $objChild The model that shall get used as child and for which the parent filter shall get
-     *                                 retrieved.
+     * @param ModelInterface $child The model that shall get used as child and for which the parent filter shall get
+     *                              retrieved.
      *
      * @return array|null
      */
-    public function getInverseFilterFor($objChild);
+    public function getInverseFilterFor($child);
 
     /**
      * Test if the given parent is indeed a parent of the given child object for this condition.
@@ -162,7 +163,7 @@ interface ParentChildConditionInterface
     /**
      * Return the names of the needed properties for filtering.
      *
-     * @return array
+     * @return list<string>
      */
     public function neededProperties();
 }

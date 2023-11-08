@@ -28,6 +28,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  * Implementation of a multi language Contao database data provider.
  *
  * The default language will be initialized to "en".
+ *
+ * @psalm-suppress PropertyNotSetInConstructor - properties will get set in setBaseConfig().
  */
 class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLanguageDataProviderInterface
 {

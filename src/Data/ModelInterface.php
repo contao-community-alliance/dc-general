@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,73 +29,75 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Interface ModelInterface.
  *
  * This interface describes a model used in data providers.
+ *
+ * @extends \IteratorAggregate<string, mixed>
  */
 interface ModelInterface extends \IteratorAggregate
 {
     /**
      * Name of the parent provider.
      */
-    const PARENT_PROVIDER_NAME = 'ptable';
+    public const PARENT_PROVIDER_NAME = 'ptable';
 
     /**
      * Id value of the parent model.
      */
-    const PARENT_ID = 'pid';
+    public const PARENT_ID = 'pid';
 
     /**
      * State if we have children.
      */
-    const HAS_CHILDREN = 'dc_gen_tv_children';
+    public const HAS_CHILDREN = 'dc_gen_tv_children';
 
     /**
      * If the children shall be shown (i.e. unfolded in tree mode).
      */
-    const SHOW_CHILDREN = 'dc_gen_tv_open';
+    public const SHOW_CHILDREN = 'dc_gen_tv_open';
 
     /**
      * All child collections.
      */
-    const CHILD_COLLECTIONS = 'dc_gen_children_collection';
+    public const CHILD_COLLECTIONS = 'dc_gen_children_collection';
 
     /**
      * Meta name for the model operation buttons.
      */
-    const OPERATION_BUTTONS = '%buttons%';
+    public const OPERATION_BUTTONS = '%buttons%';
 
     /**
      * Meta name for the model label arguments.
      */
-    const LABEL_ARGS = '%args%';
+    public const LABEL_ARGS = '%args%';
 
     /**
      * Meta name for the model label (sprintf string).
      */
-    const LABEL_VALUE = '%content%';
+    public const LABEL_VALUE = '%content%';
 
     /**
      * Meta name for the model group header.
      */
-    const GROUP_HEADER = '%header%';
+    public const GROUP_HEADER = '%header%';
 
     /**
      * Meta name for the model group value.
      */
-    const GROUP_VALUE = '%group%';
+    public const GROUP_VALUE = '%group%';
 
     /**
      * Meta name for the model label class.
      */
-    const CSS_CLASS = '%class%';
+    public const CSS_CLASS = '%class%';
 
     /**
      * Meta name for the model label class.
      */
-    const CSS_ROW_CLASS = '%rowClass%';
+    public const CSS_ROW_CLASS = '%rowClass%';
 
     /**
      * State if the model is changed
      */
-    const IS_CHANGED = 'isChanged';
+    public const IS_CHANGED = 'isChanged';
 
     /**
      * Copy this model, without the id.
@@ -115,14 +118,14 @@ interface ModelInterface extends \IteratorAggregate
      *
      * This method returns null if an unknown property is retrieved.
      *
-     * @param string $strPropertyName The property name to be retrieved.
+     * @param string $propertyName The property name to be retrieved.
      *
      * @return mixed The value of the given property.
      */
-    public function getProperty($strPropertyName);
+    public function getProperty($propertyName);
 
     /**
-     * Fetch all properties from the model as an name => value array.
+     * Fetch all properties from the model as a name => value array.
      *
      * @return array
      */
@@ -140,11 +143,11 @@ interface ModelInterface extends \IteratorAggregate
     /**
      * Set the id for this object.
      *
-     * NOTE: when the Id has been set once to a non null value, it can NOT be changed anymore.
+     *  NOTE: when the ID has been set once to a non-null value, it can NOT be changed anymore.
      *
-     * Normally this should only be called from inside of the implementing provider.
+     *  Normally this should only be called from inside the implementing provider.
      *
-     * @param mixed $mixId Could be a integer, string or anything else - depends on the provider implementation.
+     * @param mixed $mixId Could be integer, string or anything else - depends on the provider implementation.
      *
      * @return void
      */
@@ -163,11 +166,11 @@ interface ModelInterface extends \IteratorAggregate
     /**
      * Update all properties in the model.
      *
-     * @param array $arrProperties The property values as name => value pairs.
+     * @param array $properties The property values as name => value pairs.
      *
      * @return void
      */
-    public function setPropertiesAsArray($arrProperties);
+    public function setPropertiesAsArray($properties);
 
     /**
      * Update meta information in the model.

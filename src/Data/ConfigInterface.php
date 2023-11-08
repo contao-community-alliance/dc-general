@@ -154,7 +154,7 @@ interface ConfigInterface
      *
      * The returning array will be of 'property name' => 'ASC|DESC' nature.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function getSorting();
 
@@ -163,7 +163,7 @@ interface ConfigInterface
      *
      * The array must be of 'property name' => 'ASC|DESC' nature.
      *
-     * @param array $arrSorting The sorting array to use.
+     * @param array<string, string> $arrSorting The sorting array to use.
      *
      * @return ConfigInterface
      */
@@ -197,7 +197,7 @@ interface ConfigInterface
     /**
      * Set the additional information.
      *
-     * @param string $strKey   The name of the information to retrieve.
+     * @param string $strKey      The name of the information to retrieve.
      *
      * @param mixed  $varValue The value to store.
      *

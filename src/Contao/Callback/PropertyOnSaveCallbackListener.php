@@ -28,15 +28,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Encod
  * Class PropertyOnSaveCallbackListener.
  *
  * Handler for the save_callbacks of a property.
+ *
+ * @extends AbstractReturningPropertyCallbackListener<EncodePropertyValueFromWidgetEvent>
  */
 class PropertyOnSaveCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param EncodePropertyValueFromWidgetEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -47,12 +45,7 @@ class PropertyOnSaveCallbackListener extends AbstractReturningPropertyCallbackLi
     }
 
     /**
-     * Update the value in the event.
-     *
-     * @param EncodePropertyValueFromWidgetEvent $event The event being emitted.
-     * @param mixed                              $value The encoded value.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

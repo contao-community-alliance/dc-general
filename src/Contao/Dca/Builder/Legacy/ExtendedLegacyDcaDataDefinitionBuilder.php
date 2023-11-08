@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2022 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2022 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\ContaoDataProviderInformation;
 use ContaoCommunityAlliance\DcGeneral\Contao\Dca\Definition\ExtendedDca;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\DataProviderInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DataProviderDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultBasicDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultDataProviderDefinition;
@@ -46,9 +48,14 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Build the container config from legacy DCA syntax.
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
@@ -101,40 +108,42 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 function (PopulateEnvironmentEvent $event) use ($dataContainerName) {
                     $environment = $event->getEnvironment();
                     $definition  = $environment->getDataDefinition();
+                    $dispatcher  = $environment->getEventDispatcher();
+                    $translator  = $environment->getTranslator();
+                    assert($definition instanceof ContainerInterface);
+                    assert($dispatcher instanceof EventDispatcherInterface);
+                    assert($translator instanceof TranslatorInterface);
                     if ($definition->getName() !== $dataContainerName) {
                         return;
                     }
 
                     $parentName = $definition->getBasicDefinition()->getParentDataProvider();
                     if ($parentName) {
-                        if ($parentName === $definition->getName()) {
-                            $parentDefinition = $definition;
-                        } else {
-                            $parentDefinition = (new DcGeneralFactory())
-                                ->setEventDispatcher($environment->getEventDispatcher())
-                                ->setTranslator($environment->getTranslator())
+                        $parentDefinition = ($parentName === $definition->getName())
+                            ? $definition
+                            : (new DcGeneralFactory())
+                                ->setEventDispatcher($dispatcher)
+                                ->setTranslator($translator)
                                 ->setContainerName($parentName)
                                 ->createDcGeneral()
                                 ->getEnvironment()
                                 ->getDataDefinition();
-                        }
+                        assert($parentDefinition instanceof ContainerInterface);
                         $environment->setParentDataDefinition($parentDefinition);
                     }
 
                     $rootName = $definition->getBasicDefinition()->getRootDataProvider();
                     if ($rootName) {
-                        if ($rootName === $definition->getName()) {
-                            $rootDefinition = $definition;
-                        } else {
-                            $rootDefinition = (new DcGeneralFactory())
-                                ->setEventDispatcher($environment->getEventDispatcher())
-                                ->setTranslator($environment->getTranslator())
+                        $rootDefinition = ($rootName === $definition->getName())
+                            ? $definition
+                            : (new DcGeneralFactory())
+                                ->setEventDispatcher($dispatcher)
+                                ->setTranslator($translator)
                                 ->setContainerName($rootName)
                                 ->createDcGeneral()
                                 ->getEnvironment()
                                 ->getDataDefinition();
-                        }
-
+                        assert($rootDefinition instanceof ContainerInterface);
                         $environment->setRootDataDefinition($rootDefinition);
                     }
                 }
@@ -204,7 +213,9 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      * @param string|null                     $name        The name of the data provider to be used within the
      *                                                     container.
      *
-     * @return ContaoDataProviderInformation|null
+     * @return DataProviderInformationInterface|null
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function parseSingleDataProvider(
         ContainerInterface $container,
@@ -235,6 +246,9 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 $providerInformation = $providers->getInformation($providerName);
             }
 
+            if (!$providerInformation instanceof ContaoDataProviderInformation) {
+                return $providerInformation;
+            }
             if (!$providerInformation->getTableName()) {
                 if (isset($information['source'])) {
                     $providerInformation
@@ -432,11 +446,11 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                         ->setDestinationName($childCondition['to']);
                     $definition->addChildCondition($relationship);
                     $setter  = $childCondition['setOn'];
-                    $inverse = $childCondition['inverse'];
+                    $inverse = $childCondition['inverse'] ?? [];
                 } else {
                     $setter  = \array_merge_recursive((array) $childCondition['setOn'], $relationship->getSetters());
                     $inverse = \array_merge_recursive(
-                        (array) $childCondition['inverse'],
+                        $childCondition['inverse'] ?? [],
                         $relationship->getInverseFilterArray()
                     );
                 }
@@ -474,6 +488,11 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         } else {
             $definition = new DefaultModelRelationshipDefinition();
             $container->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
+        }
+        if (!$definition instanceof ModelRelationshipDefinitionInterface) {
+            throw new DcGeneralInvalidArgumentException(
+                'Configured ModelRelationshipDefinition does not implement ModelRelationshipDefinitionInterface.'
+            );
         }
 
         $this->parseRootCondition($container, $definition);
@@ -570,7 +589,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function parseDynamicParentTableProperty(ContainerInterface $container)
     {
-        if ((null === ($propertyName = $this->getFromDca('dca_config/parent_table_property')))
+        if (
+            (null === ($propertyName = $this->getFromDca('dca_config/parent_table_property')))
             || (null === ($sourceProvider = $this->getFromDca('config/ptable')))
             || (null === ($dynamicParentTable = $this->getFromDca('config/dynamicPtable')))
         ) {
@@ -598,7 +618,8 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             )
         );
 
-        $backendView = $container->getDefinition(Contao2BackendViewDefinition::NAME);
+        $backendView = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
         $backendView->getListingConfig()->setParentTablePropertyName($propertyName);
         $container->getBasicDefinition()->setDynamicParentTable($dynamicParentTable);
     }

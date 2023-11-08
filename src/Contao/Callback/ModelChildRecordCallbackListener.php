@@ -27,15 +27,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Paren
  * Class ModelChildRecordCallbackListener.
  *
  * Handler for the child record callbacks.
+ *
+ * @extends AbstractReturningCallbackListener<ParentViewChildRecordEvent>
  */
 class ModelChildRecordCallbackListener extends AbstractReturningCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param ParentViewChildRecordEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -45,12 +43,7 @@ class ModelChildRecordCallbackListener extends AbstractReturningCallbackListener
     }
 
     /**
-     * Set the HTML code for the button.
-     *
-     * @param ParentViewChildRecordEvent $event The event being emitted.
-     * @param string                     $value The value returned by the callback.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

@@ -25,6 +25,11 @@ namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 
+use function base64_decode;
+use function base64_encode;
+use function serialize;
+use function unserialize;
+
 /**
  * Class Clipboard.
  *
@@ -37,26 +42,30 @@ class Clipboard implements ClipboardInterface
     /**
      * The item collection (indexed by clipboard ids).
      *
-     * @var ItemInterface[]
+     * @var array<string, ItemInterface>
      */
-    private $items = [];
+    private array $items = [];
 
     /**
      * The item collection (indexed by model ids).
      *
-     * @var ItemInterface[]
+     * @var array<string, array<string, ItemInterface>>
      */
-    private $itemsByModelId = [];
+    private array $itemsByModelId = [];
 
     /**
      * {@inheritDoc}
      */
     public function loadFrom($environment)
     {
-        $data = $environment->getSessionStorage()->get('CLIPBOARD');
+        if (null === $session = $environment->getSessionStorage()) {
+            return $this;
+        }
+
+        $data = $session->get('CLIPBOARD');
 
         if ($data) {
-            $this->items = \unserialize(\base64_decode($data), ['allowed_classes' => true]);
+            $this->items = unserialize(base64_decode($data), ['allowed_classes' => true]);
             foreach ($this->items as $item) {
                 if ($modelId = $item->getModelId()) {
                     $this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()] = $item;
@@ -72,8 +81,12 @@ class Clipboard implements ClipboardInterface
      */
     public function saveTo($environment)
     {
-        $data = \base64_encode(\serialize($this->items));
-        $environment->getSessionStorage()->set('CLIPBOARD', $data);
+        if (null === $session = $environment->getSessionStorage()) {
+            return $this;
+        }
+
+        $data = base64_encode(serialize($this->items));
+        $session->set('CLIPBOARD', $data);
 
         return $this;
     }

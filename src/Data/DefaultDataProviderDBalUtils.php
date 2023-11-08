@@ -26,6 +26,15 @@ use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
  * Static helper class for DefaultDataProvider.
+ *
+ * NOTE: Can't define filters recursively. See: https://github.com/vimeo/psalm/issues/2777
+ * @psalm-type TSQLFilterAND=array{operation: 'AND', children: list<array{}>}
+ * @psalm-type TSQLFilterOR=array{operation: 'OR', children: list<array{}>}
+ * @psalm-type TSQLFilterCMP=array{operation: "="|">"|">="|"<"|"<="|"<>", property: string, value: string|int}
+ * @psalm-type TSQLFilterIN=array{operation: 'IN'|'NOT IN', property: string, values: list<string|int>}
+ * @psalm-type TSQLFilterLIKE=array{operation: 'LIKE'|'NOT LIKE', property: string, value: string}
+ * @psalm-type TSQLFilterNULL=array{operation: 'IS NULL'|'IS NOT NULL', property: string, value: string}
+ * @psalm-type TSQLFilter=TSQLFilterAND|TSQLFilterOR|TSQLFilterCMP|TSQLFilterIN|TSQLFilterLIKE|TSQLFilterNULL
  */
 class DefaultDataProviderDBalUtils
 {
@@ -47,19 +56,20 @@ class DefaultDataProviderDBalUtils
             return;
         }
 
-        if (null !== $config->getFields()) {
+        if (null !== $fieldList = $config->getFields()) {
+            /** @psalm-suppress DeprecatedMethod - bc layer */
             $connection = $queryBuilder->getConnection();
-            $fields     = implode(
+            $fields     = \implode(
                 ', ',
-                array_map(
+                \array_map(
                     function ($field) use ($connection) {
                         return $connection->quoteIdentifier($field);
                     },
-                    $config->getFields()
+                    $fieldList
                 )
             );
 
-            if (false !== stripos($fields, 'DISTINCT') || \in_array($idProperty, $config->getFields(), true)) {
+            if (false !== \stripos($fields, 'DISTINCT') || \in_array($idProperty, $fieldList, true)) {
                 $queryBuilder->select($fields);
                 return;
             }
@@ -78,8 +88,6 @@ class DefaultDataProviderDBalUtils
      * @param QueryBuilder    $queryBuilder The query builder.
      *
      * @return void
-     *
-     * @internal param array $parameters The query parameters will get stored into this array.
      */
     public static function addWhere($config, QueryBuilder $queryBuilder)
     {
@@ -96,19 +104,20 @@ class DefaultDataProviderDBalUtils
      */
     public static function addSorting(ConfigInterface $config, QueryBuilder $queryBuilder)
     {
-        if (empty($config->getSorting()) || !is_array($config->getSorting())) {
+        $sorting = $config->getSorting();
+        if (empty($sorting)) {
             return;
         }
 
-        foreach ($config->getSorting() as $sort => $order) {
+        foreach ($sorting as $sort => $order) {
             if (empty($sort)) {
                 continue;
             }
 
             // array could be a simple field list or list of field => direction combinations.
             if (!empty($order)) {
-                $order = strtoupper($order);
-                if (!in_array($order, [DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC])) {
+                $order = \strtoupper($order);
+                if (!\in_array($order, [DCGE::MODEL_SORTING_ASC, DCGE::MODEL_SORTING_DESC])) {
                     $sort  = $order;
                     $order = DCGE::MODEL_SORTING_ASC;
                 }
@@ -127,18 +136,17 @@ class DefaultDataProviderDBalUtils
      * @param QueryBuilder    $queryBuilder The query builder.
      *
      * @return string The combined conditions.
-     *
-     * @internal param array $parameters The query parameters will get stored into this array.
      */
-    private static function addFilter($config, QueryBuilder $queryBuilder)
+    private static function addFilter(ConfigInterface $config, QueryBuilder $queryBuilder): string
     {
-        $result = static::calculateSubFilter(
-            ['operation' => 'AND', 'children' => $config->getFilter()],
-            $queryBuilder
-        );
+        /** @var list<TSQLFilter> $filter */
+        $filter = $config->getFilter() ?? [];
+
+        /** @var TSQLFilterAND $andFilter */
+        $andFilter = ['operation' => 'AND', 'children' => $filter];
 
         // Combine filter syntax.
-        return $result ?: '';
+        return static::calculateSubFilter($andFilter, $queryBuilder);
     }
 
     /**
@@ -167,22 +175,16 @@ class DefaultDataProviderDBalUtils
      *                'property'           string (the name of a property)
      *                'value'              literal - Wildcards * (Many) ? (One)
      *
-     * @param array        $filter       The filter to be combined to a valid SQL filter query.
+     * @param TSQLFilter   $filter       The filter to be combined to a valid SQL filter query.
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string The combined WHERE conditions.
      *
      * @throws DcGeneralRuntimeException If the sub filter has a sub filter.
      * @throws DcGeneralRuntimeException If the sub filter has a no filter.
-     *
-     * @internal param array $parameters The query parameters will get stored into this array.
      */
-    private static function calculateSubFilter($filter, QueryBuilder $queryBuilder)
+    private static function calculateSubFilter(array $filter, QueryBuilder $queryBuilder): string
     {
-        if (!is_array($filter)) {
-            throw new DcGeneralRuntimeException('Error Processing sub filter: ' . var_export($filter, true), 1);
-        }
-
         if (null !== ($rule = static::determineFilterAndOr($filter, $queryBuilder))) {
             return $rule;
         }
@@ -209,16 +211,17 @@ class DefaultDataProviderDBalUtils
     /**
      * Determine sql filter for and/or.
      *
-     * @param array        $filter       The query filter.
+     * @param TSQLFilter   $filter       The query filter.
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string|null
      */
-    private static function determineFilterAndOr(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterAndOr(array $filter, QueryBuilder $queryBuilder): ?string
     {
-        if (!\in_array($filter['operation'], ['AND', 'OR'])) {
+        if (!\in_array($filter['operation'], ['AND', 'OR'], true)) {
             return null;
         }
+        /** @var TSQLFilterAND|TSQLFilterOR $filter */
 
         static::filterAndOr($filter, $queryBuilder);
 
@@ -228,16 +231,17 @@ class DefaultDataProviderDBalUtils
     /**
      * Determine sql filter for comparing.
      *
-     * @param array        $filter       The query filter.
+     * @param TSQLFilter   $filter       The query filter.
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string|null
      */
-    private static function determineFilterComparing(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterComparing(array $filter, QueryBuilder $queryBuilder): ?string
     {
-        if (!\in_array($filter['operation'], ['=', '>', '>=', '<', '<=', '<>'])) {
+        if (!\in_array($filter['operation'], ['=', '>', '>=', '<', '<=', '<>'], true)) {
             return null;
         }
+        /** @var TSQLFilterCMP $filter */
 
         return static::filterComparing($filter, $queryBuilder);
     }
@@ -245,16 +249,17 @@ class DefaultDataProviderDBalUtils
     /**
      * Determine sql filter for in or not in list.
      *
-     * @param array        $filter       The query filter.
+     * @param TSQLFilter   $filter       The query filter.
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string|null
      */
-    private static function determineFilterInOrNotInList(array $filter, QueryBuilder $queryBuilder)
+    private static function determineFilterInOrNotInList(array $filter, QueryBuilder $queryBuilder): ?string
     {
         if (!\in_array($filter['operation'], ['IN', 'NOT IN'])) {
             return null;
         }
+        /** @var TSQLFilterIN $filter */
 
         return static::filterInOrNotInList($filter, $queryBuilder);
     }
@@ -262,7 +267,7 @@ class DefaultDataProviderDBalUtils
     /**
      * Determine sql filter for like or not like.
      *
-     * @param array        $filter       The query filter.
+     * @param TSQLFilter   $filter       The query filter.
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string|null
@@ -272,6 +277,7 @@ class DefaultDataProviderDBalUtils
         if (!\in_array($filter['operation'], ['LIKE', 'NOT LIKE'])) {
             return null;
         }
+        /** @var TSQLFilterLIKE $filter */
 
         return static::filterLikeOrNotLike($filter, $queryBuilder);
     }
@@ -279,7 +285,7 @@ class DefaultDataProviderDBalUtils
     /**
      * Determine sql filter for is null or is not null.
      *
-     * @param array        $filter       The query filter.
+     * @param TSQLFilter   $filter       The query filter.
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string|null
@@ -289,6 +295,7 @@ class DefaultDataProviderDBalUtils
         if (!\in_array($filter['operation'], ['IS NULL', 'IS NOT NULL'])) {
             return null;
         }
+        /** @var TSQLFilterNULL $filter */
 
         return static::filterIsNullOrIsNotNull($filter, $queryBuilder);
     }
@@ -296,14 +303,12 @@ class DefaultDataProviderDBalUtils
     /**
      * Build an AND or OR query.
      *
-     * @param array        $operation    The operation to convert.
-     * @param QueryBuilder $queryBuilder The query builder.
+     * @param TSQLFilterAND|TSQLFilterOR $operation    The operation to convert.
+     * @param QueryBuilder               $queryBuilder The query builder.
      *
      * @return void
-     *
-     * @internal param array $params The parameter array for the resulting query.
      */
-    private static function filterAndOr($operation, QueryBuilder $queryBuilder)
+    private static function filterAndOr(array $operation, QueryBuilder $queryBuilder): void
     {
         $children = $operation['children'];
 
@@ -311,8 +316,9 @@ class DefaultDataProviderDBalUtils
             return;
         }
 
-        $whereOperation = strtolower($operation['operation']) . 'Where';
+        $whereOperation = \strtolower($operation['operation']) . 'Where';
 
+        /** @var TSQLFilter $child */
         foreach ($children as $child) {
             if ('' !== $child = static::calculateSubFilter($child, $queryBuilder)) {
                 $queryBuilder->{$whereOperation}($child);
@@ -323,14 +329,12 @@ class DefaultDataProviderDBalUtils
     /**
      * Build the sub query for a comparing operator like =,<,>.
      *
-     * @param array        $operation    The operation to apply.
-     * @param QueryBuilder $queryBuilder The query builder.
+     * @param TSQLFilterCMP $operation    The operation to apply.
+     * @param QueryBuilder  $queryBuilder The query builder.
      *
      * @return string
-     *
-     * @internal param array $params The parameters of the entire query.
      */
-    private static function filterComparing($operation, QueryBuilder $queryBuilder)
+    private static function filterComparing(array $operation, QueryBuilder $queryBuilder): string
     {
         return $queryBuilder
             ->expr()
@@ -344,16 +348,14 @@ class DefaultDataProviderDBalUtils
     /**
      * Return the filter query for a "foo IN ('a', 'b')" filter.
      *
-     * @param array        $operation    The operation to apply.
+     * @param TSQLFilterIN $operation    The operation to apply.
      * @param QueryBuilder $queryBuilder The query builder.
      *
      * @return string
-     *
-     * @internal param array $params The parameters of the entire query.
      */
-    private static function filterInOrNotInList($operation, QueryBuilder $queryBuilder)
+    private static function filterInOrNotInList(array $operation, QueryBuilder $queryBuilder): string
     {
-        $expressionMethod = lcfirst(preg_replace('/\s+/', '', ucwords(strtolower($operation['operation']))));
+        $expressionMethod = \lcfirst(\preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
 
         $values = [];
         foreach ($operation['values'] as $index => $value) {
@@ -372,16 +374,14 @@ class DefaultDataProviderDBalUtils
      *
      * The searched value may contain the wildcards '*' and '?' which will get converted to proper SQL.
      *
-     * @param array        $operation    The operation to apply.
-     * @param QueryBuilder $queryBuilder The query builder.
+     * @param TSQLFilterLIKE $operation    The operation to apply.
+     * @param QueryBuilder   $queryBuilder The query builder.
      *
      * @return string
-     *
-     * @internal param array $params The parameters of the entire query.
      */
-    private static function filterLikeOrNotLike($operation, QueryBuilder $queryBuilder)
+    private static function filterLikeOrNotLike(array $operation, QueryBuilder $queryBuilder): string
     {
-        $wildcards = str_replace(array('*', '?'), array('%', '_'), $operation['value']);
+        $wildcards = \str_replace(['*', '?'], ['%', '_'], $operation['value']);
 
         return $queryBuilder
             ->expr()
@@ -389,20 +389,18 @@ class DefaultDataProviderDBalUtils
     }
 
     /**
-     * Return the filter query for a "foo LIKE '%ba_r%'" filter.
+     * Return the filter query for a "foo IS NULL" filter.
      *
      * The searched value may contain the wildcards '*' and '?' which will get converted to proper SQL.
      *
-     * @param array        $operation    The operation to apply.
-     * @param QueryBuilder $queryBuilder The query builder.
+     * @param TSQLFilterNULL $operation    The operation to apply.
+     * @param QueryBuilder   $queryBuilder The query builder.
      *
      * @return string
-     *
-     * @internal param array $params The parameters of the entire query.
      */
-    private static function filterIsNullOrIsNotNull($operation, QueryBuilder $queryBuilder)
+    private static function filterIsNullOrIsNotNull(array $operation, QueryBuilder $queryBuilder): string
     {
-        $expressionMethod = lcfirst(preg_replace('/\s+/', '', ucwords(strtolower($operation['operation']))));
+        $expressionMethod = \lcfirst(\preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
 
         return $queryBuilder
             ->expr()

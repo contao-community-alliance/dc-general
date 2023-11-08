@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
  */
 class UsePropertyEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.use-property';
+    public const NAME = 'dc-general.data-definition.palette.builder.use-property';
 
     /**
      * The property.

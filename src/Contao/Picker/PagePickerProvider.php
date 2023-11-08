@@ -22,12 +22,46 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Picker;
 use Contao\CoreBundle\Picker\AbstractPickerProvider;
 use Contao\CoreBundle\Picker\DcaPickerProviderInterface;
 use Contao\CoreBundle\Picker\PickerConfig;
+use Contao\System;
+use Knp\Menu\FactoryInterface;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Provides the page picker.
  */
 class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProviderInterface
 {
+    private Security $security;
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        FactoryInterface $menuFactory,
+        RouterInterface $router,
+        ?TranslatorInterface $translator,
+        ?Security $security
+    ) {
+        parent::__construct($menuFactory, $router, $translator);
+
+        if (null === $security) {
+            $security = System::getContainer()->get('security.helper');
+            assert($security instanceof Security);
+
+            // @codingStandardsIgnoreStart
+            @trigger_error(
+                'Not passing the security as argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // @codingStandardsIgnoreEnd
+        }
+
+        $this->security = $security;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -41,7 +75,8 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
      */
     public function supportsContext($context)
     {
-        return \in_array($context, ['cca_ page', 'cca_link'], true) && $this->getUser()->hasAccess('page', 'modules');
+        return \in_array($context, ['cca_page', 'cca_link'], true)
+               && $this->security->isGranted('contao_user.modules', 'page');
     }
 
     /**
@@ -86,7 +121,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             }
 
             if ($value) {
-                $intval = function ($val) {
+                $intval = function (mixed $val): int {
                     return (int) $val;
                 };
 
@@ -112,7 +147,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             return (int) $value;
         }
 
-        return '{{link_url::'.$value.'}}';
+        return '{{link_url::' . $value . '}}';
     }
 
     /**

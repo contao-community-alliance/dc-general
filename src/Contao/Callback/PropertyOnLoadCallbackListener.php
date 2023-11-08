@@ -28,15 +28,13 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Decod
  * Class PropertyOnLoadCallbackListener.
  *
  * Handler for the load_callbacks of a property.
+ *
+ * @extends AbstractReturningPropertyCallbackListener<DecodePropertyValueForWidgetEvent>
  */
 class PropertyOnLoadCallbackListener extends AbstractReturningPropertyCallbackListener
 {
     /**
-     * Retrieve the arguments for the callback.
-     *
-     * @param DecodePropertyValueForWidgetEvent $event The event being emitted.
-     *
-     * @return array
+     * {@inheritDoc}
      */
     public function getArgs($event)
     {
@@ -47,12 +45,7 @@ class PropertyOnLoadCallbackListener extends AbstractReturningPropertyCallbackLi
     }
 
     /**
-     * Update the value in the event.
-     *
-     * @param DecodePropertyValueForWidgetEvent $event The event being emitted.
-     * @param mixed                             $value The decoded value.
-     *
-     * @return void
+     * {@inheritDoc}
      */
     public function update($event, $value)
     {

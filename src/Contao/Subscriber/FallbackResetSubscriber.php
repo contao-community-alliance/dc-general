@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,7 +24,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\Subscriber;
 
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelManipulator;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
@@ -51,7 +54,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
      *  * array('eventName' => array('methodName', $priority))
      *  * array('eventName' => array(array('methodName1', $priority), array('methodName2'))
      *
-     * @return array The event names to listen to.
+     * @return array<string, array{0: string, 1: int}> The event names to listen to.
      */
     public static function getSubscribedEvents()
     {
@@ -91,21 +94,32 @@ class FallbackResetSubscriber implements EventSubscriberInterface
      * @param AbstractModelAwareEvent $event The event.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function handleFallback(AbstractModelAwareEvent $event)
     {
-        $model        = $event->getModel();
+        $model = $event->getModel();
+        assert($model instanceof ModelInterface);
+
         $dataProvider = $event->getEnvironment()->getDataProvider($model->getProviderName());
-        $properties   = $event->getEnvironment()->getDataDefinition()->getPropertiesDefinition();
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $definition = $event->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $properties = $definition->getPropertiesDefinition();
 
         foreach (\array_keys($model->getPropertiesAsArray()) as $propertyName) {
             if (!$properties->hasProperty($propertyName)) {
                 continue;
             }
+
             $property = $properties->getProperty($propertyName);
-            $extra    = (array) $property->getExtra();
+            $extra    = $property->getExtra();
+
             if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
-                // BC Layer - use old reset fallback methodology until it get's removed.
+                // BC Layer - use old reset fallback methodology until it gets removed.
                 if (null === ($config = $this->determineFilterConfig($event))) {
                     // @codingStandardsIgnoreStart
                     @\trigger_error(
@@ -114,8 +128,10 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                         E_USER_DEPRECATED
                     );
                     // @codingStandardsIgnoreEnd
-
+                    /** @psalm-suppress DeprecatedMethod */
                     $dataProvider->resetFallback($propertyName);
+                    $dataProvider->save($model);
+                    continue;
                 }
 
                 // If value is empty, no need to reset the fallback.
@@ -126,9 +142,14 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                 $models = $dataProvider->fetchAll($config);
 
                 foreach ($models as $resetModel) {
+                    if (!($resetModel instanceof ModelInterface)) {
+                        continue;
+                    }
+
                     if ($model->getId() === $resetModel->getId()) {
                         continue;
                     }
+
                     $resetModel->setProperty($propertyName, ModelManipulator::sanitizeValue($property, null));
                     $dataProvider->save($resetModel);
                 }
@@ -142,13 +163,23 @@ class FallbackResetSubscriber implements EventSubscriberInterface
      * @param AbstractModelAwareEvent $event The event.
      *
      * @return ConfigInterface|null
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(NPathComplexity)
      */
     private function determineFilterConfig(AbstractModelAwareEvent $event)
     {
         $environment  = $event->getEnvironment();
         $model        = $event->getModel();
-        $dataProvider = $environment->getDataProvider($model->getProviderName());
-        $definition   = $environment->getDataDefinition();
+
+        if (null === ($dataProvider = $environment->getDataProvider($model->getProviderName()))) {
+            return null;
+        }
+
+        if (null === ($definition = $environment->getDataDefinition())) {
+            return null;
+        }
+
         $relationship = $definition->getModelRelationshipDefinition();
 
         $root = $relationship->getRootCondition();
@@ -156,8 +187,12 @@ class FallbackResetSubscriber implements EventSubscriberInterface
             return $dataProvider->getEmptyConfig()->setFilter($root->getFilterArray());
         }
 
+        if (null === ($parentDefinition = $definition->getBasicDefinition()->getParentDataProvider())) {
+            return null;
+        }
+
         $parentFilter = $relationship->getChildCondition(
-            $definition->getBasicDefinition()->getParentDataProvider(),
+            $parentDefinition,
             $model->getProviderName()
         );
 

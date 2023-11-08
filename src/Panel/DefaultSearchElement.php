@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,6 +24,8 @@
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -36,21 +38,21 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      *
      * @var array
      */
-    private $arrProperties;
+    private array $arrProperties = [];
 
     /**
      * The currently active property to be searched on.
      *
      * @var string
      */
-    private $strSelectedProperty;
+    private string $strSelectedProperty = '';
 
     /**
      * The current value to be searched.
      *
      * @var mixed
      */
-    private $mixValue;
+    private mixed $mixValue = null;
 
     /**
      * Retrieve the persistent value from the input provider.
@@ -59,13 +61,16 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     protected function getPersistent()
     {
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         $values = [];
         if ($this->getSessionStorage()->has('search')) {
             $values = $this->getSessionStorage()->get('search');
         }
 
-        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $values)) {
-            return $values[$this->getEnvironment()->getDataDefinition()->getName()];
+        if (\array_key_exists($definition->getName(), $values)) {
+            return $values[$definition->getName()];
         }
 
         return [];
@@ -81,24 +86,23 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     protected function setPersistent($propertyName, $searchValue)
     {
-        $values         = [];
-        $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
+        $definitionName = $definition->getName();
+
+        $values = [];
         if ($this->getSessionStorage()->has('search')) {
             $values = $this->getSessionStorage()->get('search');
         }
 
         if (!empty($searchValue)) {
-            if (!\is_array($values[$definitionName])) {
+            if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
                 $values[$definitionName] = [];
             }
 
-            if ($searchValue) {
-                $values[$definitionName]['field'] = $propertyName;
-                $values[$definitionName]['value'] = $searchValue;
-            } else {
-                unset($values[$definitionName]);
-            }
+            $values[$definitionName]['field'] = $propertyName;
+            $values[$definitionName]['value'] = $searchValue;
         } else {
             unset($values[$definitionName]);
         }
@@ -109,14 +113,16 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $filterConfig, PanelElementInterface $objElement = null)
+    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
     {
         $session = $this->getSessionStorage();
         $input   = $this->getInputProvider();
-        $value   = null;
-        $field   = null;
+        assert($input instanceof InputProviderInterface);
 
-        if ('1' !== $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
+        $value = '';
+        $field = '';
+
+        if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
                 $field = $input->getValue('tl_field');
                 $value = $input->getValue('tl_value');
@@ -133,19 +139,19 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
             $this->setSelectedProperty($field);
             $this->setValue($value);
         } else {
-            $this->setPersistent(null, null);
+            $this->setPersistent('', '');
         }
 
         if (!($this->getSelectedProperty() && $this->getValue())) {
             return;
         }
 
-        $currents = $filterConfig->getFilter();
+        $currents = $config->getFilter();
         if (!\is_array($currents)) {
             $currents = [];
         }
 
-        $filterConfig->setFilter(
+        $config->setFilter(
             \array_merge_recursive(
                 $currents,
                 [
@@ -164,20 +170,21 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
      */
     public function render(ViewTemplateInterface $viewTemplate)
     {
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
         $options = [];
 
         foreach ($this->getPropertyNames() as $field) {
-            $lLabels   = $this
-                ->getEnvironment()
-                ->getDataDefinition()
+            $lLabels   = $definition
                 ->getPropertiesDefinition()
                 ->getProperty($field)
                 ->getLabel();
             $options[] = [
-                    'value'      => $field,
-                    'content'    => \is_array($lLabels) ? $lLabels[0] : $lLabels,
-                    'attributes' => ($field === $this->getSelectedProperty()) ? ' selected' : ''
-                ];
+                'value'      => $field,
+                'content'    => $lLabels,
+                'attributes' => ($field === $this->getSelectedProperty()) ? ' selected' : ''
+            ];
         }
 
         $viewTemplate->set('class', 'tl_select' . (!empty($this->getValue()) ? ' active' : ''));
@@ -190,9 +197,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
-    public function addProperty($propertyName)
+    public function addProperty($strProperty)
     {
-        $this->arrProperties[] = $propertyName;
+        $this->arrProperties[] = $strProperty;
 
         return $this;
     }
@@ -208,9 +215,9 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
-    public function setSelectedProperty($propertyName = '')
+    public function setSelectedProperty($strProperty = '')
     {
-        $this->strSelectedProperty = $propertyName;
+        $this->strSelectedProperty = $strProperty;
 
         return $this;
     }

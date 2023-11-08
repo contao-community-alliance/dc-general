@@ -28,9 +28,9 @@ trait RequestScopeDeterminatorAwareTrait
     /**
      * The request mode determinator.
      *
-     * @var RequestScopeDeterminator
+     * @var null|RequestScopeDeterminator
      */
-    private $scopeDeterminator;
+    private ?RequestScopeDeterminator $scopeDeterminator = null;
 
     /**
      * ClipboardController constructor.
@@ -39,8 +39,17 @@ trait RequestScopeDeterminatorAwareTrait
      *
      * @return void
      */
-    public function setScopeDeterminator(RequestScopeDeterminator $scopeDeterminator)
+    public function setScopeDeterminator(RequestScopeDeterminator $scopeDeterminator): void
     {
         $this->scopeDeterminator = $scopeDeterminator;
+    }
+
+    private function getScopeDeterminator(): RequestScopeDeterminator
+    {
+        if (null === $this->scopeDeterminator) {
+            throw new \RuntimeException('scopeDeterminator has not been set.');
+        }
+
+        return $this->scopeDeterminator;
     }
 }

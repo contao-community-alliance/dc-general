@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,6 +26,9 @@ namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
 use Contao\Config;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
@@ -38,21 +41,21 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      *
      * @var int
      */
-    private $intOffset;
+    private $intOffset = 0;
 
     /**
      * The current amount.
      *
      * @var int
      */
-    private $intAmount;
+    private $intAmount = 0;
 
     /**
      * The total amount of all valid entries.
      *
      * @var int
      */
-    private $intTotal;
+    private $intTotal = 0;
 
     /**
      * Retrieve the amount of items to display per page.
@@ -82,10 +85,11 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     protected function calculateTotal()
     {
         $otherConfig = $this->getOtherConfig();
-        $total       = $this
-            ->getEnvironment()
-            ->getDataProvider()
-            ->fetchAll($otherConfig->setIdOnly(true));
+
+        $dataProvider = $this->getEnvironment()->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $total = $dataProvider->fetchAll($otherConfig->setIdOnly(true));
 
         if (\is_array($total)) {
             $this->intTotal = $total ? \count($total) : 0;
@@ -93,13 +97,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             return;
         }
 
-        if (\is_object($total)) {
-            $this->intTotal = $total->length();
-
-            return;
-        }
-
-        $this->intTotal = 0;
+        $this->intTotal = $total->length();
     }
 
     /**
@@ -114,8 +112,11 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             $values = $this->getSessionStorage()->get('limit');
         }
 
-        if (\array_key_exists($this->getEnvironment()->getDataDefinition()->getName(), $values)) {
-            return $values[$this->getEnvironment()->getDataDefinition()->getName()];
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        if (\array_key_exists($definition->getName(), $values)) {
+            return $values[$definition->getName()];
         }
 
         return [];
@@ -131,7 +132,10 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     protected function setPersistent($offset, $amount)
     {
-        $definitionName = $this->getEnvironment()->getDataDefinition()->getName();
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $definitionName = $definition->getName();
 
         $values = [];
 
@@ -140,7 +144,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         }
 
         if ($offset) {
-            if (!\is_array($values[$definitionName])) {
+            if (!isset($values[$definitionName]) || !\is_array($values[$definitionName])) {
                 $values[$definitionName] = [];
             }
 
@@ -172,11 +176,6 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
         $this->defineOffsetAndAmountOption($offset, $amount);
 
-        if (null !== $offset) {
-            $this->setOffset($offset);
-            $this->setAmount($amount);
-        }
-
         $config->setStart($this->getOffset());
         $config->setAmount($this->getAmount());
     }
@@ -191,8 +190,11 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     private function defineOffsetAndAmountOption(int &$offset, int &$amount): void
     {
-        if ('1' === $this->getEnvironment()->getInputProvider()->getValue('filter_reset')) {
-            $this->setPersistent(null, null);
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if ('1' === $inputProvider->getValue('filter_reset')) {
+            $this->setPersistent(0, 0);
 
             return;
         }
@@ -200,8 +202,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
             $limit = $input->getValue('tl_limit');
             if ('tl_limit' !== $limit) {
-                [$offset, $amount] = \explode(',', $input->getValue('tl_limit'));
-                $this->setPersistent($offset, $amount);
+                [$offset, $amount] = \explode(',', $input->getValue('tl_limit')) + [0, 0];
+                $this->setPersistent((int) $offset, (int) $amount);
             }
         }
 
@@ -295,9 +297,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * {@inheritDoc}
      */
-    public function setOffset($offset)
+    public function setOffset($intOffset)
     {
-        $this->intOffset = (int) $offset;
+        $this->intOffset = $intOffset;
 
         return $this;
     }

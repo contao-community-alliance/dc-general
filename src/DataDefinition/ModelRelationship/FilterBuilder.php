@@ -60,13 +60,10 @@ class FilterBuilder
      */
     public function __construct($filter = [], $isRoot = false)
     {
-        if (!\is_array($filter)) {
-            throw new DcGeneralInvalidArgumentException(
-                'FilterBuilder needs a valid filter array ' . \gettype($filter) . 'given'
-            );
-        }
+        $filters = static::getBuilderFromArray(['operation' => 'AND', 'children' => $filter], $this);
+        assert($filters instanceof AndFilterBuilder);
 
-        $this->filters      = static::getBuilderFromArray(['operation' => 'AND', 'children' => $filter], $this);
+        $this->filters      = $filters;
         $this->isRootFilter = $isRoot;
     }
 
@@ -114,6 +111,7 @@ class FilterBuilder
      */
     public static function fromArray($filter = [])
     {
+        /** @psalm-suppress UnsafeInstantiation */
         return new static($filter, false);
     }
 
@@ -126,6 +124,7 @@ class FilterBuilder
      */
     public static function fromArrayForRoot($filter = [])
     {
+        /** @psalm-suppress UnsafeInstantiation */
         return new static($filter, true);
     }
 

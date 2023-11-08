@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,7 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
 
 /**
- * Small compatibility layer for callbacks, that expect a "full featured" DC instance.
+ * Small compatibility layer for callbacks, that expect a "full-featured" DC instance.
  */
 class DcCompat extends General
 {
@@ -53,7 +54,7 @@ class DcCompat extends General
      *
      * @param EnvironmentInterface $environment  The Dc instance to use for delegating.
      * @param ModelInterface       $model        The model within scope (optional).
-     * @param null                 $propertyName The name of the property within scope (optional).
+     * @param string|null          $propertyName The name of the property within scope (optional).
      */
     public function __construct(EnvironmentInterface $environment, ModelInterface $model = null, $propertyName = null)
     {
@@ -150,7 +151,8 @@ class DcCompat extends General
                     return $modelId->getId();
                 }
 
-                if (('pid' === $idParameter)
+                if (
+                    ('pid' === $idParameter)
                     || !$inputProvider->hasParameter('pid')
                     || !$inputProvider->getParameter('pid')
                 ) {

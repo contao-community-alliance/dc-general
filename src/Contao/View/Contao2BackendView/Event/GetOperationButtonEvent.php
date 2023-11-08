@@ -37,56 +37,56 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * The command for which the button is being rendered.
      *
-     * @var CommandInterface
+     * @var CommandInterface|null
      */
     protected $command;
 
     /**
      * The model to which the command shall be applied to.
      *
-     * @var ModelInterface
+     * @var ModelInterface|null
      */
     protected $model;
 
     /**
      * The ids of any child records of the model.
      *
-     * @var array
+     * @var array|null
      */
     protected $childRecordIds;
 
     /**
      * Determinator if there is a circular reference from an item in the clipboard to the current model.
      *
-     * @var bool
+     * @var bool|null
      */
     protected $circularReference;
 
     /**
      * The next model succeeding the current model.
      *
-     * @var ModelInterface
+     * @var ModelInterface|null
      */
     protected $next;
 
     /**
      * The model preceeding the current model.
      *
-     * @var ModelInterface
+     * @var ModelInterface|null
      */
     protected $previous;
 
     /**
      * The href for the command.
      *
-     * @var string
+     * @var string|null
      */
     protected $href;
 
     /**
      * Disabled state of the button.
      *
-     * @var bool
+     * @var bool|null
      */
     protected $disabled;
 
@@ -107,7 +107,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Retrieve the attached command.
      *
-     * @return CommandInterface
+     * @return CommandInterface|null
      */
     public function getCommand()
     {
@@ -131,7 +131,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Retrieve the ids of the child records of the current model.
      *
-     * @return array
+     * @return array|null
      */
     public function getChildRecordIds()
     {
@@ -161,7 +161,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
      * This flag determines if there exists a circular reference between the item currently in the clipboard and the
      * current model. A circular reference is of relevance when performing a cut and paste operation for example.
      *
-     * @return boolean
+     * @return bool|null
      */
     public function isCircularReference()
     {
@@ -171,7 +171,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Set the next model in the list, succeeding the current model.
      *
-     * @param ModelInterface $next The successor.
+     * @param ModelInterface|null $next The successor.
      *
      * @return $this
      */
@@ -185,7 +185,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Get the next model in the list, succeeding the current model.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getNext()
     {
@@ -195,7 +195,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Set the previous model in the list, preceding the current model.
      *
-     * @param ModelInterface $previous The id of the predecessor.
+     * @param ModelInterface|null $previous The id of the predecessor.
      *
      * @return $this
      */
@@ -209,7 +209,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Get the previous model in the list, preceding the current model.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getPrevious()
     {
@@ -233,7 +233,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Retrieve the href for the button.
      *
-     * @return string
+     * @return string|null
      */
     public function getHref()
     {
@@ -257,7 +257,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Get the model currently in scope.
      *
-     * @return ModelInterface
+     * @return ModelInterface|null
      */
     public function getModel()
     {
@@ -281,7 +281,7 @@ class GetOperationButtonEvent extends BaseButtonEvent
     /**
      * Determine if the command is disabled.
      *
-     * @return boolean
+     * @return bool|null
      */
     public function isDisabled()
     {

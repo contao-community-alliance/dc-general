@@ -40,26 +40,28 @@ class ModelToLabelEvent extends AbstractModelAwareEvent
      *
      * @var string
      */
-    protected $label;
+    protected $label = '';
 
     /**
      * The label information instance.
      *
      * @var ModelFormatterConfigInterface
+     *
+     * @psalm-suppress PropertyNotSetInConstructor
      */
     protected $listLabel;
 
     /**
      * The arguments to use when building the label from the format string.
      *
-     * @var array
+     * @var array<string, string>
      */
-    protected $args;
+    protected $args = [];
 
     /**
      * Set the arguments to use when generating the final string representation using the format string.
      *
-     * @param array $args The arguments.
+     * @param array<string, string> $args The arguments.
      *
      * @return ModelToLabelEvent
      */
@@ -73,7 +75,7 @@ class ModelToLabelEvent extends AbstractModelAwareEvent
     /**
      * Retrieve the arguments to use when generating the final string representation using the format string.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function getArgs()
     {

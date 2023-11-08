@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,6 +23,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao;
 
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -32,9 +34,9 @@ class SessionStorage implements SessionStorageInterface
     /**
      * The session scope.
      *
-     * @var string
+     * @var null|string
      */
-    private $scope;
+    private ?string $scope = null;
 
     /**
      * The symfony session.
@@ -75,9 +77,7 @@ class SessionStorage implements SessionStorageInterface
 
         foreach ($databaseKeys as $index => $databaseKeyItems) {
             foreach ((array) $databaseKeyItems as $databaseKey) {
-                if (('common' === $index)
-                    || (0 === \strpos($index, 'DC_GENERAL_'))
-                ) {
+                if (('common' === $index) || (0 === \strpos($index, 'DC_GENERAL_'))) {
                     $this->databaseKeys[$index][] = $databaseKey;
 
                     continue;
@@ -101,7 +101,6 @@ class SessionStorage implements SessionStorageInterface
             // @codingStandardsIgnoreStart
             @\trigger_error('The scope can not be change! Use a new session storage.', E_USER_ERROR);
             // @codingStandardsIgnoreEnd
-            return;
         }
 
         $this->scope = $scope;
@@ -177,6 +176,7 @@ class SessionStorage implements SessionStorageInterface
         $this->load();
         $this->attributes = [];
         $this->persist();
+        return $this;
     }
 
     /**
@@ -192,11 +192,13 @@ class SessionStorage implements SessionStorageInterface
 
         $sessionBag         = $this->session->getBag($this->getSessionBagKey());
         $databaseSessionBag = $this->session->getBag($this->getDatabaseSessionBagKey());
+        assert($sessionBag instanceof AttributeBagInterface);
+        assert($databaseSessionBag instanceof AttributeBagInterface);
 
-        $this->attributes = \array_merge(
-            (array) $sessionBag->get($this->getScope()),
-            (array) $databaseSessionBag->get($this->getScope())
-        );
+        if (null === $scope = $this->getScope()) {
+            return;
+        }
+        $this->attributes = \array_merge((array) $sessionBag->get($scope), (array) $databaseSessionBag->get($scope));
     }
 
     /**
@@ -206,11 +208,17 @@ class SessionStorage implements SessionStorageInterface
      */
     private function persist()
     {
+        if (null === $scope = $this->getScope()) {
+            return;
+        }
+
         $sessionBag = $this->session->getBag($this->getSessionBagKey());
-        $sessionBag->set($this->getScope(), $this->filterAttributes());
+        assert($sessionBag instanceof AttributeBagInterface);
+        $sessionBag->set($scope, $this->filterAttributes());
 
         $databaseSessionBag = $this->session->getBag($this->getDatabaseSessionBagKey());
-        $databaseSessionBag->set($this->getScope(), $this->filterAttributes(true));
+        assert($databaseSessionBag instanceof AttributeBagInterface);
+        $databaseSessionBag->set($scope, $this->filterAttributes(true));
     }
 
     /**
@@ -223,10 +231,10 @@ class SessionStorage implements SessionStorageInterface
      */
     private function filterAttributes($determineDatabase = false)
     {
-        $databaseAttributes = \array_merge(
-            (array) $this->databaseKeys['common'],
-            (array) $this->databaseKeys[$this->getScope()]
-        );
+        $databaseAttributes = $this->databaseKeys['common'] ?? [];
+        if ($scope = $this->getScope()) {
+            $databaseAttributes = \array_merge($databaseAttributes, $this->databaseKeys[$scope] ?? []);
+        }
 
         if ($determineDatabase) {
             return \array_intersect_key($this->attributes, \array_flip($databaseAttributes));
@@ -240,7 +248,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @return string|null
      */
-    private function getScope()
+    private function getScope(): ?string
     {
         if (!$this->scope) {
             // @codingStandardsIgnoreStart

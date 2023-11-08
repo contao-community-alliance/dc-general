@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -32,14 +33,14 @@ class TreeNodeStates
      *
      * @var array
      */
-    private $states;
+    private $states = [];
 
     /**
      * List of implicit open nodes (selected values i.e.).
      *
      * @var array
      */
-    private $implicitOpen;
+    private $implicitOpen = [];
 
     /**
      * Create a new instance.
@@ -67,7 +68,7 @@ class TreeNodeStates
      */
     public function setStates($states)
     {
-        $this->states = (array) $states;
+        $this->states = $states;
 
         return $this;
     }
@@ -96,7 +97,7 @@ class TreeNodeStates
      */
     public function setImplicitOpen($implicitOpen)
     {
-        $this->implicitOpen = (array) $implicitOpen;
+        $this->implicitOpen = $implicitOpen;
 
         return $this;
     }
@@ -136,7 +137,7 @@ class TreeNodeStates
      */
     public function setAllOpen($allOpen)
     {
-        $this->states['all'] = (bool) $allOpen;
+        $this->states['all'] = $allOpen;
 
         return $this;
     }
@@ -205,7 +206,7 @@ class TreeNodeStates
             $this->states[$providerName] = [];
         }
 
-        $this->states[$providerName][$modelId] = (bool) $state;
+        $this->states[$providerName][$modelId] = $state;
 
         return $this;
     }

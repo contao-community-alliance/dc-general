@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -33,7 +34,7 @@ class Command implements CommandInterface
      *
      * @var string
      */
-    protected $name;
+    protected $name = '';
 
     /**
      * The parameters for the command.
@@ -47,14 +48,14 @@ class Command implements CommandInterface
      *
      * @var string
      */
-    protected $label;
+    protected $label = '';
 
     /**
      * The description text for the command.
      *
      * @var string
      */
-    protected $description;
+    protected $description = '';
 
     /**
      * The extra data for the command.
@@ -68,7 +69,7 @@ class Command implements CommandInterface
      *
      * @var bool
      */
-    protected $disabled;
+    protected $disabled = false;
 
     /**
      * Create a new instance.
@@ -84,7 +85,7 @@ class Command implements CommandInterface
      */
     public function setName($name)
     {
-        $this->name = (string) $name;
+        $this->name = $name;
 
         return $this;
     }
@@ -120,7 +121,7 @@ class Command implements CommandInterface
      */
     public function setLabel($label)
     {
-        $this->label = (string) $label;
+        $this->label = $label;
 
         return $this;
     }
@@ -138,7 +139,7 @@ class Command implements CommandInterface
      */
     public function setDescription($description)
     {
-        $this->description = (string) $description;
+        $this->description = $description;
 
         return $this;
     }

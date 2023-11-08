@@ -33,7 +33,6 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayout
  */
 class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterface
 {
-
     /**
      * The listing configuration for this backend view.
      *

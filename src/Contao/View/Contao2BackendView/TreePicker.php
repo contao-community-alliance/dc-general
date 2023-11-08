@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,8 @@
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @author     Kim Wormer <hallo@heartcodiert.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,6 +28,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
 use Contao\CoreBundle\Exception\ResponseException;
+use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerConfig;
 use Contao\StringUtil;
 use Contao\System;
@@ -35,7 +37,11 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
+use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\Factory\SessionStorageFactory;
+use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager;
@@ -46,24 +52,40 @@ use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\DC\General;
+use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Cmf\Component\Routing\ChainRouterInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
 /**
  * Provide methods to handle input field "tableTree".
  *
+ * @property array{fields: list<string>, format: string, maxCharacters: int}|null $itemLabel
+ * @property string $searchField
+ *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @psalm-suppress PropertyNotSetInConstructor
  */
 class TreePicker extends Widget
 {
@@ -89,27 +111,6 @@ class TreePicker extends Widget
     protected $subTemplate = 'widget_treepicker';
 
     /**
-     * The ajax id.
-     *
-     * @var string
-     */
-    protected $strAjaxId;
-
-    /**
-     * The ajax key.
-     *
-     * @var string
-     */
-    protected $strAjaxKey;
-
-    /**
-     * The ajax name.
-     *
-     * @var string
-     */
-    protected $strAjaxName;
-
-    /**
      * The data Container.
      *
      * @var General
@@ -121,7 +122,7 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $sourceName;
+    protected $sourceName = '';
 
     /**
      * The field type to use.
@@ -131,13 +132,6 @@ class TreePicker extends Widget
      * @var string
      */
     protected $fieldType = 'radio';
-
-    /**
-     * Flag determining if the value shall always be saved.
-     *
-     * @var bool
-     */
-    protected $alwaysSave;
 
     /**
      * The minimum level for items to be selectable.
@@ -165,12 +159,12 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $title;
+    protected $title = '';
 
     /**
      * The data container for the item source.
      *
-     * @var General
+     * @var DcGeneral
      */
     protected $itemContainer;
 
@@ -179,28 +173,28 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $orderField;
+    protected $orderField = '';
 
     /**
      * The tree nodes to be handled.
      *
-     * @var TreeNodeStates
+     * @var TreeNodeStates|null
      */
-    protected $nodeStates;
+    protected $nodeStates = null;
 
     /**
      * Create a new instance.
      *
-     * @param array   $attributes    The custom attributes.
-     * @param General $dataContainer The data container.
+     * @param array        $attributes    The custom attributes.
+     * @param General|null $dataContainer The data container.
      *
-     * @throws DcGeneralRuntimeException When not in Backend mode.
      */
     public function __construct($attributes = [], General $dataContainer = null)
     {
         parent::__construct($attributes);
 
         $scopeDeterminator = System::getContainer()->get('cca.dc-general.scope-matcher');
+        assert($scopeDeterminator instanceof RequestScopeDeterminator);
 
         if ($scopeDeterminator->currentScopeIsUnknown() || !$scopeDeterminator->currentScopeIsBackend()) {
             throw new DcGeneralRuntimeException('Treepicker is currently for Backend only.');
@@ -212,42 +206,59 @@ class TreePicker extends Widget
     /**
      * Setup all local values and create the dc instance for the referenced data source.
      *
-     * @param General $dataContainer The data container to use.
+     * @param General|null $dataContainer The data container to use.
      *
      * @return void
      */
     protected function setUp(General $dataContainer = null)
     {
-        $this->dataContainer = $dataContainer ?: $this->objDca;
+        if (null === $dataContainer) {
+            /** @var General|null $dataContainer */
+            $dataContainer = $this->objDca;
+        }
 
-        if (!$this->dataContainer) {
+        if (!$dataContainer) {
             return;
         }
+
+        $this->dataContainer = $dataContainer;
 
         $environment = $this->dataContainer->getEnvironment();
 
         if (!$this->sourceName) {
-            $property = $environment
-                ->getDataDefinition()
+            $definition = $environment->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
+            $inputProvider = $environment->getInputProvider();
+            assert($inputProvider instanceof InputProviderInterface);
+
+            $property = $definition
                 ->getPropertiesDefinition()
-                ->getProperty($environment->getInputProvider()->getValue('name'));
+                ->getProperty($inputProvider->getValue('name'));
 
             foreach ($property->getExtra() as $k => $v) {
                 $this->$k = $v;
             }
 
-            $name           = $environment->getInputProvider()->getValue('name');
+            $name           = $inputProvider->getValue('name');
             $this->strField = $name;
             $this->strName  = $name;
             $this->strId    = $name;
             $this->label    = $property->getLabel() ?: $name;
-            $this->strTable = $environment->getDataDefinition()->getName();
+            $this->strTable = $definition->getName();
         }
 
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        /** @psalm-suppress PropertyNotSetInConstructor */
         $this->itemContainer = (new DcGeneralFactory())
             ->setContainerName($this->sourceName)
-            ->setTranslator($environment->getTranslator())
-            ->setEventDispatcher($environment->getEventDispatcher())
+            ->setTranslator($translator)
+            ->setEventDispatcher($dispatcher)
             ->createDcGeneral();
     }
 
@@ -275,10 +286,16 @@ class TreePicker extends Widget
 
         $this->setUp($dataContainer);
         $environment = $this->dataContainer->getEnvironment();
-        $this->value = $environment->getInputProvider()->getValue('value');
 
-        $label = $environment
-            ->getDataDefinition()
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $this->value = $inputProvider->getValue('value');
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $label = $definition
             ->getPropertiesDefinition()
             ->getProperty($this->strName)
             ->getDescription();
@@ -288,7 +305,7 @@ class TreePicker extends Widget
         $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
                   '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
 
-        if (null !== $label && $GLOBALS['TL_CONFIG']['showHelp']) {
+        if ($GLOBALS['TL_CONFIG']['showHelp']) {
             $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
         }
 
@@ -298,7 +315,7 @@ class TreePicker extends Widget
     /**
      * Retrieve the item container.
      *
-     * @return General
+     * @return DcGeneral
      */
     public function getItemContainer()
     {
@@ -323,25 +340,35 @@ class TreePicker extends Widget
     public function getTreeNodeStates()
     {
         if (!isset($this->nodeStates)) {
-            $environment      = $this->getEnvironment();
-            $sessionStorage   = $environment->getSessionStorage();
+            $environment = $this->getEnvironment();
+
+            $sessionStorage = $environment->getSessionStorage();
+            assert($sessionStorage instanceof SessionStorageInterface);
+
             $this->nodeStates = new TreeNodeStates(
                 $sessionStorage->get($this->getToggleId()),
                 $this->determineParentsOfValues()
             );
 
+            $inputProvider = $environment->getInputProvider();
+            assert($inputProvider instanceof InputProviderInterface);
+
             // Maybe it is not the best location to do this here.
-            if ('all' === $environment->getInputProvider()->getParameter('ptg')) {
+            if ('all' === $inputProvider->getParameter('ptg')) {
                 // Save in session and reload.
                 $sessionStorage->set(
                     $this->getToggleId(),
                     $this->nodeStates->setAllOpen($this->nodeStates->isAllOpen())->getStates()
                 );
 
-                $environment->getEventDispatcher()->dispatch(ContaoEvents::CONTROLLER_RELOAD, new ReloadEvent());
+                $dispatcher = $environment->getEventDispatcher();
+                assert($dispatcher instanceof EventDispatcherInterface);
+
+                $dispatcher->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
             }
         }
 
+        /** @psalm-suppress PropertyNotSetInConstructor */
         return $this->nodeStates;
     }
 
@@ -393,9 +420,9 @@ class TreePicker extends Widget
     /**
      * Convert the value according to the configured fieldtype.
      *
-     * @param mixed $value The value to convert.
+     * @param null|list<string>|string $value The value to convert.
      *
-     * @return mixed
+     * @return null|string|list<string>
      *
      * @throws \RuntimeException When an unknown field type is encountered.
      */
@@ -414,8 +441,10 @@ class TreePicker extends Widget
                 return $value;
             case 'checkbox':
                 $delimiter = (false !== \stripos($value, "\t")) ? "\t" : ',';
+                /** @var array<int, string> $files */
+                $files = StringUtil::trimsplit($delimiter, $value);
 
-                return StringUtil::trimsplit($delimiter, $value);
+                return \array_values($files);
             default:
         }
         throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
@@ -430,10 +459,13 @@ class TreePicker extends Widget
      * * fieldType : the input type. Either "radio" or "checkbox".
      * * titleIcon:  the icon to use in the title section.
      * * mandatory:  the field value must not be empty.
+     * * orderField: the field to order items.
      *
      * @param string $key The property name.
      *
-     * @return string The property value.
+     * @return mixed The property value.
+     *
+     * @psalm-suppress LessSpecificImplementedReturnType
      */
     public function __get($key)
     {
@@ -448,7 +480,7 @@ class TreePicker extends Widget
                 return $this->titleIcon;
 
             case 'mandatory':
-                return $this->arrConfiguration['mandatory'];
+                return $this->arrConfiguration['mandatory'] ?? '';
 
             case 'orderField':
                 return $this->orderField;
@@ -458,27 +490,32 @@ class TreePicker extends Widget
 
             default:
         }
+
         return parent::__get($key);
     }
 
     /**
      * Skip the field if "change selection" is not checked.
      *
-     * @param array $value The current value.
+     * @param null|string|list<string> $varInput The current value.
      *
-     * @return array|string
+     * @return null|string|list<string>
+     *
+     * @psalm-suppress MoreSpecificImplementedParamType
      */
-    protected function validator($value)
+    protected function validator($varInput)
     {
-        $convertValue = $this->widgetToValue($value);
+        $convertValue = $this->widgetToValue($varInput);
 
         if ((null === $convertValue) && $this->mandatory) {
             $translator = $this->getEnvironment()->getTranslator();
+            assert($translator instanceof TranslatorInterface);
 
             $message = empty($this->label)
                 ? $translator->translate('ERR.mdtryNoLabel')
                 : \sprintf(
                     $translator->translate('ERR.mandatory'),
+                    /** @psalm-suppress PropertyNotSetInConstructor */
                     $this->strLabel
                 );
 
@@ -497,8 +534,9 @@ class TreePicker extends Widget
      */
     public function renderItemsPlain()
     {
-        $values     = [];
-        $value      = $this->varValue;
+        $values = [];
+        $value  = $this->varValue;
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         $idProperty = $this->idProperty ?: 'id';
 
         if ('radio' === $this->fieldType && !empty($value)) {
@@ -507,8 +545,14 @@ class TreePicker extends Widget
 
         if (\is_array($value) && !empty($value)) {
             $environment = $this->getEnvironment();
-            $dataDriver  = $environment->getDataProvider();
-            $config      = $environment->getBaseConfigRegistry()->getBaseConfig();
+
+            $dataDriver = $environment->getDataProvider();
+            assert($dataDriver instanceof DataProviderInterface);
+
+            $registry = $environment->getBaseConfigRegistry();
+            assert($registry instanceof BaseConfigRegistryInterface);
+
+            $config      = $registry->getBaseConfig();
             $filter      = FilterBuilder::fromArrayForRoot()
                 ->getFilter()
                 ->andPropertyValueIn($idProperty, $value)
@@ -522,6 +566,10 @@ class TreePicker extends Widget
             }
 
             foreach ($dataDriver->fetchAll($config) as $model) {
+                if (!($model instanceof ModelInterface)) {
+                    continue;
+                }
+
                 $formatted        = $this->formatModel($model, false);
                 $idValue          = $model->getProperty($idProperty);
                 $values[$idValue] = $formatted[0]['content'];
@@ -576,19 +624,28 @@ class TreePicker extends Widget
         $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
-        $translator  = $environment->getTranslator();
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         $template    = new ContaoBackendViewTemplate('widget_treepicker');
 
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
+        $dispatcher->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
 
         $template
             ->setTranslator($translator)
+            /** @psalm-suppress PropertyNotSetInConstructor */
             ->set('id', $this->strId)
+            /** @psalm-suppress PropertyNotSetInConstructor */
             ->set('name', $this->strName)
+            /** @psalm-suppress PropertyNotSetInConstructor */
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
-            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', [$this->sourceName]))
+            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', null, [$this->sourceName]))
             ->set('changeSelection', $translator->translate('MSC.changeSelection'))
             ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
             ->set('fieldType', $this->fieldType)
@@ -614,14 +671,18 @@ class TreePicker extends Widget
      */
     protected function generatePickerUrl()
     {
+        assert($this->dataContainer instanceof DcCompat);
+        $model = $this->dataContainer->getModel();
+        assert($model instanceof ModelInterface);
+
         $parameter = [
             'fieldType'    => $this->fieldType,
             'sourceName'   => $this->sourceName,
-            'modelId'      => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
+            'modelId'      => ModelId::fromModel($model)->getSerialized(),
             'orderField'   => $this->orderField,
             'propertyName' => $this->name
         ];
-
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         if ($this->pickerOrderProperty && $this->pickerSortDirection) {
             $parameter = \array_merge(
                 $parameter,
@@ -632,15 +693,18 @@ class TreePicker extends Widget
             );
         }
 
-        return System::getContainer()->get('contao.picker.builder')->getUrl('cca_tree', $parameter);
+        $pickerBuilder = System::getContainer()->get('contao.picker.builder');
+        assert($pickerBuilder instanceof PickerBuilderInterface);
+
+        return $pickerBuilder->getUrl('cca_tree', $parameter);
     }
 
     /**
      * Convert the value from widget for internal process.
      *
-     * @param mixed $value The widget value.
+     * @param null|string|list<string> $value The widget value.
      *
-     * @return null|string|array
+     * @return null|string|list<string>
      */
     public function widgetToValue($value)
     {
@@ -676,21 +740,31 @@ class TreePicker extends Widget
      */
     protected function generateUpdateUrl()
     {
-        $request = System::getContainer()->get('request_stack')->getCurrentRequest();
+        $requestStack = System::getContainer()->get('request_stack');
+        assert($requestStack instanceof RequestStack);
+
+        $request = $requestStack->getCurrentRequest();
+        assert($request instanceof Request);
+
+        $dataContainer = $this->dataContainer;
+        assert($dataContainer instanceof General);
 
         $configPicker = new PickerConfig(
             'cca_tree',
             [
                 'fieldType'    => $this->fieldType,
                 'sourceName'   => $this->sourceName,
-                'modelId'      => ModelId::fromModel($this->dataContainer->getModel())->getSerialized(),
+                'modelId'      => ModelId::fromModel($dataContainer->getModel())->getSerialized(),
                 'orderField'   => $this->orderField,
                 'propertyName' => $this->name
             ],
             $this->valueToWidget($this->value)
         );
 
-        return System::getContainer()->get('router')->generate(
+        $router = System::getContainer()->get('router');
+        assert($router instanceof ChainRouterInterface);
+
+        return $router->generate(
             'cca_dc_general_tree_update',
             [
                 'picker' => $configPicker->cloneForCurrent((string) $request->query->get('context'))->urlEncode()
@@ -713,9 +787,16 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
-        return System::getContainer()->get('router')->generate(
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+
+        $router = System::getContainer()->get('router');
+        assert($router instanceof ChainRouterInterface);
+
+        return $router->generate(
             'cca_dc_general_tree_breadcrumb',
             $this->getQueryParameterFromUrl($toggleUrlEvent->getUrl()),
             UrlGenerator::ABSOLUTE_URL
@@ -734,9 +815,16 @@ class TreePicker extends Widget
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
-        $this->getEnvironment()->getEventDispatcher()->dispatch(ContaoEvents::BACKEND_ADD_TO_URL, $toggleUrlEvent);
 
-        return System::getContainer()->get('router')->generate(
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+
+        $router = System::getContainer()->get('router');
+        assert($router instanceof ChainRouterInterface);
+
+        return $router->generate(
             'cca_dc_general_tree_toggle',
             $this->getQueryParameterFromUrl($toggleUrlEvent->getUrl()),
             UrlGenerator::ABSOLUTE_URL
@@ -752,7 +840,7 @@ class TreePicker extends Widget
      */
     private function getQueryParameterFromUrl($url)
     {
-        $parameters = array();
+        $parameters = [];
         foreach (\preg_split('/&(amp;)?/i', \preg_split('/[?]/ui', $url)[1]) as $value) {
             $chunks                 = \explode('=', $value);
             $parameters[$chunks[0]] = $chunks[1];
@@ -775,7 +863,9 @@ class TreePicker extends Widget
         }
 
         $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         $template
             ->set('hasOrder', true)
             ->set('orderId', $this->orderField)
@@ -798,19 +888,28 @@ class TreePicker extends Widget
         $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
-        $translator  = $environment->getTranslator();
-        $template    = new ContaoBackendViewTemplate('widget_treepicker_popup');
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $template = new ContaoBackendViewTemplate('widget_treepicker_popup');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);
-        $environment->getEventDispatcher()->dispatch(ContaoEvents::IMAGE_GET_HTML, $icon);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($icon, ContaoEvents::IMAGE_GET_HTML);
 
         $template
             ->setTranslator($translator)
             ->set('id', 'tl_listing')
+            /** @psalm-suppress PropertyNotSetInConstructor */
             ->set('name', $this->strName)
+            /** @psalm-suppress PropertyNotSetInConstructor */
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
-            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', '', [$this->sourceName]))
+            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', null, [$this->sourceName]))
             ->set('fieldType', $this->fieldType)
             ->set('resetSelected', $translator->translate('MSC.resetSelected'))
             ->set('selectAll', $translator->translate('MSC.selectAll'))
@@ -837,6 +936,7 @@ class TreePicker extends Widget
      */
     private function getRootIds()
     {
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         $root = $this->root;
         $root = \is_array($root) ? $root : ((\is_numeric($root) && $root > 0) ? [$root] : []);
         $root = \array_merge($root, [0]);
@@ -852,17 +952,22 @@ class TreePicker extends Widget
     public function generateAjax()
     {
         $input = $this->getEnvironment()->getInputProvider();
+        assert($input instanceof InputProviderInterface);
 
-        if ($input->hasValue('action')
-            && ('DcGeneralLoadSubTree' === $input->getValue('action'))
-        ) {
+        if ($input->hasValue('action') && ('DcGeneralLoadSubTree' === $input->getValue('action'))) {
             $provider = $input->getValue('providerName');
             $rootId   = $input->getValue('id');
-            $this->getEnvironment()->getSessionStorage()->set(
+
+            $sessionStorage = $this->getEnvironment()->getSessionStorage();
+            assert($sessionStorage instanceof SessionStorageInterface);
+
+            $sessionStorage->set(
                 $this->getToggleId(),
                 $this->getTreeNodeStates()->toggleModel($provider, $rootId)->getStates()
             );
+
             $collection = $this->loadCollection($rootId, ((int) $input->getValue('level') + 1));
+
             return $this->generateTreeView($collection, 'tree');
         }
 
@@ -876,7 +981,10 @@ class TreePicker extends Widget
      */
     protected function getToggleId()
     {
-        return $this->getEnvironment()->getDataDefinition()->getName() . $this->strId . '_tree';
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        return $definition->getName() . $this->strId . '_tree';
     }
 
     /**
@@ -886,7 +994,10 @@ class TreePicker extends Widget
      */
     public function getSearchSessionKey()
     {
-        return $this->getEnvironment()->getDataDefinition()->getName() . $this->strId . '_tree_search';
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        return $definition->getName() . $this->strId . '_tree_search';
     }
 
     /**
@@ -930,8 +1041,12 @@ class TreePicker extends Widget
      */
     protected function treeWalkModel(ModelInterface $model, $level, $subTables = [])
     {
-        $environment   = $this->getEnvironment();
-        $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $relationships = $definition->getModelRelationshipDefinition();
         $hasChild      = false;
 
         $this->determineModelState($model, ($level - 1));
@@ -947,12 +1062,15 @@ class TreePicker extends Widget
             }
 
             // Create a new Config and fetch the children from the child provider.
-            $childConfig = $environment->getDataProvider($subTable)->getEmptyConfig();
+            $dataProvider = $environment->getDataProvider($subTable);
+            assert($dataProvider instanceof DataProviderInterface);
+
+            $childConfig = $dataProvider->getEmptyConfig();
             $childConfig->setFilter($childFilter->getFilter($model));
 
             $childConfig->setSorting(['sorting' => 'ASC']);
-
-            $childCollection = $environment->getDataProvider($subTable)->fetchAll($childConfig);
+            $childCollection = $dataProvider->fetchAll($childConfig);
+            assert($childCollection instanceof CollectionInterface);
 
             $hasChild = ($childCollection->length() > 0);
 
@@ -992,10 +1110,13 @@ class TreePicker extends Widget
      */
     private function treeWalkChildCollection(CollectionInterface $childCollection, ModelInterface $model, $level)
     {
-        $relationships = $this->getEnvironment()->getDataDefinition()->getModelRelationshipDefinition();
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $relationships = $definition->getModelRelationshipDefinition();
 
         foreach ($childCollection as $childModel) {
-            // Let the child know about it's parent.
+            // Let the child know about its parent.
             $model->setMeta($model::PARENT_ID, $model->getId());
             $model->setMeta($model::PARENT_PROVIDER_NAME, $model->getProviderName());
 
@@ -1011,21 +1132,32 @@ class TreePicker extends Widget
     /**
      * Recursively retrieve a collection of all complete node hierarchy.
      *
-     * @param array  $rootId       The ids of the root node.
-     * @param int    $level        The level the items are residing on.
-     * @param string $providerName The data provider from which the root element originates from.
+     * @param mixed|null $rootId       The ids of the root node.
+     * @param int        $level        The level the items are residing on.
+     * @param string     $providerName The data provider from which the root element originates from.
      *
      * @return CollectionInterface
      */
     public function getTreeCollectionRecursive($rootId, $level = 0, $providerName = null)
     {
-        $environment   = $this->getEnvironment();
-        $dataDriver    = $environment->getDataProvider($providerName);
-        $tableTreeData = $dataDriver->getEmptyCollection();
-        $rootConfig    = $environment->getBaseConfigRegistry()->getBaseConfig();
-        $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
+        $environment = $this->getEnvironment();
 
-        if (!$rootId) {
+        $dataDriver = $environment->getDataProvider($providerName);
+        assert($dataDriver instanceof DataProviderInterface);
+
+        $tableTreeData = $dataDriver->getEmptyCollection();
+
+        $registry = $environment->getBaseConfigRegistry();
+        assert($registry instanceof BaseConfigRegistryInterface);
+
+        $rootConfig = $registry->getBaseConfig();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $relationships = $definition->getModelRelationshipDefinition();
+
+        if (null === $rootId) {
             $this->prepareFilterForRootCondition();
             $this->pushRootModelToTreeCollection($dataDriver, $tableTreeData, $level);
 
@@ -1035,6 +1167,7 @@ class TreePicker extends Widget
         $rootConfig->setId($rootId);
         // Fetch root element.
         $rootModel = $dataDriver->fetch($rootConfig);
+        assert($rootModel instanceof ModelInterface);
 
         $mySubTables = [];
         foreach ($relationships->getChildConditions($rootModel->getProviderName()) as $condition) {
@@ -1055,10 +1188,17 @@ class TreePicker extends Widget
      */
     private function prepareFilterForRootCondition()
     {
-        $environment   = $this->getEnvironment();
-        $rootCondition = $environment->getDataDefinition()->getModelRelationshipDefinition()->getRootCondition();
+        $environment = $this->getEnvironment();
 
-        $baseConfig = $environment->getBaseConfigRegistry()->getBaseConfig();
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $rootCondition = $definition->getModelRelationshipDefinition()->getRootCondition();
+
+        $registry = $environment->getBaseConfigRegistry();
+        assert($registry instanceof BaseConfigRegistryInterface);
+
+        $baseConfig = $registry->getBaseConfig();
         if (!$rootCondition) {
             return $baseConfig;
         }
@@ -1087,12 +1227,19 @@ class TreePicker extends Widget
     private function pushRootModelToTreeCollection(
         DataProviderInterface $dataProvider,
         CollectionInterface $treeCollection,
-        $level
+        int $level
     ) {
-        $environment   = $this->getEnvironment();
+        $environment = $this->getEnvironment();
+
         $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
         $baseConfig    = $this->prepareFilterForRootCondition();
-        $relationships = $environment->getDataDefinition()->getModelRelationshipDefinition();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $relationships = $definition->getModelRelationshipDefinition();
 
         if ($inputProvider->hasParameter('orderProperty') && $inputProvider->hasParameter('sortDirection')) {
             $orderProperty = $inputProvider->getParameter('orderProperty');
@@ -1103,12 +1250,17 @@ class TreePicker extends Widget
 
         // Fetch all root elements.
         $collection = $dataProvider->fetchAll($baseConfig);
+        assert($collection instanceof CollectionInterface);
+
         if (!$collection->count()) {
             return;
         }
 
+        $firstModel = $collection->get(0);
+        assert($firstModel instanceof ModelInterface);
+
         $mySubTables = [];
-        foreach ($relationships->getChildConditions($collection->get(0)->getProviderName()) as $condition) {
+        foreach ($relationships->getChildConditions($firstModel->getProviderName()) as $condition) {
             $mySubTables[] = $condition->getDestinationName();
         }
 
@@ -1122,9 +1274,9 @@ class TreePicker extends Widget
     /**
      * Load the collection of child items and the parent item for the currently selected parent item.
      *
-     * @param mixed $rootId       The root element (or null to fetch everything).
-     * @param int   $level        The current level in the tree (of the optional root element).
-     * @param null  $providerName The data provider from which the optional root element shall be taken from.
+     * @param mixed|null $rootId       The root element (or null to fetch everything).
+     * @param int        $level        The current level in the tree (of the optional root element).
+     * @param null       $providerName The data provider from which the optional root element shall be taken from.
      *
      * @return CollectionInterface
      */
@@ -1134,9 +1286,14 @@ class TreePicker extends Widget
 
         $collection = $this->getTreeCollectionRecursive($rootId, $level, $providerName);
 
-        if ($rootId) {
-            $treeData = $environment->getDataProvider($providerName)->getEmptyCollection();
+        if (null !== $rootId) {
+            $dataProvider = $environment->getDataProvider($providerName);
+            assert($dataProvider instanceof DataProviderInterface);
+
+            $treeData = $dataProvider->getEmptyCollection();
             $model    = $collection->get(0);
+            assert($model instanceof ModelInterface);
+
             foreach ($model->getMeta($model::CHILD_COLLECTIONS) as $collection) {
                 foreach ($collection as $subModel) {
                     $treeData->push($subModel);
@@ -1160,7 +1317,12 @@ class TreePicker extends Widget
     {
         /** @var ListingConfigInterface $listing */
         $definition = $this->getEnvironment()->getDataDefinition();
-        $listing    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
+        assert($definition instanceof ContainerInterface);
+
+        $backendView = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
+        $listing = $backendView->getListingConfig();
 
         if ($listing->hasLabelFormatter($model->getProviderName())) {
             return $listing->getLabelFormatter($model->getProviderName());
@@ -1168,7 +1330,7 @@ class TreePicker extends Widget
 
         // If not in tree mode and custom label has been defined, use it.
         if (!$treeMode && $this->itemLabel) {
-            $label     = (array) $this->itemLabel;
+            $label     = $this->itemLabel;
             $formatter = new DefaultModelFormatterConfig();
             $formatter->setPropertyNames($label['fields']);
             $formatter->setFormat($label['format']);
@@ -1202,12 +1364,20 @@ class TreePicker extends Widget
     public function formatModel(ModelInterface $model, $treeMode = true)
     {
         /** @var ListingConfigInterface $listing */
-        $environment  = $this->getEnvironment();
-        $definition   = $environment->getDataDefinition();
-        $listing      = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
-        $properties   = $definition->getPropertiesDefinition();
-        $firstSorting = \reset(\array_keys((array) $listing->getDefaultSortingFields()));
-        $formatter    = $this->getFormatter($model, $treeMode);
+        $environment = $this->getEnvironment();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $backendView = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
+        $listing    = $backendView->getListingConfig();
+        $properties = $definition->getPropertiesDefinition();
+        /** @psalm-suppress DeprecatedMethod */
+        $defaultSortFields = \array_keys($listing->getDefaultSortingFields());
+        $firstSorting      = \reset($defaultSortFields);
+        $formatter         = $this->getFormatter($model, $treeMode);
 
         $arguments = [];
         foreach ($formatter->getPropertyNames() as $propertyName) {
@@ -1224,7 +1394,10 @@ class TreePicker extends Widget
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
-        $environment->getEventDispatcher()->dispatch($event::NAME, $event);
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, $event::NAME);
 
         $labelList = [];
         $this->prepareLabelWithDisplayedProperties($formatter, $event->getArgs(), $firstSorting, $labelList);
@@ -1238,7 +1411,7 @@ class TreePicker extends Widget
      *
      * @param ModelFormatterConfigInterface $formatter    The model formatter.
      * @param array                         $arguments    The model label arguments.
-     * @param string|bool                   $firstSorting The first sorting.
+     * @param bool|string                   $firstSorting The first sorting.
      * @param array                         $labelList    The label list.
      *
      * @return void
@@ -1246,31 +1419,28 @@ class TreePicker extends Widget
     private function prepareLabelWithDisplayedProperties(
         ModelFormatterConfigInterface $formatter,
         array $arguments,
-        $firstSorting,
+        bool|string $firstSorting,
         array &$labelList
     ) {
         $definition = $this->getEnvironment()->getDataDefinition();
-        $listing    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
+        assert($definition instanceof ContainerInterface);
+
+        $backendView = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
+        $listing = $backendView->getListingConfig();
         if (!$listing->getShowColumns()) {
             return;
         }
 
         $fieldList = $formatter->getPropertyNames();
 
-        if (!\is_array($arguments)) {
+        foreach ($fieldList as $j => $propertyName) {
             $labelList[] = [
-                'colspan' => \count($fieldList),
-                'class'   => 'tl_file_list col_1',
-                'content' => $arguments
+                'colspan' => 1,
+                'class'   => 'tl_file_list col_' . $j . (($propertyName === $firstSorting) ? ' ordered_by' : ''),
+                'content' => ('' !== $arguments[$propertyName]) ? $arguments[$propertyName] : '-'
             ];
-        } else {
-            foreach ($fieldList as $j => $propertyName) {
-                $labelList[] = [
-                    'colspan' => 1,
-                    'class'   => 'tl_file_list col_' . $j . (($propertyName === $firstSorting) ? ' ordered_by' : ''),
-                    'content' => ('' !== $arguments[$propertyName]) ? $arguments[$propertyName] : '-'
-                ];
-            }
         }
     }
 
@@ -1287,22 +1457,23 @@ class TreePicker extends Widget
     private function prepareLabelWithOutDisplayedProperties(
         ModelFormatterConfigInterface $formatter,
         array $arguments,
-        $label,
+        string $label,
         array &$labelList
     ) {
         $definition = $this->getEnvironment()->getDataDefinition();
-        $listing    = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME)->getListingConfig();
+        assert($definition instanceof ContainerInterface);
+
+        $backendView = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        assert($backendView instanceof Contao2BackendViewDefinitionInterface);
+
+        $listing = $backendView->getListingConfig();
         if ($listing->getShowColumns()) {
             return;
         }
 
-        if (!\is_array($arguments)) {
-            $string = $arguments;
-        } else {
-            $string = \vsprintf($label, $arguments);
-        }
+        $string = \vsprintf($label, $arguments);
 
-        if (($maxLength = null !== $formatter->getMaxLength()) && \strlen($string) > $maxLength) {
+        if ((null !== $maxLength = $formatter->getMaxLength()) && \strlen($string) > $maxLength) {
             $string = \substr($string, 0, $maxLength);
         }
 
@@ -1325,10 +1496,13 @@ class TreePicker extends Widget
     {
         $model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
 
+        $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         if ($model->getMeta($model::SHOW_CHILDREN)) {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('collapseNode', 'MSC');
+            $toggleTitle = $translator->translate('MSC.collapseNode');
         } else {
-            $toggleTitle = $this->getEnvironment()->getTranslator()->translate('expandNode', 'MSC');
+            $toggleTitle = $translator->translate('MSC.expandNode');
         }
 
         $toggleScript = \sprintf(
@@ -1342,8 +1516,9 @@ class TreePicker extends Widget
         );
 
         $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
+        /** @psalm-suppress UndefinedThisPropertyFetch */
         $template
-            ->setTranslator($this->getEnvironment()->getTranslator())
+            ->setTranslator($translator)
             ->set('id', $this->strId)
             ->set('name', $this->strName)
             ->set('theme', Backend::getTheme())
@@ -1394,8 +1569,11 @@ class TreePicker extends Widget
                     $subHtml .= $this->generateTreeView($objChildCollection, $treeClass);
                 }
 
+                $translator = $this->getEnvironment()->getTranslator();
+                assert($translator instanceof TranslatorInterface);
+
                 $template
-                    ->setTranslator($this->getEnvironment()->getTranslator())
+                    ->setTranslator($translator)
                     ->set('objParentModel', $model)
                     ->set('strToggleID', $toggleID)
                     ->set('strHTML', $subHtml)
@@ -1413,22 +1591,30 @@ class TreePicker extends Widget
      * Fetch all parents of the passed model.
      *
      * @param ModelInterface $model   The model.
-     * @param string[]       $parents The ids of all detected parents so far.
+     * @param array          $parents The ids of all detected parents so far.
      *
      * @return void
      */
     private function parentsOf($model, &$parents)
     {
-        $environment    = $this->getEnvironment();
+        $environment = $this->getEnvironment();
+
         $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $mode = $dataDefinition->getBasicDefinition()->getMode();
+        assert(\is_int($mode));
+
         $collector      = new ModelCollector($this->getEnvironment());
         $relationships  = new RelationshipManager(
             $dataDefinition->getModelRelationshipDefinition(),
-            $dataDefinition->getBasicDefinition()->getMode()
+            $mode
         );
 
         if (!$relationships->isRoot($model)) {
             $parent = $collector->searchParentOf($model);
+            assert($parent instanceof ModelInterface);
+
             if (!isset($parents[$model->getProviderName()][$parent->getId()])) {
                 $this->parentsOf($parent, $parents);
             }
@@ -1446,14 +1632,24 @@ class TreePicker extends Widget
     {
         $parents     = [];
         $environment = $this->getEnvironment();
-        $mode        = $environment->getDataDefinition()->getBasicDefinition()->getMode();
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $mode = $definition->getBasicDefinition()->getMode();
+
         if (BasicDefinitionInterface::MODE_HIERARCHICAL !== $mode) {
             return [];
         }
 
         foreach ((array) $this->varValue as $value) {
             $dataDriver = $environment->getDataProvider();
-            $this->parentsOf($dataDriver->fetch($dataDriver->getEmptyConfig()->setId($value)), $parents);
+            assert($dataDriver instanceof DataProviderInterface);
+
+            $model = $dataDriver->fetch($dataDriver->getEmptyConfig()->setId($value));
+            assert($model instanceof ModelInterface);
+
+            $this->parentsOf($model, $parents);
         }
 
         return $parents;
@@ -1466,30 +1662,41 @@ class TreePicker extends Widget
      */
     private function handleInputNameForEditAll()
     {
-        if (('select' !== $this->getEnvironment()->getInputProvider()->getParameter('act'))
-            && ('edit' !== $this->getEnvironment()->getInputProvider()->getParameter('select'))
-            && ('edit' !== $this->getEnvironment()->getInputProvider()->getParameter('mode'))
+        $inputProvider = $this->getEnvironment()->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        if (
+            ('select' !== $inputProvider->getParameter('act'))
+            && ('edit' !== $inputProvider->getParameter('select'))
+            && ('edit' !== $inputProvider->getParameter('mode'))
         ) {
             return;
         }
 
-        $tableName      = \explode('____', $this->getEnvironment()->getInputProvider()->getValue('name'))[0];
+        $tableName      = \explode('____', $inputProvider->getValue('name'))[0];
         $sessionKey     = 'DC_GENERAL_' . \strtoupper($tableName);
-        $sessionStorage =
-            System::getContainer()->get('cca.dc-general.session_factory')->createService()->setScope($sessionKey);
+        $sessionFactory = System::getContainer()->get('cca.dc-general.session_factory');
+        assert($sessionFactory instanceof SessionStorageFactory);
 
-        $selectAction = $this->getEnvironment()->getInputProvider()->getParameter('select');
+        $sessionStorage = $sessionFactory->createService();
+        assert($sessionStorage instanceof SessionStorageInterface);
+        $sessionStorage->setScope($sessionKey);
 
+        $selectAction = $inputProvider->getParameter('select');
+
+        /** @var array{models: list<string>} $session */
         $session = $sessionStorage->get($tableName . '.' . $selectAction);
 
+        $propertyNamePrefix   = '';
         $originalPropertyName = null;
-        foreach ((array) $session['models'] as $modelId) {
+
+        foreach ($session['models'] as $modelId) {
             if (null !== $originalPropertyName) {
                 break;
             }
 
             $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
-            if (0 !== strpos($this->strName, $propertyNamePrefix)) {
+            if (0 !== \strpos($this->strName, $propertyNamePrefix)) {
                 continue;
             }
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,6 +38,8 @@ use PHPUnit\Framework\MockObject\MockObject;
  * This class tests the DefaultDataProvider class.
  *
  * @covers \ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DefaultDataProviderTest extends TestCase
 {
@@ -50,7 +53,7 @@ class DefaultDataProviderTest extends TestCase
         return $this
             ->getMockBuilder(Database::class)
             ->disableOriginalConstructor()
-            ->setMethods(['__destruct', 'listFields'])
+            ->onlyMethods(['__destruct', 'listFields'])
             ->getMockForAbstractClass();
     }
 
@@ -59,7 +62,7 @@ class DefaultDataProviderTest extends TestCase
         return $this
             ->getMockBuilder(Connection::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getSchemaManager'])
+            ->onlyMethods(['createSchemaManager'])
             ->getMock();
     }
 
@@ -73,19 +76,19 @@ class DefaultDataProviderTest extends TestCase
         $schemaTable = $this
             ->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
-            ->setMethods(['hasColumn'])
+            ->onlyMethods(['hasColumn'])
             ->getMock();
         $schemaTable->method('hasColumn')->willReturn(false);
 
         $schemaManager = $this
             ->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(['listTableDetails'])
+            ->onlyMethods(['introspectTable'])
             ->getMockForAbstractClass();
-        $schemaManager->method('listTableDetails')->willReturn($schemaTable);
+        $schemaManager->method('introspectTable')->willReturn($schemaTable);
 
         $connection = $this->mockConnection();
-        $connection->method('getSchemaManager')->willReturn($schemaManager);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
         //$database->method('listFields')->willReturn([]);
 
         $dataProvider = new DefaultDataProvider();
@@ -120,19 +123,19 @@ class DefaultDataProviderTest extends TestCase
         $schemaTable = $this
             ->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
-            ->setMethods(['hasColumn'])
+            ->onlyMethods(['hasColumn'])
             ->getMock();
         $schemaTable->method('hasColumn')->willReturn(false);
 
         $schemaManager = $this
             ->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(['listTableDetails'])
+            ->onlyMethods(['introspectTable'])
             ->getMockForAbstractClass();
-        $schemaManager->method('listTableDetails')->willReturn($schemaTable);
+        $schemaManager->method('introspectTable')->willReturn($schemaTable);
 
         $connection = $this->mockConnection();
-        $connection->method('getSchemaManager')->willReturn($schemaManager);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
 
         $reflection = new \ReflectionProperty(Database::class, 'resConnection');
         $reflection->setAccessible(true);
@@ -158,7 +161,7 @@ class DefaultDataProviderTest extends TestCase
         $reflection->setAccessible(true);
         self::assertSame('id', $reflection->getValue($dataProvider));
 
-        self::assertFalse($dataProvider->getTimeStampProperty());
+        self::assertNull($dataProvider->getTimeStampProperty());
         self::assertNull($dataProvider->getIdGenerator());
     }
 
@@ -184,24 +187,24 @@ class DefaultDataProviderTest extends TestCase
         $schemaTable = $this
             ->getMockBuilder(Table::class)
             ->disableOriginalConstructor()
-            ->setMethods(['hasColumn'])
+            ->onlyMethods(['hasColumn'])
             ->getMock();
         $schemaTable->method('hasColumn')->willReturn(false);
 
         $schemaManager = $this
             ->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
-            ->setMethods(['listTableDetails'])
+            ->onlyMethods(['introspectTable'])
             ->getMockForAbstractClass();
-        $schemaManager->method('listTableDetails')->willReturn($schemaTable);
+        $schemaManager->method('introspectTable')->willReturn($schemaTable);
 
         $connection = $this->mockConnection();
-        $connection->method('getSchemaManager')->willReturn($schemaManager);
+        $connection->method('createSchemaManager')->willReturn($schemaManager);
 
         $dataProvider = $this
             ->getMockBuilder(DefaultDataProvider::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getDefaultConnection'])
+            ->onlyMethods(['getDefaultConnection'])
             ->getMock();
         $dataProvider->method('getDefaultConnection')->willReturn($connection);
 

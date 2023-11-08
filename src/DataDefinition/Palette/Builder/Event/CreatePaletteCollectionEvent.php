@@ -29,7 +29,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionIn
  */
 class CreatePaletteCollectionEvent extends BuilderEvent
 {
-    const NAME = 'dc-general.data-definition.palette.builder.create-palette-collection';
+    public const NAME = 'dc-general.data-definition.palette.builder.create-palette-collection';
 
     /**
      * The palette collection that has been created.
