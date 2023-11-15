@@ -141,7 +141,7 @@ abstract class AbstractListShowAllHandler
         $this->ccaTranslator = $ccaTranslator;
 
         if (null === $tokenManager) {
-            $tokenManager = System::getContainer()->get('security.csrf.token_manager');
+            $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
             assert($tokenManager instanceof CsrfTokenManagerInterface);
 
             // @codingStandardsIgnoreStart

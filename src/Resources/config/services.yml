@@ -37,7 +37,7 @@ services:
     cca.dc-general.security-url-builder-factory:
         class: ContaoCommunityAlliance\UrlBuilder\Contao\CsrfUrlBuilderFactory
         arguments:
-            - '@security.csrf.token_manager'
+            - '@contao.csrf.token_manager'
             - '%contao.csrf_token_name%'
 
     ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\ContaoInvalidateCacheTags:
