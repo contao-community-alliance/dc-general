@@ -16,6 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
  * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -202,6 +203,9 @@ class GetGroupHeaderSubscriber
 
             case GroupAndSortingInformationInterface::GROUP_DAY:
                 return $this->formatByDayGrouping((int) $model->getProperty($property->getName()));
+             
+            case GroupAndSortingInformationInterface::GROUP_WEEK:
+                return $this->formatByWeekGrouping((int) $model->getProperty($property->getName()));
 
             case GroupAndSortingInformationInterface::GROUP_MONTH:
                 return $this->formatByMonthGrouping((int) $model->getProperty($property->getName()));
@@ -247,6 +251,26 @@ class GetGroupHeaderSubscriber
         }
 
         $event = new ParseDateEvent($value, Config::get('dateFormat'));
+        $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
+
+        return $event->getResult();
+    }
+
+    /**
+     * Render a grouping header for week.
+     *
+     * @param int $value The value.
+     *
+     * @return string
+     */
+    private function formatByWeekGrouping($value)
+    {
+        $value = $this->getTimestamp($value);
+
+        if (0 === $value) {
+            return '-';
+        }
+        $event = new ParseDateEvent($value, $this->translator->translate('MSC.week_format'));
         $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
 
         return $event->getResult();
