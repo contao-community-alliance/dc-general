@@ -203,7 +203,7 @@ class GetGroupHeaderSubscriber
 
             case GroupAndSortingInformationInterface::GROUP_DAY:
                 return $this->formatByDayGrouping((int) $model->getProperty($property->getName()));
-             
+
             case GroupAndSortingInformationInterface::GROUP_WEEK:
                 return $this->formatByWeekGrouping((int) $model->getProperty($property->getName()));
 
@@ -263,7 +263,7 @@ class GetGroupHeaderSubscriber
      *
      * @return string
      */
-    private function formatByWeekGrouping($value)
+    private function formatByWeekGrouping(int $value): ?string
     {
         $value = $this->getTimestamp($value);
 
