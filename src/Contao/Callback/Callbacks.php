@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -118,7 +119,7 @@ class Callbacks
     /**
      * Evaluate the callback and create an object instance if required and possible.
      *
-     * @param array|array{0: class-string, 1: string}|callable $callback The callback to invoke.
+     * @param array|array{0: class-string|string, 1: string}|callable $callback The callback to invoke.
      *
      * @return array|callable
      *
@@ -126,7 +127,7 @@ class Callbacks
      */
     protected static function evaluateCallback($callback)
     {
-        if (is_array($callback) && (2 === count($callback)) && class_exists($callback[0]) && is_string($callback[1])) {
+        if (is_array($callback) && (2 === count($callback)) && is_string($callback[0]) && is_string($callback[1])) {
             $serviceCallback = static::evaluateServiceCallback($callback);
             if ($serviceCallback[0] !== $callback[0]) {
                 return $serviceCallback;
