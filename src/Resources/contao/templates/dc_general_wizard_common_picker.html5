@@ -4,18 +4,18 @@
 
 <?php $this->block('modal-script'); ?>
 <script>
-	$("ft_<?= $this->name ?>").addEvent("click", function(e) {
-		e.preventDefault();
-		Backend.openModalSelector({
-			"id": "tl_listing",
-			"title": "<?= \Contao\StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
-			"url": this.href + "&value=" + document.getElementById("ctrl_<?= $this->id ?>").value,
+    $("ft_<?= $this->name ?>").addEvent("click", function(e) {
+        e.preventDefault();
+        Backend.openModalSelector({
+            "id": "tl_listing",
+            "title": "<?= \Contao\StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
+            "url": this.href + "&value=" + document.getElementById("ctrl_<?= $this->id ?>").value,
             "callback": function(table, value) {
                 <?php $this->block('modal-script-post'); ?>
                 $("ctrl_<?= $this->id ?>").value = value.join(",");
-				<?php $this->endblock(); ?>
+                <?php $this->endblock(); ?>
             }
-		});
-	});
+        });
+    });
 </script>
 <?php $this->endblock(); ?>

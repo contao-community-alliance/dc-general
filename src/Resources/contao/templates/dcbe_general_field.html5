@@ -1,26 +1,26 @@
-<div id="widget_<?php echo $this->strName; ?>" class="widget <?php echo $this->strClass; ?>">
+<div id="widget_<?= $this->strName; ?>" class="widget <?= $this->strClass ?>">
   <?php if (!$this->disabled): ?>
-    <input type="hidden" value="<?php echo $this->strName; ?>" name="FORM_INPUTS[]" />
+    <input type="hidden" value="<?= $this->strName; ?>" name="FORM_INPUTS[]" />
   <?php endif; ?>
   <?php if (true === $this->isHideInput): ?>
-  <?php foreach ($this->hiddenFields as $hiddenFieldName => $hiddenFieldValue): ?>
-  <input type="hidden" value="<?= $hiddenFieldValue ?>" name="<?= $hiddenFieldName ?>">
-  <?php endforeach; ?>
+      <?php foreach ($this->hiddenFields as $hiddenFieldName => $hiddenFieldValue): ?>
+        <input type="hidden" value="<?= $hiddenFieldValue ?>" name="<?= $hiddenFieldName ?>">
+      <?php endforeach; ?>
   <?php else: ?>
-  <?php echo $this->widget; ?>
-  <?php if($this->strDatepicker): ?>
-    <img src="assets/datepicker/images/icon.svg" width="20" height="20" id="toggle_<?php echo $this->strId; ?>" style="vertical-align:-6px;">
-    <script type="text/javascript">/* <![CDATA[ */
-      window.addEvent('domready', function() { <?php echo $this->strDatepicker; ?> });
-    /* ]]> */</script>
-  <?php endif; ?>
-  <?php if($this->blnUpdate): ?>
-  <h3 style="padding-top:7px"><label for="ctrl_<?php echo $this->strName; ?>_update"><?php echo $GLOBALS['TL_LANG']['MSC']['updateMode']; ?></label></h3>
-  <div id="ctrl_<?php echo $this->strName; ?>_update" class="tl_radio_container">
-    <input type="radio" name="<?php echo $this->strName; ?>_update" id="opt_<?php echo $this->strName; ?>_update_1" class="tl_radio" value="add" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?php echo $this->strName; ?>_update_1"><?php echo $GLOBALS['TL_LANG']['MSC']['updateAdd']; ?></label><br />
-    <input type="radio" name="<?php echo $this->strName; ?>_update" id="opt_<?php echo $this->strName; ?>_update_2" class="tl_radio" value="remove" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?php echo $this->strName; ?>_update_2"><?php echo $GLOBALS['TL_LANG']['MSC']['updateRemove']; ?></label><br />
-    <input type="radio" name="<?php echo $this->strName; ?>_update" id="opt_<?php echo $this->strName; ?>_update_0" class="tl_radio" value="replace" checked="checked" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?php echo $this->strName; ?>_update_0"><?php echo $GLOBALS['TL_LANG']['MSC']['updateReplace']; ?></label>
-  </div>
-  <?php endif; if(!$this->hasErrors) echo $this->strHelp; ?>
+      <?= $this->widget ?>
+      <?php if($this->strDatepicker): ?>
+        <img src="assets/datepicker/images/icon.svg" width="20" height="20" id="toggle_<?= $this->strId ?>" style="vertical-align:-6px;">
+        <script>
+          window.addEvent('domready', function() { <?= $this->strDatepicker; ?> });
+        </script>
+      <?php endif; ?>
+      <?php if($this->blnUpdate): ?>
+          <h3 style="padding-top:7px"><label for="ctrl_<?= $this->strName; ?>_update"><?= $GLOBALS['TL_LANG']['MSC']['updateMode']; ?></label></h3>
+          <div id="ctrl_<?= $this->strName; ?>_update" class="tl_radio_container">
+            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_1" class="tl_radio" value="add" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_1"><?= $GLOBALS['TL_LANG']['MSC']['updateAdd'] ?></label><br />
+            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_2" class="tl_radio" value="remove" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_2"><?= $GLOBALS['TL_LANG']['MSC']['updateRemove'] ?></label><br />
+            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_0" class="tl_radio" value="replace" checked="checked" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_0"><?= $GLOBALS['TL_LANG']['MSC']['updateReplace'] ?></label>
+          </div>
+      <?php endif; if(!$this->hasErrors) echo $this->strHelp; ?>
   <?php endif; ?>
 </div>
