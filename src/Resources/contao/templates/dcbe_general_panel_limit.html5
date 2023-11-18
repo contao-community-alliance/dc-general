@@ -1,8 +1,8 @@
-<div class="tl_limit tl_subpanel <?php echo $this->rowClass; ?>">
-	<strong><?php echo $GLOBALS['TL_LANG']['MSC']['showOnly']; ?>:</strong>
-	<select name="tl_limit" class="tl_select<?php echo $this->class; ?>" onchange="this.form.submit()">
-		<?php foreach ($this->options as $arrOption): ?>
-			<option value="<?php echo $arrOption['value']; ?>"<?php echo $arrOption['attributes']; ?>><?php echo $arrOption['content']; ?></option>
-		<?php endforeach; ?>
-	</select>
+<div class="tl_limit tl_subpanel <?= $this->rowClass; ?>">
+    <strong><?= $GLOBALS['TL_LANG']['MSC']['showOnly'] ?>:</strong>
+    <select name="tl_limit" class="tl_select<?= $this->class ?>" onchange="this.form.submit()">
+        <?php foreach ($this->options as $arrOption): ?>
+            <option value="<?= $arrOption['value'] ?>"<?= $arrOption['attributes'] ?>><?= $arrOption['content'] ?></option>
+        <?php endforeach; ?>
+    </select>
 </div>

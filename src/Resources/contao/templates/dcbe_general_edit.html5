@@ -1,112 +1,105 @@
 <?php
 use Contao\StringUtil;
+use ContaoCommunityAlliance\DcGeneral\Data\VersionModelInterface;
+
+$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 
 // Add CSS
 $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
 ?>
 <?php if($this->versions): ?>
-<div class="tl_version_panel">
-<form action="<?php echo \ampersand($this->Environment->request, true); ?>" id="tl_version" class="tl_form" method="post">
-<div class="tl_formbody">
-<input type="hidden" name="FORM_SUBMIT" value="tl_version" />
-<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
-<select name="version" class="tl_select">
-<?php foreach($this->versions as $objVersion): /** @var \ContaoCommunityAlliance\DcGeneral\Data\VersionModelInterface $objVersion */ ?>
-	<option value="<?php echo $objVersion->getId(); ?>"<?php if($objVersion->isCurrent()): ?> selected="selected"<?php endif; ?>>
-	<?php echo $GLOBALS['TL_LANG']['MSC']['version']; ?> <?php echo $objVersion->getVersion(); ?> (<?php echo $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objVersion->getDateTime()->getTimestamp()); ?>)
-	<?php if ($objVersion->getAuthorName()): ?> &ndash; <?php echo $objVersion->getAuthorName() ?> (<?php echo $objVersion->getAuthorUsername(); ?>)
-	<?php elseif ($objVersion->getAuthorUsername()): ?> &ndash; (<?php echo $objVersion->getAuthorUsername(); ?>)
-	<?php endif; ?>
-	</option>
-<?php endforeach; ?>
-</select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="<?php echo StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['restore']); ?>" />
-</div>
-</form>
-</div>
+    <div class="tl_version_panel">
+        <form action="<?= StringUtil::ampersand($this->Environment->request, true) ?>" id="tl_version" class="tl_form" method="post">
+            <div class="tl_formbody">
+            <input type="hidden" name="FORM_SUBMIT" value="tl_version" />
+            <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>" />
+            <select name="version" class="tl_select">
+            <?php foreach($this->versions as $objVersion): /** @var VersionModelInterface $objVersion */ ?>
+                <option value="<?= $objVersion->getId() ?>"<?php if($objVersion->isCurrent()): ?> selected="selected"<?php endif; ?>>
+                <?= $GLOBALS['TL_LANG']['MSC']['version'] ?> <?= $objVersion->getVersion() ?> (<?= $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objVersion->getDateTime()->getTimestamp()) ?>)
+                <?php if ($objVersion->getAuthorName()): ?> &ndash; <?= $objVersion->getAuthorName() ?> (<?= $objVersion->getAuthorUsername() ?>)
+                <?php elseif ($objVersion->getAuthorUsername()): ?> &ndash; (<?= $objVersion->getAuthorUsername() ?>)
+                <?php endif; ?>
+                </option>
+            <?php endforeach; ?>
+            </select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="<?= StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['restore']) ?>" />
+            </div>
+        </form>
+    </div>
 <?php endif; ?>
 
 <?php
 $this->insert(
     'dcbe_general_language_selector',
     [
-        'language' => $this->language,
-        'languages' => $this->languages,
-        'request'   => $this->Environment->request,
-        'submit'    => $this->languageSubmit,
-        'REQUEST_TOKEN' => REQUEST_TOKEN,
-    ]) ?>
+        'language'      => $this->language,
+        'languages'     => $this->languages,
+        'request'       => $this->Environment->request,
+        'submit'        => $this->languageSubmit,
+        'REQUEST_TOKEN' => $requestToken,
+    ]
+) ?>
 
-<?php echo $this->getBackButton(); ?>
+<?= $this->getBackButton() ?>
 
 <?php if(\strlen($this->breadcrumb)): ?>
-<div class="tl_listing_container">
-    <?php echo $this->breadcrumb; ?>
-</div>
+    <div class="tl_listing_container">
+        <?= $this->breadcrumb ?>
+    </div>
 <?php endif; ?>
-<h2 class="sub_headline"><?php echo $this->subHeadline; ?><?php echo ($this->languageHeadline != "")? " - " . $this->languageHeadline : ""; ?></h2>
-<?php echo $this->getMessages(); ?>
+<h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline != "") ? " - " . $this->languageHeadline : "" ?></h2>
+<?= $this->getMessages() ?>
 
 <form class="tl_form tableextended" method="post"
-  action="<?php echo \ampersand($this->Environment->request, true); ?><?php if($this->mode): ?>&mode=<?php echo $this->mode; ?><?php endif; ?>"
-  id="<?php echo $this->table; ?>"
-  enctype="<?php echo $this->enctype; ?>"
-  <?php if($this->onsubmit): ?> onsubmit="<?php echo $this->onsubmit; ?>"<?php endif; ?>>
-<div class="tl_formbody_edit">
-<input type="hidden" name="FORM_SUBMIT" value="<?php echo StringUtil::specialchars($this->table); ?>" />
-<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>" />
-<?php if($this->error): ?>
-    <?php if(5 < \count($this->error)): ?>
-    <div class="limit_height h128">
-    <?php endif; ?>
+  action="<?= StringUtil::ampersand($this->Environment->request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
+  id="<?= $this->table ?>"
+  enctype="<?= $this->enctype ?>"
+  <?php if($this->onsubmit): ?> onsubmit="<?= $this->onsubmit ?>"<?php endif; ?>>
+    <div class="tl_formbody_edit">
+        <input type="hidden" name="FORM_SUBMIT" value="<?= StringUtil::specialchars($this->table) ?>" />
+        <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>" />
+        <?php if($this->error): ?>
+            <?php if(5 < \count($this->error)): ?>
+                <div class="limit_height h128">
+            <?php endif; ?>
 
-  <p class="tl_error"><?php echo \implode('<br />', $this->error); ?>
-  </p>
-  <script type="text/javascript">
-  /* <![CDATA[ */
-	window.addEvent('domready', function() {
-	    Backend.vScrollTo(($('<?php echo $this->table; ?>').getElement('label.error').getPosition().y - 20));
-	});
-  /* ]]> */
-  </script>
+          <p class="tl_error"><?= \implode('<br />', $this->error) ?></p>
+          <script>
+            window.addEvent('domready', function() {
+                Backend.vScrollTo(($('<?= $this->table ?>').getElement('label.error').getPosition().y - 20));
+            });
+          </script>
 
-    <?php if(5 < \count($this->error)): ?>
+            <?php if(5 < \count($this->error)): ?>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+
+        <?php foreach($this->fieldsets as $arrFieldset):
+            if($arrFieldset['legend'] ?? null): ?>
+                <fieldset id="pal_<?= StringUtil::specialchars($arrFieldset['legend']) ?>" class="<?= $arrFieldset['class'] ?> block">
+                    <legend onclick="BackendGeneral.setLegendState(this,'<?= StringUtil::specialchars($arrFieldset['legend']) ?>','<?= StringUtil::specialchars($this->table) ?>')"><?= $arrFieldset['label'] ?></legend>
+                    <?= $arrFieldset['palette'] ?>
+                </fieldset>
+            <?php else: ?>
+                <fieldset class="<?= $arrFieldset['class'] ?> block nolegend">
+                    <?= $arrFieldset['palette'] ?>
+                </fieldset>
+            <?php endif; endforeach; ?>
     </div>
-    <?php endif; ?>
-<?php endif; ?>
-
-<?php foreach($this->fieldsets as $arrFieldset): if($arrFieldset['legend'] ?? null): ?>
-<fieldset id="pal_<?php echo StringUtil::specialchars($arrFieldset['legend']); ?>" class="<?php echo $arrFieldset['class']; ?> block">
-<legend onclick="BackendGeneral.setLegendState(this,'<?php echo StringUtil::specialchars($arrFieldset['legend']); ?>','<?php echo StringUtil::specialchars($this->table); ?>')"><?php echo $arrFieldset['label']; ?></legend>
-  <?php echo $arrFieldset['palette']; ?>
-</fieldset>
-<?php else: ?>
-<fieldset class="<?php echo $arrFieldset['class']; ?> block nolegend">
-  <?php echo $arrFieldset['palette']; ?>
-</fieldset>
-<?php endif; endforeach; ?>
-
-</div>
-
-<div class="tl_formbody_submit">
-
-<div class="tl_submit_container">
-    <?= $this->editButtons ?>
-</div>
-
-</div>
+    <div class="tl_formbody_submit">
+        <div class="tl_submit_container">
+            <?= $this->editButtons ?>
+        </div>
+    </div>
 </form>
 <script>
     window.addEvent('domready', function() {
-        var e = $$("#" + <?php echo \json_encode($this->table); ?> + ' input[type="text"]')[0];
+        var e = $$("#" + <?= \json_encode($this->table) ?> + ' input[type="text"]')[0];
         e && e.focus();
-    });
-</script>
-
 <?php if($this->noReload): ?>
-<script>
-    window.addEvent('domready', function() {
-        Backend.vScrollTo(($('<?php echo $this->table; ?>').getElement('label.error').getPosition().y - 20));
+        Backend.vScrollTo(($('<?= $this->table ?>').getElement('label.error').getPosition().y - 20));
+<?php endif; ?>
     });
 </script>
-<?php endif; ?>
 

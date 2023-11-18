@@ -1,47 +1,52 @@
-<div>
-<input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>">
+<?php
 
-<div class="selector_container">
-    <?php if ($this->hasOrder && \count($this->icons) > 1): ?>
-        <p class="sort_hint"><?= $this->translate('MSC.dragItemsHint') ?></p>
-    <?php endif; ?>
-    <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
-        <?php foreach ($this->icons as $icon): ?>
-        <li data-id="<?= \Contao\StringUtil::binToUuid($icon['uuid']); ?>">
-            <?= $icon['image'] ?>
-        </li>
-        <?php endforeach; ?>
-    </ul>
+use Contao\StringUtil;
+
+$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+?>
+<div>
+    <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>">
+    <div class="selector_container">
+        <?php if ($this->hasOrder && \count($this->icons) > 1): ?>
+            <p class="sort_hint"><?= $this->translate('MSC.dragItemsHint') ?></p>
+        <?php endif; ?>
+        <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
+            <?php foreach ($this->icons as $icon): ?>
+            <li data-id="<?= StringUtil::binToUuid($icon['uuid']); ?>">
+                <?= $icon['image'] ?>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php if (!$this->readonly): ?>
+            <p>
+                <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('MSC.changeSelection') ?></a>
+            </p>
+        <?php endif; ?>
+    </div>
     <?php if (!$this->readonly): ?>
-        <p>
-            <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('MSC.changeSelection') ?></a>
-        </p>
-    <?php endif; ?>
-</div>
-<?php if (!$this->readonly): ?>
-<script>
-    $("ft_<?= $this->name ?>").addEvent("click", function(e) {
-        e.preventDefault();
-        Backend.openModalSelector({
-            "id": "tl_listing",
-            "title": "<?= \Contao\StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
-            "url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
-            "callback": function(table, value) {
-                new Request.Contao({
-                    evalScripts: false,
-                    onSuccess: function(txt, json) {
-                        var content = document.createElement('div');
-                        content.innerHTML = json.content;
-                        $("ctrl_<?= $this->id ?>").getParent("div").set("html", content.querySelector('div').innerHTML);
-                        json.javascript && Browser.exec(json.javascript);
+        <script>
+            $("ft_<?= $this->name ?>").addEvent("click", function(e) {
+                e.preventDefault();
+                Backend.openModalSelector({
+                    "id": "tl_listing",
+                    "title": "<?= StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
+                    "url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
+                    "callback": function(table, value) {
+                        new Request.Contao({
+                            evalScripts: false,
+                            onSuccess: function(txt, json) {
+                                var content = document.createElement('div');
+                                content.innerHTML = json.content;
+                                $("ctrl_<?= $this->id ?>").getParent("div").set("html", content.querySelector('div').innerHTML);
+                                json.javascript && Browser.exec(json.javascript);
+                            }
+                        }).post({"action":"reloadFiletree", "name":"<?= $this->id ?>", "value":value.join("\t"), "REQUEST_TOKEN":"<?= $requestToken ?>"});
                     }
-                }).post({"action":"reloadFiletree", "name":"<?= $this->id ?>", "value":value.join("\t"), "REQUEST_TOKEN":"<?= REQUEST_TOKEN ?>"});
-            }
-        });
-    });
-</script>
-<?php endif; ?>
-<?php if ($this->hasOrder): ?>
-    <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
-<?php endif; ?>
+                });
+            });
+        </script>
+    <?php endif; ?>
+    <?php if ($this->hasOrder): ?>
+        <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
+    <?php endif; ?>
 </div>

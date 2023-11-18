@@ -41,21 +41,21 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      *
      * @var int
      */
-    private $intOffset = 0;
+    private int $intOffset = 0;
 
     /**
      * The current amount.
      *
      * @var int
      */
-    private $intAmount = 0;
+    private int $intAmount = 0;
 
     /**
      * The total amount of all valid entries.
      *
      * @var int
      */
-    private $intTotal = 0;
+    private int $intTotal = 0;
 
     /**
      * Retrieve the amount of items to display per page.
@@ -176,8 +176,10 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
         $this->defineOffsetAndAmountOption($offset, $amount);
 
-        $config->setStart($this->getOffset());
-        $config->setAmount($this->getAmount());
+        $this->setOffset($offset);
+        $this->setAmount($amount);
+        $config->setStart($offset);
+        $config->setAmount($amount);
     }
 
     /**
@@ -190,21 +192,25 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     private function defineOffsetAndAmountOption(int &$offset, int &$amount): void
     {
-        $inputProvider = $this->getEnvironment()->getInputProvider();
-        assert($inputProvider instanceof InputProviderInterface);
-
-        if ('1' === $inputProvider->getValue('filter_reset')) {
+        $input = $this->getInputProvider();
+        if ('1' === $input->getValue('filter_reset')) {
             $this->setPersistent(0, 0);
 
             return;
         }
-        $input = $this->getInputProvider();
-        if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
+
+        if ($input->hasValue('tl_limit') && $this->getPanel()?->getContainer()->updateValues()) {
             $limit = $input->getValue('tl_limit');
-            if ('tl_limit' !== $limit) {
-                [$offset, $amount] = \explode(',', $input->getValue('tl_limit')) + [0, 0];
-                $this->setPersistent((int) $offset, (int) $amount);
+            if ('all' === $limit) {
+                $offset = 0;
+                $amount = $this->getAmountForFilterOptionAll();
+                $this->setPersistent($offset, $amount);
+                return;
             }
+            [$offset, $amount] = \explode(',', $input->getValue('tl_limit')) + [0, 0];
+            $offset = (int) $offset;
+            $amount = (int) $amount;
+            $this->setPersistent($offset, $amount);
         }
 
         $persistent = $this->getPersistent();
@@ -217,11 +223,6 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             if ($offset > $this->intTotal) {
                 $offset = 0;
             }
-
-            if ('all' === $offset) {
-                $offset = 0;
-                $amount = $this->getAmountForFilterOptionAll();
-            }
         }
     }
 
@@ -230,7 +231,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      *
      * @return int
      */
-    private function getAmountForFilterOptionAll()
+    private function getAmountForFilterOptionAll(): int
     {
         return $this->intTotal > $this->getMaxItemsPerPage() ? $this->getMaxItemsPerPage() : $this->intTotal;
     }
