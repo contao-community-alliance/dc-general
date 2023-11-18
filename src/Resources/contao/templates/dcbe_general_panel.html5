@@ -1,14 +1,17 @@
-<form action="<?php echo $this->action; ?>" class="tl_form dc_general_panel" method="post">
-	<div class="tl_formbody">
-		<input type="hidden" name="FORM_SUBMIT" value="tl_filters">
-		<input type="hidden" name="REQUEST_TOKEN" value="<?php echo REQUEST_TOKEN; ?>">
-		<?php foreach ($this->panel as $arrRow): ?>
-			<div class="tl_panel">
-				<?php foreach ($arrRow as $strPanel): ?>
-					<?php echo $strPanel; ?>
-				<?php endforeach; ?>
-				<div class="clear"></div>
-			</div>
-		<?php endforeach; ?>
-	</div>
+<?php
+$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+?>
+<form action="<?= $this->action ?>" class="tl_form dc_general_panel" method="post">
+    <div class="tl_formbody">
+        <input type="hidden" name="FORM_SUBMIT" value="tl_filters">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">
+        <?php foreach ($this->panel as $arrRow): ?>
+            <div class="tl_panel">
+                <?php foreach ($arrRow as $strPanel): ?>
+                    <?= $strPanel ?>
+                <?php endforeach; ?>
+                <div class="clear"></div>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </form>

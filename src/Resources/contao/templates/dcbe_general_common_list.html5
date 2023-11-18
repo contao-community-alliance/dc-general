@@ -5,6 +5,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 
+$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 ?>
 <?php $this->block('messages'); ?>
 <?= $this->getMessages(); ?>
@@ -19,7 +20,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 <form action="<?= $this->action ?>" id="tl_select" class="tl_form" method="post">
     <div class="tl_formbody">
         <input type="hidden" name="FORM_SUBMIT" value="tl_select">
-        <input type="hidden" name="REQUEST_TOKEN" value="<?= REQUEST_TOKEN ?>">
+        <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">
         <?php endif; ?>
         <div class="tl_listing_container <?php $this->block('view-class'); ?><?php $this->endblock(); ?> table_<?= $this->tableName ?>">
             <?= $this->breadcrumb ?>
