@@ -17,6 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
  * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -40,4 +41,5 @@ $GLOBALS['TL_LANG']['MSC']['no_properties_available']     = 'Bitte überprüfen 
 $GLOBALS['TL_LANG']['MSC']['select_models']               = 'Elemente auswählen';
 $GLOBALS['TL_LANG']['MSC']['dc_general_disabled']         = 'Gesperrt: %s';
 $GLOBALS['TL_LANG']['MSC']['newRecord']                   = 'Neuen Datensatz erstellen';
+$GLOBALS['TL_LANG']['MSC']['week_format']                 = 'W. Y';
 // @codingStandardsIgnoreEnd
