@@ -15,6 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
  * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -190,7 +191,7 @@ class FormatModelLabelSubscriber
                 $label[] = [
                     'colspan' => 1,
                     'class'   => $class,
-                    'content' => $args[$propertyName] ?: '-'
+                    'content' => ($args[$propertyName] ?? null) ?: '-'
                 ];
             }
         }
