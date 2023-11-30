@@ -53,14 +53,14 @@ class GetGroupHeaderSubscriber
      *
      * @var EventDispatcherInterface
      */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     /**
      * The translator.
      *
      * @var TranslatorInterface
      */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * Create a new instance.
@@ -136,6 +136,7 @@ class GetGroupHeaderSubscriber
         if (isset($evaluation['multiple']) && !$evaluation['multiple'] && ('checkbox' === $property->getWidgetType())) {
             return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
         }
+
         if (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingMode) {
             return $this->formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model);
         }
@@ -240,9 +241,9 @@ class GetGroupHeaderSubscriber
      *
      * @param int $value The value.
      *
-     * @return string|null
+     * @return string
      */
-    private function formatByDayGrouping(int $value): ?string
+    private function formatByDayGrouping(int $value): string
     {
         $value = $this->getTimestamp($value);
 
@@ -263,13 +264,14 @@ class GetGroupHeaderSubscriber
      *
      * @return string
      */
-    private function formatByWeekGrouping(int $value): ?string
+    private function formatByWeekGrouping(int $value): string
     {
         $value = $this->getTimestamp($value);
 
         if (0 === $value) {
             return '-';
         }
+
         $event = new ParseDateEvent($value, $this->translator->translate('MSC.week_format'));
         $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
 
@@ -281,15 +283,16 @@ class GetGroupHeaderSubscriber
      *
      * @param int $value The value.
      *
-     * @return string|null
+     * @return string
      */
-    private function formatByMonthGrouping(int $value): ?string
+    private function formatByMonthGrouping(int $value): string
     {
         $value = $this->getTimestamp($value);
 
         if (0 === $value) {
             return '-';
         }
+
         $event = new ParseDateEvent($value, 'F Y');
         $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
 
@@ -317,11 +320,11 @@ class GetGroupHeaderSubscriber
     /**
      * Make sure a timestamp is returned.
      *
-     * @param int|\DateTime $value The given date.
+     * @param \DateTime|int $value The given date.
      *
      * @return int
      */
-    private function getTimestamp($value)
+    private function getTimestamp(\DateTime|int $value): int
     {
         return ($value instanceof \DateTime) ? $value->getTimestamp() : $value;
     }
