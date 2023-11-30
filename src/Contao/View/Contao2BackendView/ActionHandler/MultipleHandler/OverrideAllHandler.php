@@ -350,7 +350,11 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     private function getModelFromWidget(Widget $widget): ModelInterface
     {
         if ($widget->dataContainer instanceof DcCompat) {
-            return $widget->dataContainer->getModel();
+            $model = $widget->dataContainer->getModel();
+            if (null === $model) {
+                throw new \InvalidArgumentException('Datacontainer does not hold a model.');
+            }
+            return $model;
         }
         if ($widget instanceof AbstractWidget) {
             return $widget->getModel();

@@ -199,7 +199,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             return;
         }
 
-        if ($input->hasValue('tl_limit') && $this->getPanel()?->getContainer()->updateValues()) {
+        if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
             $limit = $input->getValue('tl_limit');
             if ('all' === $limit) {
                 $offset = 0;

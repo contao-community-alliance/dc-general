@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -162,7 +162,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Register the callback handlers for the given legacy callbacks.
      *
      * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param array                    $callbacks  The callbacks to be handled.
+     * @param list<callable>|callable  $callbacks  The callbacks to be handled.
      * @param string                   $eventName  The event to be registered to.
      * @param array                    $arguments  The arguments to pass to the constructor.
      * @param class-string             $listener   The listener class to use.
@@ -175,14 +175,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseCallback($dispatcher, $callbacks, $eventName, $arguments, $listener)
     {
-        if (!(is_array($callbacks) || is_callable($callbacks))) {
-            return;
-        }
-
         // If only one callback given, ensure the loop below handles it correctly.
-        if (is_array($callbacks) && (2 === count($callbacks)) && !is_array($callbacks[0])) {
+        if (is_array($callbacks) && (2 === count($callbacks)) && !is_array($callbacks[0] ?? [])) {
             $callbacks = [$callbacks];
         }
+
         foreach ((array) $callbacks as $callback) {
             if ($this->isCallbackBlacklisted($callback, $listener)) {
                 continue;
@@ -198,17 +195,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     /**
      * Check if callback is blacklisted.
      *
-     * @param mixed  $callback The callback.
-     * @param string $listener The listener class.
+     * @param mixed        $callback The callback.
+     * @param class-string $listener The listener class.
      *
      * @return bool
      */
-    private function isCallbackBlacklisted($callback, $listener)
+    private function isCallbackBlacklisted(mixed $callback, string $listener): bool
     {
         return ((ContainerOnLoadCallbackListener::class === $listener)
                 && is_array($callback)
                 && ('checkPermission' === $callback[1])
-                && (0 === strpos($callback[0], 'tl_')));
+                && (str_starts_with($callback[0], 'tl_')));
     }
 
     /**

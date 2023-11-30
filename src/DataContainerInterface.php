@@ -21,9 +21,15 @@
 
 namespace ContaoCommunityAlliance\DcGeneral;
 
+use Contao\EditableDataContainerInterface;
+use Contao\ListableDataContainerInterface;
+
 /**
  * This interface describes an object providing access to an environment.
  */
-interface DataContainerInterface extends \editable, \listable, EnvironmentAwareInterface
+interface DataContainerInterface extends
+    EditableDataContainerInterface,
+    ListableDataContainerInterface,
+    EnvironmentAwareInterface
 {
 }
