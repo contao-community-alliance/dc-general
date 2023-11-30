@@ -1021,17 +1021,10 @@ class EditMask
     private function executeMultiLanguage(ContaoBackendViewTemplate $template)
     {
         $dataProvider = $this->getEnvironment()->getDataProvider($this->model->getProviderName());
-        assert($dataProvider instanceof DataProviderInterface);
-
         if (
-            \in_array(
-                MultiLanguageDataProviderInterface::class,
-                \class_implements($dataProvider)
-            )
+            $dataProvider instanceof MultiLanguageDataProviderInterface
+            && null !== $dataProvider->getLanguages($this->model->getId())
         ) {
-            /** @var MultiLanguageDataProviderInterface $dataProvider */
-            $dataProvider = $this->getEnvironment()->getDataProvider();
-
             $locales = System::getContainer()->get('contao.intl.locales');
             assert($locales instanceof Locales);
 
@@ -1043,10 +1036,8 @@ class EditMask
             $translator = $this->environment->getTranslator();
             assert($translator instanceof TranslatorInterface);
 
-            $template->set(
-                'languages',
-                $controller->getSupportedLanguages($this->model->getId())
-            )
+            $template
+                ->set('languages', $controller->getSupportedLanguages($this->model->getId()))
                 ->set('language', $dataProvider->getCurrentLanguage())
                 ->set('languageSubmit', $translator->translate('MSC.showSelected'))
                 ->set('languageHeadline', $languages[$dataProvider->getCurrentLanguage()] ?? '');

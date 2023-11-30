@@ -132,6 +132,9 @@ class Callbacks
             if ($serviceCallback[0] !== $callback[0]) {
                 return $serviceCallback;
             }
+            if (!\class_exists($callback[0])) {
+                return $callback;
+            }
 
             $class = new ReflectionClass($callback[0]);
 

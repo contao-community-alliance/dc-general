@@ -50,6 +50,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 /**
  * This class is only present so Contao can instantiate a backend properly as it needs a \DataContainer descendant.
  *
+ * @psalm-suppress PropertyNotSetInConstructor
+ *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -58,7 +60,7 @@ class General extends DataContainer implements DataContainerInterface
     /**
      * The environment attached to this DC.
      *
-     * @var EnvironmentInterface
+     * @var EnvironmentInterface|null
      */
     protected $objEnvironment;
 
@@ -95,6 +97,7 @@ class General extends DataContainer implements DataContainerInterface
             }
             $this->objEnvironment = $event->getEnvironment();
         }, $this, $this);
+        assert($fetcher instanceof \Closure);
         $dispatcher->addListener(PopulateEnvironmentEvent::NAME, $fetcher, 4800);
 
         (new DcGeneralFactory($cache))
@@ -121,9 +124,12 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return EventDispatcherInterface
      */
-    private function getEventDispatcher()
+    private function getEventDispatcher(): EventDispatcherInterface
     {
-        return System::getContainer()->get('event_dispatcher');
+        $dispatcher = System::getContainer()->get('event_dispatcher');
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        return $dispatcher;
     }
 
     /**
@@ -131,9 +137,12 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return TranslatorInterface
      */
-    private function getTranslator()
+    private function getTranslator(): TranslatorInterface
     {
-        return System::getContainer()->get('cca.translator.contao_translator');
+        $translator = System::getContainer()->get('cca.translator.contao_translator');
+        assert($translator instanceof TranslatorInterface);
+
+        return $translator;
     }
 
     /**
@@ -240,7 +249,7 @@ class General extends DataContainer implements DataContainerInterface
      */
     public function getEnvironment()
     {
-        if (!$this->objEnvironment) {
+        if (null === $this->objEnvironment) {
             throw new DcGeneralRuntimeException('No Environment set.');
         }
 
@@ -254,7 +263,10 @@ class General extends DataContainer implements DataContainerInterface
      */
     public function getViewHandler()
     {
-        return $this->getEnvironment()->getView();
+        $view = $this->getEnvironment()->getView();
+        assert($view instanceof ViewInterface);
+
+        return $view;
     }
 
     /**
@@ -264,7 +276,10 @@ class General extends DataContainer implements DataContainerInterface
      */
     public function getControllerHandler()
     {
-        return $this->getEnvironment()->getController();
+        $controller = $this->getEnvironment()->getController();
+        assert($controller instanceof ControllerInterface);
+
+        return $controller;
     }
 
     /**
@@ -416,7 +431,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @deprecated Only here as requirement of \DataContainer
      *
-     * @return void
+     * @return never
      *
      * @throws DcGeneralRuntimeException Throws exception because method is not supported.
      */

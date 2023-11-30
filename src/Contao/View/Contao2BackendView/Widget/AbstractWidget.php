@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -91,6 +92,9 @@ abstract class AbstractWidget extends Widget
     public function getModel()
     {
         assert($this->dataContainer instanceof DcCompat);
-        return $this->dataContainer->getModel();
+        $model = $this->dataContainer->getModel();
+        assert($model instanceof ModelInterface);
+
+        return $model;
     }
 }
