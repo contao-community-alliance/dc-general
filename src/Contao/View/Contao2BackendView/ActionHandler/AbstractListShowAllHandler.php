@@ -449,11 +449,36 @@ abstract class AbstractListShowAllHandler
         $listingConfig = $this->getViewSection($definition)->getListingConfig();
         $panel         = $view->getPanel();
         assert($panel instanceof PanelContainerInterface);
-
         ViewHelpers::initializeSorting($panel, $dataConfig, $listingConfig);
 
         $provider = $environment->getDataProvider();
         assert($provider instanceof DataProviderInterface);
+
+        // FIXME: implement a "needed properties collector" for: The current definition formatter & actions.
+        // Fetch only desired properties.
+        /*
+        if ($listingConfig->hasLabelFormatter($definition->getName())) {
+            $properties = $listingConfig->getLabelFormatter($definition->getName())->getPropertyNames();
+            $properties = array_merge($properties, ['id', 'tstamp', 'pid', 'enabled']);
+            $properties = array_filter(
+                $properties,
+                function (string $propertyName) use ($provider): bool {
+                    if ($provider->fieldExists($propertyName)) {
+                        return true;
+                    }
+                    // @codingStandardsIgnoreStart
+                    @\trigger_error(
+                        'Only real property is allowed in the property definition.' .
+                        'This will no longer be supported in the future.',
+                        E_USER_DEPRECATED
+                    );
+                    // @codingStandardsIgnoreEnd
+                    return false;
+                }
+            );
+            $dataConfig->setFields($properties);
+        }
+        */
 
         return $provider->fetchAll($dataConfig);
     }
