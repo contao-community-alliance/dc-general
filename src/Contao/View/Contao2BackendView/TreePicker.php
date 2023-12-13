@@ -939,7 +939,7 @@ class TreePicker extends Widget
         /** @psalm-suppress UndefinedThisPropertyFetch */
         $root = $this->root;
         $root = \is_array($root) ? $root : ((\is_numeric($root) && $root > 0) ? [$root] : []);
-        $root = \array_merge($root, [0]);
+        $root = \array_merge($root, [null]);
 
         return $root;
     }
@@ -1294,7 +1294,7 @@ class TreePicker extends Widget
             $model    = $collection->get(0);
             assert($model instanceof ModelInterface);
 
-            foreach ($model->getMeta($model::CHILD_COLLECTIONS) as $collection) {
+            foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $collection) {
                 foreach ($collection as $subModel) {
                     $treeData->push($subModel);
                 }
@@ -1565,7 +1565,7 @@ class TreePicker extends Widget
                 $template = new ContaoBackendViewTemplate('widget_treepicker_child');
                 $subHtml  = '';
 
-                foreach ($model->getMeta($model::CHILD_COLLECTIONS) as $objChildCollection) {
+                foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $objChildCollection) {
                     $subHtml .= $this->generateTreeView($objChildCollection, $treeClass);
                 }
 

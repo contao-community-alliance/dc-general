@@ -42,6 +42,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -115,7 +116,7 @@ class BackendTreeController implements ContainerAwareInterface
     private function initializeAndExtractRequest(): Request
     {
         $container = $this->container;
-        assert($container instanceof ContainerInterface);
+        assert($container instanceof SymfonyContainerInterface);
 
         $framework = $container->get('contao.framework');
         assert($framework instanceof ContaoFramework);
@@ -251,7 +252,7 @@ class BackendTreeController implements ContainerAwareInterface
         $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
         $container = $this->container;
-        assert($container instanceof ContainerInterface);
+        assert($container instanceof SymfonyContainerInterface);
         $translator = $container->get('cca.translator.contao_translator');
         assert($translator instanceof TranslatorInterface);
 
@@ -320,7 +321,7 @@ class BackendTreeController implements ContainerAwareInterface
             throw new BadRequestHttpException('No picker was given here.');
         }
         $container = $this->container;
-        assert($container instanceof ContainerInterface);
+        assert($container instanceof SymfonyContainerInterface);
         $pickerBuilder = $container->get('contao.picker.builder');
         assert($pickerBuilder instanceof PickerBuilderInterface);
         $picker = $pickerBuilder->createFromData($getPicker);
@@ -371,7 +372,7 @@ class BackendTreeController implements ContainerAwareInterface
         }
 
         $container = $this->container;
-        assert($container instanceof ContainerInterface);
+        assert($container instanceof SymfonyContainerInterface);
 
         $session = $container->get('session');
         assert($session instanceof SessionInterface);
