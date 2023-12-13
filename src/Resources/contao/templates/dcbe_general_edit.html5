@@ -1,9 +1,11 @@
 <?php
 use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Data\VersionModelInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 $requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
-
+$translator   = \System::getContainer()->get('translator');
+assert($translator instanceof TranslatorInterface);
 // Add CSS
 $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
 ?>
@@ -16,13 +18,13 @@ $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
             <select name="version" class="tl_select">
             <?php foreach($this->versions as $objVersion): /** @var VersionModelInterface $objVersion */ ?>
                 <option value="<?= $objVersion->getId() ?>"<?php if($objVersion->isCurrent()): ?> selected="selected"<?php endif; ?>>
-                <?= $GLOBALS['TL_LANG']['MSC']['version'] ?> <?= $objVersion->getVersion() ?> (<?= $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objVersion->getDateTime()->getTimestamp()) ?>)
+                <?= $translator->trans(id: 'version', domain: 'dc-general') ?> <?= $objVersion->getVersion() ?> (<?= $this->parseDate($GLOBALS['TL_CONFIG']['datimFormat'], $objVersion->getDateTime()->getTimestamp()) ?>)
                 <?php if ($objVersion->getAuthorName()): ?> &ndash; <?= $objVersion->getAuthorName() ?> (<?= $objVersion->getAuthorUsername() ?>)
                 <?php elseif ($objVersion->getAuthorUsername()): ?> &ndash; (<?= $objVersion->getAuthorUsername() ?>)
                 <?php endif; ?>
                 </option>
             <?php endforeach; ?>
-            </select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="<?= StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['restore']) ?>" />
+            </select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="<?= StringUtil::specialchars($translator->trans(id: 'restore', domain: 'dc-general')) ?>" />
             </div>
         </form>
     </div>

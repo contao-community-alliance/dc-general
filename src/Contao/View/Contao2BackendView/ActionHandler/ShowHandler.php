@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -208,9 +208,9 @@ class ShowHandler
             return $label;
         }
 
-        $mscKey = 'MSC.' . $property->getName() . '.0';
-        $label  = $translator->translate($mscKey);
-        if ($label !== $mscKey) {
+        $translationKey = $property->getName() . '_label';
+        $label          = $translator->translate($translationKey, 'dc-general');
+        if ($label !== $translationKey) {
             return $label;
         }
 
@@ -292,19 +292,19 @@ class ShowHandler
     protected function getHeadline(TranslatorInterface $translator, $model)
     {
         $headline = $translator->translate(
-            'MSC.showRecord',
+            'showRecord',
             $model->getProviderName(),
-            ['ID ' . $model->getId()]
+            ['%id%' => 'ID ' . $model->getId()]
         );
 
-        if ('MSC.showRecord' !== $headline) {
+        if ('showRecord' !== $headline) {
             return $headline;
         }
 
         return $translator->translate(
-            'MSC.showRecord',
-            null,
-            ['ID ' . $model->getId()]
+            'showRecord',
+            'dc-general',
+            ['%id%' => 'ID ' . $model->getId()]
         );
     }
 
@@ -354,8 +354,8 @@ class ShowHandler
             $template
                 ->set('languages', $controller->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
-                ->set('languageSubmit', $translator->translate('MSC.showSelected'))
-                ->set('backBT', StringUtil::specialchars($translator->translate('MSC.backBT')))
+                ->set('languageSubmit', $translator->translate('change-language', 'dc-general'))
+                ->set('backBT', StringUtil::specialchars($translator->translate('backBT', 'dc-general')))
                 ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName));
         } else {
             $template->set('languages', null);

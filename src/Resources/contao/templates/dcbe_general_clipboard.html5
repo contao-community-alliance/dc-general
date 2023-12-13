@@ -4,10 +4,13 @@ use Contao\StringUtil;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /** @var \ContaoCommunityAlliance\DcGeneral\EnvironmentInterface $environment */
 $environment     = $this->environment;
 $eventDispatcher = $environment->getEventDispatcher();
+$translator      = \System::getContainer()->get('translator');
+assert($translator instanceof TranslatorInterface);
 
 // pre render the clipboard icon
 $event = new GenerateHtmlEvent(
@@ -60,7 +63,7 @@ if (\count($this->options)): ?>
             <?php endforeach; ?>
         </ul>
         <a href="<?= $this->clearUrl ?>" class="btn-clear"
-           title="<?= StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['clearClipboard']) ?>">
+           title="<?= StringUtil::specialchars($translator->trans(id: 'clearClipboard', domain: 'dc-general')) ?>">
             <img src="bundles/ccadcgeneral/images/clear-clipboard.svg" width="24" height="24">
         </a>
     </div>

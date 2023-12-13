@@ -1,5 +1,9 @@
 <?php
-$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$requestToken = \Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$translator   = \Contao\System::getContainer()->get('translator');
+assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+
+$apply = $translator->trans(id: 'apply', domain: 'dc-general');
 ?>
 <form action="<?= $this->action ?>" class="tl_form" method="post">
     <div class="tl_formbody">
@@ -8,13 +12,13 @@ $requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDe
 
         <div class="tl_panel">
             <div class="tl_submit_panel tl_subpanel">
-                <input type="image" name="filter" id="language_switch" src="system/themes/<?= $this->theme ?>/images/reload.gif" class="tl_img_submit" title="<?= $GLOBALS['TL_LANG']['MSC']['apply'] ?>" alt="<?= $GLOBALS['TL_LANG']['MSC']['apply'] ?>">
+                <input type="image" name="filter" id="language_switch" src="system/themes/<?= $this->theme ?>/images/reload.gif" class="tl_img_submit" title="<?= $apply ?>" alt="<?= $apply ?>">
             </div>
             <div class="tl_sorting tl_subpanel">
-                <strong><?= $GLOBALS['TL_LANG']['MSC']['sortBy']; ?>:</strong>
+                <strong><?= $translator->trans(id: 'sortBy', domain: 'dc-general') ?>:</strong>
                 <select name="tl_sort" id="tl_sort" class="tl_select">
                     <?php foreach ($this->objLanguages as $value): ?>
-                        <option value="<?= $value->getID() ?>"<?= $arrOption['select'] ?>><?= $value->getProperty("name") ?></option>';
+                        <option value="<?= $value->getID() ?>"><?= $value->getProperty("name") ?></option>';
                     <?php endforeach; ?>
                 </select>
             </div>

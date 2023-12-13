@@ -1,5 +1,9 @@
+<?php
+$translator   = \Contao\System::getContainer()->get('translator');
+assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+?>
 <div class="tl_limit tl_subpanel <?= $this->rowClass; ?>">
-    <strong><?= $GLOBALS['TL_LANG']['MSC']['showOnly'] ?>:</strong>
+    <strong><?= $translator->trans(id: 'showOnly', domain: 'dc-general') ?>:</strong>
     <select name="tl_limit" class="tl_select<?= $this->class ?>" onchange="this.form.submit()">
         <?php foreach ($this->options as $arrOption): ?>
             <option value="<?= $arrOption['value'] ?>"<?= $arrOption['attributes'] ?>><?= $arrOption['content'] ?></option>

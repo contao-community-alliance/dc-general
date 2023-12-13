@@ -107,8 +107,8 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             $action,
             [
                 'subHeadline' =>
-                    $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected') . ': ' .
-                    $translator->translate('MSC.all.0'),
+                    $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
+                    $translator->translate('all_label', 'dc-general'),
                 'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
                 'table'       => $definition->getName(),
                 'error'       => $renderInformation->offsetGet('error'),
@@ -289,7 +289,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 
             $fields[] = \sprintf(
                 '<p>&nbsp;</p><strong>%s</strong><p>&nbsp;</p>',
-                $translator->translate('MSC.no_properties_available')
+                $translator->translate('no_properties_available', 'dc-general')
             );
         }
 
