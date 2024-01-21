@@ -514,7 +514,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             '<input type="submit" name="%s_save" id="%s_save" class="tl_submit" accesskey="s" value="%s" />',
             $mode,
             $mode,
-            $translator->translate('MSC.save')
+            $translator->translate('save', 'dc-general')
         );
 
         $buttons['save'] .= '&nbsp;';
@@ -523,7 +523,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             '<input type="submit" name="%s_saveNback" id="%s_saveNback" class="tl_submit" accesskey="c" value="%s" />',
             $mode,
             $mode,
-            $translator->translate('MSC.saveNback')
+            $translator->translate('saveNback', 'dc-general')
         );
 
         $submitButtonTemplate = new ContaoBackendViewTemplate('dc_general_submit_button');

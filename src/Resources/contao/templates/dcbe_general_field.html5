@@ -1,3 +1,7 @@
+<?php
+$translator = \Contao\System::getContainer()->get('translator');
+assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+?>
 <div id="widget_<?= $this->strName; ?>" class="widget <?= $this->strClass ?>">
   <?php if (!$this->disabled): ?>
     <input type="hidden" value="<?= $this->strName; ?>" name="FORM_INPUTS[]" />
@@ -15,11 +19,11 @@
         </script>
       <?php endif; ?>
       <?php if($this->blnUpdate): ?>
-          <h3 style="padding-top:7px"><label for="ctrl_<?= $this->strName; ?>_update"><?= $GLOBALS['TL_LANG']['MSC']['updateMode']; ?></label></h3>
+          <h3 style="padding-top:7px"><label for="ctrl_<?= $this->strName; ?>_update"><?= $translator->trans(id: 'updateMode', domain: 'dc-general') ?></label></h3>
           <div id="ctrl_<?= $this->strName; ?>_update" class="tl_radio_container">
-            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_1" class="tl_radio" value="add" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_1"><?= $GLOBALS['TL_LANG']['MSC']['updateAdd'] ?></label><br />
-            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_2" class="tl_radio" value="remove" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_2"><?= $GLOBALS['TL_LANG']['MSC']['updateRemove'] ?></label><br />
-            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_0" class="tl_radio" value="replace" checked="checked" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_0"><?= $GLOBALS['TL_LANG']['MSC']['updateReplace'] ?></label>
+            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_1" class="tl_radio" value="add" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_1"><?= $translator->trans(id: 'updateAdd', domain: 'dc-general') ?></label><br />
+            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_2" class="tl_radio" value="remove" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_2"><?= $translator->trans(id: 'updateRemove', domain: 'dc-general') ?></label><br />
+            <input type="radio" name="<?= $this->strName ?>_update" id="opt_<?= $this->strName ?>_update_0" class="tl_radio" value="replace" checked="checked" onfocus="Backend.getScrollOffset();" /> <label for="opt_<?= $this->strName ?>_update_0"><?= $translator->trans(id: 'updateReplace', domain: 'dc-general') ?></label>
           </div>
       <?php endif; if(!$this->hasErrors) echo $this->strHelp; ?>
   <?php endif; ?>

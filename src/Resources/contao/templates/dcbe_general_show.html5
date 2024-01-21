@@ -8,12 +8,15 @@ $this->insert(
         'submit'        => $this->languageSubmit,
         'REQUEST_TOKEN' => $this->REQUEST_TOKEN,
     ]
-)
+);
+
+$translator   = \Contao\System::getContainer()->get('translator');
+assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
 ?>
 
 <div id="tl_buttons">
     <a href="<?= $this->getReferer(true) ?>" class="header_back" title="<?= $this->backBT ?>" accesskey="b" onclick="Backend.getScrollOffset();">
-        <?= $GLOBALS['TL_LANG']['MSC']['backBT'] ?>
+        <?= $translator->trans(id: 'backBT', domain: 'dc-general') ?>
     </a>
 </div>
 

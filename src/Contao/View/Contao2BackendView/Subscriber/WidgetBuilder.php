@@ -342,10 +342,10 @@ class WidgetBuilder implements EnvironmentAwareInterface
         if (('textarea' === $propInfo->getWidgetType()) && !\array_key_exists('rte', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'wrap.svg',
-                $translator->translate('MSC.wordWrap'),
+                $translator->translate('wordWrap', 'dc-general'),
                 \sprintf(
                     'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
-                    StringUtil::specialchars($translator->translate('MSC.wordWrap')),
+                    StringUtil::specialchars($translator->translate('wordWrap', 'dc-general')),
                     $propInfo->getName()
                 )
             );
@@ -391,7 +391,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         if ($propInfo->getExtra() && \array_key_exists('helpwizard', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'about.svg',
-                $translator->translate('MSC.helpWizard'),
+                $translator->translate('helpWizard', 'dc-general'),
                 'style="vertical-align:text-bottom;"'
             );
 
@@ -409,7 +409,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
                 $definition->getName(),
                 $propInfo->getName(),
-                StringUtil::specialchars($translator->translate('MSC.helpWizard')),
+                StringUtil::specialchars($translator->translate('helpWizard', 'dc-general')),
                 $event->getHtml() ?? ''
             );
         }

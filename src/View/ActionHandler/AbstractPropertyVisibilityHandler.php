@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2021 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2021 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -21,9 +22,6 @@ namespace ContaoCommunityAlliance\DcGeneral\View\ActionHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionChainInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
@@ -33,6 +31,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyTrueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
@@ -458,9 +459,12 @@ abstract class AbstractPropertyVisibilityHandler
             $labelEditProperty   = !$property->getLabel() ? $property->getName() : $property->getLabel();
 
             $information[] = sprintf(
-                '<p class="tl_new">' . $translator->translate('MSC.select_parent_property_info') . '</p>',
-                $labelParentProperty,
-                $labelEditProperty
+                '<p class="tl_new">%s</p>',
+                $translator->translate(
+                    'select_parent_property_info',
+                    'dc-general',
+                    ['%parent_property%' => $labelParentProperty, '%edit_property%' => $labelEditProperty]
+                )
             );
         }
 
@@ -496,10 +500,11 @@ abstract class AbstractPropertyVisibilityHandler
         foreach ($properties as $propertyName => $informationProperty) {
             $label = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
 
-            $information[] = sprintf(
-                '<p class="tl_new">' . $translator->translate('MSC.select_property_info') . '</p>',
-                $label
-            );
+            $information[] =
+                '<p class="tl_new">' .
+                $translator->translate('select_property_info', 'dc-general', ['%property%' => $label]) .
+                '</p>'
+            ;
         }
 
         return implode('', $information);

@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" xml:id="dc-general">
+    <file id="dc-general">
+        <unit id="language" name="language">
+            <segment>
+                <source>Language</source>
+                <target>Sprache</target>
+            </segment>
+        </unit>
+        <unit id="change-language" name="change-language">
+            <segment>
+                <source>Switch language</source>
+                <target>Sprache wechseln</target>
+            </segment>
+        </unit>
+        <unit id="treePicker" name="treePicker">
+            <segment>
+                <source>Table: %table%</source>
+                <target>Tabelle: %table%</target>
+            </segment>
+        </unit>
+        <unit id="not_unique" name="not_unique">
+            <segment>
+                <source>The property "%property%" is already in the database and not unique.</source>
+                <target>Die Eigenschaft "%property%" ist schon in der Datenbank und nicht unique.</target>
+            </segment>
+        </unit>
+        <unit id="nothingSelect" name="nothingSelect">
+            <segment>
+                <source>Nothing was selected!</source>
+                <target>Es wurde nichts ausgewählt!</target>
+            </segment>
+        </unit>
+        <unit id="confirmOk" name="confirmOk">
+            <segment>
+                <source>Ok</source>
+                <target>Ok</target>
+            </segment>
+        </unit>
+        <unit id="confirmAbort" name="confirmAbort">
+            <segment>
+                <source>Abort</source>
+                <target>Abbrechen</target>
+            </segment>
+        </unit>
+        <unit id="closeAll_label" name="closeAll_label">
+            <segment>
+                <source>Cancel</source>
+                <target>Beenden</target>
+            </segment>
+        </unit>
+        <unit id="closeAll_description" name="closeAll_description">
+            <segment>
+                <source>Cancel multiple processing.</source>
+                <target>Die Mehrfachbearbeitung beenden.</target>
+            </segment>
+        </unit>
+        <unit id="not_allowed_property_info" name="not_allowed_property_info">
+            <segment>
+                <source>The property "%property%" isn't supported in mode "%mode%".</source>
+                <target>Die Eigenschaft "%property%" wird im Modus "%mode%" nicht unterstützt.</target>
+            </segment>
+        </unit>
+        <unit id="select_property_info" name="select_property_info">
+            <segment>
+                <source>You must select the property "%property%" for edit it.</source>
+                <target>Die Eigenschaft "%property%" muss ausgewählt sein, damit diese bearbeitet werden kann.</target>
+            </segment>
+        </unit>
+        <unit id="select_parent_property_info" name="select_parent_property_info">
+            <segment>
+                <source>You must select the parent property "%parent_property%" for edit the property
+                    "%edit_property%".
+                </source>
+                <target>Die Abhängige Eigenschaft "%parent_property%" muss ausgewählt sein, damit man die Eigenschaft
+                    "%edit_property%" bearbeiten kann.
+                </target>
+            </segment>
+        </unit>
+        <unit id="edit_all_select_properties" name="edit_all_select_properties">
+            <segment>
+                <source>Select properties</source>
+                <target>Eigenschaften auswählen</target>
+            </segment>
+        </unit>
+        <unit id="no_properties_available" name="no_properties_available">
+            <segment>
+                <source>Please check your selected properties!</source>
+                <target>Bitte überprüfen Sie die ausgewählten Eigenschaften!</target>
+            </segment>
+        </unit>
+        <unit id="select_models" name="select_models">
+            <segment>
+                <source>Select models</source>
+                <target>Elemente auswählen</target>
+            </segment>
+        </unit>
+        <unit id="dc_general_disabled" name="dc_general_disabled">
+            <segment>
+                <source>Disabled: %title%</source>
+                <target>Gesperrt: %title%</target>
+            </segment>
+        </unit>
+        <unit id="newRecord" name="newRecord">
+            <segment>
+                <source>Create a new item</source>
+                <target>Neuen Datensatz erstellen</target>
+            </segment>
+        </unit>
+        <unit id="editRecord" name="editRecord">
+            <segment>
+                <source>Edit record %id%</source>
+                <target>Datensatz %id% bearbeiten</target>
+            </segment>
+        </unit>
+        <unit id="week_format" name="week_format">
+            <segment>
+                <source>W Y</source>
+                <target>W. Y</target>
+            </segment>
+        </unit>
+        <unit id="deleteSelected" name="deleteSelected">
+            <segment>
+                <source>Delete</source>
+                <target>Löschen</target>
+            </segment>
+        </unit>
+        <unit id="editSelected" name="editSelected">
+            <segment>
+                <source>Edit</source>
+                <target>Bearbeiten</target>
+            </segment>
+        </unit>
+        <unit id="overrideSelected" name="overrideSelected">
+            <segment>
+                <source>Override</source>
+                <target>Überschreiben</target>
+            </segment>
+        </unit>
+        <unit id="copySelected" name="copySelected">
+            <segment>
+                <source>Copy</source>
+                <target>Kopieren</target>
+            </segment>
+        </unit>
+        <unit id="close" name="close">
+            <segment>
+                <source>Close</source>
+                <target>Schließen</target>
+            </segment>
+        </unit>
+        <unit id="continue" name="continue">
+            <segment>
+                <source>Continue</source>
+                <target>Weiter</target>
+            </segment>
+        </unit>
+        <unit id="delAllConfirm" name="delAllConfirm">
+            <segment>
+                <source>Do you really want to delete the selected records?</source>
+                <target>Wollen Sie die ausgewählten Einträge wirklich löschen?</target>
+            </segment>
+        </unit>
+        <unit id="deleteSelected" name="deleteSelected">
+            <segment>
+                <source>Delete</source>
+                <target>Löschen</target>
+            </segment>
+        </unit>
+        <unit id="moveSelected" name="moveSelected">
+            <segment>
+                <source>Move</source>
+                <target>Verschieben</target>
+            </segment>
+        </unit>
+        <unit id="copySelected" name="copySelected">
+            <segment>
+                <source>Copy</source>
+                <target>Kopieren</target>
+            </segment>
+        </unit>
+        <unit id="editSelected" name="editSelected">
+            <segment>
+                <source>Edit</source>
+                <target>Bearbeiten</target>
+            </segment>
+        </unit>
+        <unit id="overrideSelected" name="overrideSelected">
+            <segment>
+                <source>Override</source>
+                <target>Überschreiben</target>
+            </segment>
+        </unit>
+        <unit id="all_label" name="all_label">
+            <segment>
+                <source>Edit multiple</source>
+                <target>Mehrere bearbeiten</target>
+            </segment>
+        </unit>
+        <unit id="no" name="no">
+            <segment>
+                <source>no</source>
+                <target>nein</target>
+            </segment>
+        </unit>
+        <unit id="yes" name="yes">
+            <segment>
+                <source>yes</source>
+                <target>ja</target>
+            </segment>
+        </unit>
+        <unit id="showRecord" name="showRecord">
+            <segment>
+                <source>Show the details of record %id%</source>
+                <target>Details des Datensatzes %id% anzeigen</target>
+            </segment>
+        </unit>
+        <unit id="colorpicker" name="colorpicker">
+            <segment>
+                <source>Color picker</source>
+                <target>Farbe auswählen</target>
+            </segment>
+        </unit>
+        <unit id="wordWrap" name="wordWrap">
+            <segment>
+                <source>Word wrap</source>
+                <target>Zeilenumbruch</target>
+            </segment>
+        </unit>
+        <unit id="helpWizard" name="helpWizard">
+            <segment>
+                <source>Open the help wizard</source>
+                <target>Den Hilfe-Assistent aufrufen</target>
+            </segment>
+        </unit>
+        <unit id="changeSelection" name="changeSelection">
+            <segment>
+                <source>Change selection</source>
+                <target>Auswahl ändern</target>
+            </segment>
+        </unit>
+        <unit id="dragItemsHint" name="dragItemsHint">
+            <segment>
+                <source>Drag the items to re-order them</source>
+                <target>Elemente können durch Ziehen umsortiert werden</target>
+            </segment>
+        </unit>
+        <unit id="resetSelected" name="resetSelected">
+            <segment>
+                <source>Reset selection</source>
+                <target>Auswahl aufheben</target>
+            </segment>
+        </unit>
+        <unit id="selectAll" name="selectAll">
+            <segment>
+                <source>Select all</source>
+                <target>Alle auswählen</target>
+            </segment>
+        </unit>
+        <unit id="collapseNode" name="collapseNode">
+            <segment>
+                <source>Collapse node</source>
+                <target>Bereich schließen</target>
+            </segment>
+        </unit>
+        <unit id="expandNode" name="expandNode">
+            <segment>
+                <source>Expand node</source>
+                <target>Bereich öffnen</target>
+            </segment>
+        </unit>
+        <unit id="save" name="save">
+            <segment>
+                <source>Save</source>
+                <target>Speichern</target>
+            </segment>
+        </unit>
+        <unit id="saveNclose" name="saveNclose">
+            <segment>
+                <source>Save and close</source>
+                <target>Speichern und schließen</target>
+            </segment>
+        </unit>
+        <unit id="saveNedit" name="saveNedit">
+            <segment>
+                <source>Save and edit</source>
+                <target>Speichern und bearbeiten</target>
+            </segment>
+        </unit>
+        <unit id="saveNback" name="saveNback">
+            <segment>
+                <source>Save and go back</source>
+                <target>Speichern und zurück</target>
+            </segment>
+        </unit>
+        <unit id="saveNcreate" name="saveNcreate">
+            <segment>
+                <source>Save and new</source>
+                <target>Speichern und neu</target>
+            </segment>
+        </unit>
+        <unit id="saveNduplicate" name="saveNduplicate">
+            <segment>
+                <source>Save and duplicate</source>
+                <target>Speichern und duplizieren</target>
+            </segment>
+        </unit>
+        <unit id="backBT" name="backBT">
+            <segment>
+                <source>Go back</source>
+                <target>Zurück</target>
+            </segment>
+        </unit>
+        <unit id="backBTTitle" name="backBTTitle">
+            <segment>
+                <source>Back to the previous page</source>
+                <target>Zurück zur vorherigen Seite</target>
+            </segment>
+        </unit>
+        <unit id="tstamp" name="tstamp">
+            <segment>
+                <source>Revision date</source>
+                <target>Änderungsdatum</target>
+            </segment>
+        </unit>
+        <unit id="weekOffset" name="weekOffset">
+            <segment>
+                <source>0</source>
+                <target>1</target>
+            </segment>
+        </unit>
+        <unit id="titleFormat" name="titleFormat">
+            <segment>
+                <source>%B %d%o, %Y</source>
+                <target>%d. %B %Y</target>
+            </segment>
+        </unit>
+        <unit id="id_label" name="id_label">
+            <segment>
+                <source>ID</source>
+                <target>ID</target>
+            </segment>
+        </unit>
+        <unit id="pid_label" name="pid_label">
+            <segment>
+                <source>Parent ID</source>
+                <target>Elternelement</target>
+            </segment>
+        </unit>
+        <unit id="sorting_label" name="sorting_label">
+            <segment>
+                <source>Sorting value</source>
+                <target>Sortierindex</target>
+            </segment>
+        </unit>
+        <unit id="search" name="search">
+            <segment>
+                <source>Search</source>
+                <target>Suchen</target>
+            </segment>
+        </unit>
+        <unit id="treepickerManager" name="treepickerManager">
+            <segment>
+                <source>Treepicker manager</source>
+                <target>Treepicker-Manager</target>
+            </segment>
+        </unit>
+        <unit id="characterSet" name="characterSet">
+            <segment>
+                <source>utf-8</source>
+                <target>utf-8</target>
+            </segment>
+        </unit>
+        <unit id="filterRecords" name="filterRecords">
+            <segment>
+                <source>Records</source>
+                <target>Datensätze</target>
+            </segment>
+        </unit>
+        <unit id="filterAll" name="filterAll">
+            <segment>
+                <source>All</source>
+                <target>Alle</target>
+            </segment>
+        </unit>
+        <unit id="updateMode" name="updateMode">
+            <segment>
+                <source>Update mode</source>
+                <target>Update-Modus</target>
+            </segment>
+        </unit>
+        <unit id="updateAdd" name="updateAdd">
+            <segment>
+                <source>Add the selected values</source>
+                <target>Ausgewählte Werte hinzufügen</target>
+            </segment>
+        </unit>
+        <unit id="updateRemove" name="updateRemove">
+            <segment>
+                <source>Remove the selected values</source>
+                <target>Ausgewählte Werte entfernen</target>
+            </segment>
+        </unit>
+        <unit id="updateReplace" name="updateReplace">
+            <segment>
+                <source>Replace the existing entries</source>
+                <target>Bestehende Einträge überschreiben</target>
+            </segment>
+        </unit>
+        <unit id="apply" name="apply">
+            <segment>
+                <source>Apply</source>
+                <target>Anwenden</target>
+            </segment>
+        </unit>
+        <unit id="sortBy" name="sortBy">
+            <segment>
+                <source>Sort</source>
+                <target>Sortieren</target>
+            </segment>
+        </unit>
+        <unit id="showOnly" name="showOnly">
+            <segment>
+                <source>Show</source>
+                <target>Anzeigen</target>
+            </segment>
+        </unit>
+        <unit id="reset" name="reset">
+            <segment>
+                <source>Reset</source>
+                <target>Zurücksetzen</target>
+            </segment>
+        </unit>
+        <unit id="version" name="version">
+            <segment>
+                <source>Version</source>
+                <target>Version</target>
+            </segment>
+        </unit>
+        <unit id="restore" name="restore">
+            <segment>
+                <source>Restore</source>
+                <target>Wiederherstellen</target>
+            </segment>
+        </unit>
+        <unit id="clearClipboard" name="clearClipboard">
+            <segment>
+                <source>Clear clipboard</source>
+                <target>Ablage leeren</target>
+            </segment>
+        </unit>
+        <unit id="noResult" name="noResult">
+            <segment>
+                <source>No records found.</source>
+                <target>Keine Einträge gefunden.</target>
+            </segment>
+        </unit>
+    </file>
+</xliff>

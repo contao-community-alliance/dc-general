@@ -95,7 +95,7 @@ class ColorPickerWizardListener
         assert($translator instanceof TranslatorInterface);
 
         if (\array_key_exists('colorpicker', $propExtra) && $propExtra['colorpicker']) {
-            $pickerText = $translator->translate('MSC.colorpicker');
+            $pickerText = $translator->translate('colorpicker', 'dc-general');
             $event      = new GenerateHtmlEvent(
                 'pickcolor.svg',
                 $pickerText,

@@ -8,7 +8,7 @@ $requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDe
     <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>">
     <div class="selector_container">
         <?php if ($this->hasOrder && \count($this->icons) > 1): ?>
-            <p class="sort_hint"><?= $this->translate('MSC.dragItemsHint') ?></p>
+            <p class="sort_hint"><?= $this->translate('dragItemsHint', 'dc-general') ?></p>
         <?php endif; ?>
         <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
             <?php foreach ($this->icons as $icon): ?>
@@ -19,7 +19,7 @@ $requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDe
         </ul>
         <?php if (!$this->readonly): ?>
             <p>
-                <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('MSC.changeSelection') ?></a>
+                <a id="ft_<?= $this->name ?>" href="<?= $this->link ?>" class="tl_submit"><?= $this->translate('changeSelection', 'dc-general') ?></a>
             </p>
         <?php endif; ?>
     </div>
