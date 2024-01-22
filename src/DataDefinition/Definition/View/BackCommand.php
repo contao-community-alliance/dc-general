@@ -36,7 +36,7 @@ class BackCommand extends Command
         $this->extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
         $this
             ->setName('back_button')
-            ->setLabel('MSC.backBT')
-            ->setDescription('MSC.backBT');
+            ->setLabel('backBT')
+            ->setDescription('backBTTitle');
     }
 }

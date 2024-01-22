@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -385,9 +385,9 @@ class TreeView extends BaseView
         assert($translator instanceof TranslatorInterface);
 
         if ($model->getMeta($model::SHOW_CHILDREN)) {
-            $toggleTitle = $translator->translate('MSC.collapseNode');
+            $toggleTitle = $translator->translate('collapseNode', 'dc-general');
         } else {
-            $toggleTitle = $translator->translate('MSC.expandNode');
+            $toggleTitle = $translator->translate('expandNode', 'dc-general');
         }
 
         $toggleUrlEvent = new AddToUrlEvent(
@@ -763,7 +763,7 @@ class TreeView extends BaseView
         return $template
             ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
-            ->set('submit', $translator->translate('MSC.showSelected'))
+            ->set('submit', $translator->translate('change-language', 'dc-general'))
             ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }

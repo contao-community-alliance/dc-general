@@ -69,49 +69,49 @@ class ButtonRenderer
      *
      * @var list<string>
      */
-    private $circularModelIds;
+    private array $circularModelIds;
 
     /**
      * The clipboard items in use.
      *
      * @var list<ItemInterface>
      */
-    private $clipboardItems;
+    private array $clipboardItems;
 
     /**
      * The models for the clipboard items.
      *
      * @var CollectionInterface
      */
-    private $clipboardModels;
+    private CollectionInterface $clipboardModels;
 
     /**
      * The clipboard in use.
      *
      * @var CommandCollectionInterface
      */
-    private $commands;
+    private CommandCollectionInterface $commands;
 
     /**
      * The environment.
      *
      * @var EnvironmentInterface
      */
-    private $environment;
+    private EnvironmentInterface $environment;
 
     /**
      * The event dispatcher.
      *
      * @var EventDispatcherInterface
      */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     /**
      * The translator in use.
      *
      * @var TranslatorInterface
      */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * Create a new instance.
@@ -368,9 +368,9 @@ class ButtonRenderer
                 \sprintf(
                     'title="%s" class="%s"',
                     StringUtil::specialchars($this->translator->translate(
-                        'MSC.dc_general_disabled',
-                        'contao_default',
-                        [$buttonEvent->getTitle()]
+                        'dc_general_disabled',
+                        'dc-general',
+                        ['%title%' => $buttonEvent->getTitle()]
                     )),
                     'cursor_disabled'
                 )
@@ -590,7 +590,7 @@ class ButtonRenderer
             return $value;
         }
 
-        return $this->translator->translate($path);
+        return $this->translator->translate($path, 'dc-general');
     }
 
     /**

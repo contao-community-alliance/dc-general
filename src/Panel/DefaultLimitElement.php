@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a limit panel element.
@@ -244,11 +245,14 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      */
     public function render(ViewTemplateInterface $viewTemplate)
     {
+        $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
         $options = [
             [
                 'value'      => '0,' . $this->getItemsPerPage(),
                 'attributes' => '',
-                'content'    => $GLOBALS['TL_LANG']['MSC']['filterRecords']
+                'content'    => $translator->translate('filterRecords', 'dc-general')
             ]
         ];
 
@@ -286,7 +290,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                     ((0 === $this->getOffset()) && ($this->intTotal === $this->getAmount()))
                         ? 'selected'
                         : '',
-                'content'    => $GLOBALS['TL_LANG']['MSC']['filterAll']
+                'content'    => $translator->translate('filterAll', 'dc-general')
             ];
         }
 

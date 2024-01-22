@@ -233,7 +233,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     private function translateHeaderColumnName($field, $parentName)
     {
         return ('tstamp' === $field)
-            ? $this->translate('MSC.tstamp', 'contao_default')
+            ? $this->translate('tstamp', 'dc-general')
             : $this->translate(\sprintf('%s.0', $field), $parentName);
     }
 
@@ -294,8 +294,8 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $isRendered = true;
 
         return !empty($value)
-            ? $this->translate('MSC.yes', 'contao_default')
-            : $this->translate('MSC.no', 'contao_default');
+            ? $this->translate('yes', 'dc-general')
+            : $this->translate('no', 'dc-general');
     }
 
     /**

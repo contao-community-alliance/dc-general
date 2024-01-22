@@ -7,7 +7,8 @@ use Contao\StringUtil;
       <div class="tl_formbody">
         <input type="hidden" name="FORM_SUBMIT" value="language_switch" />
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $this->REQUEST_TOKEN ?>" />
-        <select name="language" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
+          <label for="selectLanguage"><strong><?= \Contao\System::getContainer()->get('translator')->trans('language', [], 'dc-general') ?>: </strong></label>
+          <select name="language" id="selectLanguage" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
             <?php foreach ($this->languages as $langCode => $languageName) : ?>
               <option value="<?= $langCode; ?>"<?php if ($langCode === $this->language): ?> selected="selected"<?php endif; ?>>
                 <?= $languageName ?>

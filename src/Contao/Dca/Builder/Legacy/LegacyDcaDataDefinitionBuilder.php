@@ -1331,6 +1331,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         foreach ($propInfo as $key => $value) {
             switch ($key) {
                 case 'label':
+                    if (null === $value) {
+                        $value = '';
+                    }
+                    assert(is_string($value) || is_array($value));
                     $this->parseSinglePropertyLabel($property, $value);
                     break;
 

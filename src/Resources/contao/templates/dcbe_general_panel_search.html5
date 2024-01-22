@@ -1,5 +1,9 @@
+<?php
+$translator   = \Contao\System::getContainer()->get('translator');
+assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+?>
 <div class="tl_search tl_subpanel <?= $this->rowClass ?>">
-    <strong><?= $GLOBALS['TL_LANG']['MSC']['search'] ?>:</strong>
+    <strong><?= $translator->trans(id: 'search', domain: 'dc-general') ?>:</strong>
     <select name="tl_field" class="<?= $this->class ?>">
         <?php foreach ($this->options as $arrOption): ?>
             <option value="<?= $arrOption['value'] ?>"<?= $arrOption['attributes'] ?>><?= $arrOption['content'] ?></option>

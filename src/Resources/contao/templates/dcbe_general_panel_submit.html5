@@ -1,4 +1,11 @@
+<?php
+$translator   = \Contao\System::getContainer()->get('translator');
+assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+
+$apply = $translator->trans(id: 'apply', domain: 'dc-general');
+$reset = $translator->trans(id: 'reset', domain: 'dc-general');
+?>
 <div class="tl_submit_panel tl_subpanel <?= $this->rowClass ?>">
-    <button name="filter" id="filter" class="tl_img_submit filter_apply" title="<?= $GLOBALS['TL_LANG']['MSC']['apply'] ?>"><?= $GLOBALS['TL_LANG']['MSC']['apply'] ?></button>
-    <button name="filter_reset" id="filter_reset" value="1" class="tl_img_submit filter_reset" title="<?= $GLOBALS['TL_LANG']['MSC']['reset'] ?>"><?= $GLOBALS['TL_LANG']['MSC']['reset'] ?></button>
+    <button name="filter" id="filter" class="tl_img_submit filter_apply" title="<?= $apply ?>"><?= $apply ?></button>
+    <button name="filter_reset" id="filter_reset" value="1" class="tl_img_submit filter_reset" title="<?= $reset ?>"><?= $reset ?></button>
 </div>

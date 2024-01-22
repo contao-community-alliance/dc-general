@@ -41,7 +41,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
-use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
+use InvalidArgumentException;
 use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -53,6 +54,12 @@ use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_filter;
+use function define;
+use function explode;
+use function is_array;
 
 /**
  * Handles the backend tree.
@@ -138,6 +145,16 @@ class BackendTreeController implements ContainerAwareInterface
         return $currentRequest;
     }
 
+    private function getTranslator(): TranslatorInterface
+    {
+        $container = $this->container;
+        assert($container instanceof SymfonyContainerInterface);
+        $translator = $container->get('translator');
+        assert($translator instanceof TranslatorInterface);
+
+        return  $translator;
+    }
+
     /**
      * Run the controller and parse get the response template.
      *
@@ -145,7 +162,7 @@ class BackendTreeController implements ContainerAwareInterface
      *
      * @return Response
      *
-     * @throws \InvalidArgumentException No picker was given here.
+     * @throws InvalidArgumentException No picker was given here.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
@@ -160,13 +177,22 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('theme', Backend::getTheme())
             ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
-            ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker'] ?? ''))
+            ->set(
+                'title',
+                StringUtil::specialchars(
+                    $this->getTranslator()->trans(
+                        'treepicker',
+                        ['%table%' => $treeSelector->foreignTable],
+                        'dc-general'
+                    )
+                )
+            )
             ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
             ->set('addSearch', $treeSelector->searchField)
-            ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
+            ->set('search', $this->getTranslator()->trans('search', [], 'dc-general'))
             ->set('action', StringUtil::ampersand($request->getUri()))
             ->set('value', $value)
-            ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'] ?? '')
+            ->set('manager', $this->getTranslator()->trans('treepickerManager', [], 'dc-general'))
             ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'] ?? '');
 
         return $template->getResponse();
@@ -179,7 +205,7 @@ class BackendTreeController implements ContainerAwareInterface
      *
      * @return Response
      *
-     * @throws \InvalidArgumentException No picker was given here.
+     * @throws InvalidArgumentException No picker was given here.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
@@ -188,7 +214,7 @@ class BackendTreeController implements ContainerAwareInterface
         [, $treeSelector] = $this->getTemplateData($request);
 
         $message = '<stong style="display: table; margin: 20px auto;">
-                           The bread crumb method isn´ implement yet.
+                           The bread crumb method isn\'t implement yet.
                     </stong>';
 
         $treeSelector->generatePopup();
@@ -199,11 +225,14 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('theme', Backend::getTheme())
             ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
-            ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
-            ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
-            ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
+            ->set(
+                'title',
+                StringUtil::specialchars($this->getTranslator()->trans('treepickerManager', [], 'dc-general'))
+            )
+            ->set('charset', $this->getTranslator()->trans('characterSet', [], 'dc-general'))
+            ->set('search', $this->getTranslator()->trans('search', [], 'dc-general'))
             ->set('action', StringUtil::ampersand($request->getUri()))
-            ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager']);
+            ->set('manager', $this->getTranslator()->trans('treepickerManager', [], 'dc-general'));
 
         return $template->getResponse();
     }
@@ -215,7 +244,7 @@ class BackendTreeController implements ContainerAwareInterface
      *
      * @return Response
      *
-     * @throws \InvalidArgumentException No picker was given here.
+     * @throws InvalidArgumentException No picker was given here.
      */
     private function runBackendTreeToggle(Request $request)
     {
@@ -254,7 +283,7 @@ class BackendTreeController implements ContainerAwareInterface
         $container = $this->container;
         assert($container instanceof SymfonyContainerInterface);
         $translator = $container->get('cca.translator.contao_translator');
-        assert($translator instanceof TranslatorInterface);
+        assert($translator instanceof CcaTranslator);
 
         $dispatcher = $container->get('event_dispatcher');
         assert($dispatcher instanceof EventDispatcherInterface);
@@ -273,7 +302,7 @@ class BackendTreeController implements ContainerAwareInterface
             $model = $dataProvider->getEmptyModel();
         }
 
-        if (\is_array($value)) {
+        if (is_array($value)) {
             $values = [];
             // Clean keys they have empty value.
             foreach ($value as $index => $val) {
@@ -355,7 +384,7 @@ class BackendTreeController implements ContainerAwareInterface
      *
      * @return TreePicker
      *
-     * @throws \InvalidArgumentException If invalid characters in the data provider name or property name.
+     * @throws InvalidArgumentException If invalid characters in the data provider name or property name.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
@@ -364,11 +393,11 @@ class BackendTreeController implements ContainerAwareInterface
         $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
         if (Validator::isInsecurePath($table = $modelId->getDataProviderName())) {
-            throw new \InvalidArgumentException('The table name contains invalid characters');
+            throw new InvalidArgumentException('The table name contains invalid characters');
         }
 
         if (Validator::isInsecurePath($field = $picker->getConfig()->getExtra('propertyName'))) {
-            throw new \InvalidArgumentException('The field name contains invalid characters');
+            throw new InvalidArgumentException('The field name contains invalid characters');
         }
 
         $container = $this->container;
@@ -381,10 +410,10 @@ class BackendTreeController implements ContainerAwareInterface
         assert($sessionBag instanceof AttributeBagInterface);
 
         // Define the current ID.
-        \define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
+        define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
 
         $translator = $container->get('cca.translator.contao_translator');
-        assert($translator instanceof TranslatorInterface);
+        assert($translator instanceof CcaTranslator);
 
         $dispatcher = $container->get('event_dispatcher');
         assert($dispatcher instanceof EventDispatcherInterface);
@@ -417,7 +446,7 @@ class BackendTreeController implements ContainerAwareInterface
             Widget::getAttributesFromDca(
                 $information,
                 $field,
-                \array_filter(\explode(',', $picker->getConfig()->getValue())),
+                array_filter(explode(',', $picker->getConfig()->getValue())),
                 $field,
                 $table,
                 $dcCompat
