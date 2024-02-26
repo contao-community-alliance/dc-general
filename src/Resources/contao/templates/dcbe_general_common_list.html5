@@ -4,14 +4,17 @@ use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 $requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$translator   = \System::getContainer()->get('translator');
+assert($translator instanceof TranslatorInterface);
 ?>
 <?php $this->block('messages'); ?>
 <?= $this->getMessages(); ?>
 <?php if ($this->info): ?>
     <div class="tl_message">
-        <p class="tl_info"><?php echo \implode('<br />', $this->info); ?></p>
+        <p class="tl_info"><?= \implode('<br />', $this->info) ?></p>
     </div>
 <?php endif; ?>
 <?php $this->endblock(); ?>
@@ -29,7 +32,7 @@ $requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDe
                     <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline != "") ? " - " . $this->languageHeadline : "" ?></h2>
                 <?php endif; ?>
                 <div class="tl_select_trigger">
-                    <label for="tl_select_trigger" class="tl_select_label"><?= $GLOBALS['TL_LANG']['MSC']['selectAll'] ?></label>
+                    <label for="tl_select_trigger" class="tl_select_label"><?= $translator->trans(id: 'selectAll', domain: 'dc-general') ?></label>
                     <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
                 </div>
             <?php endif; ?>
@@ -54,7 +57,7 @@ $requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDe
             <?php $this->endblock(); ?>
             <?php $this->block('empty'); ?>
             <?php if ($this->collection->length() < 1) : ?>
-                <p class="tl_empty"><?= $GLOBALS['TL_LANG']['MSC']['noResult'] ?></p>
+                <p class="tl_empty"><?= $translator->trans(id: 'noResult', domain: 'dc-general') ?></p>
             <?php endif; ?>
             <?php $this->endblock(); ?>
             <?php $this->block('body'); ?>

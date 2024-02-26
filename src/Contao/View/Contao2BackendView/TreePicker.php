@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Kim Wormer <hallo@heartcodiert.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -78,6 +78,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
  *
  * @property array{fields: list<string>, format: string, maxCharacters: int}|null $itemLabel
  * @property string $searchField
+ * @property string $foreignTable
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.TooManyFields)
@@ -153,13 +154,6 @@ class TreePicker extends Widget
      * @var string
      */
     protected $titleIcon = 'system/themes/flexible/icons/pagemounts.svg';
-
-    /**
-     * The title to display.
-     *
-     * @var string
-     */
-    protected $title = '';
 
     /**
      * The data container for the item source.
@@ -645,9 +639,12 @@ class TreePicker extends Widget
             /** @psalm-suppress PropertyNotSetInConstructor */
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
-            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', null, [$this->sourceName]))
-            ->set('changeSelection', $translator->translate('MSC.changeSelection'))
-            ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'))
+            ->set(
+                'title',
+                $translator->translate('treePicker', 'dc-general', ['%table%' => $this->sourceName])
+            )
+            ->set('changeSelection', $translator->translate('changeSelection', 'dc-general'))
+            ->set('dragItemsHint', $translator->translate('dragItemsHint', 'dc-general'))
             ->set('fieldType', $this->fieldType)
             ->set('values', $this->renderItemsPlain())
             ->set('label', $this->label)
@@ -871,8 +868,8 @@ class TreePicker extends Widget
             ->set('orderId', $this->orderField)
             ->set('orderName', $this->orderName)
             ->set('orderValue', \implode(',', (array) $this->value))
-            ->set('changeSelection', $translator->translate('MSC.changeSelection'))
-            ->set('dragItemsHint', $translator->translate('MSC.dragItemsHint'));
+            ->set('changeSelection', $translator->translate('changeSelection', 'dc-general'))
+            ->set('dragItemsHint', $translator->translate('dragItemsHint', 'dc-general'));
     }
 
     /**
@@ -909,10 +906,13 @@ class TreePicker extends Widget
             /** @psalm-suppress PropertyNotSetInConstructor */
             ->set('class', ($this->strClass ? ' ' . $this->strClass : ''))
             ->set('icon', $icon->getHtml())
-            ->set('title', $translator->translate($this->title ?: 'MSC.treePicker', null, [$this->sourceName]))
+            ->set(
+                'title',
+                $translator->translate('treePicker', 'dc-general', ['%table%' => $this->sourceName])
+            )
             ->set('fieldType', $this->fieldType)
-            ->set('resetSelected', $translator->translate('MSC.resetSelected'))
-            ->set('selectAll', $translator->translate('MSC.selectAll'))
+            ->set('resetSelected', $translator->translate('.resetSelected', 'dc-general'))
+            ->set('selectAll', $translator->translate('selectAll', 'dc-general'))
             ->set('values', StringUtil::deserialize($this->varValue, true));
 
         // Create Tree Render with custom root points.
@@ -1500,9 +1500,9 @@ class TreePicker extends Widget
         assert($translator instanceof TranslatorInterface);
 
         if ($model->getMeta($model::SHOW_CHILDREN)) {
-            $toggleTitle = $translator->translate('MSC.collapseNode');
+            $toggleTitle = $translator->translate('collapseNode', 'dc-general');
         } else {
-            $toggleTitle = $translator->translate('MSC.expandNode');
+            $toggleTitle = $translator->translate('expandNode', 'dc-general');
         }
 
         $toggleScript = \sprintf(

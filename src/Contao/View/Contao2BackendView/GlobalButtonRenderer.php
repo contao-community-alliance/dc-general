@@ -176,7 +176,7 @@ class GlobalButtonRenderer
      *
      * @return string
      */
-    private function translate($path)
+    private function translate(string $path): string
     {
         $definition = $this->environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -186,6 +186,6 @@ class GlobalButtonRenderer
             return $value;
         }
 
-        return $this->translator->translate($path);
+        return $this->translator->translate($path, 'dc-general');
     }
 }

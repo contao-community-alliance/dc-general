@@ -283,8 +283,8 @@ class SubscriberTest extends TestCase
     public function widgetCheckBoxReadableDataProvider()
     {
         return [
-            [true, 'MSC.yes'],
-            [false, 'MSC.no']
+            [true, 'yes'],
+            [false, 'no']
         ];
     }
 

@@ -342,8 +342,8 @@ class ContaoWidgetManager
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
             useFadeInOut:!Browser.ie,
-            startDay:' . $translator->translate('MSC.weekOffset', 'contao_default') . ',
-            titleFormat:"' . $translator->translate('MSC.titleFormat', 'contao_default') . '"
+            startDay:' . $translator->translate('weekOffset', 'dc-general') . ',
+            titleFormat:"' . $translator->translate('titleFormat', 'dc-general') . '"
         });';
     }
 

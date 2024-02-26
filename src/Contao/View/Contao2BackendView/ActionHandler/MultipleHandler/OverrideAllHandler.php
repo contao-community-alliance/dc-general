@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -131,8 +131,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             $action,
             [
                 'subHeadline' =>
-                    $translator->translate('MSC.' . $inputProvider->getParameter('mode') . 'Selected') . ': ' .
-                    $translator->translate('MSC.all.0'),
+                    $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
+                    $translator->translate('all_label', 'dc-general'),
                 'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
                 'table'       => $definition->getName(),
                 'error'       => $renderInformation->offsetGet('error'),
@@ -332,7 +332,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         if (empty($fieldSet['palette'])) {
             $fieldSet['palette'] = \sprintf(
                 '<p>&nbsp;</p><strong>%s</strong><p>&nbsp;</p>',
-                $translator->translate('MSC.no_properties_available')
+                $translator->translate('no_properties_available', 'dc-general')
             );
         }
 

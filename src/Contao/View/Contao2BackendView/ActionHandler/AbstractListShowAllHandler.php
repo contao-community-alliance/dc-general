@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -76,8 +76,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
 use function implode;
+use function str_contains;
 use function str_replace;
-use function strpos;
 use function trigger_error;
 
 /**
@@ -280,7 +280,7 @@ abstract class AbstractListShowAllHandler
         return $template
             ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
-            ->set('submit', $this->translator->trans('MSC.showSelected', [], 'contao_default'))
+            ->set('submit', $this->translator->trans('change-language', [], 'dc-general'))
             ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }
@@ -323,20 +323,21 @@ abstract class AbstractListShowAllHandler
         $translated = $this->translator->trans($key, $parameters, $domain);
 
         // Fallback translate for non symfony domain.
-        if ($translated === $key) {
+        if (null !== $domain && $translated === $key && !str_starts_with($domain, 'contao_')) {
             // @codingStandardsIgnoreStart
             @trigger_error(
-                'Fallback translation for contao lang in the global array. ' .
-                'This will remove in the future, use the symfony domain translation.',
+                'Fallback translation for contao lang in the global array for key "' . $key .
+                '" in domain "' . $domain . '". ' .
+                'This will get removed in the future, use the symfony domain translation.',
                 E_USER_DEPRECATED
             );
             // @codingStandardsIgnoreEnd
 
             $translated =
                 $this->translator->trans(
-                    \sprintf('%s.%s', $domain ?? '', $key),
+                    \sprintf('%s.%s', $domain, $key),
                     $parameters,
-                    \sprintf('contao_%s', $domain ?? '')
+                    \sprintf('contao_%s', $domain)
                 );
         }
 
@@ -402,7 +403,7 @@ abstract class AbstractListShowAllHandler
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
         $template
-            ->set('subHeadline', $this->translate('MSC.select_models', 'contao_default'))
+            ->set('subHeadline', $this->translator->trans('select_models', [], 'dc-general'))
             ->set('tableName', ($definition->getName() ?: 'none'))
             ->set('select', 'select' === $provider->getParameter('act'))
             ->set('action', StringUtil::ampersand(Environment::get('request')))
@@ -419,7 +420,7 @@ abstract class AbstractListShowAllHandler
 
         if (
             (null !== $template->get('action'))
-            && (false !== strpos($template->get('action'), 'select=models'))
+            && (str_contains($template->get('action'), 'select=models'))
         ) {
             $template->set('action', str_replace('select=models', 'select=properties', $template->get('action')));
         }

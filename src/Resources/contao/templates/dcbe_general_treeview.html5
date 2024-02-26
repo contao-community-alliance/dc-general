@@ -22,7 +22,7 @@ $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalTreeView.css';
 
     <?php if ($this->select): ?>
         <div class="tl_select_trigger">
-            <label for="tl_select_trigger" class="tl_select_label"><?= $this->translate('MSC.selectAll') ?></label>
+            <label for="tl_select_trigger" class="tl_select_label"><?= $this->translate('selectAll', 'dc-general') ?></label>
             <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
         </div>
     <?php endif; ?>
