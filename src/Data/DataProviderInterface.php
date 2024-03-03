@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,8 @@
  * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -225,7 +226,7 @@ interface DataProviderInterface
      *
      * @param string $field     The field in which to test.
      * @param mixed  $new       The value about to be saved.
-     * @param int    $primaryId The (optional) id of the item currently in scope - pass null for new items.
+     * @param mixed  $primaryId The (optional) id of the item currently in scope - pass null for new items.
      *
      * Documentation:
      *      Evaluation - unique => If true the field value cannot be saved if it exists already.

@@ -237,8 +237,10 @@ class CopyHandler
             ->setQueryParameter('do', $inputProvider->getParameter('do'))
             ->setQueryParameter('table', $copiedModelId->getDataProviderName())
             ->setQueryParameter('act', 'edit')
-            ->setQueryParameter('id', $copiedModelId->getSerialized())
-            ->setQueryParameter('pid', $inputProvider->getParameter('pid'));
+            ->setQueryParameter('id', $copiedModelId->getSerialized());
+        if (null !== ($pid = $inputProvider->getParameter('pid'))) {
+            $urlBuilder->setQueryParameter('pid', $pid);
+        }
 
         $redirectEvent = new RedirectEvent($this->securityUrlBuilder->create($urlBuilder->getUrl())->getUrl());
 
