@@ -6,7 +6,7 @@ $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalTreeView.css';
 ?>
 
 <div class="tl_listing_container tree_view unselectable" id="tl_listing">
-<ul class="tl_listing treepicker_popup tree_view picker_selector <?= $this->class ?>" id="<?= $this->id ?>">
+<ul class="tl_listing treepicker_popup tree_view picker_selector table_<?= $this->tableName ?><?= $this->class ?>" id="<?= $this->id ?>">
     <li class="tl_folder_top">
         <div class="tl_left">
             <?= $this->icon . $this->title ?>

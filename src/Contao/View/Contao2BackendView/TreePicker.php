@@ -19,6 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Kim Wormer <hallo@heartcodiert.de>
+ * @author     Oliver Willmes <info@oliverwillmes.de>
  * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -913,7 +914,8 @@ class TreePicker extends Widget
             ->set('fieldType', $this->fieldType)
             ->set('resetSelected', $translator->translate('.resetSelected', 'dc-general'))
             ->set('selectAll', $translator->translate('selectAll', 'dc-general'))
-            ->set('values', StringUtil::deserialize($this->varValue, true));
+            ->set('values', StringUtil::deserialize($this->varValue, true))
+            ->set('tableName', $this->sourceName);
 
         // Create Tree Render with custom root points.
         $tree = '';
