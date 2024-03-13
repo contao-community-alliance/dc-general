@@ -86,7 +86,7 @@ class DefaultConfig implements ConfigInterface
     /**
      * The properties to retrieve.
      *
-     * @var array|null
+     * @var list<string>|null
      */
     protected $arrFields = null;
 
@@ -327,7 +327,7 @@ class DefaultConfig implements ConfigInterface
     /**
      * Get the list of fields to be retrieved.
      *
-     * @return null|array
+     * @return null|list<string>
      */
     public function getFields()
     {
@@ -337,7 +337,7 @@ class DefaultConfig implements ConfigInterface
     /**
      * Set the list of fields to be retrieved.
      *
-     * @param array $arrFields Array of property names.
+     * @param list<string> $arrFields Array of property names.
      *
      * @return ConfigInterface
      */

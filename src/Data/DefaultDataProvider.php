@@ -594,7 +594,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * The field prefixer.
      *
-     * @param array $fields The fields.
+     * @param list<string> $fields The fields.
      *
      * @return void
      */

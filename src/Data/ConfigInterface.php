@@ -180,7 +180,7 @@ interface ConfigInterface
     /**
      * Set the list of fields to be retrieved.
      *
-     * @param array $arrFields Array of property names.
+     * @param list<string> $arrFields Array of property names.
      *
      * @return ConfigInterface
      */
