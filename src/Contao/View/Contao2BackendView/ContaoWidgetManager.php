@@ -377,9 +377,11 @@ class ContaoWidgetManager
         if (('password' === $widgetType) || !Config::get('showHelp')) {
             return '';
         }
-        $label = (string) ($widget->description
-                           // see vendor/contao/core-bundle/src/Resources/contao/classes/DataContainer.php:817; method help();
-                           ?? $this->translator->trans($property . '.label.1', [], $definition->getName())
+        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        $label = (string) (
+            $widget->description
+            // see vendor/contao/core-bundle/src/Resources/contao/classes/DataContainer.php:817; method help();
+            ?: $this->translator->trans($property . '.label.1', [], $definition->getName())
         );
 
         return '<p class="tl_help tl_tip">' . $label . '</p>';

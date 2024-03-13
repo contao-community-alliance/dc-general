@@ -25,6 +25,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
 use Contao\StringUtil;
+use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -130,7 +131,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return;
         }
 
-        $widget = (new static($event->getEnvironment()))->buildWidget($event->getProperty(), $event->getModel());
+        $translator = System::getContainer()->get('translator');
+        assert($translator instanceof TranslatorInterface);
+
+        $widget =
+            (new static($event->getEnvironment(), $translator))->buildWidget($event->getProperty(), $event->getModel());
         assert($widget instanceof Widget);
 
         $event->setWidget($widget);

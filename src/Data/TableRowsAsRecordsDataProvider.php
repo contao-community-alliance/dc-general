@@ -212,7 +212,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @param string $field     Unused.
      * @param mixed  $new       Unused.
-     * @param int    $primaryId Unused.
+     * @param mixed  $primaryId Unused.
      *
      * @return never
      *
