@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -47,8 +47,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
-use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Widget Builder build Contao backend widgets.
@@ -75,6 +76,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
     private EnvironmentInterface $environment;
 
     /**
+     * The translator.
+     *
+     * @var TranslatorInterface
+     */
+    protected TranslatorInterface $translator;
+
+    /**
      * Mapping list of widget types where the DC General has it own widgets.
      *
      * @var array
@@ -93,12 +101,16 @@ class WidgetBuilder implements EnvironmentAwareInterface
      * Construct.
      *
      * @param EnvironmentInterface          $environment       The environment.
-     *
+     * @param TranslatorInterface           $translator        The translator.
      * @param RequestScopeDeterminator|null $scopeDeterminator The request mode determinator.
      */
-    public function __construct(EnvironmentInterface $environment, RequestScopeDeterminator $scopeDeterminator = null)
-    {
+    public function __construct(
+        EnvironmentInterface $environment,
+        TranslatorInterface $translator,
+        RequestScopeDeterminator $scopeDeterminator = null
+    ) {
         $this->environment = $environment;
+        $this->translator  = $translator;
 
         if (null !== $scopeDeterminator) {
             static::$scopeDeterminator = $scopeDeterminator;
@@ -237,36 +249,36 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $defName = $definition->getName();
 
-        $translator = $environment->getTranslator();
-        assert($translator instanceof TranslatorInterface);
+        $ccaTranslator = $environment->getTranslator();
+        assert($ccaTranslator instanceof CcaTranslator);
 
         $urlEvent = new AddToUrlEvent('key=table');
 
         $importTableEvent = new GenerateHtmlEvent(
             'tablewizard.svg',
-            $translator->translate('importTable.0', $defName),
+            $ccaTranslator->translate('importTable.0', $defName),
             'style="vertical-align:text-bottom;"'
         );
 
         $shrinkEvent = new GenerateHtmlEvent(
             'demagnify.svg',
-            $translator->translate('shrink.0', $defName),
+            $ccaTranslator->translate('shrink.0', $defName),
             \sprintf(
                 'title="%s" ' .
                 'style="vertical-align:text-bottom; cursor:pointer;" ' .
                 'onclick="Backend.tableWizardResize(0.9);"',
-                StringUtil::specialchars($translator->translate('shrink.1', $defName))
+                StringUtil::specialchars($ccaTranslator->translate('shrink.1', $defName))
             )
         );
 
         $expandEvent = new GenerateHtmlEvent(
             'magnify.svg',
-            $translator->translate('expand.0', $defName),
+            $ccaTranslator->translate('expand.0', $defName),
             \sprintf(
                 'title="%s" ' .
                 'style="vertical-align:text-bottom; cursor:pointer;" ' .
                 'onclick="Backend.tableWizardResize(1.1);"',
-                StringUtil::specialchars($translator->translate('expand.1', $defName))
+                StringUtil::specialchars($ccaTranslator->translate('expand.1', $defName))
             )
         );
 
@@ -278,7 +290,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
             StringUtil::ampersand($urlEvent->getUrl()),
-            StringUtil::specialchars($translator->translate('importTable.1', $defName)),
+            StringUtil::specialchars($ccaTranslator->translate('importTable.1', $defName)),
             $importTableEvent->getHtml() ?? '',
             $shrinkEvent->getHtml() ?? '',
             $expandEvent->getHtml() ?? ''
@@ -302,14 +314,14 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $defName = $definition->getName();
 
-        $translator = $environment->getTranslator();
-        assert($translator instanceof TranslatorInterface);
+        $ccaTranslator = $environment->getTranslator();
+        assert($ccaTranslator instanceof CcaTranslator);
 
         $urlEvent = new AddToUrlEvent('key=list');
 
         $importListEvent = new GenerateHtmlEvent(
             'tablewizard.svg',
-            $translator->translate('importList.0', $defName),
+            $ccaTranslator->translate('importList.0', $defName),
             'style="vertical-align:text-bottom;"'
         );
 
@@ -319,7 +331,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         return \sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
             StringUtil::ampersand($urlEvent->getUrl()),
-            StringUtil::specialchars($translator->translate('importList.1', $defName)),
+            StringUtil::specialchars($ccaTranslator->translate('importList.1', $defName)),
             $importListEvent->getHtml() ?? ''
         );
     }
@@ -333,19 +345,19 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     protected function getXLabel($propInfo)
     {
-        $xLabel      = '';
-        $environment = $this->getEnvironment();
-        $translator  = $environment->getTranslator();
-        assert($translator instanceof TranslatorInterface);
+        $xLabel        = '';
+        $environment   = $this->getEnvironment();
+        $ccaTranslator = $environment->getTranslator();
+        assert($ccaTranslator instanceof CcaTranslator);
 
         // Toggle line wrap (textarea).
         if (('textarea' === $propInfo->getWidgetType()) && !\array_key_exists('rte', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'wrap.svg',
-                $translator->translate('wordWrap', 'dc-general'),
+                $ccaTranslator->translate('wordWrap', 'dc-general'),
                 \sprintf(
                     'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
-                    StringUtil::specialchars($translator->translate('wordWrap', 'dc-general')),
+                    StringUtil::specialchars($ccaTranslator->translate('wordWrap', 'dc-general')),
                     $propInfo->getName()
                 )
             );
@@ -382,16 +394,16 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     protected function getHelpWizard($propInfo)
     {
-        $helpWizard  = '';
-        $environment = $this->getEnvironment();
-        $translator  = $environment->getTranslator();
-        assert($translator instanceof TranslatorInterface);
+        $helpWizard    = '';
+        $environment   = $this->getEnvironment();
+        $ccaTranslator = $environment->getTranslator();
+        assert($ccaTranslator instanceof CcaTranslator);
 
         // Add the help wizard.
         if ($propInfo->getExtra() && \array_key_exists('helpwizard', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'about.svg',
-                $translator->translate('helpWizard', 'dc-general'),
+                $ccaTranslator->translate('helpWizard', 'dc-general'),
                 'style="vertical-align:text-bottom;"'
             );
 
@@ -409,7 +421,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
                 $definition->getName(),
                 $propInfo->getName(),
-                StringUtil::specialchars($translator->translate('helpWizard', 'dc-general')),
+                StringUtil::specialchars($ccaTranslator->translate('helpWizard', 'dc-general')),
                 $event->getHtml() ?? ''
             );
         }
@@ -532,8 +544,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $widgetConfig = [
             'inputType' => $property->getWidgetType(),
             'label'     => [
-                $property->getLabel(),
-                $property->getDescription()
+                $this->translator->trans($property->getLabel(), [], $defName),
+                $this->translator->trans($property->getDescription(), [], $defName),
             ],
             'options'   => $this->getOptionsForWidget($property, $model),
             'eval'      => $propExtra,

@@ -4,6 +4,7 @@ services:
         public: true
         arguments:
             - "@cca.dc-general.environment"
+            - "@translator"
             - "@cca.dc-general.scope-matcher"
         tags:
             -   name: kernel.event_listener

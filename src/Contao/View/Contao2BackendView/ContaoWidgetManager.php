@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,6 +27,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
+use Contao\Config;
 use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
 use Contao\Date;
 use Contao\Input;
@@ -48,8 +49,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
-use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Class ContaoWidgetManager.
@@ -86,6 +87,13 @@ class ContaoWidgetManager
     protected $model;
 
     /**
+     * The translator.
+     *
+     * @var TranslatorInterface
+     */
+    protected TranslatorInterface $translator;
+
+    /**
      * Create a new instance.
      *
      * @param EnvironmentInterface $environment The environment in use.
@@ -97,8 +105,11 @@ class ContaoWidgetManager
         $this->model       = $model;
         $framework         = System::getContainer()->get('contao.framework');
         assert($framework instanceof ContaoFrameworkInterface);
+        $translator = System::getContainer()->get('translator');
+        assert($translator instanceof TranslatorInterface);
 
-        $this->framework = $framework;
+        $this->framework  = $framework;
+        $this->translator = $translator;
     }
 
     /**
@@ -318,8 +329,8 @@ class ContaoWidgetManager
      */
     protected function buildDatePicker($objWidget)
     {
-        $translator = $this->getEnvironment()->getTranslator();
-        assert($translator instanceof TranslatorInterface);
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
 
         $strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
@@ -342,8 +353,8 @@ class ContaoWidgetManager
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
             useFadeInOut:!Browser.ie,
-            startDay:' . $translator->translate('weekOffset', 'dc-general') . ',
-            titleFormat:"' . $translator->translate('titleFormat', 'dc-general') . '"
+            startDay:' . $this->translator->trans('weekOffset', [], $definition->getName()) . ',
+            titleFormat:"' . $this->translator->trans('titleFormat', [], $definition->getName()) . '"
         });';
     }
 
@@ -357,21 +368,19 @@ class ContaoWidgetManager
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    protected function generateHelpText($property)
+    protected function generateHelpText($property, Widget $widget)
     {
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $propInfo   = $definition->getPropertiesDefinition()->getProperty($property);
-        $label      = $propInfo->getDescription();
-        $widgetType = $propInfo->getWidgetType();
-
-        if (
-            ('password' === $widgetType)
-            || !$GLOBALS['TL_CONFIG']['showHelp']
-        ) {
+        $widgetType = $definition->getPropertiesDefinition()->getProperty($property)->getWidgetType();
+        if (('password' === $widgetType) || !Config::get('showHelp')) {
             return '';
         }
+        $label = (string) ($widget->description
+                           // see vendor/contao/core-bundle/src/Resources/contao/classes/DataContainer.php:817; method help();
+                           ?? $this->translator->trans($property . '.label.1', [], $definition->getName())
+        );
 
         return '<p class="tl_help tl_tip">' . $label . '</p>';
     }
@@ -415,7 +424,7 @@ class ContaoWidgetManager
             ->set('strDatepicker', $isHideInput ? null : $this->getDatePicker($propInfo->getExtra(), $widget))
             // We used the var blnUpdate before.
             ->set('blnUpdate', false)
-            ->set('strHelp', $isHideInput ? null : $this->generateHelpText($property))
+            ->set('strHelp', $isHideInput ? null : $this->generateHelpText($property, $widget))
             ->set('strId', $widget->id)
             ->set('isHideInput', $isHideInput)
             ->set('hiddenName', $widget->name)
@@ -573,7 +582,7 @@ class ContaoWidgetManager
     ) {
         if (
             !(!$ignoreErrors && $inputValues && $inputValues->hasPropertyValue($property)
-            && $inputValues->isPropertyValueInvalid($property))
+              && $inputValues->isPropertyValueInvalid($property))
         ) {
             return;
         }
