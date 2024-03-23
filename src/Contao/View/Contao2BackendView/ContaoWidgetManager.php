@@ -329,9 +329,6 @@ class ContaoWidgetManager
      */
     protected function buildDatePicker($objWidget)
     {
-        $definition = $this->getEnvironment()->getDataDefinition();
-        assert($definition instanceof ContainerInterface);
-
         $strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
         switch ($objWidget->rgxp) {
@@ -342,6 +339,7 @@ class ContaoWidgetManager
             case 'time':
                 $time = ",\n      pickOnly:\"time\"";
                 break;
+
             default:
                 $time = '';
         }
@@ -353,8 +351,8 @@ class ContaoWidgetManager
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
             useFadeInOut:!Browser.ie,
-            startDay:' . $this->translator->trans('weekOffset', [], $definition->getName()) . ',
-            titleFormat:"' . $this->translator->trans('titleFormat', [], $definition->getName()) . '"
+            startDay:' . $this->translator->trans('weekOffset', [], 'dc-general') . ',
+            titleFormat:"' . $this->translator->trans('titleFormat', [], 'dc-general') . '"
         });';
     }
 
@@ -381,7 +379,7 @@ class ContaoWidgetManager
         $label = (string) (
             $widget->description
             // see vendor/contao/core-bundle/src/Resources/contao/classes/DataContainer.php:817; method help();
-            ?: $this->translator->trans($property . '.label.1', [], $definition->getName())
+            ?: $this->translator->trans($property . '.description', [], $definition->getName())
         );
 
         return '<p class="tl_help tl_tip">' . $label . '</p>';
