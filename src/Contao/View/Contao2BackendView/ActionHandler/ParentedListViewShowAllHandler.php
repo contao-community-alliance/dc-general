@@ -232,9 +232,15 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function translateHeaderColumnName($field, $parentName)
     {
+        // New way via symfony translator.
+        if ($field . '.label' !== ($header = $this->translate($field . '.label', $parentName))) {
+            return $header;
+        }
+        // FIXME: deprecation here? - old translation handling.
+
         return ('tstamp' === $field)
-            ? $this->translate('tstamp', 'dc-general')
-            : $this->translate(\sprintf('%s.0', $field), $parentName);
+            ? $this->translate('tstamp', 'contao_dc-general')
+            : $this->translate(\sprintf('%s.0', $field), 'contao_' . $parentName);
     }
 
     /**
@@ -294,8 +300,8 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $isRendered = true;
 
         return !empty($value)
-            ? $this->translate('yes', 'dc-general')
-            : $this->translate('no', 'dc-general');
+            ? $this->translate('yes', 'contao_dc-general')
+            : $this->translate('no', 'contao_dc-general');
     }
 
     /**
@@ -462,7 +468,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'edit.svg',
-                $this->translate('editheader.0', $parentDefinition->getName())
+                $this->translateButtonLabel('editheader', $parentDefinition->getName())
             ),
             ContaoEvents::IMAGE_GET_HTML
         );
@@ -478,7 +484,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlAfter->getUrl(),
             StringUtil::specialchars(
-                \sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())
+                \sprintf($this->translateButtonDescription('editheader', $parentDefinition->getName()), $parentModel->getId())
             ),
             $imageEvent->getHtml() ?? ''
         );

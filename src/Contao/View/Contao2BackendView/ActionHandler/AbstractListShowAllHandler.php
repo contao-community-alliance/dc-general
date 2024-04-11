@@ -344,6 +344,28 @@ abstract class AbstractListShowAllHandler
         return $translated;
     }
 
+    protected function translateButtonLabel(string $buttonName, $definitionName): string
+    {
+        // New way via symfony translator.
+        if ($buttonName . '.label' !== ($header = $this->translate($buttonName . '.label', $definitionName))) {
+            return $header;
+        }
+
+        // FIXME: Fallback to legacy translator.
+        return $this->translate($buttonName . '.0', $definitionName);
+    }
+
+    protected function translateButtonDescription(string $buttonName, $definitionName): string
+    {
+        // New way via symfony translator.
+        if ($buttonName . '.description' !== ($header = $this->translate($buttonName . '.description', $definitionName))) {
+            return $header;
+        }
+
+        // FIXME: Fallback to legacy translator.
+        return $this->translate($buttonName . '.1', $definitionName);
+    }
+
     /**
      * Render a model.
      *

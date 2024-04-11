@@ -27,6 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a search panel element.
@@ -174,15 +175,14 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         assert($definition instanceof ContainerInterface);
 
         $options = [];
-
+        $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+        $properties = $definition->getPropertiesDefinition();
         foreach ($this->getPropertyNames() as $field) {
-            $lLabels   = $definition
-                ->getPropertiesDefinition()
-                ->getProperty($field)
-                ->getLabel();
+            $label   = $translator->translate($properties->getProperty($field)->getLabel(), $definition->getName());
             $options[] = [
                 'value'      => $field,
-                'content'    => $lLabels,
+                'content'    => $label,
                 'attributes' => ($field === $this->getSelectedProperty()) ? ' selected' : ''
             ];
         }

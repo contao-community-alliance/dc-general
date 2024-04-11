@@ -1332,7 +1332,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             switch ($key) {
                 case 'label':
                     if (null === $value) {
-                        $value = '';
+                        $value = 'LABEL NOT SET: ' . $property->getName();
                     }
                     assert(is_string($value) || is_array($value));
                     $this->parseSinglePropertyLabel($property, $value);
