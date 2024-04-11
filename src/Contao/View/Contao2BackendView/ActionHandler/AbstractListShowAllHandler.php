@@ -358,7 +358,10 @@ abstract class AbstractListShowAllHandler
     protected function translateButtonDescription(string $buttonName, $definitionName): string
     {
         // New way via symfony translator.
-        if ($buttonName . '.description' !== ($header = $this->translate($buttonName . '.description', $definitionName))) {
+        if (
+            $buttonName . '.description'
+            !== ($header = $this->translate($buttonName . '.description', $definitionName))
+        ) {
             return $header;
         }
 
