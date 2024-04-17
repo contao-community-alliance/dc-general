@@ -43,13 +43,13 @@
                 <target>Abbrechen</target>
             </segment>
         </unit>
-        <unit id="closeAll_label" name="closeAll_label">
+        <unit id="closeAll.label" name="closeAll.label">
             <segment>
                 <source>Cancel</source>
                 <target>Beenden</target>
             </segment>
         </unit>
-        <unit id="closeAll_description" name="closeAll_description">
+        <unit id="closeAll.description" name="closeAll.description">
             <segment>
                 <source>Cancel multiple processing.</source>
                 <target>Die Mehrfachbearbeitung beenden.</target>
@@ -449,6 +449,12 @@
                 <target>Ablage leeren</target>
             </segment>
         </unit>
+      <unit id="removeClipboardItem" name="removeClipboardItem">
+        <segment>
+          <source>Remove this item from clipboard</source>
+          <target>Element von Ablage entfernen</target>
+        </segment>
+      </unit>
         <unit id="noResult" name="noResult">
             <segment>
                 <source>No records found.</source>

@@ -502,8 +502,8 @@ class SelectHandler
 
         $closeCommand
             ->setName('close_all_button')
-            ->setLabel('closeAll_label')
-            ->setDescription('closeAll_description')
+            ->setLabel('closeAll.label')
+            ->setDescription('closeAll.description')
             ->setParameters(new ArrayObject())
             ->setExtra(new ArrayObject($closeExtra))
             ->setDisabled(false);

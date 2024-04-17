@@ -557,7 +557,16 @@ class WidgetBuilder implements EnvironmentAwareInterface
         ];
 
         if (isset($propExtra['reference'])) {
-            $widgetConfig['reference'] = $propExtra['reference'];
+            $references = [];
+            foreach ($propExtra['reference'] as $refName => $refLabelKey) {
+                if (!is_string($refLabelKey)) {
+                    $references[$refName] = $refName;
+                    continue;
+                }
+                $references[$refName] = $this->translator->trans($refLabelKey, [], $defName);
+            }
+            $widgetConfig['reference'] = $references;
+            unset($references, $refName, $refLabelKey);
         }
 
         $event = new GetAttributesFromDcaEvent(

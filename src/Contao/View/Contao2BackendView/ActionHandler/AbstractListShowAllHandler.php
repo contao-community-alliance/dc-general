@@ -344,29 +344,27 @@ abstract class AbstractListShowAllHandler
         return $translated;
     }
 
-    protected function translateButtonLabel(string $buttonName, $definitionName): string
+    protected function translateButtonLabel(string $buttonName, string $definitionName, array $parameter = []): string
     {
         // New way via symfony translator.
-        if ($buttonName . '.label' !== ($header = $this->translate($buttonName . '.label', $definitionName))) {
+        if ($buttonName . '.label' !== ($header = $this->translate($buttonName . '.label', $definitionName, $parameter))) {
             return $header;
         }
 
-        // FIXME: Fallback to legacy translator.
-        return $this->translate($buttonName . '.0', $definitionName);
+        return $this->translate($buttonName . '.0', $definitionName, $parameter);
     }
 
-    protected function translateButtonDescription(string $buttonName, $definitionName): string
+    protected function translateButtonDescription(string $buttonName, string $definitionName, array $parameter = []): string
     {
         // New way via symfony translator.
         if (
             $buttonName . '.description'
-            !== ($header = $this->translate($buttonName . '.description', $definitionName))
+            !== ($header = $this->translate($buttonName . '.description', $definitionName, $parameter))
         ) {
             return $header;
         }
 
-        // FIXME: Fallback to legacy translator.
-        return $this->translate($buttonName . '.1', $definitionName);
+        return $this->translate($buttonName . '.1', $definitionName, $parameter);
     }
 
     /**
@@ -775,7 +773,7 @@ abstract class AbstractListShowAllHandler
             ),
             ContaoEvents::BACKEND_ADD_TO_URL
         );
-
+dump('renderPasteTopButton');
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(

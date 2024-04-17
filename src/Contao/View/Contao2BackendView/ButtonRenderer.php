@@ -55,6 +55,18 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use function array_filter;
+use function array_merge;
+use function array_values;
+use function implode;
+use function in_array;
+use function is_string;
+use function ltrim;
+use function sprintf;
+use function strlen;
+use function strrpos;
+use function substr_replace;
+use function trim;
 
 /**
  * This class is a helper for rendering the operation buttons in the views.
@@ -147,7 +159,8 @@ class ButtonRenderer
         $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems  = \array_values(\array_filter(
+        $cutItems  = array_values(
+            array_filter(
             $this->clipboardItems,
             static fn (ItemInterface $item): bool => $item->getAction() === $item::CUT
         ));
@@ -196,7 +209,7 @@ class ButtonRenderer
         $modelId = ModelId::fromModel($model)->getSerialized();
 
         if ($this->clipboardItems) {
-            $isCircular = \in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
+            $isCircular = in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
         } else {
             $isCircular = false;
         }
@@ -214,8 +227,8 @@ class ButtonRenderer
 
         // Add paste into/after icons.
         if ($this->hasPasteButtons()) {
-            $urlAfter = $this->addToUrl(\sprintf('act=paste&after=%s&', $modelId));
-            $urlInto  = $this->addToUrl(\sprintf('act=paste&into=%s&', $modelId));
+            $urlAfter = $this->addToUrl(sprintf('act=paste&after=%s&', $modelId));
+            $urlInto  = $this->addToUrl(sprintf('act=paste&into=%s&', $modelId));
 
 
             $buttonEvent = new GetPasteButtonEvent($this->environment);
@@ -244,7 +257,7 @@ class ButtonRenderer
 
         $model->setMeta(
             $model::OPERATION_BUTTONS,
-            \implode(' ', $buttons)
+            implode(' ', $buttons)
         );
     }
 
@@ -312,14 +325,14 @@ class ButtonRenderer
         $attributes = '';
 
         if (!empty($extra['attributes'])) {
-            $attributes .= \sprintf($extra['attributes'], $model->getID());
+            $attributes .= sprintf($extra['attributes'], $model->getID());
         }
         $icon = $extra['icon'];
 
         if ($command instanceof ToggleCommandInterface) {
             $iconDisabled = ($extra['icon_disabled'] ?? 'invisible.svg');
 
-            $attributes .= \sprintf(
+            $attributes .= sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
                 Controller::addStaticUrlTo(System::urlEncode($icon)),
                 Controller::addStaticUrlTo(System::urlEncode($iconDisabled))
@@ -337,7 +350,7 @@ class ButtonRenderer
             ->setObjModel($model)
             ->setAttributes($attributes)
             ->setLabel($this->getCommandLabel($command))
-            ->setTitle(\sprintf($this->translate($command->getDescription()), $model->getID()))
+            ->setTitle(sprintf($this->translate($command->getDescription()), $model->getID()))
             ->setHref($this->calculateHref($command, $model))
             ->setChildRecordIds($childIds)
             ->setCircularReference($isCircularReference)
@@ -348,7 +361,7 @@ class ButtonRenderer
 
         if (null !== ($html = $buttonEvent->getHtml())) {
             // If the event created a button, use it.
-            return \trim($html);
+            return trim($html);
         }
 
         if ($buttonEvent->isDisabled()) {
@@ -359,13 +372,13 @@ class ButtonRenderer
                 if ($icon !== Image::getPath($icon)) {
                     $iconDisabledSuffix = '_';
                 }
-                $icon = \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.') ?: \strlen($icon), 0);
+                $icon = substr_replace($icon, $iconDisabledSuffix, strrpos($icon, '.') ?: strlen($icon), 0);
             }
 
             return $this->renderImageAsHtml(
                 $icon,
                 $buttonEvent->getLabel(),
-                \sprintf(
+                sprintf(
                     'title="%s" class="%s"',
                     StringUtil::specialchars($this->translator->translate(
                         'dc_general_disabled',
@@ -377,12 +390,12 @@ class ButtonRenderer
             );
         }
 
-        return \sprintf(
+        return sprintf(
             ' <a class="%s" href="%s" title="%s" %s>%s</a>',
             $command->getName(),
             $buttonEvent->getHref() ?? '',
             StringUtil::specialchars($buttonEvent->getTitle()),
-            \ltrim($buttonEvent->getAttributes()),
+            ltrim($buttonEvent->getAttributes()),
             $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
         );
     }
@@ -409,7 +422,7 @@ class ButtonRenderer
             }
         }
 
-        return \array_merge($ids, ...$childIds);
+        return array_merge($ids, ...$childIds);
     }
 
     /**
@@ -463,10 +476,17 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderPasteNewFor($modelId)
+    private function renderPasteNewFor(string $modelId): string
     {
-        $label = \sprintf($this->translate('pastenew.1'), ModelId::fromSerialized($modelId)->getId());
-        return \sprintf(
+        $definitionName = $this->environment->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
+        $label = $this->translateButtonDescription(
+            'pastenew',
+            $definitionName,
+            ['%id%' => ModelId::fromSerialized($modelId)->getId()]
+        );
+
+        return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
             StringUtil::specialchars($label),
@@ -487,7 +507,10 @@ class ButtonRenderer
             return $value;
         }
 
-        $label = $this->translate('pasteinto.0');
+        $definitionName = $event->getEnvironment()->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
+
+        $label = $this->translateButtonLabel('pasteinto', $definitionName);
         if ($event->isPasteIntoDisabled()) {
             return $this->renderImageAsHtml('pasteinto_.svg', $label, 'class="blink"');
         }
@@ -495,13 +518,9 @@ class ButtonRenderer
         $model = $event->getModel();
         assert($model instanceof ModelInterface);
 
-        if ('pasteinto.1' !== ($opDesc = $this->translate('pasteinto.1'))) {
-            $title = \sprintf($opDesc, $model->getId());
-        } else {
-            $title = \sprintf('%s id %s', $label, $model->getId());
-        }
+        $title = $this->translateButtonDescription('pasteinto', $definitionName, ['%id%' => $model->getId()]);
 
-        return \sprintf(
+        return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefInto() ?? '',
             StringUtil::specialchars($title),
@@ -522,21 +541,18 @@ class ButtonRenderer
             return $value;
         }
 
-        $label = $this->translate('pasteafter.0');
-        if ($event->isPasteAfterDisabled()) {
-            return $this->renderImageAsHtml('pasteafter_.svg', $label, 'class="blink"');
-        }
-
+        $definitionName = $event->getEnvironment()->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
         $model = $event->getModel();
         assert($model instanceof ModelInterface);
 
-        if ('pasteafter.1' !== ($opDesc = $this->translate('pasteafter.1'))) {
-            $title = \sprintf($opDesc, $model->getId());
-        } else {
-            $title = \sprintf('%s id %s', $label, $model->getId());
+        $label = $this->translateButtonLabel('pasteafter', $definitionName, ['%id%' => $model->getId()]);
+        if ($event->isPasteAfterDisabled()) {
+            return $this->renderImageAsHtml('pasteafter_.svg', $label, 'class="blink"');
         }
+        $title = $this->translateButtonDescription('pasteafter', $definitionName, ['%id%' => $model->getId()]);
 
-        return \sprintf(
+        return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefAfter() ?? '',
             StringUtil::specialchars($title),
@@ -561,7 +577,7 @@ class ButtonRenderer
         $filter = new Filter();
 
         $dataProvider = $basicDefinition->getDataProvider();
-        assert(\is_string($dataProvider));
+        assert(is_string($dataProvider));
 
         $filter->andModelIsFromProvider($dataProvider);
         if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
@@ -591,6 +607,29 @@ class ButtonRenderer
         }
 
         return $this->translator->translate($path, 'dc-general');
+    }
+
+    protected function translateButtonLabel(string $buttonName, string $definitionName, array $parameter = []): string
+    {
+        // New way via symfony translator.
+        if ($buttonName . '.label' !== ($header = $this->translator->translate($buttonName . '.label', $definitionName, $parameter))) {
+            return $header;
+        }
+
+        return $this->translator->translate($buttonName . '.0', $definitionName, $parameter);
+    }
+
+    protected function translateButtonDescription(string $buttonName, string $definitionName, array $parameter = []): string
+    {
+        // New way via symfony translator.
+        if (
+            $buttonName . '.description'
+            !== ($header = $this->translator->translate($buttonName . '.description', $definitionName, $parameter))
+        ) {
+            return $header;
+        }
+
+        return $this->translator->translate($buttonName . '.1', $definitionName, $parameter);
     }
 
     /**
@@ -680,7 +719,7 @@ class ButtonRenderer
         $parameters = $this->calculateParameters($command, ModelId::fromModel($model)->getSerialized());
         $href       = '';
         foreach ($parameters as $key => $value) {
-            $href .= \sprintf('&%s=%s', $key, $value);
+            $href .= sprintf('&%s=%s', $key, $value);
         }
 
         return $this->addToUrl($href);

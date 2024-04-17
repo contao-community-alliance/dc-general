@@ -403,7 +403,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             ' ',
             [
                 'editHeader' => $this->getHeaderEditButton($parentModel, $environment),
-                'pasteNew' => $this->getHeaderPasteNewButton($parentModel, $environment),
+                'pasteNew'   => $this->getHeaderPasteNewButton($parentModel, $environment),
                 'pasteAfter' => $this->getHeaderPasteTopButton($parentModel, $environment)
             ]
         );
@@ -547,7 +547,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'new.svg',
-                $this->translate('pastenew.0', $parentDefinition->getName())
+                $this->translateButtonLabel('pastenew', $parentDefinition->getName())
             ),
             ContaoEvents::IMAGE_GET_HTML
         );
@@ -555,7 +555,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            StringUtil::specialchars($this->translate('pastenew.0', $parentDefinition->getName())),
+            StringUtil::specialchars($this->translateButtonLabel('pastenew', $parentDefinition->getName())),
             $imageEvent->getHtml() ?? ''
         );
     }
@@ -634,7 +634,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $imageEvent = $dispatcher->dispatch(
                 new GenerateHtmlEvent(
                     'pasteafter.svg',
-                    $this->translate('pasteafter.0', $definition->getName()),
+                    $this->translateButtonLabel('pasteafter', $definition->getName()),
                     'class="blink"'
                 ),
                 ContaoEvents::IMAGE_GET_HTML
@@ -643,7 +643,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return \sprintf(
                 '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
                 $urlEvent->getUrl(),
-                StringUtil::specialchars($this->translate('pasteafter.0', $definition->getName())),
+                StringUtil::specialchars($this->translateButtonLabel('pasteafter', $definition->getName())),
                 $imageEvent->getHtml() ?? ''
             );
         }
@@ -652,7 +652,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'pasteafter_.svg',
-                $this->translate('pasteafter.0', $definition->getName()),
+                $this->translateButtonLabel('pasteafter', $definition->getName()),
                 'class="blink"'
             ),
             ContaoEvents::IMAGE_GET_HTML
