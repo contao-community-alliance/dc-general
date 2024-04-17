@@ -67,7 +67,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
      */
     public function getName()
     {
-        return 'ccaPagePicker';
+        return 'pagePicker';
     }
 
     /**

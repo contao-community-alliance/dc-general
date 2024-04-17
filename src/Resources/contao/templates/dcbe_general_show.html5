@@ -15,7 +15,7 @@ assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface
 ?>
 
 <div id="tl_buttons">
-    <a href="<?= $this->getReferer(true) ?>" class="header_back" title="<?= $this->backBT ?>" accesskey="b" onclick="Backend.getScrollOffset();">
+    <a href="<?= $this->getReferer(true) ?>" class="header_back dcg" title="<?= $this->backBT ?>" accesskey="b" onclick="Backend.getScrollOffset();">
         <?= $translator->trans(id: 'backBT', domain: 'dc-general') ?>
     </a>
 </div>

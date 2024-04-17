@@ -52,7 +52,7 @@ if (\count($this->options)): ?>
     <div class="tl_listing_container" id="dcg_clipboard">
         <ul>
             <?php foreach ($this->options as $id => $row): ?>
-                <li title="ID <?= StringUtil::specialchars($item->getClipboardId()) ?>">
+                <li title="<?= StringUtil::specialchars($translator->trans(id: 'removeClipboardItem', domain: 'dc-general')) ?>">
                     <?php $item = $row['item']; ?>
                     <?= $icons[$item->getAction()] ?>
                     <?= $row['label'] ?>

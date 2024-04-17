@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -46,8 +46,15 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+use function array_shift;
+use function in_array;
+use function is_string;
+use function parse_str;
+use function sprintf;
 
 /**
  * Class ClipboardController.
@@ -61,7 +68,7 @@ class ClipboardController implements EventSubscriberInterface
      *
      * @var RequestScopeDeterminator
      */
-    private $scopeDeterminator;
+    private RequestScopeDeterminator $scopeDeterminator;
 
     /**
      * ClipboardController constructor.
@@ -143,7 +150,7 @@ class ClipboardController implements EventSubscriberInterface
         if (
             (('create' === $actionName) && (true === $basicDefinition->isCreatable()))
             || (('cut' === $actionName) && (true === $basicDefinition->isEditable()))
-            || (false === \in_array($actionName, ['create', 'cut']))
+            || (false === in_array($actionName, ['create', 'cut']))
         ) {
             return true;
         }
@@ -162,7 +169,7 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         $event->setResponse(
-            \sprintf(
+            sprintf(
                 '<div style="text-align:center; font-weight:bold; padding:40px;">%s.</div>',
                 $permissionMessage
             )
@@ -206,7 +213,15 @@ class ClipboardController implements EventSubscriberInterface
         $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $input->getParameter('original-act'));
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
-        $redirectEvent = new RedirectEvent($addToUrlEvent->getUrl());
+        $url = new UrlBuilder($addToUrlEvent->getUrl());
+        parse_str($url->getQueryString() ?? '', $parameters);
+        foreach ($parameters as $name => $value) {
+            if ('' === $value) {
+                $url->unsetQueryParameter($name);
+            }
+        }
+
+        $redirectEvent = new RedirectEvent($url->getUrl());
         $eventDispatcher->dispatch($redirectEvent, ContaoEvents::CONTROLLER_REDIRECT);
     }
 
@@ -259,7 +274,7 @@ class ClipboardController implements EventSubscriberInterface
             $parentId = null;
         }
 
-        if (!($clipboardActionName = $this->translateActionName($actionName))) {
+        if (null === ($clipboardActionName = $this->translateActionName($actionName))) {
             return;
         }
 
@@ -272,11 +287,11 @@ class ClipboardController implements EventSubscriberInterface
             assert($definition instanceof ContainerInterface);
 
             $providerName = $definition->getBasicDefinition()->getDataProvider();
-            assert(\is_string($providerName));
+            assert(is_string($providerName));
 
-            $item         = new UnsavedItem($clipboardActionName, $parentId, $providerName);
+            $item = new UnsavedItem($clipboardActionName, $parentId, $providerName);
 
-            // Remove other create items, there can only be one create item in the clipboard or many others
+            // Remove other create items, there can only be one create item in the clipboard or many others.
             $clipboard->clear();
         } else {
             $modelIdRaw = $input->getParameter('source');
@@ -286,7 +301,7 @@ class ClipboardController implements EventSubscriberInterface
             $this->removeItemsFromClipboard($event);
 
             // Only push item to clipboard if manual sorting is used.
-            if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
+            if (Item::COPY === $clipboardActionName && null === ViewHelpers::getManualSortingProperty($environment)) {
                 return;
             }
 
@@ -321,7 +336,7 @@ class ClipboardController implements EventSubscriberInterface
 
         // No manual sorting property defined, no need to add it to the clipboard.
         // Or we already have an after or into attribute, a handler can pick it up.
-        return (!ViewHelpers::getManualSortingProperty($environment)
+        return (null === ViewHelpers::getManualSortingProperty($environment)
                 || $inputProvider->hasParameter('after')
                 || $inputProvider->hasParameter('into')
         );
@@ -358,11 +373,11 @@ class ClipboardController implements EventSubscriberInterface
         $basicDefinition = $definition->getBasicDefinition();
 
         $dataProvider = $basicDefinition->getDataProvider();
-        assert(\is_string($dataProvider));
+        assert(is_string($dataProvider));
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
@@ -390,7 +405,7 @@ class ClipboardController implements EventSubscriberInterface
                 $formatModelLabel = new FormatModelLabelEvent($environment, $model);
                 $eventDispatcher->dispatch($formatModelLabel, DcGeneralEvents::FORMAT_MODEL_LABEL);
                 $label = $formatModelLabel->getLabel();
-                $label = \array_shift($label);
+                $label = array_shift($label);
                 $label = $label['content'];
             } else {
                 $model = $dataProvider->getEmptyModel();
@@ -398,7 +413,7 @@ class ClipboardController implements EventSubscriberInterface
                 $translator = $environment->getTranslator();
                 assert($translator instanceof TranslatorInterface);
 
-                $label = $translator->translate('new.0', $item->getDataProviderName());
+                $label = $translator->translate('new.label', $item->getDataProviderName());
             }
 
             $options[$item->getClipboardId()] = ['item'  => $item, 'model' => $model, 'label' => $label];

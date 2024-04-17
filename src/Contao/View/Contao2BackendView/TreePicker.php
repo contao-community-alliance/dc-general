@@ -423,7 +423,7 @@ class TreePicker extends Widget
      */
     private function convertValue($value)
     {
-        if (empty($value)) {
+        if (null === $value || '' === $value) {
             return null;
         }
 
@@ -1208,7 +1208,7 @@ class TreePicker extends Widget
         $baseFilter = $baseConfig->getFilter();
         $filter     = $rootCondition->getFilterArray();
 
-        if ($baseFilter) {
+        if (null !== $baseFilter) {
             $filter = \array_merge($baseFilter, $filter);
         }
 
@@ -1705,7 +1705,7 @@ class TreePicker extends Widget
             $originalPropertyName = \substr($this->strName, \strlen($propertyNamePrefix));
         }
 
-        if (!$originalPropertyName) {
+        if (null === $originalPropertyName) {
             return;
         }
 

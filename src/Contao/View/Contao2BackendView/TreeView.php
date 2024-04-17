@@ -36,7 +36,6 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeCollector;
@@ -270,7 +269,7 @@ class TreeView extends BaseView
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $collection = $rootId
+        $collection = null !== $rootId
             ? $collector->getTreeCollectionRecursive($rootId, $level, $realProvider)
             : $collector->getChildrenOf(
                 $realProvider,
@@ -278,7 +277,7 @@ class TreeView extends BaseView
                 $inputProvider->hasParameter('pid') ? $this->loadParentModel() : null
             );
 
-        if ($rootId) {
+        if (null !== $rootId) {
             $treeData = $dataDriver->getEmptyCollection();
             $model    = $collection->get(0);
             assert($model instanceof ModelInterface);
@@ -495,10 +494,9 @@ class TreeView extends BaseView
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $label       = $translator->translate(
-            'pasteinto.0',
-            $definition->getName()
-        );
+        if ('pasteinto.label' === ($label = $translator->translate('pasteinto.label', $definition->getName()))) {
+            $label = $translator->translate('pasteinto.0', $definition->getName());
+        }
 
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
@@ -568,10 +566,10 @@ class TreeView extends BaseView
         }
 
         // Label + Icon.
-        if (null === $listing->getRootLabel()) {
+        if (null === ($label = $listing->getRootLabel())) {
             $labelText = 'DC General Tree BackendView Ultimate';
         } else {
-            $labelText = $listing->getRootLabel();
+            $labelText = $this->translate($label, $definition->getName());
         }
 
         if (null === $listing->getRootIcon()) {
@@ -586,7 +584,7 @@ class TreeView extends BaseView
         assert(\is_string($dataProvider));
 
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();

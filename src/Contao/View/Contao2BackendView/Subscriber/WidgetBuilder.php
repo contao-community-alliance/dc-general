@@ -56,6 +56,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * Widget Builder build Contao backend widgets.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @final
@@ -546,18 +547,33 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $propExtra = $this->setPropExtraDisabled($property, $propExtra);
 
+        // If no description present, pass as string instead of array.
+        $label = $this->translator->trans($property->getLabel(), [], $defName);
+        if ('' !== $description = $property->getDescription()) {
+            $label = [
+                $label,
+                $this->translator->trans($description, [], $defName),
+            ];
+        }
+
         $widgetConfig = [
             'inputType' => $property->getWidgetType(),
-            'label'     => [
-                $this->translator->trans($property->getLabel(), [], $defName),
-                $this->translator->trans($property->getDescription(), [], $defName),
-            ],
+            'label'     => $label,
             'options'   => $this->getOptionsForWidget($property, $model),
             'eval'      => $propExtra,
         ];
 
         if (isset($propExtra['reference'])) {
-            $widgetConfig['reference'] = $propExtra['reference'];
+            $references = [];
+            foreach ($propExtra['reference'] as $refName => $refLabelKey) {
+                if (!is_string($refLabelKey)) {
+                    $references[$refName] = $refName;
+                    continue;
+                }
+                $references[$refName] = $this->translator->trans($refLabelKey, [], $defName);
+            }
+            $widgetConfig['reference'] = $references;
+            unset($references, $refName, $refLabelKey);
         }
 
         $event = new GetAttributesFromDcaEvent(

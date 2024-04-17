@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -44,21 +44,21 @@ class GlobalButtonRenderer
      *
      * @var EnvironmentInterface
      */
-    private $environment;
+    private EnvironmentInterface $environment;
 
     /**
      * The dispatcher.
      *
      * @var EventDispatcherInterface
      */
-    private $dispatcher;
+    private EventDispatcherInterface $dispatcher;
 
     /**
      * The translator.
      *
      * @var TranslatorInterface
      */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * Create a new instance.
@@ -115,11 +115,26 @@ class GlobalButtonRenderer
      * @param CommandInterface $command The command definition.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function renderButton(CommandInterface $command)
     {
         $extra = $command->getExtra();
         $label = $this->translate($command->getLabel());
+        // Translation fallback to old Contao translations.
+        // @deprecated Remove in 3.0
+        if (str_ends_with($label, '.label') && $label === $command->getLabel()) {
+            $label = $this->translate(substr($command->getLabel(), 0, -6) . '.0');
+        }
+
+        $description = $this->translate($command->getDescription());
+        // Translation fallback to old Contao translations.
+        // @deprecated Remove in 3.0
+        if (str_ends_with($description, '.description') && $description === $command->getDescription()) {
+            $description = $this->translate(substr($command->getDescription(), 0, -12) . '.1');
+        }
 
         if (isset($extra['href'])) {
             $href = $extra['href'];
@@ -146,11 +161,11 @@ class GlobalButtonRenderer
         $buttonEvent
             ->setAccessKey(isset($extra['accesskey']) ? \trim($extra['accesskey']) : '')
             ->setAttributes(' ' . \ltrim($extra['attributes'] ?? ''))
-            ->setClass($extra['class'])
+            ->setClass($extra['class'] ?? '')
             ->setKey($command->getName())
             ->setHref($href)
             ->setLabel($label)
-            ->setTitle($this->translate($command->getDescription()));
+            ->setTitle($description);
         $this->dispatcher->dispatch($buttonEvent, GetGlobalButtonEvent::NAME);
 
         // Allow to override the button entirely - if someone sets empty string, we keep it.
@@ -181,8 +196,16 @@ class GlobalButtonRenderer
         $definition = $this->environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $value = $this->translator->translate($path, $definition->getName());
-        if ($path !== $value) {
+        $domain = $definition->getName();
+        if ($path !== ($value = $this->translator->translate($path, $domain))) {
+            return $value;
+        }
+
+        // Fallback translate for non symfony domain.
+        if (
+            $domain . '.' . $path !== ($value =
+                $this->translator->translate($domain . '.' . $path, 'contao_' . $domain))
+        ) {
             return $value;
         }
 

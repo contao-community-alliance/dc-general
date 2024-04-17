@@ -132,7 +132,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             [
                 'subHeadline' =>
                     $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
-                    $translator->translate('all_label', 'dc-general'),
+                    $translator->translate('editAll.label', 'dc-general'),
                 'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
                 'table'       => $definition->getName(),
                 'error'       => $renderInformation->offsetGet('error'),

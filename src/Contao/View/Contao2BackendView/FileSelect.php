@@ -362,7 +362,7 @@ class FileSelect
     }
 
     /**
-     * Run the ajax request if is determine for run.
+     * Run the ajax request if it is determining for run.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      *

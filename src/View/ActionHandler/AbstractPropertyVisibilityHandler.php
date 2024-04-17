@@ -22,6 +22,7 @@ namespace ContaoCommunityAlliance\DcGeneral\View\ActionHandler;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionChainInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionInterface;
@@ -253,7 +254,11 @@ abstract class AbstractPropertyVisibilityHandler
                     continue;
                 }
 
-                $invisible = $property->getVisibleCondition()->match($model, $propertyValues, $property, $legend);
+                $visibilityCondition = $property->getVisibleCondition();
+                assert($visibilityCondition instanceof PropertyConditionInterface);
+                // This is sadly needed, as the match function only accepts a concrete instance instead of an interface.
+                assert($propertyValues instanceof PropertyValueBag);
+                $invisible = $visibilityCondition->match($model, $propertyValues, $property, $legend);
             }
         }
 
@@ -415,6 +420,8 @@ abstract class AbstractPropertyVisibilityHandler
      * @param EnvironmentInterface $environment The environment.
      *
      * @return null|string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     #[ReturnTypeWillChange]
     protected function injectSelectParentPropertyInformation(
@@ -438,12 +445,12 @@ abstract class AbstractPropertyVisibilityHandler
                 if ($property->getName() !== $legendProperty->getName()) {
                     continue;
                 }
+                $visibleCondition = $legendProperty->getVisibleCondition();
+                if (null === $visibleCondition) {
+                    continue;
+                }
 
-                $this->matchInvisibleProperty(
-                    $legendProperty->getVisibleCondition(),
-                    $invisibleProperties,
-                    $environment
-                );
+                $this->matchInvisibleProperty($visibleCondition, $invisibleProperties, $environment);
             }
         }
 
@@ -498,7 +505,10 @@ abstract class AbstractPropertyVisibilityHandler
 
         $information = [];
         foreach ($properties as $propertyName => $informationProperty) {
-            $label = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
+            $label = $translator->translate(
+                $informationProperty->getLabel() ?: $propertyName,
+                $environment->getDataDefinition()?->getName()
+            );
 
             $information[] =
                 '<p class="tl_new">' .
@@ -613,6 +623,8 @@ abstract class AbstractPropertyVisibilityHandler
         $palettesDefinition = $this->getDataDefinition($environment)->getPalettesDefinition();
 
         $testPropertyValueBag = clone $propertyValueBag;
+        // This is sadly needed, as the match function only accepts a concrete instance instead of an interface.
+        assert($testPropertyValueBag instanceof PropertyValueBag);
         $testPropertyValueBag->setPropertyValue('dummyNotVisible', true);
 
         $palette = $palettesDefinition->findPalette($model);
@@ -634,6 +646,9 @@ abstract class AbstractPropertyVisibilityHandler
                 }
 
                 $conditions = $legendProperty->getVisibleCondition();
+                if (null === $conditions) {
+                    continue;
+                }
 
                 if (!$conditions->match($model, $testPropertyValueBag, $legendProperty, $legend)) {
                     continue;
