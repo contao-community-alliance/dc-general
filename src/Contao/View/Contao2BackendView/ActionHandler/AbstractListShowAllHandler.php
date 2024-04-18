@@ -637,7 +637,6 @@ abstract class AbstractListShowAllHandler
         $sorting    = ViewHelpers::getCurrentSorting($environment);
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
-            //dump([$properties->hasProperty($field), $properties->getProperty($field)->getLabel(), $this->translateButtonLabel($field, $definition->getName())]);
             $tableHead[] = [
                 'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $this->translateButtonLabel($field, $definition->getName())
