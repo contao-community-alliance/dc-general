@@ -56,6 +56,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * Widget Builder build Contao backend widgets.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @final

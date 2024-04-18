@@ -11,7 +11,7 @@ $translator   = \System::getContainer()->get('translator');
 assert($translator instanceof TranslatorInterface);
 ?>
 <?php $this->block('messages'); ?>
-<?= $this->getMessages(); ?>
+<?= $this->getMessages() ?>
 <?php if ($this->info): ?>
     <div class="tl_message">
         <p class="tl_info"><?= \implode('<br />', $this->info) ?></p>
@@ -25,7 +25,7 @@ assert($translator instanceof TranslatorInterface);
         <input type="hidden" name="FORM_SUBMIT" value="tl_select">
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">
         <?php endif; ?>
-        <div class="tl_listing_container <?php $this->block('view-class'); ?><?php $this->endblock(); ?> table_<?= $this->tableName ?>">
+        <div class="tl_listing_container <?php $this->block('view-class'); ?><?php $this->endblock() ?> table_<?= $this->tableName ?>">
             <?= $this->breadcrumb ?>
             <?php if ($this->select) : ?>
                 <?php if ($this->subHeadline) : ?>
@@ -40,13 +40,13 @@ assert($translator instanceof TranslatorInterface);
             <?php if (!empty($this->header)) : ?>
                 <div class="tl_header hover-div">
                     <div class="tl_content_right">
-                        <?= $this->headerButtons; ?>
+                        <?= $this->headerButtons ?>
                     </div>
                     <table class="tl_header_table">
                         <?php foreach ($this->header as $key => $value) : ?>
                             <tr>
-                                <td><span class="tl_label"><?= $key; ?></span></td>
-                                <td><?= $value; ?></td>
+                                <td><span class="tl_label"><?= $key ?></span></td>
+                                <td><?= $value ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </table>
@@ -92,7 +92,7 @@ assert($translator instanceof TranslatorInterface);
                             <?php $group = $collection[0]->getMeta($model::GROUP_VALUE); ?>
                             <tr class="tl_folder_list">
                                 <td colspan="<?= (count($collection[0]->getMeta($model::LABEL_VALUE)) + 1) ?>">
-                                    <div class="tl_content_header <?= $group['class'] ?>"><?= $group['value']; ?></div>
+                                    <div class="tl_content_header <?= $group['class'] ?>"><?= $group['value'] ?></div>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -100,7 +100,7 @@ assert($translator instanceof TranslatorInterface);
                             <tr id="table_row_<?= $model->getId() ?>" class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?> hover-row<?php if ($this->select) : ?> toggle_select<?php endif; ?> click2edit" data-model-id="<?= ModelId::fromModel($model)->getSerialized() ?>">
                                 <?php foreach ($model->getMeta($model::LABEL_VALUE) as $label) : ?>
                                     <td class="<?= $label['class'] ?>"<?php if (!empty($label['colspan'])): ?> colspan="<?= $label['colspan'] ?>"<?php endif; ?>>
-                                        <?= $label['content']; ?>
+                                        <?= $label['content'] ?>
                                     </td>
                                 <?php endforeach; ?>
                                 <?php if ($this->select) : ?>
@@ -109,7 +109,7 @@ assert($translator instanceof TranslatorInterface);
                                     </td>
                                 <?php else : ?>
                                     <td class="tl_file_list tl_right_nowrap">
-                                        <?= $model->getMeta($model::OPERATION_BUTTONS); ?>
+                                        <?= $model->getMeta($model::OPERATION_BUTTONS) ?>
                                         <?php if ($this->sortable) : ?>
                                             <?= $this->generateImage('system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
                                         <?php endif; ?>
@@ -134,7 +134,7 @@ assert($translator instanceof TranslatorInterface);
                 <?php if ($this->select) : ?>
                     <div class="tl_formbody_submit"<?php if ($this->floatRightSelectButtons): ?> style="text-align:right;"<?php endif; ?>>
                         <div class="tl_submit_container">
-                            <?= \implode(' ', $this->selectButtons); ?>
+                            <?= \implode(' ', $this->selectButtons) ?>
                         </div>
                     </div>
                 <?php endif; ?>

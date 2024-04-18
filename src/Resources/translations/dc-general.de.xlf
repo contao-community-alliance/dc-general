@@ -191,7 +191,7 @@
                 <target>Überschreiben</target>
             </segment>
         </unit>
-        <unit id="all_label" name="all_label">
+        <unit id="editAll.label" name="editAll.label">
             <segment>
                 <source>Edit multiple</source>
                 <target>Mehrere bearbeiten</target>

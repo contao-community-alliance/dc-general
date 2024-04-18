@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -55,6 +55,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
 use function array_filter;
 use function array_merge;
 use function array_values;
@@ -159,11 +160,12 @@ class ButtonRenderer
         $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems  = array_values(
+        $cutItems = array_values(
             array_filter(
-            $this->clipboardItems,
-            static fn (ItemInterface $item): bool => $item->getAction() === $item::CUT
-        ));
+                $this->clipboardItems,
+                static fn(ItemInterface $item): bool => $item->getAction() === $item::CUT
+            )
+        );
         $cutModels = $controller->getModelsFromClipboardItems($cutItems);
         $collector = new ModelCollector($environment);
         foreach ($cutModels as $model) {
@@ -612,15 +614,21 @@ class ButtonRenderer
     protected function translateButtonLabel(string $buttonName, string $definitionName, array $parameter = []): string
     {
         // New way via symfony translator.
-        if ($buttonName . '.label' !== ($header = $this->translator->translate($buttonName . '.label', $definitionName, $parameter))) {
+        if (
+            $buttonName . '.label' !== ($header =
+                $this->translator->translate($buttonName . '.label', $definitionName, $parameter))
+        ) {
             return $header;
         }
 
         return $this->translator->translate($buttonName . '.0', $definitionName, $parameter);
     }
 
-    protected function translateButtonDescription(string $buttonName, string $definitionName, array $parameter = []): string
-    {
+    protected function translateButtonDescription(
+        string $buttonName,
+        string $definitionName,
+        array $parameter = []
+    ): string {
         // New way via symfony translator.
         if (
             $buttonName . '.description'

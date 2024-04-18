@@ -347,15 +347,20 @@ abstract class AbstractListShowAllHandler
     protected function translateButtonLabel(string $buttonName, string $definitionName, array $parameter = []): string
     {
         // New way via symfony translator.
-        if ($buttonName . '.label' !== ($header = $this->translate($buttonName . '.label', $definitionName, $parameter))) {
+        if (
+            $buttonName . '.label' !== ($header = $this->translate($buttonName . '.label', $definitionName, $parameter))
+        ) {
             return $header;
         }
 
         return $this->translate($buttonName . '.0', $definitionName, $parameter);
     }
 
-    protected function translateButtonDescription(string $buttonName, string $definitionName, array $parameter = []): string
-    {
+    protected function translateButtonDescription(
+        string $buttonName,
+        string $definitionName,
+        array $parameter = []
+    ): string {
         // New way via symfony translator.
         if (
             $buttonName . '.description'
@@ -742,8 +747,6 @@ abstract class AbstractListShowAllHandler
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
 
-        $languageDomain = 'contao_' . $definition->getName();
-
         $filter = new Filter();
         assert($filter instanceof FilterInterface);
 
@@ -773,12 +776,12 @@ abstract class AbstractListShowAllHandler
             ),
             ContaoEvents::BACKEND_ADD_TO_URL
         );
-dump('renderPasteTopButton');
+
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'pasteafter.svg',
-                $this->translate('pasteafter.0', $languageDomain),
+                $this->translateButtonLabel('pastenew', $definition->getName()),
                 'class="blink"'
             ),
             ContaoEvents::IMAGE_GET_HTML
@@ -787,7 +790,7 @@ dump('renderPasteTopButton');
         return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            StringUtil::specialchars($this->translate('pasteafter.0', $languageDomain)),
+            $this->translateButtonLabel('pastenew', $definition->getName()),
             $imageEvent->getHtml() ?? ''
         );
     }
