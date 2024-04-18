@@ -633,16 +633,14 @@ abstract class AbstractListShowAllHandler
         assert($definition instanceof ContainerInterface);
 
         $tableHead  = [];
-        $properties = $definition->getPropertiesDefinition();
         $formatter  = $this->getViewSection($definition)->getListingConfig()->getLabelFormatter($definition->getName());
         $sorting    = ViewHelpers::getCurrentSorting($environment);
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
+            //dump([$properties->hasProperty($field), $properties->getProperty($field)->getLabel(), $this->translateButtonLabel($field, $definition->getName())]);
             $tableHead[] = [
                 'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
-                'content' => $properties->hasProperty($field)
-                    ? $properties->getProperty($field)->getLabel()
-                    : $this->translate($definition->getName() . '.' . $field . '.0', 'contao_' . $definition->getName())
+                'content' => $this->translateButtonLabel($field, $definition->getName())
             ];
         }
 

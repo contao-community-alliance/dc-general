@@ -494,11 +494,6 @@ class TreeView extends BaseView
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-//        $label       = $translator->translate(
-//            'pasteinto.0',
-//            $definition->getName()
-//        );
-
         if ('pasteinto.label' === ($label = $translator->translate('pasteinto.label', $definition->getName()))) {
             $label = $translator->translate('pasteinto.0', $definition->getName());
         }
