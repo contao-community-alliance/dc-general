@@ -64,6 +64,7 @@ use function in_array;
 use function is_string;
 use function ltrim;
 use function sprintf;
+use function str_replace;
 use function strlen;
 use function strrpos;
 use function substr_replace;
@@ -345,6 +346,9 @@ class ButtonRenderer
             }
         }
 
+        $definitionName = $this->environment->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
+
         $buttonEvent = new GetOperationButtonEvent($this->environment);
         $buttonEvent
             ->setKey($command->getName())
@@ -352,7 +356,13 @@ class ButtonRenderer
             ->setObjModel($model)
             ->setAttributes($attributes)
             ->setLabel($this->getCommandLabel($command))
-            ->setTitle(sprintf($this->translate($command->getDescription()), $model->getID()))
+            ->setTitle(
+                $this->translateButtonDescription(
+                    str_replace('.description', '', $command->getDescription()),
+                    $definitionName,
+                    ['%id%' => $model->getId()]
+                )
+            )
             ->setHref($this->calculateHref($command, $model))
             ->setChildRecordIds($childIds)
             ->setCircularReference($isCircularReference)
