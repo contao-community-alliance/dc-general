@@ -358,7 +358,7 @@ class ButtonRenderer
             ->setLabel($this->getCommandLabel($command))
             ->setTitle(
                 $this->translateButtonDescription(
-                    str_replace('.description', '', $command->getDescription()),
+                    str_replace(['.description', '.1'], '', $command->getDescription()),
                     $definitionName,
                     ['%id%' => $model->getId()]
                 )
