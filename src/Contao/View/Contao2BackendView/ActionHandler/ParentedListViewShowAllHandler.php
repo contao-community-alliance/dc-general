@@ -484,9 +484,10 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlAfter->getUrl(),
             StringUtil::specialchars(
-                \sprintf(
-                    $this->translateButtonDescription('editheader', $parentDefinition->getName()),
-                    $parentModel->getId()
+                $this->translateButtonDescription(
+                    'editheader',
+                    $parentDefinition->getName(),
+                    ['%id%' => $parentModel->getId()]
                 )
             ),
             $imageEvent->getHtml() ?? ''
