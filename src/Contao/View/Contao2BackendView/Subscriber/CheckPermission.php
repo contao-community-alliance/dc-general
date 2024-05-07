@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
+use Contao\CoreBundle\Security\ContaoCorePermissions;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollectionInterface;
@@ -30,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * The check permission subscriber.
@@ -48,7 +50,10 @@ class CheckPermission implements EventSubscriberInterface
      *
      * @param RequestScopeDeterminator $scopeDeterminator
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        private Security $security
+    )
     {
         $this->scopeDeterminator = $scopeDeterminator;
     }
@@ -84,6 +89,7 @@ class CheckPermission implements EventSubscriberInterface
         $container          = $event->getContainer();
         $properties         = $container->getPropertiesDefinition();
         $palettesDefinition = $container->getPalettesDefinition();
+        $definitionName     = $container->getName();
 
         foreach ($palettesDefinition->getPalettes() as $palette) {
             foreach ($palette->getProperties() as $property) {
@@ -100,10 +106,15 @@ class CheckPermission implements EventSubscriberInterface
                     // @codingStandardsIgnoreEnd
                     continue;
                 }
+                $excluded = $properties->getProperty($name)->isExcluded();
+                // Include all excluded fields which are allowed for the current user
+                if ($excluded && $this->security->isGranted(ContaoCorePermissions::USER_CAN_EDIT_FIELD_OF_TABLE, $definitionName . '::' . $name)) {
+                    $excluded = false;
+                }
 
                 $this
                     ->getVisibilityConditionChain($property)
-                    ->addCondition(new BooleanCondition(!$properties->getProperty($name)->isExcluded()));
+                    ->addCondition(new BooleanCondition(!$excluded));
             }
         }
     }

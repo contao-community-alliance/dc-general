@@ -547,12 +547,18 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $propExtra = $this->setPropExtraDisabled($property, $propExtra);
 
+        // If no description present, pass as string instead of array.
+        $label = $this->translator->trans($property->getLabel(), [], $defName);
+        if ('' !== $description = $property->getDescription()) {
+            $label = [
+                $label,
+                $this->translator->trans($description, [], $defName),
+            ];
+        }
+
         $widgetConfig = [
             'inputType' => $property->getWidgetType(),
-            'label'     => [
-                $this->translator->trans($property->getLabel(), [], $defName),
-                $this->translator->trans($property->getDescription(), [], $defName),
-            ],
+            'label'     => $label,
             'options'   => $this->getOptionsForWidget($property, $model),
             'eval'      => $propExtra,
         ];

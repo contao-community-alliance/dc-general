@@ -27,6 +27,8 @@ services:
         arguments:
             - "@cca.dc-general.scope-matcher"
             - "@cca.dc-general.security-url-builder-factory"
+            - "@request_stack"
+            - "@router"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action

@@ -157,7 +157,7 @@ function GeneralTableDnD()
 
 		// Build url.
 		var href = window.location.href.replace(/\?.*$/, '');
-		var req = window.location.search;
+		var req = window.location.search + '?';
 		req += '&act=paste';
 		req += '&source=' + id;
 		req += '&after=' + insertAfter;

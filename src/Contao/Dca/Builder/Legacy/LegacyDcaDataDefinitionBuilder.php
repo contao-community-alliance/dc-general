@@ -120,7 +120,6 @@ use function count;
 use function explode;
 use function in_array;
 use function is_array;
-use function is_callable;
 use function next;
 use function parse_str;
 use function reset;

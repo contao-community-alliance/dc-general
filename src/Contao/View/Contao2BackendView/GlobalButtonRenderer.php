@@ -146,7 +146,7 @@ class GlobalButtonRenderer
         $buttonEvent
             ->setAccessKey(isset($extra['accesskey']) ? \trim($extra['accesskey']) : '')
             ->setAttributes(' ' . \ltrim($extra['attributes'] ?? ''))
-            ->setClass($extra['class'])
+            ->setClass($extra['class'] ?? '')
             ->setKey($command->getName())
             ->setHref($href)
             ->setLabel($label)

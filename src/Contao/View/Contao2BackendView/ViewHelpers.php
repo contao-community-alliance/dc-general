@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,13 +17,14 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -40,7 +41,14 @@ use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
+use LogicException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+use function sprintf;
+use function strtoupper;
 
 /**
  * Helper class that provides static methods used in views.
@@ -157,7 +165,7 @@ class ViewHelpers
             $newSorting = [];
             foreach ($listingConfig->getGroupAndSortingDefinition()->getDefault() as $information) {
                 /** @var GroupAndSortingInformationInterface $information */
-                $newSorting[$information->getProperty()] = \strtoupper($information->getSortingMode());
+                $newSorting[$information->getProperty()] = strtoupper($information->getSortingMode());
             }
             $dataConfig->setSorting($newSorting);
         }
@@ -240,44 +248,75 @@ class ViewHelpers
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return void
+     * @return never
      */
-    public static function redirectHome(EnvironmentInterface $environment)
+    public static function redirectHome(EnvironmentInterface $environment): never
     {
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
+        $request   = self::getRequest();
+        $routeName = $request->attributes->get('_route');
+        if ($routeName !== 'contao.backend') {
+            self::determineNewStyleRedirect($routeName, $request, $environment);
+        }
+
         if ($input->hasParameter('table')) {
             if ($input->hasParameter('pid')) {
                 $event = new RedirectEvent(
-                    \sprintf(
+                    sprintf(
                         'contao?do=%s&table=%s&pid=%s',
                         $input->getParameter('do'),
                         $input->getParameter('table'),
                         $input->getParameter('pid')
                     )
                 );
-            } else {
-                $event = new RedirectEvent(
-                    \sprintf(
-                        'contao?do=%s&table=%s',
-                        $input->getParameter('do'),
-                        $input->getParameter('table')
-                    )
-                );
+                self::dispatchRedirect($environment, $event);
             }
-        } else {
             $event = new RedirectEvent(
-                \sprintf(
-                    'contao?do=%s',
-                    $input->getParameter('do')
+                sprintf(
+                    'contao?do=%s&table=%s',
+                    $input->getParameter('do'),
+                    $input->getParameter('table')
                 )
             );
+            self::dispatchRedirect($environment, $event);
         }
+        $event = new RedirectEvent(sprintf('contao?do=%s', $input->getParameter('do')));
 
+        self::dispatchRedirect($environment, $event);
+    }
+
+    private static function determineNewStyleRedirect(
+        string $routeName,
+        Request $request,
+        EnvironmentInterface $environment
+    ): never
+    {
+        $routeGenerator = System::getContainer()->get('router');
+        assert($routeGenerator instanceof UrlGeneratorInterface);
+        $parameters = $request->query->all();
+        unset($parameters['act']);
+        $routeBase = $routeGenerator->generate($routeName, $parameters);
+
+        self::dispatchRedirect($environment, new RedirectEvent($routeBase));
+    }
+
+    private static function getRequest(): Request
+    {
+        $requestStack = System::getContainer()->get('request_stack');
+        assert($requestStack instanceof RequestStack);
+
+        return $requestStack->getCurrentRequest();
+    }
+
+    public static function dispatchRedirect(EnvironmentInterface $environment, RedirectEvent $event): never
+    {
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
 
         $dispatcher->dispatch($event, ContaoEvents::CONTROLLER_REDIRECT);
+
+        throw new LogicException('Redirect did not happen.');
     }
 }

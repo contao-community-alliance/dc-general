@@ -325,10 +325,12 @@ class ButtonRenderer
     private function buildCommand($command, $model, $previous, $next, $isCircularReference, $childIds)
     {
         $extra      = (array) $command->getExtra();
-        $attributes = '';
-
-        if (!empty($extra['attributes'])) {
-            $attributes .= sprintf($extra['attributes'], $model->getID());
+        if ('' !== ($attributes = $extra['attributes'] ?? '')) {
+            // BC compatibility with legacy strings containing 'Edit item %s'
+            if (!str_contains($attributes, '%id%')) {
+                $attributes = sprintf($attributes, $model->getID());
+            }
+            $attributes = strtr($attributes, ['%id%' => $model->getId()]);
         }
         $icon = $extra['icon'];
 

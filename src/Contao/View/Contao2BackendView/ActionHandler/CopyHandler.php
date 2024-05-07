@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,14 +17,13 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
-use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -48,6 +47,8 @@ use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\UrlBuilder\Contao\CsrfUrlBuilderFactory;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Class CopyModelController handles copy action on a model.
@@ -65,19 +66,41 @@ class CopyHandler
      *
      * @var CsrfUrlBuilderFactory
      */
-    private $securityUrlBuilder;
+    private CsrfUrlBuilderFactory $securityUrlBuilder;
+
+    /**
+     * The request stack.
+     *
+     * @var RequestStack
+     */
+    private RequestStack $requestStack;
+
+    /**
+     * The URL generator.
+     *
+     * @var UrlGeneratorInterface
+     */
+    private UrlGeneratorInterface $urlGenerator;
 
     /**
      * PasteHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator  The request mode determinator.
      * @param CsrfUrlBuilderFactory    $securityUrlBuilder The URL builder factory for URLs with security token.
+     * @param RequestStack             $requestStack       The request stack.
+     * @param UrlGeneratorInterface    $urlGenerator       The URL generator.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator, CsrfUrlBuilderFactory $securityUrlBuilder)
-    {
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        CsrfUrlBuilderFactory $securityUrlBuilder,
+        RequestStack $requestStack,
+        UrlGeneratorInterface $urlGenerator,
+    ) {
         $this->setScopeDeterminator($scopeDeterminator);
 
         $this->securityUrlBuilder = $securityUrlBuilder;
+        $this->requestStack       = $requestStack;
+        $this->urlGenerator       = $urlGenerator;
     }
 
     /**
@@ -230,23 +253,37 @@ class CopyHandler
             return;
         }
 
-        // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
-        $urlBuilder = new UrlBuilder();
-        $urlBuilder
-            ->setPath('contao')
-            ->setQueryParameter('do', $inputProvider->getParameter('do'))
-            ->setQueryParameter('table', $copiedModelId->getDataProviderName())
-            ->setQueryParameter('act', 'edit')
-            ->setQueryParameter('id', $copiedModelId->getSerialized());
-        if (null !== ($pid = $inputProvider->getParameter('pid'))) {
-            $urlBuilder->setQueryParameter('pid', $pid);
-        }
-
-        $redirectEvent = new RedirectEvent($this->securityUrlBuilder->create($urlBuilder->getUrl())->getUrl());
-
         if (null === ($dispatcher = $environment->getEventDispatcher())) {
             return;
         }
+
+        $request   = $this->requestStack->getCurrentRequest();
+        $routeName = $request?->attributes->get('_route');
+        // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
+        $urlBuilder = new UrlBuilder();
+        if ($routeName !== 'contao.backend') {
+            $params = [
+                'table' => $copiedModelId->getDataProviderName(),
+                'act'   => 'edit',
+                'id'    => $copiedModelId->getSerialized(),
+            ];
+            if (null !== ($pid = $inputProvider->getParameter('pid'))) {
+                $params['pid'] = $pid;
+            }
+            $url = $this->urlGenerator->generate($routeName, $params);
+        } else {
+            $urlBuilder
+                ->setPath('contao')
+                ->setQueryParameter('do', $inputProvider->getParameter('do'))
+                ->setQueryParameter('table', $copiedModelId->getDataProviderName())
+                ->setQueryParameter('act', 'edit')
+                ->setQueryParameter('id', $copiedModelId->getSerialized());
+            if (null !== ($pid = $inputProvider->getParameter('pid'))) {
+                $urlBuilder->setQueryParameter('pid', $pid);
+            }
+            $url = $urlBuilder->getUrl();
+        }
+        $redirectEvent = new RedirectEvent($this->securityUrlBuilder->create($url)->getUrl());
 
         $dispatcher->dispatch($redirectEvent, ContaoEvents::CONTROLLER_REDIRECT);
     }
@@ -308,7 +345,7 @@ class CopyHandler
      *
      * @return string|bool
      */
-    private function checkPermission(EnvironmentInterface $environment)
+    private function checkPermission(EnvironmentInterface $environment): bool|string
     {
         if (null === ($definition = $environment->getDataDefinition())) {
             return false;

@@ -76,6 +76,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
 use function implode;
+use function in_array;
+use function is_string;
+use function sprintf;
 use function str_contains;
 use function str_replace;
 use function trigger_error;
@@ -154,7 +157,7 @@ abstract class AbstractListShowAllHandler
         }
         if (null === $tokenName) {
             $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
-            assert(\is_string($tokenName));
+            assert(is_string($tokenName));
 
             // @codingStandardsIgnoreStart
             @trigger_error(
@@ -264,7 +267,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return string
      */
-    private function languageSwitcher(EnvironmentInterface $environment)
+    private function languageSwitcher(EnvironmentInterface $environment): string
     {
         $template = new ContaoBackendViewTemplate('dcbe_general_language_selector');
 
@@ -335,9 +338,9 @@ abstract class AbstractListShowAllHandler
 
             $translated =
                 $this->translator->trans(
-                    \sprintf('%s.%s', $domain, $key),
+                    sprintf('%s.%s', $domain, $key),
                     $parameters,
-                    \sprintf('contao_%s', $domain)
+                    sprintf('contao_%s', $domain)
                 );
         }
 
@@ -494,7 +497,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return string
      */
-    private function generateHeaderButtons(EnvironmentInterface $environment)
+    private function generateHeaderButtons(EnvironmentInterface $environment): string
     {
         return (new GlobalButtonRenderer($environment))->render();
     }
@@ -512,7 +515,7 @@ abstract class AbstractListShowAllHandler
         EnvironmentInterface $environment,
         CollectionInterface $collection,
         array $grouping
-    ) {
+    ): void {
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
@@ -578,7 +581,7 @@ abstract class AbstractListShowAllHandler
         &$groupClass,
         &$eoCount,
         &$remoteCur = null
-    ) {
+    ): void {
         if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
             $remoteNew = $this->renderGroupHeader(
                 $grouping['property'],
@@ -612,7 +615,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return string When no information of panels can be obtained from the data container.
      */
-    private function panel(EnvironmentInterface $environment, $ignoredPanels = [])
+    private function panel(EnvironmentInterface $environment, array $ignoredPanels = []): string
     {
         $view = $environment->getView();
         assert($view instanceof BackendViewInterface);
@@ -627,7 +630,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return array
      */
-    private function getTableHead(EnvironmentInterface $environment)
+    private function getTableHead(EnvironmentInterface $environment): array
     {
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -638,7 +641,7 @@ abstract class AbstractListShowAllHandler
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . (\in_array($field, $columns) ? ' ordered_by' : ''),
+                'class'   => 'tl_folder_tlist col_' . $field . (in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $this->translateButtonLabel($field, $definition->getName())
             ];
         }
@@ -666,12 +669,12 @@ abstract class AbstractListShowAllHandler
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
     private function renderGroupHeader(
-        $field,
+        string $field,
         ModelInterface $model,
-        $groupMode,
-        $groupLength,
+        string $groupMode,
+        int $groupLength,
         EnvironmentInterface $environment
-    ) {
+    ): ?string {
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
@@ -716,7 +719,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return bool
      */
-    private function isSortable(EnvironmentInterface $environment)
+    private function isSortable(EnvironmentInterface $environment): bool
     {
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -751,7 +754,7 @@ abstract class AbstractListShowAllHandler
         assert($basicDefinition instanceof BasicDefinitionInterface);
 
         $dataProvider = $basicDefinition->getDataProvider();
-        assert(\is_string($dataProvider));
+        assert(is_string($dataProvider));
 
         $filter->andModelIsFromProvider($dataProvider);
 
@@ -784,7 +787,7 @@ abstract class AbstractListShowAllHandler
             ContaoEvents::IMAGE_GET_HTML
         );
 
-        return \sprintf(
+        return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
             $this->translateButtonLabel('pastenew', $definition->getName()),
@@ -802,7 +805,7 @@ abstract class AbstractListShowAllHandler
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
-    private function breadcrumb(EnvironmentInterface $environment)
+    private function breadcrumb(EnvironmentInterface $environment): ?string
     {
         $event = new GetBreadcrumbEvent($environment);
 
@@ -830,7 +833,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return array
      */
-    private function getSortingColumns($sortingDefinition)
+    private function getSortingColumns(?GroupAndSortingDefinitionInterface $sortingDefinition): array
     {
         if (null === $sortingDefinition) {
             return [];
@@ -855,7 +858,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return array
      */
-    private function getSelectContainer(EnvironmentInterface $environment)
+    private function getSelectContainer(EnvironmentInterface $environment): array
     {
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
@@ -892,7 +895,7 @@ abstract class AbstractListShowAllHandler
      *
      * @return void
      */
-    private function handleEditAllButton(CollectionInterface $collection, EnvironmentInterface $environment)
+    private function handleEditAllButton(CollectionInterface $collection, EnvironmentInterface $environment): void
     {
         if (0 < $collection->count()) {
             return;

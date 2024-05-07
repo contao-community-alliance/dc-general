@@ -194,11 +194,11 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             $model->setID($property->getName());
             $model->setProperty(
                 'name',
-                $property->getLabel() ?: $property->getName()
+                $this->translator->trans($property->getLabel(), [], $definition->getName())
             );
             $model->setProperty(
                 'description',
-                $property->getDescription() ?: $property->getName()
+                $this->translator->trans($property->getDescription(), [], $definition->getName())
             );
 
             $this->handlePropertyFileTree($property);

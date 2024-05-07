@@ -36,6 +36,7 @@ services:
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
+            - "@security.helper"
         tags:
             -   name: kernel.event_subscriber
 

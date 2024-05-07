@@ -50,6 +50,7 @@ use function implode;
 use function in_array;
 use function method_exists;
 use function sprintf;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
 
 /**
  * This abstract visibility handler provide methods for the visibility of properties.
@@ -498,7 +499,10 @@ abstract class AbstractPropertyVisibilityHandler
 
         $information = [];
         foreach ($properties as $propertyName => $informationProperty) {
-            $label = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
+            $label = $translator->translate(
+                $informationProperty->getLabel() ?: $propertyName,
+                $environment->getDataDefinition()?->getName()
+            );
 
             $information[] =
                 '<p class="tl_new">' .
