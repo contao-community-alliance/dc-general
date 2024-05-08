@@ -514,7 +514,7 @@ class Subscriber implements EventSubscriberInterface
     ): void {
         if (
             (null !== $event->getRendered())
-            || !(!((bool) $extra['multiple']) && ('checkbox' === $property->getWidgetType()))
+            || !(!((bool) ($extra['multiple'] ?? false)) && ('checkbox' === $property->getWidgetType()))
         ) {
             return;
         }
