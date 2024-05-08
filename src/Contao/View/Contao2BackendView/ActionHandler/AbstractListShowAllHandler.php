@@ -233,12 +233,12 @@ abstract class AbstractListShowAllHandler
         $collection = $this->loadCollection($environment);
         assert($collection instanceof CollectionInterface);
         $this->handleEditAllButton($collection, $environment);
-        $this->renderCollection($environment, $collection, $grouping ?: []);
+        $this->renderCollection($environment, $collection, $grouping ?? []);
 
-        $template = $this->determineTemplate($grouping ?: []);
+        $template = $this->determineTemplate($grouping ?? []);
         $template
             ->set('collection', $collection)
-            ->set('mode', ($grouping ? $grouping['mode'] : null))
+            ->set('mode', ($grouping['mode'] ?? null))
             ->set('theme', Backend::getTheme());
         $this->renderTemplate($template, $environment);
 
@@ -539,7 +539,7 @@ abstract class AbstractListShowAllHandler
             /** @var ModelInterface $model */
             $this->addGroupHeader($environment, $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
-            if ($listing->getItemCssClass()) {
+            if (null !== $listing->getItemCssClass()) {
                 $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
             }
             $cssClasses = [(0 === (++$eoCount) % 2) ? 'even' : 'odd'];
@@ -765,7 +765,7 @@ abstract class AbstractListShowAllHandler
             return '';
         }
 
-        if (!ViewHelpers::getManualSortingProperty($environment)) {
+        if (null === ViewHelpers::getManualSortingProperty($environment)) {
             return '';
         }
 

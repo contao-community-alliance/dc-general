@@ -269,7 +269,7 @@ class TreeView extends BaseView
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $collection = $rootId
+        $collection = null !== $rootId
             ? $collector->getTreeCollectionRecursive($rootId, $level, $realProvider)
             : $collector->getChildrenOf(
                 $realProvider,
@@ -277,7 +277,7 @@ class TreeView extends BaseView
                 $inputProvider->hasParameter('pid') ? $this->loadParentModel() : null
             );
 
-        if ($rootId) {
+        if (null !== $rootId) {
             $treeData = $dataDriver->getEmptyCollection();
             $model    = $collection->get(0);
             assert($model instanceof ModelInterface);
@@ -584,7 +584,7 @@ class TreeView extends BaseView
         assert(\is_string($dataProvider));
 
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();

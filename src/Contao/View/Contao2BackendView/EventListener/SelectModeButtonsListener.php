@@ -90,7 +90,7 @@ class SelectModeButtonsListener
         }
 
         $sortingProperty = ViewHelpers::getManualSortingProperty($event->getEnvironment());
-        if ($sortingProperty && $basicDefinition->isEditable()) {
+        if (null !== $sortingProperty && $basicDefinition->isEditable()) {
             $buttons['cut'] = \sprintf(
                 $input,
                 'cut',

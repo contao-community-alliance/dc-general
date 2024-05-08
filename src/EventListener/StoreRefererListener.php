@@ -48,6 +48,9 @@ class StoreRefererListener
 
     /**
      * Stores the referer in the session.
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function __invoke(ResponseEvent $event): void
     {
@@ -82,7 +85,7 @@ class StoreRefererListener
         $key       = $request->query->has('popup') ? 'popupReferer' : 'referer';
         $refererId = $request->attributes->get('_contao_referer_id');
         $referers  = $this->prepareBackendReferer($refererId, $session->get($key));
-        $ref       = $request->query->get('ref', '');
+        $ref       = (string) $request->query->get('ref', '');
 
         // Move current to last if the referer is in both the URL and the session.
         if ('' !== $ref && isset($referers[$ref])) {
@@ -102,16 +105,23 @@ class StoreRefererListener
     }
 
     /**
+     * @param string                                $refererId
+     * @param ?array<string, array<string, string>> $referers
+     *
      * @return array<string,array<string,string>>
      */
-    private function prepareBackendReferer(string $refererId, array $referers = null): array
+    private function prepareBackendReferer(string $refererId, ?array $referers = null): array
     {
         if (!is_array($referers)) {
             $referers = [];
         }
 
-        if (!isset($referers[$refererId]) || !is_array($referers[$refererId])) {
-            $referers[$refererId] = end($referers) ?: ['last' => ''];
+        if (!isset($referers[$refererId])) {
+            $last = end($referers);
+            if ([] === $last || false === $last) {
+                $last = ['last' => ''];
+            }
+            $referers[$refererId] = $last;
         }
 
         // Make sure we never have more than 25 different referer URLs
@@ -127,6 +137,6 @@ class StoreRefererListener
      */
     private function getRelativeRequestUri(Request $request): string
     {
-        return (string) substr($request->getRequestUri(), strlen($request->getBasePath()) + 1);
+        return substr($request->getRequestUri(), strlen($request->getBasePath()) + 1);
     }
 }

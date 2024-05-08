@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -43,18 +43,18 @@ class CheckPermission implements EventSubscriberInterface
      *
      * @var RequestScopeDeterminator
      */
-    private $scopeDeterminator;
+    private RequestScopeDeterminator $scopeDeterminator;
 
     /**
      * ClipboardController constructor.
      *
-     * @param RequestScopeDeterminator $scopeDeterminator
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     * @param Security                 $security          The security.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
         private Security $security
-    )
-    {
+    ) {
         $this->scopeDeterminator = $scopeDeterminator;
     }
 
@@ -107,8 +107,14 @@ class CheckPermission implements EventSubscriberInterface
                     continue;
                 }
                 $excluded = $properties->getProperty($name)->isExcluded();
-                // Include all excluded fields which are allowed for the current user
-                if ($excluded && $this->security->isGranted(ContaoCorePermissions::USER_CAN_EDIT_FIELD_OF_TABLE, $definitionName . '::' . $name)) {
+                // Include all excluded fields which are allowed for the current user.
+                if (
+                    $excluded
+                    && $this->security->isGranted(
+                        ContaoCorePermissions::USER_CAN_EDIT_FIELD_OF_TABLE,
+                        $definitionName . '::' . $name
+                    )
+                ) {
                     $excluded = false;
                 }
 
@@ -209,7 +215,7 @@ class CheckPermission implements EventSubscriberInterface
      *
      * @return PropertyConditionChain
      */
-    private function getVisibilityConditionChain($property)
+    private function getVisibilityConditionChain(PropertyInterface $property): PropertyConditionChain
     {
         if (
             ($chain = $property->getVisibleCondition())
@@ -233,7 +239,7 @@ class CheckPermission implements EventSubscriberInterface
      *
      * @return void
      */
-    private function disableCommandByActionName(CommandCollectionInterface $commands, $actionName)
+    private function disableCommandByActionName(CommandCollectionInterface $commands, string $actionName): void
     {
         foreach ($commands->getCommands() as $command) {
             $parameters = $command->getParameters()->getArrayCopy();
@@ -263,7 +269,7 @@ class CheckPermission implements EventSubscriberInterface
      *
      * @return void
      */
-    private function disableToggleCommand(CommandCollectionInterface $commands)
+    private function disableToggleCommand(CommandCollectionInterface $commands): void
     {
         foreach ($commands->getCommands() as $command) {
             if (!($command instanceof ToggleCommandInterface)) {

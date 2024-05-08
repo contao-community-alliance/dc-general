@@ -208,7 +208,7 @@ class ButtonRenderer
         ModelInterface $model,
         ModelInterface $previous = null,
         ModelInterface $next = null
-    ) {
+    ): void {
         $modelId = ModelId::fromModel($model)->getSerialized();
 
         if ($this->clipboardItems) {
@@ -269,7 +269,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function isHierarchical()
+    private function isHierarchical(): bool
     {
         $dataDefinition  = $this->environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
@@ -284,7 +284,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function hasPasteButtons()
+    private function hasPasteButtons(): bool
     {
         return ((true === (bool) ViewHelpers::getManualSortingProperty($this->environment))
                 && false === empty($this->clipboardItems));
@@ -295,7 +295,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function hasPasteNewButton()
+    private function hasPasteNewButton(): bool
     {
         $environment = $this->environment;
         $definition  = $environment->getDataDefinition();
@@ -321,13 +321,21 @@ class ButtonRenderer
      * @param string[]            $childIds            The ids of all child models.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    private function buildCommand($command, $model, $previous, $next, $isCircularReference, $childIds)
-    {
+    private function buildCommand(
+        CommandInterface $command,
+        ModelInterface $model,
+        ?ModelInterface $previous,
+        ?ModelInterface $next,
+        bool $isCircularReference,
+        array $childIds
+    ): string {
         $extra      = (array) $command->getExtra();
         if ('' !== ($attributes = $extra['attributes'] ?? '')) {
             // BC compatibility with legacy strings containing 'Edit item %s'
-            if (!str_contains($attributes, '%id%')) {
+            if (false === str_contains($attributes, '%id%')) {
                 $attributes = sprintf($attributes, $model->getID());
             }
             $attributes = strtr($attributes, ['%id%' => $model->getId()]);
@@ -386,7 +394,7 @@ class ButtonRenderer
                 if ($icon !== Image::getPath($icon)) {
                     $iconDisabledSuffix = '_';
                 }
-                $icon = substr_replace($icon, $iconDisabledSuffix, strrpos($icon, '.') ?: strlen($icon), 0);
+                $icon = substr_replace($icon, $iconDisabledSuffix, ((int) strrpos($icon, '.')) ?: strlen($icon), 0);
             }
 
             return $this->renderImageAsHtml(
@@ -421,7 +429,7 @@ class ButtonRenderer
      *
      * @return string[]
      */
-    private function getChildIds(ModelInterface $model)
+    private function getChildIds(ModelInterface $model): array
     {
         if (null === ($childCollections = $model->getMeta($model::CHILD_COLLECTIONS))) {
             return [];
@@ -447,7 +455,7 @@ class ButtonRenderer
      *
      * @return string[]
      */
-    private function calculateParameters(CommandInterface $command, $serializedModelId)
+    private function calculateParameters(CommandInterface $command, string $serializedModelId): array
     {
         $parameters = (array) $command->getParameters();
         if ($command instanceof ToggleCommandInterface) {
@@ -476,9 +484,10 @@ class ButtonRenderer
             return $parameters;
         }
 
+        /** @var array{idparam?: string} $extra */
         $extra = (array) $command->getExtra();
 
-        $parameters[($extra['idparam'] ?? null) ?: 'id'] = $serializedModelId;
+        $parameters[($extra['idparam'] ?? '') ?: 'id'] = $serializedModelId;
 
         return $parameters;
     }
@@ -515,7 +524,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderPasteIntoButton(GetPasteButtonEvent $event)
+    private function renderPasteIntoButton(GetPasteButtonEvent $event): string
     {
         if (null !== ($value = $event->getHtmlPasteInto())) {
             return $value;
@@ -549,7 +558,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderPasteAfterButton(GetPasteButtonEvent $event)
+    private function renderPasteAfterButton(GetPasteButtonEvent $event): string
     {
         if (null !== ($value = $event->getHtmlPasteAfter())) {
             return $value;
@@ -579,7 +588,7 @@ class ButtonRenderer
      *
      * @return list<ItemInterface>
      */
-    private function calculateClipboardItems()
+    private function calculateClipboardItems(): array
     {
         $dataDefinition  = $this->environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
@@ -594,7 +603,7 @@ class ButtonRenderer
         assert(is_string($dataProvider));
 
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
@@ -661,7 +670,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderImageAsHtml($src, $alt, $attributes = '')
+    private function renderImageAsHtml(string $src, string $alt, string $attributes = ''): string
     {
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $this->eventDispatcher->dispatch(
@@ -679,7 +688,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function addToUrl($parameters)
+    private function addToUrl(string $parameters): string
     {
         /** @var AddToUrlEvent $urlAfter */
         $urlAfter = $this->eventDispatcher->dispatch(new AddToUrlEvent($parameters), ContaoEvents::BACKEND_ADD_TO_URL);
@@ -695,7 +704,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function isTogglerInActiveState($command, $model)
+    private function isTogglerInActiveState(ToggleCommandInterface $command, ModelInterface $model): bool
     {
         $dataProvider   = $this->environment->getDataProvider($model->getProviderName());
         $propModel      = $model;
@@ -734,7 +743,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function calculateHref(CommandInterface $command, $model)
+    private function calculateHref(CommandInterface $command, ModelInterface $model): string
     {
         $parameters = $this->calculateParameters($command, ModelId::fromModel($model)->getSerialized());
         $href       = '';
@@ -752,7 +761,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function getCommandLabel(CommandInterface $command)
+    private function getCommandLabel(CommandInterface $command): string
     {
         if ('' === $label = $command->getLabel()) {
             $label = $command->getName();

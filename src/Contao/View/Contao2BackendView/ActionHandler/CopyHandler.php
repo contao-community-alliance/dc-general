@@ -322,7 +322,7 @@ class CopyHandler
             return false;
         }
 
-        if ($manualSorting && $provider->fieldExists($manualSorting)) {
+        if (null !== $manualSorting && $provider->fieldExists($manualSorting)) {
             return false;
         }
 

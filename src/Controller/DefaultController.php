@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +25,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Tim Gatzky <info@tim-gatzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -315,7 +315,7 @@ class DefaultController implements ControllerInterface
         }
         $config->setFilter($condition->getFilter($model));
 
-        if ($sortingProperty) {
+        if (null !== $sortingProperty) {
             $config->setSorting([$sortingProperty => 'ASC']);
         }
 
@@ -612,7 +612,7 @@ class DefaultController implements ControllerInterface
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($dataProvider);
-        if ($basicDefinition->getParentDataProvider()) {
+        if (null !== $basicDefinition->getParentDataProvider()) {
             $parentDataProvider = $basicDefinition->getDataProvider();
             assert(\is_string($parentDataProvider));
 
@@ -831,7 +831,7 @@ class DefaultController implements ControllerInterface
     {
         $environment  = $this->getEnvironment();
         $groupingMode = ViewHelpers::getGroupingMode($environment);
-        if ($groupingMode && $after && $after->getId()) {
+        if (null !== $groupingMode && null !== $after && $after->getId()) {
             // when pasting after another item, inherit the grouping field
             $groupingField = $groupingMode['property'];
             $previous      = $this->modelCollector->getModel($after);
@@ -982,7 +982,7 @@ class DefaultController implements ControllerInterface
         if ($parent && $models->count()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
 
-            if ($manualSorting) {
+            if (null !== $manualSorting) {
                 $this->pasteTop($models, $manualSorting, $parent);
 
                 return;

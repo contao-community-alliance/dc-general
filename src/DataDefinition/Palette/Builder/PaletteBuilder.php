@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -740,7 +740,7 @@ class PaletteBuilder
 
         $palette = $this->paletteClass->newInstance();
 
-        if ($name) {
+        if (null !== $name) {
             $palette->setName($name);
         }
 
@@ -843,7 +843,7 @@ class PaletteBuilder
             throw new DcGeneralRuntimeException('Legend is missing, please create a legend first');
         }
 
-        if ($this->property) {
+        if (null !== $this->property) {
             $this->finishProperty();
         }
 
@@ -874,7 +874,7 @@ class PaletteBuilder
      */
     public function useProperty($property, $_ = null)
     {
-        if ($this->property) {
+        if (null !== $this->property) {
             $this->finishProperty();
         }
 
@@ -910,7 +910,7 @@ class PaletteBuilder
      */
     public function createProperty($propertyName, $_ = null)
     {
-        if ($this->property) {
+        if (null !== $this->property) {
             $this->finishProperty();
         }
 
@@ -945,7 +945,7 @@ class PaletteBuilder
      */
     public function finishProperty(&$property = null)
     {
-        if (!$this->property) {
+        if (null === $this->property) {
             throw new DcGeneralRuntimeException('Property is missing, please create a property first');
         }
 
@@ -1120,7 +1120,7 @@ class PaletteBuilder
             $this->finishCondition();
         }
 
-        if ($this->property) {
+        if (null !== $this->property) {
             $condition = $this->propertyValueConditionClass->newInstance();
         } elseif ($this->palette) {
             $condition = $this->palettePropertyValueConditionClass->newInstance();
@@ -1167,7 +1167,7 @@ class PaletteBuilder
         $strict = false,
         $conjunction = PropertyConditionChain::AND_CONJUNCTION
     ) {
-        if ($this->property) {
+        if (null !== $this->property) {
             $this->createPropertyConditionChain($conjunction);
             $condition = $this->propertyValueConditionClass->newInstance();
         } elseif ($this->palette) {

@@ -323,7 +323,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return null
+     * @return never
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
@@ -344,8 +344,6 @@ class SelectHandler
         }
 
         ViewHelpers::redirectHome($environment);
-
-        return null;
     }
 
     /**
@@ -354,7 +352,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return null
+     * @return never
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
@@ -372,8 +370,6 @@ class SelectHandler
         }
 
         ViewHelpers::redirectHome($environment);
-
-        return null;
     }
 
     /**
@@ -382,7 +378,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return null
+     * @return never
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
@@ -400,8 +396,6 @@ class SelectHandler
         }
 
         ViewHelpers::redirectHome($environment);
-
-        return null;
     }
 
     /**
@@ -757,7 +751,7 @@ class SelectHandler
 
         $intersectValues = [];
         foreach ($values as $propertyName => $propertyValues) {
-            if (!($value = $this->getUniqueValueFromArray($propertyValues))) {
+            if (null === ($value = $this->getUniqueValueFromArray($propertyValues))) {
                 continue;
             }
 
@@ -866,6 +860,7 @@ class SelectHandler
         }
 
         // If the collection not in the session return the collection.
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         if (empty($session[$index])) {
             return $collection;
         }

@@ -81,7 +81,7 @@ class GetGroupHeaderSubscriber
      *
      * @return void
      */
-    public function handle(GetGroupHeaderEvent $event)
+    public function handle(GetGroupHeaderEvent $event): void
     {
         if ((null !== $event->getValue()) || !$this->getScopeDeterminator()->currentScopeIsBackend()) {
             return;
@@ -130,7 +130,7 @@ class GetGroupHeaderSubscriber
         PropertyInterface $property,
         $groupingMode,
         $groupingLength
-    ) {
+    ): ?string {
         $evaluation = $property->getExtra();
 
         if (isset($evaluation['multiple']) && !$evaluation['multiple'] && ('checkbox' === $property->getWidgetType())) {
@@ -156,7 +156,7 @@ class GetGroupHeaderSubscriber
             $remoteNew = $remoteNew[0];
         }
 
-        if (empty($remoteNew)) {
+        if ('' === (string) $remoteNew) {
             $remoteNew = '-';
         }
 
@@ -170,7 +170,7 @@ class GetGroupHeaderSubscriber
      *
      * @return string
      */
-    private function formatCheckboxOptionLabel($value)
+    private function formatCheckboxOptionLabel(string $value): string
     {
         return \ucfirst($this->translator->translate(('' !== $value) ? 'yes' : 'no', 'dc-general'));
     }
@@ -192,7 +192,7 @@ class GetGroupHeaderSubscriber
         EnvironmentInterface $environment,
         PropertyInterface $property,
         ModelInterface $model
-    ) {
+    ): ?string {
         switch ($groupingMode) {
             case GroupAndSortingInformationInterface::GROUP_CHAR:
                 return $this->formatByCharGrouping(
@@ -225,7 +225,7 @@ class GetGroupHeaderSubscriber
      *
      * @return string
      */
-    private function formatByCharGrouping($value, $groupingLength)
+    private function formatByCharGrouping($value, $groupingLength): string
     {
         if ('' === $value) {
             return '-';
@@ -304,7 +304,7 @@ class GetGroupHeaderSubscriber
      *
      * @return string
      */
-    private function formatByYearGrouping($value)
+    private function formatByYearGrouping(int $value): string
     {
         $value = $this->getTimestamp($value);
 

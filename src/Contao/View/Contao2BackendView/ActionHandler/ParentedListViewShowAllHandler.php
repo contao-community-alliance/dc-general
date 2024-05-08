@@ -254,6 +254,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function renderParentProperty(EnvironmentInterface $environment, $property, $value)
     {
+        /** @var array{reference?: array, isAssociative?: bool} $evaluation */
         $evaluation = $property->getExtra();
 
         if (\is_array($value)) {
@@ -450,8 +451,9 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $parameters['table'] = $parentName;
         $parameters['pid']   = '';
 
+        /** @var array{idparam?: string} $extra */
         $extra = (array) $command->getExtra();
-        if ($idParam = ($extra['idparam'] ?? null)) {
+        if (null !== ($idParam = ($extra['idparam'] ?? null))) {
             $parameters[$idParam] = ModelId::fromModel($parentModel)->getSerialized();
         } else {
             $parameters['id'] = ModelId::fromModel($parentModel)->getSerialized();
@@ -519,7 +521,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
@@ -594,7 +596,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return null;
         }
 
-        if (!($allowPasteTop = ViewHelpers::getManualSortingProperty($environment))) {
+        if ($allowPasteTop = (bool) ViewHelpers::getManualSortingProperty($environment)) {
             $subFilter = new Filter();
             $subFilter->andActionIsNotIn([ItemInterface::COPY, ItemInterface::DEEP_COPY]);
             $subFilter->andParentIsNot(ModelId::fromModel($parentModel));

@@ -214,7 +214,7 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $url = new UrlBuilder($addToUrlEvent->getUrl());
-        parse_str($url->getQueryString(), $parameters);
+        parse_str($url->getQueryString() ?? '', $parameters);
         foreach ($parameters as $name => $value) {
             if ('' === $value) {
                 $url->unsetQueryParameter($name);
@@ -274,7 +274,7 @@ class ClipboardController implements EventSubscriberInterface
             $parentId = null;
         }
 
-        if (!($clipboardActionName = $this->translateActionName($actionName))) {
+        if (null === ($clipboardActionName = $this->translateActionName($actionName))) {
             return;
         }
 
@@ -301,7 +301,7 @@ class ClipboardController implements EventSubscriberInterface
             $this->removeItemsFromClipboard($event);
 
             // Only push item to clipboard if manual sorting is used.
-            if (Item::COPY === $clipboardActionName && !ViewHelpers::getManualSortingProperty($environment)) {
+            if (Item::COPY === $clipboardActionName && null === ViewHelpers::getManualSortingProperty($environment)) {
                 return;
             }
 
@@ -336,7 +336,7 @@ class ClipboardController implements EventSubscriberInterface
 
         // No manual sorting property defined, no need to add it to the clipboard.
         // Or we already have an after or into attribute, a handler can pick it up.
-        return (!ViewHelpers::getManualSortingProperty($environment)
+        return (null === ViewHelpers::getManualSortingProperty($environment)
                 || $inputProvider->hasParameter('after')
                 || $inputProvider->hasParameter('into')
         );
@@ -377,7 +377,7 @@ class ClipboardController implements EventSubscriberInterface
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();

@@ -787,7 +787,7 @@ class EditMask
             return false;
         }
 
-        if ((null === $this->model->getId()) && $this->getManualSortingProperty()) {
+        if ((null === $this->model->getId()) && null !== $this->getManualSortingProperty()) {
             $models = $dataProvider->getEmptyCollection();
             $models->push($this->model);
 

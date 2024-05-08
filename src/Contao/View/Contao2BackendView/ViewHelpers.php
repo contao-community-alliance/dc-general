@@ -291,8 +291,7 @@ class ViewHelpers
         string $routeName,
         Request $request,
         EnvironmentInterface $environment
-    ): never
-    {
+    ): never {
         $routeGenerator = System::getContainer()->get('router');
         assert($routeGenerator instanceof UrlGeneratorInterface);
         $parameters = $request->query->all();
@@ -307,7 +306,10 @@ class ViewHelpers
         $requestStack = System::getContainer()->get('request_stack');
         assert($requestStack instanceof RequestStack);
 
-        return $requestStack->getCurrentRequest();
+        $request = $requestStack->getCurrentRequest();
+        assert($request instanceof Request);
+
+        return $request;
     }
 
     public static function dispatchRedirect(EnvironmentInterface $environment, RedirectEvent $event): never
