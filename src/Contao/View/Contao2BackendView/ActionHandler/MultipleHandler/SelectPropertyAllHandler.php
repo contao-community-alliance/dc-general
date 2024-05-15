@@ -116,7 +116,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @throws DcGeneralRuntimeException When no source has been defined.
      */
-    private function getPropertyDataProvider(EnvironmentInterface $environment)
+    private function getPropertyDataProvider(EnvironmentInterface $environment): NoOpDataProvider
     {
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -139,7 +139,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return void
      */
-    private function setPropertyLabelFormatter($providerName, EnvironmentInterface $environment)
+    private function setPropertyLabelFormatter(string $providerName, EnvironmentInterface $environment): void
     {
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -176,8 +176,10 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return CollectionInterface
      */
-    private function getCollection(DataProviderInterface $dataProvider, EnvironmentInterface $environment)
-    {
+    private function getCollection(
+        DataProviderInterface $dataProvider,
+        EnvironmentInterface $environment
+    ): CollectionInterface {
         $collection = $dataProvider->getEmptyCollection();
 
         $definition = $environment->getDataDefinition();
@@ -192,11 +194,11 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             $model->setID($property->getName());
             $model->setProperty(
                 'name',
-                $property->getLabel() ?: $property->getName()
+                $this->translator->trans($property->getLabel(), [], $definition->getName())
             );
             $model->setProperty(
                 'description',
-                $property->getDescription() ?: $property->getName()
+                $this->translator->trans($property->getDescription(), [], $definition->getName())
             );
 
             $this->handlePropertyFileTree($property);
@@ -216,7 +218,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return bool
      */
-    private function isPropertyAllowed(PropertyInterface $property, EnvironmentInterface $environment)
+    private function isPropertyAllowed(PropertyInterface $property, EnvironmentInterface $environment): bool
     {
         if (!$property->getWidgetType() || ('dummyProperty' === $property->getWidgetType())) {
             return false;
@@ -261,7 +263,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return bool
      */
-    private function isPropertyAllowedByEdit(array $extra, EnvironmentInterface $environment)
+    private function isPropertyAllowedByEdit(array $extra, EnvironmentInterface $environment): bool
     {
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
@@ -278,7 +280,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return bool
      */
-    private function isPropertyAllowedByOverride(array $extra, EnvironmentInterface $environment)
+    private function isPropertyAllowedByOverride(array $extra, EnvironmentInterface $environment): bool
     {
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
@@ -300,7 +302,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     private function isPropertyAllowedByIntersectProperties(
         PropertyInterface $property,
         EnvironmentInterface $environment
-    ) {
+    ): bool {
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
@@ -324,7 +326,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
-    private function handlePropertyFileTree(PropertyInterface $property)
+    private function handlePropertyFileTree(PropertyInterface $property): void
     {
         if ('fileTree' !== $property->getWidgetType()) {
             return;
@@ -361,7 +363,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return void
      */
-    private function handlePropertyFileTreeOrder(PropertyInterface $property, ModelInterface $model)
+    private function handlePropertyFileTreeOrder(PropertyInterface $property, ModelInterface $model): void
     {
         if ('fileTreeOrder' !== $property->getWidgetType()) {
             return;

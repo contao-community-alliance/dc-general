@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -323,7 +323,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return null
+     * @return never
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
@@ -344,8 +344,6 @@ class SelectHandler
         }
 
         ViewHelpers::redirectHome($environment);
-
-        return null;
     }
 
     /**
@@ -354,7 +352,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return null
+     * @return never
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
@@ -372,8 +370,6 @@ class SelectHandler
         }
 
         ViewHelpers::redirectHome($environment);
-
-        return null;
     }
 
     /**
@@ -382,7 +378,7 @@ class SelectHandler
      * @param EnvironmentInterface $environment The environment.
      * @param Action               $action      The action.
      *
-     * @return null
+     * @return never
      *
      * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
      */
@@ -400,8 +396,6 @@ class SelectHandler
         }
 
         ViewHelpers::redirectHome($environment);
-
-        return null;
     }
 
     /**
@@ -502,8 +496,8 @@ class SelectHandler
 
         $closeCommand
             ->setName('close_all_button')
-            ->setLabel('closeAll_label')
-            ->setDescription('closeAll_description')
+            ->setLabel('closeAll.label')
+            ->setDescription('closeAll.description')
             ->setParameters(new ArrayObject())
             ->setExtra(new ArrayObject($closeExtra))
             ->setDisabled(false);
@@ -616,6 +610,9 @@ class SelectHandler
         $modelIds = [];
         foreach (($session['models'] ?? []) as $modelId) {
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
+        }
+        if ([] === $modelIds) {
+            return $dataProvider->getEmptyCollection();
         }
 
         $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
@@ -754,7 +751,7 @@ class SelectHandler
 
         $intersectValues = [];
         foreach ($values as $propertyName => $propertyValues) {
-            if (!($value = $this->getUniqueValueFromArray($propertyValues))) {
+            if (null === ($value = $this->getUniqueValueFromArray($propertyValues))) {
                 continue;
             }
 
@@ -863,6 +860,7 @@ class SelectHandler
         }
 
         // If the collection not in the session return the collection.
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         if (empty($session[$index])) {
             return $collection;
         }

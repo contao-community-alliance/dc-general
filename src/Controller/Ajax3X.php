@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -43,6 +43,16 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+
+use function array_merge;
+use function implode;
+use function is_string;
+use function preg_replace;
+use function str_replace;
+use function str_starts_with;
+use function strlen;
+use function substr;
+use function urldecode;
 
 /**
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
@@ -83,14 +93,14 @@ class Ajax3X extends Ajax
         $widgetManager = new ContaoWidgetManager($environment, $model);
 
         // Process input and update changed properties.
-        $treeType      = \substr($property->getWidgetType(), 0, 4);
+        $treeType      = substr($property->getWidgetType(), 0, 4);
         $propertyValue = $this->getTreeValue($treeType, $propertyValue);
         if (('file' === $treeType) || ('page' === $treeType)) {
             $extra = $property->getExtra();
             if (!isset($extra['multiple'])) {
                 $propertyValue = $propertyValue[0];
             } else {
-                $propertyValue = \implode(',', $propertyValue);
+                $propertyValue = implode(',', $propertyValue);
             }
         }
 
@@ -123,16 +133,16 @@ class Ajax3X extends Ajax
         assert($definition instanceof ContainerInterface);
 
         $field  = $input->getValue('field');
-        $name   = $input->getValue('name');
+        $name   = (string) $input->getValue('name');
         $level  = (int) $input->getValue('level');
         $rootId = (string) $input->getValue('id');
 
-        $ajaxId   = \preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
-        $ajaxKey  = \str_replace('_' . $ajaxId, '', $rootId);
-        $ajaxName = null;
+        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
+        $ajaxKey  = str_replace('_' . $ajaxId, '', $rootId);
+        $ajaxName = '';
         if ('editAll' === $input->getValue('act')) {
-            $ajaxKey  = \preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
-            $ajaxName = \preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
+            $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
+            $ajaxName = (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
 
         $nodes          = $session->get($ajaxKey);
@@ -184,7 +194,7 @@ class Ajax3X extends Ajax
         $arrData['strTable'] = $input->getParameter('table');
         $arrData['id']       = $field;
         $arrData['name']     = $field;
-        $arrData             = \array_merge(
+        $arrData             = array_merge(
             $definition->getPropertiesDefinition()->getProperty($field)->getExtra(),
             $arrData
         );
@@ -227,8 +237,8 @@ class Ajax3X extends Ajax
         // Automatically add resources to the DBAFS.
         if ('file' === $type) {
             foreach ($value as $k => $v) {
-                $uuid = Dbafs::addResource(\urldecode($v))->uuid;
-                assert(\is_string($uuid));
+                $uuid = Dbafs::addResource(urldecode($v))->uuid;
+                assert(is_string($uuid));
                 $value[$k] = StringUtil::binToUuid($uuid);
             }
         }
@@ -293,7 +303,7 @@ class Ajax3X extends Ajax
         $value        = $input->hasValue('value') ? $input->getValue('value', true) : '';
 
         $fieldName = $this->getFieldName();
-        assert(\is_string($fieldName));
+        assert(is_string($fieldName));
 
         $widget = $this->getWidget($fieldName, $serializedId, $value);
         assert($widget instanceof Widget);
@@ -383,15 +393,15 @@ class Ajax3X extends Ajax
                 break;
             }
 
-            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
-            if (0 !== strpos($fieldName, $propertyNamePrefix)) {
+            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
+            if (!str_starts_with($fieldName, $propertyNamePrefix)) {
                 continue;
             }
 
-            $originalPropertyName = \substr($fieldName, \strlen($propertyNamePrefix));
+            $originalPropertyName = substr($fieldName, strlen($propertyNamePrefix));
         }
 
-        if (!$originalPropertyName) {
+        if (null === $originalPropertyName) {
             return $fieldName;
         }
 

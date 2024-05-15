@@ -234,6 +234,9 @@ abstract class Ajax implements EnvironmentAwareInterface
         assert($inputProvider instanceof InputProviderInterface);
 
         $action = $inputProvider->getValue('action');
+        if (null === $action) {
+            return;
+        }
 
         if (
             \in_array(

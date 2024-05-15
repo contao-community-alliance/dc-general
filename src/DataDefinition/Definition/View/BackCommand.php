@@ -31,7 +31,7 @@ class BackCommand extends Command
     public function __construct()
     {
         parent::__construct();
-        $this->extra['class']      = 'header_back';
+        $this->extra['class']      = 'header_back dcg';
         $this->extra['accesskey']  = 'b';
         $this->extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
         $this

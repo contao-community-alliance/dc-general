@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -60,7 +60,7 @@ abstract class AbstractCallbackListener
     {
         $this->callback = $callback;
 
-        if ($restrictions) {
+        if (\is_array($restrictions)) {
             call_user_func_array([$this, 'setRestrictions'], $restrictions);
         }
     }
@@ -86,7 +86,7 @@ abstract class AbstractCallbackListener
      */
     public function wantToExecute($event)
     {
-        if (empty($this->dataContainerName)) {
+        if (null === $this->dataContainerName) {
             return true;
         }
         if (!$event instanceof EnvironmentAwareInterface) {
@@ -95,6 +95,7 @@ abstract class AbstractCallbackListener
         if (null === $definition = $event->getEnvironment()->getDataDefinition()) {
             return false;
         }
+
         return ($this->dataContainerName === $definition->getName());
     }
 

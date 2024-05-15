@@ -98,7 +98,7 @@ interface PaletteInterface
     /**
      * Set all legends to this palette.
      *
-     * @param array|LegendInterface[] $legends The legends.
+     * @param list<LegendInterface> $legends The legends.
      *
      * @return PaletteInterface
      */
@@ -107,8 +107,8 @@ interface PaletteInterface
     /**
      * Add all legends to this palette.
      *
-     * @param array|LegendInterface[] $legends The legends.
-     * @param LegendInterface         $before  The legend before which the new legends shall be inserted (optional).
+     * @param list<LegendInterface> $legends The legends.
+     * @param LegendInterface       $before  The legend before which the new legends shall be inserted (optional).
      *
      * @return PaletteInterface
      */
@@ -165,7 +165,7 @@ interface PaletteInterface
     /**
      * Return the legends from this palette.
      *
-     * @return array|LegendInterface[]
+     * @return list<LegendInterface>
      */
     public function getLegends();
 

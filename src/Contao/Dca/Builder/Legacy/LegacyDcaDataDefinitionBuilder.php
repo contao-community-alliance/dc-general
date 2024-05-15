@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -120,7 +120,6 @@ use function count;
 use function explode;
 use function in_array;
 use function is_array;
-use function is_callable;
 use function next;
 use function parse_str;
 use function reset;
@@ -515,7 +514,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         // If mode is 5, we need to define tree view.
         if (
             (5 === $this->getFromDca('list/sorting/mode'))
-            && !$container->getBasicDefinition()->getRootDataProvider()
+            && null === $container->getBasicDefinition()->getRootDataProvider()
         ) {
             $container->getBasicDefinition()->setRootDataProvider($container->getName());
         }
@@ -545,16 +544,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                         )
                     );
 
-                if (!$container->getBasicDefinition()->getRootDataProvider()) {
+                if (null === $container->getBasicDefinition()->getRootDataProvider()) {
                     $container->getBasicDefinition()->setRootDataProvider($parentTable);
                 }
-                if (!$container->getBasicDefinition()->getParentDataProvider()) {
+                if (null === $container->getBasicDefinition()->getParentDataProvider()) {
                     $container->getBasicDefinition()->setParentDataProvider($parentTable);
                 }
             }
         }
 
-        $providerName = $container->getBasicDefinition()->getDataProvider() ?: $container->getName();
+        $providerName = $container->getBasicDefinition()->getDataProvider() ?? $container->getName();
 
         // Check config if it already exists, if not, add it.
         if (!$config->hasInformation($providerName)) {
@@ -591,7 +590,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 // @codingStandardsIgnoreEnd
             }
 
-            if (!$container->getBasicDefinition()->getDataProvider()) {
+            if (null === $container->getBasicDefinition()->getDataProvider()) {
                 $container->getBasicDefinition()->setDataProvider($providerName);
             }
         }
@@ -626,7 +625,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     {
         $rootProvider = $container->getBasicDefinition()->getRootDataProvider();
 
-        if (!$rootProvider) {
+        if (null === $rootProvider) {
             throw new DcGeneralRuntimeException(
                 'Root data provider name not specified in DCA but rootEntries section specified.'
             );
@@ -873,6 +872,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $parsedProperties = [];
         $sortingDca       = ($listDca['sorting'] ?? []);
 
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         if ($headerFields = ($sortingDca['headerFields'] ?? [])) {
             assert(\is_array($headerFields));
             /** @var list<string> $headerFields */
@@ -1332,7 +1332,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             switch ($key) {
                 case 'label':
                     if (null === $value) {
-                        $value = '';
+                        $value = 'LABEL NOT SET: ' . $property->getName();
                     }
                     assert(is_string($value) || is_array($value));
                     $this->parseSinglePropertyLabel($property, $value);

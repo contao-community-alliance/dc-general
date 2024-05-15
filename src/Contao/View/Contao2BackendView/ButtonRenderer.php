@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -55,6 +55,20 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+use function array_filter;
+use function array_merge;
+use function array_values;
+use function implode;
+use function in_array;
+use function is_string;
+use function ltrim;
+use function sprintf;
+use function str_replace;
+use function strlen;
+use function strrpos;
+use function substr_replace;
+use function trim;
 
 /**
  * This class is a helper for rendering the operation buttons in the views.
@@ -147,10 +161,12 @@ class ButtonRenderer
         $this->circularModelIds = [];
 
         // We must only check for CUT operation here as pasting copy'ed parents is allowed.
-        $cutItems  = \array_values(\array_filter(
-            $this->clipboardItems,
-            static fn (ItemInterface $item): bool => $item->getAction() === $item::CUT
-        ));
+        $cutItems = array_values(
+            array_filter(
+                $this->clipboardItems,
+                static fn(ItemInterface $item): bool => $item->getAction() === $item::CUT
+            )
+        );
         $cutModels = $controller->getModelsFromClipboardItems($cutItems);
         $collector = new ModelCollector($environment);
         foreach ($cutModels as $model) {
@@ -192,11 +208,11 @@ class ButtonRenderer
         ModelInterface $model,
         ModelInterface $previous = null,
         ModelInterface $next = null
-    ) {
+    ): void {
         $modelId = ModelId::fromModel($model)->getSerialized();
 
         if ($this->clipboardItems) {
-            $isCircular = \in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
+            $isCircular = in_array(ModelId::fromModel($model)->getSerialized(), $this->circularModelIds);
         } else {
             $isCircular = false;
         }
@@ -214,8 +230,8 @@ class ButtonRenderer
 
         // Add paste into/after icons.
         if ($this->hasPasteButtons()) {
-            $urlAfter = $this->addToUrl(\sprintf('act=paste&after=%s&', $modelId));
-            $urlInto  = $this->addToUrl(\sprintf('act=paste&into=%s&', $modelId));
+            $urlAfter = $this->addToUrl(sprintf('act=paste&after=%s&', $modelId));
+            $urlInto  = $this->addToUrl(sprintf('act=paste&into=%s&', $modelId));
 
 
             $buttonEvent = new GetPasteButtonEvent($this->environment);
@@ -244,7 +260,7 @@ class ButtonRenderer
 
         $model->setMeta(
             $model::OPERATION_BUTTONS,
-            \implode(' ', $buttons)
+            implode(' ', $buttons)
         );
     }
 
@@ -253,7 +269,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function isHierarchical()
+    private function isHierarchical(): bool
     {
         $dataDefinition  = $this->environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
@@ -268,7 +284,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function hasPasteButtons()
+    private function hasPasteButtons(): bool
     {
         return ((true === (bool) ViewHelpers::getManualSortingProperty($this->environment))
                 && false === empty($this->clipboardItems));
@@ -279,7 +295,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function hasPasteNewButton()
+    private function hasPasteNewButton(): bool
     {
         $environment = $this->environment;
         $definition  = $environment->getDataDefinition();
@@ -305,21 +321,31 @@ class ButtonRenderer
      * @param string[]            $childIds            The ids of all child models.
      *
      * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    private function buildCommand($command, $model, $previous, $next, $isCircularReference, $childIds)
-    {
+    private function buildCommand(
+        CommandInterface $command,
+        ModelInterface $model,
+        ?ModelInterface $previous,
+        ?ModelInterface $next,
+        bool $isCircularReference,
+        array $childIds
+    ): string {
         $extra      = (array) $command->getExtra();
-        $attributes = '';
-
-        if (!empty($extra['attributes'])) {
-            $attributes .= \sprintf($extra['attributes'], $model->getID());
+        if ('' !== ($attributes = $extra['attributes'] ?? '')) {
+            // BC compatibility with legacy strings containing 'Edit item %s'
+            if (false === str_contains($attributes, '%id%')) {
+                $attributes = sprintf($attributes, $model->getID());
+            }
+            $attributes = strtr($attributes, ['%id%' => $model->getId()]);
         }
         $icon = $extra['icon'];
 
         if ($command instanceof ToggleCommandInterface) {
             $iconDisabled = ($extra['icon_disabled'] ?? 'invisible.svg');
 
-            $attributes .= \sprintf(
+            $attributes .= sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
                 Controller::addStaticUrlTo(System::urlEncode($icon)),
                 Controller::addStaticUrlTo(System::urlEncode($iconDisabled))
@@ -330,6 +356,9 @@ class ButtonRenderer
             }
         }
 
+        $definitionName = $this->environment->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
+
         $buttonEvent = new GetOperationButtonEvent($this->environment);
         $buttonEvent
             ->setKey($command->getName())
@@ -337,7 +366,13 @@ class ButtonRenderer
             ->setObjModel($model)
             ->setAttributes($attributes)
             ->setLabel($this->getCommandLabel($command))
-            ->setTitle(\sprintf($this->translate($command->getDescription()), $model->getID()))
+            ->setTitle(
+                $this->translateButtonDescription(
+                    str_replace(['.description', '.1'], '', $command->getDescription()),
+                    $definitionName,
+                    ['%id%' => $model->getId()]
+                )
+            )
             ->setHref($this->calculateHref($command, $model))
             ->setChildRecordIds($childIds)
             ->setCircularReference($isCircularReference)
@@ -348,7 +383,7 @@ class ButtonRenderer
 
         if (null !== ($html = $buttonEvent->getHtml())) {
             // If the event created a button, use it.
-            return \trim($html);
+            return trim($html);
         }
 
         if ($buttonEvent->isDisabled()) {
@@ -359,13 +394,13 @@ class ButtonRenderer
                 if ($icon !== Image::getPath($icon)) {
                     $iconDisabledSuffix = '_';
                 }
-                $icon = \substr_replace($icon, $iconDisabledSuffix, \strrpos($icon, '.') ?: \strlen($icon), 0);
+                $icon = substr_replace($icon, $iconDisabledSuffix, ((int) strrpos($icon, '.')) ?: strlen($icon), 0);
             }
 
             return $this->renderImageAsHtml(
                 $icon,
                 $buttonEvent->getLabel(),
-                \sprintf(
+                sprintf(
                     'title="%s" class="%s"',
                     StringUtil::specialchars($this->translator->translate(
                         'dc_general_disabled',
@@ -377,12 +412,12 @@ class ButtonRenderer
             );
         }
 
-        return \sprintf(
+        return sprintf(
             ' <a class="%s" href="%s" title="%s" %s>%s</a>',
             $command->getName(),
             $buttonEvent->getHref() ?? '',
             StringUtil::specialchars($buttonEvent->getTitle()),
-            \ltrim($buttonEvent->getAttributes()),
+            ltrim($buttonEvent->getAttributes()),
             $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
         );
     }
@@ -394,7 +429,7 @@ class ButtonRenderer
      *
      * @return string[]
      */
-    private function getChildIds(ModelInterface $model)
+    private function getChildIds(ModelInterface $model): array
     {
         if (null === ($childCollections = $model->getMeta($model::CHILD_COLLECTIONS))) {
             return [];
@@ -409,7 +444,7 @@ class ButtonRenderer
             }
         }
 
-        return \array_merge($ids, ...$childIds);
+        return array_merge($ids, ...$childIds);
     }
 
     /**
@@ -420,7 +455,7 @@ class ButtonRenderer
      *
      * @return string[]
      */
-    private function calculateParameters(CommandInterface $command, $serializedModelId)
+    private function calculateParameters(CommandInterface $command, string $serializedModelId): array
     {
         $parameters = (array) $command->getParameters();
         if ($command instanceof ToggleCommandInterface) {
@@ -449,9 +484,10 @@ class ButtonRenderer
             return $parameters;
         }
 
+        /** @var array{idparam?: string} $extra */
         $extra = (array) $command->getExtra();
 
-        $parameters[($extra['idparam'] ?? null) ?: 'id'] = $serializedModelId;
+        $parameters[($extra['idparam'] ?? '') ?: 'id'] = $serializedModelId;
 
         return $parameters;
     }
@@ -463,10 +499,17 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderPasteNewFor($modelId)
+    private function renderPasteNewFor(string $modelId): string
     {
-        $label = \sprintf($this->translate('pastenew.1'), ModelId::fromSerialized($modelId)->getId());
-        return \sprintf(
+        $definitionName = $this->environment->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
+        $label = $this->translateButtonDescription(
+            'pastenew',
+            $definitionName,
+            ['%id%' => ModelId::fromSerialized($modelId)->getId()]
+        );
+
+        return sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
             StringUtil::specialchars($label),
@@ -481,13 +524,16 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderPasteIntoButton(GetPasteButtonEvent $event)
+    private function renderPasteIntoButton(GetPasteButtonEvent $event): string
     {
         if (null !== ($value = $event->getHtmlPasteInto())) {
             return $value;
         }
 
-        $label = $this->translate('pasteinto.0');
+        $definitionName = $event->getEnvironment()->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
+
+        $label = $this->translateButtonLabel('pasteinto', $definitionName);
         if ($event->isPasteIntoDisabled()) {
             return $this->renderImageAsHtml('pasteinto_.svg', $label, 'class="blink"');
         }
@@ -495,13 +541,9 @@ class ButtonRenderer
         $model = $event->getModel();
         assert($model instanceof ModelInterface);
 
-        if ('pasteinto.1' !== ($opDesc = $this->translate('pasteinto.1'))) {
-            $title = \sprintf($opDesc, $model->getId());
-        } else {
-            $title = \sprintf('%s id %s', $label, $model->getId());
-        }
+        $title = $this->translateButtonDescription('pasteinto', $definitionName, ['%id%' => $model->getId()]);
 
-        return \sprintf(
+        return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefInto() ?? '',
             StringUtil::specialchars($title),
@@ -516,27 +558,24 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderPasteAfterButton(GetPasteButtonEvent $event)
+    private function renderPasteAfterButton(GetPasteButtonEvent $event): string
     {
         if (null !== ($value = $event->getHtmlPasteAfter())) {
             return $value;
         }
 
-        $label = $this->translate('pasteafter.0');
-        if ($event->isPasteAfterDisabled()) {
-            return $this->renderImageAsHtml('pasteafter_.svg', $label, 'class="blink"');
-        }
-
+        $definitionName = $event->getEnvironment()->getDataDefinition()?->getName();
+        assert(is_string($definitionName));
         $model = $event->getModel();
         assert($model instanceof ModelInterface);
 
-        if ('pasteafter.1' !== ($opDesc = $this->translate('pasteafter.1'))) {
-            $title = \sprintf($opDesc, $model->getId());
-        } else {
-            $title = \sprintf('%s id %s', $label, $model->getId());
+        $label = $this->translateButtonLabel('pasteafter', $definitionName, ['%id%' => $model->getId()]);
+        if ($event->isPasteAfterDisabled()) {
+            return $this->renderImageAsHtml('pasteafter_.svg', $label, 'class="blink"');
         }
+        $title = $this->translateButtonDescription('pasteafter', $definitionName, ['%id%' => $model->getId()]);
 
-        return \sprintf(
+        return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $event->getHrefAfter() ?? '',
             StringUtil::specialchars($title),
@@ -549,7 +588,7 @@ class ButtonRenderer
      *
      * @return list<ItemInterface>
      */
-    private function calculateClipboardItems()
+    private function calculateClipboardItems(): array
     {
         $dataDefinition  = $this->environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
@@ -561,10 +600,10 @@ class ButtonRenderer
         $filter = new Filter();
 
         $dataProvider = $basicDefinition->getDataProvider();
-        assert(\is_string($dataProvider));
+        assert(is_string($dataProvider));
 
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
@@ -593,6 +632,49 @@ class ButtonRenderer
         return $this->translator->translate($path, 'dc-general');
     }
 
+    protected function translateButtonLabel(string $buttonName, string $definitionName, array $parameter = []): string
+    {
+        // New way via symfony translator.
+        if (
+            $buttonName . '.label' !== ($header =
+                $this->translator->translate($buttonName . '.label', $definitionName, $parameter))
+        ) {
+            return $header;
+        }
+
+        return $this->translator->translate($buttonName . '.0', $definitionName, $parameter);
+    }
+
+    protected function translateButtonDescription(
+        string $buttonName,
+        string $definitionName,
+        array $parameter = []
+    ): string {
+        // New way via symfony translator.
+        if (
+            $buttonName . '.description'
+            !== ($header = $this->translator->translate($buttonName . '.description', $definitionName, $parameter))
+        ) {
+            return $header;
+        }
+
+        if (
+            1 !== preg_match('#%(?:[bcdeEfFgGhHosuxX]|\d*\$[bcdeEfFgGhHosuxX])#', $buttonName)
+            && $definitionName . '.' . $buttonName . '.1'
+               !== (
+                   $header = $this->translator->translate(
+                       $definitionName . '.' . $buttonName . '.1',
+                       'contao_' . $definitionName,
+                       $parameter
+                   )
+               )
+        ) {
+            return $header;
+        }
+
+        return vsprintf($buttonName, $parameter);
+    }
+
     /**
      * Render an image as HTML string.
      *
@@ -602,7 +684,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function renderImageAsHtml($src, $alt, $attributes = '')
+    private function renderImageAsHtml(string $src, string $alt, string $attributes = ''): string
     {
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $this->eventDispatcher->dispatch(
@@ -620,7 +702,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function addToUrl($parameters)
+    private function addToUrl(string $parameters): string
     {
         /** @var AddToUrlEvent $urlAfter */
         $urlAfter = $this->eventDispatcher->dispatch(new AddToUrlEvent($parameters), ContaoEvents::BACKEND_ADD_TO_URL);
@@ -636,7 +718,7 @@ class ButtonRenderer
      *
      * @return bool
      */
-    private function isTogglerInActiveState($command, $model)
+    private function isTogglerInActiveState(ToggleCommandInterface $command, ModelInterface $model): bool
     {
         $dataProvider   = $this->environment->getDataProvider($model->getProviderName());
         $propModel      = $model;
@@ -675,12 +757,12 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function calculateHref(CommandInterface $command, $model)
+    private function calculateHref(CommandInterface $command, ModelInterface $model): string
     {
         $parameters = $this->calculateParameters($command, ModelId::fromModel($model)->getSerialized());
         $href       = '';
         foreach ($parameters as $key => $value) {
-            $href .= \sprintf('&%s=%s', $key, $value);
+            $href .= sprintf('&%s=%s', $key, $value);
         }
 
         return $this->addToUrl($href);
@@ -693,7 +775,7 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function getCommandLabel(CommandInterface $command)
+    private function getCommandLabel(CommandInterface $command): string
     {
         if ('' === $label = $command->getLabel()) {
             $label = $command->getName();
