@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -43,21 +43,21 @@ class SessionStorage implements SessionStorageInterface
      *
      * @var SessionInterface
      */
-    private $session;
+    private SessionInterface $session;
 
     /**
      * The database keys for store session data in the database.
      *
      * @var array
      */
-    private $databaseKeys = [];
+    private array $databaseKeys = [];
 
     /**
      * The attribute storage.
      *
      * @var array
      */
-    private $attributes = [];
+    private array $attributes = [];
 
     /**
      * Create a new instance.
@@ -77,7 +77,7 @@ class SessionStorage implements SessionStorageInterface
 
         foreach ($databaseKeys as $index => $databaseKeyItems) {
             foreach ((array) $databaseKeyItems as $databaseKey) {
-                if (('common' === $index) || (0 === \strpos($index, 'DC_GENERAL_'))) {
+                if (('common' === $index) || (\str_starts_with($index, 'DC_GENERAL_'))) {
                     $this->databaseKeys[$index][] = $databaseKey;
 
                     continue;
@@ -97,7 +97,7 @@ class SessionStorage implements SessionStorageInterface
      */
     public function setScope($scope)
     {
-        if ($this->scope) {
+        if (null !== $this->scope) {
             // @codingStandardsIgnoreStart
             @\trigger_error('The scope can not be change! Use a new session storage.', E_USER_ERROR);
             // @codingStandardsIgnoreEnd
@@ -206,7 +206,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @return void
      */
-    private function persist()
+    private function persist(): void
     {
         if (null === $scope = $this->getScope()) {
             return;
@@ -229,10 +229,10 @@ class SessionStorage implements SessionStorageInterface
      *
      * @return array
      */
-    private function filterAttributes($determineDatabase = false)
+    private function filterAttributes(bool $determineDatabase = false): array
     {
         $databaseAttributes = $this->databaseKeys['common'] ?? [];
-        if ($scope = $this->getScope()) {
+        if (null !== ($scope = $this->getScope())) {
             $databaseAttributes = \array_merge($databaseAttributes, $this->databaseKeys[$scope] ?? []);
         }
 
@@ -250,10 +250,11 @@ class SessionStorage implements SessionStorageInterface
      */
     private function getScope(): ?string
     {
-        if (!$this->scope) {
+        if (null === $this->scope) {
             // @codingStandardsIgnoreStart
             @\trigger_error('The scope for this session storage is not defined!', E_USER_ERROR);
             // @codingStandardsIgnoreEnd
+
             return null;
         }
 
@@ -265,7 +266,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @return string
      */
-    private function getSessionBagKey()
+    private function getSessionBagKey(): string
     {
         return 'cca_dc_general';
     }
@@ -275,7 +276,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @return string
      */
-    private function getDatabaseSessionBagKey()
+    private function getDatabaseSessionBagKey(): string
     {
         return 'contao_backend';
     }

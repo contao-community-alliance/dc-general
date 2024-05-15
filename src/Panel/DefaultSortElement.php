@@ -32,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a sort element.
@@ -195,14 +196,16 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     {
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
+        $properties = $definition->getPropertiesDefinition();
+        $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
 
         $options = [];
         foreach ($this->getGroupAndSortingDefinition() as $information) {
             /** @var GroupAndSortingDefinitionInterface $information */
-            $name       = $information->getName();
-            $properties = $definition->getPropertiesDefinition();
+            $name = $information->getName();
             if ($properties->hasProperty($name)) {
-                $name = $properties->getProperty($name)->getLabel();
+                $name = $translator->translate($properties->getProperty($name)->getLabel(), $definition->getName());
             }
 
             if (empty($name)) {

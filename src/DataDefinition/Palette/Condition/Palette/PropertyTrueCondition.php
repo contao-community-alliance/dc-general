@@ -46,6 +46,10 @@ class PropertyTrueCondition extends AbstractBoolPaletteCondition
             return false;
         }
 
-        return ($this->strict ? (true === $value) : $value) ? $this->getWeight() : false;
+        if ($this->strict) {
+            return (true === $value) ? $this->getWeight() : false;
+        }
+
+        return ((bool) $value) ? $this->getWeight() : false;
     }
 }

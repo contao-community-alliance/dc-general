@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -36,6 +36,13 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChi
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
+use RuntimeException;
+
+use function array_merge;
+use function count;
+use function is_array;
+use function is_string;
+use function sprintf;
 
 /**
  * Generic class to retrieve a tree collection for tree views.
@@ -49,28 +56,28 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @var EnvironmentInterface
      */
-    private $environment;
+    private EnvironmentInterface $environment;
 
     /**
      * The panel container in use.
      *
      * @var PanelContainerInterface
      */
-    private $panel;
+    private PanelContainerInterface $panel;
 
     /**
      * The sorting information.
      *
      * @var array
      */
-    private $sorting;
+    private array $sorting;
 
     /**
      * The tree node states that represent the current flags for the tree nodes.
      *
      * @var TreeNodeStates
      */
-    private $states;
+    private TreeNodeStates $states;
 
     /**
      * Create a new instance.
@@ -185,9 +192,9 @@ class TreeCollector implements EnvironmentAwareInterface
                     ->setFilter($childCondition->getFilter($model))
                     ->setIdOnly(true)
             );
-        assert(\is_array($childIds));
+        assert(is_array($childIds));
 
-        if (!\count($childIds)) {
+        if (!count($childIds)) {
             return null;
         }
 
@@ -264,7 +271,7 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // If expanded, store children.
-        if ($model->getMeta($model::SHOW_CHILDREN) && \count($childCollections)) {
+        if ($model->getMeta($model::SHOW_CHILDREN) && count($childCollections)) {
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
@@ -279,7 +286,7 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @return void
      *
-     * @throws \RuntimeException When the parent provider does not match.
+     * @throws RuntimeException When the parent provider does not match.
      */
     private function addParentFilter(ConfigInterface $config, ModelInterface $parentModel)
     {
@@ -292,11 +299,11 @@ class TreeCollector implements EnvironmentAwareInterface
         assert($basicDefinition instanceof BasicDefinitionInterface);
 
         $parentDataProvider = $basicDefinition->getParentDataProvider();
-        assert(\is_string($parentDataProvider));
+        assert(is_string($parentDataProvider));
 
         if ($parentDataProvider !== $parentModel->getProviderName()) {
-            throw new \RuntimeException(
-                \sprintf(
+            throw new RuntimeException(
+                sprintf(
                     'Parent provider mismatch: %s vs. %s',
                     $parentDataProvider,
                     $parentModel->getProviderName()
@@ -305,7 +312,7 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         $rootDataProvider = $basicDefinition->getRootDataProvider();
-        assert(\is_string($rootDataProvider));
+        assert(is_string($rootDataProvider));
 
         // Apply parent filtering, do this only for root elements.
         if (
@@ -317,8 +324,8 @@ class TreeCollector implements EnvironmentAwareInterface
             $baseFilter = $config->getFilter();
             $filter     = $parentCondition->getFilter($parentModel);
 
-            if ($baseFilter) {
-                $filter = \array_merge($baseFilter, $filter);
+            if (is_array($baseFilter)) {
+                $filter = array_merge($baseFilter, $filter);
             }
 
             $config->setFilter($filter);
@@ -395,8 +402,8 @@ class TreeCollector implements EnvironmentAwareInterface
             $baseFilter = $rootConfig->getFilter();
             $filter     = $rootCondition->getFilterArray();
 
-            if ($baseFilter) {
-                $filter = \array_merge($baseFilter, $filter);
+            if (is_array($baseFilter)) {
+                $filter = array_merge($baseFilter, $filter);
             }
 
             $rootConfig->setFilter($filter);

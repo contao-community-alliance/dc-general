@@ -31,6 +31,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBui
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a filter panel element.
@@ -209,13 +210,15 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     {
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
-
-        $labels = $definition->getPropertiesDefinition()
-            ->getProperty($this->getPropertyName())->getLabel();
+        $translator = $this->getEnvironment()->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+        $properties = $definition->getPropertiesDefinition();
+        $field      = $this->getPropertyName();
+        $label      = $translator->translate($properties->getProperty($field)->getLabel(), $definition->getName());
 
         $options = [
             [
-                'value'   => 'tl_' . $this->getPropertyName(),
+                'value'   => 'tl_' . $field,
                 'content' => '---',
                 'attributes' => ''
             ]
@@ -230,7 +233,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             ];
         }
 
-        $viewTemplate->set('label', $labels);
+        $viewTemplate->set('label', $label);
         $viewTemplate->set('name', $this->getPropertyName());
         $viewTemplate->set('id', $this->getPropertyName());
         $viewTemplate->set('class', 'tl_select' . ((null !== $selectedValue) ? ' active' : ''));

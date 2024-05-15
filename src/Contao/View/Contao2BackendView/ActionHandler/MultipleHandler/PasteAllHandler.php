@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -58,14 +58,14 @@ class PasteAllHandler
      *
      * @var ModelInterface|null
      */
-    protected $copiedModel = null;
+    protected ?ModelInterface $copiedModel = null;
 
     /**
      * The original model is available by paste mode copy.
      *
      * @var ModelInterface|null
      */
-    protected $originalModel = null;
+    protected ?ModelInterface $originalModel = null;
 
 
     /**
@@ -157,7 +157,7 @@ class PasteAllHandler
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($provider);
-        if ($basicDefinition->getParentDataProvider()) {
+        if (null !== $basicDefinition->getParentDataProvider()) {
             $filter->andParentIsFromProvider($parentProvider);
         } else {
             $filter->andHasNoParent();
@@ -209,7 +209,9 @@ class PasteAllHandler
                 continue;
             }
             $pasteAfter =
-                $previousItem ? $previousItem->getModelId()->getSerialized() : $inputProvider->getParameter('after');
+                null !== $previousItem
+                ? $previousItem->getModelId()->getSerialized()
+                : $inputProvider->getParameter('after');
 
             $collection[$clipboardItem->getModelId()->getSerialized()] = [
                 'item'       => $clipboardItem,
@@ -263,9 +265,11 @@ class PasteAllHandler
                 continue;
             }
 
-            $pasteMode  = $previousItem ? 'after' : $originalPasteMode;
+            $pasteMode  = null !== $previousItem ? 'after' : $originalPasteMode;
             $pasteAfter =
-                $previousItem ? $previousItem->getModelId()->getSerialized() : $inputProvider->getParameter($pasteMode);
+                null !== $previousItem
+                    ? $previousItem->getModelId()->getSerialized()
+                    : $inputProvider->getParameter($pasteMode);
 
             $collection[$modelId->getSerialized()] = [
                 'item'       => $clipboardItem,
@@ -366,7 +370,9 @@ class PasteAllHandler
             $modelId = $subClipboardItem->getModelId();
 
             $pasteAfter =
-                $intoItem ? $intoItem->getModelId()->getSerialized() : $previousModelId->getSerialized();
+                null !== $intoItem
+                    ? $intoItem->getModelId()->getSerialized()
+                    : $previousModelId->getSerialized();
 
             $intoItem = $subClipboardItem;
 

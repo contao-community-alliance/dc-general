@@ -206,9 +206,10 @@ class DcCompat extends General
                 return $dataProvider->getEmptyModel()->getProviderName();
 
             case 'value':
-                if ($this->propertyName && $this->getModel()) {
+                if (null !== $this->propertyName && null !== $this->getModel()) {
                     $model = $this->getModel();
                     assert($model instanceof ModelInterface);
+
                     return $model->getProperty($this->propertyName);
                 }
                 return null;

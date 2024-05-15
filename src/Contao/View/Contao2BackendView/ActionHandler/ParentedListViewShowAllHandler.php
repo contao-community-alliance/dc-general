@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -232,6 +232,12 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function translateHeaderColumnName($field, $parentName)
     {
+        // New way via symfony translator.
+        if ($field . '.label' !== ($header = $this->translate($field . '.label', $parentName))) {
+            return $header;
+        }
+        // FIXME: deprecation here? - old translation handling.
+
         return ('tstamp' === $field)
             ? $this->translate('tstamp', 'dc-general')
             : $this->translate(\sprintf('%s.0', $field), $parentName);
@@ -248,6 +254,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function renderParentProperty(EnvironmentInterface $environment, $property, $value)
     {
+        /** @var array{reference?: array, isAssociative?: bool} $evaluation */
         $evaluation = $property->getExtra();
 
         if (\is_array($value)) {
@@ -294,8 +301,8 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $isRendered = true;
 
         return !empty($value)
-            ? $this->translate('yes', 'dc-general')
-            : $this->translate('no', 'dc-general');
+            ? $this->translate('yes', 'contao_dc-general')
+            : $this->translate('no', 'contao_dc-general');
     }
 
     /**
@@ -397,7 +404,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             ' ',
             [
                 'editHeader' => $this->getHeaderEditButton($parentModel, $environment),
-                'pasteNew' => $this->getHeaderPasteNewButton($parentModel, $environment),
+                'pasteNew'   => $this->getHeaderPasteNewButton($parentModel, $environment),
                 'pasteAfter' => $this->getHeaderPasteTopButton($parentModel, $environment)
             ]
         );
@@ -444,8 +451,9 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $parameters['table'] = $parentName;
         $parameters['pid']   = '';
 
+        /** @var array{idparam?: string} $extra */
         $extra = (array) $command->getExtra();
-        if ($idParam = ($extra['idparam'] ?? null)) {
+        if (null !== ($idParam = ($extra['idparam'] ?? null))) {
             $parameters[$idParam] = ModelId::fromModel($parentModel)->getSerialized();
         } else {
             $parameters['id'] = ModelId::fromModel($parentModel)->getSerialized();
@@ -462,7 +470,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'edit.svg',
-                $this->translate('editheader.0', $parentDefinition->getName())
+                $this->translateButtonLabel('editheader', $parentDefinition->getName())
             ),
             ContaoEvents::IMAGE_GET_HTML
         );
@@ -478,7 +486,11 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlAfter->getUrl(),
             StringUtil::specialchars(
-                \sprintf($this->translate('editheader.1', $parentDefinition->getName()), $parentModel->getId())
+                $this->translateButtonDescription(
+                    'editheader',
+                    $parentDefinition->getName(),
+                    ['%id%' => $parentModel->getId()]
+                )
             ),
             $imageEvent->getHtml() ?? ''
         );
@@ -509,7 +521,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($dataProvider);
-        if ($parentProviderName = $basicDefinition->getParentDataProvider()) {
+        if (null !== ($parentProviderName = $basicDefinition->getParentDataProvider())) {
             $filter->andParentIsFromProvider($parentProviderName);
         } else {
             $filter->andHasNoParent();
@@ -538,7 +550,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'new.svg',
-                $this->translate('pastenew.0', $parentDefinition->getName())
+                $this->translateButtonLabel('pastenew', $parentDefinition->getName())
             ),
             ContaoEvents::IMAGE_GET_HTML
         );
@@ -546,7 +558,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         return \sprintf(
             '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
             $urlEvent->getUrl(),
-            StringUtil::specialchars($this->translate('pastenew.0', $parentDefinition->getName())),
+            StringUtil::specialchars($this->translateButtonLabel('pastenew', $parentDefinition->getName())),
             $imageEvent->getHtml() ?? ''
         );
     }
@@ -584,7 +596,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return null;
         }
 
-        if (!($allowPasteTop = ViewHelpers::getManualSortingProperty($environment))) {
+        if ($allowPasteTop = (bool) ViewHelpers::getManualSortingProperty($environment)) {
             $subFilter = new Filter();
             $subFilter->andActionIsNotIn([ItemInterface::COPY, ItemInterface::DEEP_COPY]);
             $subFilter->andParentIsNot(ModelId::fromModel($parentModel));
@@ -625,7 +637,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $imageEvent = $dispatcher->dispatch(
                 new GenerateHtmlEvent(
                     'pasteafter.svg',
-                    $this->translate('pasteafter.0', $definition->getName()),
+                    $this->translateButtonLabel('pasteafter', $definition->getName()),
                     'class="blink"'
                 ),
                 ContaoEvents::IMAGE_GET_HTML
@@ -634,7 +646,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return \sprintf(
                 '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
                 $urlEvent->getUrl(),
-                StringUtil::specialchars($this->translate('pasteafter.0', $definition->getName())),
+                StringUtil::specialchars($this->translateButtonLabel('pasteafter', $definition->getName())),
                 $imageEvent->getHtml() ?? ''
             );
         }
@@ -643,7 +655,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $imageEvent = $dispatcher->dispatch(
             new GenerateHtmlEvent(
                 'pasteafter_.svg',
-                $this->translate('pasteafter.0', $definition->getName()),
+                $this->translateButtonLabel('pasteafter', $definition->getName()),
                 'class="blink"'
             ),
             ContaoEvents::IMAGE_GET_HTML

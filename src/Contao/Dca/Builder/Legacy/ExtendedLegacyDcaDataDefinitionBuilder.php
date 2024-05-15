@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -118,7 +118,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                     }
 
                     $parentName = $definition->getBasicDefinition()->getParentDataProvider();
-                    if ($parentName) {
+                    if (null !== $parentName) {
                         $parentDefinition = ($parentName === $definition->getName())
                             ? $definition
                             : (new DcGeneralFactory())
@@ -133,7 +133,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                     }
 
                     $rootName = $definition->getBasicDefinition()->getRootDataProvider();
-                    if ($rootName) {
+                    if (null !== $rootName) {
                         $rootDefinition = ($rootName === $definition->getName())
                             ? $definition
                             : (new DcGeneralFactory())
@@ -221,13 +221,13 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         ContainerInterface $container,
         DataProviderDefinitionInterface $providers,
         array $information,
-        $name
+        ?string $name
     ) {
         if (isset($information['factory'])) {
             $providerInformation = (new \ReflectionClass($information['factory']))->newInstance()->build($information);
         } else {
             // Determine the name.
-            if ($name && !$this->isSpecialName($name)) {
+            if (null !== $name && !$this->isSpecialName($name)) {
                 $providerName = $name;
             } elseif ('default' === $name) {
                 $providerName = $container->getName();
@@ -249,13 +249,11 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             if (!$providerInformation instanceof ContaoDataProviderInformation) {
                 return $providerInformation;
             }
-            if (!$providerInformation->getTableName()) {
+            if (null === $providerInformation->getTableName()) {
                 if (isset($information['source'])) {
-                    $providerInformation
-                        ->setTableName($information['source']);
+                    $providerInformation->setTableName($information['source']);
                 } else {
-                    $providerInformation
-                        ->setTableName($providerName);
+                    $providerInformation->setTableName($providerName);
                 }
             }
 
@@ -384,7 +382,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         if (null !== ($rootCondition = $this->getFromDca('dca_config/rootEntries'))) {
             $rootProvider = $container->getBasicDefinition()->getRootDataProvider();
 
-            if (!$rootProvider) {
+            if (null === $rootProvider) {
                 throw new DcGeneralRuntimeException(
                     'Root data provider name not specified in DCA but rootEntries section specified.'
                 );
