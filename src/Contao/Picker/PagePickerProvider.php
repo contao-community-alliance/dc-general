@@ -65,7 +65,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'pagePicker';
     }
@@ -73,7 +73,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function supportsContext($context)
+    public function supportsContext($context): bool
     {
         return \in_array($context, ['cca_page', 'cca_link'], true)
                && $this->security->isGranted('contao_user.modules', 'page');
@@ -82,7 +82,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function supportsValue(PickerConfig $config)
+    public function supportsValue(PickerConfig $config): bool
     {
         if ('page' === $config->getContext()) {
             return \is_numeric($config->getValue());
@@ -94,7 +94,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function getDcaTable()
+    public function getDcaTable($config = null): string
     {
         return 'tl_page';
     }
@@ -102,7 +102,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function getDcaAttributes(PickerConfig $config)
+    public function getDcaAttributes(PickerConfig $config): array
     {
         $value      = $config->getValue();
         $attributes = ['fieldType' => 'radio'];
@@ -141,7 +141,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function convertDcaValue(PickerConfig $config, $value)
+    public function convertDcaValue(PickerConfig $config, $value): int|string
     {
         if ('page' === $config->getContext()) {
             return (int) $value;
@@ -153,7 +153,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    protected function getRouteParameters(PickerConfig $config = null)
+    protected function getRouteParameters(PickerConfig|null $config = null): array
     {
         return ['do' => 'page'];
     }

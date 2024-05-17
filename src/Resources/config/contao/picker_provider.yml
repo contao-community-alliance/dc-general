@@ -7,8 +7,8 @@ services:
             - "@router"
             - "@?translator"
             - "@security.helper"
-        calls:
-            - [setTokenStorage, ["@security.token_storage"]]
+        #calls:
+        #    - [setTokenStorage, ["@security.token_storage"]]
         tags:
             - name: contao.picker_provider
 

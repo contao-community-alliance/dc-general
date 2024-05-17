@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -24,6 +24,7 @@ use Contao\BackendUser;
 use Contao\CoreBundle\Picker\PickerConfig;
 use Contao\CoreBundle\Picker\PickerProviderInterface;
 use Knp\Menu\FactoryInterface;
+use Knp\Menu\ItemInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -38,28 +39,28 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
      *
      * @var FactoryInterface
      */
-    private $menuFactory;
+    private FactoryInterface $menuFactory;
 
     /**
      * The router.
      *
      * @var RouterInterface
      */
-    private $router;
+    private RouterInterface $router;
 
     /**
      * The token storage.
      *
      * @var ?TokenStorageInterface
      */
-    private $tokenStorage = null;
+    private ?TokenStorageInterface $tokenStorage = null;
 
     /**
      * The translator.
      *
      * @var TranslatorInterface
      */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * Constructor.
@@ -78,7 +79,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getUrl(PickerConfig $config)
+    public function getUrl(PickerConfig $config): string|null
     {
         return $this->generateUrl($config, false);
     }
@@ -86,7 +87,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function createMenuItem(PickerConfig $config)
+    public function createMenuItem(PickerConfig $config): ItemInterface
     {
         $name = $this->getName();
         return $this->menuFactory->createItem(
@@ -115,7 +116,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function isCurrent(PickerConfig $config)
+    public function isCurrent(PickerConfig $config): bool
     {
         return $config->getCurrent() === $this->getName();
     }
