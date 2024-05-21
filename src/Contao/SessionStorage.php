@@ -134,6 +134,7 @@ class SessionStorage implements SessionStorageInterface
         $this->load();
         $this->attributes[$name] = $value;
         $this->persist();
+
         return $this;
     }
 
@@ -143,6 +144,7 @@ class SessionStorage implements SessionStorageInterface
     public function all()
     {
         $this->load();
+
         return $this->attributes;
     }
 
@@ -154,6 +156,7 @@ class SessionStorage implements SessionStorageInterface
         $this->load();
         $this->attributes = \array_merge($this->attributes, $attributes);
         $this->persist();
+
         return $this;
     }
 
@@ -165,6 +168,7 @@ class SessionStorage implements SessionStorageInterface
         $this->load();
         unset($this->attributes[$name]);
         $this->persist();
+
         return $this;
     }
 
@@ -176,6 +180,7 @@ class SessionStorage implements SessionStorageInterface
         $this->load();
         $this->attributes = [];
         $this->persist();
+
         return $this;
     }
 
@@ -184,7 +189,7 @@ class SessionStorage implements SessionStorageInterface
      *
      * @return void
      */
-    private function load()
+    private function load(): void
     {
         if (\count($this->attributes)) {
             return;
