@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -34,7 +34,7 @@ class SessionStorageFactory
      *
      * @var ContainerInterface
      */
-    private $container;
+    private ContainerInterface $container;
 
     /**
      * SessionStorageFactory constructor.
@@ -53,7 +53,7 @@ class SessionStorageFactory
      */
     public function createService()
     {
-        $session = $this->container->get('session');
+        $session = $this->container->get('request_stack')?->getSession();
         assert($session instanceof SessionInterface);
         $keys = $this->container->getParameter('cca.dc-general.session.database_keys');
         assert(\is_array($keys));

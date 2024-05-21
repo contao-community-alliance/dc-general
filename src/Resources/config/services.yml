@@ -30,6 +30,12 @@ services:
         calls:
             - ["setName", ["cca_dc_general"]]
 
+    ContaoCommunityAlliance\DcGeneral\SymfonyBridge\SessionFactory:
+        arguments:
+            - "@ContaoCommunityAlliance\\DcGeneral\\SymfonyBridge\\SessionFactory.inner"
+            - "@cca.dc-general.session_attribute"
+        decorates: session.factory
+
     cca.dc-general.edit-information:
         class: ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation
         public: true
