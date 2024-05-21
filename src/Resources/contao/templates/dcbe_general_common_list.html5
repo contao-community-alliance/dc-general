@@ -1,17 +1,19 @@
 <?php
 
+use Contao\Message;
+use Contao\System;
 use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
-$translator   = \System::getContainer()->get('translator');
+$requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$translator   = System::getContainer()->get('translator');
 assert($translator instanceof TranslatorInterface);
 ?>
 <?php $this->block('messages'); ?>
-<?= $this->getMessages() ?>
+<?= Message::generate() ?>
 <?php if ($this->info): ?>
     <div class="tl_message">
         <p class="tl_info"><?= \implode('<br />', $this->info) ?></p>

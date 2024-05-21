@@ -1,5 +1,8 @@
 <?php
-$translator   = \Contao\System::getContainer()->get('translator');
+
+use Contao\System;
+
+$translator   = System::getContainer()->get('translator');
 assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
 
 $apply = $translator->trans(id: 'apply', domain: 'dc-general');

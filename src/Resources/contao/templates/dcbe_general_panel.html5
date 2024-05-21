@@ -1,5 +1,7 @@
 <?php
-$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+use Contao\System;
+
+$requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 ?>
 <form action="<?= $this->action ?>" class="tl_form dc_general_panel" method="post">
     <div class="tl_formbody">
