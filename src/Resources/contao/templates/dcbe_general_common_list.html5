@@ -1,5 +1,6 @@
 <?php
 
+use Contao\Image;
 use Contao\Message;
 use Contao\System;
 use Contao\StringUtil;
@@ -113,7 +114,7 @@ assert($translator instanceof TranslatorInterface);
                                     <td class="tl_file_list tl_right_nowrap">
                                         <?= $model->getMeta($model::OPERATION_BUTTONS) ?>
                                         <?php if ($this->sortable) : ?>
-                                            <?= $this->generateImage('system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
+                                            <?= Image::getHtml('system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
                                         <?php endif; ?>
                                     </td>
                                 <?php endif; ?>

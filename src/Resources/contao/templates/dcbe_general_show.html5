@@ -3,12 +3,14 @@
 use Contao\System;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+$request = System::getContainer()->get('request_stack')->getCurrentRequest()->getUri();
+
 $this->insert(
     'dcbe_general_language_selector',
     [
         'language'      => $this->currentLanguage,
         'languages'     => $this->languages,
-        'request'       => $this->Environment->request,
+        'request'       => $request,
         'submit'        => $this->languageSubmit,
         'REQUEST_TOKEN' => $this->REQUEST_TOKEN,
     ]
@@ -29,10 +31,10 @@ assert($translator instanceof TranslatorInterface);
 <table class="tl_show">
 <?php $count = 0; foreach($this->arrFields as $key => $value): ?>
     <tr>
-        <td<?= (($count % 2) == 0) ? ' class="tl_bg"' : '' ?>>
+        <td<?= (($count % 2) === 0) ? ' class="tl_bg"' : '' ?>>
             <span class="tl_label"> <?= $this->arrLabels[$key]; ?> : </span>
         </td>
-        <td<?= (($count % 2) == 0) ? ' class="tl_bg"' : '' ?>>
+        <td<?= (($count % 2) === 0) ? ' class="tl_bg"' : '' ?>>
             <?php
             if (!\is_object($value) || \method_exists($value, '__toString')) {
                 echo $value;

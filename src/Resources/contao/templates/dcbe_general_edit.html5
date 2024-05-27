@@ -1,15 +1,17 @@
 <?php
 
-use Contao\System;
-use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Data\VersionModelInterface;
+use Contao\Message;
+use Contao\StringUtil;
+use Contao\System;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 $translator   = System::getContainer()->get('translator');
 assert($translator instanceof TranslatorInterface);
+$request = System::getContainer()->get('request_stack')->getCurrentRequest()->getUri();
 // Add CSS
-$GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';
+$GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/generalDriver.css';
 ?>
 <?php if($this->versions): ?>
     <div class="tl_version_panel">
@@ -38,7 +40,7 @@ $this->insert(
     [
         'language'      => $this->language,
         'languages'     => $this->languages,
-        'request'       => $this->Environment->request,
+        'request'       => $request,
         'submit'        => $this->languageSubmit,
         'REQUEST_TOKEN' => $requestToken,
     ]
@@ -51,11 +53,11 @@ $this->insert(
         <?= $this->breadcrumb ?>
     </div>
 <?php endif; ?>
-<h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline != "") ? " - " . $this->languageHeadline : "" ?></h2>
-<?= $this->getMessages() ?>
+<h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline !== '') ? ' - ' . $this->languageHeadline : '' ?></h2>
+<?= Message::generate() ?>
 
 <form class="tl_form tableextended" method="post"
-  action="<?= StringUtil::ampersand($this->Environment->request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
+  action="<?= StringUtil::ampersand($request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
   id="<?= $this->table ?>"
   enctype="<?= $this->enctype ?>"
   <?php if($this->onsubmit): ?> onsubmit="<?= $this->onsubmit ?>"<?php endif; ?>>

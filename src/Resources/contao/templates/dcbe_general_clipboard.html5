@@ -65,7 +65,7 @@ if (\count($this->options)): ?>
         </ul>
         <a href="<?= $this->clearUrl ?>" class="btn-clear"
            title="<?= StringUtil::specialchars($translator->trans(id: 'clearClipboard', domain: 'dc-general')) ?>">
-            <img src="bundles/ccadcgeneral/images/clear-clipboard.svg" width="24" height="24">
+            <img src="/bundles/ccadcgeneral/images/clear-clipboard.svg" width="24" height="24">
         </a>
     </div>
 <?php endif; ?>
