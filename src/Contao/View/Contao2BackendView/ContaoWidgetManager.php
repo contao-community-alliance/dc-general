@@ -28,7 +28,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
 use Contao\Config;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Date;
 use Contao\Input;
 use Contao\System;
@@ -66,9 +66,7 @@ class ContaoWidgetManager
     /**
      * The environment in use.
      *
-     * @var ContaoFrameworkInterface
-     *
-     * @psalm-suppress DeprecatedInterface
+     * @var ContaoFramework
      */
     protected $framework;
 
@@ -104,7 +102,7 @@ class ContaoWidgetManager
         $this->environment = $environment;
         $this->model       = $model;
         $framework         = System::getContainer()->get('contao.framework');
-        assert($framework instanceof ContaoFrameworkInterface);
+        assert($framework instanceof ContaoFramework);
         $translator = System::getContainer()->get('translator');
         assert($translator instanceof TranslatorInterface);
 

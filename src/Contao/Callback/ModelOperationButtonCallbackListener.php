@@ -23,6 +23,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
+use Contao\CoreBundle\DataContainer\DataContainerOperation;
+use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
@@ -84,6 +86,28 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
         if (null === $definition = $event->getEnvironment()->getDataDefinition()) {
             throw new LogicException('No data definition given.');
         }
+
+        return [
+            new DataContainerOperation(
+                $command->getName(),
+                [
+                    ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
+                    $this->buildHref($command),
+                    $event->getLabel(),
+                    $event->getTitle(),
+                    ($extra['icon'] ?? null),
+                    $event->getAttributes(),
+                    $definition->getName(),
+                    $definition->getBasicDefinition()->getRootEntries(),
+                    $event->getChildRecordIds(),
+                    $event->isCircularReference(),
+                    ($previous = $event->getPrevious()) ? $previous->getId() : null,
+                    ($next = $event->getNext()) ? $next->getId() : null
+                ],
+                $event->getModel()->getPropertiesAsArray(),
+                new DcCompat($event->getEnvironment())
+            )
+        ];
 
         return [
             ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],

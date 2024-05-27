@@ -822,7 +822,7 @@ abstract class AbstractListShowAllHandler
             return null;
         }
 
-        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = '/bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         return $this
             ->getTemplate('dcbe_general_breadcrumb')

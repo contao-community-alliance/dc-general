@@ -45,7 +45,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
