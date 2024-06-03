@@ -203,7 +203,9 @@ class ContaoWidgetManager
             return $buffer;
         }
 
+        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $backendAdapter = $this->framework->getAdapter(Backend::class);
+        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $templateLoader = $this->framework->getAdapter(TemplateLoader::class);
 
         [$file, $type] = \explode('|', $rte) + ['', ''];

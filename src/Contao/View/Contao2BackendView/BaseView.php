@@ -277,6 +277,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param Template $template The template to add the value to.
      *
      * @return BaseView
+     *
+     * @psalm-suppress DeprecatedClass
      */
     protected function addToTemplate($name, $value, $template)
     {

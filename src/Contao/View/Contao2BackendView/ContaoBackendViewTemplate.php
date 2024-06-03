@@ -38,6 +38,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * This class is used for the contao backend view as template.
  *
  * @psalm-suppress PropertyNotSetInConstructor
+ * @psalm-suppress DeprecatedClass
  */
 class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateInterface, TranslatorInterface
 {

@@ -12,7 +12,7 @@ $this->insert(
         'languages'     => $this->languages,
         'request'       => $request,
         'submit'        => $this->languageSubmit,
-        'REQUEST_TOKEN' => $this->REQUEST_TOKEN,
+        'REQUEST_TOKEN' => $this->requestToken,
     ]
 );
 

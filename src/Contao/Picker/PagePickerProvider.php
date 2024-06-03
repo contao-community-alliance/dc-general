@@ -73,7 +73,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function supportsContext($context): bool
+    public function supportsContext(string $context): bool
     {
         return \in_array($context, ['cca_page', 'cca_link'], true)
                && $this->security->isGranted('contao_user.modules', 'page');
@@ -94,7 +94,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function getDcaTable($config = null): string
+    public function getDcaTable(PickerConfig $config = null): string
     {
         return 'tl_page';
     }
@@ -121,7 +121,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             }
 
             if ($value) {
-                $intval = function (mixed $val): int {
+                $intval = static function (mixed $val): int {
                     return (int) $val;
                 };
 
@@ -141,7 +141,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function convertDcaValue(PickerConfig $config, $value): int|string
+    public function convertDcaValue(PickerConfig $config, mixed $value): int|string
     {
         if ('page' === $config->getContext()) {
             return (int) $value;

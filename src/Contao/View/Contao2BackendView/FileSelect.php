@@ -222,7 +222,7 @@ class FileSelect
      * Prepare the file selector.
      *
      * @param ModelIdInterface $modelId The model identifier.
-     * @param Ajax             $ajax    The ajax request.
+     * @param Ajax|null        $ajax    The ajax request.
      *
      * @psalm-suppress DeprecatedClass
      * @return FileSelector
@@ -377,7 +377,7 @@ class FileSelect
             return null;
         }
 
-        $ajax = new Ajax(Input::post('action'));
+        $ajax = new Ajax((string) Input::post('action'));
         $ajax->executePreActions();
 
         return $ajax;

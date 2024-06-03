@@ -34,6 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\DataContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentAwareInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -319,7 +320,10 @@ abstract class Ajax implements EnvironmentAwareInterface
         @\trigger_error('Use own response exit!', E_USER_DEPRECATED);
         // @codingStandardsIgnoreEnd
 
-        $session = System::getContainer()->get('session');
+        $requestStack = System::getContainer()->get('request_stack');
+        assert($requestStack instanceof RequestStack);
+
+        $session = $requestStack->getSession();
         assert($session instanceof SessionInterface);
 
         $sessionBag = $session->getBag('contao_backend');
