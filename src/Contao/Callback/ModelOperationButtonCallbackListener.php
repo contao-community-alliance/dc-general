@@ -87,6 +87,7 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
             throw new LogicException('No data definition given.');
         }
 
+        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         return [
             new DataContainerOperation(
                 $command->getName(),
@@ -104,24 +105,9 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
                     ($previous = $event->getPrevious()) ? $previous->getId() : null,
                     ($next = $event->getNext()) ? $next->getId() : null
                 ],
-                $event->getModel()->getPropertiesAsArray(),
+                ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
                 new DcCompat($event->getEnvironment())
             )
-        ];
-
-        return [
-            ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
-            $this->buildHref($command),
-            $event->getLabel(),
-            $event->getTitle(),
-            ($extra['icon'] ?? null),
-            $event->getAttributes(),
-            $definition->getName(),
-            $definition->getBasicDefinition()->getRootEntries(),
-            $event->getChildRecordIds(),
-            $event->isCircularReference(),
-            ($previous = $event->getPrevious()) ? $previous->getId() : null,
-            ($next = $event->getNext()) ? $next->getId() : null
         ];
     }
 
