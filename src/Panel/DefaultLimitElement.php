@@ -17,7 +17,8 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @author     Andreas Fischer <anfischer@kaffee-partner.de>
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -216,8 +217,14 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
         $persistent = $this->getPersistent();
         if ($persistent) {
-            $offset = $persistent['offset'];
-            $amount = $persistent['amount'];
+            if ('all' === $persistent['offset']) {
+                $offset = 0;
+                $amount =  $this->getAmountForFilterOptionAll();
+                $this->setPersistent($offset, $amount);
+            } else {
+                $offset = (int) $persistent['offset'];
+                $amount = (int) $persistent['amount'];
+            }
 
             // Hotfix the offset - we also might want to store it persistent.
             // Another way would be to always stick on the "last" page when we hit the upper limit.
