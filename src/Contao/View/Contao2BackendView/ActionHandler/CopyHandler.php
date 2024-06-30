@@ -17,6 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
  * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -261,7 +262,7 @@ class CopyHandler
         $routeName = $request?->attributes->get('_route');
         // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
         $urlBuilder = new UrlBuilder();
-        if ($routeName !== 'contao.backend') {
+        if ($routeName !== 'contao_backend') {
             $params = [
                 'table' => $copiedModelId->getDataProviderName(),
                 'act'   => 'edit',
