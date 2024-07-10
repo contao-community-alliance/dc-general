@@ -296,6 +296,14 @@ class ViewHelpers
         $routeGenerator = System::getContainer()->get('router');
         assert($routeGenerator instanceof UrlGeneratorInterface);
         $parameters = $request->query->all();
+        if ($routeName === $request->attributes->get('_route')) {
+            foreach ($request->attributes->get('_route_params') ?? [] as $key => $value) {
+                if ('_' === $key[0]) {
+                    continue;
+                }
+                $parameters[$key] = $value;
+            }
+        }
         unset($parameters['act']);
         $routeBase = $routeGenerator->generate($routeName, $parameters);
 

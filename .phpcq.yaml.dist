@@ -19,7 +19,7 @@ phpcq:
       requirements:
         composer-require-checker:
           signed: false
-          version: ^3.3
+          version: ^4.0
     phpmd:
       version: ^1.0
       signed: false
