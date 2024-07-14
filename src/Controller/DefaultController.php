@@ -374,7 +374,7 @@ class DefaultController implements ControllerInterface
             /** @var LanguageInformationInterface $value */
             $locale = $value->getLocale();
 
-            $languages[$locale] = $translator->translate('LNG.' . $locale, 'languages');
+            $languages[$locale] = $translator->translate('LNG.' . $locale, 'contao_languages');
         }
 
         return $languages;
