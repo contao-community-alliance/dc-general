@@ -115,13 +115,13 @@ class ContaoWidgetManager
     /**
      * Encode a value from the widget to native data of the data provider via event.
      *
-     * @param string           $property       The property.
-     * @param mixed            $value          The value of the property.
-     * @param PropertyValueBag $propertyValues The property value bag the property value originates from.
+     * @param string                    $property       The property.
+     * @param mixed                     $value          The value of the property.
+     * @param PropertyValueBagInterface $propertyValues The property value bag the property value originates from.
      *
      * @return mixed
      */
-    public function encodeValue($property, $value, PropertyValueBag $propertyValues)
+    public function encodeValue($property, $value, PropertyValueBagInterface $propertyValues)
     {
         $environment = $this->getEnvironment();
         $dispatcher  = $environment->getEventDispatcher();
@@ -303,7 +303,14 @@ class ContaoWidgetManager
             $controller = $environment->getController();
             assert($controller instanceof ControllerInterface);
 
-            $values = new PropertyValueBag($inputValues->getArrayCopy());
+            $values = new PropertyValueBag();
+            foreach ($inputValues->getIterator() as $propertyName => $propertyValue) {
+                $values->setPropertyValue(
+                    $propertyName,
+                    $this->encodeValue($propertyName, $propertyValue, $inputValues)
+                );
+            }
+
             $controller->updateModelFromPropertyBag($model, $values);
         }
 
