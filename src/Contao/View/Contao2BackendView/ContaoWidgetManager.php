@@ -271,7 +271,7 @@ class ContaoWidgetManager
      * Retrieve the instance of a widget for the given property.
      *
      * @param string                    $property    Name of the property for which the widget shall be retrieved.
-     * @param PropertyValueBagInterface $inputValues The input values to use (optional).
+     * @param PropertyValueBagInterface $inputValues The input values to use (optional) (RAW widget value format).
      *
      * @return Widget|null
      *
@@ -398,7 +398,7 @@ class ContaoWidgetManager
      * @param string                    $property     The name of the property for which the widget shall be rendered.
      * @param bool                      $ignoreErrors Flag if the error property of the widget shall get
      *                                                cleared prior rendering.
-     * @param PropertyValueBagInterface $inputValues  The input values to use (optional).
+     * @param PropertyValueBagInterface $inputValues  The input values to use (optional) (RAW widget value format).
      *
      * @return string
      *
@@ -468,7 +468,9 @@ class ContaoWidgetManager
     }
 
     /**
-     * {@inheritDoc}
+     * Process RAW input values.
+     *
+     * @var PropertyValueBag $propertyValues The RAW property values from the input provider.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
@@ -487,6 +489,7 @@ class ContaoWidgetManager
         }
 
         // Now get and validate the widgets.
+        $encodedValues = new PropertyValueBag();
         foreach (\array_keys($propertyValues->getArrayCopy()) as $property) {
             // NOTE: the passed input values are RAW DATA from the input provider - aka widget known values and not
             // native data as in the model.
@@ -502,7 +505,7 @@ class ContaoWidgetManager
                 }
             } elseif ($widget->submitInput()) {
                 try {
-                    $propertyValues->setPropertyValue(
+                    $encodedValues->setPropertyValue(
                         $property,
                         $this->encodeValue($property, $widget->value, $propertyValues)
                     );
@@ -513,6 +516,9 @@ class ContaoWidgetManager
                     }
                 }
             }
+        }
+        foreach ($encodedValues->getArrayCopy() as $propertyName => $propertyValue) {
+            $propertyValues->setPropertyValue($propertyName, $propertyValue);
         }
 
         $_POST = $post;
