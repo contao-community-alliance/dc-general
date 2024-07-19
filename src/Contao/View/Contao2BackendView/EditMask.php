@@ -72,6 +72,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
+ * @SuppressWarnings(PHPMD.NPathComplexity)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  */
 class EditMask
 {
@@ -522,7 +524,7 @@ class EditMask
      *
      * @param ContaoWidgetManager   $widgetManager  The widget manager in use.
      * @param PaletteInterface      $palette        The palette to use.
-     * @param PropertyValueBag|null $propertyValues The property values.
+     * @param PropertyValueBag|null $propertyValues The property values (model values).
      *
      * @return array
      *
@@ -546,6 +548,26 @@ class EditMask
 
         $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
         assert($editInformation instanceof EditInformationInterface);
+
+        $rawValues = new PropertyValueBag();
+        if (null !== $propertyValues) {
+            foreach ($palette->getLegends() as $legend) {
+                $properties = $legend->getProperties($this->model, $propertyValues);
+                if (!$properties) {
+                    continue;
+                }
+                foreach ($properties as $property) {
+                    $propName = $property->getName();
+                    $this->ensurePropertyExists($propName, $propertyDefinitions);
+                    if ($propertyValues->hasPropertyValue($propName)) {
+                        $rawValues->setPropertyValue(
+                            $propName,
+                            $widgetManager->decodeValue($propName, $propertyValues->getPropertyValue($propName))
+                        );
+                    }
+                }
+            }
+        }
 
         $fieldSets = [];
         $first     = true;
@@ -593,7 +615,7 @@ class EditMask
                     );
                 }
 
-                $fields[] = $widgetManager->renderWidget($property->getName(), $isAutoSubmit, $propertyValues);
+                $fields[] = $widgetManager->renderWidget($property->getName(), $isAutoSubmit, $rawValues);
             }
 
             $fieldSet['label']   = $legendName;
