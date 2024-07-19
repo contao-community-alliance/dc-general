@@ -470,7 +470,7 @@ class ContaoWidgetManager
     /**
      * Process RAW input values.
      *
-     * @var PropertyValueBag $propertyValues The RAW property values from the input provider.
+     * @param PropertyValueBag $propertyValues The RAW property values from the input provider.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
