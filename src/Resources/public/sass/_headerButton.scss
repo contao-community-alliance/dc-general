@@ -2,3 +2,13 @@
   background-image:url("/system/themes/flexible/icons/stop.svg");
   background-size: 16px;
 }
+
+.tl_header {
+  &.hover-div {
+    &::after {
+      content: " ";
+      clear: right;
+      display: block;
+    }
+  }
+}
