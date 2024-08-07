@@ -1,7 +1,10 @@
 <?php
-$requestToken = \Contao\System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
-$translator   = \Contao\System::getContainer()->get('translator');
-assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+use Contao\System;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+$requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$translator   = System::getContainer()->get('translator');
+assert($translator instanceof TranslatorInterface);
 
 $apply = $translator->trans(id: 'apply', domain: 'dc-general');
 ?>
