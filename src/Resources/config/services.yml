@@ -49,7 +49,10 @@ services:
 
     ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache:
         public: true
-        deprecated: Warning the %service_id% is in future not public!
+        deprecated:
+            package: contao-community-alliance/dc-general
+            version: 2.2
+            message: 'Warning the %service_id% is in future not public!'
 
     ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactoryService:
         public: false

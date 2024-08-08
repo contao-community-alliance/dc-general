@@ -1,8 +1,7 @@
 <?php
-
 use Contao\StringUtil;
 
-$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 ?>
 <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= \implode(',', \array_keys($this->values)) ?>">
 

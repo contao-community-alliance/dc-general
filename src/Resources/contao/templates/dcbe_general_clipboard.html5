@@ -1,6 +1,7 @@
 <?php
 
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
@@ -9,7 +10,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /** @var \ContaoCommunityAlliance\DcGeneral\EnvironmentInterface $environment */
 $environment     = $this->environment;
 $eventDispatcher = $environment->getEventDispatcher();
-$translator      = \System::getContainer()->get('translator');
+$translator      = System::getContainer()->get('translator');
 assert($translator instanceof TranslatorInterface);
 
 // pre render the clipboard icon

@@ -1,4 +1,7 @@
 <?php
+use Contao\System;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
 $this->insert(
     'dcbe_general_language_selector',
     [
@@ -10,8 +13,8 @@ $this->insert(
     ]
 );
 
-$translator   = \Contao\System::getContainer()->get('translator');
-assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+$translator = System::getContainer()->get('translator');
+assert($translator instanceof TranslatorInterface);
 ?>
 
 <div id="tl_buttons">

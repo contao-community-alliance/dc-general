@@ -82,7 +82,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function supportsValue(PickerConfig $config)
+    public function supportsValue(PickerConfig $config): bool
     {
         if ('page' === $config->getContext()) {
             return \is_numeric($config->getValue());
