@@ -1,10 +1,12 @@
 <?php
+
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Data\VersionModelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
-$translator   = \System::getContainer()->get('translator');
+$requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$translator   = System::getContainer()->get('translator');
 assert($translator instanceof TranslatorInterface);
 // Add CSS
 $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalDriver.css';

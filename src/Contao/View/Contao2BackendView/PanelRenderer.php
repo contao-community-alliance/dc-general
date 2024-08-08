@@ -185,11 +185,6 @@ class PanelRenderer
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        // If in edit/override all mode and list all properties, the panel filter isn´t in use.
-        if ('properties' === $inputProvider->getParameter('select')) {
-            return '';
-        }
-
         if (null === $this->view->getPanel()) {
             throw new DcGeneralRuntimeException('No panel information stored in data container.');
         }
@@ -199,7 +194,10 @@ class PanelRenderer
 
         $panels = [];
         foreach ($panelContainer as $panel) {
-            $panels[] = $this->renderPanelRow($panel, $ignoredPanels);
+            $row = $this->renderPanelRow($panel, $ignoredPanels);
+            if ([] !== $row) {
+                $panels[] = $row;
+            }
         }
 
         if (\count($panels)) {

@@ -1,6 +1,7 @@
 <?php
+use Contao\System;
 
-$requestToken = \System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+$requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 
 // Add tree view stylesheet
 $GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalTreeView.css';
