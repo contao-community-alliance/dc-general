@@ -264,9 +264,9 @@ class CopyHandler
         $urlBuilder = new UrlBuilder();
         if ($routeName !== 'contao_backend') {
             $params = [
-                'table' => $copiedModelId->getDataProviderName(),
-                'act'   => 'edit',
-                'id'    => $copiedModelId->getSerialized(),
+                'tableName' => $copiedModelId->getDataProviderName(),
+                'act'       => 'edit',
+                'id'        => $copiedModelId->getSerialized(),
             ];
             if (null !== ($pid = $inputProvider->getParameter('pid'))) {
                 $params['pid'] = $pid;
