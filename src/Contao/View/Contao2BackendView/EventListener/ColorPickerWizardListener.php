@@ -123,7 +123,7 @@ class ColorPickerWizardListener
                 $event->getHtml() ?? '',
                 $propInfo->getName(),
                 $strKey,
-                'assets/colorpicker/images/'
+                '/assets/colorpicker/images/'
             );
         }
 
