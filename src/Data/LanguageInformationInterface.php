@@ -46,7 +46,7 @@ interface LanguageInformationInterface
      *
      * If no country code has been set, the language code only will get returned.
      *
-     * @return mixed
+     * @return string
      */
     public function getLocale();
 }
