@@ -829,9 +829,10 @@ abstract class AbstractPropertyVisibilityHandler
         }
 
         $session = $this->getSession($action, $environment);
-
-        $intersectModel->setId($session['intersectValues'][$idProperty]);
-        $intersectModel->setProperty($idProperty, $session['intersectValues'][$idProperty]);
+        if (null !== ($idValue = $session['intersectValues'][$idProperty] ?? null)) {
+            $intersectModel->setId($idValue);
+            $intersectModel->setProperty($idProperty, $idValue);
+        }
     }
 
     /**

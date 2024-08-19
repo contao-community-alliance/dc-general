@@ -351,9 +351,11 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
      */
     private function getOriginalPropertyName($propertyName, ModelIdInterface $modelId)
     {
-        $originalPropertyName =
-            \trim(\substr($propertyName, \strlen(\str_replace('::', '____', $modelId->getSerialized()) . '_')), '[]');
+        $idValue = \str_replace('::', '____', $modelId->getSerialized());
+        if (1 === preg_match('#^' . preg_quote($idValue, '#') . '_\[?(?<name>[^]]*)]?$#', $propertyName, $matches)) {
+            return $matches['name'] ?: null;
+        }
 
-        return $originalPropertyName ?: null;
+        return null;
     }
 }
