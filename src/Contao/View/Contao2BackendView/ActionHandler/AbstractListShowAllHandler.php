@@ -437,11 +437,21 @@ abstract class AbstractListShowAllHandler
 
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
+        // Fixup form action for edit multiple selection screens.
+        $action = StringUtil::ampersand(Environment::get('request'));
+        if (
+            ('tl_select' === $provider->getValue('TL_SUBMIT'))
+            && (null !== $provider->getValue('edit'))
+            && str_contains($action, 'select=models')
+        ) {
+            $action = str_replace('select=models', 'select=properties', $action);
+        }
+
         $template
             ->set('subHeadline', $this->translator->trans('select_models', [], 'dc-general'))
             ->set('tableName', ($definition->getName() ?: 'none'))
             ->set('select', 'select' === $provider->getParameter('act'))
-            ->set('action', StringUtil::ampersand(Environment::get('request')))
+            ->set('action', $action)
             ->set('selectButtons', $this->getSelectButtons($environment))
             ->set('sortable', $this->isSortable($environment))
             ->set('showColumns', $showColumn)
@@ -452,13 +462,6 @@ abstract class AbstractListShowAllHandler
             ->set('selectCheckBoxName', 'models[]')
             ->set('selectCheckBoxIdPrefix', 'models_')
             ->set('selectContainer', $this->getSelectContainer($environment));
-
-        if (
-            (null !== $template->get('action'))
-            && (str_contains($template->get('action'), 'select=models'))
-        ) {
-            $template->set('action', str_replace('select=models', 'select=properties', $template->get('action')));
-        }
     }
 
     /**
