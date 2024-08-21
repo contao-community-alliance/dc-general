@@ -425,9 +425,9 @@ class FileTree extends AbstractWidget
     {
         if (
             $file->viewWidth && $file->viewHeight
-            && ($file->isSvgImage
-                || (($file->height <= Config::get('gdMaxImgHeight'))
-                    && ($file->width <= Config::get('gdMaxImgWidth'))
+            && (!$file->isSvgImage
+                || (($file->height <= (Config::get('imageHeight') ?: PHP_INT_MAX))
+                    && ($file->width <= (Config::get('imageWidth') ?: PHP_INT_MAX))
                 )
             )
         ) {
@@ -438,7 +438,7 @@ class FileTree extends AbstractWidget
                 $projectDir = System::getContainer()->getParameter('kernel.project_dir');
                 assert(\is_string($projectDir));
 
-                $imageFactory = System::getContainer()->get('contao.image.image_factory');
+                $imageFactory = System::getContainer()->get('contao.image.factory');
                 assert($imageFactory instanceof ImageFactoryInterface);
 
                 $image = $imageFactory->create(
