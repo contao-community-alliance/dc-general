@@ -485,7 +485,7 @@ class ContaoWidgetManager
 
         // Set all POST data, these get used within the Widget::validate() method.
         foreach ($propertyValues as $property => $propertyValue) {
-            $_POST[$property] = $propertyValue;
+            Input::setPost($property, $propertyValue);
         }
 
         // Now get and validate the widgets.
