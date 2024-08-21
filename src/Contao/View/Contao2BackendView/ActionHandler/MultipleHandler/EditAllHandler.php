@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -263,22 +263,31 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             $properties->addProperty($editProperty);
 
             $this->setPropertyValue($editModel, $selectProperty, $propertyValuesBag);
-            $this->markEditErrors($editProperty, $selectProperty, $propertyValuesBag);
+            $rawValues = new PropertyValueBag();
+            foreach ($propertyValuesBag as $propName => $value) {
+                $rawValues->setPropertyValue($propName, $widgetManager->decodeValue($propName, $value));
+            }
+            $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
+            foreach ($editErrors as $propName => $errors) {
+                $rawValues->markPropertyValueAsInvalid($propName, $errors);
+            }
+
+            $this->markEditErrors($editProperty, $selectProperty, $rawValues);
             $this->markModelErrors(
                 $action,
                 $model,
                 $model,
                 $editProperty,
                 $selectProperty,
-                $propertyValuesBag,
+                $rawValues,
                 $environment
             );
 
-            $fields[] = $widgetManager->renderWidget($editProperty->getName(), false, $propertyValuesBag);
+            $fields[] = $widgetManager->renderWidget($editProperty->getName(), false, $rawValues);
             $fields[] = $this->injectSelectSubPropertiesInformation(
                 $selectProperty,
                 $editModel,
-                $propertyValuesBag,
+                $rawValues,
                 $environment
             );
         }
