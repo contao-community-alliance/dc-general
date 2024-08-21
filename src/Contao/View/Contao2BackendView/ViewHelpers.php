@@ -17,6 +17,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
  * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -257,7 +258,7 @@ class ViewHelpers
 
         $request   = self::getRequest();
         $routeName = $request->attributes->get('_route');
-        if ($routeName !== 'contao.backend') {
+        if ($routeName !== 'contao_backend') {
             self::determineNewStyleRedirect($routeName, $request, $environment);
         }
 
