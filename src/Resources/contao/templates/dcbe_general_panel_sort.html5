@@ -2,7 +2,7 @@
 
 use Contao\System;
 
-$translator   = System::getContainer()->get('translator');
+$translator = System::getContainer()->get('translator');
 assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
 ?>
 <div class="tl_sorting tl_subpanel <?= $this->rowClass; ?>">

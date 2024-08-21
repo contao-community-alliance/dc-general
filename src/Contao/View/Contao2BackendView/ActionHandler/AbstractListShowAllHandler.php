@@ -62,6 +62,7 @@ use ContaoCommunityAlliance\DcGeneral\Event\FormatModelLabelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
@@ -248,11 +249,18 @@ abstract class AbstractListShowAllHandler
         $clipboard = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
         $dispatcher->dispatch($clipboard, DcGeneralEvents::VIEW);
 
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+        // If in edit/override all mode and list all properties, the sorting isn´t in use.
+        $ignoredPanels = ('properties' === $inputProvider->getParameter('select'))
+            ? [SortElementInterface::class]
+            : [];
+
         return implode(
             "\n",
             [
                 'language'  => $this->languageSwitcher($environment),
-                'panel'     => $this->panel($environment),
+                'panel'     => $this->panel($environment, $ignoredPanels),
                 'buttons'   => $this->generateHeaderButtons($environment),
                 'clipboard' => $clipboard->getResponse(),
                 'body'      => $template->parse()
@@ -440,9 +448,9 @@ abstract class AbstractListShowAllHandler
         // Fixup form action for edit multiple selection screens.
         $action = StringUtil::ampersand(Environment::get('request'));
         if (
-            ('tl_select' === $provider->getValue('TL_SUBMIT'))
-            && (null !== $provider->getValue('edit'))
-            && str_contains($action, 'select=models')
+//            ('tl_select' === $provider->getValue('FORM_SUBMIT'))
+//            && (null !== $provider->getValue('edit'))
+            str_contains($action, 'select=models')
         ) {
             $action = str_replace('select=models', 'select=properties', $action);
         }
