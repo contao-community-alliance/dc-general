@@ -110,7 +110,7 @@ interface ControllerInterface
      * Update the current model from a post request. Additionally, trigger meta palettes, if installed.
      *
      * @param ModelInterface            $model          The model to update.
-     * @param PropertyValueBagInterface $propertyValues The value bag to retrieve the values from.
+     * @param PropertyValueBagInterface $propertyValues The value bag to retrieve the values from (model values).
      *
      * @return ControllerInterface
      */
