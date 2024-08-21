@@ -365,10 +365,10 @@ class ButtonRenderer
             ->setCommand($command)
             ->setObjModel($model)
             ->setAttributes($attributes)
-            ->setLabel($this->getCommandLabel($command))
+            ->setLabel($this->getCommandLabel($command, $definitionName, ['%id%' => $model->getId()]))
             ->setTitle(
                 $this->translateButtonDescription(
-                    str_replace(['.description', '.1'], '', $command->getDescription()),
+                    \preg_replace('#(\.description|\.1)$#', '', $command->getDescription()),
                     $definitionName,
                     ['%id%' => $model->getId()]
                 )
@@ -775,12 +775,16 @@ class ButtonRenderer
      *
      * @return string
      */
-    private function getCommandLabel(CommandInterface $command): string
+    private function getCommandLabel(CommandInterface $command, string $definitionName, array $parameter = []): string
     {
         if ('' === $label = $command->getLabel()) {
             $label = $command->getName();
         }
 
-        return $this->translate($label);
+        return $this->translateButtonLabel(
+            \preg_replace('#(\.label|\.0)$#', '', $label),
+            $definitionName,
+            $parameter
+        );
     }
 }

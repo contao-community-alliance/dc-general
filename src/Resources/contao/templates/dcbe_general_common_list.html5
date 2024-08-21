@@ -40,11 +40,14 @@ assert($translator instanceof TranslatorInterface);
                 </div>
             <?php endif; ?>
             <?php $this->block('parent-header'); ?>
-            <?php if (!empty($this->header)) : ?>
+            <?php if ($this->header || $this->headerButtons) : ?>
                 <div class="tl_header hover-div">
+                  <?php if ($this->headerButtons) : ?>
                     <div class="tl_content_right">
                         <?= $this->headerButtons ?>
                     </div>
+                  <?php endif; ?>
+                  <?php if ($this->header) : ?>
                     <table class="tl_header_table">
                         <?php foreach ($this->header as $key => $value) : ?>
                             <tr>
@@ -53,6 +56,7 @@ assert($translator instanceof TranslatorInterface);
                             </tr>
                         <?php endforeach; ?>
                     </table>
+                  <?php endif; ?>
                 </div>
             <?php endif; ?>
             <?php $this->endblock(); ?>
