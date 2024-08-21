@@ -25,7 +25,7 @@ use Contao\CoreBundle\Picker\PickerConfig;
 use Contao\System;
 use Knp\Menu\FactoryInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
