@@ -1,13 +1,12 @@
 <?php
 
-use Contao\Image;
-use Contao\Message;
-use Contao\System;
-use Contao\StringUtil;
-use Contao\System;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use Contao\Image;
+use Contao\Message;
+use Contao\StringUtil;
+use Contao\System;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();

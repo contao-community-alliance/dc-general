@@ -1,11 +1,10 @@
 <?php
 
-use Contao\System;
-use Contao\StringUtil;
-use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
+use Contao\StringUtil;
+use Contao\System;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /** @var \ContaoCommunityAlliance\DcGeneral\EnvironmentInterface $environment */
