@@ -16,6 +16,10 @@ phpcq:
     composer-require-checker:
       version: ^1.0
       signed: false
+      requirements:
+        composer-require-checker:
+          signed: false
+          version: ^4.0
     phpmd:
       version: ^1.0
       signed: false
