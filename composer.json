@@ -63,7 +63,7 @@
   "require-dev": {
     "contao/manager-plugin": "^2.8",
     "friendsofsymfony/http-cache": "^2.9",
-    "menatwork/contao-multicolumnwizard-bundle": "^3.6",
+    "menatwork/contao-multicolumnwizard-bundle": "^3.6.8",
     "php-http/guzzle7-adapter": "^1.0",
     "phpcq/runner-bootstrap": "^1.0@dev"
   },
