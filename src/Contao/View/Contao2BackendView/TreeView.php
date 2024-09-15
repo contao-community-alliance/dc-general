@@ -60,6 +60,7 @@ use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -606,9 +607,11 @@ class TreeView extends BaseView
                 ContaoEvents::BACKEND_ADD_TO_URL
             );
 
+            $urlInto = UrlBuilder::fromUrl($urlEvent->getUrl())->unsetQueryParameter('source')->getUrl();
+
             $buttonEvent = new GetPasteRootButtonEvent($environment);
             $buttonEvent
-                ->setHref($urlEvent->getUrl())
+                ->setHref($urlInto)
                 ->setPasteDisabled(false);
 
             $dispatcher->dispatch($buttonEvent, $buttonEvent::NAME);

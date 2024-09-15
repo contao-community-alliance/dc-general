@@ -54,6 +54,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 use function array_filter;
@@ -232,7 +233,8 @@ class ButtonRenderer
         if ($this->hasPasteButtons()) {
             $urlAfter = $this->addToUrl(sprintf('act=paste&after=%s&', $modelId));
             $urlInto  = $this->addToUrl(sprintf('act=paste&into=%s&', $modelId));
-
+            $urlAfter = UrlBuilder::fromUrl($urlAfter)->unsetQueryParameter('source')->getUrl();
+            $urlInto  = UrlBuilder::fromUrl($urlInto)->unsetQueryParameter('source')->getUrl();
 
             $buttonEvent = new GetPasteButtonEvent($this->environment);
             $buttonEvent
