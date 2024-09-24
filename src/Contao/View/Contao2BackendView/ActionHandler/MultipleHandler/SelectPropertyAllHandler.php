@@ -235,12 +235,18 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             $inputProvider = $environment->getInputProvider();
             assert($inputProvider instanceof InputProviderInterface);
 
+            $definition = $environment->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
+            $modelName = $definition->getBasicDefinition()->getDataProvider();
+
             Message::addInfo(
                 $translator->translate(
                     'not_allowed_property_info',
                     'dc-general',
                     [
-                        '%property%' => $property->getLabel() ?: $property->getName(),
+                        '%property%' => $translator->translate($property->getLabel(), $modelName)
+                            ?: $property->getName(),
                         '%mode%'     => $translator->translate(
                             $inputProvider->getParameter('mode') . 'Selected',
                             'dc-general'

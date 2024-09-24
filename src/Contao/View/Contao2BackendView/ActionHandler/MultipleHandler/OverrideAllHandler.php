@@ -329,7 +329,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $translator = $environment->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        if ('' !== $fieldSet['palette']) {
+        if ('' === $fieldSet['palette']) {
             $fieldSet['palette'] = \sprintf(
                 '<p>&nbsp;</p><strong>%s</strong><p>&nbsp;</p>',
                 $translator->translate('no_properties_available', 'dc-general')
