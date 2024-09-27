@@ -137,6 +137,6 @@ class StoreRefererListener
      */
     private function getRelativeRequestUri(Request $request): string
     {
-        return substr($request->getRequestUri(), strlen($request->getBasePath()) + 1);
+        return substr($request->getRequestUri(), strlen($request->getBasePath()));
     }
 }
