@@ -154,7 +154,7 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $titleIcon = 'system/themes/flexible/icons/pagemounts.svg';
+    protected $titleIcon = '/system/themes/flexible/icons/pagemounts.svg';
 
     /**
      * The data container for the item source.

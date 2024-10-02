@@ -118,7 +118,7 @@ assert($translator instanceof TranslatorInterface);
                                     <td class="tl_file_list tl_right_nowrap">
                                         <?= $model->getMeta($model::OPERATION_BUTTONS) ?>
                                         <?php if ($this->sortable) : ?>
-                                            <?= Image::getHtml('system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
+                                            <?= Image::getHtml('/system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
                                         <?php endif; ?>
                                     </td>
                                 <?php endif; ?>
