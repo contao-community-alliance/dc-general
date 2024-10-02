@@ -450,12 +450,13 @@ class FileTree extends AbstractWidget
             $image = $this->placeholderImage;
         }
 
+        $info = StringUtil::specialchars(\strip_tags($info));
         if (strncmp($image, 'data:', 5) === 0) {
             return '<img src="' . $file->dataUri . '" width="' . $file->width . '" height="' . $file->height
-                   . '" alt="" class="gimage removable" title="' . StringUtil::specialchars($info) . '">';
+                   . '" alt="" class="gimage removable" title="' . $info . '">';
         }
 
-        return Image::getHtml($image, '', 'class="gimage removable" title="' . StringUtil::specialchars($info) . '"');
+        return Image::getHtml($image, '', 'class="gimage removable" title="' . $info . '"');
     }
 
     /**
