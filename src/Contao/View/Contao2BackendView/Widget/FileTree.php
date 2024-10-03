@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -248,9 +248,6 @@ class FileTree extends AbstractWidget
      */
     private function setUp()
     {
-        // Load the fonts for the drag hint (see #4838)
-        $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
-
         $projectDir = System::getContainer()->getParameter('kernel.project_dir');
         assert(\is_string($projectDir));
         $this->projectDir = $projectDir;

@@ -656,9 +656,6 @@ class TreePicker extends Widget
 
         $this->addOrderFieldToTemplate($template);
 
-        // Load the fonts for the drag hint.
-        $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
-
         return $template->parse();
     }
 
@@ -924,9 +921,6 @@ class TreePicker extends Widget
         }
 
         $template->set('tree', $tree);
-
-        // Load the fonts for the drag hint.
-        $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
         return $template->parse();
     }
