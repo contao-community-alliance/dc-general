@@ -107,25 +107,42 @@ var BackendGeneral =
     toggleVisibility: function (el, icon, icon_disabled) {
       el.blur();
 
-      // Optional dark mode at Contao 5.
-      var postfixColorScheme = document.documentElement.dataset.colorScheme === 'dark' ? '--dark' : '';
-
+      // Set default as "eye".
       if (!icon) {
-        icon = 'visible' + postfixColorScheme + '.svg';
+        icon = 'visible.svg';
       }
 
       if (!icon_disabled) {
-        icon_disabled = 'invisible' + postfixColorScheme + '.svg';
+        icon_disabled = 'invisible.svg';
       }
 
-      var img = null,
-        //image = $(el).getFirst('img'),
-        image = document.documentElement.dataset.colorScheme === 'dark' ? $(el).getFirst('img') : $(el).getLast('img'),
-        publish = (image.src.indexOf(icon_disabled) !== -1),
+      // Support dark mode at Contao 5.
+      const colorScheme = document.documentElement.dataset.colorScheme;
+      const postfixDark = colorScheme === 'dark' ? '--dark' : '';
+
+      // Get images - we have optional two icons:
+      // the first is for dark mode and second for light mode.
+      const imageList  = el.getElementsByTagName('img');
+      const darkImage  = (imageList.length > 1) ? imageList[0] : null;
+      const lightImage = imageList[imageList.length - 1]
+
+      // Generate images for dark mode.
+      const suffixDarkImage = (icon) => {
+        let posDot = icon.lastIndexOf('.');
+        return icon.slice(0, posDot) + postfixDark + '.' + icon.slice(posDot + 1);
+      };
+
+      const iconLight = icon;
+      const iconDark  = darkImage ? suffixDarkImage(icon) : null;
+      const iconLight_disabled = icon_disabled;
+      const iconDark_disabled  = darkImage ? suffixDarkImage(icon_disabled) : null;
+
+      let img = null,
+        publish = (lightImage.src.indexOf(iconLight_disabled) !== -1),
         div = el.getParent('div'),
         next,
         listIcon;
-      console.log(image.src + ' - ' + image.src.indexOf(icon_disabled));
+      console.log('Last image:' + lightImage.src + ' | publish: ' + publish);
 
       new Request.Contao({
         'url': $(el).href,
@@ -156,7 +173,7 @@ var BackendGeneral =
           // Change the icon
           if (img != null) {
             // Tree view
-            if (img.nodeName.toLowerCase() == 'img') {
+            if (img.nodeName.toLowerCase() === 'img') {
               if (img.getParent('ul.tl_listing').hasClass('tl_tree_xtnd')) {
                 if (publish) {
                   img.src = img.src.replace(/_1\.(gif|png|jpe?g)/, '.$1');
@@ -174,10 +191,10 @@ var BackendGeneral =
                 var index;
                 if (publish) {
                   index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
-                  img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g)/, ((index.toInt() == 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
+                  img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g)/, ((index.toInt() === 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
                 } else {
                   index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
-                  img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g)/, ((index == img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
+                  img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g)/, ((index === img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
                 }
               }
             }
@@ -203,9 +220,15 @@ var BackendGeneral =
 
           // Send request
           if (publish) {
-            image.src = image.src.replace(icon_disabled, icon);
+            lightImage.src = lightImage.src.replace(iconLight_disabled, iconLight);
+            if (darkImage) {
+              darkImage.src = darkImage.src.replace(iconDark_disabled, iconDark);
+            }
           } else {
-            image.src = image.src.replace(icon, icon_disabled);
+            lightImage.src = lightImage.src.replace(iconLight, iconLight_disabled);
+            if (darkImage) {
+              darkImage.src = darkImage.src.replace(iconDark, iconDark_disabled);
+            }
           }
         }
       }).get({'state': (publish ? 1 : 0)});
