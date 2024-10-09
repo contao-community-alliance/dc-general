@@ -979,8 +979,8 @@ class DefaultDataProvider implements DataProviderInterface
             return;
         }
 
-        $result = $statement->fetchAssociative();
-        if (false === $result) {
+        $result = $statement->fetchAllAssociative();
+        if ([] === $result) {
             return;
         }
 
@@ -990,8 +990,7 @@ class DefaultDataProvider implements DataProviderInterface
             $parameters[$table][] = $value;
         }
 
-        $prefix = '<span style="color:#b3b3b3; padding-right:3px;">(DC General)</span>';
-        $user   = BackendUser::getInstance();
+        $user = BackendUser::getInstance();
 
         // Write into undo.
         $this->connection->insert(
@@ -1000,7 +999,7 @@ class DefaultDataProvider implements DataProviderInterface
                 'tl_undo.pid'          => $user->id,
                 'tl_undo.tstamp'       => \time(),
                 'tl_undo.fromTable'    => $table,
-                'tl_undo.query'        => $prefix . $sourceSQL,
+                'tl_undo.query'        => $sourceSQL,
                 'tl_undo.affectedRows' => \count($parameters[$table]),
                 'tl_undo.data'         => \serialize($parameters)
             ]
