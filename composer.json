@@ -28,16 +28,15 @@
   "support": {
     "issues": "https://github.com/contao-community-alliance/dc-general/issues",
     "wiki": "https://de.contaowiki.org/DC_General",
-    "irc": "irc://irc.freenode.org/contao.dev",
     "source": "https://github.com/contao-community-alliance/dc-general"
   },
   "require": {
     "php": "^8.2",
     "ext-json": "*",
     "ext-pdo": "*",
-    "contao-community-alliance/events-contao-bindings": "^5.0@dev",
-    "contao-community-alliance/translator": "^2.5@dev",
-    "contao-community-alliance/url-builder": "^2.0@dev",
+    "contao-community-alliance/events-contao-bindings": "^5.0.1",
+    "contao-community-alliance/translator": "^2.5",
+    "contao-community-alliance/url-builder": "^2.0",
     "contao/core-bundle": "^5.3",
     "contao/image": "^1.2",
     "doctrine/cache": "^2.1",
@@ -55,6 +54,7 @@
     "symfony/http-kernel": "^6.4",
     "symfony/polyfill-mbstring": "^1.0",
     "symfony/routing": "^6.4",
+    "symfony/security-bundle": "^6.4",
     "symfony/security-core": "^6.4",
     "symfony/security-csrf": "^6.4",
     "symfony/translation-contracts": "^3.0",
