@@ -431,7 +431,7 @@ class ContaoWidgetManager
             ->set('strDatepicker', $isHideInput ? null : $this->getDatePicker($propInfo->getExtra(), $widget))
             // We used the var blnUpdate before.
             ->set('blnUpdate', false)
-            ->set('strHelp', $isHideInput ? null : $this->generateHelpText($property, $widget))
+            ->set('strHelp', $isHideInput ? '' : $this->generateHelpText($property, $widget))
             ->set('strId', $widget->id)
             ->set('isHideInput', $isHideInput)
             ->set('hiddenName', $widget->name)

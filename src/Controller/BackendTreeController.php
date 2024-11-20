@@ -182,7 +182,7 @@ class BackendTreeController implements ContainerAwareInterface
                 'title',
                 StringUtil::specialchars(
                     $this->getTranslator()->trans(
-                        'treepicker',
+                        'treePicker',
                         ['%table%' => $treeSelector->foreignTable],
                         'dc-general'
                     )
