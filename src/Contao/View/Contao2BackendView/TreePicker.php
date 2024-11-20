@@ -44,6 +44,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2Ba
 use ContaoCommunityAlliance\DcGeneral\Contao\Factory\SessionStorageFactory;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent;
+use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
@@ -51,8 +52,10 @@ use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
@@ -219,6 +222,7 @@ class TreePicker extends Widget
         $this->dataContainer = $dataContainer;
 
         $environment = $this->dataContainer->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
 
         if (!$this->sourceName) {
             $definition = $environment->getDataDefinition();
@@ -281,6 +285,7 @@ class TreePicker extends Widget
 
         $this->setUp($dataContainer);
         $environment = $this->dataContainer->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
 
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
@@ -490,6 +495,49 @@ class TreePicker extends Widget
     }
 
     /**
+     * @param DataProviderInterface $dataDriver
+     * @param mixed                 $rootId
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    public function setLanguageInProvider(DataProviderInterface $dataDriver, mixed $rootId): void
+    {
+        if ($dataDriver instanceof MultiLanguageDataProviderInterface) {
+            $dataContainer = $this->dataContainer;
+            assert($dataContainer instanceof General);
+
+            $rootEnvironment = $dataContainer->getEnvironment();
+            assert($rootEnvironment instanceof EnvironmentInterface);
+
+            $providerName = $rootEnvironment->getDataDefinition()?->getName();
+            if (null === $providerName) {
+                return;
+            }
+
+            $controller = $rootEnvironment->getController();
+            assert($controller instanceof ControllerInterface);
+
+            $sessionStorage = $rootEnvironment->getSessionStorage();
+            assert($sessionStorage instanceof SessionStorageInterface);
+
+            $session         = (array) $sessionStorage->get('dc_general');
+            $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
+            $languages       = $controller->getSupportedLanguages($rootId);
+
+            if (!\array_key_exists($currentLanguage, $languages)) {
+                $fallbackLanguage = $dataDriver->getFallbackLanguage($rootId);
+                assert($fallbackLanguage instanceof LanguageInformationInterface);
+
+                $currentLanguage = $fallbackLanguage->getLocale();
+            }
+
+            $dataDriver->setCurrentLanguage($currentLanguage);
+        }
+    }
+
+    /**
      * Skip the field if "change selection" is not checked.
      *
      * @param null|string|list<string> $varInput The current value.
@@ -560,6 +608,7 @@ class TreePicker extends Widget
                 $config->setSorting([$this->orderField => 'ASC']);
             }
 
+            $this->setLanguageInProvider($dataDriver, $value);
             foreach ($dataDriver->fetchAll($config) as $model) {
                 if (!($model instanceof ModelInterface)) {
                     continue;
@@ -912,7 +961,7 @@ class TreePicker extends Widget
                 $translator->translate('treePicker', 'dc-general', ['%table%' => $this->sourceName])
             )
             ->set('fieldType', $this->fieldType)
-            ->set('resetSelected', $translator->translate('.resetSelected', 'dc-general'))
+            ->set('resetSelected', $translator->translate('resetSelected', 'dc-general'))
             ->set('selectAll', $translator->translate('selectAll', 'dc-general'))
             ->set('values', StringUtil::deserialize($this->varValue, true))
             ->set('tableName', $this->sourceName);
@@ -1003,7 +1052,7 @@ class TreePicker extends Widget
     }
 
     /**
-     * Check if an custom sorting field has been defined.
+     * Check if a custom sorting field has been defined.
      *
      * @return bool
      */
@@ -1053,7 +1102,9 @@ class TreePicker extends Widget
 
         $this->determineModelState($model, ($level - 1));
 
+        $rootId           = $model->getId();
         $childCollections = [];
+
         foreach ($subTables as $subTable) {
             // Evaluate the child filter for this item.
             $childFilter = $relationships->getChildCondition($model->getProviderName(), $subTable);
@@ -1063,9 +1114,10 @@ class TreePicker extends Widget
                 continue;
             }
 
-            // Create a new Config and fetch the children from the child provider.
+            // Create a new config and fetch the children from the child provider.
             $dataProvider = $environment->getDataProvider($subTable);
             assert($dataProvider instanceof DataProviderInterface);
+            $this->setLanguageInProvider($dataProvider, $rootId);
 
             $childConfig = $dataProvider->getEmptyConfig();
             $childConfig->setFilter($childFilter->getFilter($model));
@@ -1146,6 +1198,8 @@ class TreePicker extends Widget
 
         $dataDriver = $environment->getDataProvider($providerName);
         assert($dataDriver instanceof DataProviderInterface);
+
+        $this->setLanguageInProvider($dataDriver, $rootId);
 
         $tableTreeData = $dataDriver->getEmptyCollection();
 
@@ -1337,6 +1391,7 @@ class TreePicker extends Widget
             $formatter->setPropertyNames($label['fields']);
             $formatter->setFormat($label['format']);
             $formatter->setMaxLength($label['maxCharacters']);
+
             return $formatter;
         }
 
