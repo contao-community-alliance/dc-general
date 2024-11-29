@@ -305,7 +305,7 @@ class ClipboardController implements EventSubscriberInterface
                 return;
             }
 
-            // create the new item
+            // Create the new item.
             $item = new Item($clipboardActionName, $parentId, $modelId);
         }
 
