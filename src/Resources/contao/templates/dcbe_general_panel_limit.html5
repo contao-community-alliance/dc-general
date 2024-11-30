@@ -1,11 +1,12 @@
 <?php
 
 use Contao\System;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 $translator   = System::getContainer()->get('translator');
-assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
+assert($translator instanceof TranslatorInterface);
 ?>
-<div class="tl_limit tl_subpanel <?= $this->rowClass; ?>">
+<div class="tl_limit tl_subpanel <?= $this->rowClass ?>">
     <strong><?= $translator->trans(id: 'showOnly', domain: 'dc-general') ?>:</strong>
     <select name="tl_limit" class="tl_select<?= $this->class ?>" onchange="this.form.submit()">
         <?php foreach ($this->options as $arrOption): ?>

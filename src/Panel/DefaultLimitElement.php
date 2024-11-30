@@ -86,6 +86,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     protected function calculateTotal()
     {
         $otherConfig = $this->getOtherConfig();
+        assert($otherConfig instanceof ConfigInterface);
 
         $dataProvider = $this->getEnvironment()->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);
@@ -144,15 +145,16 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             $values = $this->getSessionStorage()->get('limit');
         }
 
-        if ($offset) {
+        if (!$offset && !$amount) {
+            // Filter reset.
+            unset($values[$definitionName]);
+        } else {
             if (!isset($values[$definitionName]) || !\is_array($values[$definitionName])) {
                 $values[$definitionName] = [];
             }
 
             $values[$definitionName]['offset'] = $offset;
             $values[$definitionName]['amount'] = $amount;
-        } else {
-            unset($values[$definitionName]);
         }
 
         $this->getSessionStorage()->set('limit', $values);
@@ -200,7 +202,10 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             return;
         }
 
-        if ($input->hasValue('tl_limit') && $this->getPanel()->getContainer()->updateValues()) {
+        $panel = $this->getPanel();
+        assert($panel instanceof PanelInterface);
+
+        if ($input->hasValue('tl_limit') && $panel->getContainer()->updateValues()) {
             $limit = $input->getValue('tl_limit');
             if ('all' === $limit) {
                 $offset = 0;
