@@ -12,7 +12,7 @@ use Contao\System;
           <label for="selectLanguage"><strong><?= System::getContainer()->get('translator')->trans('language', [], 'dc-general') ?>: </strong></label>
           <select name="language" id="selectLanguage" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
             <?php foreach ($this->languages as $langCode => $languageName) : ?>
-              <option value="<?= $langCode; ?>"<?php if ($langCode === $this->language): ?> selected="selected"<?php endif; ?>>
+              <option value="<?= $langCode ?>"<?php if ($langCode === $this->language): ?> selected="selected"<?php endif; ?>>
                 <?= $languageName ?>
               </option>
             <?php endforeach; ?>

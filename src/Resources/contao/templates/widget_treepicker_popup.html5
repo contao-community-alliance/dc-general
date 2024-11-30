@@ -21,7 +21,7 @@ $GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
         <li class="tl_folder">
             <div class="tl_left">&nbsp;</div>
             <div class="tl_right">
-                <?php if ($this->fieldType == 'radio'): ?>
+                <?php if ($this->fieldType === 'radio'): ?>
                     <label
                         for="ctrl_<?= $this->id ?>_0"
                         class="tl_change_selected"><?= $this->resetSelected ?></label>
@@ -31,7 +31,7 @@ $GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
                         class="tl_tree_radio"
                         value=""
                         onfocus="Backend.getScrollOffset();" />
-                <?php elseif ($this->fieldType == 'checkbox'): ?>
+                <?php elseif ($this->fieldType === 'checkbox'): ?>
                     <label
                         for="check_all_<?= $this->id ?>_0"
                         class="tl_change_selected"><?= $this->selectAll ?></label>

@@ -24,6 +24,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Filter;
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
@@ -37,6 +38,8 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
+use Contao\Environment;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -172,41 +175,32 @@ class LanguageFilter implements EventSubscriberInterface
      *
      * If so, the value in the session will be updated and the page reloaded.
      *
-     * @param EnvironmentInterface $environment The environment.
-     * @param array                $languages   The valid languages.
+     * @param EnvironmentInterface  $environment The environment.
+     * @param array<string, string> $languages   The valid languages.
      *
      * @return void
      */
-    private function checkLanguageSubmit($environment, $languages)
+    private function checkLanguageSubmit(EnvironmentInterface $environment, array $languages): void
     {
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        if ('language_switch' !== $inputProvider->getValue('FORM_SUBMIT')) {
+        if ($inputProvider->hasParameter('language')) {
+            $newLanguage = $inputProvider->getParameter('language');
+            $this->selectLanguage($newLanguage, $languages, $environment);
+            $newUrl = UrlBuilder::fromUrl(Environment::get('request'))->unsetQueryParameter('language')->getUrl();
+
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+            $dispatcher->dispatch(new RedirectEvent($newUrl), ContaoEvents::CONTROLLER_REDIRECT);
+
             return;
         }
 
-        // Get/Check the new language.
-        $session = [];
-        if (
-            $inputProvider->hasValue('language')
-            && \array_key_exists($inputProvider->getValue('language'), $languages)
-        ) {
-            $definition = $environment->getDataDefinition();
-            assert($definition instanceof ContainerInterface);
-
-            $session['ml_support'][$definition->getName()] = $inputProvider->getValue('language');
-
-            $sessionStorage = $environment->getSessionStorage();
-            assert($sessionStorage instanceof SessionStorageInterface);
-
-            $sessionStorage->set('dc_general', $session);
+        // Check for post or preset as get value.
+        if ('language_switch' === $inputProvider->getValue('FORM_SUBMIT') && $inputProvider->hasValue('language')) {
+            $this->selectLanguage($inputProvider->getValue('language'), $languages, $environment);
         }
-
-        $dispatcher = $environment->getEventDispatcher();
-        assert($dispatcher instanceof EventDispatcherInterface);
-
-        $dispatcher->dispatch(new ReloadEvent(), ContaoEvents::CONTROLLER_RELOAD);
     }
 
     /**
@@ -223,5 +217,20 @@ class LanguageFilter implements EventSubscriberInterface
         }
 
         return null;
+    }
+
+    public function selectLanguage(string|null $newLanguage, array $languages, EnvironmentInterface $environment): void
+    {
+        if (null === $newLanguage || !\array_key_exists($newLanguage, $languages)) {
+            return;
+        }
+        $definition = $environment->getDataDefinition();
+        $sessionStorage = $environment->getSessionStorage();
+        assert($definition instanceof ContainerInterface);
+        assert($sessionStorage instanceof SessionStorageInterface);
+
+        $session = $sessionStorage->get('dc_general') ?? [];
+        $session['ml_support'][$definition->getName()] = $newLanguage;
+        $sessionStorage->set('dc_general', $session);
     }
 }

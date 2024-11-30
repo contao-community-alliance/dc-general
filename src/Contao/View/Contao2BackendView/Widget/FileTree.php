@@ -328,6 +328,9 @@ class FileTree extends AbstractWidget
 
             if (('folder' === $model->type) && $followSubDirs) {
                 $files = FilesModel::findByPid($uuid);
+                if (null === $files) {
+                    continue;
+                }
                 assert($files instanceof Collection);
                 $this->renderList($icons, $files);
                 continue;

@@ -26,7 +26,7 @@ $model = $this->objModel; ?>
     </div>
     <div class="tl_right">
         <?php /*if($this->minLevel && !$this->itemTable): */ ?>
-            <?php if ($this->fieldType == 'radio'): ?>
+            <?php if ($this->fieldType === 'radio'): ?>
                 <input type="radio"
                     name="<?= $this->name ?>"
                     id="ctrl_<?= $this->id ?>_<?= $model->getId() ?>"
@@ -34,7 +34,7 @@ $model = $this->objModel; ?>
                     value="<?= StringUtil::specialchars($model->getProperty($this->idProperty)) ?>"
                     <?= $this->active ?>
                     onfocus="Backend.getScrollOffset();" />
-            <?php elseif ($this->fieldType == 'checkbox'): ?>
+            <?php elseif ($this->fieldType === 'checkbox'): ?>
                 <input
                     type="checkbox"
                     name="<?= $this->name ?>[]"
