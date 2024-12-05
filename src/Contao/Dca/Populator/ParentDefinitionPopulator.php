@@ -55,6 +55,12 @@ class ParentDefinitionPopulator extends AbstractEventDrivenEnvironmentPopulator
             return;
         }
 
+        if ($parentDataProvider === $definition->getName()) {
+            $environment->setParentDataDefinition($definition);
+
+            return;
+        }
+
         if (null === $dispatcher = $environment->getEventDispatcher()) {
             throw new LogicException('No event dispatcher given');
         }
