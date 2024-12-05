@@ -208,7 +208,7 @@ class TreeView extends BaseView
                 $this->toggleModel($providerName, $modelId);
             }
 
-            ViewHelpers::redirectHome($environment);
+            ViewHelpers::redirectCleanHome($environment, ['ptg', 'provider']);
         }
     }
 

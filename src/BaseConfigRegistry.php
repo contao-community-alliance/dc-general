@@ -89,20 +89,27 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
     private function addParentFilter(ModelIdInterface $idParent, ConfigInterface $config): ConfigInterface
     {
         $environment = $this->getEnvironment();
-        $definition  = $environment->getDataDefinition();
+        assert($environment instanceof EnvironmentInterface);
+
+        $definition = $environment->getDataDefinition();
         if (null === $definition) {
             throw new DcGeneralRuntimeException('Data definition not set.');
         }
         $basicDefinition    = $definition->getBasicDefinition();
-        $providerName       = $basicDefinition->getDataProvider();
+        $providerName       = (string) $basicDefinition->getDataProvider();
         $parentProviderName = $idParent->getDataProviderName();
         $parentProvider     = $environment->getDataProvider($parentProviderName);
 
         if ($basicDefinition->getParentDataProvider() !== $parentProviderName) {
-            throw new DcGeneralRuntimeException(
-                'Unexpected parent provider ' . $parentProviderName .
-                ' (expected ' . ((string) $basicDefinition->getParentDataProvider()) . ')'
-            );
+            // Could be a tree parent then.
+            if ($basicDefinition->getDataProvider() !== $parentProviderName) {
+                throw new DcGeneralRuntimeException(
+                    'Unexpected parent provider ' . $parentProviderName .
+                    ' (expected ' . ((string) $basicDefinition->getParentDataProvider()) . ')'
+                );
+            }
+            $parentProviderName = $providerName;
+            $parentProvider     = $environment->getDataProvider($parentProviderName);
         }
 
         if ($parentProvider) {
@@ -115,7 +122,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
 
             $condition = $definition->getModelRelationshipDefinition()->getChildCondition(
                 $parentProviderName,
-                (string) $providerName
+                $providerName
             );
 
             if ($condition) {

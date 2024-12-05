@@ -285,11 +285,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         }
 
         // First check if we are using the "new" notation used in DcGeneral 0.9.
-        if (!\is_array($this->getFromDca('dca_config/data_provider'))) {
+        $dataProvidersDca = $this->getFromDca('dca_config/data_provider');
+        if (!\is_array($dataProvidersDca)) {
             return;
         }
-
-        $dataProvidersDca = $this->getFromDca('dca_config/data_provider');
 
         foreach ($dataProvidersDca as $dataProviderDcaName => $dataProviderDca) {
             $providerInformation = $this->parseSingleDataProvider(
@@ -326,6 +325,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                         break;
 
                     default:
+                        $baseInitializationData['name'] = $providerInformation->getName();
                 }
 
                 $providerInformation->setInitializationData(

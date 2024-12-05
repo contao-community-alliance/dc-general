@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -160,6 +160,8 @@ class ModelCollector
      *
      * @return ModelInterface|null
      *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @throws \InvalidArgumentException When the model id is invalid.
      */
     public function getModel($modelId, $providerName = null)
@@ -185,34 +187,34 @@ class ModelCollector
         assert($dataProvider instanceof DataProviderInterface);
 
         $config = $dataProvider->getEmptyConfig();
+        $config->setId($modelId->getId());
 
         if ($definition->getName() === $modelId->getDataProviderName()) {
             $propertyDefinition = $definition->getPropertiesDefinition();
         } elseif ($parentDefinition && $parentDefinition->getName() === $modelId->getDataProviderName()) {
             $propertyDefinition = $parentDefinition->getPropertiesDefinition();
         } else {
-            throw new \InvalidArgumentException('Invalid provider name ' . $modelId->getDataProviderName());
+            $propertyDefinition = null;
         }
+        if (null !== $propertyDefinition) {
+            $properties = [];
+            // Filter real properties from the property definition.
+            foreach ($propertyDefinition->getPropertyNames() as $propertyName) {
+                if ($dataProvider->fieldExists($propertyName)) {
+                    $properties[] = $propertyName;
+                    continue;
+                }
 
-        $properties = [];
-
-        // Filter real properties from the property definition.
-        foreach ($propertyDefinition->getPropertyNames() as $propertyName) {
-            if ($dataProvider->fieldExists($propertyName)) {
-                $properties[] = $propertyName;
-
-                continue;
+                // @codingStandardsIgnoreStart
+                @\trigger_error(
+                    'Only real property is allowed in the property definition.' .
+                    'This will no longer be supported in the future.',
+                    E_USER_DEPRECATED
+                );
+                // @codingStandardsIgnoreEnd
             }
-
-            // @codingStandardsIgnoreStart
-            @\trigger_error(
-                'Only real property is allowed in the property definition.' .
-                'This will no longer be supported in the future.',
-                E_USER_DEPRECATED
-            );
-            // @codingStandardsIgnoreEnd
+            $config->setFields($properties);
         }
-        $config->setId($modelId->getId())->setFields($properties);
 
         return $dataProvider->fetch($config);
     }
