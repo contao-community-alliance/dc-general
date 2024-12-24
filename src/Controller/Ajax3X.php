@@ -39,6 +39,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,6 +75,7 @@ class Ajax3X extends Ajax
     protected function getWidget($fieldName, $serializedId, $propertyValue)
     {
         $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
 
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -98,7 +100,7 @@ class Ajax3X extends Ajax
         if (('file' === $treeType) || ('page' === $treeType)) {
             $extra = $property->getExtra();
             if (!isset($extra['multiple'])) {
-                $propertyValue = $propertyValue[0];
+                $propertyValue = $propertyValue[0] ?? '';
             } else {
                 $propertyValue = implode(',', $propertyValue);
             }
@@ -122,6 +124,7 @@ class Ajax3X extends Ajax
     protected function loadPagetree()
     {
         $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
 
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
@@ -179,6 +182,7 @@ class Ajax3X extends Ajax
     protected function loadFiletree()
     {
         $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
 
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
@@ -260,13 +264,17 @@ class Ajax3X extends Ajax
     protected function getModelFromSerializedId($serializedId)
     {
         $modelId      = ModelId::fromSerialized($serializedId);
-        $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
+
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
         $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
 
         if (null === $model) {
-            $definition = $this->getEnvironment()->getDataDefinition();
+            $definition = $environment->getDataDefinition();
             assert($definition instanceof ContainerInterface);
 
             $event = new LogEvent(
@@ -276,7 +284,7 @@ class Ajax3X extends Ajax
                 'ERROR'
             );
 
-            $dispatcher = $this->getEnvironment()->getEventDispatcher();
+            $dispatcher = $environment->getEventDispatcher();
             assert($dispatcher instanceof EventDispatcherInterface);
 
             $dispatcher->dispatch($event, ContaoEvents::SYSTEM_LOG);
@@ -296,7 +304,10 @@ class Ajax3X extends Ajax
      */
     protected function reloadTree()
     {
-        $input = $this->getEnvironment()->getInputProvider();
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
         $serializedId = ($input->hasParameter('id') && $input->getParameter('id')) ? $input->getParameter('id') : null;
@@ -343,6 +354,7 @@ class Ajax3X extends Ajax
     protected function setLegendState()
     {
         $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
 
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
@@ -366,6 +378,8 @@ class Ajax3X extends Ajax
     private function getFieldName()
     {
         $environment   = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
@@ -418,6 +432,8 @@ class Ajax3X extends Ajax
     private function generateWidget(Widget $widget)
     {
         $environment   = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
