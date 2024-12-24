@@ -469,8 +469,9 @@ class ButtonRenderer
         }
         if (($command instanceof CutCommandInterface) || ($command instanceof CopyCommandInterface)) {
             // Cut & copy need some special information.
-            $parameters        = [];
-            $parameters['act'] = $command->getName();
+            if (!\array_key_exists('act', $parameters)) {
+                $parameters['act'] = $command->getName();
+            }
 
             $inputProvider = $this->environment->getInputProvider();
             assert($inputProvider instanceof InputProviderInterface);

@@ -390,7 +390,7 @@ class SelectHandler
         foreach ($this->getModelIds($environment, $action, $this->getSubmitAction($environment)) as $modelId) {
             $inputProvider->setParameter('source', $modelId->getSerialized());
 
-            $this->callAction($environment, 'copy');
+            $this->callAction($environment, 'deepcopy');
 
             $inputProvider->unsetParameter('source');
         }

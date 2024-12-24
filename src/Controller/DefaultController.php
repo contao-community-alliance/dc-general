@@ -747,7 +747,7 @@ class DefaultController implements ControllerInterface
         // Now apply sorting and persist all models.
         $models = $this->sortAndPersistModels($actions, $after, $into, $parentModelId, $items);
 
-        // At least, go ahead with the deep copy.
+        // At last, go ahead with the deep copy.
         $this->doDeepCopy($deepCopyList);
 
         return $models;
@@ -1127,14 +1127,14 @@ class DefaultController implements ControllerInterface
                 $groupAndSortingCollection = $listingConfig->getGroupAndSortingDefinition();
                 $groupAndSorting           = $groupAndSortingCollection->getDefault();
 
-                // ***** fetch the children
+                // ***** fetch the children.
                 $filter = $childCondition->getFilter($origin);
 
                 // apply parent-child condition
                 $config = $destinationDataProvider->getEmptyConfig();
                 $config->setFilter($filter);
 
-                // apply sorting
+                // Apply sorting.
                 $sorting = [];
                 foreach ($groupAndSorting as $information) {
                     /** @var GroupAndSortingInformationInterface $information */
@@ -1142,13 +1142,13 @@ class DefaultController implements ControllerInterface
                 }
                 $config->setSorting($sorting);
 
-                // receive children
+                // Receive children.
                 $children = $destinationDataProvider->fetchAll($config);
 
-                // ***** do the deep copy
+                // ***** do the deep copy.
                 $actions = [];
 
-                // build the copy actions
+                // Build the copy actions.
                 foreach ($children as $childModel) {
                     if (!($childModel instanceof ModelInterface)) {
                         continue;
@@ -1162,8 +1162,8 @@ class DefaultController implements ControllerInterface
                     ];
                 }
 
-                // do the deep copy
-                $childrenModels = $destinationController->doActions($actions, null, null, $parentId);
+                // Do the deep copy.
+                $childrenModels = $destinationController->doActions($actions, null, $parentId, null);
 
                 // ensure parent-child condition
                 foreach ($childrenModels as $childrenModel) {

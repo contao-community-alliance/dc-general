@@ -100,7 +100,7 @@ class Ajax3X extends Ajax
         if (('file' === $treeType) || ('page' === $treeType)) {
             $extra = $property->getExtra();
             if (!isset($extra['multiple'])) {
-                $propertyValue = $propertyValue[0];
+                $propertyValue = $propertyValue[0] ?? '';
             } else {
                 $propertyValue = implode(',', $propertyValue);
             }
