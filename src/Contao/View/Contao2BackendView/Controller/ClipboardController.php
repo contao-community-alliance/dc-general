@@ -186,7 +186,7 @@ class ClipboardController implements EventSubscriberInterface
      *
      * @return void
      */
-    private function clearClipboard(ActionEvent $event, $redirect = true)
+    private function clearClipboard(ActionEvent $event, bool $redirect = true): void
     {
         $environment = $event->getEnvironment();
 
