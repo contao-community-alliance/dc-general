@@ -1,7 +1,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2017 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2017 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -152,9 +153,9 @@ var BackendGeneral =
 					if (img.nodeName.toLowerCase() == 'img') {
 						if (img.getParent('ul.tl_listing').hasClass('tl_tree_xtnd')) {
 							if (publish) {
-								img.src = img.src.replace(/_1\.(gif|png|jpe?g)/, '.$1');
+								img.src = img.src.replace(/_1\.(gif|png|jpe?g|svg)/, '.$1');
 							} else {
-								img.src = img.src.replace(/\.(gif|png|jpe?g)/, '_1.$1');
+								img.src = img.src.replace(/\.(gif|png|jpe?g|svg)/, '_1.$1');
 							}
 						} else {
 							if (img.src.match(/folPlus|folMinus/)) {
@@ -166,11 +167,11 @@ var BackendGeneral =
 							}
 							var index;
 							if (publish) {
-								index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
-								img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g)/, ((index.toInt() == 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
+								index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g|svg)/, '$1');
+								img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g|svg)/, ((index.toInt() == 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
 							} else {
-								index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
-								img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g)/, ((index == img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
+								index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g|svg)/, '$1');
+								img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g|svg)/, ((index == img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
 							}
 						}
 					}
@@ -187,9 +188,9 @@ var BackendGeneral =
 					// List view
 					else {
 						if (publish) {
-							img.setStyle('background-image', img.getStyle('background-image').replace(/_\.(gif|png|jpe?g)/, '.$1'));
+							img.setStyle('background-image', img.getStyle('background-image').replace(/_\.(gif|png|jpe?g|svg)/, '.$1'));
 						} else {
-							img.setStyle('background-image', img.getStyle('background-image').replace(/\.(gif|png|jpe?g)/, '_.$1'));
+							img.setStyle('background-image', img.getStyle('background-image').replace(/\.(gif|png|jpe?g|svg)/, '_.$1'));
 						}
 					}
 				}
