@@ -113,8 +113,10 @@ class PasteHandler
         assert(\is_string($providerName));
 
         // Check if it is a simple create-paste of a single model, if so, redirect to edit view.
+        // Only for not ajax calls e.g. move.
         if (
-            $this->isSimpleCreatePaste(
+            null === $input->getParameter('isAjax')
+            && $this->isSimpleCreatePaste(
                 $clipboard,
                 $providerName
             )
