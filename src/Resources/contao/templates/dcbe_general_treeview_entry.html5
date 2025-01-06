@@ -7,11 +7,12 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 /** @var ModelInterface $model */
 $model = $this->objModel;
 ?>
-<li class="<?= ($model->getMeta(DCGE::TREE_VIEW_LEVEL) == 0) ? 'tl_folder' : 'tl_file' ?> hover-div<?php if ($this->select) : ?> toggle_select<?php endif; ?> click2edit">
+<li class="<?= ($model->getMeta(DCGE::TREE_VIEW_LEVEL) === 0) ? 'tl_folder' : 'tl_file' ?> hover-div<?php if ($this->select) : ?> toggle_select<?php endif; ?> click2edit">
     <div class="tl_left" style="padding-left:<?= $model->getMeta(DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
-        <?php if ($model->getMeta($model::HAS_CHILDREN) == true): ?>
-            <a class="folding" href="<?= $this->toggleUrl; ?>" title="<?= $this->toggleTitle ?>" onclick="<?= $this->toggleScript ?>">
-                <img src="/system/themes/<?= $this->theme ?>/icons/<?= ($model->getMeta($model::SHOW_CHILDREN)) ? 'folMinus.svg' : 'folPlus.svg'; ?>" width="18" height="18" alt="" style="margin-right:-2px;">
+        <?php if ($model->getMeta($model::HAS_CHILDREN) === true): ?>
+            <a class="foldable <?= ($model->getMeta($model::SHOW_CHILDREN)) ? ' foldable--open' : '' ?>" href="<?= $this->toggleUrl ?>" title="<?= $this->toggleTitle ?>" onclick="<?= $this->toggleScript ?>">
+              <img src="/system/themes/<?= $this->theme ?>/icons/chevron-right--dark.svg" width="18" height="18" alt="" class="color-scheme--dark" style="margin-right:-2px;" loading="lazy">
+              <img src="/system/themes/<?= $this->theme ?>/icons/chevron-right.svg" width="18" height="18" alt="" class="color-scheme--light" style="margin-right:-2px;" loading="lazy">
             </a>
         <?php endif; ?>
         <?php $arrLabels = $model->getMeta($model::LABEL_VALUE); ?>
@@ -19,7 +20,7 @@ $model = $this->objModel;
     </div>
     <?php if ($this->select): ?>
         <div class="tl_right tl_right_nowrap">
-            <input type="checkbox" name="models[]" id="models_<?= $model->getId() ?>" class="tl_tree_checkbox" value="<?= ModelId::fromModel($model)->getSerialized() ?>"<?php if (\in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?>checked<?php endif; ?>>
+            <input type="checkbox" name="models[]" id="models_<?= $model->getId() ?>" class="tl_tree_checkbox" value="<?= ModelId::fromModel($model)->getSerialized() ?>"<?php if (\in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?> checked<?php endif; ?>>
         </div>
     <?php else: ?>
     <div class="tl_right">
