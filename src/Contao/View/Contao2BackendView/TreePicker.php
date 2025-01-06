@@ -526,7 +526,7 @@ class TreePicker extends Widget
             $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
             $languages       = $controller->getSupportedLanguages($rootId);
 
-            if (!\array_key_exists($currentLanguage, $languages)) {
+            if ([] !== $languages && !\array_key_exists($currentLanguage, $languages)) {
                 $fallbackLanguage = $dataDriver->getFallbackLanguage($rootId);
                 assert($fallbackLanguage instanceof LanguageInformationInterface);
 
@@ -608,7 +608,7 @@ class TreePicker extends Widget
                 $config->setSorting([$this->orderField => 'ASC']);
             }
 
-            $this->setLanguageInProvider($dataDriver, $value);
+            $this->setLanguageInProvider($dataDriver, \array_shift($value));
             foreach ($dataDriver->fetchAll($config) as $model) {
                 if (!($model instanceof ModelInterface)) {
                     continue;
