@@ -27,13 +27,13 @@ var BackendGeneral =
     loadSubTree: function (el, data) {
       el.blur();
 
-      var id = data.toggler,
-        level = data.level,
-        mode = data.mode,
-        item = $(id),
-        image = $(el).getFirst('img');
+      var id    = data.toggler,
+          level = data.level,
+          mode  = data.mode,
+          item  = $(id),
+          image = $(el).getFirst('img');
 
-      data.action = 'DcGeneralLoadSubTree';
+      data.action        = 'DcGeneralLoadSubTree';
       data.REQUEST_TOKEN = Contao.request_token;
 
       if (item) {
@@ -179,9 +179,9 @@ var BackendGeneral =
             if (img.nodeName.toLowerCase() === 'img') {
               if (img.getParent('ul.tl_listing').hasClass('tl_tree_xtnd')) {
                 if (publish) {
-                  img.src = img.src.replace(/_1\.(gif|png|jpe?g)/, '.$1');
+                  img.src = img.src.replace(/_1\.(gif|png|jpe?g|svg)/, '.$1');
                 } else {
-                  img.src = img.src.replace(/\.(gif|png|jpe?g)/, '_1.$1');
+                  img.src = img.src.replace(/\.(gif|png|jpe?g|svg)/, '_1.$1');
                 }
               } else {
                 if (img.src.match(/folPlus|folMinus/)) {
@@ -193,11 +193,11 @@ var BackendGeneral =
                 }
                 var index;
                 if (publish) {
-                  index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
-                  img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g)/, ((index.toInt() === 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
+                  index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g|svg)/, '$1');
+                  img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g|svg)/, ((index.toInt() === 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
                 } else {
-                  index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g)/, '$1');
-                  img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g)/, ((index === img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
+                  index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g|svg)/, '$1');
+                  img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g|svg)/, ((index === img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
                 }
               }
             }
