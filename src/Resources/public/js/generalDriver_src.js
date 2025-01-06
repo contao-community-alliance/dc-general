@@ -41,11 +41,13 @@ var BackendGeneral =
           item.setStyle('display', 'inline');
           image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
           $(el).store('tip:title', Contao.lang.collapse);
+          $(el).addClass('foldable--open');
           new Request.Contao({url: data.url, field: el}).post(data);
         } else {
           item.setStyle('display', 'none');
           image.src = image.src.replace('folMinus.svg', 'folPlus.svg');
           $(el).store('tip:title', Contao.lang.expand);
+          $(el).removeClass('foldable--open');
           new Request.Contao({url: data.url, field: el}).post(data);
         }
         return false;
@@ -84,6 +86,7 @@ var BackendGeneral =
 
           $(el).store('tip:title', Contao.lang.collapse);
           image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
+          $(el).addClass('foldable--open');
           window.fireEvent('structure');
           AjaxRequest.hideBox();
 
