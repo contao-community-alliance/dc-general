@@ -395,7 +395,7 @@ class SelectHandler
             $inputProvider->unsetParameter('source');
         }
 
-        ViewHelpers::redirectHome($environment);
+        ViewHelpers::redirectCleanHome($environment, ['select']);
     }
 
     /**
