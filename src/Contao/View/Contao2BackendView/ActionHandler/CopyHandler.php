@@ -127,7 +127,7 @@ class CopyHandler
             return;
         }
 
-        if ('copy' !== $event->getAction()->getName()) {
+        if (!\in_array($event->getAction()->getName(), ['copy', 'deepcopy'])) {
             return;
         }
 
