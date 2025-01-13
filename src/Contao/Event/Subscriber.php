@@ -327,7 +327,7 @@ class Subscriber implements EventSubscriberInterface
         if (
             !\in_array(
                 $event->getAction()->getName(),
-                ['copy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show'],
+                ['copy', 'deepcopy', 'create', 'paste', 'delete', 'move', 'undo', 'edit', 'toggle', 'showAll', 'show'],
                 true
             )
         ) {

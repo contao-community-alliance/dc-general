@@ -460,6 +460,7 @@ class ButtonRenderer
     private function calculateParameters(CommandInterface $command, string $serializedModelId): array
     {
         $parameters = (array) $command->getParameters();
+
         if ($command instanceof ToggleCommandInterface) {
             // Toggle has to trigger the javascript.
             $parameters['act'] = $command->getName();
@@ -467,6 +468,7 @@ class ButtonRenderer
 
             return $parameters;
         }
+
         if (($command instanceof CutCommandInterface) || ($command instanceof CopyCommandInterface)) {
             // Cut & copy need some special information.
             if (!\array_key_exists('act', $parameters)) {

@@ -113,6 +113,7 @@ class ViewHelpers
             $sort = $panel->getElement('sort');
             if ($sort instanceof SortElementInterface) {
                 $definition = $sort->getSelectedDefinition();
+                break;
             }
         }
 

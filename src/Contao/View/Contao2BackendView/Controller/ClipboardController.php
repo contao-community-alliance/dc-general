@@ -301,7 +301,10 @@ class ClipboardController implements EventSubscriberInterface
             $this->removeItemsFromClipboard($event);
 
             // Only push item to clipboard if manual sorting is used.
-            if (Item::COPY === $clipboardActionName && null === ViewHelpers::getManualSortingProperty($environment)) {
+            if (
+                \in_array($clipboardActionName, [Item::COPY, Item::DEEP_COPY])
+                && null === ViewHelpers::getManualSortingProperty($environment)
+            ) {
                 return;
             }
 
@@ -309,7 +312,7 @@ class ClipboardController implements EventSubscriberInterface
             $item = new Item($clipboardActionName, $parentId, $modelId);
         }
 
-        // If edit several don´t redirect do home and push item to the clipboard.
+        // If edit several don´t redirect to home and push item to the clipboard.
         if ('select' === $input->getParameter('act')) {
             $clipboard->push($item)->saveTo($environment);
 
@@ -319,7 +322,7 @@ class ClipboardController implements EventSubscriberInterface
         // Let the clipboard save it's values persistent.
         $clipboard->clear()->push($item)->saveTo($environment);
 
-        ViewHelpers::redirectHome($environment);
+        ViewHelpers::redirectCleanHome($environment, ['select']);
     }
 
     /**
