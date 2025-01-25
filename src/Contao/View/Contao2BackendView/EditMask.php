@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,17 +18,13 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use Contao\BackendUser;
-use Contao\CoreBundle\Intl\Locales;
-use Contao\Image;
-use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -38,6 +34,11 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditMaskSubHeadlineEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
 use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
@@ -45,22 +46,22 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\EnforceModelRelationshipEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PreEditModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PrePersistModelEvent;
+use ContaoCommunityAlliance\DcGeneral\Event\ValidateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Contao\BackendUser;
+use Contao\CoreBundle\Intl\Locales;
+use Contao\Image;
+use Contao\System;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -563,6 +564,12 @@ class EditMask
                             $propName,
                             $widgetManager->decodeValue($propName, $propertyValues->getPropertyValue($propName))
                         );
+                        if ($propertyValues->isPropertyValueInvalid($propName)) {
+                            $rawValues->markPropertyValueAsInvalid(
+                                $propName,
+                                $propertyValues->getPropertyValueErrors($propName)
+                            );
+                        }
                     }
                 }
             }
@@ -994,6 +1001,12 @@ class EditMask
 
             // Update the model - the model might add some more errors to the propertyValueBag via exceptions.
             $controller->updateModelFromPropertyBag($model, $propertyValues);
+
+            // Validate whole model.
+            $dispatcher->dispatch(
+                new ValidateModelEvent($environment, $model, $propertyValues),
+                ValidateModelEvent::NAME
+            );
         }
 
         $fieldSets = $this->buildFieldSet($widgetManager, $palette, $propertyValues);

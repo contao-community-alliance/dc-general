@@ -33,6 +33,7 @@ use LogicException;
  */
 class ParentDefinitionPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
+    /** @psalm-suppress MissingClassConstType */
     public const PRIORITY = 0;
 
     /**

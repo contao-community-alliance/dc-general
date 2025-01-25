@@ -63,30 +63,29 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
     <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline !== '') ? ' - ' . $this->languageHeadline : '' ?></h2>
     <?= Message::generate() ?>
 
-    <form class="tl_form tableextended" method="post"
-        action="<?= StringUtil::ampersand($request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
-        id="<?= $this->table ?>"
-        enctype="<?= $this->enctype ?>"
-        <?php if($this->onsubmit): ?> onsubmit="<?= $this->onsubmit ?>"<?php endif; ?>>
-            <div class="tl_formbody_edit">
-                <input type="hidden" name="FORM_SUBMIT" value="<?= StringUtil::specialchars($this->table) ?>" />
-                <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>" />
-                <?php if($this->error): ?>
-                    <?php if(5 < \count($this->error)): ?>
-                        <div class="limit_height h128">
-                    <?php endif; ?>
-
-                  <p class="tl_error"><?= \implode('<br />', $this->error) ?></p>
-                  <script>
-                    window.addEvent('domready', function() {
-                        Backend.vScrollTo(($('<?= $this->table ?>').getElement('label.error').getPosition().y - 20));
-                    });
-                  </script>
-
-                    <?php if(5 < \count($this->error)): ?>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
+<form class="tl_form tableextended" method="post"
+  action="<?= StringUtil::ampersand($this->Environment->request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
+  id="<?= $this->table ?>"
+  enctype="<?= $this->enctype ?>"
+  <?php if($this->onsubmit): ?> onsubmit="<?= $this->onsubmit ?>"<?php endif; ?>>
+    <div class="tl_formbody_edit">
+        <input type="hidden" name="FORM_SUBMIT" value="<?= StringUtil::specialchars($this->table) ?>" />
+        <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>" />
+        <?php if($this->error): ?>
+            <div class="error_wrapper<?php if(5 < \count($this->error)): ?> limit_height h128<?php endif; ?>">
+              <p class="tl_error"><?= \implode('<br />', $this->error) ?></p>
+              <script>
+                window.addEvent('domready', function() {
+                    var firstErrorElement = $('<?= $this->table ?>').getElement('label.error');
+                    if (firstErrorElement) {
+                      Backend.vScrollTo((firstErrorElement.getPosition().y - 20));
+                    } else {
+                      Backend.vScrollTo(($('<?= $this->table ?>').getElement('.error_wrapper p.tl_error').getPosition().y - 20));
+                    }
+                });
+              </script>
+            </div>
+        <?php endif; ?>
 
                 <?php foreach($this->fieldsets as $arrFieldset):
                     $paletteId = 'pal_' . StringUtil::specialchars($arrFieldset['legend']);
@@ -120,7 +119,10 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
         var e = $$("#" + <?= \json_encode($this->table) ?> + ' input[type="text"]')[0];
         e && e.focus();
 <?php if($this->noReload): ?>
-        Backend.vScrollTo(($('<?= $this->table ?>').getElement('label.error').getPosition().y - 20));
+        var firstErrorElement = $('<?= $this->table ?>').getElement('label.error');
+        if (firstErrorElement) {
+          Backend.vScrollTo((firstErrorElement.getPosition().y - 20));
+        }
 <?php endif; ?>
     });
 </script>

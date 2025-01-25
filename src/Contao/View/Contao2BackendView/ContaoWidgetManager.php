@@ -39,6 +39,8 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Decod
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
+use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
@@ -280,6 +282,7 @@ class ContaoWidgetManager
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.EmptyCatchBlock)
      */
     public function getWidget($property, PropertyValueBagInterface $inputValues = null)
     {
@@ -305,10 +308,13 @@ class ContaoWidgetManager
 
             $values = new PropertyValueBag();
             foreach ($inputValues->getIterator() as $propertyName => $propertyValue) {
-                $values->setPropertyValue(
-                    $propertyName,
-                    $this->encodeValue($propertyName, $propertyValue, $inputValues)
-                );
+                try {
+                    $values->setPropertyValue(
+                        $propertyName,
+                        $this->encodeValue($propertyName, $propertyValue, $inputValues)
+                    );
+                } catch (\Exception $e) {
+                }
             }
 
             $controller->updateModelFromPropertyBag($model, $values);
