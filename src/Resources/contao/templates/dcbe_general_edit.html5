@@ -22,7 +22,7 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
 
     <?php if($this->versions): ?>
         <div class="tl_version_panel">
-            <form action="<?= StringUtil::ampersand($this->Environment->request, true) ?>" id="tl_version" class="tl_form" method="post">
+            <form action="<?= StringUtil::ampersand($request, true) ?>" id="tl_version" class="tl_form" method="post">
                 <div class="tl_formbody">
                 <input type="hidden" name="FORM_SUBMIT" value="tl_version" />
                 <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>" />
@@ -64,7 +64,7 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
     <?= Message::generate() ?>
 
 <form class="tl_form tableextended" method="post"
-  action="<?= StringUtil::ampersand($this->Environment->request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
+  action="<?= StringUtil::ampersand($request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
   id="<?= $this->table ?>"
   enctype="<?= $this->enctype ?>"
   <?php if($this->onsubmit): ?> onsubmit="<?= $this->onsubmit ?>"<?php endif; ?>>
@@ -87,31 +87,31 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
             </div>
         <?php endif; ?>
 
-                <?php foreach($this->fieldsets as $arrFieldset):
-                    $paletteId = 'pal_' . StringUtil::specialchars($arrFieldset['legend']);
-                    $class     = $arrFieldset['class'];
-                    if (null !== ($fieldsetState = ($fieldsetStates[$this->table][$paletteId] ?? null))) {
-                      $class = \str_replace(' collapsed', '', $class);
-                      if (0 === $fieldsetState) {
-                        $class .= ' collapsed';
-                      }
-                    }
-                    if($arrFieldset['legend'] ?? null): ?>
-                        <fieldset id="<?= $paletteId ?>" class="<?= $class ?>" data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="pal_<?= StringUtil::specialchars($arrFieldset['legend']) ?>" data-contao--toggle-fieldset-table-value="<?= StringUtil::specialchars($this->table) ?>" data-contao--toggle-fieldset-collapsed-class="collapsed" data-contao--jump-targets-target="section" data-contao--jump-targets-label-value="<?= $arrFieldset['label'] ?>" data-action="contao--jump-targets:scrollto->contao--toggle-fieldset#open">
-                            <legend><button type="button" data-action="contao--toggle-fieldset#toggle" aria-expanded="true"><?= $arrFieldset['label'] ?></button></legend>
-                            <?= $arrFieldset['palette'] ?>
-                        </fieldset>
-                    <?php else: ?>
-                        <fieldset class="<?= $class ?> block nolegend">
-                            <?= $arrFieldset['palette'] ?>
-                        </fieldset>
-                    <?php endif; endforeach; ?>
-              </div>
-              <div class="tl_formbody_submit">
-                  <div class="tl_submit_container">
-                      <?= $this->editButtons ?>
-                  </div>
-              </div>
+        <?php foreach($this->fieldsets as $arrFieldset):
+            $paletteId = 'pal_' . StringUtil::specialchars($arrFieldset['legend']);
+            $class     = $arrFieldset['class'];
+            if (null !== ($fieldsetState = ($fieldsetStates[$this->table][$paletteId] ?? null))) {
+              $class = \str_replace(' collapsed', '', $class);
+              if (0 === $fieldsetState) {
+                $class .= ' collapsed';
+              }
+            }
+            if($arrFieldset['legend'] ?? null): ?>
+                <fieldset id="<?= $paletteId ?>" class="<?= $class ?>" data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="pal_<?= StringUtil::specialchars($arrFieldset['legend']) ?>" data-contao--toggle-fieldset-table-value="<?= StringUtil::specialchars($this->table) ?>" data-contao--toggle-fieldset-collapsed-class="collapsed" data-contao--jump-targets-target="section" data-contao--jump-targets-label-value="<?= $arrFieldset['label'] ?>" data-action="contao--jump-targets:scrollto->contao--toggle-fieldset#open">
+                    <legend><button type="button" data-action="contao--toggle-fieldset#toggle" aria-expanded="true"><?= $arrFieldset['label'] ?></button></legend>
+                    <?= $arrFieldset['palette'] ?>
+                </fieldset>
+            <?php else: ?>
+                <fieldset class="<?= $class ?> block nolegend">
+                    <?= $arrFieldset['palette'] ?>
+                </fieldset>
+            <?php endif; endforeach; ?>
+        </div>
+        <div class="tl_formbody_submit">
+            <div class="tl_submit_container">
+                <?= $this->editButtons ?>
+            </div>
+        </div>
     </form>
 </div>
 <script>
