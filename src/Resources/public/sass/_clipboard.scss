@@ -1,17 +1,19 @@
 #dcg_clipboard {
   position: relative;
   padding-top: 2px;
-  padding-left: 14px;
+  padding-left: 40px;
   min-height: 32px;
   background-image: url(../images/clipboard.svg);
   background-size: 24px 24px;
-  background-position: 15px 15px;
+  background-position: 6px 3px;
   background-repeat: no-repeat;
+  margin-right: 16px;
+  margin-left: 16px;
 
   .btn-clear {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 3px;
+    left: 6px;
     opacity: 0;
     transition: opacity 300ms;
 
@@ -22,6 +24,8 @@
   }
   ul {
     display: block;
+    padding-left: 10px;
+    margin: 0;
   }
   li {
     display: inline-block;
