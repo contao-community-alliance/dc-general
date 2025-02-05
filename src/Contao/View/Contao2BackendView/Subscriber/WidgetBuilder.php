@@ -400,15 +400,19 @@ class WidgetBuilder implements EnvironmentAwareInterface
      */
     protected function getHelpWizard($propInfo)
     {
-        $helpWizard    = '';
         $environment   = $this->getEnvironment();
         $ccaTranslator = $environment->getTranslator();
         assert($ccaTranslator instanceof CcaTranslator);
 
         // Add the help wizard.
-        if ($propInfo->getExtra() && \array_key_exists('helpwizard', $propInfo->getExtra())) {
+        $extra = $propInfo->getExtra();
+        if (!$extra) {
+            return '';
+        }
+
+        if (\array_key_exists('helptext', $extra)) {
             $event = new GenerateHtmlEvent(
-                'about.svg',
+                'help.svg',
                 $ccaTranslator->translate('helpWizard', 'dc-general'),
                 'style="vertical-align:text-bottom;"'
             );
@@ -421,8 +425,45 @@ class WidgetBuilder implements EnvironmentAwareInterface
             $definition = $environment->getDataDefinition();
             assert($definition instanceof ContainerInterface);
 
-            $helpWizard .= \sprintf(
-                ' <a href="contao/help?table=%s&amp;field=%s" ' .
+            $generator = System::getContainer()->get('router');
+            return \strtr(
+                ' <a href="{url}" title="{title}" ' .
+                'onclick="Backend.openModalIframe({\'title\':\'{windowTitle}\',\'url\':this.href});' .
+                'return false">{icon}</a>',
+                [
+                    '{url}'         => $generator->generate(
+                        'cca.backend-help',
+                        [
+                            'table' => $definition->getName(),
+                            'property' => $propInfo->getName(),
+                        ]
+                    ),
+                    '{title}'       => StringUtil::specialchars($ccaTranslator->translate('helpWizard', 'dc-general')),
+                    '{windowTitle}' => StringUtil::specialchars(
+                        $ccaTranslator->translate($propInfo->getName() . '.label', $definition->getName())
+                    ),
+                    '{icon}'        => $event->getHtml() ?? ''
+                ]
+            );
+        }
+
+        if (\array_key_exists('helpwizard', $extra)) {
+            $event = new GenerateHtmlEvent(
+                'help.svg',
+                $ccaTranslator->translate('helpWizard', 'dc-general'),
+                'style="vertical-align:text-bottom;"'
+            );
+
+            $dispatcher = $environment->getEventDispatcher();
+            assert($dispatcher instanceof EventDispatcherInterface);
+
+            $dispatcher->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
+
+            $definition = $environment->getDataDefinition();
+            assert($definition instanceof ContainerInterface);
+
+            return \sprintf(
+                ' <a href="/contao/help?table=%s&amp;field=%s" ' .
                 'title="%s" ' .
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
                 $definition->getName(),
@@ -432,7 +473,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             );
         }
 
-        return $helpWizard;
+        return '';
     }
 
     /**
