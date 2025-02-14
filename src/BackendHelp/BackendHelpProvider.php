@@ -15,7 +15,7 @@ final readonly class BackendHelpProvider implements BackendHelpProviderInterface
     {
         foreach ($this->helpText as $section => $helpTexts) {
             foreach ($helpTexts as $caption => $description) {
-                yield new HelpText($section, $caption, $description);
+                yield new HelpText($section, $caption, $caption, $description);
             }
         }
     }
