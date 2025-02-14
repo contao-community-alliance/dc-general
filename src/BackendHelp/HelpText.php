@@ -8,6 +8,7 @@ final readonly class HelpText
 {
     public function __construct(
         private string $section,
+        private string $key,
         private string $caption,
         private string $description,
         private ?string $translationDomain = null,
@@ -17,6 +18,11 @@ final readonly class HelpText
     public function getSection(): string
     {
         return $this->section;
+    }
+
+    public function getKey(): string
+    {
+        return $this->key;
     }
 
     public function getCaption(): string
