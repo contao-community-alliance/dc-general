@@ -18,11 +18,11 @@
       {% if (section != helptext.section) %}
       {% set section = helptext.section %}
       <tr>
-        <td colspan="2" class="headline">{{ section|trans(domain: helptext.translationDomain) }}</td>
+        <td colspan="2" class="headline">{{ section|trans(domain: helptext.translationDomain)|raw }}</td>
       </tr>
       {% endif %}
       <tr>
-        <td class="tl_label">{{ helptext.caption|trans(domain: helptext.translationDomain) }}</td>
+        <td class="tl_label">{{ helptext.caption|trans(domain: helptext.translationDomain)|raw }}</td>
         <td>{{ helptext.description|trans(domain: helptext.translationDomain)|raw }}</td>
       </tr>
       {% endfor %}
