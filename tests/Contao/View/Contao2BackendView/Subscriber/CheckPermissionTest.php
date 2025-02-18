@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -36,7 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * This tests the CheckPermission subscriber.
@@ -186,13 +186,13 @@ class CheckPermissionTest extends TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|PropertyInterface
+     * @return MockObject&PropertyInterface
      */
     private function mockProperty($isExcluded = false)
     {
         $mock = $this
             ->getMockBuilder(PropertyInterface::class)
-            ->getMockForAbstractClass();
+            ->getMock();
         $mock->expects(self::once())->method('isExcluded')->willReturn($isExcluded);
 
         return $mock;

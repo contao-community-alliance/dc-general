@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -310,7 +310,7 @@ abstract class Ajax implements EnvironmentAwareInterface
      *
      * @return never
      *
-     * @deprecated Deperecated since 2.1 and where remove in 3.0. Use own response exit.
+     * @deprecated Deprecated since 2.1 and where remove in 3.0. Use own response exit.
      *
      * @SuppressWarnings(PHPMD.ExitExpression) - The whole purpose of the method is the exit expression.
      */
@@ -333,6 +333,7 @@ abstract class Ajax implements EnvironmentAwareInterface
 
         $user = BackendUser::getInstance();
 
+        /** @psalm-suppress TooManyArguments */
         Database::getInstance()->prepare('UPDATE tl_user SET tl_user.session=? WHERE tl_user.id=?')
             ->execute(\serialize($sessionBag), $user->id);
 
