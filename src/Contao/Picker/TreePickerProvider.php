@@ -39,7 +39,7 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
     /**
      * {@inheritdoc}
      */
-    public function supportsContext($context)
+    public function supportsContext(string $context): bool
     {
         return 'cca_tree' === $context;
     }
@@ -59,7 +59,7 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
     /**
      * {@inheritdoc}
      */
-    public function getDcaTable(): string
+    public function getDcaTable(PickerConfig|null $config = null): string
     {
         return 'tl_page';
     }
@@ -98,7 +98,7 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
     /**
      * {@inheritdoc}
      */
-    public function convertDcaValue(PickerConfig $config, $value): string|int
+    public function convertDcaValue(PickerConfig $config, mixed $value): int|string
     {
         if ('cca_tree' === $config->getContext()) {
             return (int) $value;

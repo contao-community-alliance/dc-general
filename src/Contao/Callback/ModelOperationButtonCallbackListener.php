@@ -23,6 +23,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Callback;
 
+use Contao\CoreBundle\DataContainer\DataContainerOperation;
+use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
@@ -85,19 +87,27 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
             throw new LogicException('No data definition given.');
         }
 
+        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         return [
-            ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
-            $this->buildHref($command),
-            $event->getLabel(),
-            $event->getTitle(),
-            ($extra['icon'] ?? null),
-            $event->getAttributes(),
-            $definition->getName(),
-            $definition->getBasicDefinition()->getRootEntries(),
-            $event->getChildRecordIds(),
-            $event->isCircularReference(),
-            ($previous = $event->getPrevious()) ? $previous->getId() : null,
-            ($next = $event->getNext()) ? $next->getId() : null
+            new DataContainerOperation(
+                $command->getName(),
+                [
+                    ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
+                    $this->buildHref($command),
+                    $event->getLabel(),
+                    $event->getTitle(),
+                    ($extra['icon'] ?? null),
+                    $event->getAttributes(),
+                    $definition->getName(),
+                    $definition->getBasicDefinition()->getRootEntries(),
+                    $event->getChildRecordIds(),
+                    $event->isCircularReference(),
+                    ($previous = $event->getPrevious()) ? $previous->getId() : null,
+                    ($next = $event->getNext()) ? $next->getId() : null
+                ],
+                ($model = $event->getModel()) ? $model->getPropertiesAsArray() : [],
+                new DcCompat($event->getEnvironment())
+            )
         ];
     }
 

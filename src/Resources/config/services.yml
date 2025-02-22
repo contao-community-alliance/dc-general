@@ -1,3 +1,5 @@
+parameters:
+  cca.backend-help-provider.help-text: []
 services:
     cca.dc-general.scope-matcher:
         class: ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator
@@ -30,6 +32,12 @@ services:
         calls:
             - ["setName", ["cca_dc_general"]]
 
+    ContaoCommunityAlliance\DcGeneral\SymfonyBridge\SessionFactory:
+        arguments:
+            - "@ContaoCommunityAlliance\\DcGeneral\\SymfonyBridge\\SessionFactory.inner"
+            - "@cca.dc-general.session_attribute"
+        decorates: session.factory
+
     cca.dc-general.edit-information:
         class: ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation
         public: true
@@ -58,3 +66,14 @@ services:
         public: false
         arguments:
             - '@ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache'
+
+    cca.backend-help-provider:
+        class: ContaoCommunityAlliance\DcGeneral\BackendHelp\BackendHelpProvider
+        arguments:
+            $helpText: '%cca.backend-help-provider.help-text%'
+
+    ContaoCommunityAlliance\DcGeneral\Controller\BackendHelpController:
+        bind:
+          $backendHelpProvider: '@cca.backend-help-provider'
+        tags:
+            - controller.service_arguments

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -58,6 +59,7 @@ use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEven
 use ContaoCommunityAlliance\Translator\TranslatorChain;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class test the subscriber.
@@ -73,11 +75,14 @@ class SubscriberTest extends TestCase
     /** @SuppressWarnings(PHPMD.Superglobals) */
     public static function setUpBeforeClass(): void
     {
-        $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
-        \define('TL_ROOT', __DIR__ . '/../../../../../../vendor/contao/core');
-        require __DIR__ . '/../../../vendor/contao/core-bundle/src/Resources/contao/config/default.php';
-        require __DIR__ . '/../../../vendor/contao/core-bundle/src/Resources/contao/helper/functions.php';
+        // $GLOBALS['TL_CONFIG']['characterSet'] = 'utf-8';
+        // \define('TL_ROOT', __DIR__ . '/../../../../../../vendor/contao/core');
+        // require __DIR__ . '/../../../vendor/contao/core-bundle/src/Resources/contao/config/default.php';
+        // require __DIR__ . '/../../../vendor/contao/core-bundle/src/Resources/contao/helper/functions.php';
 
+        $GLOBALS['TL_CONFIG']['datimFormat'] = 'Y-m-d H:i';
+        $GLOBALS['TL_CONFIG']['dateFormat'] = 'Y-m-d';
+        $GLOBALS['TL_CONFIG']['timeFormat'] = 'H:i';
 
         self::initializeContaoConfig();
         self::initializeContaoController();
@@ -269,7 +274,7 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
-        $parseDateListener = $this->mockParseDateEventListener(self::once());
+        $parseDateListener = $this->mockParseDateEventListener(true);
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener(ContaoEvents::DATE_PARSE, [$parseDateListener, 'handle']);
@@ -427,7 +432,7 @@ class SubscriberTest extends TestCase
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
-        $parseDateListener = $this->mockParseDateEventListener(self::never());
+        $parseDateListener = $this->mockParseDateEventListener(false);
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
         $dispatcher->addListener(ContaoEvents::DATE_PARSE, [$parseDateListener, 'handle']);
@@ -632,7 +637,7 @@ class SubscriberTest extends TestCase
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
         $parseDateListener = $this->mockParseDateEventListener(
-            (isset($extra['rgxp']) && $extra['rgxp'] === 'non-format') ? self::never() : self::once()
+            !(isset($extra['rgxp']) && $extra['rgxp'] === 'non-format')
         );
 
         $dispatcher = $event->getEnvironment()->getEventDispatcher();
@@ -672,29 +677,25 @@ class SubscriberTest extends TestCase
         );
     }
 
-    private function mockParseDateEventListener($expects)
+    private function mockParseDateEventListener(bool $expectsInvocation): object
     {
-        $listener = $this
-            ->getMockBuilder('stdClass')
-            ->setMethods(['handle'])
-            ->getMock();
-        $listener
-            ->expects($expects)
-            ->method('handle')
-            ->with(
-                self::isInstanceOf(ParseDateEvent::class),
-                self::equalTo(ContaoEvents::DATE_PARSE),
-                self::isInstanceOf(EventDispatcher::class)
-            )
-            ->will(
-                self::returnCallback(
-                    function (ParseDateEvent $event) {
-                        $event->setResult(Date::parse($event->getFormat(), $event->getTimestamp()));
-                    }
-                )
-            );
+        return new class ($expectsInvocation) {
+            public function __construct(
+                private readonly bool $expectsInvocation
+            ) {
+            }
 
-        return $listener;
+            public function handle($event, $eventName, $dispatcher): void
+            {
+                if (!$this->expectsInvocation) {
+                    SubscriberTest::fail('Was not expected to be called!');
+                }
+                SubscriberTest::assertInstanceOf(ParseDateEvent::class, $event);
+                SubscriberTest::assertSame(ContaoEvents::DATE_PARSE, $eventName);
+                SubscriberTest::assertInstanceOf(EventDispatcherInterface::class, $dispatcher);
+                $event->setResult(Date::parse($event->getFormat(), $event->getTimestamp()));
+            }
+        };
     }
 
     private function mockGetPropertyOptionsEventListener($expects, $options)

@@ -27,7 +27,7 @@ use Contao\User;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 use function array_merge;
 use function array_shift;
@@ -137,6 +137,6 @@ class StoreRefererListener
      */
     private function getRelativeRequestUri(Request $request): string
     {
-        return substr($request->getRequestUri(), strlen($request->getBasePath()) + 1);
+        return substr($request->getRequestUri(), strlen($request->getBasePath()));
     }
 }

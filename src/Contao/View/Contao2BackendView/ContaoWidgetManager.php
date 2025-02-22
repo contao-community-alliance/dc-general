@@ -28,7 +28,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
 use Contao\Config;
-use Contao\CoreBundle\Framework\ContaoFrameworkInterface;
+use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Date;
 use Contao\Input;
 use Contao\System;
@@ -68,9 +68,7 @@ class ContaoWidgetManager
     /**
      * The environment in use.
      *
-     * @var ContaoFrameworkInterface
-     *
-     * @psalm-suppress DeprecatedInterface
+     * @var ContaoFramework
      */
     protected $framework;
 
@@ -106,7 +104,7 @@ class ContaoWidgetManager
         $this->environment = $environment;
         $this->model       = $model;
         $framework         = System::getContainer()->get('contao.framework');
-        assert($framework instanceof ContaoFrameworkInterface);
+        assert($framework instanceof ContaoFramework);
         $translator = System::getContainer()->get('translator');
         assert($translator instanceof TranslatorInterface);
 
@@ -207,7 +205,9 @@ class ContaoWidgetManager
             return $buffer;
         }
 
+        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $backendAdapter = $this->framework->getAdapter(Backend::class);
+        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $templateLoader = $this->framework->getAdapter(TemplateLoader::class);
 
         [$file, $type] = \explode('|', $rte) + ['', ''];
@@ -491,7 +491,7 @@ class ContaoWidgetManager
 
         // Set all POST data, these get used within the Widget::validate() method.
         foreach ($propertyValues as $property => $propertyValue) {
-            $_POST[$property] = $propertyValue;
+            Input::setPost($property, $propertyValue);
         }
         unset($property, $propertyValue);
 

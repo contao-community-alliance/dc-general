@@ -157,7 +157,7 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $titleIcon = 'system/themes/flexible/icons/pagemounts.svg';
+    protected $titleIcon = '/system/themes/flexible/icons/pagemounts.svg';
 
     /**
      * The data container for the item source.
@@ -526,7 +526,7 @@ class TreePicker extends Widget
             $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
             $languages       = $controller->getSupportedLanguages($rootId);
 
-            if (!\array_key_exists($currentLanguage, $languages)) {
+            if ([] !== $languages && !\array_key_exists($currentLanguage, $languages)) {
                 $fallbackLanguage = $dataDriver->getFallbackLanguage($rootId);
                 assert($fallbackLanguage instanceof LanguageInformationInterface);
 
@@ -608,7 +608,7 @@ class TreePicker extends Widget
                 $config->setSorting([$this->orderField => 'ASC']);
             }
 
-            $this->setLanguageInProvider($dataDriver, $value);
+            $this->setLanguageInProvider($dataDriver, \array_shift($value));
             foreach ($dataDriver->fetchAll($config) as $model) {
                 if (!($model instanceof ModelInterface)) {
                     continue;
@@ -665,7 +665,7 @@ class TreePicker extends Widget
      */
     public function generate()
     {
-        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
+        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
 
@@ -704,9 +704,6 @@ class TreePicker extends Widget
             ->set('readonly', $this->readonly);
 
         $this->addOrderFieldToTemplate($template);
-
-        // Load the fonts for the drag hint.
-        $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
         return $template->parse();
     }
@@ -932,7 +929,7 @@ class TreePicker extends Widget
      */
     public function generatePopup()
     {
-        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = 'bundles/ccadcgeneral/js/vanillaGeneral.js';
+        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
 
@@ -973,9 +970,6 @@ class TreePicker extends Widget
         }
 
         $template->set('tree', $tree);
-
-        // Load the fonts for the drag hint.
-        $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
 
         return $template->parse();
     }

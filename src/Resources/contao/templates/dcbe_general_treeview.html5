@@ -1,15 +1,17 @@
 <?php
+
+use Contao\Message;
 use Contao\System;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 
 // Add tree view stylesheet
-$GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalTreeView.css';
+$GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
 ?>
 
 <?= $this->strGlobalsButton ?>
 
-<?= $this->getMessages() ?>
+<?= Message::generate() ?>
 
 <?php if ($this->select): ?>
 <form action="<?= $this->action ?>" id="tl_select" class="tl_form" method="post">

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Kim Wormer <hallo@heartcodiert.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -67,9 +67,13 @@ use function is_array;
  * @Route("/contao/cca", defaults={"_scope" = "backend", "_token_check" = true})
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @psalm-suppress DeprecatedInterface
+ * @psalm-suppress DeprecatedTrait
  */
 class BackendTreeController implements ContainerAwareInterface
 {
+    /** @psalm-suppress DeprecatedTrait */
     use ContainerAwareTrait;
 
     /**
@@ -133,8 +137,6 @@ class BackendTreeController implements ContainerAwareInterface
          * @var Controller $controller
          */
         $controller = $framework->getAdapter(Controller::class);
-        /** @psalm-suppress DeprecatedMethod */
-        $controller->setStaticUrls();
         $controller->loadLanguageFile('default');
 
         $requestStack = $container->get('request_stack');
@@ -171,13 +173,16 @@ class BackendTreeController implements ContainerAwareInterface
     {
         [$value, $treeSelector] = $this->getTemplateData($request);
 
+        $container = $this->container;
+        assert($container instanceof SymfonyContainerInterface);
+
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
             ->set('base', Environment::get('base'))
-            ->set('language', $GLOBALS['TL_LANGUAGE'])
+            ->set('language', $container->get('request_stack')->getCurrentRequest()->getLocale())
             ->set(
                 'title',
                 StringUtil::specialchars(
@@ -188,7 +193,7 @@ class BackendTreeController implements ContainerAwareInterface
                     )
                 )
             )
-            ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
+            ->set('charset', 'utf-8')
             ->set('addSearch', $treeSelector->searchField)
             ->set('search', $this->getTranslator()->trans('search', [], 'dc-general'))
             ->set('action', StringUtil::ampersand($request->getUri()))
@@ -357,7 +362,10 @@ class BackendTreeController implements ContainerAwareInterface
         $picker = $pickerBuilder->createFromData($getPicker);
         assert($picker instanceof PickerInterface);
         $treeSelector = $this->prepareTreeSelector($picker);
-        $session = $container->get('session');
+        //$session = $container->get('session');
+        $requestStack = $container->get('request_stack');
+        assert($requestStack instanceof RequestStack);
+        $session = $requestStack->getSession();
         assert($session instanceof SessionInterface);
         $sessionBag = $session->getBag('contao_backend');
         assert($sessionBag instanceof AttributeBagInterface);
@@ -404,7 +412,10 @@ class BackendTreeController implements ContainerAwareInterface
         $container = $this->container;
         assert($container instanceof SymfonyContainerInterface);
 
-        $session = $container->get('session');
+        //$session = $container->get('session');
+        $requestStack = $container->get('request_stack');
+        assert($requestStack instanceof RequestStack);
+        $session = $requestStack->getSession();
         assert($session instanceof SessionInterface);
 
         $sessionBag = $session->getBag('contao_backend');

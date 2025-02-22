@@ -123,7 +123,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
-        $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = 'bundles/ccadcgeneral/css/generalDriver.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/generalDriver.css';
 
         $environment = $event->getEnvironment();
         assert($environment instanceof EnvironmentInterface);
@@ -277,6 +277,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * @param Template $template The template to add the value to.
      *
      * @return BaseView
+     *
+     * @psalm-suppress DeprecatedClass
      */
     protected function addToTemplate($name, $value, $template)
     {
@@ -625,7 +627,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return '';
         }
 
-        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = '/bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         return $this->getTemplate('dcbe_general_breadcrumb')
             ->set('elements', $elements)

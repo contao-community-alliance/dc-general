@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -159,13 +159,17 @@ class Ajax3X extends Ajax
         ];
 
         /**
-         * @psalm-suppress DeprecatedClass
+         * @psalm-suppress UndefinedDocblockClass
          * @var PageSelector $widget
          */
         $widget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
+        /** @psalm-suppress UndefinedClass */
         $widget->value = $this->getTreeValue('page', $input->getValue('value'));
 
-        /** @psalm-suppress InvalidArgument - rather pass it "as is", we do not trust Contao annotations. */
+        /**
+         * @psalm-suppress InvalidArgument - rather pass it "as is", we do not trust Contao annotations.
+         * @psalm-suppress UndefinedDocblockClass
+         */
         $response = new Response($widget->generateAjax($ajaxId, $field, $level));
 
         throw new ResponseException($response);
@@ -204,16 +208,19 @@ class Ajax3X extends Ajax
         );
 
         /**
-         * @psalm-suppress DeprecatedClass
+         * @psalm-suppress UndefinedClass
          * @var FileSelector $widget
          */
         $widget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
 
+        /** @psalm-suppress UndefinedClass */
         $widget->value = $this->getTreeValue($field, $input->getValue('value'));
         // Load a particular node.
         if ('' !== $folder) {
+            /** @psalm-suppress UndefinedDocblockClass */
             $response = new Response($widget->generateAjax($folder, $field, $level));
         } else {
+            /** @psalm-suppress UndefinedDocblockClass */
             $response = new Response($widget->generate());
         }
 
@@ -263,7 +270,7 @@ class Ajax3X extends Ajax
      */
     protected function getModelFromSerializedId($serializedId)
     {
-        $modelId      = ModelId::fromSerialized($serializedId);
+        $modelId = ModelId::fromSerialized($serializedId);
 
         $environment = $this->getEnvironment();
         assert($environment instanceof EnvironmentInterface);
@@ -377,7 +384,7 @@ class Ajax3X extends Ajax
      */
     private function getFieldName()
     {
-        $environment   = $this->getEnvironment();
+        $environment = $this->getEnvironment();
         assert($environment instanceof EnvironmentInterface);
 
         $inputProvider = $environment->getInputProvider();
@@ -431,7 +438,7 @@ class Ajax3X extends Ajax
      */
     private function generateWidget(Widget $widget)
     {
-        $environment   = $this->getEnvironment();
+        $environment = $this->getEnvironment();
         assert($environment instanceof EnvironmentInterface);
 
         $inputProvider = $environment->getInputProvider();

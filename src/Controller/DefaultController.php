@@ -32,6 +32,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use Contao\CoreBundle\Intl\Locales;
+use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\BaseConfigRegistryInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
@@ -65,7 +67,16 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use UnexpectedValueException;
+
+use function array_keys;
+use function in_array;
+use function is_int;
+use function is_string;
+use function trigger_error;
 
 /**
  * This class serves as main controller class in dc general.
@@ -145,7 +156,7 @@ class DefaultController implements ControllerInterface
         assert($definition instanceof ContainerInterface);
 
         $mode = $definition->getBasicDefinition()->getMode();
-        assert(\is_int($mode));
+        assert(is_int($mode));
 
         $this->relationshipManager = new RelationshipManager(
             $definition->getModelRelationshipDefinition(),
@@ -184,12 +195,12 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().
      *
-     * @see ModelCollector::searchParentOfIn
+     * @see        ModelCollector::searchParentOfIn
      */
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
     {
         // @codingStandardsIgnoreStart
-        @\trigger_error(
+        @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().',
             E_USER_DEPRECATED
         );
@@ -197,7 +208,7 @@ class DefaultController implements ControllerInterface
 
         $parent = $this->modelCollector->searchParentOfIn($model, $models);
         if (null === $parent) {
-            throw new \RuntimeException('Not found');
+            throw new RuntimeException('Not found');
         }
 
         return $parent;
@@ -210,12 +221,12 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().
      *
-     * @see ModelCollector::searchParentOf
+     * @see        ModelCollector::searchParentOf
      */
     public function searchParentOf(ModelInterface $model)
     {
         // @codingStandardsIgnoreStart
-        @\trigger_error(
+        @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().',
             E_USER_DEPRECATED
         );
@@ -223,7 +234,7 @@ class DefaultController implements ControllerInterface
 
         $parent = $this->modelCollector->searchParentOf($model);
         if (null === $parent) {
-            throw new \RuntimeException('Not found');
+            throw new RuntimeException('Not found');
         }
 
         return $parent;
@@ -234,12 +245,12 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf().
      *
-     * @see ModelCollector::collectChildrenOf
+     * @see        ModelCollector::collectChildrenOf
      */
     public function assembleAllChildrenFrom($model, $providerName = '')
     {
         // @codingStandardsIgnoreStart
-        @\trigger_error(
+        @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf()',
             E_USER_DEPRECATED
         );
@@ -267,7 +278,7 @@ class DefaultController implements ControllerInterface
         ModelIdInterface $parentId = null
     ) {
         // @codingStandardsIgnoreStart
-        @\trigger_error(
+        @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf()',
             E_USER_DEPRECATED
         );
@@ -369,12 +380,16 @@ class DefaultController implements ControllerInterface
         assert($translator instanceof TranslatorInterface);
 
         // Make an array from the collection.
-        $languages = [];
+        $languages   = [];
+        $intlLocales = System::getContainer()->get('contao.intl.locales');
+        assert($intlLocales instanceof Locales);
+        $labels = $intlLocales->getLocales();
+
         foreach ($supportedLanguages as $value) {
             /** @var LanguageInformationInterface $value */
             $locale = $value->getLocale();
 
-            $languages[$locale] = $translator->translate('LNG.' . $locale, 'contao_languages');
+            $languages[$locale] = $labels[$locale];
         }
 
         return $languages;
@@ -433,7 +448,7 @@ class DefaultController implements ControllerInterface
         $dataProvider = $environment->getDataProvider($clone->getProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
-        foreach (\array_keys($clone->getPropertiesAsArray()) as $propName) {
+        foreach (array_keys($clone->getPropertiesAsArray()) as $propName) {
             // If the property is not known, remove it.
             if (!$properties->hasProperty($propName)) {
                 continue;
@@ -449,16 +464,16 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      *
-     * @throws \InvalidArgumentException When the model id is invalid.
+     * @throws InvalidArgumentException When the model id is invalid.
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel().
      *
-     * @see ModelCollector::getModel
+     * @see        ModelCollector::getModel
      */
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
         // @codingStandardsIgnoreStart
-        @\trigger_error(
+        @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel()',
             E_USER_DEPRECATED
         );
@@ -466,7 +481,7 @@ class DefaultController implements ControllerInterface
 
         $model = $this->modelCollector->getModel($modelId, $providerName);
         if (null === $model) {
-            throw new \RuntimeException('Not found');
+            throw new RuntimeException('Not found');
         }
 
         return $model;
@@ -553,7 +568,7 @@ class DefaultController implements ControllerInterface
 
         $basicDefinition   = $dataDefinition->getBasicDefinition();
         $modelProviderName = $basicDefinition->getDataProvider();
-        assert(\is_string($modelProviderName));
+        assert(is_string($modelProviderName));
 
         $clipboard = $environment->getClipboard();
         assert($clipboard instanceof ClipboardInterface);
@@ -597,7 +612,7 @@ class DefaultController implements ControllerInterface
      *
      * @return array
      *
-     * @throws \InvalidArgumentException When the model id is invalid.
+     * @throws InvalidArgumentException When the model id is invalid.
      */
     private function getActionsFromSource(ModelIdInterface $source, ModelIdInterface $parentModelId = null)
     {
@@ -608,13 +623,13 @@ class DefaultController implements ControllerInterface
         assert($basicDefinition instanceof BasicDefinitionInterface);
 
         $dataProvider = $basicDefinition->getDataProvider();
-        assert(\is_string($dataProvider));
+        assert(is_string($dataProvider));
 
         $filter = new Filter();
         $filter->andModelIsFromProvider($dataProvider);
         if (null !== $basicDefinition->getParentDataProvider()) {
             $parentDataProvider = $basicDefinition->getDataProvider();
-            assert(\is_string($parentDataProvider));
+            assert(is_string($parentDataProvider));
 
             $filter->andParentIsFromProvider($parentDataProvider);
         } else {
@@ -662,7 +677,7 @@ class DefaultController implements ControllerInterface
         if ($filter instanceof Filter) {
             $basicDefinition   = $dataDefinition->getBasicDefinition();
             $modelProviderName = $basicDefinition->getDataProvider();
-            assert(\is_string($modelProviderName));
+            assert(is_string($modelProviderName));
             $filter->andModelIsFromProvider($modelProviderName);
             if ($parentModelId) {
                 $filter->andParentIsFromProvider($parentModelId->getDataProviderName());
@@ -779,7 +794,7 @@ class DefaultController implements ControllerInterface
         }
 
         if (!$model) {
-            throw new \UnexpectedValueException(
+            throw new UnexpectedValueException(
                 'Invalid clipboard action entry, no model created. ' . $item->getAction()
             );
         }
@@ -895,7 +910,7 @@ class DefaultController implements ControllerInterface
     {
         if ($after && $models->count() && $after->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
-            assert(\is_string($manualSorting));
+            assert(is_string($manualSorting));
 
             $model = $this->modelCollector->getModel($after);
             assert($model instanceof ModelInterface);
@@ -919,7 +934,7 @@ class DefaultController implements ControllerInterface
     {
         if ($into && $models->count() && $into->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
-            assert(\is_string($manualSorting));
+            assert(is_string($manualSorting));
 
             $model = $this->modelCollector->getModel($into);
             assert($model instanceof ModelInterface);
@@ -953,7 +968,7 @@ class DefaultController implements ControllerInterface
                 || ($into && (0 === (int) $into->getId())))
         ) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
-            assert(\is_string($manualSorting));
+            assert(is_string($manualSorting));
 
             $dataDefinition = $this->getEnvironment()->getDataDefinition();
             assert($dataDefinition instanceof ContainerInterface);
@@ -1183,12 +1198,12 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      *
-     * @throws \RuntimeException When no models have been passed.
+     * @throws RuntimeException When no models have been passed.
      */
     public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
     {
         if (0 === $models->length()) {
-            throw new \RuntimeException('No models passed to pasteAfter().');
+            throw new RuntimeException('No models passed to pasteAfter().');
         }
 
         $environment = $this->getEnvironment();
@@ -1197,7 +1212,7 @@ class DefaultController implements ControllerInterface
         assert($definition instanceof ContainerInterface);
 
         if (
-            \in_array(
+            in_array(
                 $definition->getBasicDefinition()->getMode(),
                 [
                     BasicDefinitionInterface::MODE_HIERARCHICAL,
@@ -1209,7 +1224,7 @@ class DefaultController implements ControllerInterface
                 $parentModel = $this->modelCollector->searchParentOf($previousModel);
                 assert($parentModel instanceof ModelInterface);
 
-                $parentName  = $parentModel->getProviderName();
+                $parentName = $parentModel->getProviderName();
                 $this->relationshipManager->setSameParentForAll($models, $previousModel, $parentName);
             } else {
                 $this->relationshipManager->setAllRoot($models);
@@ -1269,7 +1284,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
+     * @see        RelationshipManager::isRoot
      */
     public function isRootModel(ModelInterface $model)
     {
@@ -1281,7 +1296,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
+     * @see        RelationshipManager::setRoot
      */
     public function setRootModel(ModelInterface $model)
     {
@@ -1295,7 +1310,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent()
+     * @see        RelationshipManager::setParent
      */
     public function setParent(ModelInterface $childModel, ModelInterface $parentModel)
     {
@@ -1309,7 +1324,7 @@ class DefaultController implements ControllerInterface
      *
      * @deprecated Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent().
      *
-     * @see \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent()
+     * @see        RelationshipManager::setSameParent
      */
     public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable)
     {

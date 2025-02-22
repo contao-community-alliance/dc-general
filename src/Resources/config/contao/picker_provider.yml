@@ -3,12 +3,12 @@ services:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Picker\PagePickerProvider
         public: false
         arguments:
-            - "@knp_menu.factory"
-            - "@router"
-            - "@?translator"
-            - "@security.helper"
-        calls:
-            - [setTokenStorage, ["@security.token_storage"]]
+            - '@knp_menu.factory'
+            - '@router'
+            - '@?translator'
+            - '@Symfony\Bundle\SecurityBundle\Security'
+        #calls:
+        #    - [setTokenStorage, ["@security.token_storage"]]
         tags:
             - name: contao.picker_provider
 

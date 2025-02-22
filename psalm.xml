@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-        errorLevel="8"
+        errorLevel="3"
         resolveFromConfigFile="true"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="https://getpsalm.org/schema/config"
@@ -13,7 +13,7 @@
         <directory name="src"/>
         <ignoreFiles>
             <directory name="src/Resources"/>
-            <file name="vendor/contao/core-bundle/src/Resources/contao/library/Contao/Widget.php"/>
+            <file name="vendor/contao/core-bundle/contao/library/Contao/Widget.php"/>
             <file name="vendor/symfony/dependency-injection/ContainerAwareTrait.php"/>
         </ignoreFiles>
     </projectFiles>

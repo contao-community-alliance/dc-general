@@ -39,28 +39,28 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
      *
      * @var FactoryInterface
      */
-    private $menuFactory;
+    private FactoryInterface $menuFactory;
 
     /**
      * The router.
      *
      * @var RouterInterface
      */
-    private $router;
+    private RouterInterface $router;
 
     /**
      * The token storage.
      *
      * @var ?TokenStorageInterface
      */
-    private $tokenStorage = null;
+    private ?TokenStorageInterface $tokenStorage = null;
 
     /**
      * The translator.
      *
      * @var TranslatorInterface
      */
-    private $translator;
+    private TranslatorInterface $translator;
 
     /**
      * Constructor.
@@ -79,7 +79,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getUrl(PickerConfig $config): string
+    public function getUrl(PickerConfig $config): string|null
     {
         return $this->generateUrl($config, false);
     }

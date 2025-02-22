@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -51,12 +51,16 @@ use ContaoCommunityAlliance\Translator\TranslatorChain;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+use function is_string;
+
 /**
  * Class FileSelect.
  *
  * Back end tree picker for usage in generalfile.php.
  *
  * @deprecated This is deprecated since 2.1 and where removed in 3.0. Use the file tree widget instead.
+ *
+ * WARNING: This class is unusable since Contao 5.0 as various deprecated functionality has been removed in contao/core.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -84,11 +88,11 @@ class FileSelect
         BackendUser::getInstance();
         Config::getInstance();
         Database::getInstance();
-        /** @psalm-suppress DeprecatedMethod */
+        /** @psalm-suppress UndefinedMethod */
         BackendUser::getInstance()->authenticate();
 
         System::loadLanguageFile('default');
-        /** @psalm-suppress DeprecatedMethod */
+        /** @psalm-suppress UndefinedMethod */
         Backend::setStaticUrls();
     }
 
@@ -99,6 +103,7 @@ class FileSelect
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function run()
     {
@@ -132,7 +137,10 @@ class FileSelect
 
         $fileSelector = $this->prepareFileSelector($modelId, $ajax);
 
-        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        /**
+         * @psalm-suppress UndefinedMagicPropertyAssignment
+         * @psalm-suppress UndefinedDocblockClass
+         */
         $template->main = $fileSelector->generate();
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->theme = Backend::getTheme();
@@ -142,11 +150,15 @@ class FileSelect
         $template->language = $GLOBALS['TL_LANGUAGE'];
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->title = StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
-        /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        /**
+         * @psalm-suppress UndefinedMagicPropertyAssignment
+         * @psalm-suppress UndefinedDocblockClass
+         */
         $template->charset = $GLOBALS['TL_CONFIG']['characterSet'];
         /**
          * @psalm-suppress UndefinedMagicPropertyAssignment
          * @psalm-suppress UndefinedMagicPropertyFetch
+         * @psalm-suppress UndefinedDocblockClass
          */
         $template->addSearch = $fileSelector->searchField;
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
@@ -178,7 +190,10 @@ class FileSelect
             $template->managerHref = 'contao/main.php?do=files&amp;popup=1';
         }
 
-        /** @psalm-suppress UndefinedMethod */
+        /**
+         * @psalm-suppress UndefinedMethod
+         * @psalm-suppress RiskyTruthyFalsyComparison
+         */
         if (Input::get('switch') && $user->hasAccess('page', 'modules')) {
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $template->switch = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
@@ -222,9 +237,11 @@ class FileSelect
      * Prepare the file selector.
      *
      * @param ModelIdInterface $modelId The model identifier.
-     * @param Ajax             $ajax    The ajax request.
+     * @param Ajax|null        $ajax    The ajax request.
      *
      * @psalm-suppress DeprecatedClass
+     * @psalm-suppress UndefinedDocblockClass
+     *
      * @return FileSelector
      *
      * @SuppressWarnings(PHPMD.Superglobals)
@@ -240,8 +257,8 @@ class FileSelect
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $propertyName  = $inputProvider->getParameter('field');
-        $information   = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
+        $propertyName = $inputProvider->getParameter('field');
+        $information  = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
 
         if (!isset($information['eval'])) {
             $information['eval'] = [];
@@ -269,6 +286,7 @@ class FileSelect
          * @var FileSelector $fileSelector
          *
          * @psalm-suppress DeprecatedClass
+         * @psalm-suppress UndefinedDocblockClass
          */
         $fileSelector = new $GLOBALS['BE_FFL']['fileSelector'](
             Widget::getAttributesFromDca(
@@ -377,7 +395,10 @@ class FileSelect
             return null;
         }
 
-        $ajax = new Ajax(Input::post('action'));
+        $action = Input::post('action');
+        assert(is_string($action));
+
+        $ajax = new Ajax($action);
         $ajax->executePreActions();
 
         return $ajax;

@@ -1,7 +1,7 @@
 <?php
 
 // Add tree view stylesheet
-$GLOBALS['TL_CSS'][] = 'bundles/ccadcgeneral/css/generalTreeView.css';
+$GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
 
 ?>
 

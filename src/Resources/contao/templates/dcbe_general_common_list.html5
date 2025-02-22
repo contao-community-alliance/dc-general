@@ -1,10 +1,12 @@
 <?php
 
-use Contao\StringUtil;
-use Contao\System;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
+use Contao\Image;
+use Contao\Message;
+use Contao\StringUtil;
+use Contao\System;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
@@ -12,7 +14,7 @@ $translator   = System::getContainer()->get('translator');
 assert($translator instanceof TranslatorInterface);
 ?>
 <?php $this->block('messages'); ?>
-<?= $this->getMessages() ?>
+<?= Message::generate() ?>
 <?php if ($this->info): ?>
     <div class="tl_message">
         <p class="tl_info"><?= \implode('<br />', $this->info) ?></p>
@@ -116,7 +118,7 @@ assert($translator instanceof TranslatorInterface);
                                     <td class="tl_file_list tl_right_nowrap">
                                         <?= $model->getMeta($model::OPERATION_BUTTONS) ?>
                                         <?php if ($this->sortable) : ?>
-                                            <?= $this->generateImage('system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
+                                            <?= Image::getHtml('/system/themes/' . $this->theme . '/icons/drag.svg', '&udarr;', 'class="drag"') ?>
                                         <?php endif; ?>
                                     </td>
                                 <?php endif; ?>

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -248,9 +248,6 @@ class FileTree extends AbstractWidget
      */
     private function setUp()
     {
-        // Load the fonts for the drag hint (see #4838)
-        $GLOBALS['TL_CONFIG']['loadGoogleFonts'] = true;
-
         $projectDir = System::getContainer()->getParameter('kernel.project_dir');
         assert(\is_string($projectDir));
         $this->projectDir = $projectDir;
@@ -307,10 +304,9 @@ class FileTree extends AbstractWidget
     /**
      * Render the file list.
      *
-     * @param array           $icons         The generated icons.
-     * @param Collection|null $collection    The file's collection.
-     *
-     * @param bool            $followSubDirs If true sub-folders get rendered.
+     * @param array                       $icons         The generated icons.
+     * @param Collection<FilesModel>|null $collection    The file's collection.
+     * @param bool                        $followSubDirs If true sub-folders get rendered.
      *
      * @return void
      */
@@ -321,7 +317,6 @@ class FileTree extends AbstractWidget
         }
 
         foreach ($collection->getModels() as $model) {
-            assert($model instanceof FilesModel);
             $uuid = $model->uuid;
             assert(is_string($uuid));
             // File system and database seem not in sync
@@ -428,9 +423,9 @@ class FileTree extends AbstractWidget
     {
         if (
             $file->viewWidth && $file->viewHeight
-            && ($file->isSvgImage
-                || (($file->height <= Config::get('gdMaxImgHeight'))
-                    && ($file->width <= Config::get('gdMaxImgWidth'))
+            && (!$file->isSvgImage
+                || (($file->height <= (Config::get('imageHeight') ?: PHP_INT_MAX))
+                    && ($file->width <= (Config::get('imageWidth') ?: PHP_INT_MAX))
                 )
             )
         ) {
@@ -441,7 +436,7 @@ class FileTree extends AbstractWidget
                 $projectDir = System::getContainer()->getParameter('kernel.project_dir');
                 assert(\is_string($projectDir));
 
-                $imageFactory = System::getContainer()->get('contao.image.image_factory');
+                $imageFactory = System::getContainer()->get('contao.image.factory');
                 assert($imageFactory instanceof ImageFactoryInterface);
 
                 $image = $imageFactory->create(
@@ -453,12 +448,13 @@ class FileTree extends AbstractWidget
             $image = $this->placeholderImage;
         }
 
+        $info = StringUtil::specialchars(\strip_tags($info));
         if (strncmp($image, 'data:', 5) === 0) {
             return '<img src="' . $file->dataUri . '" width="' . $file->width . '" height="' . $file->height
-                   . '" alt="" class="gimage removable" title="' . StringUtil::specialchars($info) . '">';
+                   . '" alt="" class="gimage removable" title="' . $info . '">';
         }
 
-        return Image::getHtml($image, '', 'class="gimage removable" title="' . StringUtil::specialchars($info) . '"');
+        return Image::getHtml($image, '', 'class="gimage removable" title="' . $info . '"');
     }
 
     /**

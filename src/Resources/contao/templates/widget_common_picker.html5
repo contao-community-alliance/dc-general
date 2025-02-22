@@ -1,4 +1,6 @@
 <?php
+
+use Contao\System;
 use Contao\StringUtil;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();

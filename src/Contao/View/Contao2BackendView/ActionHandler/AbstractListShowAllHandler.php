@@ -446,7 +446,7 @@ abstract class AbstractListShowAllHandler
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
         // Fixup form action for edit multiple selection screens.
-        $action = StringUtil::ampersand(Environment::get('request'));
+        $action = '/' . StringUtil::ampersand(Environment::get('request'));
         if (
 //            ('tl_select' === $provider->getValue('FORM_SUBMIT'))
 //            && (null !== $provider->getValue('edit'))
@@ -833,7 +833,7 @@ abstract class AbstractListShowAllHandler
             return null;
         }
 
-        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = 'bundles/ccadcgeneral/css/generalBreadcrumb.css';
+        $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = '/bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         return $this
             ->getTemplate('dcbe_general_breadcrumb')

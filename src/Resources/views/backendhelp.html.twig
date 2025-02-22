@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ (property ~ '.label')|trans(domain: table) }}</title>
+  <meta name="generator" content="Contao Open Source CMS">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no">
+  <meta name="referrer" content="origin">
+  <link rel="stylesheet" href="/system/themes/flexible/help.3698d321.css">
+</head>
+<body>
+
+<div id="container">
+  <main id="main">
+    <table class="tl_help_table">
+      {% set section = '' %}
+      {% for helptext in values %}
+      {% if (section != helptext.section) %}
+      {% set section = helptext.section %}
+      <tr>
+        <td colspan="2" class="headline">{{ section|trans(domain: helptext.translationDomain)|raw }}</td>
+      </tr>
+      {% endif %}
+      <tr>
+        <td class="tl_label">{{ helptext.caption|trans(domain: helptext.translationDomain)|raw }}</td>
+        <td>{{ helptext.description|trans(domain: helptext.translationDomain)|raw }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </main>
+</div>
+</body>
+</html>
