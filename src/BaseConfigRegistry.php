@@ -148,6 +148,8 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      * @param ModelIdInterface|null $parentId The parent to use.
      *
      * @return ConfigInterface
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function buildBaseConfig(?ModelIdInterface $parentId): ConfigInterface
     {
@@ -165,7 +167,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
         $additional = $definition->getBasicDefinition()->getAdditionalFilter();
 
         // Custom filter common for all modes.
-        if (\is_array($additional)) {
+        if (\is_array($additional) && [] !== $additional) {
             $config->setFilter($additional);
         }
 
@@ -184,10 +186,11 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
             if (null === $input) {
                 throw new DcGeneralRuntimeException('Input provider not set.');
             }
-            $pid        = $input->getParameter('pid');
-            $pidDetails = ModelId::fromSerialized($pid);
-
-            $this->addParentFilter($pidDetails, $config);
+            $pid = $input->getParameter('pid');
+            if (null !== $pid) {
+                $pidDetails = ModelId::fromSerialized($pid);
+                $this->addParentFilter($pidDetails, $config);
+            }
         }
 
         return $config;
