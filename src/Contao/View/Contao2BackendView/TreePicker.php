@@ -1433,7 +1433,17 @@ class TreePicker extends Widget
         $arguments = [];
         foreach ($formatter->getPropertyNames() as $propertyName) {
             if ($properties->hasProperty($propertyName)) {
-                $arguments[$propertyName] = (string) $model->getProperty($propertyName);
+                $propertyValue            = $model->getProperty($propertyName);
+                /** @psalm-suppress RedundantCast */
+                $arguments[$propertyName] = match (true) {
+                    \is_bool($propertyValue),
+                    \is_int($propertyValue),
+                    \is_float($propertyValue),
+                    \is_string($propertyValue),
+                    => (string) $propertyValue,
+
+                    default => '-'
+                };
             } else {
                 $arguments[$propertyName] = '-';
             }
@@ -1490,7 +1500,7 @@ class TreePicker extends Widget
             $labelList[] = [
                 'colspan' => 1,
                 'class'   => 'tl_file_list col_' . $j . (($propertyName === $firstSorting) ? ' ordered_by' : ''),
-                'content' => ('' !== $arguments[$propertyName]) ? $arguments[$propertyName] : '-'
+                'content' => ('' !== ($arguments[$propertyName] ?? '')) ? $arguments[$propertyName] : '-'
             ];
         }
     }
