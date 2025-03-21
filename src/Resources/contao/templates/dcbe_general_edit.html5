@@ -88,15 +88,16 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
         <?php endif; ?>
 
         <?php foreach($this->fieldsets as $arrFieldset):
-            $paletteId = 'pal_' . StringUtil::specialchars($arrFieldset['legend']);
-            $class     = $arrFieldset['class'];
-            if (null !== ($fieldsetState = ($fieldsetStates[$this->table][$paletteId] ?? null))) {
-              $class = \str_replace(' collapsed', '', $class);
-              if (0 === $fieldsetState) {
-                $class .= ' collapsed';
-              }
-            }
-            if($arrFieldset['legend'] ?? null): ?>
+            if($arrFieldset['legend'] ?? null):
+                $paletteId = 'pal_' . StringUtil::specialchars($arrFieldset['legend']);
+                $class     = $arrFieldset['class'];
+                if (null !== ($fieldsetState = ($fieldsetStates[$this->table][$paletteId] ?? null))) {
+                    $class = \str_replace(' collapsed', '', $class);
+                    if (0 === $fieldsetState) {
+                        $class .= ' collapsed';
+                    }
+                }
+            ?>
                 <fieldset id="<?= $paletteId ?>" class="<?= $class ?>" data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="pal_<?= StringUtil::specialchars($arrFieldset['legend']) ?>" data-contao--toggle-fieldset-table-value="<?= StringUtil::specialchars($this->table) ?>" data-contao--toggle-fieldset-collapsed-class="collapsed" data-contao--jump-targets-target="section" data-contao--jump-targets-label-value="<?= $arrFieldset['label'] ?>" data-action="contao--jump-targets:scrollto->contao--toggle-fieldset#open">
                     <legend><button type="button" data-action="contao--toggle-fieldset#toggle" aria-expanded="true"><?= $arrFieldset['label'] ?></button></legend>
                     <?= $arrFieldset['palette'] ?>
