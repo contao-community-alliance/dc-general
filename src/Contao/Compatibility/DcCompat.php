@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -231,5 +231,16 @@ class DcCompat extends General
         }
 
         throw new DcGeneralRuntimeException('The magic property ' . $name . ' is not supported (yet)!');
+    }
+
+    public function getCurrentRecord(int|string|null $id = null, string|null $table = null): array|null
+    {
+        // FIXME: we can not implement this properly with dc caching as in DataContainer due to static functions there.
+
+        if ((null === $id && null === $table) && $this->model instanceof ModelInterface) {
+            return $this->model->getPropertiesAsArray();
+        }
+
+        return null;
     }
 }
