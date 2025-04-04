@@ -190,17 +190,9 @@ class TreeSelect
             ->set('isPopup', true)
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
-            ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
             ->set('title', StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']))
-            ->set('charset', $GLOBALS['TL_CONFIG']['characterSet'])
-            ->set('addSearch', $treeSelector->searchField)
-            ->set('search', $GLOBALS['TL_LANG']['MSC']['search'])
-            ->set('action', StringUtil::ampersand(Environment::get('request')))
-            ->set('value', $sessionStorage->get($treeSelector->getSearchSessionKey()))
-            ->set('manager', $GLOBALS['TL_LANG']['MSC']['treepickerManager'])
-            ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'])
-            ->set('managerHref', '');
+            ->set('charset', 'utf-8');
 
         // Add the manager link.
         /**
