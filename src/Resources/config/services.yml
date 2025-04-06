@@ -77,3 +77,13 @@ services:
           $backendHelpProvider: '@cca.backend-help-provider'
         tags:
             - controller.service_arguments
+
+    ContaoCommunityAlliance\DcGeneral\Controller\BackendPickerController:
+        bind:
+          $requestStack: '@request_stack'
+          $translator: '@translator'
+          $dispatcher: '@event_dispatcher'
+          $pickerBuilder: '@contao.picker.builder'
+          $menuRenderer: '@contao.menu.renderer'
+        tags:
+            - controller.service_arguments

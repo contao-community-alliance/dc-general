@@ -22,6 +22,16 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
+use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
+use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
+use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use Contao\Backend;
 use Contao\Config;
 use Contao\Controller;
@@ -32,20 +42,10 @@ use Contao\Environment;
 use Contao\StringUtil;
 use Contao\Validator;
 use Contao\Widget;
-use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoWidgetManager;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
-use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
-use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use InvalidArgumentException;
-use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,7 +57,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_filter;
-use function define;
 use function explode;
 use function is_array;
 
@@ -171,7 +170,7 @@ class BackendTreeController implements ContainerAwareInterface
      */
     private function runBackendTree(Request $request)
     {
-        [$value, $treeSelector] = $this->getTemplateData($request);
+        [, $treeSelector] = $this->getTemplateData($request);
 
         $container = $this->container;
         assert($container instanceof SymfonyContainerInterface);
@@ -181,7 +180,6 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('isPopup', true)
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
-            ->set('base', Environment::get('base'))
             ->set('language', $container->get('request_stack')->getCurrentRequest()->getLocale())
             ->set(
                 'title',
@@ -193,13 +191,7 @@ class BackendTreeController implements ContainerAwareInterface
                     )
                 )
             )
-            ->set('charset', 'utf-8')
-            ->set('addSearch', $treeSelector->searchField)
-            ->set('search', $this->getTranslator()->trans('search', [], 'dc-general'))
-            ->set('action', StringUtil::ampersand($request->getUri()))
-            ->set('value', $value)
-            ->set('manager', $this->getTranslator()->trans('treepickerManager', [], 'dc-general'))
-            ->set('breadcrumb', $GLOBALS['TL_DCA'][$treeSelector->foreignTable]['list']['sorting']['breadcrumb'] ?? '');
+            ->set('charset', 'utf-8');
 
         return $template->getResponse();
     }
@@ -229,16 +221,12 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('isPopup', true)
             ->set('main', $message)
             ->set('theme', Backend::getTheme())
-            ->set('base', Environment::get('base'))
             ->set('language', $GLOBALS['TL_LANGUAGE'])
             ->set(
                 'title',
                 StringUtil::specialchars($this->getTranslator()->trans('treepickerManager', [], 'dc-general'))
             )
-            ->set('charset', $this->getTranslator()->trans('characterSet', [], 'dc-general'))
-            ->set('search', $this->getTranslator()->trans('search', [], 'dc-general'))
-            ->set('action', StringUtil::ampersand($request->getUri()))
-            ->set('manager', $this->getTranslator()->trans('treepickerManager', [], 'dc-general'));
+            ->set('charset', 'utf-8');
 
         return $template->getResponse();
     }
@@ -259,7 +247,7 @@ class BackendTreeController implements ContainerAwareInterface
         $buffer = $treeSelector->generateAjax();
 
         $response = new Response($buffer);
-        $response->headers->set('Content-Type', 'txt/html; charset=' . Config::get('characterSet'));
+        $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
 
         return $response;
     }
@@ -339,7 +327,7 @@ class BackendTreeController implements ContainerAwareInterface
         $buffer        = $widgetManager->renderWidget($propertyName, false, $propertyValues);
 
         $response = new Response($buffer);
-        $response->headers->set('Content-Type', 'txt/html; charset=' . (Config::get('characterSet') ?? ''));
+        $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
 
         return $response;
     }
@@ -355,6 +343,7 @@ class BackendTreeController implements ContainerAwareInterface
         if ('' === ($getPicker = (string) $request->query->get('picker'))) {
             throw new BadRequestHttpException('No picker was given here.');
         }
+
         $container = $this->container;
         assert($container instanceof SymfonyContainerInterface);
         $pickerBuilder = $container->get('contao.picker.builder');
@@ -412,7 +401,6 @@ class BackendTreeController implements ContainerAwareInterface
         $container = $this->container;
         assert($container instanceof SymfonyContainerInterface);
 
-        //$session = $container->get('session');
         $requestStack = $container->get('request_stack');
         assert($requestStack instanceof RequestStack);
         $session = $requestStack->getSession();
@@ -420,9 +408,6 @@ class BackendTreeController implements ContainerAwareInterface
 
         $sessionBag = $session->getBag('contao_backend');
         assert($sessionBag instanceof AttributeBagInterface);
-
-        // Define the current ID.
-        define('CURRENT_ID', ($table ? $sessionBag->get('CURRENT_ID') : $modelId->getId()));
 
         $translator = $container->get('cca.translator.contao_translator');
         assert($translator instanceof CcaTranslator);
@@ -446,7 +431,7 @@ class BackendTreeController implements ContainerAwareInterface
 
         $information = (array) ($GLOBALS['TL_DCA'][$table]['fields'][$field] ?? []);
         if (!isset($information['eval'])) {
-            $information['eval'] = array();
+            $information['eval'] = [];
         }
         $information['eval'] = array_merge($property->getExtra(), $information['eval']);
 

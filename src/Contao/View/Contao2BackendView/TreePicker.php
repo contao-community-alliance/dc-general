@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,20 +20,13 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Kim Wormer <hallo@heartcodiert.de>
  * @author     Oliver Willmes <info@oliverwillmes.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use Contao\Backend;
-use Contao\CoreBundle\Exception\ResponseException;
-use Contao\CoreBundle\Picker\PickerBuilderInterface;
-use Contao\CoreBundle\Picker\PickerConfig;
-use Contao\StringUtil;
-use Contao\System;
-use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
@@ -48,34 +41,71 @@ use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager;
 use ContaoCommunityAlliance\DcGeneral\Controller\TreeNodeStates;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
-use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
-use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\DC\General;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\DefaultModelFormatterConfig;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ModelFormatterConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
-use ContaoCommunityAlliance\DcGeneral\DC\General;
+use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
+use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\LanguageInformationInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneral;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Picker\IdTranscoderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use Contao\Backend;
+use Contao\CoreBundle\Exception\ResponseException;
+use Contao\CoreBundle\Picker\PickerBuilderInterface;
+use Contao\CoreBundle\Picker\PickerConfig;
+use Contao\StringUtil;
+use Contao\System;
+use Contao\Widget;
+use RuntimeException;
 use Symfony\Cmf\Component\Routing\ChainRouterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Throwable;
+
+use function array_key_exists;
+use function array_keys;
+use function array_merge;
+use function array_shift;
+use function array_values;
+use function count;
+use function explode;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function is_numeric;
+use function is_string;
+use function preg_split;
+use function reset;
+use function sprintf;
+use function str_repeat;
+use function str_replace;
+use function stripos;
+use function strlen;
+use function strpos;
+use function strtoupper;
+use function substr;
+use function vsprintf;
 
 /**
  * Provide methods to handle input field "tableTree".
@@ -180,6 +210,8 @@ class TreePicker extends Widget
      */
     protected $nodeStates = null;
 
+    private ?IdTranscoderInterface $idTranscoder = null;
+
     /**
      * Create a new instance.
      *
@@ -199,6 +231,16 @@ class TreePicker extends Widget
         }
 
         $this->setUp($dataContainer);
+    }
+
+    public function getIdTranscoder(): ?IdTranscoderInterface
+    {
+        return $this->idTranscoder;
+    }
+
+    public function setIdTranscoder(?IdTranscoderInterface $idTranscoder): void
+    {
+        $this->idTranscoder = $idTranscoder;
     }
 
     /**
@@ -380,7 +422,7 @@ class TreePicker extends Widget
      *
      * @return void
      *
-     * @throws \RuntimeException When an unknown field type is encountered.
+     * @throws RuntimeException When an unknown field type is encountered.
      */
     public function __set($key, $value)
     {
@@ -424,7 +466,7 @@ class TreePicker extends Widget
      *
      * @return null|string|list<string>
      *
-     * @throws \RuntimeException When an unknown field type is encountered.
+     * @throws RuntimeException When an unknown field type is encountered.
      */
     private function convertValue($value)
     {
@@ -432,7 +474,7 @@ class TreePicker extends Widget
             return null;
         }
 
-        if (\is_array($value)) {
+        if (is_array($value)) {
             return $value;
         }
 
@@ -440,14 +482,14 @@ class TreePicker extends Widget
             case 'radio':
                 return $value;
             case 'checkbox':
-                $delimiter = (false !== \stripos($value, "\t")) ? "\t" : ',';
+                $delimiter = (false !== stripos($value, "\t")) ? "\t" : ',';
                 /** @var array<int, string> $files */
                 $files = StringUtil::trimsplit($delimiter, $value);
 
-                return \array_values($files);
+                return array_values($files);
             default:
         }
-        throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
+        throw new RuntimeException('Unknown field type encountered: ' . $this->fieldType);
     }
 
     /**
@@ -526,7 +568,7 @@ class TreePicker extends Widget
             $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
             $languages       = $controller->getSupportedLanguages($rootId);
 
-            if ([] !== $languages && !\array_key_exists($currentLanguage, $languages)) {
+            if ([] !== $languages && !array_key_exists($currentLanguage, $languages)) {
                 $fallbackLanguage = $dataDriver->getFallbackLanguage($rootId);
                 assert($fallbackLanguage instanceof LanguageInformationInterface);
 
@@ -556,7 +598,7 @@ class TreePicker extends Widget
 
             $message = empty($this->label)
                 ? $translator->translate('ERR.mdtryNoLabel')
-                : \sprintf(
+                : sprintf(
                     $translator->translate('ERR.mandatory'),
                     /** @psalm-suppress PropertyNotSetInConstructor */
                     $this->strLabel
@@ -586,7 +628,7 @@ class TreePicker extends Widget
             $value = (array) $value;
         }
 
-        if (\is_array($value) && !empty($value)) {
+        if (is_array($value) && !empty($value)) {
             $environment = $this->getEnvironment();
 
             $dataDriver = $environment->getDataProvider();
@@ -608,7 +650,7 @@ class TreePicker extends Widget
                 $config->setSorting([$this->orderField => 'ASC']);
             }
 
-            $this->setLanguageInProvider($dataDriver, \array_shift($value));
+            $this->setLanguageInProvider($dataDriver, array_shift($value));
             foreach ($dataDriver->fetchAll($config) as $model) {
                 if (!($model instanceof ModelInterface)) {
                     continue;
@@ -635,7 +677,7 @@ class TreePicker extends Widget
      */
     private function sortValues($values)
     {
-        if (!($this->orderField && \is_array($this->{$this->orderField}))) {
+        if (!($this->orderField && is_array($this->{$this->orderField}))) {
             return $values;
         }
         /** @var array $orderValues */
@@ -728,7 +770,7 @@ class TreePicker extends Widget
         ];
         /** @psalm-suppress UndefinedThisPropertyFetch */
         if ($this->pickerOrderProperty && $this->pickerSortDirection) {
-            $parameter = \array_merge(
+            $parameter = array_merge(
                 $parameter,
                 [
                     'orderProperty' => $this->pickerOrderProperty,
@@ -752,29 +794,61 @@ class TreePicker extends Widget
      */
     public function widgetToValue($value)
     {
-        return $this->convertValue($value);
+        $value = $this->convertValue($value);
+
+        if (null !== $this->idTranscoder) {
+            if (null === $value) {
+                return null;
+            }
+            $tryDecode = function (string $value): string {
+                try {
+                    assert($this->idTranscoder instanceof IdTranscoderInterface);
+                    return $this->idTranscoder->decode($value);
+                } catch (Throwable $e) {
+                    return '';
+                }
+            };
+            if (is_array($value)) {
+                $value = array_map($tryDecode, $value);
+            } else {
+                $value = $tryDecode($value);
+            }
+        }
+
+        return $value;
     }
 
     /**
      * Convert the value for the widget.
      *
-     * @param mixed $value The input value.
+     * @param null|string|list<string> $value The input value.
      *
      * @return string
      *
-     * @throws \RuntimeException Throws an exception, if unknown field type encountered.
+     * @throws RuntimeException Throws an exception, if unknown field type encountered.
      */
-    public function valueToWidget($value)
+    public function valueToWidget($value): string
     {
-        if (!\in_array($this->fieldType, ['radio', 'checkbox'])) {
-            throw new \RuntimeException('Unknown field type encountered: ' . $this->fieldType);
+        if (!in_array($this->fieldType, ['radio', 'checkbox'])) {
+            throw new RuntimeException('Unknown field type encountered: ' . $this->fieldType);
         }
 
         if (null === $value) {
             return '';
         }
 
-        return ('radio' === $this->fieldType) ? $value : \implode(',', $value);
+        if (null !== ($idTranscoder = $this->idTranscoder)) {
+            if (is_array($value)) {
+                $value = array_map(
+                    fn (string $item): string => $idTranscoder->encode($item),
+                    $value
+                );
+            } else {
+                $value = $idTranscoder->encode($value);
+            }
+        }
+
+        return is_array($value) ? implode(',', $value) : $value;
     }
 
     /**
@@ -885,8 +959,8 @@ class TreePicker extends Widget
     private function getQueryParameterFromUrl($url)
     {
         $parameters = [];
-        foreach (\preg_split('/&(amp;)?/i', \preg_split('/[?]/ui', $url)[1]) as $value) {
-            $chunks                 = \explode('=', $value);
+        foreach (preg_split('/&(amp;)?/i', preg_split('/[?]/ui', $url)[1]) as $value) {
+            $chunks                 = explode('=', $value);
             $parameters[$chunks[0]] = $chunks[1];
         }
 
@@ -914,7 +988,7 @@ class TreePicker extends Widget
             ->set('hasOrder', true)
             ->set('orderId', $this->orderField)
             ->set('orderName', $this->orderName)
-            ->set('orderValue', \implode(',', (array) $this->value))
+            ->set('orderValue', implode(',', (array) $this->value))
             ->set('changeSelection', $translator->translate('changeSelection', 'dc-general'))
             ->set('dragItemsHint', $translator->translate('dragItemsHint', 'dc-general'));
     }
@@ -983,8 +1057,8 @@ class TreePicker extends Widget
     {
         /** @psalm-suppress UndefinedThisPropertyFetch */
         $root = $this->root;
-        $root = \is_array($root) ? $root : ((\is_numeric($root) && $root > 0) ? [$root] : []);
-        $root = \array_merge($root, [null]);
+        $root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? [$root] : []);
+        $root = array_merge($root, [null]);
 
         return $root;
     }
@@ -1140,7 +1214,7 @@ class TreePicker extends Widget
         }
 
         // If expanded, store children.
-        if ($model->getMeta($model::SHOW_CHILDREN) && (\count($childCollections))) {
+        if ($model->getMeta($model::SHOW_CHILDREN) && (count($childCollections))) {
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
@@ -1257,7 +1331,7 @@ class TreePicker extends Widget
         $filter     = $rootCondition->getFilterArray();
 
         if (null !== $baseFilter) {
-            $filter = \array_merge($baseFilter, $filter);
+            $filter = array_merge($baseFilter, $filter);
         }
 
         $baseConfig->setFilter($filter);
@@ -1399,7 +1473,7 @@ class TreePicker extends Widget
 
         return (new DefaultModelFormatterConfig())
             ->setPropertyNames($properties)
-            ->setFormat(\str_repeat('%s ', \count($properties)));
+            ->setFormat(str_repeat('%s ', count($properties)));
     }
 
     /**
@@ -1426,8 +1500,8 @@ class TreePicker extends Widget
         $listing    = $backendView->getListingConfig();
         $properties = $definition->getPropertiesDefinition();
         /** @psalm-suppress DeprecatedMethod */
-        $defaultSortFields = \array_keys($listing->getDefaultSortingFields());
-        $firstSorting      = \reset($defaultSortFields);
+        $defaultSortFields = array_keys($listing->getDefaultSortingFields());
+        $firstSorting      = reset($defaultSortFields);
         $formatter         = $this->getFormatter($model, $treeMode);
 
         $arguments = [];
@@ -1436,10 +1510,10 @@ class TreePicker extends Widget
                 $propertyValue            = $model->getProperty($propertyName);
                 /** @psalm-suppress RedundantCast */
                 $arguments[$propertyName] = match (true) {
-                    \is_bool($propertyValue),
-                    \is_int($propertyValue),
-                    \is_float($propertyValue),
-                    \is_string($propertyValue),
+                    is_bool($propertyValue),
+                    is_int($propertyValue),
+                    is_float($propertyValue),
+                    is_string($propertyValue),
                     => (string) $propertyValue,
 
                     default => '-'
@@ -1532,10 +1606,10 @@ class TreePicker extends Widget
             return;
         }
 
-        $string = \vsprintf($label, $arguments);
+        $string = vsprintf($label, $arguments);
 
-        if ((null !== $maxLength = $formatter->getMaxLength()) && \strlen($string) > $maxLength) {
-            $string = \substr($string, 0, $maxLength);
+        if ((null !== $maxLength = $formatter->getMaxLength()) && strlen($string) > $maxLength) {
+            $string = substr($string, 0, $maxLength);
         }
 
         $labelList[] = [
@@ -1566,7 +1640,7 @@ class TreePicker extends Widget
             $toggleTitle = $translator->translate('expandNode', 'dc-general');
         }
 
-        $toggleScript = \sprintf(
+        $toggleScript = sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
             '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'url\':\'%s\'});',
             $toggleID,
@@ -1577,6 +1651,8 @@ class TreePicker extends Widget
         );
 
         $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
+        /** @psalm-suppress UndefinedThisPropertyFetch */
+        $idValue  = $model->getProperty($this->idProperty);
         /** @psalm-suppress UndefinedThisPropertyFetch */
         $template
             ->setTranslator($translator)
@@ -1590,8 +1666,9 @@ class TreePicker extends Widget
             ->set('toggleUrl', $this->generateToggleUrl($model))
             ->set('toggleTitle', $toggleTitle)
             ->set('toggleScript', $toggleScript)
-            ->set('active', static::optionChecked($model->getProperty($this->idProperty), $this->value))
-            ->set('idProperty', $this->idProperty);
+            ->set('active', static::optionChecked($idValue, $this->value))
+            ->set('idProperty', $this->idProperty)
+            ->set('idValue', $this->idTranscoder ? $this->idTranscoder->encode($idValue) : $idValue);
 
         $level = $model->getMeta(DCGE::TREE_VIEW_LEVEL);
         if (($this->minLevel > 0) && ($level < ($this->minLevel - 1))) {
@@ -1644,7 +1721,7 @@ class TreePicker extends Widget
             }
         }
 
-        return \implode("\n", $content);
+        return implode("\n", $content);
     }
 
 
@@ -1656,7 +1733,7 @@ class TreePicker extends Widget
      *
      * @return void
      */
-    private function parentsOf($model, &$parents)
+    private function parentsOf(ModelInterface $model, array &$parents): void
     {
         $environment = $this->getEnvironment();
 
@@ -1664,7 +1741,7 @@ class TreePicker extends Widget
         assert($dataDefinition instanceof ContainerInterface);
 
         $mode = $dataDefinition->getBasicDefinition()->getMode();
-        assert(\is_int($mode));
+        assert(is_int($mode));
 
         $collector      = new ModelCollector($this->getEnvironment());
         $relationships  = new RelationshipManager(
@@ -1689,7 +1766,7 @@ class TreePicker extends Widget
      *
      * @return array
      */
-    private function determineParentsOfValues()
+    private function determineParentsOfValues(): array
     {
         $parents     = [];
         $environment = $this->getEnvironment();
@@ -1721,7 +1798,7 @@ class TreePicker extends Widget
      *
      * @return void
      */
-    private function handleInputNameForEditAll()
+    private function handleInputNameForEditAll(): void
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
@@ -1734,8 +1811,8 @@ class TreePicker extends Widget
             return;
         }
 
-        $tableName      = \explode('____', $inputProvider->getValue('name'))[0];
-        $sessionKey     = 'DC_GENERAL_' . \strtoupper($tableName);
+        $tableName      = explode('____', $inputProvider->getValue('name'))[0];
+        $sessionKey     = 'DC_GENERAL_' . strtoupper($tableName);
         $sessionFactory = System::getContainer()->get('cca.dc-general.session_factory');
         assert($sessionFactory instanceof SessionStorageFactory);
 
@@ -1756,12 +1833,12 @@ class TreePicker extends Widget
                 break;
             }
 
-            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
-            if (0 !== \strpos($this->strName, $propertyNamePrefix)) {
+            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
+            if (0 !== strpos($this->strName, $propertyNamePrefix)) {
                 continue;
             }
 
-            $originalPropertyName = \substr($this->strName, \strlen($propertyNamePrefix));
+            $originalPropertyName = substr($this->strName, strlen($propertyNamePrefix));
         }
 
         if (null === $originalPropertyName) {
