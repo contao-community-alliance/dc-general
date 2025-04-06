@@ -31,7 +31,7 @@ $model = $this->objModel; ?>
                     name="<?= $this->name ?>"
                     id="ctrl_<?= $this->id ?>_<?= $model->getId() ?>"
                     class="tl_tree_radio"
-                    value="<?= StringUtil::specialchars($model->getProperty($this->idProperty)) ?>"
+                    value="<?= StringUtil::specialchars($this->idValue) ?>"
                     <?= $this->active ?>
                     onfocus="Backend.getScrollOffset();" />
             <?php elseif ($this->fieldType === 'checkbox'): ?>
@@ -40,7 +40,7 @@ $model = $this->objModel; ?>
                     name="<?= $this->name ?>[]"
                     id="ctrl_<?= $this->id ?>_<?= $model->getId() ?>"
                     class="tl_tree_checkbox"
-                    value="<?= StringUtil::specialchars($model->getProperty($this->idProperty)) ?>"
+                    value="<?= StringUtil::specialchars($this->idValue) ?>"
                     <?= $this->active ?>
                     onfocus="Backend.getScrollOffset();" />
             <?php endif; ?>
