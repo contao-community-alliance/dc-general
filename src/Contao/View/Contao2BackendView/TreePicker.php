@@ -526,7 +526,7 @@ class TreePicker extends Widget
             $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
             $languages       = $controller->getSupportedLanguages($rootId);
 
-            if (!\array_key_exists($currentLanguage, $languages)) {
+            if ([] !== $languages && !\array_key_exists($currentLanguage, $languages)) {
                 $fallbackLanguage = $dataDriver->getFallbackLanguage($rootId);
                 assert($fallbackLanguage instanceof LanguageInformationInterface);
 
