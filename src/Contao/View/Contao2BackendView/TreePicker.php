@@ -745,7 +745,9 @@ class TreePicker extends Widget
             ->set('providerName', $this->sourceName)
             ->set('readonly', $this->readonly);
 
-        $this->addOrderFieldToTemplate($template);
+        if ('checkbox' === $this->fieldType) {
+            $this->addOrderFieldToTemplate($template);
+        }
 
         return $template->parse();
     }
