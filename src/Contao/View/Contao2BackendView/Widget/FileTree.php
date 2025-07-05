@@ -539,6 +539,10 @@ class FileTree extends AbstractWidget
             // Files can be null.
             if (null !== $files) {
                 foreach ($files as $model) {
+                    if (null === $model || null === $model->uuid) {
+                        continue;
+                    }
+
                     $values[] = StringUtil::binToUuid($model->uuid);
                 }
             }
