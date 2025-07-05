@@ -520,6 +520,8 @@ class FileTree extends AbstractWidget
 
     /**
      * {@inheritdoc}
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function generate()
     {
