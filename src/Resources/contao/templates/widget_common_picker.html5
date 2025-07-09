@@ -4,12 +4,16 @@ use Contao\System;
 use Contao\StringUtil;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+
+$itemsTitle = '';
 ?>
 <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= \implode(',', \array_keys($this->values)) ?>">
 
 <?php $this->block('select-container'); ?>
 <div class="selector_container">
-    <?php if ($this->hasOrder && \count($this->values)): ?>
+    <?php if ($this->hasOrder && \count($this->values)):
+      $itemsTitle = \sprintf(' title="%s"', $this->dragItemsHint);
+      ?>
         <p class="sort_hint">
             <?= $this->dragItemsHint ?>
         </p>
@@ -17,7 +21,7 @@ $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDef
 
     <ul id="sort_<?= $this->id ?>"<?php if ($this->hasOrder): ?> class="sortable"<?php endif; ?>>
         <?php foreach ($this->values as $k=>$v): ?>
-            <li data-id="<?= $k ?>"><?= $v ?></li>
+            <li data-id="<?= $k ?>"<?= $itemsTitle ?>><?= $v ?></li>
         <?php endforeach; ?>
     </ul>
 </div>
