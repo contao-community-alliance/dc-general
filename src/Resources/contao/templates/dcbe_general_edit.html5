@@ -88,7 +88,7 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
         <?php endif; ?>
 
         <?php foreach($this->fieldsets as $arrFieldset):
-            $class = $arrFieldset['class'];
+            $class = $arrFieldset['class'] ?? '';
             if ($arrFieldset['legend'] ?? null):
                 $paletteId = 'pal_' . StringUtil::specialchars($arrFieldset['legend']);
                 if (null !== ($fieldsetState = ($fieldsetStates[$this->table][$paletteId] ?? null))) {
