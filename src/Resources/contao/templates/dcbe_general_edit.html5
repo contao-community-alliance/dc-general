@@ -88,9 +88,9 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
         <?php endif; ?>
 
         <?php foreach($this->fieldsets as $arrFieldset):
-            if($arrFieldset['legend'] ?? null):
+            $class = $arrFieldset['class'] ?? '';
+            if ($arrFieldset['legend'] ?? null):
                 $paletteId = 'pal_' . StringUtil::specialchars($arrFieldset['legend']);
-                $class     = $arrFieldset['class'];
                 if (null !== ($fieldsetState = ($fieldsetStates[$this->table][$paletteId] ?? null))) {
                     $class = \str_replace(' collapsed', '', $class);
                     if (0 === $fieldsetState) {
