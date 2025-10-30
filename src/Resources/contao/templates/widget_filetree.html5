@@ -48,6 +48,6 @@ $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDef
         </script>
     <?php endif; ?>
     <?php if ($this->hasOrder): ?>
-        <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
+        <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->id ?>", "ctrl_<?= $this->id ?>")</script>
     <?php endif; ?>
 </div>
