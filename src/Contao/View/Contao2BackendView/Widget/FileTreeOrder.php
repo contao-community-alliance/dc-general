@@ -23,6 +23,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
+use Contao\Validator;
+
 /**
  * This widget is a supporting widget to store the file tree orderings.
  *
@@ -70,12 +72,11 @@ class FileTreeOrder extends AbstractWidget
         }
         $files = [];
         foreach ($this->varValue as $binUuid) {
-            if (\Contao\Validator::isBinaryUuid($binUuid)) {
+            if (Validator::isBinaryUuid($binUuid)) {
                 $files[] = $binUuid;
             }
         }
 
-        //return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $this->varValue));
         return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $files));
     }
 }
