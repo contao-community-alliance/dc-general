@@ -321,7 +321,9 @@ class Ajax3X extends Ajax
         $value        = $input->hasValue('value') ? $input->getValue('value', true) : '';
 
         $fieldName = $this->getFieldName();
-        assert(is_string($fieldName));
+        if (null === $fieldName) {
+            throw new ResponseException(new Response('Nix zu aktualisieren, da kein Feldname gefunden wurde.'));
+        }
 
         $widget = $this->getWidget($fieldName, $serializedId, $value);
         assert($widget instanceof Widget);
@@ -381,6 +383,9 @@ class Ajax3X extends Ajax
      * Get the field name.
      *
      * @return null|string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function getFieldName()
     {
@@ -392,7 +397,7 @@ class Ajax3X extends Ajax
 
         $fieldName = $inputProvider->hasValue('name') ? $inputProvider->getValue('name') : null;
         if (null === $fieldName) {
-            return $fieldName;
+            return null;
         }
 
         if (('select' !== $inputProvider->getParameter('act')) && ('edit' !== $inputProvider->getParameter('mode'))) {
@@ -405,8 +410,11 @@ class Ajax3X extends Ajax
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @var array{models: list<string>} $session */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('select'));
+        if (!is_array($session) || !isset($session['models'])) {
+            return null;
+        }
+        /** @var array{models: list<string>} $session */
 
         $originalPropertyName = null;
         foreach ($session['models'] as $modelId) {
@@ -414,7 +422,7 @@ class Ajax3X extends Ajax
                 break;
             }
 
-            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
+            $propertyNamePrefix = str_replace('::', '____', ((string) $modelId)) . '_';
             if (!str_starts_with($fieldName, $propertyNamePrefix)) {
                 continue;
             }

@@ -68,7 +68,14 @@ class FileTreeOrder extends AbstractWidget
         if (null === $this->varValue) {
             $this->varValue = [];
         }
+        $files = [];
+        foreach ($this->varValue as $binUuid) {
+            if (\Contao\Validator::isBinaryUuid($binUuid)) {
+                $files[] = $binUuid;
+            }
+        }
 
-        return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $this->varValue));
+        //return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $this->varValue));
+        return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $files));
     }
 }

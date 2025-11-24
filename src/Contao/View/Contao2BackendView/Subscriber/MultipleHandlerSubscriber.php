@@ -322,7 +322,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
         $model = null;
-        foreach ($session['models'] as $sessionModel) {
+        foreach (($session['models'] ?? []) as $sessionModel) {
             $model = $sessionModel;
 
             if (!str_starts_with($event->getProperty()->getName(), \str_replace('::', '____', $sessionModel))) {
