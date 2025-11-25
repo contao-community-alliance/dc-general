@@ -322,7 +322,7 @@ class Ajax3X extends Ajax
 
         $fieldName = $this->getFieldName();
         if (null === $fieldName) {
-            throw new ResponseException(new Response('Nix zu aktualisieren, da kein Feldname gefunden wurde.'));
+            throw new ResponseException(new Response('No update of the widget, as no field name was found.'));
         }
 
         $widget = $this->getWidget($fieldName, $serializedId, $value);
