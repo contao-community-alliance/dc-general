@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,12 +16,14 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
+
+use Contao\Validator;
 
 /**
  * This widget is a supporting widget to store the file tree orderings.
@@ -68,7 +70,13 @@ class FileTreeOrder extends AbstractWidget
         if (null === $this->varValue) {
             $this->varValue = [];
         }
+        $files = [];
+        foreach ($this->varValue as $binUuid) {
+            if (Validator::isBinaryUuid($binUuid)) {
+                $files[] = $binUuid;
+            }
+        }
 
-        return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $this->varValue));
+        return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $files));
     }
 }
