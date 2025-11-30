@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Martin Treml <github@r2pi.net>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -708,21 +708,21 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         $selectAction = $inputProvider->getParameter('select');
 
-        /** @var array{models: list<string>} $session */
         $session = $sessionStorage->get($definition->getName() . '.' . $selectAction);
+        if (!is_array($session) || !isset($session['models'])) {
+            return null;
+        }
+        /** @var array{models: list<string>} $session */
 
         $originalPropertyName = null;
         foreach ($session['models'] as $modelId) {
-            if (null !== $originalPropertyName) {
-                break;
-            }
-
-            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
-            if (0 !== strpos($propertyName, $propertyNamePrefix)) {
+            $propertyNamePrefix = \str_replace('::', '____', ((string) $modelId)) . '_';
+            if (!str_starts_with($propertyName, $propertyNamePrefix)) {
                 continue;
             }
 
             $originalPropertyName = \substr($propertyName, \strlen($propertyNamePrefix));
+            break;
         }
 
         if (null === $originalPropertyName) {
