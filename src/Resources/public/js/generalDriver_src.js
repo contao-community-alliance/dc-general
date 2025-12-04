@@ -465,3 +465,10 @@ var BackendGeneral =
       return true;
     }
   };
+
+window.addEventListener('DOMContentLoaded', function () {
+  // Expand fieldset for required fields.
+  document.querySelectorAll('.collapsed:has(*[required])').forEach(function(el) {
+    el.classList.remove('collapsed');
+  });
+});
