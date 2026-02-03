@@ -53,7 +53,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_filter;
@@ -63,13 +63,12 @@ use function is_array;
 /**
  * Handles the backend tree.
  *
- * @Route("/contao/cca", defaults={"_scope" = "backend", "_token_check" = true})
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @psalm-suppress DeprecatedInterface
  * @psalm-suppress DeprecatedTrait
  */
+#[Route("/contao/cca", defaults: ['_scope' => 'backend', '_token_check' => true])]
 class BackendTreeController implements ContainerAwareInterface
 {
     /** @psalm-suppress DeprecatedTrait */
@@ -79,9 +78,8 @@ class BackendTreeController implements ContainerAwareInterface
      * Handles the installation process.
      *
      * @return Response
-     *
-     * @Route("/generaltree", name="cca_dc_general_tree")
      */
+    #[Route('/generaltree', name: 'cca_dc_general_tree')]
     public function generalTreeAction()
     {
         return $this->runBackendTree($this->initializeAndExtractRequest());
@@ -91,9 +89,8 @@ class BackendTreeController implements ContainerAwareInterface
      * Handles the toggle process.
      *
      * @return Response
-     *
-     * @Route("/generaltree/toggle", name="cca_dc_general_tree_toggle")
      */
+    #[Route('/generaltree/toggle', name: 'cca_dc_general_tree_toggle')]
     public function generalTreeToggleAction()
     {
         return $this->runBackendTreeToggle($this->initializeAndExtractRequest());
@@ -103,9 +100,8 @@ class BackendTreeController implements ContainerAwareInterface
      * Handles the toggle process.
      *
      * @return Response
-     *
-     * @Route("/generaltree/breadcrumb", name="cca_dc_general_tree_breadcrumb")
      */
+    #[Route('/generaltree/breadcrumb', name: 'cca_dc_general_tree_breadcrumb')]
     public function generalTreeBreadCrumbAction()
     {
         return $this->runBackendTreeBreadCrumb($this->initializeAndExtractRequest());
@@ -115,9 +111,8 @@ class BackendTreeController implements ContainerAwareInterface
      * Handles the update process.
      *
      * @return Response
-     *
-     * @Route("/generaltree/update", name="cca_dc_general_tree_update")
      */
+    #[Route('/generaltree/update', name: 'cca_dc_general_tree_update')]
     public function generalTreeUpdateAction()
     {
         return $this->runBackendTreeUpdate($this->initializeAndExtractRequest());
