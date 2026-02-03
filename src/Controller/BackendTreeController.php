@@ -15,6 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Kim Wormer <hallo@heartcodiert.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @author     David Molineus <david.molineus@netzmacht.de>
  * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -33,25 +34,19 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use Contao\Backend;
-use Contao\Config;
 use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
-use Contao\Environment;
 use Contao\StringUtil;
 use Contao\Validator;
 use Contao\Widget;
 use InvalidArgumentException;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -64,15 +59,19 @@ use function is_array;
  * Handles the backend tree.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- *
- * @psalm-suppress DeprecatedInterface
- * @psalm-suppress DeprecatedTrait
  */
 #[Route("/contao/cca", defaults: ['_scope' => 'backend', '_token_check' => true])]
-class BackendTreeController implements ContainerAwareInterface
+class BackendTreeController
 {
-    /** @psalm-suppress DeprecatedTrait */
-    use ContainerAwareTrait;
+    public function __construct(
+        private ContaoFramework $framework,
+        private RequestStack $requestStack,
+        private TranslatorInterface $translator,
+        private CcaTranslator $ccaTranslator,
+        private EventDispatcherInterface $eventDispatcher,
+        private PickerBuilderInterface $pickerBuilder,
+    ) {
+    }
 
     /**
      * Handles the installation process.
@@ -120,36 +119,21 @@ class BackendTreeController implements ContainerAwareInterface
 
     private function initializeAndExtractRequest(): Request
     {
-        $container = $this->container;
-        assert($container instanceof SymfonyContainerInterface);
-
-        $framework = $container->get('contao.framework');
-        assert($framework instanceof ContaoFramework);
+        $this->framework->initialize();
 
         /**
          * @psalm-suppress InternalMethod
          * @var Controller $controller
          */
-        $controller = $framework->getAdapter(Controller::class);
+        $controller = $this->framework->getAdapter(Controller::class);
         $controller->loadLanguageFile('default');
 
-        $requestStack = $container->get('request_stack');
-        assert($requestStack instanceof RequestStack);
-
-        $currentRequest = $requestStack->getCurrentRequest();
-        assert($currentRequest instanceof Request);
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        if (null === $currentRequest) {
+            throw new BadRequestHttpException('No request found.');
+        }
 
         return $currentRequest;
-    }
-
-    private function getTranslator(): TranslatorInterface
-    {
-        $container = $this->container;
-        assert($container instanceof SymfonyContainerInterface);
-        $translator = $container->get('translator');
-        assert($translator instanceof TranslatorInterface);
-
-        return  $translator;
     }
 
     /**
@@ -167,19 +151,16 @@ class BackendTreeController implements ContainerAwareInterface
     {
         [, $treeSelector] = $this->getTemplateData($request);
 
-        $container = $this->container;
-        assert($container instanceof SymfonyContainerInterface);
-
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
-            ->set('language', $container->get('request_stack')->getCurrentRequest()->getLocale())
+            ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
             ->set(
                 'title',
                 StringUtil::specialchars(
-                    $this->getTranslator()->trans(
+                    $this->translator->trans(
                         'treePicker',
                         ['%table%' => $treeSelector->foreignTable],
                         'dc-general'
@@ -219,7 +200,7 @@ class BackendTreeController implements ContainerAwareInterface
             ->set('language', $GLOBALS['TL_LANGUAGE'])
             ->set(
                 'title',
-                StringUtil::specialchars($this->getTranslator()->trans('treepickerManager', [], 'dc-general'))
+                StringUtil::specialchars($this->translator->trans('treepickerManager', [], 'dc-general'))
             )
             ->set('charset', 'utf-8');
 
@@ -269,19 +250,11 @@ class BackendTreeController implements ContainerAwareInterface
 
         $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
-        $container = $this->container;
-        assert($container instanceof SymfonyContainerInterface);
-        $translator = $container->get('cca.translator.contao_translator');
-        assert($translator instanceof CcaTranslator);
-
-        $dispatcher = $container->get('event_dispatcher');
-        assert($dispatcher instanceof EventDispatcherInterface);
-
         $factory = new DcGeneralFactory();
         $general = $factory
             ->setContainerName($modelId->getDataProviderName())
-            ->setTranslator($translator)
-            ->setEventDispatcher($dispatcher)
+            ->setTranslator($this->ccaTranslator)
+            ->setEventDispatcher($this->eventDispatcher)
             ->createDcGeneral();
 
         $dataProvider = $general->getEnvironment()->getDataProvider();
@@ -339,18 +312,10 @@ class BackendTreeController implements ContainerAwareInterface
             throw new BadRequestHttpException('No picker was given here.');
         }
 
-        $container = $this->container;
-        assert($container instanceof SymfonyContainerInterface);
-        $pickerBuilder = $container->get('contao.picker.builder');
-        assert($pickerBuilder instanceof PickerBuilderInterface);
-        $picker = $pickerBuilder->createFromData($getPicker);
+        $picker = $this->pickerBuilder->createFromData($getPicker);
         assert($picker instanceof PickerInterface);
         $treeSelector = $this->prepareTreeSelector($picker);
-        //$session = $container->get('session');
-        $requestStack = $container->get('request_stack');
-        assert($requestStack instanceof RequestStack);
-        $session = $requestStack->getSession();
-        assert($session instanceof SessionInterface);
+        $session = $this->requestStack->getSession();
         $sessionBag = $session->getBag('contao_backend');
         assert($sessionBag instanceof AttributeBagInterface);
         $value = $picker->getConfig()->getValue();
@@ -393,27 +358,14 @@ class BackendTreeController implements ContainerAwareInterface
             throw new InvalidArgumentException('The field name contains invalid characters');
         }
 
-        $container = $this->container;
-        assert($container instanceof SymfonyContainerInterface);
-
-        $requestStack = $container->get('request_stack');
-        assert($requestStack instanceof RequestStack);
-        $session = $requestStack->getSession();
-        assert($session instanceof SessionInterface);
-
+        $session = $this->requestStack->getSession();
         $sessionBag = $session->getBag('contao_backend');
         assert($sessionBag instanceof AttributeBagInterface);
 
-        $translator = $container->get('cca.translator.contao_translator');
-        assert($translator instanceof CcaTranslator);
-
-        $dispatcher = $container->get('event_dispatcher');
-        assert($dispatcher instanceof EventDispatcherInterface);
-
         $itemContainer = (new DcGeneralFactory())
             ->setContainerName($modelId->getDataProviderName())
-            ->setTranslator($translator)
-            ->setEventDispatcher($dispatcher)
+            ->setTranslator($this->ccaTranslator)
+            ->setEventDispatcher($this->eventDispatcher)
             ->createDcGeneral();
 
         $definition = $itemContainer->getEnvironment()->getDataDefinition();

@@ -87,3 +87,13 @@ services:
           $menuRenderer: '@contao.menu.renderer'
         tags:
             - controller.service_arguments
+
+    ContaoCommunityAlliance\DcGeneral\Controller\BackendTreeController:
+        public: true
+        arguments:
+            - '@contao.framework'
+            - '@request_stack'
+            - '@translator'
+            - '@cca.translator.contao_translator'
+            - '@event_dispatcher'
+            - '@contao.picker.builder'
