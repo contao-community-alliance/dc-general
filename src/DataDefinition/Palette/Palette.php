@@ -75,7 +75,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
-    public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $properties = [[]];
         foreach ($this->legends as $legend) {
@@ -88,7 +88,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
-    public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getVisibleProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $properties = [];
         foreach ($this->getLegends() as $legend) {
@@ -105,7 +105,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
-    public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getEditableProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $properties = [];
         foreach ($this->getLegends() as $legend) {
@@ -164,7 +164,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
-    public function addLegends(array $legends, LegendInterface $before = null)
+    public function addLegends(array $legends, ?LegendInterface $before = null)
     {
         foreach ($legends as $legend) {
             $this->addLegend($legend, $before);
@@ -200,7 +200,7 @@ class Palette implements PaletteInterface
      *
      * @throws DcGeneralInvalidArgumentException When the legend passed as $before can not be found.
      */
-    public function addLegend(LegendInterface $legend, LegendInterface $before = null)
+    public function addLegend(LegendInterface $legend, ?LegendInterface $before = null)
     {
         $hash = \spl_object_hash($legend);
 
@@ -273,7 +273,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
-    public function setCondition(PaletteConditionInterface $condition = null)
+    public function setCondition(?PaletteConditionInterface $condition = null)
     {
         $this->condition = $condition;
 

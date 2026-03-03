@@ -75,7 +75,7 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
     public function __construct(
         string $namespace,
         EventDispatcherInterface $dispatcher,
-        CacheInvalidator $cacheManager = null
+        ?CacheInvalidator $cacheManager = null
     ) {
         $this->namespace    = $namespace;
         $this->dispatcher   = $dispatcher;

@@ -74,7 +74,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
-    public function setPalette(PaletteInterface $palette = null)
+    public function setPalette(?PaletteInterface $palette = null)
     {
         if ($this->palette) {
             $this->palette->removeLegend($this);
@@ -148,7 +148,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
-    public function addProperties(array $properties, PropertyInterface $before = null)
+    public function addProperties(array $properties, ?PropertyInterface $before = null)
     {
         foreach ($properties as $property) {
             $this->addProperty($property, $before);
@@ -161,7 +161,7 @@ class Legend implements LegendInterface
      *
      * @throws DcGeneralInvalidArgumentException When the property passed as $before can not be found.
      */
-    public function addProperty(PropertyInterface $property, PropertyInterface $before = null)
+    public function addProperty(PropertyInterface $property, ?PropertyInterface $before = null)
     {
         $hash = \spl_object_hash($property);
 

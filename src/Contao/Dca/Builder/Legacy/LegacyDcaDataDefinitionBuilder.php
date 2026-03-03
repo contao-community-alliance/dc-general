@@ -1203,6 +1203,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $collection = $view->getModelCommands();
 
         foreach ($operationsDca as $operationName => $operationDca) {
+            if (is_string($operationDca)) {
+                continue;
+            }
+            assert(is_array($operationDca));
             $command = $this->createCommand($operationName, $operationDca);
             $collection->addCommand($command);
         }

@@ -58,7 +58,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @param CacheInterface|null $cache The cache.
      */
-    public function __construct(CacheInterface $cache = null)
+    public function __construct(?CacheInterface $cache = null)
     {
         if (null === $cache) {
             // @codingStandardsIgnoreStart
@@ -299,7 +299,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function setEnvironment(EnvironmentInterface $environment = null)
+    public function setEnvironment(?EnvironmentInterface $environment = null)
     {
         $this->environment = $environment;
 
@@ -317,7 +317,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function setDataContainer(ContainerInterface $dataContainer = null)
+    public function setDataContainer(?ContainerInterface $dataContainer = null)
     {
         $this->dataContainer = $dataContainer;
 

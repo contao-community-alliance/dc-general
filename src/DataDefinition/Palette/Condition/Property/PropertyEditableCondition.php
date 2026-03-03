@@ -76,10 +76,10 @@ class PropertyEditableCondition implements PropertyConditionInterface
      * {@inheritdoc}
      */
     public function match(
-        ModelInterface $model = null,
-        PropertyValueBag $input = null,
-        PropertyInterface $property = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBag $input = null,
+        ?PropertyInterface $property = null,
+        ?LegendInterface $legend = null
     ) {
         if (!$legend) {
             return false;

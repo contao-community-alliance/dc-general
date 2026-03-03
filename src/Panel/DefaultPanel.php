@@ -95,7 +95,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
         /** @var PanelElementInterface $currentElement */
         foreach ($this as $currentElement) {

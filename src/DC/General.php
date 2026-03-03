@@ -76,7 +76,7 @@ class General extends DataContainer implements DataContainerInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __construct($tableName, array $module = [], CacheInterface $cache = null)
+    public function __construct($tableName, array $module = [], ?CacheInterface $cache = null)
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\DC_General given" in callbacks.

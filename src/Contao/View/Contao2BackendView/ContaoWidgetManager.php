@@ -272,8 +272,8 @@ class ContaoWidgetManager
     /**
      * Retrieve the instance of a widget for the given property.
      *
-     * @param string                    $property    Name of the property for which the widget shall be retrieved.
-     * @param PropertyValueBagInterface $inputValues The input values to use (optional) (RAW widget value format).
+     * @param string                         $property    Name of the property for which the widget shall be retrieved.
+     * @param PropertyValueBagInterface|null $inputValues The input values to use (optional) (RAW widget value format).
      *
      * @return Widget|null
      *
@@ -284,7 +284,7 @@ class ContaoWidgetManager
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.EmptyCatchBlock)
      */
-    public function getWidget($property, PropertyValueBagInterface $inputValues = null)
+    public function getWidget($property, ?PropertyValueBagInterface $inputValues = null)
     {
         $environment = $this->getEnvironment();
         $definition  = $environment->getDataDefinition();
@@ -401,16 +401,16 @@ class ContaoWidgetManager
     /**
      * Render the widget for the named property.
      *
-     * @param string                    $property     The name of the property for which the widget shall be rendered.
-     * @param bool                      $ignoreErrors Flag if the error property of the widget shall get
-     *                                                cleared prior rendering.
-     * @param PropertyValueBagInterface $inputValues  The input values to use (optional) (RAW widget value format).
+     * @param string                         $property     The name of the property for which the widget shall be rendered.
+     * @param bool                           $ignoreErrors Flag if the error property of the widget shall get
+     *                                                     cleared prior rendering.
+     * @param PropertyValueBagInterface|null $inputValues  The input values to use (optional) (RAW widget value format).
      *
      * @return string
      *
      * @throws DcGeneralRuntimeException For unknown properties.
      */
-    public function renderWidget($property, $ignoreErrors = false, PropertyValueBagInterface $inputValues = null)
+    public function renderWidget($property, $ignoreErrors = false, ?PropertyValueBagInterface $inputValues = null)
     {
         /** @var Widget $widget */
         $widget = $this->getWidget($property, $inputValues);

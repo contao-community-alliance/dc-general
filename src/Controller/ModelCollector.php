@@ -352,7 +352,7 @@ class ModelCollector
     public function collectSiblingsOf(
         ModelInterface $model,
         $sortingProperty = null,
-        ModelIdInterface $parentId = null
+        ?ModelIdInterface $parentId = null
     ) {
         $registry = $this->environment->getBaseConfigRegistry();
         assert($registry instanceof BaseConfigRegistryInterface);

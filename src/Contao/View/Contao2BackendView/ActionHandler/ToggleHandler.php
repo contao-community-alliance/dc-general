@@ -112,7 +112,7 @@ class ToggleHandler
     protected function process(
         EnvironmentInterface $environment,
         ToggleCommandInterface $operation,
-        ModelIdInterface $modelId = null
+        ?ModelIdInterface $modelId = null
     ) {
         $dataProvider = $environment->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);

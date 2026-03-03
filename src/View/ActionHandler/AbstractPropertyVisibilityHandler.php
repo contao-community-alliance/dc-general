@@ -788,7 +788,7 @@ abstract class AbstractPropertyVisibilityHandler
         $intersectPropertyName,
         array $legendPropertyNames,
         EnvironmentInterface $environment,
-        PaletteInterface $defaultPalette = null
+        ?PaletteInterface $defaultPalette = null
     ): bool {
         $propertiesDefinition = $this->getDataDefinition($environment)->getPropertiesDefinition();
         $useIntersectValue    = (bool) $defaultPalette;
@@ -894,7 +894,7 @@ abstract class AbstractPropertyVisibilityHandler
     private function getLegendPropertyNames(
         ModelInterface $intersectModel,
         EnvironmentInterface $environment,
-        PaletteInterface &$defaultPalette = null
+        ?PaletteInterface &$defaultPalette = null
     ): array {
         $inputProvider      = $this->getInputProvider($environment);
         $palettesDefinition = $this->getDataDefinition($environment)->getPalettesDefinition();

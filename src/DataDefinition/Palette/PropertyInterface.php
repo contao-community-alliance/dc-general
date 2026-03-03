@@ -62,9 +62,9 @@ interface PropertyInterface
      * @return bool
      */
     public function isVisible(
-        ModelInterface $model = null,
-        PropertyValueBagInterface $input = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBagInterface $input = null,
+        ?LegendInterface $legend = null
     );
 
     /**
@@ -77,24 +77,24 @@ interface PropertyInterface
      *                                               data.
      *                                               If no model and no input data is given, all properties will be
      *                                               returned, including sub palette properties.
-     * @param LegendInterface                $legend The legend the property is assigned to.
+     * @param LegendInterface|null           $legend The legend the property is assigned to.
      *
      * @return bool
      */
     public function isEditable(
-        ModelInterface $model = null,
-        PropertyValueBagInterface $input = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBagInterface $input = null,
+        ?LegendInterface $legend = null
     );
 
     /**
      * Set the visible condition for this property.
      *
-     * @param PropertyConditionInterface $condition The condition.
+     * @param PropertyConditionInterface|null $condition The condition.
      *
      * @return PropertyInterface
      */
-    public function setVisibleCondition(PropertyConditionInterface $condition = null);
+    public function setVisibleCondition(?PropertyConditionInterface $condition = null);
 
     /**
      * Get the visible condition for this property.
@@ -106,11 +106,11 @@ interface PropertyInterface
     /**
      * Set the editable condition for this property.
      *
-     * @param PropertyConditionInterface $condition The condition.
+     * @param PropertyConditionInterface|null $condition The condition.
      *
      * @return PropertyInterface
      */
-    public function setEditableCondition(PropertyConditionInterface $condition = null);
+    public function setEditableCondition(?PropertyConditionInterface $condition = null);
 
     /**
      * Get the editable condition for this property.

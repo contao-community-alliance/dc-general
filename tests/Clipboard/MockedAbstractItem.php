@@ -54,7 +54,7 @@ class MockedAbstractItem extends AbstractItem
      *
      * @SuppressWarnings(PHPMD.LongVariable)
      */
-    public function __construct($action, ModelIdInterface $parentId = null, $modelIdOrProviderName = null)
+    public function __construct($action, ?ModelIdInterface $parentId = null, $modelIdOrProviderName = null)
     {
         parent::__construct($action, $parentId);
 

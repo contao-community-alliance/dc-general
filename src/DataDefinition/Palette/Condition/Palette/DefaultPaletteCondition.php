@@ -32,7 +32,7 @@ class DefaultPaletteCondition implements PaletteConditionInterface
     /**
      * {@inheritdoc}
      */
-    public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getMatchCount(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         return 0;
     }

@@ -52,10 +52,10 @@ class PropertyCallbackCondition implements PropertyConditionInterface
      * {@inheritdoc}
      */
     public function match(
-        ModelInterface $model = null,
-        PropertyValueBag $input = null,
-        PropertyInterface $property = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBag $input = null,
+        ?PropertyInterface $property = null,
+        ?LegendInterface $legend = null
     ) {
         return \call_user_func($this->callback, $model, $input, $property, $legend);
     }

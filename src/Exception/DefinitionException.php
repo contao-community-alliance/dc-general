@@ -50,7 +50,7 @@ class DefinitionException extends DcGeneralRuntimeException
      * @param int             $code           The error code.
      * @param \Exception|null $previous       The previous exception.
      */
-    public function __construct($definitionName, $code = 0, \Exception $previous = null)
+    public function __construct($definitionName, $code = 0, ?\Exception $previous = null)
     {
         $this->name = $definitionName;
 

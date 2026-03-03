@@ -85,9 +85,9 @@ class Property implements PropertyInterface
      * {@inheritdoc}
      */
     public function isVisible(
-        ModelInterface $model = null,
-        PropertyValueBagInterface $input = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBagInterface $input = null,
+        ?LegendInterface $legend = null
     ) {
         if ($this->visibleCondition) {
             // We should have defined the interfaces back in 2013... :/
@@ -102,9 +102,9 @@ class Property implements PropertyInterface
      * {@inheritdoc}
      */
     public function isEditable(
-        ModelInterface $model = null,
-        PropertyValueBagInterface $input = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBagInterface $input = null,
+        ?LegendInterface $legend = null
     ) {
         if ($this->editableCondition) {
             // We should have defined the interfaces back in 2013... :/
@@ -118,7 +118,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
-    public function setVisibleCondition(PropertyConditionInterface $condition = null)
+    public function setVisibleCondition(?PropertyConditionInterface $condition = null)
     {
         $this->visibleCondition = $condition;
 
@@ -136,7 +136,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
-    public function setEditableCondition(PropertyConditionInterface $condition = null)
+    public function setEditableCondition(?PropertyConditionInterface $condition = null)
     {
         $this->editableCondition = $condition;
 

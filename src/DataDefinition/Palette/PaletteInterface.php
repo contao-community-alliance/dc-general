@@ -50,32 +50,32 @@ interface PaletteInterface
     /**
      * Get all properties from all legends in this palette.
      *
-     * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
+     * @param ModelInterface|null   $model If given, selectors will be evaluated depending on the model.
+     * @param PropertyValueBag|null $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
      */
-    public function getProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+    public function getProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null);
 
     /**
      * Get all properties from all legends in this palette that are visible.
      *
-     * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
+     * @param ModelInterface|null   $model If given, selectors will be evaluated depending on the model.
+     * @param PropertyValueBag|null $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
      */
-    public function getVisibleProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+    public function getVisibleProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null);
 
     /**
      * Get all properties from all legends in this palette that are editable.
      *
-     * @param ModelInterface|null $model If given, selectors will be evaluated depending on the model.
-     * @param PropertyValueBag    $input If given, selectors will be evaluated depending on the input data.
+     * @param ModelInterface|null   $model If given, selectors will be evaluated depending on the model.
+     * @param PropertyValueBag|null $input If given, selectors will be evaluated depending on the input data.
      *
      * @return PropertyInterface[]
      */
-    public function getEditableProperties(ModelInterface $model = null, PropertyValueBag $input = null);
+    public function getEditableProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null);
 
     /**
      * Get a property by name from this palette.
@@ -108,11 +108,11 @@ interface PaletteInterface
      * Add all legends to this palette.
      *
      * @param list<LegendInterface> $legends The legends.
-     * @param LegendInterface       $before  The legend before which the new legends shall be inserted (optional).
+     * @param LegendInterface|null  $before  The legend before which the new legends shall be inserted (optional).
      *
      * @return PaletteInterface
      */
-    public function addLegends(array $legends, LegendInterface $before = null);
+    public function addLegends(array $legends, ?LegendInterface $before = null);
 
     /**
      * Determine if a legend with the given name exists in this palette.
@@ -136,11 +136,11 @@ interface PaletteInterface
      * Add a legend to this palette.
      *
      * @param LegendInterface $legend The legend to add.
-     * @param LegendInterface $before The legend before which the new legend shall be inserted (optional).
+     * @param LegendInterface|null $before The legend before which the new legend shall be inserted (optional).
      *
      * @return PaletteInterface
      */
-    public function addLegend(LegendInterface $legend, LegendInterface $before = null);
+    public function addLegend(LegendInterface $legend, ?LegendInterface $before = null);
 
     /**
      * Remove a legend from this palette.
@@ -176,7 +176,7 @@ interface PaletteInterface
      *
      * @return PaletteInterface
      */
-    public function setCondition(PaletteConditionInterface $condition = null);
+    public function setCondition(?PaletteConditionInterface $condition = null);
 
     /**
      * Get the condition bound to this palette.

@@ -110,7 +110,7 @@ class PaletteCollection implements PaletteCollectionInterface
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palettes found.
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette found or more than one palette.
      */
-    public function findPalette(ModelInterface $model = null, PropertyValueBagInterface $input = null)
+    public function findPalette(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null)
     {
         $matches = [];
 

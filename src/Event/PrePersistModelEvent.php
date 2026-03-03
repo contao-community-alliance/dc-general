@@ -48,7 +48,7 @@ class PrePersistModelEvent extends AbstractModelAwareEvent
     public function __construct(
         EnvironmentInterface $environment,
         ModelInterface $model,
-        ModelInterface $originalModel = null
+        ?ModelInterface $originalModel = null
     ) {
         parent::__construct($environment, $model);
 

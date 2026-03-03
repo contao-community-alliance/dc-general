@@ -61,7 +61,7 @@ class DcCompat extends General
      * @param ModelInterface|null  $model        The model within scope (optional).
      * @param string|null          $propertyName The name of the property within scope (optional).
      */
-    public function __construct(EnvironmentInterface $environment, ModelInterface $model = null, $propertyName = null)
+    public function __construct(EnvironmentInterface $environment, ?ModelInterface $model = null, ?string $propertyName = null)
     {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat given" in callbacks.
