@@ -109,7 +109,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
     public function __construct(
         EnvironmentInterface $environment,
         TranslatorInterface $translator,
-        RequestScopeDeterminator $scopeDeterminator = null
+        ?RequestScopeDeterminator $scopeDeterminator = null
     ) {
         $this->environment = $environment;
         $this->translator  = $translator;

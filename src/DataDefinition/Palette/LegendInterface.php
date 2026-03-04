@@ -38,7 +38,7 @@ interface LegendInterface
      *
      * @return LegendInterface
      */
-    public function setPalette(PaletteInterface $palette = null);
+    public function setPalette(?PaletteInterface $palette = null);
 
     /**
      * Return the palette this legend belongs to.
@@ -99,22 +99,22 @@ interface LegendInterface
      * Add all properties to this legend.
      *
      * @param array|PropertyInterface[] $properties The properties.
-     * @param PropertyInterface         $before     The property before the passed properties shall be inserted
+     * @param PropertyInterface|null    $before     The property before the passed properties shall be inserted
      *                                              (optional).
      *
      * @return LegendInterface
      */
-    public function addProperties(array $properties, PropertyInterface $before = null);
+    public function addProperties(array $properties, ?PropertyInterface $before = null);
 
     /**
      * Add a property to this legend.
      *
-     * @param PropertyInterface $property The property.
-     * @param PropertyInterface $before   The property before the passed property shall be inserted (optional).
+     * @param PropertyInterface      $property The property.
+     * @param PropertyInterface|null $before   The property before the passed property shall be inserted (optional).
      *
      * @return LegendInterface
      */
-    public function addProperty(PropertyInterface $property, PropertyInterface $before = null);
+    public function addProperty(PropertyInterface $property, ?PropertyInterface $before = null);
 
     /**
      * Remove a property from this legend.

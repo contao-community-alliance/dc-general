@@ -40,10 +40,10 @@ class PropertyConditionChain extends AbstractConditionChain implements PropertyC
      *                                   is encountered.
      */
     public function match(
-        ModelInterface $model = null,
-        PropertyValueBag $input = null,
-        PropertyInterface $property = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBag $input = null,
+        ?PropertyInterface $property = null,
+        ?LegendInterface $legend = null
     ) {
         if (static::AND_CONJUNCTION === $this->conjunction) {
             foreach ($this->conditions as $condition) {

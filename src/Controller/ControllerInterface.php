@@ -182,11 +182,11 @@ interface ControllerInterface
      *
      * This will only return models, that are compatible with the current environment.
      *
-     * @param ModelIdInterface $parentModelId The optional parent id. If not given, the models must not have a parent.
+     * @param ModelIdInterface|null $parentModelId The optional parent id. If not given, the models must not have a parent.
      *
      * @return CollectionInterface
      */
-    public function getModelsFromClipboard(ModelIdInterface $parentModelId = null);
+    public function getModelsFromClipboard(?ModelIdInterface $parentModelId = null);
 
     /**
      * Evaluate clipboard items, then return the corresponding models.
@@ -201,11 +201,11 @@ interface ControllerInterface
      * @return CollectionInterface
      */
     public function applyClipboardActions(
-        ModelIdInterface $source = null,
-        ModelIdInterface $after = null,
-        ModelIdInterface $into = null,
-        ModelIdInterface $parentModelId = null,
-        FilterInterface $filter = null,
+        ?ModelIdInterface $source = null,
+        ?ModelIdInterface $after = null,
+        ?ModelIdInterface $into = null,
+        ?ModelIdInterface $parentModelId = null,
+        ?FilterInterface $filter = null,
         array &$items = []
     );
 
@@ -218,7 +218,7 @@ interface ControllerInterface
      *
      * @return void
      */
-    public function pasteTop(CollectionInterface $models, $sortedBy, ModelIdInterface $parentId = null);
+    public function pasteTop(CollectionInterface $models, $sortedBy, ?ModelIdInterface $parentId = null);
 
     /**
      * Paste the content of the clipboard after the given model.

@@ -97,7 +97,7 @@ interface PaletteCollectionInterface
      *
      * @return PaletteInterface
      */
-    public function findPalette(ModelInterface $model = null, PropertyValueBagInterface $input = null);
+    public function findPalette(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null);
 
     /**
      * Check if a palette for the given name exists in this collection.

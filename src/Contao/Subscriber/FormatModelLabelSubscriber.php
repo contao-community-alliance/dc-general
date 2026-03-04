@@ -110,7 +110,7 @@ class FormatModelLabelSubscriber
      *
      * @return string
      */
-    private function getFirstSorting(GroupAndSortingDefinitionInterface $sortingDefinition = null)
+    private function getFirstSorting(?GroupAndSortingDefinitionInterface $sortingDefinition = null)
     {
         if (null === $sortingDefinition) {
             return '';

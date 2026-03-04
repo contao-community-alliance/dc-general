@@ -53,8 +53,8 @@ class EnforceModelRelationshipEvent extends AbstractModelAwareEvent
     public function __construct(
         EnvironmentInterface $environment,
         ModelInterface $model,
-        ModelInterface $parentModel = null,
-        ModelInterface $rootModel = null
+        ?ModelInterface $parentModel = null,
+        ?ModelInterface $rootModel = null
     ) {
         parent::__construct($environment, $model);
 

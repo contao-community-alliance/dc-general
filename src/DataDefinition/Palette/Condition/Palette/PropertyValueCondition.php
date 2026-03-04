@@ -141,7 +141,7 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
     /**
      * {@inheritdoc}
      */
-    public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getMatchCount(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         if (!$this->propertyName) {
             return false;

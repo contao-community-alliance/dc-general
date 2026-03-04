@@ -38,7 +38,7 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
      * @throws DcGeneralRuntimeException When a condition that does not implement PaletteConditionInterface
      *                                   is encountered.
      */
-    public function getMatchCount(ModelInterface $model = null, PropertyValueBag $input = null)
+    public function getMatchCount(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $totalCount = false;
 

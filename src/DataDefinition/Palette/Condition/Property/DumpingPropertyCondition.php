@@ -59,10 +59,10 @@ class DumpingPropertyCondition implements PropertyConditionInterface
      * @psalm-suppress ForbiddenCode - We explicitly allow var_dump() here for debugging purposes.
      */
     public function match(
-        ModelInterface $model = null,
-        PropertyValueBag $input = null,
-        PropertyInterface $property = null,
-        LegendInterface $legend = null
+        ?ModelInterface $model = null,
+        ?PropertyValueBag $input = null,
+        ?PropertyInterface $property = null,
+        ?LegendInterface $legend = null
     ) {
         $result = $this->propertyCondition->match($model, $input, $property, $legend);
 

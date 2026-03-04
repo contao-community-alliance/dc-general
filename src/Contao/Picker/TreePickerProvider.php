@@ -110,7 +110,7 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
     /**
      * {@inheritdoc}
      */
-    protected function getRouteParameters(PickerConfig $config = null)
+    protected function getRouteParameters(?PickerConfig $config = null)
     {
         return ['do' => 'tree'];
     }

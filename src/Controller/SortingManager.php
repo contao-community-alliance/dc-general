@@ -96,10 +96,10 @@ class SortingManager
      *                                                the collection.
      */
     public function __construct(
-        CollectionInterface $models = null,
-        CollectionInterface $siblings = null,
-        string $sortedBy = null,
-        ModelInterface $previousModel = null
+        ?CollectionInterface $models = null,
+        ?CollectionInterface $siblings = null,
+        ?string $sortedBy = null,
+        ?ModelInterface $previousModel = null
     ) {
         if ($models) {
             $this->setModels($models);

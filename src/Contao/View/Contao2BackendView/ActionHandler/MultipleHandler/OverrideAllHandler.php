@@ -157,8 +157,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      * @SuppressWarnings(PHPMD.LongVariable)
      */
     protected function handleInvalidPropertyValueBag(
-        PropertyValueBagInterface $propertyValueBag = null,
-        ModelInterface $model = null,
+        ?PropertyValueBagInterface $propertyValueBag,
+        ?ModelInterface $model,
         EnvironmentInterface $environment
     ) {
         // @codingStandardsIgnoreStart
@@ -208,17 +208,17 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     /**
      * Handle override of model collection.
      *
-     * @param Action                    $action            The action.
-     * @param \ArrayObject              $renderInformation The render information.
-     * @param PropertyValueBagInterface $propertyValues    The property values.
-     * @param EnvironmentInterface      $environment       The environment.
+     * @param Action                         $action            The action.
+     * @param \ArrayObject                   $renderInformation The render information.
+     * @param PropertyValueBagInterface|null $propertyValues    The property values.
+     * @param EnvironmentInterface           $environment       The environment.
      *
      * @return void
      */
     private function handleOverrideCollection(
         Action $action,
         \ArrayObject $renderInformation,
-        PropertyValueBagInterface $propertyValues = null,
+        ?PropertyValueBagInterface $propertyValues,
         EnvironmentInterface $environment
     ) {
         if (!$propertyValues) {

@@ -275,7 +275,7 @@ class DefaultController implements ControllerInterface
     protected function assembleSiblingsFor(
         ModelInterface $model,
         $sortingProperty = null,
-        ModelIdInterface $parentId = null
+        ?ModelIdInterface $parentId = null
     ) {
         // @codingStandardsIgnoreStart
         @trigger_error(
@@ -559,7 +559,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function getModelsFromClipboard(ModelIdInterface $parentModelId = null)
+    public function getModelsFromClipboard(?ModelIdInterface $parentModelId = null)
     {
         $environment = $this->getEnvironment();
 
@@ -588,12 +588,12 @@ class DefaultController implements ControllerInterface
      * {@inheritDoc}
      */
     public function applyClipboardActions(
-        ModelIdInterface $source = null,
-        ModelIdInterface $after = null,
-        ModelIdInterface $into = null,
-        ModelIdInterface $parentModelId = null,
-        FilterInterface $filter = null,
-        array &$items = []
+        ?ModelIdInterface $source = null,
+        ?ModelIdInterface $after = null,
+        ?ModelIdInterface $into = null,
+        ?ModelIdInterface $parentModelId = null,
+        ?FilterInterface  $filter = null,
+        array &$items = [],
     ) {
         if ($source) {
             $actions = $this->getActionsFromSource($source, $parentModelId);
@@ -614,7 +614,7 @@ class DefaultController implements ControllerInterface
      *
      * @throws InvalidArgumentException When the model id is invalid.
      */
-    private function getActionsFromSource(ModelIdInterface $source, ModelIdInterface $parentModelId = null)
+    private function getActionsFromSource(ModelIdInterface $source, ?ModelIdInterface $parentModelId = null)
     {
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -662,7 +662,7 @@ class DefaultController implements ControllerInterface
      *
      * @return array
      */
-    private function fetchModelsFromClipboard(FilterInterface $filter = null, ModelIdInterface $parentModelId = null)
+    private function fetchModelsFromClipboard(?FilterInterface $filter = null, ?ModelIdInterface $parentModelId = null)
     {
         $environment = $this->getEnvironment();
         assert($environment instanceof EnvironmentInterface);
@@ -721,9 +721,9 @@ class DefaultController implements ControllerInterface
      */
     private function doActions(
         array $actions,
-        ModelIdInterface $after = null,
-        ModelIdInterface $into = null,
-        ModelIdInterface $parentModelId = null,
+        ?ModelIdInterface $after = null,
+        ?ModelIdInterface $into = null,
+        ?ModelIdInterface $parentModelId = null,
         array &$items = []
     ) {
         if ($parentModelId) {
@@ -765,7 +765,7 @@ class DefaultController implements ControllerInterface
      * @return void
      *
      */
-    private function applyAction(array &$action, array &$deepCopyList, ModelInterface $parentModel = null)
+    private function applyAction(array &$action, array &$deepCopyList, ?ModelInterface $parentModel = null)
     {
         /** @var ModelInterface|null $model */
         $model = $action['model'];
@@ -842,7 +842,7 @@ class DefaultController implements ControllerInterface
      *
      * @return void
      */
-    private function ensureSameGrouping(array $actions, ModelIdInterface $after = null)
+    private function ensureSameGrouping(array $actions, ?ModelIdInterface $after = null)
     {
         $environment  = $this->getEnvironment();
         $groupingMode = ViewHelpers::getGroupingMode($environment);
@@ -876,9 +876,9 @@ class DefaultController implements ControllerInterface
      */
     private function sortAndPersistModels(
         array $actions,
-        ModelIdInterface $after = null,
-        ModelIdInterface $into = null,
-        ModelIdInterface $parentModelId = null,
+        ?ModelIdInterface $after = null,
+        ?ModelIdInterface $into = null,
+        ?ModelIdInterface $parentModelId = null,
         array &$items = []
     ) {
         $models = $this->createModelCollectionFromActions($actions, $items);
@@ -906,7 +906,7 @@ class DefaultController implements ControllerInterface
      *
      * @return void
      */
-    private function processPasteAfter(CollectionInterface $models, ModelIdInterface $after = null)
+    private function processPasteAfter(CollectionInterface $models, ?ModelIdInterface $after = null)
     {
         if ($after && $models->count() && $after->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
@@ -930,7 +930,7 @@ class DefaultController implements ControllerInterface
      *
      * @return void
      */
-    private function processPasteInto(CollectionInterface $models, ModelIdInterface $into = null)
+    private function processPasteInto(CollectionInterface $models, ?ModelIdInterface $into = null)
     {
         if ($into && $models->count() && $into->getId()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
@@ -958,9 +958,9 @@ class DefaultController implements ControllerInterface
      */
     private function processPasteTopWithoutReference(
         CollectionInterface $models,
-        ModelIdInterface $after = null,
-        ModelIdInterface $into = null,
-        ModelIdInterface $parent = null
+        ?ModelIdInterface $after = null,
+        ?ModelIdInterface $into = null,
+        ?ModelIdInterface $parent = null
     ) {
         if (
             $models->count()
@@ -987,12 +987,12 @@ class DefaultController implements ControllerInterface
     /**
      * Process paste the content of the clipboard onto the top after a model.
      *
-     * @param CollectionInterface $models The collection of models.
-     * @param ModelIdInterface    $parent The parent model id.
+     * @param CollectionInterface   $models The collection of models.
+     * @param ModelIdInterface|null $parent The parent model id.
      *
      * @return void
      */
-    private function processPasteTopAfterModel(CollectionInterface $models, ModelIdInterface $parent = null)
+    private function processPasteTopAfterModel(CollectionInterface $models, ?ModelIdInterface $parent = null)
     {
         if ($parent && $models->count()) {
             $manualSorting = ViewHelpers::getManualSortingProperty($this->getEnvironment());
@@ -1177,7 +1177,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
-    public function pasteTop(CollectionInterface $models, $sortedBy, ModelIdInterface $parentId = null)
+    public function pasteTop(CollectionInterface $models, $sortedBy, ?ModelIdInterface $parentId = null)
     {
         $environment = $this->getEnvironment();
 

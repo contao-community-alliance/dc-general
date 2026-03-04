@@ -108,7 +108,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
-    public function getDcaTable(PickerConfig $config = null): string
+    public function getDcaTable(?PickerConfig $config = null): string
     {
         return 'tl_page';
     }

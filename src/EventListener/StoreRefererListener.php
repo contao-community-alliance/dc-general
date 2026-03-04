@@ -84,6 +84,9 @@ class StoreRefererListener
         $session   = $request->getSession();
         $key       = $request->query->has('popup') ? 'popupReferer' : 'referer';
         $refererId = $request->attributes->get('_contao_referer_id');
+        if (null === $refererId) {
+            return;
+        }
         $referers  = $this->prepareBackendReferer($refererId, $session->get($key));
         $ref       = (string) $request->query->get('ref', '');
 
