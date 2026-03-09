@@ -31,13 +31,13 @@
     "source": "https://github.com/contao-community-alliance/dc-general"
   },
   "require": {
-    "php": "^8.2",
+    "php": "^8.4",
     "ext-json": "*",
     "ext-pdo": "*",
-    "contao-community-alliance/events-contao-bindings": "^5.0.1",
-    "contao-community-alliance/translator": "^2.5",
-    "contao-community-alliance/url-builder": "^2.0",
-    "contao/core-bundle": "^5.3",
+    "contao-community-alliance/events-contao-bindings": "^5.1@dev",
+    "contao-community-alliance/translator": "^2.6@dev",
+    "contao-community-alliance/url-builder": "^2.1@dev",
+    "contao/core-bundle": "^5.7",
     "contao/image": "^1.2",
     "doctrine/cache": "^2.1",
     "doctrine/dbal": "^3.6",
@@ -92,7 +92,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-feature/symfony-7": "2.5.x-dev"
+      "dev-release/2.5.0": "2.5.x-dev"
     },
     "contao-manager-plugin": "ContaoCommunityAlliance\\DcGeneral\\ContaoManager\\Plugin"
   }
