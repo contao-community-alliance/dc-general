@@ -34,7 +34,7 @@
     "php": "^8.4",
     "ext-json": "*",
     "ext-pdo": "*",
-    "contao-community-alliance/events-contao-bindings": "^5.1@dev",
+    "contao-community-alliance/events-contao-bindings": "^5.7@dev",
     "contao-community-alliance/translator": "^2.6@dev",
     "contao-community-alliance/url-builder": "^2.1@dev",
     "contao/core-bundle": "^5.7",
@@ -58,7 +58,7 @@
     "symfony/security-core": "^6.4 || ^7.4",
     "symfony/security-csrf": "^6.4 || ^7.4",
     "symfony/translation-contracts": "^3.0",
-    "twig/twig": "^3.8"
+    "twig/twig": "^3.21"
   },
   "require-dev": {
     "contao/manager-plugin": "^2.8",
