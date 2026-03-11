@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is emitted when the model label must be formatted.
+ *
+ * @api
  */
 class FormatModelLabelEvent extends AbstractModelAwareEvent
 {

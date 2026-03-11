@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,17 +29,19 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  * Class GetParentHeaderEvent.
  *
  * This event gets emitted when the header section of a parent view is generated.
+ *
+ * @api
  */
 class GetParentHeaderEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.get-parent-header';
+    public const string NAME = 'dc-general.view.contao2backend.get-parent-header';
 
     /**
      * The additional lines that shall be added to the header section.
      *
      * @var array
      */
-    protected $additional = [];
+    protected array $additional = [];
 
     /**
      * Set the additional lines that shall be added to the header section.

@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteCollectionIn
 
 /**
  * This event gets emitted when a palette collection is finished.
+ *
+ * @api
  */
 class FinishPaletteCollectionEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.finish-palette-collection';
+    public const string NAME = 'dc-general.data-definition.palette.builder.finish-palette-collection';
 
     /**
      * The palette collection.
      *
      * @var PaletteCollectionInterface
      */
-    protected $paletteCollection;
+    protected PaletteCollectionInterface $paletteCollection;
 
     /**
      * Create a new instance.

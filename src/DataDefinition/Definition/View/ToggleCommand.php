@@ -24,6 +24,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
 /**
  * Toggle command - special command for toggling a boolean property between '1' and '' (empty string).
+ *
+ * @api
  */
 class ToggleCommand extends Command implements ToggleCommandInterface
 {
@@ -32,7 +34,7 @@ class ToggleCommand extends Command implements ToggleCommandInterface
      *
      * @var string
      */
-    protected $property = '';
+    protected string $property = '';
 
     /**
      * The toggle command is an inverse command.
@@ -41,11 +43,12 @@ class ToggleCommand extends Command implements ToggleCommandInterface
      *
      * @var bool
      */
-    protected $inverse = false;
+    protected bool $inverse = false;
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setToggleProperty($property)
     {
         $this->property = $property;
@@ -56,6 +59,7 @@ class ToggleCommand extends Command implements ToggleCommandInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getToggleProperty()
     {
         return $this->property;
@@ -64,6 +68,7 @@ class ToggleCommand extends Command implements ToggleCommandInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setInverse($inverse)
     {
         $this->inverse = $inverse;
@@ -74,6 +79,7 @@ class ToggleCommand extends Command implements ToggleCommandInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function isInverse()
     {
         return $this->inverse;

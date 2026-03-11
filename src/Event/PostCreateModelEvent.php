@@ -23,8 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is emitted after a model has been created.
+ *
+ * @api
  */
 class PostCreateModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.post-create';
+    public const string NAME = 'dc-general.model.post-create';
 }

@@ -25,6 +25,9 @@ use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+/**
+ * @api
+ */
 class SessionFactory implements SessionFactoryInterface
 {
     public function __construct(
@@ -33,6 +36,7 @@ class SessionFactory implements SessionFactoryInterface
     ) {
     }
 
+    #[\Override]
     public function createSession(): SessionInterface
     {
         $session = $this->inner->createSession();

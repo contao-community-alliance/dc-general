@@ -25,17 +25,21 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * This class tests the ModelId class.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::getId
- * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface::getProviderName
- * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelId::fromModel
- * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelId::fromSerialized
- * @covers \ContaoCommunityAlliance\DcGeneral\Data\ModelId::getSerialized
  */
-class ModelIdTest extends TestCase
+
+#[AllowMockObjectsWithoutExpectations]
+#[CoversMethod(ModelInterface::class, 'getId')]
+#[CoversMethod(ModelInterface::class, 'getProviderName')]
+#[CoversMethod(ModelId::class, 'fromModel')]
+#[CoversMethod(ModelId::class, 'fromSerialized')]
+#[CoversMethod(ModelId::class, 'getSerialized')]
+final class ModelIdTest extends TestCase
 {
     /**
      * Mock a model instance which will return the given values.
@@ -43,14 +47,15 @@ class ModelIdTest extends TestCase
      * @param mixed $modelId      The value to use as model id.
      * @param mixed $dataProvider The value to use as data provider.
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|ModelInterface
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     *
+     * @return ModelInterface
      */
-    private function mockModel($modelId, $dataProvider)
+    private function mockModel(mixed $modelId, mixed $dataProvider): ModelInterface
     {
         $mock = $this
             ->getMockBuilder(ModelInterface::class)
-            ->setMethods(['getId', 'getProviderName'])
-            ->getMockForAbstractClass();
+            ->getMock();
         $mock
             ->method('getId')
             ->willReturn($modelId);
@@ -66,34 +71,32 @@ class ModelIdTest extends TestCase
      *
      * @return array
      */
-    public function modelProvider()
+    public static function modelProvider(): array
     {
         $exception = DcGeneralInvalidArgumentException::class;
         return [
-            [$this->mockModel(10, 'tl_page')],
-            [$this->mockModel(null, 'tl_page')],
-            [$this->mockModel(null, null), $exception],
-            [$this->mockModel(10, null), $exception],
-            [$this->mockModel(10, ''), $exception],
-            [$this->mockModel(10, 0), $exception],
+            [static fn (ModelIdTest $test) => $test->mockModel(10, 'tl_page')],
+            [static fn (ModelIdTest $test) => $test->mockModel(null, 'tl_page')],
+            [static fn (ModelIdTest $test) => $test->mockModel(null, null), $exception],
+            [static fn (ModelIdTest $test) => $test->mockModel(10, null), $exception],
+            [static fn (ModelIdTest $test) => $test->mockModel(10, ''), $exception],
+            [static fn (ModelIdTest $test) => $test->mockModel(10, 0), $exception],
         ];
     }
 
     /**
-     * Test that the ModelId class can not be instantiated with invalid values.
+     * Test that the ModelId class cannot be instantiated with invalid values.
      *
-     * @param ModelInterface $model     The model to instantiate from.
-     * @param string|null    $exception The name of the expected exception class.
-     *
-     * @dataProvider modelProvider
-     *
-     * @return void
+     * @param callable    $modelFactory The model factory to create the model to instantiate from.
+     * @param string|null $exception    The name of the expected exception class.
      */
-    public function testInstantiationFromModel($model, $exception = null)
+    #[Dataprovider('modelProvider')]
+    public function testInstantiationFromModel(callable $modelFactory, ?string $exception = null): void
     {
         if (null !== $exception) {
             $this->expectException($exception);
         }
+        $model = $modelFactory($this);
 
         $modelId = ModelId::fromModel($model);
 
@@ -103,10 +106,8 @@ class ModelIdTest extends TestCase
 
     /**
      * Data provider for the valid id test.
-     *
-     * @return array
      */
-    public function idProvider()
+    public static function idProvider(): array
     {
         $exception = DcGeneralRuntimeException::class;
         return [
@@ -122,12 +123,9 @@ class ModelIdTest extends TestCase
      *
      * @param string      $testId    The id to test.
      * @param string|null $exception The name of the expected exception class.
-     *
-     * @dataProvider idProvider
-     *
-     * @return void
      */
-    public function testValidIds($testId, $exception = null)
+    #[DataProvider(methodName: 'idProvider')]
+    public function testValidIds(string $testId, ?string $exception = null): void
     {
         if (null !== $exception) {
             $this->expectException($exception);

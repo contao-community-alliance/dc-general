@@ -26,12 +26,15 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Registers the Contao session bags.
+ *
+ * @api
  */
 class AddSessionBagsPass implements CompilerPassInterface
 {
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function process(ContainerBuilder $container): void
     {
         if (!$container->has('session')) {

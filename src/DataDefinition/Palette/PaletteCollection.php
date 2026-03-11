@@ -44,6 +44,7 @@ class PaletteCollection implements PaletteCollectionInterface
      *
      * @return PaletteCollectionInterface
      */
+    #[\Override]
     public function clearPalettes()
     {
         $this->palettes = [];
@@ -53,6 +54,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setPalettes(array $palettes)
     {
         $this->clearPalettes()->addPalettes($palettes);
@@ -62,6 +64,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addPalettes(array $palettes)
     {
         foreach ($palettes as $palette) {
@@ -73,6 +76,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addPalette(PaletteInterface $palette)
     {
         $this->palettes[\spl_object_hash($palette)] = $palette;
@@ -82,6 +86,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removePalette(PaletteInterface $palette)
     {
         unset($this->palettes[\spl_object_hash($palette)]);
@@ -91,6 +96,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPalettes()
     {
         return \array_values($this->palettes);
@@ -99,6 +105,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasPalette(PaletteInterface $palette)
     {
         return isset($this->palettes[\spl_object_hash($palette)]);
@@ -110,6 +117,7 @@ class PaletteCollection implements PaletteCollectionInterface
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palettes found.
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette found or more than one palette.
      */
+    #[\Override]
     public function findPalette(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null)
     {
         $matches = [];
@@ -148,6 +156,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasPaletteByName($paletteName)
     {
         foreach ($this->palettes as $palette) {
@@ -164,6 +173,7 @@ class PaletteCollection implements PaletteCollectionInterface
      *
      * @throws DcGeneralInvalidArgumentException Is thrown if there is no palette with this name.
      */
+    #[\Override]
     public function getPaletteByName($paletteName)
     {
         foreach ($this->palettes as $palette) {
@@ -178,6 +188,7 @@ class PaletteCollection implements PaletteCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
         $palettes = [];

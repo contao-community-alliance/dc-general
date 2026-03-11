@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Handy helper class to generate and manipulate OR filter arrays.
  *
  * This class is intended to be only used via the FilterBuilder main class.
+ *
+ * @api
  */
 class OrFilterBuilder extends FilterBuilderWithChildren
 {

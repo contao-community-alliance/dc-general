@@ -12,7 +12,6 @@ use ContaoCommunityAlliance\Translator\SymfonyTranslatorBridge;
 use Contao\Backend;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
-use Contao\Environment;
 use Contao\StringUtil;
 use Contao\Validator;
 use Contao\Widget;
@@ -25,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_filter;

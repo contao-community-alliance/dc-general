@@ -47,6 +47,7 @@ abstract class AbstractReturningCallbackListener extends AbstractCallbackListene
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __invoke($event)
     {
         if ($this->getCallback() && $this->wantToExecute($event)) {

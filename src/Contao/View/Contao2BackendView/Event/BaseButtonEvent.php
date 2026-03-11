@@ -36,42 +36,42 @@ class BaseButtonEvent extends AbstractEnvironmentAwareEvent
      *
      * @var string
      */
-    public const NAME = 'dc-general.view.contao2backend.button';
+    public const string NAME = 'dc-general.view.contao2backend.button';
 
     /**
      * The html attributes to use for the button.
      *
      * @var string
      */
-    protected $attributes = '';
+    protected string $attributes = '';
 
     /**
      * The Html code to use for this button.
      *
      * @var string|null
      */
-    protected $html = null;
+    protected ?string $html = null;
 
     /**
      * The key/name of the button.
      *
      * @var string
      */
-    protected $key = '';
+    protected string $key = '';
 
     /**
      * The label to use for the button.
      *
      * @var string
      */
-    protected $label = '';
+    protected string $label = '';
 
     /**
      * The title to use for the button.
      *
      * @var string
      */
-    protected $title = '';
+    protected string $title = '';
 
     /**
      * Set the HTML attributes for the button.

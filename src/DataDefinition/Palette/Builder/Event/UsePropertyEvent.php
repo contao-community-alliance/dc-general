@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * This event is emitted when a property is used.
+ *
+ * @api
  */
 class UsePropertyEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.use-property';
+    public const string NAME = 'dc-general.data-definition.palette.builder.use-property';
 
     /**
      * The property.
      *
      * @var PropertyInterface
      */
-    protected $property;
+    protected PropertyInterface $property;
 
     /**
      * Create a new instance.

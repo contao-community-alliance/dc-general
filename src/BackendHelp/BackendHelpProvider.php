@@ -11,6 +11,7 @@ final readonly class BackendHelpProvider implements BackendHelpProviderInterface
     ) {
     }
 
+    #[\Override]
     public function getHelpFor(string $table, string $property): iterable
     {
         foreach ($this->helpText as $section => $helpTexts) {

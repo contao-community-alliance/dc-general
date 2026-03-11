@@ -34,6 +34,8 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class takes care of enforcing a tree relationship on a model.
+ *
+ * @api
  */
 class TreeEnforcingListener
 {

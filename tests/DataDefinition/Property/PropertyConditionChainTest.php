@@ -23,13 +23,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\Property;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\AbstractConditionChainTestBase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain
- */
-class PropertyConditionChainTest extends AbstractConditionChainTestBase
+#[CoversClass(PropertyConditionChain::class)]
+final class PropertyConditionChainTest extends AbstractConditionChainTestBase
 {
-    public function testClone()
+    public function testClone(): void
     {
         $condition = new PropertyConditionChain();
 

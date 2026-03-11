@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,24 +26,26 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event
  * Class GetPasteRootButtonEvent.
  *
  * This event gets emitted when a root button get's rendered in hierarchical mode.
+ *
+ * @api
  */
 class GetPasteRootButtonEvent extends BaseButtonEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.get-paste-root-button';
+    public const string NAME = 'dc-general.view.contao2backend.get-paste-root-button';
 
     /**
      * The href information to use for the paste button.
      *
      * @var string
      */
-    protected $href = '';
+    protected string $href = '';
 
     /**
      * Determinator if the paste button shall be disabled.
      *
      * @var bool
      */
-    protected $pasteDisabled = false;
+    protected bool $pasteDisabled = false;
 
     /**
      * Set the href for the button.

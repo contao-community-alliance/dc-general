@@ -83,6 +83,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setName($name)
     {
         $this->name = $name;
@@ -93,6 +94,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -101,6 +103,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setParameters(\ArrayObject $parameters)
     {
         $this->parameters = $parameters;
@@ -111,6 +114,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getParameters()
     {
         return $this->parameters;
@@ -119,6 +123,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setLabel($label)
     {
         $this->label = $label;
@@ -129,6 +134,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getLabel()
     {
         return $this->label;
@@ -137,6 +143,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDescription($description)
     {
         $this->description = $description;
@@ -147,6 +154,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDescription()
     {
         return $this->description;
@@ -155,6 +163,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setExtra(\ArrayObject $extra)
     {
         $this->extra = $extra;
@@ -165,6 +174,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getExtra()
     {
         return $this->extra;
@@ -173,6 +183,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDisabled($disabled = true)
     {
         $this->disabled = $disabled;
@@ -183,6 +194,7 @@ class Command implements CommandInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isDisabled()
     {
         return $this->disabled;

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -44,6 +44,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class ModelCollector
 {
@@ -52,63 +54,63 @@ class ModelCollector
      *
      * @var EnvironmentInterface
      */
-    private $environment;
+    private EnvironmentInterface $environment;
 
     /**
      * The mode the definition is in.
      *
      * @var int|null
      */
-    private $definitionMode;
+    private ?int $definitionMode;
 
     /**
      * The relationship information list.
      *
      * @var ModelRelationshipDefinitionInterface
      */
-    private $relationships;
+    private ModelRelationshipDefinitionInterface $relationships;
 
     /**
      * The root condition.
      *
      * @var RootConditionInterface|null
      */
-    private $rootCondition;
+    private ?RootConditionInterface $rootCondition;
 
     /**
      * The root data provider.
      *
      * @var DataProviderInterface|null
      */
-    private $rootProvider;
+    private ?DataProviderInterface $rootProvider;
 
     /**
      * The root data provider name.
      *
      * @var string|null
      */
-    private $rootProviderName;
+    private ?string $rootProviderName;
 
     /**
      * The parent data provider.
      *
      * @var DataProviderInterface|null
      */
-    private $parentProvider;
+    private ?DataProviderInterface $parentProvider;
 
     /**
      * The parent data provider name.
      *
      * @var string|null
      */
-    private $parentProviderName;
+    private ?string $parentProviderName;
 
     /**
      * The default data provider name.
      *
      * @var string|null
      */
-    private $defaultProviderName;
+    private ?string $defaultProviderName;
 
     /**
      * Create a new instance.
@@ -119,7 +121,14 @@ class ModelCollector
      */
     public function __construct(EnvironmentInterface $environment)
     {
-        $this->environment = $environment;
+        $this->environment         = $environment;
+        $this->definitionMode      = null;
+        $this->rootCondition       = null;
+        $this->rootProvider        = null;
+        $this->rootProviderName    = null;
+        $this->parentProvider      = null;
+        $this->parentProviderName  = null;
+        $this->defaultProviderName = null;
 
         $definition = $this->environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
@@ -205,13 +214,13 @@ class ModelCollector
                     continue;
                 }
 
-                // @codingStandardsIgnoreStart
+                // phpcs:disable
                 @\trigger_error(
                     'Only real property is allowed in the property definition.' .
                     'This will no longer be supported in the future.',
                     E_USER_DEPRECATED
                 );
-                // @codingStandardsIgnoreEnd
+                // phpcs:enable
             }
             $config->setFields($properties);
         }

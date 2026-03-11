@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Andreas Isaak <andy.jared@googlemail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,6 +31,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  * The default language will be initialized to "en".
  *
  * @psalm-suppress PropertyNotSetInConstructor - properties will get set in setBaseConfig().
+ *
+ * @api
  */
 class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLanguageDataProviderInterface
 {
@@ -38,7 +41,7 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      *
      * @var string
      */
-    protected $strCurrentLanguage;
+    protected string $strCurrentLanguage;
 
     /**
      * Constructor - initializes the object with English as working language.
@@ -57,6 +60,7 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function getLanguages($mixID)
     {
         return (new DefaultLanguageInformationCollection())
@@ -73,6 +77,7 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function getFallbackLanguage($mixID)
     {
         return new DefaultLanguageInformation('en', null);
@@ -85,6 +90,7 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      *
      * @return DataProviderInterface
      */
+    #[\Override]
     public function setCurrentLanguage($language)
     {
         $this->strCurrentLanguage = $language;
@@ -97,6 +103,7 @@ class MultiLanguageDataProvider extends DefaultDataProvider implements MultiLang
      *
      * @return string Short tag for the current working language like de or fr etc.
      */
+    #[\Override]
     public function getCurrentLanguage()
     {
         return $this->strCurrentLanguage;

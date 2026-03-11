@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,27 +27,29 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
  * Class GetEditModeButtonsEvent.
  *
  * This event is triggered when the sub-headline is generated.
+ *
+ * @api
  */
 class GetEditMaskSubHeadlineEvent extends AbstractEnvironmentAwareEvent
 {
     /**
      * The name of the event.
      */
-    public const NAME = 'dc-general.view.contao2backend.get-edit-mask-subheadline';
+    public const string NAME = 'dc-general.view.contao2backend.get-edit-mask-subheadline';
 
     /**
      * The model attached to the event.
      *
      * @var ModelInterface
      */
-    private $model;
+    private ModelInterface $model;
 
     /**
      * The sub-headline.
      *
      * @var string|null
      */
-    private $subHeadline;
+    private ?string $subHeadline;
 
     /**
      * Create a new instance.
@@ -58,7 +60,8 @@ class GetEditMaskSubHeadlineEvent extends AbstractEnvironmentAwareEvent
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
     {
         parent::__construct($environment);
-        $this->model = $model;
+        $this->model       = $model;
+        $this->subHeadline = null;
     }
 
     /**

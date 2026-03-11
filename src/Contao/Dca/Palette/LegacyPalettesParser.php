@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Maack <david.maack@arcor.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -64,6 +64,8 @@ use function substr_count;
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *
  * @psalm-type TPalettesArray=array{default: string, __selector__?: list<string>}
+ *
+ * @api
  */
 class LegacyPalettesParser
 {
@@ -181,6 +183,7 @@ class LegacyPalettesParser
 
         // We ignore the difference between field set (separated by ";") and fields (separated by ",").
         $fields = preg_split('~[;,]~', $fields);
+        assert(is_array($fields));
         $fields = array_map('trim', $fields);
         $fields = array_filter($fields);
 
@@ -385,7 +388,7 @@ class LegacyPalettesParser
             if (in_array($selectorFieldName, $selectorFieldNames)) {
                 break;
             }
-            $selectorFieldName .= '_' . array_shift($selectorValues);
+            $selectorFieldName .= '_' . (string) array_shift($selectorValues);
             $selectorValueCount = count($selectorValues);
         }
 

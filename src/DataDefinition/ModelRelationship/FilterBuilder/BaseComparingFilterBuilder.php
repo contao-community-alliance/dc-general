@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * Handy helper class to generate and manipulate AND filter arrays.
  *
  * This class is intended to be only used via the FilterBuilder main class.
+ *
+ * @api
  */
 class BaseComparingFilterBuilder extends BaseFilterBuilder
 {
@@ -35,35 +37,35 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
      *
      * @var string
      */
-    protected $operation = '';
+    protected string $operation = '';
 
     /**
      * The property to be checked.
      *
      * @var string
      */
-    protected $property = '';
+    protected string $property = '';
 
     /**
      * The value to compare against.
      *
      * @var mixed
      */
-    protected $value = '';
+    protected mixed $value = '';
 
     /**
      * Flag determining if the passed value is a remote property name or not.
      *
      * @var bool
      */
-    protected $isRemote = false;
+    protected bool $isRemote = false;
 
     /**
      * Flag determining if the remote value is a property or literal value.
      *
      * @var bool
      */
-    protected $isRemoteProp = false;
+    protected bool $isRemoteProp = false;
 
     /**
      * Create a new instance.
@@ -124,6 +126,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function get()
     {
         $result = ['operation' => $this->operation];

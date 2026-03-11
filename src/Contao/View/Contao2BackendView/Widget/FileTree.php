@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -66,6 +66,8 @@ use Symfony\Component\HttpFoundation\Response;
  * @psalm-suppress PropertyNotSetInConstructor
  *
  * @deprecated Deprecated since Contao 4.13 as the used FilePicker has been deprecated. Use the picker instead.
+ *
+ * @api
  */
 class FileTree extends AbstractWidget
 {
@@ -156,6 +158,7 @@ class FileTree extends AbstractWidget
      *
      * @return void
      */
+    #[\Override]
     public function __set($strKey, $varValue)
     {
         switch ($strKey) {
@@ -190,6 +193,7 @@ class FileTree extends AbstractWidget
      *
      * @psalm-suppress ImplementedReturnTypeMismatch - Widget incorrectly annotates that it only returns string.
      */
+    #[\Override]
     public function __get($strKey)
     {
         switch ($strKey) {
@@ -218,6 +222,7 @@ class FileTree extends AbstractWidget
      *
      * @return bool True if the property exists
      */
+    #[\Override]
     public function __isset($strKey)
     {
         switch ($strKey) {
@@ -265,7 +270,6 @@ class FileTree extends AbstractWidget
         // support serialized values.
         if (!\is_array($value)) {
             $value = StringUtil::deserialize($value, true);
-            assert(\is_array($value));
         }
         $value = \array_values($value);
         /** @var list<string> $value */
@@ -281,6 +285,7 @@ class FileTree extends AbstractWidget
      *
      * @return array|string
      */
+    #[\Override]
     protected function validator($varInput)
     {
         if ('' === $varInput) {
@@ -329,7 +334,6 @@ class FileTree extends AbstractWidget
                 if (null === $files) {
                     continue;
                 }
-                assert($files instanceof Collection);
                 $this->renderList($icons, $files);
                 continue;
             }
@@ -523,6 +527,7 @@ class FileTree extends AbstractWidget
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
+    #[\Override]
     public function generate()
     {
         $values = [];
@@ -532,7 +537,6 @@ class FileTree extends AbstractWidget
             $files = FilesModel::findMultipleByUuids((array) $this->varValue);
 
             if (null !== $files) {
-                assert($files instanceof Collection);
                 $this->renderList($icons, $files, $this->isGallery || $this->isDownloads);
             }
 
@@ -541,7 +545,7 @@ class FileTree extends AbstractWidget
             // Files can be null.
             if (null !== $files) {
                 foreach ($files as $model) {
-                    if (null === $model || null === $model->uuid) {
+                    if (null === $model->uuid) {
                         continue;
                     }
 

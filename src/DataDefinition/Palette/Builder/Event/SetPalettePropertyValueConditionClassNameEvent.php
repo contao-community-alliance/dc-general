@@ -29,10 +29,12 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
  * This event gets emitted when a palette property value condition class name is set.
  *
  * @SuppressWarnings(PHPMD.LongClassName)
+ *
+ * @api
  */
 class SetPalettePropertyValueConditionClassNameEvent extends BuilderEvent
 {
-    public const NAME =
+    public const string NAME =
         'dc-general.data-definition.palette.builder.set-palette-property-value-condition-class-name';
 
     /**
@@ -40,7 +42,7 @@ class SetPalettePropertyValueConditionClassNameEvent extends BuilderEvent
      *
      * @var class-string<PaletteConditionInterface>
      */
-    protected $className;
+    protected string $className;
 
     /**
      * Create a new instance.

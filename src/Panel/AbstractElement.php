@@ -88,6 +88,7 @@ abstract class AbstractElement implements PanelElementInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getPanel()
     {
         if (null === $this->objPanel) {
@@ -100,6 +101,7 @@ abstract class AbstractElement implements PanelElementInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setPanel(PanelInterface $panelElement)
     {
         $this->objPanel = $panelElement;

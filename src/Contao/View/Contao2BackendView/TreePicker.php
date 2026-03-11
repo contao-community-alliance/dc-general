@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Kim Wormer <hallo@heartcodiert.de>
  * @author     Oliver Willmes <info@oliverwillmes.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -424,6 +424,7 @@ class TreePicker extends Widget
      *
      * @throws RuntimeException When an unknown field type is encountered.
      */
+    #[\Override]
     public function __set($key, $value)
     {
         switch ($key) {
@@ -509,6 +510,7 @@ class TreePicker extends Widget
      *
      * @psalm-suppress LessSpecificImplementedReturnType
      */
+    #[\Override]
     public function __get($key)
     {
         switch ($key) {
@@ -588,6 +590,7 @@ class TreePicker extends Widget
      *
      * @psalm-suppress MoreSpecificImplementedParamType
      */
+    #[\Override]
     protected function validator($varInput)
     {
         $convertValue = $this->widgetToValue($varInput);
@@ -705,6 +708,7 @@ class TreePicker extends Widget
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
+    #[\Override]
     public function generate()
     {
         $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
@@ -867,14 +871,17 @@ class TreePicker extends Widget
         assert($request instanceof Request);
 
         $dataContainer = $this->dataContainer;
-        assert($dataContainer instanceof General);
+        assert($dataContainer instanceof DcCompat);
+
+        $model = $dataContainer->getModel();
+        assert($model instanceof ModelInterface);
 
         $configPicker = new PickerConfig(
             'cca_tree',
             [
                 'fieldType'    => $this->fieldType,
                 'sourceName'   => $this->sourceName,
-                'modelId'      => ModelId::fromModel($dataContainer->getModel())->getSerialized(),
+                'modelId'      => ModelId::fromModel($model)->getSerialized(),
                 'orderField'   => $this->orderField,
                 'propertyName' => $this->name
             ],
@@ -960,8 +967,16 @@ class TreePicker extends Widget
      */
     private function getQueryParameterFromUrl($url)
     {
+        $query = explode('?', $url)[1] ?? null;
+        if (!\is_string($query)) {
+            return [];
+        }
+        $pairs = preg_split('/&(amp;)?/i', $query);
+        if (false === $pairs) {
+            return [];
+        }
         $parameters = [];
-        foreach (preg_split('/&(amp;)?/i', preg_split('/[?]/ui', $url)[1]) as $value) {
+        foreach ($pairs as $value) {
             $chunks                 = explode('=', $value);
             $parameters[$chunks[0]] = $chunks[1];
         }

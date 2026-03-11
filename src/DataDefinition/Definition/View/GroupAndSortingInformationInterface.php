@@ -28,59 +28,59 @@ interface GroupAndSortingInformationInterface
     /**
      * Do not group.
      */
-    public const GROUP_NONE = 'none';
+    public const string GROUP_NONE = 'none';
 
     /**
      * Group by characters, the max char count depend on the mode length
      * (which is 1 by default for char grouping).
      */
-    public const GROUP_CHAR = 'char';
+    public const string GROUP_CHAR = 'char';
 
     /**
      * Group by digits, the max digit count depend on the mode length
      * (which is infinity by default for digit grouping)..
      */
-    public const GROUP_DIGIT = 'digit';
+    public const string GROUP_DIGIT = 'digit';
 
     /**
      * Sort by day from datetime property.
      */
-    public const GROUP_DAY = 'day';
+    public const string GROUP_DAY = 'day';
 
     /**
      * Sort by week day from datetime property.
      */
-    public const GROUP_WEEKDAY = 'weekday';
+    public const string GROUP_WEEKDAY = 'weekday';
 
     /**
      * Sort by week of the year from datetime property.
      */
-    public const GROUP_WEEK = 'week';
+    public const string GROUP_WEEK = 'week';
 
     /**
      * Sort by month from datetime property.
      */
-    public const GROUP_MONTH = 'month';
+    public const string GROUP_MONTH = 'month';
 
     /**
      * Sort by year from datetime property.
      */
-    public const GROUP_YEAR = 'year';
+    public const string GROUP_YEAR = 'year';
 
     /**
      * Sort ascending.
      */
-    public const SORT_ASC = 'asc';
+    public const string SORT_ASC = 'asc';
 
     /**
      * Sort descending.
      */
-    public const SORT_DESC = 'desc';
+    public const string SORT_DESC = 'desc';
 
     /**
      * Shuffle all records instead of sorting.
      */
-    public const SORT_RANDOM = 'random';
+    public const string SORT_RANDOM = 'random';
 
     /**
      * Set the name of the property.

@@ -28,12 +28,13 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactoryServiceInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Cache\Http\AbstractInvalidateCacheTags
- */
-class AbstractInvalidateCacheTagsTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(AbstractInvalidateCacheTags::class)]
+final class AbstractInvalidateCacheTagsTest extends TestCase
 {
     public function testEventListener(): void
     {
@@ -43,12 +44,12 @@ class AbstractInvalidateCacheTagsTest extends TestCase
 
         $event = $this->createMock(AbstractModelAwareEvent::class);
         $event
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getEnvironment')
             ->willReturn($environment);
         $eventModelCalled = false;
         $event
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getModel')
             ->willReturnCallback(
                 function () use (&$eventModelCalled, $model) {
@@ -58,9 +59,12 @@ class AbstractInvalidateCacheTagsTest extends TestCase
             );
 
         $service = $this->createMock(InvalidateCacheTagsInterface::class);
-        $factory   = $this->createMock(DcGeneralFactoryServiceInterface::class);
+        $factory = $this->createMock(DcGeneralFactoryServiceInterface::class);
 
-        $listener = $this->getMockForAbstractClass(AbstractInvalidateCacheTags::class, [$service, $factory]);
+        $listener = $this->getMockBuilder(AbstractInvalidateCacheTags::class)
+            ->setConstructorArgs([$service, $factory])
+            ->onlyMethods([])
+            ->getMock();
         $listener->__invoke($event);
 
         self::assertTrue($eventModelCalled);

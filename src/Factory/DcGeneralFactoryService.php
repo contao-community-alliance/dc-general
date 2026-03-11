@@ -47,6 +47,7 @@ final class DcGeneralFactoryService implements DcGeneralFactoryServiceInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function createFactory(): DcGeneralFactoryInterface
     {
         return new DcGeneralFactory($this->cache);

@@ -30,23 +30,24 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionProperty;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * This class tests the legacy data definition builder.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::loadDca
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::process
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Dca\Builder\Legacy\LegacyDcaDataDefinitionBuilder::build
- * @covers \ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent::getContainer
- * @covers \ContaoCommunityAlliance\DcGeneral\DefaultEnvironment::setDataDefinition
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::setProperty
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::setValue
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::getValue
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener::wantToExecute
  */
-class LegacyDcaDataDefinitionBuilderTest extends TestCase
+#[CoversMethod(LegacyDcaDataDefinitionBuilder::class, 'loadDca')]
+#[CoversMethod(LegacyDcaDataDefinitionBuilder::class, 'process')]
+#[CoversMethod(LegacyDcaDataDefinitionBuilder::class, 'build')]
+#[CoversMethod(BuildDataDefinitionEvent::class, 'getContainer')]
+#[CoversMethod(DefaultEnvironment::class, 'setDataDefinition')]
+#[CoversMethod(EncodePropertyValueFromWidgetEvent::class, 'setProperty')]
+#[CoversMethod(EncodePropertyValueFromWidgetEvent::class, 'setValue')]
+#[CoversMethod(EncodePropertyValueFromWidgetEvent::class, 'getValue')]
+#[CoversMethod(AbstractCallbackListener::class, 'wantToExecute')]
+final class LegacyDcaDataDefinitionBuilderTest extends TestCase
 {
     /**
      * Mocker callback for loading a dca.
@@ -57,36 +58,34 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      *
      * @return MockObject|LegacyDcaDataDefinitionBuilder
      */
-    public function mockBuilderWithDca($dca, $eventName, $dispatcher)
-    {
+    public function mockBuilderWithDca(
+        array $dca,
+        string $eventName,
+        EventDispatcher $dispatcher
+    ): MockObject&LegacyDcaDataDefinitionBuilder {
         $class = LegacyDcaDataDefinitionBuilder::class;
 
         $mock = $this
             ->getMockBuilder($class)
-            ->setMethods(['loadDca', 'process'])
+            ->onlyMethods(['loadDca', 'process'])
             ->getMock();
 
         $mock
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('loadDca')
-            ->will(
-                self::returnCallback(
-                    function () use ($mock, $dca, $class) {
-                        $reflection = new \ReflectionProperty($class, 'dca');
-                        $reflection->setAccessible(true);
-                        $reflection->setValue($mock, $dca);
+            ->willReturnCallback(
+                function () use ($mock, $dca, $class) {
+                    $reflection = new ReflectionProperty($class, 'dca');
+                    $reflection->setValue($mock, $dca);
 
-                        return true;
-                    }
-                )
+                    return true;
+                }
             );
 
-        $reflection = new \ReflectionProperty($class, 'eventName');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty($class, 'eventName');
         $reflection->setValue($mock, $eventName);
 
-        $reflection = new \ReflectionProperty($class, 'dispatcher');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty($class, 'dispatcher');
         $reflection->setValue($mock, $dispatcher);
 
         return $mock;
@@ -97,14 +96,8 @@ class LegacyDcaDataDefinitionBuilderTest extends TestCase
      *
      * @return void
      */
-    public function testCallbackParsing()
+    public function testCallbackParsing(): void
     {
-        $this->aliasContaoClass('Session');
-        $this->aliasContaoClass('System');
-        $this->aliasContaoClass('Controller');
-        $this->aliasContaoClass('Backend');
-        $this->aliasContaoClass('DataContainer');
-
         $dispatcher = new EventDispatcher();
         $container  = new DefaultContainer('tl_test');
         $event      = new BuildDataDefinitionEvent($container);

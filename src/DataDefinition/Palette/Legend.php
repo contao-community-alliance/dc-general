@@ -30,6 +30,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a legend.
+ *
+ * @api
  */
 class Legend implements LegendInterface
 {
@@ -74,6 +76,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setPalette(?PaletteInterface $palette = null)
     {
         if ($this->palette) {
@@ -87,6 +90,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPalette()
     {
         return $this->palette;
@@ -95,6 +99,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setName($name)
     {
         $this->name = $name;
@@ -104,6 +109,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -112,6 +118,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setInitialVisibility($value)
     {
         $this->initiallyVisible = $value;
@@ -122,6 +129,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isInitialVisible()
     {
         return $this->initiallyVisible;
@@ -130,6 +138,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function clearProperties()
     {
         $this->properties = [];
@@ -139,6 +148,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setProperties(array $properties)
     {
         $this->clearProperties()->addProperties($properties);
@@ -148,6 +158,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addProperties(array $properties, ?PropertyInterface $before = null)
     {
         foreach ($properties as $property) {
@@ -161,6 +172,7 @@ class Legend implements LegendInterface
      *
      * @throws DcGeneralInvalidArgumentException When the property passed as $before can not be found.
      */
+    #[\Override]
     public function addProperty(PropertyInterface $property, ?PropertyInterface $before = null)
     {
         $hash = \spl_object_hash($property);
@@ -200,6 +212,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeProperty(PropertyInterface $property)
     {
         unset($this->properties[\spl_object_hash($property)]);
@@ -209,6 +222,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getProperties(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null)
     {
         if ($model || $input) {
@@ -232,6 +246,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasProperty($propertyName)
     {
         foreach ($this->properties as $property) {
@@ -248,6 +263,7 @@ class Legend implements LegendInterface
      *
      * @throws DcGeneralRuntimeException When the legend does not contain the desired property.
      */
+    #[\Override]
     public function getProperty($propertyName)
     {
         foreach ($this->properties as $property) {
@@ -268,6 +284,7 @@ class Legend implements LegendInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
         $this->palette = null;

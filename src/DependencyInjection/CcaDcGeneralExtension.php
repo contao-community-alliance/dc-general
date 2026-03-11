@@ -28,6 +28,8 @@ use Symfony\Component\DependencyInjection\Loader;
 
 /**
  * This is the class that loads and manages the bundle configuration
+ *
+ * @api
  */
 class CcaDcGeneralExtension extends Extension
 {
@@ -57,6 +59,7 @@ class CcaDcGeneralExtension extends Extension
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));

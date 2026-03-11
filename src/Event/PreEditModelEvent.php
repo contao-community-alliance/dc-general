@@ -23,8 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is emitted before the edit view will be generated.
+ *
+ * @api
  */
 class PreEditModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.pre-edit-model';
+    public const string NAME = 'dc-general.model.pre-edit-model';
 }

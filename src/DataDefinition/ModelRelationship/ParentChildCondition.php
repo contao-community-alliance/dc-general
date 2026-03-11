@@ -32,6 +32,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
  * Default implementation of a parent child relationship.
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ *
+ * @api
  */
 class ParentChildCondition extends AbstractCondition implements ParentChildConditionInterface
 {
@@ -40,46 +42,47 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @var array
      */
-    protected $filter = [];
+    protected array $filter = [];
 
     /**
      * The filter rules to use for an inverse filter.
      *
      * @var array
      */
-    protected $inverseFilter = [];
+    protected array $inverseFilter = [];
 
     /**
      * The values to use when enforcing a root condition.
      *
      * @var array
      */
-    protected $setOn = [];
+    protected array $setOn = [];
 
     /**
      * The name of the source provider (parent).
      *
      * @var string
      */
-    protected $sourceProvider = '';
+    protected string $sourceProvider = '';
 
     /**
      * The name of the destination provider (child).
      *
      * @var string
      */
-    protected $destinationProvider = '';
+    protected string $destinationProvider = '';
 
     /**
      * Local cache property for the needed properties for filtering.
      *
      * @var list<string>|null
      */
-    private $neededProperties = null;
+    private ?array $neededProperties = null;
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setFilterArray($value)
     {
         $this->filter = $value;
@@ -91,6 +94,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getFilterArray()
     {
         return $this->filter;
@@ -99,6 +103,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setSetters($value)
     {
         $this->setOn = $value;
@@ -109,6 +114,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getSetters()
     {
         return $this->setOn;
@@ -117,6 +123,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setInverseFilterArray($value)
     {
         $this->inverseFilter = $value;
@@ -127,6 +134,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getInverseFilterArray()
     {
         return $this->inverseFilter;
@@ -135,6 +143,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setSourceName($value)
     {
         $this->sourceProvider = $value;
@@ -145,6 +154,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getSourceName()
     {
         return $this->sourceProvider;
@@ -153,6 +163,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDestinationName($value)
     {
         $this->destinationProvider = $value;
@@ -163,6 +174,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDestinationName()
     {
         return $this->destinationProvider;
@@ -214,6 +226,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @throws DcGeneralInvalidArgumentException When an empty parent model is given.
      */
+    #[\Override]
     public function getFilter($parent)
     {
         $result = [];
@@ -244,6 +257,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @throws DcGeneralRuntimeException For invalid setters.
      */
+    #[\Override]
     public function applyTo($objParent, $objChild)
     {
         $this->guardProviderNames($objChild, $objParent);
@@ -286,6 +300,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      *
      * @throws DcGeneralRuntimeException For invalid setters.
      */
+    #[\Override]
     public function copyFrom($sourceModel, $destinationModel)
     {
         $this->guardProviderNames($sourceModel);
@@ -327,6 +342,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getInverseFilterFor($child)
     {
         $this->guardProviderNames($child);
@@ -405,6 +421,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function matches($objParent, $objChild)
     {
         try {
@@ -462,6 +479,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function neededProperties()
     {
         if (null === $this->neededProperties) {

@@ -71,6 +71,7 @@ abstract class AbstractItem implements ItemInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getAction()
     {
         return $this->action;
@@ -79,6 +80,7 @@ abstract class AbstractItem implements ItemInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isCreate()
     {
         return ItemInterface::CREATE === $this->action;
@@ -87,6 +89,7 @@ abstract class AbstractItem implements ItemInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isCut()
     {
         return ItemInterface::CUT === $this->action;
@@ -95,6 +98,7 @@ abstract class AbstractItem implements ItemInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isCopy()
     {
         return ItemInterface::COPY === $this->action;
@@ -103,6 +107,7 @@ abstract class AbstractItem implements ItemInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isDeepCopy()
     {
         return ItemInterface::DEEP_COPY === $this->action;
@@ -111,6 +116,7 @@ abstract class AbstractItem implements ItemInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getParentId()
     {
         return $this->parentId;
@@ -122,6 +128,7 @@ abstract class AbstractItem implements ItemInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
+    #[\Override]
     public function equals(ItemInterface $item)
     {
         // It is exactly the same item.

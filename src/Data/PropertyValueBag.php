@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * A generic bag containing properties and their values.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
+ *
+ * @api
  */
 class PropertyValueBag implements PropertyValueBagInterface
 {
@@ -36,14 +38,14 @@ class PropertyValueBag implements PropertyValueBagInterface
      *
      * @var array<string, mixed>
      */
-    protected $properties = [];
+    protected array $properties = [];
 
     /**
      * All properties that are marked as invalid and their error messages.
      *
      * @var array<string, list<string>>
      */
-    protected $errors = [];
+    protected array $errors = [];
 
     /**
      * Create a new instance of a property bag.
@@ -86,6 +88,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasPropertyValue($property)
     {
         return \array_key_exists($property, $this->properties);
@@ -94,6 +97,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPropertyValue($property)
     {
         $this->requirePropertyValue($property);
@@ -103,6 +107,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setPropertyValue($property, $value)
     {
         $this->properties[$property] = $value;
@@ -115,6 +120,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removePropertyValue($property)
     {
         $this->requirePropertyValue($property);
@@ -126,6 +132,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasInvalidPropertyValues()
     {
         return (bool) $this->errors;
@@ -134,6 +141,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasNoInvalidPropertyValues()
     {
         return !$this->errors;
@@ -142,6 +150,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isPropertyValueInvalid($property)
     {
         $this->requirePropertyValue($property);
@@ -151,6 +160,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isPropertyValueValid($property)
     {
         $this->requirePropertyValue($property);
@@ -160,6 +170,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function markPropertyValueAsInvalid($property, $error, $append = true)
     {
         $this->requirePropertyValue($property);
@@ -178,6 +189,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function resetPropertyValueErrors($property)
     {
         $this->requirePropertyValue($property);
@@ -189,6 +201,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getInvalidPropertyNames()
     {
         return \array_keys($this->errors);
@@ -197,6 +210,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPropertyValueErrors($property)
     {
         $this->requirePropertyValue($property);
@@ -206,6 +220,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getInvalidPropertyErrors()
     {
         return $this->errors;
@@ -214,6 +229,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->properties);
@@ -222,6 +238,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function count(): int
     {
         return \count($this->properties);
@@ -230,6 +247,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetExists($offset): bool
     {
         return $this->hasPropertyValue($offset);
@@ -238,6 +256,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetGet($offset): mixed
     {
         return $this->getPropertyValue($offset);
@@ -246,6 +265,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetSet($offset, $value): void
     {
         assert(\is_string($offset));
@@ -255,6 +275,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetUnset($offset): void
     {
         $this->removePropertyValue($offset);
@@ -298,6 +319,7 @@ class PropertyValueBag implements PropertyValueBagInterface
      *
      * @return array<string, mixed>
      */
+    #[\Override]
     public function getArrayCopy()
     {
         return $this->properties;

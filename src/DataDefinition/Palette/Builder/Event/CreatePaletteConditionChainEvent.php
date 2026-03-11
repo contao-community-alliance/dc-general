@@ -28,17 +28,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
 
 /**
  * This event gets emitted when a palette condition chain is created.
+ *
+ * @api
  */
 class CreatePaletteConditionChainEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.create-palette-condition-chain';
+    public const string NAME = 'dc-general.data-definition.palette.builder.create-palette-condition-chain';
 
     /**
      * The palette condition chain being created.
      *
      * @var ConditionChainInterface&PaletteConditionInterface
      */
-    protected $conditionChain;
+    protected PaletteConditionInterface&ConditionChainInterface $conditionChain;
 
     /**
      * Create a new instance.

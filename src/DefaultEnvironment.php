@@ -35,6 +35,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * Default implementation of an environment.
  *
  * @SuppressWarnings(PHPMD.LongVariable)
+ *
+ * @api
  */
 class DefaultEnvironment implements EnvironmentInterface
 {
@@ -125,6 +127,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setController($controller)
     {
         $this->objController = $controller;
@@ -135,6 +138,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getController()
     {
         return $this->objController;
@@ -143,6 +147,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setView($view)
     {
         $this->objView = $view;
@@ -153,6 +158,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getView()
     {
         return $this->objView;
@@ -161,6 +167,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDataDefinition($dataDefinition)
     {
         $this->objDataDefinition = $dataDefinition;
@@ -171,6 +178,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDataDefinition()
     {
         return $this->objDataDefinition;
@@ -179,6 +187,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setParentDataDefinition($objParentDataDefinition)
     {
         $this->objParentDataDefinition = $objParentDataDefinition;
@@ -189,6 +198,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getParentDataDefinition()
     {
         return $this->objParentDataDefinition;
@@ -197,6 +207,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setRootDataDefinition($rootDataDefinition)
     {
         $this->objRootDataDefinition = $rootDataDefinition;
@@ -207,6 +218,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getRootDataDefinition()
     {
         return $this->objRootDataDefinition;
@@ -215,6 +227,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setSessionStorage(SessionStorageInterface $sessionStorage)
     {
         $this->sessionStorage = $sessionStorage;
@@ -225,6 +238,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getSessionStorage()
     {
         return $this->sessionStorage;
@@ -233,6 +247,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setInputProvider($inputProvider)
     {
         $this->objInputProvider = $inputProvider;
@@ -243,6 +258,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getInputProvider()
     {
         return $this->objInputProvider;
@@ -251,6 +267,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setBaseConfigRegistry($baseConfigRegistry)
     {
         $this->baseConfigRegistry = $baseConfigRegistry;
@@ -261,6 +278,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBaseConfigRegistry()
     {
         return $this->baseConfigRegistry;
@@ -269,6 +287,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasDataProvider($source = null)
     {
         if (null === $source) {
@@ -287,6 +306,7 @@ class DefaultEnvironment implements EnvironmentInterface
      *
      * @throws DcGeneralRuntimeException When an undefined provider is requested.
      */
+    #[\Override]
     public function getDataProvider($strSource = null)
     {
         if (null === $strSource) {
@@ -307,6 +327,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addDataProvider($strSource, $dataProvider)
     {
         // Force removal of an potentially registered data provider to ease sub-classing.
@@ -320,6 +341,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeDataProvider($strSource)
     {
         if (isset($this->arrDataProvider[$strSource])) {
@@ -332,6 +354,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getClipboard()
     {
         return $this->objClipboard;
@@ -340,6 +363,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setClipboard($objClipboard)
     {
         $this->objClipboard = $objClipboard;
@@ -350,6 +374,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setTranslator(TranslatorInterface $manager)
     {
         $this->translator = $manager;
@@ -361,6 +386,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getTranslator()
     {
         return $this->translator;
@@ -369,6 +395,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEventDispatcher($dispatcher)
     {
         $this->eventDispatcher = $dispatcher;
@@ -379,6 +406,7 @@ class DefaultEnvironment implements EnvironmentInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEventDispatcher()
     {
         return $this->eventDispatcher;

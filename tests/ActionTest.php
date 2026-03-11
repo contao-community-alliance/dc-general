@@ -20,16 +20,13 @@
 namespace ContaoCommunityAlliance\DcGeneral\Test;
 
 use ContaoCommunityAlliance\DcGeneral\Action;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Test for the action
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Action
- */
+#[CoversClass(Action::class)]
 class ActionTest extends TestCase
 {
-    public function testAction()
+    public function testAction(): void
     {
         $arguments = ['foo', 'bar'];
 

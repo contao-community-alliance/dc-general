@@ -73,6 +73,8 @@ interface ViewTemplateInterface
      * Parse the template file and print it to the screen.
      *
      * @return void
+     *
+     * @deprecated Non functional.
      */
     public function output();
 }

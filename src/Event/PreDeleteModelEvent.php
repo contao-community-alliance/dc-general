@@ -23,8 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is emitted just before a model is deleted.
+ *
+ * @api
  */
 class PreDeleteModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.pre-delete';
+    public const string NAME = 'dc-general.model.pre-delete';
 }

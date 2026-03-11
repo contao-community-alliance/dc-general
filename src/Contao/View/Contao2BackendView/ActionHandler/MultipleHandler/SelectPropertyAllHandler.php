@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -47,6 +47,8 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
  * This class handles the rendering of list view "showAllProperties" actions.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class SelectPropertyAllHandler extends AbstractListShowAllHandler
 {
@@ -62,6 +64,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function handleEvent(ActionEvent $event)
     {
         if (
@@ -79,6 +82,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     protected function process(Action $action, EnvironmentInterface $environment)
     {
         $dataDefinition = $environment->getDataDefinition();
@@ -102,6 +106,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @throws DcGeneralRuntimeException When no source has been defined.
      */
+    #[\Override]
     protected function loadCollection(EnvironmentInterface $environment)
     {
         return $this->getCollection($this->getPropertyDataProvider($environment), $environment);
@@ -386,6 +391,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return void
      */
+    #[\Override]
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
@@ -441,6 +447,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return string[]
      */
+    #[\Override]
     protected function getSelectButtons(EnvironmentInterface $environment)
     {
         $definition = $environment->getDataDefinition();
@@ -488,6 +495,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return bool
      */
+    #[\Override]
     protected function wantToHandle($mode, Action $action)
     {
         $arguments = $action->getArguments();
@@ -502,6 +510,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
      *
      * @return ContaoBackendViewTemplate
      */
+    #[\Override]
     protected function determineTemplate($groupingInformation)
     {
         return $this->getTemplate('dcbe_general_listView');

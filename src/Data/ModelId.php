@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -72,6 +73,7 @@ class ModelId implements ModelIdInterface
      *
      * @return string
      */
+    #[\Override]
     public function getDataProviderName()
     {
         return $this->dataProviderName;
@@ -80,6 +82,7 @@ class ModelId implements ModelIdInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getId()
     {
         return $this->modelId;
@@ -88,6 +91,7 @@ class ModelId implements ModelIdInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function fromValues($dataProviderName, $modelId)
     {
         /** @psalm-suppress UnsafeInstantiation */
@@ -97,6 +101,7 @@ class ModelId implements ModelIdInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function fromModel(ModelInterface $model)
     {
         return static::fromValues($model->getProviderName(), $model->getId());
@@ -107,6 +112,7 @@ class ModelId implements ModelIdInterface
      *
      * @throws DcGeneralRuntimeException When the id is unparsable.
      */
+    #[\Override]
     public static function fromSerialized($serialized)
     {
         $serialized = \rawurldecode($serialized);
@@ -133,18 +139,20 @@ class ModelId implements ModelIdInterface
      *
      * @return string
      */
+    #[\Override]
     public function getSerialized()
     {
         if (\is_numeric($this->modelId)) {
             return \sprintf('%s::%s', $this->dataProviderName, $this->modelId);
         }
 
-        return \sprintf('%s::%s', $this->dataProviderName, \base64_encode(\json_encode($this->modelId)));
+        return \sprintf('%s::%s', $this->dataProviderName, \base64_encode((string) \json_encode($this->modelId)));
     }
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function equals(ModelIdInterface $modelId)
     {
         // It is exactly the same id

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +28,8 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * {@inheritdoc}
+ *
+ * @api
  */
 class SessionStorage implements SessionStorageInterface
 {
@@ -98,9 +100,9 @@ class SessionStorage implements SessionStorageInterface
     public function setScope($scope)
     {
         if (null !== $this->scope) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('The scope can not be change! Use a new session storage.', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->scope = $scope;
@@ -109,6 +111,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function has($name)
     {
         $this->load();
@@ -119,6 +122,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function get($name)
     {
         $this->load();
@@ -129,6 +133,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function set($name, $value)
     {
         $this->load();
@@ -141,6 +146,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function all()
     {
         $this->load();
@@ -151,6 +157,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function replace(array $attributes)
     {
         $this->load();
@@ -163,6 +170,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function remove($name)
     {
         $this->load();
@@ -175,6 +183,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function clear()
     {
         $this->load();
@@ -256,9 +265,9 @@ class SessionStorage implements SessionStorageInterface
     private function getScope(): ?string
     {
         if (null === $this->scope) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('The scope for this session storage is not defined!', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             return null;
         }

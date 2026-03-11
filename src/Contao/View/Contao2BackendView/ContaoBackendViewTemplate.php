@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -39,6 +39,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @psalm-suppress PropertyNotSetInConstructor
  * @psalm-suppress DeprecatedClass
+ *
+ * @api
  */
 class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateInterface, TranslatorInterface
 {
@@ -47,7 +49,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
      *
      * @var TranslatorInterface|null
      */
-    protected $translator = null;
+    protected ?TranslatorInterface $translator = null;
 
     /**
      * Get the translator.
@@ -79,6 +81,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function set($name, $value)
     {
         $this->$name = $value;
@@ -89,6 +92,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function get($name)
     {
         return $this->$name;
@@ -97,6 +101,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function translate($string, $domain = null, array $parameters = [], $locale = null)
     {
         return $this->getTranslator()->translate($string, $domain, $parameters, $locale);
@@ -105,6 +110,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function translatePluralized($string, $number, $domain = null, array $parameters = [], $locale = null)
     {
         return $this->getTranslator()->translatePluralized($string, $number, $domain, $parameters, $locale);
@@ -143,10 +149,11 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
         return (new GlobalButtonRenderer($environment))->render();
     }
 
-    // @codingStandardsIgnoreStart
+    // phpcs:disable
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getData()
     {
         return parent::getData();
@@ -155,6 +162,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setData($arrData)
     {
         parent::setData($arrData);
@@ -165,6 +173,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function parse()
     {
         return parent::parse();
@@ -173,10 +182,10 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function output()
     {
-        /** @psalm-suppress DeprecatedMethod */
-        parent::output();
+        // No op as of Contao 5.x.
     }
-    // @codingStandardsIgnoreEnd
+    // phpcs:enable
 }

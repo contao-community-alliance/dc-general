@@ -27,13 +27,18 @@ use ContaoCommunityAlliance\DcGeneral\Data\DefaultCollection;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultModel;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
+use function array_values;
+use function in_array;
+use function ksort;
 
 /**
  * Test case for the sorting manager.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Controller\SortingManager
  */
-class SortingManagerTest extends TestCase
+#[CoversClass(SortingManager::class)]
+final class SortingManagerTest extends TestCase
 {
     /**
      * Data provider for test the sorting.
@@ -46,7 +51,7 @@ class SortingManagerTest extends TestCase
      *
      * @return array
      */
-    public function provideTestData()
+    public static function provideTestData(): array
     {
         return [
             // Test with default gap, without previous model
@@ -156,11 +161,11 @@ class SortingManagerTest extends TestCase
     protected function prepareCollections(
         array &$siblings,
         array $resortingIds,
-        $previousModelId,
-        $siblingCollection,
-        $modelCollection,
-        &$previousModel
-    ) {
+        ?int $previousModelId,
+        CollectionInterface $siblingCollection,
+        CollectionInterface $modelCollection,
+        ?ModelIdInterface &$previousModel
+    ): void {
         foreach ($siblings as $id => $sorting) {
             $model = new DefaultModel();
             $model->setID($id);
@@ -169,7 +174,7 @@ class SortingManagerTest extends TestCase
             $siblingCollection->push($model);
             $siblings[$id] = $model;
 
-            if (\in_array($id, $resortingIds)) {
+            if (in_array($id, $resortingIds, true)) {
                 $modelCollection->push($model);
             }
 
@@ -190,11 +195,14 @@ class SortingManagerTest extends TestCase
      * @param array    $resortingIds    Ids of items being resorted.
      * @param int|null $previousModelId Previous model id.
      * @param array    $expectedOrder   Expected order.
-     *
-     * @dataProvider provideTestData()
      */
-    public function testAppliedSorting(array $siblings, array $resortingIds, $previousModelId, array $expectedOrder)
-    {
+    #[Dataprovider('provideTestData')]
+    public function testAppliedSorting(
+        array $siblings,
+        array $resortingIds,
+        ?int $previousModelId,
+        array $expectedOrder
+    ): void {
         $siblingCollection = new DefaultCollection();
         $modelCollection   = new DefaultCollection();
         $previousModel     = null;
@@ -209,14 +217,14 @@ class SortingManagerTest extends TestCase
         );
 
         $sortingManager = new SortingManager($modelCollection, $siblingCollection, 'sorting', $previousModel);
-        $position       = $previousModel ? $previousModel->getProperty('sorting') : null;
+        $position       = $previousModel?->getProperty('sorting');
         $affected       = $sortingManager->getResults()->getModelIds();
         $ordered        = [];
 
         foreach ($expectedOrder as $id) {
             // Only compare if previous model is given and not identical with test model.
             // Only test affected items as well.
-            if ($previousModel && $previousModel->getId() != $id && \in_array($id, $affected)) {
+            if ($previousModel && $previousModel->getId() !== $id && in_array($id, $affected)) {
                 self::assertGreaterThan($position, $siblings[$id]->getProperty('sorting'));
                 self::assertGreaterThanOrEqual(2, ($siblings[$id]->getProperty('sorting') - $position));
                 self::assertLessThanOrEqual(128, ($siblings[$id]->getProperty('sorting') - $position));
@@ -229,7 +237,7 @@ class SortingManagerTest extends TestCase
         }
 
         // Explicit compare the new order with expected order.
-        \ksort($ordered);
-        self::assertEquals(\array_values($ordered), $expectedOrder);
+        ksort($ordered);
+        self::assertEquals(array_values($ordered), $expectedOrder);
     }
 }

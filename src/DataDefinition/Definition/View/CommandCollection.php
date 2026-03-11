@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <mail@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Class CommandCollection.
  *
  * Implementation of a command collection.
+ *
+ * @api
  */
 class CommandCollection implements CommandCollectionInterface
 {
@@ -36,11 +38,12 @@ class CommandCollection implements CommandCollectionInterface
      *
      * @var array<string, CommandInterface>
      */
-    protected $commands = [];
+    protected array $commands = [];
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function clearCommands()
     {
         $this->commands = [];
@@ -51,6 +54,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setCommands(array $commands)
     {
         $this->clearCommands()->addCommands($commands);
@@ -63,7 +67,8 @@ class CommandCollection implements CommandCollectionInterface
      *
      * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
      */
-    public function addCommands(array $commands, CommandInterface $before = null)
+    #[\Override]
+    public function addCommands(array $commands, ?CommandInterface $before = null)
     {
         foreach ($commands as $command) {
             $this->addCommand($command, $before);
@@ -75,6 +80,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeCommands(array $commands)
     {
         foreach ($commands as $command) {
@@ -87,6 +93,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasCommand(CommandInterface $command)
     {
         return isset($this->commands[\spl_object_hash($command)]);
@@ -95,6 +102,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasCommandNamed($name)
     {
         foreach ($this->commands as $command) {
@@ -111,7 +119,8 @@ class CommandCollection implements CommandCollectionInterface
      *
      * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
      */
-    public function addCommand(CommandInterface $command, CommandInterface $before = null)
+    #[\Override]
+    public function addCommand(CommandInterface $command, ?CommandInterface $before = null)
     {
         $hash = \spl_object_hash($command);
 
@@ -146,6 +155,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeCommand(CommandInterface $command)
     {
         unset($this->commands[\spl_object_hash($command)]);
@@ -158,6 +168,7 @@ class CommandCollection implements CommandCollectionInterface
      *
      * @throws DcGeneralInvalidArgumentException When the requested command could not be found.
      */
+    #[\Override]
     public function removeCommandNamed($name)
     {
         foreach ($this->commands as $command) {
@@ -176,6 +187,7 @@ class CommandCollection implements CommandCollectionInterface
      *
      * @throws DcGeneralInvalidArgumentException When the requested command could not be found.
      */
+    #[\Override]
     public function getCommandNamed($name)
     {
         foreach ($this->commands as $command) {
@@ -190,6 +202,7 @@ class CommandCollection implements CommandCollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getCommands()
     {
         return $this->commands;

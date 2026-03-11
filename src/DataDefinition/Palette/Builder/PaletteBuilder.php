@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -47,9 +47,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetLe
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteCollectionClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteConditionChainClassNameEvent;
-// @codingStandardsIgnoreStart
+// phpcs:disable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPalettePropertyValueConditionClassNameEvent;
-// @codingStandardsIgnoreEnd
+// phpcs:enable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyConditionChainClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyValueConditionClassNameEvent;
@@ -63,9 +63,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
-// @codingStandardsIgnoreStart
+// phpcs:disable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition as PropertyPropertyValueCondition;
-// @codingStandardsIgnoreEnd
+// phpcs:enable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette;
@@ -96,186 +96,188 @@ use function is_object;
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class PaletteBuilder
 {
     /**
      * The condition define if the property is viewable.
      */
-    public const VISIBLE = 'view';
+    public const string VISIBLE = 'view';
 
     /**
      * The condition define if the property is editable.
      */
-    public const EDITABLE = 'edit';
+    public const string EDITABLE = 'edit';
 
     /**
      * The data definition container.
      *
      * @var ContainerInterface
      */
-    protected $container;
+    protected ContainerInterface $container;
 
     /**
      * The class name of the class to use for palette collections.
      *
      * @var class-string<PaletteCollectionInterface>
      */
-    protected $paletteCollectionClassName = PaletteCollection::class;
+    protected string $paletteCollectionClassName = PaletteCollection::class;
 
     /**
      * The class to use for palette collections.
      *
      * @var ReflectionClass<PaletteCollectionInterface>
      */
-    protected $paletteCollectionClass;
+    protected ReflectionClass $paletteCollectionClass;
 
     /**
      * The class name of the class to use for palettes.
      *
      * @var class-string<PaletteInterface>
      */
-    protected $paletteClassName = Palette::class;
+    protected string $paletteClassName = Palette::class;
 
     /**
      * The class to use for palettes.
      *
      * @var ReflectionClass<PaletteInterface>
      */
-    protected $paletteClass;
+    protected ReflectionClass $paletteClass;
 
     /**
      * The class name of the class to use for palette legends.
      *
      * @var class-string<LegendInterface>
      */
-    protected $legendClassName = Legend::class;
+    protected string $legendClassName = Legend::class;
 
     /**
      * The class to use for palette legends.
      *
      * @var ReflectionClass<LegendInterface>
      */
-    protected $legendClass;
+    protected ReflectionClass $legendClass;
 
     /**
      * The class name of the class to use for palette properties.
      *
      * @var class-string<PropertyInterface>
      */
-    protected $propertyClassName = Property::class;
+    protected string $propertyClassName = Property::class;
 
     /**
      * The class to use for palette properties.
      *
      * @var ReflectionClass<PropertyInterface>
      */
-    protected $propertyClass;
+    protected ReflectionClass $propertyClass;
 
     /**
      * The class name of the class to use for palette condition chains.
      *
      * @var class-string<TPaletteConditionChainInterface>
      */
-    protected $paletteConditionChainClassName = PaletteConditionChain::class;
+    protected string $paletteConditionChainClassName = PaletteConditionChain::class;
 
     /**
      * The class to use for palette condition chains.
      *
      * @var ReflectionClass<TPaletteConditionChainInterface>
      */
-    protected $paletteConditionChainClass;
+    protected ReflectionClass $paletteConditionChainClass;
 
     /**
      * The class name of the class to use for palette conditions.
      *
      * @var class-string<PaletteConditionInterface>
      */
-    protected $defaultPaletteConditionClassName = DefaultPaletteCondition::class;
+    protected string $defaultPaletteConditionClassName = DefaultPaletteCondition::class;
 
     /**
      * The class to use for palette conditions.
      *
      * @var ReflectionClass<PaletteConditionInterface>
      */
-    protected $defaultPaletteConditionClass;
+    protected ReflectionClass $defaultPaletteConditionClass;
 
     /**
      * The class name of the class to use for property value conditions.
      *
      * @var class-string<PaletteConditionInterface>
      */
-    protected $palettePropertyValueConditionClassName = PropertyValueCondition::class;
+    protected string $palettePropertyValueConditionClassName = PropertyValueCondition::class;
 
     /**
      * The class to use for property value conditions.
      *
      * @var ReflectionClass<PaletteConditionInterface>
      */
-    protected $palettePropertyValueConditionClass;
+    protected ReflectionClass $palettePropertyValueConditionClass;
 
     /**
      * The class name of the class to use for property condition chains.
      *
      * @var class-string<TPropertyConditionChainInterface>
      */
-    protected $propertyConditionChainClassName = PropertyConditionChain::class;
+    protected string $propertyConditionChainClassName = PropertyConditionChain::class;
 
     /**
      * The class to use for property condition chains.
      *
      * @var ReflectionClass<TPropertyConditionChainInterface>
      */
-    protected $propertyConditionChainClass;
+    protected ReflectionClass $propertyConditionChainClass;
 
     /**
      * The class name of the class to use for property value conditions.
      *
      * @var class-string<PropertyConditionInterface>
      */
-    protected $propertyValueConditionClassName = PropertyPropertyValueCondition::class;
+    protected string $propertyValueConditionClassName = PropertyPropertyValueCondition::class;
 
     /**
      * The class to use for property value conditions.
      *
      * @var ReflectionClass<PropertyConditionInterface>
      */
-    protected $propertyValueConditionClass;
+    protected ReflectionClass $propertyValueConditionClass;
 
     /**
      * The palette collection currently working on.
      *
      * @var PaletteCollectionInterface|null
      */
-    protected $paletteCollection;
+    protected ?PaletteCollectionInterface $paletteCollection;
 
     /**
      * The palette currently working on.
      *
      * @var PaletteInterface|null
      */
-    protected $palette;
+    protected ?PaletteInterface $palette;
 
     /**
      * The legend currently working on.
      *
      * @var LegendInterface|null
      */
-    protected $legend;
+    protected ?LegendInterface $legend;
 
     /**
      * The property currently working on.
      *
      * @var list<PropertyInterface>|PropertyInterface|null
      */
-    protected $property;
+    protected array|null|PropertyInterface $property;
 
     /**
      * The condition currently working on.
      *
      * @var PropertyConditionInterface|PaletteConditionInterface|null
      */
-    protected $condition;
+    protected null|PaletteConditionInterface|PropertyConditionInterface $condition;
 
     /**
      * Factory method to create a new palette builder.
@@ -297,6 +299,12 @@ class PaletteBuilder
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
+
+        $this->paletteCollection = null;
+        $this->palette           = null;
+        $this->legend            = null;
+        $this->property          = null;
+        $this->condition         = null;
 
         $this->paletteCollectionClass = new ReflectionClass($this->paletteCollectionClassName);
         $this->paletteClass           = new ReflectionClass($this->paletteClassName);

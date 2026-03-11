@@ -32,6 +32,8 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * This class takes care of enforcing a parent child relationship on a model.
+ *
+ * @api
  */
 class ParentEnforcingListener
 {

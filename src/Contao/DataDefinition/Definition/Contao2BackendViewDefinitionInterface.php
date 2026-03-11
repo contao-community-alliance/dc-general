@@ -31,5 +31,5 @@ interface Contao2BackendViewDefinitionInterface extends ViewDefinitionInterface
     /**
      * The name of the definition.
      */
-    public const NAME = 'view.contao2backend';
+    public const string NAME = 'view.contao2backend';
 }

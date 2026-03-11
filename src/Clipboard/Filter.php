@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,6 +36,8 @@ use function sprintf;
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ *
+ * @api
  */
 class Filter implements FilterInterface
 {
@@ -59,79 +62,79 @@ class Filter implements FilterInterface
      */
     private ?string $compiled = null;
 
-    public const MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const string MODEL_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getDataProviderName() === variables[%d]
 )
 EXPR;
 
-    public const MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const string MODEL_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getDataProviderName() !== variables[%d]
 )
 EXPR;
 
-    public const MODEL_IS_EXPRESSION = <<<'EXPR'
+    public const string MODEL_IS_EXPRESSION = <<<'EXPR'
 (
     item.getModelId()
     and item.getModelId().equals(variables[%d])
 )
 EXPR;
 
-    public const MODEL_IS_NOT_EXPRESSION = <<<'EXPR'
+    public const string MODEL_IS_NOT_EXPRESSION = <<<'EXPR'
 (
     !item.getModelId()
     or !item.getModelId().equals(variables[%d])
 )
 EXPR;
 
-    public const PARENT_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const string PARENT_IS_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getParentId()
     and item.getParentId().getDataProviderName() === variables[%d]
 )
 EXPR;
 
-    public const PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
+    public const string PARENT_IS_NOT_FROM_PROVIDER_EXPRESSION = <<<'EXPR'
 (
     item.getParentId()
     and item.getParentId().getDataProviderName() !== variables[%d]
 )
 EXPR;
 
-    public const HAS_NO_PARENT_EXPRESSION = <<<'EXPR'
+    public const string HAS_NO_PARENT_EXPRESSION = <<<'EXPR'
 (
     !item.getParentId()
 )
 EXPR;
 
-    public const PARENT_IS_EXPRESSION = <<<'EXPR'
+    public const string PARENT_IS_EXPRESSION = <<<'EXPR'
 (
     item.getParentId()
     and item.getParentId().equals(variables[%d])
 )
 EXPR;
 
-    public const PARENT_IS_NOT_EXPRESSION = <<<'EXPR'
+    public const string PARENT_IS_NOT_EXPRESSION = <<<'EXPR'
 (
     !item.getParentId()
     or !item.getParentId().equals(variables[%d])
 )
 EXPR;
 
-    public const ACTION_IS_EXPRESSION = <<<'EXPR'
+    public const string ACTION_IS_EXPRESSION = <<<'EXPR'
 (
     item.getAction() === variables[%d]
 )
 EXPR;
 
-    public const ACTION_IS_NOT_EXPRESSION = <<<'EXPR'
+    public const string ACTION_IS_NOT_EXPRESSION = <<<'EXPR'
 (
     item.getAction() !== variables[%d]
 )
 EXPR;
 
-    public const SUB_FILTER = <<<'EXPR'
+    public const string SUB_FILTER = <<<'EXPR'
 (
     variables[%d].accepts(item)
 )
@@ -964,6 +967,7 @@ EXPR;
      * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      * @SuppressWarnings(PHPMD.EvalExpression)
      */
+    #[\Override]
     public function accepts(ItemInterface $item)
     {
         if (null === $this->compiled) {
@@ -979,9 +983,9 @@ EXPR;
         }
 
         $variables = $this->variables;
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         return eval($this->compiled);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
     }
 
     /**

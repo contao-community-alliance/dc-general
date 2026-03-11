@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * This event gets emitted when a property is finished.
+ *
+ * @api
  */
 class FinishPropertyEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.finish-property';
+    public const string NAME = 'dc-general.data-definition.palette.builder.finish-property';
 
     /**
      * The property.
      *
      * @var PropertyInterface
      */
-    protected $property;
+    protected PropertyInterface $property;
 
     /**
      * Create a new instance.

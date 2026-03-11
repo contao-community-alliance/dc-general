@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -60,6 +60,8 @@ use function sprintf;
  * Handler class for handling the "show" action.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class ShowHandler
 {
@@ -97,25 +99,25 @@ class ShowHandler
             $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
             assert($tokenManager instanceof CsrfTokenManagerInterface);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token manager as 4th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
         if (null === $tokenName) {
             $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
             assert(\is_string($tokenName));
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token name as 5th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->tokenManager = $tokenManager;

@@ -25,6 +25,8 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * This event is emitted after a model has been created.
+ *
+ * @api
  */
 class EnforceModelRelationshipEvent extends AbstractModelAwareEvent
 {

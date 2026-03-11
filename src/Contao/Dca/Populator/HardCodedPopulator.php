@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -39,10 +39,12 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentPopulator\AbstractEventDrivenEn
  * been properly coded. This class will then be removed from the code base.
  *
  * @deprecated Should get removed from the code base!!!!
+ *
+ * @api
  */
 class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    public const PRIORITY = -100;
+    public const int PRIORITY = -100;
 
     /**
      * Create a controller instance in the environment if none has been defined yet.
@@ -59,9 +61,9 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
         if ($environment->getController()) {
             return;
         }
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $environment->setController((new DefaultController())->setEnvironment($environment));
     }
@@ -69,6 +71,7 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function populate(EnvironmentInterface $environment)
     {
         if (!$environment->getSessionStorage()) {
@@ -83,32 +86,32 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 
             $sessionStorage->setScope('DC_GENERAL_' . \strtoupper($definition->getName()));
             $environment->setSessionStorage($sessionStorage);
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         if (!$environment->getInputProvider()) {
             $environment->setInputProvider(new InputProvider());
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         if (!$environment->getClipboard()) {
             $environment->setClipboard(new Clipboard());
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         if (!$environment->getBaseConfigRegistry()) {
             $baseConfigRegistry = new BaseConfigRegistry();
             $baseConfigRegistry->setEnvironment($environment);
             $environment->setBaseConfigRegistry($baseConfigRegistry);
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->populateController($environment);

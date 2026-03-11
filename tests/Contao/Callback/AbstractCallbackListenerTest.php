@@ -20,30 +20,33 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Callback;
 
+use Closure;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
 
-/**
- * Test for  AbstractCallbackListenerTest
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\AbstractCallbackListener::getArgs
- * @covers \ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent::getEnvironment
- */
-class AbstractCallbackListenerTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversMethod(AbstractCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(AbstractCallbackListener::class, 'getArgs')]
+#[CoversMethod(AbstractEnvironmentAwareEvent::class, 'getEnvironment')]
+final class AbstractCallbackListenerTest extends TestCase
 {
-    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) - phpmd can not handle the use syntax. */
-    protected function getCallback($value)
+    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) - phpmd cannot handle the use syntax. */
+    protected function getCallback(string $value): Closure
     {
-        return function () use ($value) {
-            throw new \Exception('The callback should not be executed as it is only mocked');
+        return static function () use ($value) {
+            throw new RuntimeException('The callback should not be executed as it is only mocked: ' . $value);
         };
     }
 
-    public function abstractCallbackDataProvider()
+    public static function abstractCallbackDataProvider(): array
     {
         return [[
                 AbstractCallbackListener::class,
@@ -52,7 +55,7 @@ class AbstractCallbackListenerTest extends TestCase
         ];
     }
 
-    protected function mockEnvironment($dataContainerName)
+    protected function mockEnvironment(string $dataContainerName): DefaultEnvironment
     {
         $environment = new DefaultEnvironment();
         $environment->setDataDefinition(new DefaultContainer($dataContainerName));
@@ -60,11 +63,13 @@ class AbstractCallbackListenerTest extends TestCase
         return $environment;
     }
 
-    protected function mockEnvironmentEvent($class, $tablename)
+    /** @param class-string<AbstractEnvironmentAwareEvent> $class */
+    protected function mockEnvironmentEvent(string $class, string $tablename): AbstractEnvironmentAwareEvent
     {
+        /** @var MockObject&AbstractEnvironmentAwareEvent $event */
         $event = $this
             ->getMockBuilder($class)
-            ->setMethods(['getEnvironment'])
+            ->onlyMethods(['getEnvironment'])
             ->setConstructorArgs([$this->mockEnvironment($tablename)])
             ->getMock();
 
@@ -75,14 +80,13 @@ class AbstractCallbackListenerTest extends TestCase
         return $event;
     }
 
-    /**
-     * @dataProvider abstractCallbackDataProvider
-     */
-    public function testExecution($listenerClass, $eventClass)
+    #[Dataprovider('abstractCallbackDataProvider')]
+    public function testExecution(string $listenerClass, string $eventClass): void
     {
+        /** @var AbstractCallbackListener $listener */
         $listener = $this
             ->getMockBuilder($listenerClass)
-            ->setMethods(['getArgs'])
+            ->onlyMethods(['getArgs'])
             ->setConstructorArgs([$this->getCallback($listenerClass)])
             ->getMock();
 
@@ -91,9 +95,10 @@ class AbstractCallbackListenerTest extends TestCase
             $listenerClass
         );
 
+        /** @var AbstractCallbackListener $listener */
         $listener = $this
             ->getMockBuilder($listenerClass)
-            ->setMethods(['getArgs'])
+            ->onlyMethods(['getArgs'])
             ->setConstructorArgs([$this->getCallback($listenerClass), ['tablename']])
             ->getMock();
 

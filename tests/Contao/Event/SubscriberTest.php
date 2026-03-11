@@ -57,20 +57,32 @@ use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\DcGeneral\Contao\Contao2Back
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\DcGeneral\View\Event\RenderReadablePropertyValueEvent;
 use ContaoCommunityAlliance\Translator\TranslatorChain;
+use ContaoTwig;
+use ContaoTwigInitializeEvent;
+use DateTime;
+use Exception;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+use function array_merge;
+use function get_class;
+use function gettype;
+
 /**
  * This class test the subscriber.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Event\Subscriber
  *
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class SubscriberTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(Subscriber::class)]
+final class SubscriberTest extends TestCase
 {
     /** @SuppressWarnings(PHPMD.Superglobals) */
     public static function setUpBeforeClass(): void
@@ -92,11 +104,11 @@ class SubscriberTest extends TestCase
         parent::setUpBeforeClass();
     }
 
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents(): void
     {
         $events = Subscriber::getSubscribedEvents();
 
-        self::assertSame('array', \gettype($events));
+        self::assertSame('array', gettype($events));
         self::assertArrayHasKey(DcGeneralEvents::ACTION, $events);
         self::assertArrayHasKey(GetPanelElementTemplateEvent::NAME, $events);
         self::assertArrayHasKey(ResolveWidgetErrorMessageEvent::NAME, $events);
@@ -104,7 +116,7 @@ class SubscriberTest extends TestCase
         self::assertArrayHasKey('contao-twig.init', $events);
     }
 
-    public function getPanelElementTemplateDataProvider()
+    public static function getPanelElementTemplateDataProvider(): array
     {
         return [
             ['has_template'],
@@ -116,17 +128,15 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getPanelElementTemplateDataProvider
-     */
-    public function testGetPanelElementTemplate($excepted, $element = null)
+    #[Dataprovider('getPanelElementTemplateDataProvider')]
+    public function testGetPanelElementTemplate($excepted, $element = null): void
     {
         $dispatcher = new EventDispatcher();
 
         if (null === $element) {
-            $panelElement = $this->getMockForAbstractClass(PanelElementInterface::class);
+            $panelElement = $this->getMockBuilder(PanelElementInterface::class)->getMock();
         } else {
-            $panelElement = $this->getMockForAbstractClass($element);
+            $panelElement = $this->getMockBuilder($element)->getMock();
         }
         $event = new GetPanelElementTemplateEvent(new DefaultEnvironment(), $panelElement);
 
@@ -142,19 +152,21 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getTemplate()->getName());
     }
 
-    public function widgetErrorMessageDataProvider()
+    public static function widgetErrorMessageDataProvider(): array
     {
-        $exceptionError      = new \Exception('foo');
-        $objectError         = $this->getMockBuilder('stdClass')->getMock();
-        $objectErrorToString = $this->getMockBuilder('stdClass')->setMethods(['__toString'])->getMock();
-        $objectErrorToString
-            ->expects(self::once())
-            ->method('__toString')
-            ->willReturn('foo__toString');
+        $exceptionError      = new Exception('foo');
+        $objectError         = new class () {
+        };
+        $objectErrorToString = new class () {
+            public function __toString()
+            {
+                return 'foo__toString';
+            }
+        };
 
         return [
             [$exceptionError, 'foo'],
-            [$objectError, '[' . \get_class($objectError) . ']'],
+            [$objectError, '[' . get_class($objectError) . ']'],
             [$objectErrorToString, 'foo__toString'],
             [false, '[boolean]'],
             [1, '[integer]'],
@@ -162,10 +174,8 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider widgetErrorMessageDataProvider
-     */
-    public function testResolveWidgetErrorMessage($error, $excepted)
+    #[Dataprovider('widgetErrorMessageDataProvider')]
+    public function testResolveWidgetErrorMessage($error, $excepted): void
     {
         $dispatcher = new EventDispatcher();
         $event      = new ResolveWidgetErrorMessageEvent(new DefaultEnvironment(), $error);
@@ -177,7 +187,7 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getError());
     }
 
-    public function testRenderReadablePropertyValueIsRendered()
+    public function testRenderReadablePropertyValueIsRendered(): void
     {
         $dispatcher = new EventDispatcher();
 
@@ -216,7 +226,7 @@ class SubscriberTest extends TestCase
         self::assertNull($event->getRendered());
     }
 
-    public function arrayReadableSingleDataProvider()
+    public static function arrayReadableSingleDataProvider(): array
     {
         return [
             [[3, 2, 1], '3, 2, 1'],
@@ -224,9 +234,7 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider arrayReadableSingleDataProvider
-     */
+    #[Dataprovider('arrayReadableSingleDataProvider')]
     public function testRenderArrayReadableSingle($values, $excepted)
     {
         $event = $this->setupRenderReadablePropertyValueEvent($values, 'testProperty');
@@ -240,9 +248,9 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getRendered());
     }
 
-    public function timestampReadableForDateDataProvider()
+    public static function timestampReadableForDateDataProvider(): array
     {
-        $date = new \DateTime();
+        $date = new DateTime();
 
         return [
             ['non-format', $date->getTimestamp(), $date->getTimestamp()],
@@ -252,23 +260,21 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider timestampReadableForDateDataProvider
-     */
-    public function testRenderTimestampReadableForDate($format, $time, $excepted)
+    #[Dataprovider('timestampReadableForDateDataProvider')]
+    public function testRenderTimestampReadableForDate($format, $time, $excepted): void
     {
         $this->runTimestampReadable('testProperty', $time, $excepted, ['rgxp' => $format]);
     }
 
-    public function testRenderPropertyTimestampReadable()
+    public function testRenderPropertyTimestampReadable(): void
     {
-        $date = new \DateTime();
+        $date = new DateTime();
         $this->runTimestampReadable('tstamp', $date->getTimestamp(), $date->format('H:i'));
     }
 
-    public function testRenderValueIsDateTimeReadable()
+    public function testRenderValueIsDateTimeReadable(): void
     {
-        $dateTime = new \DateTime();
+        $dateTime = new DateTime();
 
         $event = $this->setupRenderReadablePropertyValueEvent($dateTime, 'testProperty');
 
@@ -285,7 +291,7 @@ class SubscriberTest extends TestCase
         self::assertSame($dateTime->format('Y-m-d H:i'), $event->getRendered());
     }
 
-    public function widgetCheckBoxReadableDataProvider()
+    public static function widgetCheckBoxReadableDataProvider(): array
     {
         return [
             [true, 'yes'],
@@ -293,10 +299,8 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider widgetCheckBoxReadableDataProvider
-     */
-    public function testRenderWidgetCheckBoxReadable($value, $excepted)
+    #[Dataprovider('widgetCheckBoxReadableDataProvider')]
+    public function testRenderWidgetCheckBoxReadable($value, $excepted): void
     {
         $event = $this->setupRenderReadablePropertyValueEvent($value, 'testProperty');
         $event->getProperty()->setWidgetType('checkbox');
@@ -310,7 +314,7 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getRendered());
     }
 
-    public function widgetTextAreaReadableDataProvider()
+    public static function widgetTextAreaReadableDataProvider(): array
     {
         $propertyExtra1 = [
             'allowHtml'    => true,
@@ -333,11 +337,14 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider widgetTextAreaReadableDataProvider
-     */
-    public function testRenderWidgetTextAreaReadable($value, $propertyName, $propertyExtra, $widgetType, $excepted)
-    {
+    #[Dataprovider('widgetTextAreaReadableDataProvider')]
+    public function testRenderWidgetTextAreaReadable(
+        $value,
+        $propertyName,
+        $propertyExtra,
+        $widgetType,
+        $excepted
+    ): void {
         $event = $this->setupRenderReadablePropertyValueEvent($value, $propertyName, $propertyExtra);
         $event->getProperty()->setWidgetType($widgetType);
 
@@ -357,7 +364,7 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getRendered());
     }
 
-    public function referenceReadableDataProvider()
+    public static function referenceReadableDataProvider(): array
     {
         $propertyExtra1 = [
             'reference' => ''
@@ -383,10 +390,8 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider referenceReadableDataProvider
-     */
-    public function testRenderReferenceReadable($value, $propertyName, $propertyExtra, $excepted)
+    #[Dataprovider('referenceReadableDataProvider')]
+    public function testRenderReferenceReadable($value, $propertyName, $propertyExtra, $excepted): void
     {
         $event = $this->setupRenderReadablePropertyValueEvent($value, $propertyName, $propertyExtra);
 
@@ -406,7 +411,7 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getRendered());
     }
 
-    public function optionValueReadableDataProvider()
+    public static function optionValueReadableDataProvider(): array
     {
         return [
             ['testValue', 'testProperty', null],
@@ -415,16 +420,14 @@ class SubscriberTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider optionValueReadableDataProvider
-     */
+    #[Dataprovider('optionValueReadableDataProvider')]
     public function testOptionValueReadable(
         $value,
         $propertyName,
         $excepted,
         array $propertyOptions = [],
         $optionsForListener = false
-    ) {
+    ): void {
         $event = $this->setupRenderReadablePropertyValueEvent($value, $propertyName);
         if (!empty($propertyOptions) && !$optionsForListener) {
             $event->getProperty()->setOptions($propertyOptions);
@@ -438,7 +441,7 @@ class SubscriberTest extends TestCase
         $dispatcher->addListener(ContaoEvents::DATE_PARSE, [$parseDateListener, 'handle']);
 
         if (!empty($propertyOptions) && $optionsForListener) {
-            $optionsListener = $this->mockGetPropertyOptionsEventListener(self::once(), $propertyOptions);
+            $optionsListener = $this->mockGetPropertyOptionsEventListener($propertyOptions);
             $dispatcher->addListener(GetPropertyOptionsEvent::NAME, [$optionsListener, 'handle']);
         }
 
@@ -455,16 +458,15 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getRendered());
     }
 
-    public function testInitTwig()
+    public function testInitTwig(): void
     {
         self::markTestSkipped('The Contao twig extention we not using at time. We show for replace this.');
-        return;
 
         $dispatcher = new EventDispatcher();
 
-        $contaoTwig = \ContaoTwig::getInstance();
+        $contaoTwig = ContaoTwig::getInstance();
 
-        $event = new \ContaoTwigInitializeEvent($contaoTwig);
+        $event = new ContaoTwigInitializeEvent($contaoTwig);
 
         $scopeDeterminator = $this->mockScopeDeterminator();
         $dispatcher->addListener('contao-twig.init', [new Subscriber($scopeDeterminator), 'initTwig']);
@@ -476,88 +478,90 @@ class SubscriberTest extends TestCase
         self::assertInstanceOf(DcGeneralExtension::class, $environment->getExtension('dc-general'));
     }
 
-    public function initializePanelsDataProvider()
+    public static function initializePanelsDataProvider(): array
     {
-        $treeConstructorArgs = [
-            $this->mockScopeDeterminator(),
-            $this->getMockForAbstractClass(CsrfTokenManagerInterface::class),
+        $treeConstructorArgs = fn(SubscriberTest $test) => [
+            $test->mockScopeDeterminator(),
+            $test->getMockBuilder(CsrfTokenManagerInterface::class)->getMock(),
             'csrf-token-name'
         ];
 
         return [
-            ['select', NonBaseView::class, [], [1, 2]],
-            ['select', BaseView::class, [$this->mockScopeDeterminator()], [1, 2]],
-            ['select', ListView::class, [$this->mockScopeDeterminator()], [1, 2]],
-            ['select', ParentView::class, [$this->mockScopeDeterminator()], [1, 2]],
+            ['select', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['select', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [1, 2]],
+            ['select', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [1, 2]],
+            ['select', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [1, 2]],
             ['select', TreeView::class, $treeConstructorArgs, [1, 2]],
 
-            ['copy', NonBaseView::class, [], [1, 2]],
-            ['copy', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['copy', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['copy', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['copy', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['copy', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['copy', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['copy', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['copy', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['create', NonBaseView::class, [], [1, 2]],
-            ['create', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['create', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['create', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['create', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['create', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['create', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['create', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['create', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['paste', NonBaseView::class, [], [1, 2]],
-            ['paste', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['paste', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['paste', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['paste', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['paste', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['paste', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['paste', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['paste', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['delete', NonBaseView::class, [], [1, 2]],
-            ['delete', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['delete', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['delete', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['delete', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['delete', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['delete', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['delete', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['delete', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['move', NonBaseView::class, [], [1, 2]],
-            ['move', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['move', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['move', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['move', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['move', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['move', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['move', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['move', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['undo', NonBaseView::class, [], [1, 2]],
-            ['undo', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['undo', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['undo', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['undo', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['undo', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['undo', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['undo', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['undo', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['edit', NonBaseView::class, [], [1, 2]],
-            ['edit', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['edit', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['edit', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['edit', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['edit', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['edit', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['edit', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['edit', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['toggle', NonBaseView::class, [], [1, 2]],
-            ['toggle', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['toggle', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['toggle', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['toggle', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['toggle', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['toggle', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['toggle', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['toggle', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['showAll', NonBaseView::class, [], [1, 2]],
-            ['showAll', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['showAll', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['showAll', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['showAll', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['showAll', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['showAll', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['showAll', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['showAll', TreeView::class, $treeConstructorArgs, [3, 4]],
 
-            ['show', NonBaseView::class, [], [1, 2]],
-            ['show', BaseView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['show', ListView::class, [$this->mockScopeDeterminator()], [3, 4]],
-            ['show', ParentView::class, [$this->mockScopeDeterminator()], [3, 4]],
+            ['show', NonBaseView::class, fn(SubscriberTest $test) => [], [1, 2]],
+            ['show', BaseView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['show', ListView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
+            ['show', ParentView::class, fn(SubscriberTest $test) => [$test->mockScopeDeterminator()], [3, 4]],
             ['show', TreeView::class, $treeConstructorArgs, [3, 4]],
         ];
     }
 
-    /**
-     * @dataProvider initializePanelsDataProvider
-     */
-    public function testInitializePanels(string $actionName, string $viewClass, array $constructor, array $excepted)
-    {
+    #[Dataprovider('initializePanelsDataProvider')]
+    public function testInitializePanels(
+        string $actionName,
+        string $viewClass,
+        callable $constructor,
+        array $excepted
+    ): void {
         $dispatcher = new EventDispatcher();
 
         $action      = new Action($actionName);
@@ -569,7 +573,7 @@ class SubscriberTest extends TestCase
 
         $baseConfigRegistry = $this
             ->getMockBuilder(BaseConfigRegistry::class)
-            ->setMethods(['getBaseConfig'])
+            ->onlyMethods(['getBaseConfig'])
             ->getMock();
         $environment->setBaseConfigRegistry($baseConfigRegistry);
 
@@ -584,24 +588,22 @@ class SubscriberTest extends TestCase
 
         $view = $this
             ->getMockBuilder($viewClass)
-            ->setConstructorArgs($constructor)
-            ->setMethods(['getPanel'])
+            ->setConstructorArgs($constructor($this))
+            ->onlyMethods(['getPanel'])
             ->getMock();
         $environment->setView($view);
 
-        $panel = $this->getMockBuilder(DefaultPanelContainer::class)->setMethods(['initialize'])->getMock();
+        $panel = $this->getMockBuilder(DefaultPanelContainer::class)->onlyMethods(['initialize'])->getMock();
         $view
             ->method('getPanel')
             ->willReturn($panel);
 
         $panel
             ->method('initialize')
-            ->will(
-                self::returnCallback(
-                    function ($config) {
-                        $config->setSorting([3, 4]);
-                    }
-                )
+            ->willReturnCallback(
+                static function ($config) {
+                    $config->setSorting([3, 4]);
+                }
             );
 
         $scopeDeterminator = $this->mockScopeDeterminator();
@@ -611,7 +613,7 @@ class SubscriberTest extends TestCase
         self::assertSame($dataConfig->getSorting(), $excepted);
     }
 
-    public function testGetConfig()
+    public function testGetConfig(): void
     {
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
@@ -620,7 +622,7 @@ class SubscriberTest extends TestCase
         self::assertInstanceOf(Config::class, $subscriber::getConfig());
     }
 
-    public function testSetConfig()
+    public function testSetConfig(): void
     {
         $scopeDeterminator = $this->mockScopeDeterminator();
         $subscriber        = new Subscriber($scopeDeterminator);
@@ -630,7 +632,7 @@ class SubscriberTest extends TestCase
         self::assertInstanceOf(Config::class, $subscriber::getConfig());
     }
 
-    private function runTimestampReadable($propertyName, $time, $excepted, array $extra = [])
+    private function runTimestampReadable($propertyName, $time, $excepted, array $extra = []): void
     {
         $event = $this->setupRenderReadablePropertyValueEvent($time, $propertyName, $extra);
 
@@ -656,14 +658,17 @@ class SubscriberTest extends TestCase
         self::assertSame($excepted, $event->getRendered());
     }
 
-    private function setupRenderReadablePropertyValueEvent($value, $propertyName, array $extra = [])
-    {
+    private function setupRenderReadablePropertyValueEvent(
+        $value,
+        $propertyName,
+        array $extra = []
+    ): RenderReadablePropertyValueEvent {
         $defaultExtra = [
             'multiple' => null
         ];
 
         $property = new DefaultProperty($propertyName);
-        $property->setExtra(\array_merge($defaultExtra, $extra));
+        $property->setExtra(array_merge($defaultExtra, $extra));
 
         $environment = new DefaultEnvironment();
         $environment->setEventDispatcher(new EventDispatcher());
@@ -698,36 +703,30 @@ class SubscriberTest extends TestCase
         };
     }
 
-    private function mockGetPropertyOptionsEventListener($expects, $options)
+    private function mockGetPropertyOptionsEventListener($options): object
     {
-        $listener = $this
-            ->getMockBuilder('stdClass')
-            ->setMethods(['handle'])
-            ->getMock();
-        $listener
-            ->expects($expects)
-            ->method('handle')
-            ->with(
-                self::isInstanceOf(GetPropertyOptionsEvent::class),
-                self::equalTo(GetPropertyOptionsEvent::NAME),
-                self::isInstanceOf(EventDispatcher::class)
-            )
-            ->will(
-                self::returnCallback(
-                    function (GetPropertyOptionsEvent $event) use ($options) {
-                        if (!\count($options)) {
-                            return;
-                        }
+        $listener = new class ($options)
+        {
+            public function __construct(private readonly array $options)
+            {
+            }
 
-                        $event->setOptions($options);
-                    }
-                )
-            );
+            public function handle($event, $eventName, $dispatcher): void
+            {
+                SubscriberTest::assertInstanceOf(GetPropertyOptionsEvent::class, $event);
+                SubscriberTest::assertSame(GetPropertyOptionsEvent::NAME, $eventName);
+                SubscriberTest::assertInstanceOf(EventDispatcher::class, $dispatcher);
+                if ([] === $this->options) {
+                    return;
+                }
+                $event->setOptions($this->options);
+            }
+        };
 
         return $listener;
     }
 
-    private function mockScopeDeterminator()
+    private function mockScopeDeterminator(): RequestScopeDeterminator&MockObject
     {
         $scopeDeterminator = $this
             ->getMockBuilder(RequestScopeDeterminator::class)

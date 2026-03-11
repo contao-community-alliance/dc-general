@@ -27,6 +27,9 @@ use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Controller;
 use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\Contao\Template;
 use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\ContaoTwig;
 
+use function class_alias;
+use function class_exists;
+
 /**
  * Base TestCase class.
  *
@@ -35,23 +38,12 @@ use ContaoCommunityAlliance\DcGeneral\Test\Fixtures\ContaoTwig;
  */
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    protected function aliasContaoClass($class)
-    {
-        if (\class_exists($class) && !\class_exists('\\Contao\\' . $class, false)) {
-            \class_alias($class, '\\Contao\\' . $class);
-        }
-
-        if (\class_exists('\\Contao\\' . $class) && !\class_exists($class, false)) {
-            \class_alias('\\Contao\\' . $class, $class);
-        }
-    }
-
     /**
      * Initialize the contao backend template.
      *
      * @return void
      */
-    protected static function initializeContaoBackendTemplate()
+    protected static function initializeContaoBackendTemplate(): void
     {
         if (class_exists(\Contao\BackendTemplate::class, false)) {
             return;
@@ -63,10 +55,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * Initialize the contao config.
-     *
-     * @return void
      */
-    protected static function initializeContaoConfig()
+    protected static function initializeContaoConfig(): void
     {
         if (class_exists(\Contao\Config::class, false)) {
             return;
@@ -78,10 +68,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * Initialize the contao controller.
-     *
-     * @return void
      */
-    protected static function initializeContaoController()
+    protected static function initializeContaoController(): void
     {
         if (class_exists(\Contao\Controller::class, false)) {
             return;
@@ -93,10 +81,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * Initialize the contao twig.
-     *
-     * @return void
      */
-    protected static function initializeContaoTwig()
+    protected static function initializeContaoTwig(): void
     {
         if (class_exists(\ContaoTwig::class, false)) {
             return;
@@ -107,10 +93,8 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * Initialize the contao template.
-     *
-     * @return void
      */
-    protected static function initializeContaoTemplate()
+    protected static function initializeContaoTemplate(): void
     {
         if (class_exists(\Contao\Template::class, false)) {
             return;

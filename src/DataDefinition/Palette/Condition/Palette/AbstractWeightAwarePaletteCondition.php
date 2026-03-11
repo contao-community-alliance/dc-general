@@ -36,6 +36,7 @@ abstract class AbstractWeightAwarePaletteCondition implements WeightAwarePalette
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setWeight($weight)
     {
         $this->weight = $weight;
@@ -45,6 +46,7 @@ abstract class AbstractWeightAwarePaletteCondition implements WeightAwarePalette
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getWeight()
     {
         return $this->weight;

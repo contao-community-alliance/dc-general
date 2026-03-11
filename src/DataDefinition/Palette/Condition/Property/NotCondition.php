@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Negate a condition.
+ *
+ * @api
  */
 class NotCondition implements PropertyConditionInterface
 {
@@ -74,6 +76,7 @@ class NotCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function match(
         ?ModelInterface $model = null,
         ?PropertyValueBag $input = null,
@@ -86,6 +89,7 @@ class NotCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
         $this->condition = clone $this->condition;

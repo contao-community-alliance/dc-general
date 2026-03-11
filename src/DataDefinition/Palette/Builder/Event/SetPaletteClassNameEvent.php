@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 
 /**
  * This event gets emitted when a palette class name is set.
+ *
+ * @api
  */
 class SetPaletteClassNameEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.set-palette-class-name';
+    public const string NAME = 'dc-general.data-definition.palette.builder.set-palette-class-name';
 
     /**
      * The palette class name.
      *
      * @var class-string<PaletteInterface>
      */
-    protected $paletteClassName;
+    protected string $paletteClassName;
 
     /**
      * Create a new instance.

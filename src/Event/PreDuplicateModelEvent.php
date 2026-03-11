@@ -27,17 +27,19 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * This event is emitted just before a model is duplicated.
+ *
+ * @api
  */
 class PreDuplicateModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.pre-duplicate';
+    public const string NAME = 'dc-general.model.pre-duplicate';
 
     /**
      * The source model.
      *
      * @var ModelInterface
      */
-    protected $sourceModel;
+    protected ModelInterface $sourceModel;
 
     /**
      * Create a new instance.

@@ -1,20 +1,21 @@
 <?xml version="1.0"?>
 <psalm
-        errorLevel="3"
-        resolveFromConfigFile="true"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="https://getpsalm.org/schema/config"
-        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+  hideExternalErrors="true"
+  errorLevel="3"
+  resolveFromConfigFile="true"
+  findUnusedCode="false"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="https://getpsalm.org/schema/config"
+  xsi:schemaLocation="https://getpsalm.org/schema/config https://getpsalm.org/schema/config"
 >
-    <stubs>
-      <file name="exception-stubs.phpstub"/>
-    </stubs>
-    <projectFiles>
-        <directory name="src"/>
-        <ignoreFiles>
-            <directory name="src/Resources"/>
-            <file name="vendor/contao/core-bundle/contao/library/Contao/Widget.php"/>
-            <file name="vendor/symfony/dependency-injection/ContainerAwareTrait.php"/>
-        </ignoreFiles>
-    </projectFiles>
+  <stubs>
+    <file name="exception-stubs.phpstub"/>
+  </stubs>
+  <projectFiles>
+    <directory name="src"/>
+    <ignoreFiles>
+      <directory name="src/Resources"/>
+      <file name="vendor/contao/core-bundle/contao/library/Contao/Widget.php"/>
+    </ignoreFiles>
+  </projectFiles>
 </psalm>

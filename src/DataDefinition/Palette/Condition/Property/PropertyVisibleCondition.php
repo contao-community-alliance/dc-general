@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition checking that a property is visible.
+ *
+ * @api
  */
 class PropertyVisibleCondition implements PropertyConditionInterface
 {
@@ -74,6 +76,7 @@ class PropertyVisibleCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function match(
         ?ModelInterface $model = null,
         ?PropertyValueBag $input = null,
@@ -94,6 +97,7 @@ class PropertyVisibleCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

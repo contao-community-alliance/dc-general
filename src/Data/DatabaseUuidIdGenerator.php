@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Christopher Boelter <christopher@boelter.eu>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,6 +26,8 @@ use Doctrine\DBAL\Connection;
 
 /**
  * Uuid generating by querying it from the Contao database class.
+ *
+ * @api
  */
 class DatabaseUuidIdGenerator implements IdGeneratorInterface
 {
@@ -34,7 +36,7 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
      *
      * @var Connection
      */
-    protected $connection;
+    protected Connection $connection;
 
     /**
      * Create a new instance.
@@ -52,6 +54,7 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
      * @return string
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function generate()
     {
         return $this->connection->executeQuery('SELECT UUID() as id')->fetchFirstColumn()[0];
@@ -62,6 +65,7 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
      *
      * @return int
      */
+    #[\Override]
     public function getSize()
     {
         return 36;

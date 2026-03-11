@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,6 +27,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Data;
  * Class DefaultConfig.
  *
  * This class is the default implementation of the ConfigInterface.
+ *
+ * @api
  */
 class DefaultConfig implements ConfigInterface
 {
@@ -35,7 +37,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var mixed
      */
-    protected $mixId;
+    protected mixed $mixId;
 
     /**
      * The ids to be retrieved.
@@ -44,7 +46,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @deprecated This is deprecated since 2.1 and will be removed in 3.0.
      */
-    protected $arrIds = [];
+    protected array $arrIds = [];
 
     /**
      * Flag determining if only the ids shall get fetched or models.
@@ -53,35 +55,35 @@ class DefaultConfig implements ConfigInterface
      *
      * @see fetch
      */
-    protected $blnIdOnly = false;
+    protected bool $blnIdOnly = false;
 
     /**
      * Offset for retrieving entries.
      *
      * @var int
      */
-    protected $intStart = 0;
+    protected int $intStart = 0;
 
     /**
      * Amount of entries to be retrieved.
      *
      * @var int
      */
-    protected $intAmount = 0;
+    protected int $intAmount = 0;
 
     /**
      * The filters to use.
      *
      * @var array|null
      */
-    protected $arrFilter = null;
+    protected ?array $arrFilter = null;
 
     /**
      * The properties to use for sorting.
      *
      * @var array<string, string>
      */
-    protected $arrSorting = [];
+    protected array $arrSorting = [];
 
     /**
      * The properties to retrieve.
@@ -114,6 +116,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public static function init()
     {
         /** @psalm-suppress UnsafeInstantiation */
@@ -125,6 +128,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return mixed
      */
+    #[\Override]
     public function getId()
     {
         return $this->mixId;
@@ -137,6 +141,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public function setId($mixId)
     {
         $this->mixId = $mixId;
@@ -151,14 +156,15 @@ class DefaultConfig implements ConfigInterface
      *
      * @deprecated Use filters instead.
      */
+    #[\Override]
     public function getIds()
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.',
             E_USER_NOTICE
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         /** @psalm-suppress DeprecatedProperty */
         return $this->arrIds;
@@ -173,16 +179,17 @@ class DefaultConfig implements ConfigInterface
      *
      * @deprecated Use filters instead.
      */
+    #[\Override]
     public function setIds($arrIds)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.
             Use set filter
             $dataConfig->setFilter([[\'operation\' => \'IN\', \'property\' => \'id\', \'values\' => [4,3,2,1]]]).',
             E_USER_NOTICE
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         /** @psalm-suppress DeprecatedProperty */
         $this->arrIds = $arrIds;
@@ -197,6 +204,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
+    #[\Override]
     public function getIdOnly()
     {
         return $this->blnIdOnly;
@@ -209,6 +217,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return DefaultConfig
      */
+    #[\Override]
     public function setIdOnly($blnIdOnly)
     {
         $this->blnIdOnly = $blnIdOnly;
@@ -223,6 +232,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return integer
      */
+    #[\Override]
     public function getStart()
     {
         return $this->intStart;
@@ -237,6 +247,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public function setStart($intStart)
     {
         $this->intStart = $intStart;
@@ -251,6 +262,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return integer
      */
+    #[\Override]
     public function getAmount()
     {
         return $this->intAmount;
@@ -265,6 +277,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public function setAmount($intAmount)
     {
         $this->intAmount = $intAmount;
@@ -277,6 +290,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return null|array
      */
+    #[\Override]
     public function getFilter()
     {
         return $this->arrFilter;
@@ -289,6 +303,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public function setFilter($arrFilter)
     {
         $this->arrFilter = $arrFilter;
@@ -303,6 +318,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return array<string, string>
      */
+    #[\Override]
     public function getSorting()
     {
         return $this->arrSorting;
@@ -317,6 +333,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public function setSorting($arrSorting)
     {
         $this->arrSorting = $arrSorting;
@@ -329,6 +346,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return null|list<string>
      */
+    #[\Override]
     public function getFields()
     {
         return $this->arrFields;
@@ -341,6 +359,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public function setFields($arrFields)
     {
         $this->arrFields = $arrFields;
@@ -355,6 +374,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return mixed || null
      */
+    #[\Override]
     public function get($strKey)
     {
         if (isset($this->arrData[$strKey])) {
@@ -372,6 +392,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @return ConfigInterface
      */
+    #[\Override]
     public function set($strKey, $varValue)
     {
         $this->arrData[$strKey] = $varValue;

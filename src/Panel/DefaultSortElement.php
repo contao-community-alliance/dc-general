@@ -36,6 +36,8 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a sort element.
+ *
+ * @api
  */
 class DefaultSortElement extends AbstractElement implements SortElementInterface
 {
@@ -136,7 +138,8 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     /**
      * {@inheritDoc}
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
+    #[\Override]
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
         $this->defineSortOption($element);
 
@@ -192,6 +195,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function render(ViewTemplateInterface $viewTemplate)
     {
         $definition = $this->getEnvironment()->getDataDefinition();
@@ -230,6 +234,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setSelected($name)
     {
         $this->selected = $this->searchDefinitionByName($name);
@@ -240,6 +245,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getSelected()
     {
         return $this->selected ? $this->selected->getName() : null;
@@ -248,6 +254,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getSelectedDefinition()
     {
         return $this->selected;

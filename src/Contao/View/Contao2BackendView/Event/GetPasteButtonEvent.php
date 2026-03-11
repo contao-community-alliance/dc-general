@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,87 +29,89 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
  * Class GetPasteButtonEvent.
  *
  * This event gets emitted when a paste button is generated.
+ *
+ * @api
  */
 class GetPasteButtonEvent extends BaseButtonEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.get-paste-button';
+    public const string NAME = 'dc-general.view.contao2backend.get-paste-button';
 
     /**
      * Determinator if there is a circular reference from an item in the clipboard to the current model.
      *
      * @var bool|null
      */
-    protected $circularReference = null;
+    protected ?bool $circularReference = null;
 
     /**
      * The href information to use for the paste after button.
      *
      * @var string|null
      */
-    protected $hrefAfter = null;
+    protected ?string $hrefAfter = null;
 
     /**
      * The href information to use for the paste into button.
      *
      * @var string|null
      */
-    protected $hrefInto = null;
+    protected ?string $hrefInto = null;
 
     /**
      * The Html code to use for the "paste after" button.
      *
      * @var string|null
      */
-    protected $htmlPasteAfter = null;
+    protected ?string $htmlPasteAfter = null;
 
     /**
      * The Html code to use for the "paste into" button.
      *
      * @var string|null
      */
-    protected $htmlPasteInto = null;
+    protected ?string $htmlPasteInto = null;
 
     /**
      * The model to which the command shall be applied to.
      *
      * @var ModelInterface|null
      */
-    protected $model = null;
+    protected ?ModelInterface $model = null;
 
     /**
      * The next model in the list.
      *
      * @var ModelInterface|null
      */
-    protected $next = null;
+    protected ?ModelInterface $next = null;
 
     /**
      * The previous model in the list.
      *
      * @var ModelInterface|null
      */
-    protected $previous = null;
+    protected ?ModelInterface $previous = null;
 
     /**
      * Determinator if the paste into button shall be disabled.
      *
      * @var bool|null
      */
-    protected $pasteIntoDisabled = null;
+    protected ?bool $pasteIntoDisabled = null;
 
     /**
      * Determinator if the paste after button shall be disabled.
      *
      * @var bool|null
      */
-    protected $pasteAfterDisabled = null;
+    protected ?bool $pasteAfterDisabled = null;
 
     /**
      * The models currently in the clipboard.
      *
      * @var CollectionInterface|null
      */
-    protected $containedModels = null;
+    protected ?CollectionInterface $containedModels = null;
 
     /**
      * Set determinator if there exists a circular reference.

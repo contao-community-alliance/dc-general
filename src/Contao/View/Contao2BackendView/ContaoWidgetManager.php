@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -62,6 +62,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * @SuppressWarnings(PHPMD.LongClassName)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class ContaoWidgetManager
 {
@@ -70,21 +72,21 @@ class ContaoWidgetManager
      *
      * @var ContaoFramework
      */
-    protected $framework;
+    protected ContaoFramework $framework;
 
     /**
      * The environment in use.
      *
      * @var EnvironmentInterface
      */
-    protected $environment;
+    protected EnvironmentInterface $environment;
 
     /**
      * The model for which widgets shall be generated.
      *
      * @var ModelInterface
      */
-    protected $model;
+    protected ModelInterface $model;
 
     /**
      * The translator.
@@ -177,11 +179,11 @@ class ContaoWidgetManager
     {
         try {
             return ($this->getWidget($property) instanceof Widget);
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
         } catch (\Exception $e) {
             // Fall though and return false.
         }
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
         return false;
     }
 
@@ -401,7 +403,8 @@ class ContaoWidgetManager
     /**
      * Render the widget for the named property.
      *
-     * @param string                         $property     The name of the property for which the widget shall be rendered.
+     * @param string $property                             The name of the property for which the widget shall be
+     *                                                     rendered.
      * @param bool                           $ignoreErrors Flag if the error property of the widget shall get
      *                                                     cleared prior rendering.
      * @param PropertyValueBagInterface|null $inputValues  The input values to use (optional) (RAW widget value format).
@@ -483,10 +486,10 @@ class ContaoWidgetManager
      */
     public function processInput(PropertyValueBag $propertyValues): void
     {
-        // @codingStandardsIgnoreStart - Remember current POST data and clear it.
+        // phpcs:disable - Remember current POST data and clear it.
         $post  = $_POST;
         $_POST = [];
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
         Input::resetCache();
 
         // Set all POST data, these get used within the Widget::validate() method.

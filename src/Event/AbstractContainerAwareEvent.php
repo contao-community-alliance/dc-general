@@ -53,6 +53,7 @@ abstract class AbstractContainerAwareEvent extends Event implements ContainerAwa
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getContainer()
     {
         return $this->container;

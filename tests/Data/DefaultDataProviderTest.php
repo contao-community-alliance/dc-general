@@ -32,23 +32,25 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
+use Exception;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionProperty;
 
 /**
  * This class tests the DefaultDataProvider class.
  *
- * @covers \ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class DefaultDataProviderTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(DefaultDataProvider::class)]
+final class DefaultDataProviderTest extends TestCase
 {
     /**
      * Mock the Contao database.
-     *
-     * @return MockObject&Database
      */
-    private function mockDatabase()
+    private function mockDatabase(): Database&MockObject
     {
         return $this
             ->getMockBuilder(Database::class)
@@ -57,7 +59,7 @@ class DefaultDataProviderTest extends TestCase
             ->getMock();
     }
 
-    private function mockConnection()
+    private function mockConnection(): Connection&MockObject
     {
         return $this
             ->getMockBuilder(Connection::class)
@@ -68,10 +70,8 @@ class DefaultDataProviderTest extends TestCase
 
     /**
      * Mock the default provider.
-     *
-     * @return DefaultDataProvider
      */
-    private function mockDefaultProvider()
+    private function mockDefaultProvider(): DefaultDataProvider
     {
         $schemaTable = $this
             ->getMockBuilder(Table::class)
@@ -83,8 +83,8 @@ class DefaultDataProviderTest extends TestCase
         $schemaManager = $this
             ->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['introspectTable'])
-            ->getMockForAbstractClass();
+            ->onlyMethods(['introspectTable', '_getPortableTableColumnDefinition'])
+            ->getMock();
         $schemaManager->method('introspectTable')->willReturn($schemaTable);
 
         $connection = $this->mockConnection();
@@ -103,19 +103,19 @@ class DefaultDataProviderTest extends TestCase
         return $dataProvider;
     }
 
-    public function testSetBaseConfigNoSource()
+    public function testSetBaseConfigNoSource(): void
     {
         $dataProvider = new DefaultDataProvider();
 
         try {
             $dataProvider->setBaseConfig([]);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
-            self::assertSame($exception->getMessage(), 'Missing table name.');
+            self::assertSame('Missing table name.', $exception->getMessage());
         }
     }
 
-    public function testSetBaseConfigDeprecatedDatabase()
+    public function testSetBaseConfigDeprecatedDatabase(): void
     {
         $dataProvider = new DefaultDataProvider();
         $database     = $this->mockDatabase();
@@ -130,15 +130,14 @@ class DefaultDataProviderTest extends TestCase
         $schemaManager = $this
             ->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['introspectTable'])
-            ->getMockForAbstractClass();
+            ->onlyMethods(['introspectTable', '_getPortableTableColumnDefinition'])
+            ->getMock();
         $schemaManager->method('introspectTable')->willReturn($schemaTable);
 
         $connection = $this->mockConnection();
         $connection->method('createSchemaManager')->willReturn($schemaManager);
 
-        $reflection = new \ReflectionProperty(Database::class, 'resConnection');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty(Database::class, 'resConnection');
 
         $reflection->setValue($database, $connection);
 
@@ -149,23 +148,20 @@ class DefaultDataProviderTest extends TestCase
             ]
         );
 
-        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty(DefaultDataProvider::class, 'connection');
         self::assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
 
-        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'source');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty(DefaultDataProvider::class, 'source');
         self::assertSame('tl_dummy', $reflection->getValue($dataProvider));
 
-        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'idProperty');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty(DefaultDataProvider::class, 'idProperty');
         self::assertSame('id', $reflection->getValue($dataProvider));
 
         self::assertNull($dataProvider->getTimeStampProperty());
         self::assertNull($dataProvider->getIdGenerator());
     }
 
-    public function testSetBaseConfigInvalidConnection()
+    public function testSetBaseConfigInvalidConnection(): void
     {
         $dataProvider = new DefaultDataProvider();
 
@@ -176,13 +172,13 @@ class DefaultDataProviderTest extends TestCase
                     'database' => '\Invalid\Connection'
                 ]
             );
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
-            self::assertSame($exception->getMessage(), 'Invalid database connection.');
+            self::assertSame('Invalid database connection.', $exception->getMessage());
         }
     }
 
-    public function testSetBaseConfigForGetDefaultConnection()
+    public function testSetBaseConfigForGetDefaultConnection(): void
     {
         $schemaTable = $this
             ->getMockBuilder(Table::class)
@@ -194,8 +190,8 @@ class DefaultDataProviderTest extends TestCase
         $schemaManager = $this
             ->getMockBuilder(AbstractSchemaManager::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['introspectTable'])
-            ->getMockForAbstractClass();
+            ->onlyMethods(['introspectTable', '_getPortableTableColumnDefinition'])
+            ->getMock();
         $schemaManager->method('introspectTable')->willReturn($schemaTable);
 
         $connection = $this->mockConnection();
@@ -214,21 +210,15 @@ class DefaultDataProviderTest extends TestCase
             ]
         );
 
-        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty(DefaultDataProvider::class, 'connection');
         self::assertInstanceOf(Connection::class, $reflection->getValue($dataProvider));
     }
 
-    /**
-     * Test that setting the base config works.
-     *
-     * @return void
-     */
-    public function testSetBaseConfig()
+    public function testSetBaseConfig(): void
     {
         $connection = $this->mockConnection();
 
-        $idGenerator = $this->getMockForAbstractClass(IdGeneratorInterface::class);
+        $idGenerator = $this->getMockBuilder(IdGeneratorInterface::class)->getMock();
 
         $dataProvider = new DefaultDataProvider();
 
@@ -242,8 +232,7 @@ class DefaultDataProviderTest extends TestCase
             ]
         );
 
-        $reflection = new \ReflectionProperty(DefaultDataProvider::class, 'connection');
-        $reflection->setAccessible(true);
+        $reflection = new ReflectionProperty(DefaultDataProvider::class, 'connection');
 
         self::assertEquals('tl_something', $dataProvider->getEmptyModel()->getProviderName());
         self::assertEquals($connection, $reflection->getValue($dataProvider));
@@ -252,43 +241,25 @@ class DefaultDataProviderTest extends TestCase
         self::assertSame($idGenerator, $dataProvider->getIdGenerator());
     }
 
-    /**
-     * Test that creating an empty config works.
-     *
-     * @return void
-     */
-    public function testGetEmptyConfig()
+    public function testGetEmptyConfig(): void
     {
         $provider = $this->mockDefaultProvider();
         self::assertInstanceOf(ConfigInterface::class, $provider->getEmptyConfig());
     }
 
-    /**
-     * Test that creating an empty model works.
-     *
-     * @return void
-     */
-    public function testGetEmptyModel()
+    public function testGetEmptyModel(): void
     {
         $provider = $this->mockDefaultProvider();
         self::assertInstanceOf(ModelInterface::class, $provider->getEmptyModel());
     }
 
-    /**
-     * Test that creating an empty model works.
-     *
-     * @return void
-     */
-    public function testGetEmptyCollection()
+    public function testGetEmptyCollection(): void
     {
         $provider = $this->mockDefaultProvider();
         self::assertInstanceOf(CollectionInterface::class, $provider->getEmptyCollection());
     }
 
-    /**
-     * @covers \ContaoCommunityAlliance\DcGeneral\Data\DefaultDataProvider::getDefaultConnection
-     */
-    public function testGetDefaultConnection()
+    public function testGetDefaultConnection(): void
     {
         self::markTestSkipped('This method is not testable.');
     }

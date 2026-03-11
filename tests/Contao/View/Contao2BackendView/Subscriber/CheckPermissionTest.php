@@ -24,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\View\Contao2BackendView\
 use Contao\CoreBundle\Security\ContaoCorePermissions;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\ConditionChainInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PalettesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -35,6 +36,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\SecurityBundle\Security;
 
@@ -43,14 +46,13 @@ use Symfony\Bundle\SecurityBundle\Security;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class CheckPermissionTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversMethod(CheckPermission::class, 'getSubscribedEvents')]
+#[CoversMethod(CheckPermission::class, 'checkPermissionForProperties')]
+#[CoversMethod(CheckPermission::class, 'getVisibilityConditionChain')]
+final class CheckPermissionTest extends TestCase
 {
-    /**
-     * This tests the getSubscribedEvents method.
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission::getSubscribedEvents()
-     */
-    public function testGetSubscribedEvents()
+    public function testGetSubscribedEvents(): void
     {
         $events = CheckPermission::getSubscribedEvents();
 
@@ -66,44 +68,41 @@ class CheckPermissionTest extends TestCase
     /**
      * This tests the checkPermissionForProperties method.
      *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission::checkPermissionForProperties()
-     * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\CheckPermission::getVisibilityConditionChain()
-     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    public function testCheckPermissionForProperties()
+    public function testCheckPermissionForProperties(): void
     {
         $property11 = new Property('property11');
         $property12 = new Property('property12');
         $property12->setVisibleCondition(
-            $prop12chain = $this->getMockBuilder(PropertyConditionInterface::class)->getMockForAbstractClass()
+            $prop12chain = $this->getMockBuilder(PropertyConditionInterface::class)->getMock()
         );
         $propertyNotExist = new Property('property13');
         $property21       = new Property('property21');
         $property21->setVisibleCondition(
-            $prop21chain = new PropertyConditionChain([], PropertyConditionChain::OR_CONJUNCTION)
+            $prop21chain = new PropertyConditionChain([], ConditionChainInterface::OR_CONJUNCTION)
         );
         $property22 = new Property('property22');
         $property22->setVisibleCondition($prop22chain = new PropertyConditionChain());
-        $palette1 = $this->getMockBuilder(PaletteInterface::class)->getMockForAbstractClass();
-        $palette2 = $this->getMockBuilder(PaletteInterface::class)->getMockForAbstractClass();
+        $palette1 = $this->getMockBuilder(PaletteInterface::class)->getMock();
+        $palette2 = $this->getMockBuilder(PaletteInterface::class)->getMock();
 
         $palettes = [$palette1, $palette2];
 
-        $container = $this->getMockBuilder(ContainerInterface::class)->getMockForAbstractClass();
+        $container = $this->getMockBuilder(ContainerInterface::class)->getMock();
 
-        $properties = $this->getMockBuilder(PropertiesDefinitionInterface::class)->getMockForAbstractClass();
+        $properties = $this->getMockBuilder(PropertiesDefinitionInterface::class)->getMock();
 
-        $palettesDefinition = $this->getMockBuilder(PalettesDefinitionInterface::class)->getMockForAbstractClass();
+        $palettesDefinition = $this->getMockBuilder(PalettesDefinitionInterface::class)->getMock();
 
-        $container->expects(self::once())->method('getPropertiesDefinition')->willReturn($properties);
-        $container->expects(self::once())->method('getPalettesDefinition')->willReturn($palettesDefinition);
-        $palettesDefinition->expects(self::once())->method('getPalettes')->willReturn($palettes);
-        $palette1->expects(self::once())->method('getProperties')->willReturn(
+        $container->expects($this->once())->method('getPropertiesDefinition')->willReturn($properties);
+        $container->expects($this->once())->method('getPalettesDefinition')->willReturn($palettesDefinition);
+        $palettesDefinition->expects($this->once())->method('getPalettes')->willReturn($palettes);
+        $palette1->expects($this->once())->method('getProperties')->willReturn(
             [$property11, $property12, $propertyNotExist]
         );
-        $palette2->expects(self::once())->method('getProperties')->willReturn([$property21, $property22]);
-        $properties->expects(self::exactly(4))->method('getProperty')->willReturnCallback(
+        $palette2->expects($this->once())->method('getProperties')->willReturn([$property21, $property22]);
+        $properties->expects($this->exactly(4))->method('getProperty')->willReturnCallback(
             function ($name) {
                 switch ($name) {
                     case 'property11':
@@ -120,7 +119,7 @@ class CheckPermissionTest extends TestCase
                 return null;
             }
         );
-        $properties->expects(self::exactly(5))->method('hasProperty')->willReturnCallback(
+        $properties->expects($this->exactly(5))->method('hasProperty')->willReturnCallback(
             function ($name) {
                 return \in_array($name, ['property11', 'property12', 'property21', 'property22']);
             }
@@ -141,9 +140,9 @@ class CheckPermissionTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $subscriber = new CheckPermission($determinator, $security);
-        $determinator->expects(self::once())->method('currentScopeIsBackend')->willReturn(true);
+        $determinator->expects($this->once())->method('currentScopeIsBackend')->willReturn(true);
         $security
-            ->expects(self::exactly(3))
+            ->expects($this->exactly(3))
             ->method('isGranted')
             ->willReturnCallback(function (string $permission, string $fieldName): bool {
                 static $invocation = 0;
@@ -185,15 +184,12 @@ class CheckPermissionTest extends TestCase
         self::assertNull($propertyNotExist->getVisibleCondition());
     }
 
-    /**
-     * @return MockObject&PropertyInterface
-     */
-    private function mockProperty($isExcluded = false)
+    private function mockProperty($isExcluded = false): MockObject&PropertyInterface
     {
         $mock = $this
             ->getMockBuilder(PropertyInterface::class)
             ->getMock();
-        $mock->expects(self::once())->method('isExcluded')->willReturn($isExcluded);
+        $mock->expects($this->once())->method('isExcluded')->willReturn($isExcluded);
 
         return $mock;
     }

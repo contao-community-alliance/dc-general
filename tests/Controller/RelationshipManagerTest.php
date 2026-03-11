@@ -29,65 +29,51 @@ use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Test case for the relationship manager.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class RelationshipManagerTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversMethod(RelationshipManager::class, 'isRoot')]
+#[CoversMethod(RelationshipManager::class, 'setParentForAll')]
+#[CoversMethod(RelationshipManager::class, 'setRoot')]
+#[CoversMethod(RelationshipManager::class, 'setSameParent')]
+#[CoversMethod(RelationshipManager::class, 'setSameParentForAll')]
+final class RelationshipManagerTest extends TestCase
 {
-    /**
-     * Test the isRoot() method.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
-     */
-    public function testIsRoot()
+    public function testIsRoot(): void
     {
         $model = $this->mockModel();
-        $root  = $this->getMockForAbstractClass(
-            RootConditionInterface::class
-        );
-        $root->expects(self::once())->method('matches')->with($model);
+        $root  = $this->getMockBuilder(RootConditionInterface::class)->getMock();
+        $root->expects($this->once())->method('matches')->with($model);
 
         $relationships = $this->mockRelationship();
-        $relationships->expects(self::once())->method('getRootCondition')->willReturn($root);
+        $relationships->expects($this->once())->method('getRootCondition')->willReturn($root);
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
         $manager->isRoot($model);
     }
 
-    /**
-     * Test the isRoot() method for non hierarchical mode.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
-     */
-    public function testIsRootInNonHierarchicalMode()
+    public function testIsRootInNonHierarchicalMode(): void
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects(self::never())->method('getRootCondition');
+        $relationships->expects($this->never())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_FLAT);
 
         $manager->isRoot($this->mockModel());
     }
 
-    /**
-     * Test the isRoot() without condition.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot()
-     */
-    public function testIsRootWithoutCondition()
+    public function testIsRootWithoutCondition(): void
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects(self::once())->method('getRootCondition');
+        $relationships->expects($this->once())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
@@ -96,57 +82,34 @@ class RelationshipManagerTest extends TestCase
         $manager->isRoot($this->mockModel());
     }
 
-    /**
-     * Test the setRoot() method.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
-     */
-    public function testSetRoot()
+    public function testSetRoot(): void
     {
         $model = $this->mockModel();
-        $root  = $this->getMockForAbstractClass(
-            RootConditionInterface::class
-        );
-        $root->expects(self::once())->method('applyTo')->with($model);
+        $root  = $this->getMockBuilder(RootConditionInterface::class)->getMock();
+        $root->expects($this->once())->method('applyTo')->with($model);
 
         $relationships = $this->mockRelationship();
-        $relationships->expects(self::once())->method('getRootCondition')->willReturn($root);
+        $relationships->expects($this->once())->method('getRootCondition')->willReturn($root);
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
         $manager->setRoot($model);
     }
 
-    /**
-     * Test the setRoot() method for non hierarchical mode.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
-     */
-    public function testSetRootInNonHierarchicalMode()
+    public function testSetRootInNonHierarchicalMode(): void
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects(self::never())->method('getRootCondition');
+        $relationships->expects($this->never())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_FLAT);
 
         $manager->setRoot($this->mockModel());
     }
 
-    /**
-     * Test the setRoot() without condition.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot()
-     */
-    public function testSetRootWithoutCondition()
+    public function testSetRootWithoutCondition(): void
     {
         $relationships = $this->mockRelationship();
-        $relationships->expects(self::once())->method('getRootCondition');
+        $relationships->expects($this->once())->method('getRootCondition');
 
         $manager = new RelationshipManager($relationships, BasicDefinitionInterface::MODE_HIERARCHICAL);
 
@@ -155,14 +118,7 @@ class RelationshipManagerTest extends TestCase
         $manager->setRoot($this->mockModel());
     }
 
-    /**
-     * Test the setParentForAll() method.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setAllRoot()
-     */
-    public function testSetAllRoot()
+    public function testSetAllRoot(): void
     {
         $model1     = $this->mockModel();
         $model2     = $this->mockModel();
@@ -172,35 +128,44 @@ class RelationshipManagerTest extends TestCase
 
         $manager = $this
             ->getMockBuilder(RelationshipManager::class)
-            ->setMethods(['setRoot'])
+            ->onlyMethods(['setRoot'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects(self::exactly(2))->method('setRoot')->withConsecutive([$model1], [$model2]);
+        $manager
+            ->expects($this->exactly(2))
+            ->method('setRoot')
+            ->willReturnCallback(
+                static function (ModelInterface $model) use ($model1, $model2): void {
+                    static $counter = 0;
+                    switch ($counter++) {
+                        case 0:
+                            self::assertSame($model1, $model);
+                            return;
+                        case 1:
+                            self::assertSame($model2, $model);
+                            return;
+                    }
+                    self::fail('Unexpected call');
+                }
+            );
 
         /** @var RelationshipManager $manager */
         $manager->setAllRoot($collection);
     }
 
-    /**
-     * Test the setParent() method.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent()
-     */
-    public function testSetParent()
+    public function testSetParent(): void
     {
         $model     = $this->mockModel();
         $parent    = $this->mockModel();
-        $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
-        $condition->expects(self::once())->method('applyTo')->with($model);
+        $condition = $this->getMockBuilder(ParentChildConditionInterface::class)->getMock();
+        $condition->expects($this->once())->method('applyTo')->with($model);
 
         $model->method('getProviderName')->willReturn('child');
         $parent->method('getProviderName')->willReturn('parent');
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn($condition);
@@ -210,14 +175,7 @@ class RelationshipManagerTest extends TestCase
         $manager->setParent($model, $parent);
     }
 
-    /**
-     * Test the setParent() without condition.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent()
-     */
-    public function testSetParentWithoutCondition()
+    public function testSetParentWithoutCondition(): void
     {
         $model  = $this->mockModel();
         $parent = $this->mockModel();
@@ -226,7 +184,7 @@ class RelationshipManagerTest extends TestCase
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn(null);
@@ -238,14 +196,7 @@ class RelationshipManagerTest extends TestCase
         $manager->setParent($model, $parent);
     }
 
-    /**
-     * Test the setParentForAll() method.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParentForAll()
-     */
-    public function testSetParentForAll()
+    public function testSetParentForAll(): void
     {
         $model1     = $this->mockModel();
         $model2     = $this->mockModel();
@@ -256,40 +207,53 @@ class RelationshipManagerTest extends TestCase
         $parent  = $this->mockModel();
         $manager = $this
             ->getMockBuilder(RelationshipManager::class)
-            ->setMethods(['setParent'])
+            ->onlyMethods(['setParent'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects(self::exactly(2))->method('setParent')->withConsecutive(
-            [$model1, $parent],
-            [$model2, $parent]
-        );
+        $manager
+            ->expects($this->exactly(2))
+            ->method('setParent')
+            ->willReturnCallback(
+                static function (
+                    ModelInterface $model,
+                    ModelInterface $parentModel
+                ) use (
+                    $model1,
+                    $model2,
+                    $parent
+                ): void {
+                    static $counter = 0;
+                    switch ($counter++) {
+                        case 0:
+                            self::assertSame($model1, $model);
+                            self::assertSame($parent, $parentModel);
+                            return;
+                        case 1:
+                            self::assertSame($model2, $model);
+                            self::assertSame($parent, $parentModel);
+                            return;
+                    }
+                    self::fail('Unexpected call');
+                }
+            );
 
         /** @var RelationshipManager $manager */
         $manager->setParentForAll($collection, $parent);
     }
 
-    /**
-     * Test the setSameParent() method.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent()
-     */
-    public function testSetSameParent()
+    public function testSetSameParent(): void
     {
         $model     = $this->mockModel();
         $source    = $this->mockModel();
-        $condition = $this->getMockForAbstractClass(
-            ParentChildConditionInterface::class
-        );
-        $condition->expects(self::once())->method('copyFrom')->with($model, $source);
+        $condition = $this->getMockBuilder(ParentChildConditionInterface::class)->getMock();
+        $condition->expects($this->once())->method('copyFrom')->with($model, $source);
 
         $model->method('getProviderName')->willReturn('child');
         $source->method('getProviderName')->willReturn('child');
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn($condition);
@@ -299,14 +263,7 @@ class RelationshipManagerTest extends TestCase
         $manager->setSameParent($model, $source, 'parent');
     }
 
-    /**
-     * Test the setSameParent() without condition.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent()
-     */
-    public function testSetSameParentWithoutCondition()
+    public function testSetSameParentWithoutCondition(): void
     {
         $model  = $this->mockModel();
         $source = $this->mockModel();
@@ -315,7 +272,7 @@ class RelationshipManagerTest extends TestCase
 
         $relationships = $this->mockRelationship();
         $relationships
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getChildCondition')
             ->with('parent', 'child')
             ->willReturn(null);
@@ -327,14 +284,7 @@ class RelationshipManagerTest extends TestCase
         $manager->setSameParent($model, $source, 'parent');
     }
 
-    /**
-     * Test the setSameParentForAll() method.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParentForAll()
-     */
-    public function testSetSameParentForAll()
+    public function testSetSameParentForAll(): void
     {
         $model1     = $this->mockModel();
         $model2     = $this->mockModel();
@@ -348,13 +298,38 @@ class RelationshipManagerTest extends TestCase
 
         $manager = $this
             ->getMockBuilder(RelationshipManager::class)
-            ->setMethods(['setSameParent'])
+            ->onlyMethods(['setSameParent'])
             ->disableOriginalConstructor()
             ->getMock();
-        $manager->expects(self::exactly(2))->method('setSameParent')->withConsecutive(
-            [$model1, $source, 'parent'],
-            [$model2, $source, 'parent']
-        );
+        $manager
+            ->expects($this->exactly(2))
+            ->method('setSameParent')
+            ->willReturnCallback(
+                static function (
+                    ModelInterface $model,
+                    ModelInterface $sourceModel,
+                    string $providerName
+                ) use (
+                    $model1,
+                    $model2,
+                    $source
+                ): void {
+                    static $counter = 0;
+                    switch ($counter++) {
+                        case 0:
+                            self::assertSame($model1, $model);
+                            self::assertSame($source, $sourceModel);
+                            self::assertSame('parent', $providerName);
+                            return;
+                        case 1:
+                            self::assertSame($model2, $model);
+                            self::assertSame($source, $sourceModel);
+                            self::assertSame('parent', $providerName);
+                            return;
+                    }
+                    self::fail('Unexpected call');
+                }
+            );
 
         /** @var RelationshipManager $manager */
         $manager->setSameParentForAll($collection, $source, 'parent');
@@ -362,21 +337,17 @@ class RelationshipManagerTest extends TestCase
 
     /**
      * Mock a model relationship.
-     *
-     * @return ModelRelationshipDefinitionInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    private function mockRelationship()
+    private function mockRelationship(): ModelRelationshipDefinitionInterface&MockObject
     {
-        return $this->getMockForAbstractClass(ModelRelationshipDefinitionInterface::class);
+        return $this->getMockBuilder(ModelRelationshipDefinitionInterface::class)->getMock();
     }
 
     /**
      * Mock a model.
-     *
-     * @return ModelInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    private function mockModel()
+    private function mockModel(): ModelInterface&MockObject
     {
-        return $this->getMockForAbstractClass(ModelInterface::class);
+        return $this->getMockBuilder(ModelInterface::class)->getMock();
     }
 }

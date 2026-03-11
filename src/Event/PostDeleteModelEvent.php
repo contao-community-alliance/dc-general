@@ -23,8 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is emitted after a model has been deleted.
+ *
+ * @api
  */
 class PostDeleteModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.post-delete';
+    public const string NAME = 'dc-general.model.post-delete';
 }

@@ -26,12 +26,15 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 
 /**
  * Condition for the default palette.
+ *
+ * @api
  */
 class DefaultPaletteCondition implements PaletteConditionInterface
 {
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getMatchCount(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         return 0;
@@ -40,6 +43,7 @@ class DefaultPaletteCondition implements PaletteConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

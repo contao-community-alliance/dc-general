@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral;
 
 /**
  * This class holds all build-in view names.
+ *
+ * @api
  */
 class DcGeneralViews
 {
@@ -33,5 +35,5 @@ class DcGeneralViews
      *
      * @api
      */
-    public const CLIPBOARD = 'clipboard';
+    public const string CLIPBOARD = 'clipboard';
 }

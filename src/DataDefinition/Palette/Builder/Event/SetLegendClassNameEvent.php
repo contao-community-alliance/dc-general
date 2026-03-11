@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 
 /**
  * This event gets emitted when a legend class name is set.
+ *
+ * @api
  */
 class SetLegendClassNameEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.set-legend-class-name';
+    public const string NAME = 'dc-general.data-definition.palette.builder.set-legend-class-name';
 
     /**
      * The class name.
      *
      * @var class-string<LegendInterface>
      */
-    protected $legendClassName;
+    protected string $legendClassName;
 
     /**
      * Create a new instance.

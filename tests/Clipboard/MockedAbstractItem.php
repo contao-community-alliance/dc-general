@@ -26,24 +26,18 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 
 /**
  * Mocked abstract item to test its methods.
- *
- * @package ContaoCommunityAlliance\DcGeneral\Test\Clipboard
  */
-class MockedAbstractItem extends AbstractItem
+final class MockedAbstractItem extends AbstractItem
 {
     /**
      * The model id.
-     *
-     * @var ModelIdInterface
      */
-    private $modelId;
+    private ?ModelIdInterface $modelId = null;
 
     /**
      * The provider name.
-     *
-     * @var string
      */
-    private $providerName;
+    private string|null|ModelIdInterface $providerName;
 
     /**
      * MockedAbstractItem constructor.
@@ -54,8 +48,11 @@ class MockedAbstractItem extends AbstractItem
      *
      * @SuppressWarnings(PHPMD.LongVariable)
      */
-    public function __construct($action, ?ModelIdInterface $parentId = null, $modelIdOrProviderName = null)
-    {
+    public function __construct(
+        string $action,
+        ?ModelIdInterface $parentId = null,
+        ModelIdInterface|string|null $modelIdOrProviderName = null
+    ) {
         parent::__construct($action, $parentId);
 
         if ($modelIdOrProviderName instanceof ModelIdInterface) {
@@ -67,20 +64,16 @@ class MockedAbstractItem extends AbstractItem
 
     /**
      * Retrieve the id of the model from this item.
-     *
-     * @return ModelId|null
      */
-    public function getModelId()
+    public function getModelId(): ModelId|ModelIdInterface|null
     {
         return $this->modelId;
     }
 
     /**
      * Retrieve the provider name of the model from this item.
-     *
-     * @return string
      */
-    public function getDataProviderName()
+    public function getDataProviderName(): ModelIdInterface|string|null
     {
         if ($this->modelId) {
             return $this->modelId->getDataProviderName();
@@ -91,19 +84,16 @@ class MockedAbstractItem extends AbstractItem
 
     /**
      * Get the id which identifies the item in the clipboard.
-     *
-     * @return string
      */
-    public function getClipboardId()
+    public function getClipboardId(): string
     {
         if ($this->modelId) {
             return $this->getAction() .
-            $this->modelId->getSerialized() .
-            (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
-        } else {
-            return $this->getAction() .
-            $this->getDataProviderName() .
-            (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
+                $this->modelId->getSerialized() .
+                (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
         }
+        return $this->getAction() .
+               $this->getDataProviderName() .
+               (($parentId = $this->getParentId()) ? $parentId->getSerialized() : 'null');
     }
 }

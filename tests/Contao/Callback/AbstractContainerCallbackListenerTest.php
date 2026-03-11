@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Callback;
 
+use Closure;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGetBreadcrumbCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerHeaderCallbackListener;
@@ -52,54 +53,61 @@ use ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionClass;
+use RuntimeException;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Class AbstractContainerCallbackListenerTest
  *
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnSubmitCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Event\PostPersistModelEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnDeleteCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Event\PostDeleteModelEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCutCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Event\PostPasteModelEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnCopyCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Event\PostDuplicateModelEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerHeaderCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetParentHeaderEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteRootButtonCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerPasteButtonCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelChildRecordCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ParentViewChildRecordEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelGroupCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelLabelCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ModelToLabelEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGetBreadcrumbCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerOnLoadCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Factory\Event\CreateDcGeneralEvent::getDcGeneral
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ContainerGlobalButtonCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent::getKey
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOperationButtonCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent::getKey
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class AbstractContainerCallbackListenerTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversMethod(ContainerOnSubmitCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PostPersistModelEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerOnDeleteCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PostDeleteModelEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerOnCutCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PostPasteModelEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerOnCopyCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PostDuplicateModelEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerHeaderCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(GetParentHeaderEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerPasteRootButtonCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(GetPasteRootButtonEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerPasteButtonCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(GetPasteButtonEvent::class, 'getEnvironment')]
+#[CoversMethod(ModelChildRecordCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(ParentViewChildRecordEvent::class, 'getEnvironment')]
+#[CoversMethod(ModelGroupCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(GetGroupHeaderEvent::class, 'getEnvironment')]
+#[CoversMethod(ModelLabelCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(ModelToLabelEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerGetBreadcrumbCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(GetBreadcrumbEvent::class, 'getEnvironment')]
+#[CoversMethod(ContainerOnLoadCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(CreateDcGeneralEvent::class, 'getDcGeneral')]
+#[CoversMethod(ContainerGlobalButtonCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(GetGlobalButtonEvent::class, 'getEnvironment')]
+#[CoversMethod(GetGlobalButtonEvent::class, 'getKey')]
+#[CoversMethod(ModelOperationButtonCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(GetOperationButtonEvent::class, 'getEnvironment')]
+#[CoversMethod(GetOperationButtonEvent::class, 'getKey')]
+final class AbstractContainerCallbackListenerTest extends TestCase
 {
-    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) - phpmd can not handle the use syntax. */
-    protected function getCallback($value)
+    protected function getCallback($value): Closure
     {
-        return function () use ($value) {
-            throw new \Exception('The callback should not be executed as it is only mocked');
+        return static function () use ($value) {
+            throw new RuntimeException('The callback should not be executed as it is only mocked: ' . $value);
         };
     }
 
-    public function mockEnvironment($dataContainerName)
+    public static function getEnvironment($dataContainerName): DefaultEnvironment
     {
         $environment = new DefaultEnvironment();
         $environment->setDataDefinition(new DefaultContainer($dataContainerName));
@@ -107,26 +115,28 @@ class AbstractContainerCallbackListenerTest extends TestCase
         return $environment;
     }
 
-    protected function mockContainerEvent($class, $tablename)
+    protected function mockContainerEvent(string $class, string $tablename): Event
     {
-        $reflection = new \ReflectionClass($class);
+        $reflection = new ReflectionClass($class);
 
         if ($reflection->hasMethod('getEnvironment')) {
-                $event = $this
-                    ->getMockBuilder($class)
-                    ->setMethods(['getEnvironment'])
-                    ->disableOriginalConstructor()
-                    ->getMock();
+            /** @var Event&MockObject $event */
+            $event = $this
+                ->getMockBuilder($class)
+                ->onlyMethods(['getEnvironment'])
+                ->disableOriginalConstructor()
+                ->getMock();
 
             if ($tablename) {
                 $event
                     ->method('getEnvironment')
-                    ->willReturn($this->mockEnvironment($tablename));
+                    ->willReturn(self::getEnvironment($tablename));
             }
         } else {
+            /** @var Event&MockObject $event */
             $event = $this
                 ->getMockBuilder($class)
-                ->setMethods(['unknownMethod'])
+                ->onlyMethods(['unknownMethod'])
                 ->disableOriginalConstructor()
                 ->getMock();
         }
@@ -134,8 +144,7 @@ class AbstractContainerCallbackListenerTest extends TestCase
         return $event;
     }
 
-
-    public function environmentAwareEventExecutionDataProvider()
+    public static function environmentAwareEventExecutionDataProvider(): array
     {
         return [[
                 ContainerOnSubmitCallbackListener::class,
@@ -184,10 +193,8 @@ class AbstractContainerCallbackListenerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider environmentAwareEventExecutionDataProvider
-     */
-    public function testEnvironmentAwareEventExecution($listenerClass, $eventClass)
+    #[Dataprovider('environmentAwareEventExecutionDataProvider')]
+    public function testEnvironmentAwareEventExecution(string $listenerClass, string $eventClass): void
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename']);
         self::assertTrue(
@@ -210,22 +217,22 @@ class AbstractContainerCallbackListenerTest extends TestCase
         );
     }
 
-    public function environmentUnawareEventExecutionDataProvider()
+    public static function environmentUnawareEventExecutionDataProvider(): array
     {
-        $that = $this;
-        return [[
+        return [
+            [
                 ContainerOnLoadCallbackListener::class,
-                function ($tableName) use ($that) {
-                    $event = $this
+                static function ($tableName, TestCase $test) {
+                    $event = $test
                         ->getMockBuilder(CreateDcGeneralEvent::class)
-                        ->setMethods(['getDcGeneral'])
+                        ->onlyMethods(['getDcGeneral'])
                         ->disableOriginalConstructor()
                         ->getMock();
 
                     if ($tableName) {
                         $event
                             ->method('getDcGeneral')
-                            ->willReturn(new DcGeneral($that->mockEnvironment($tableName)));
+                            ->willReturn(new DcGeneral(self::getEnvironment($tableName)));
                     }
                     return $event;
                 }
@@ -233,35 +240,33 @@ class AbstractContainerCallbackListenerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider environmentUnawareEventExecutionDataProvider
-     */
-    public function testEnvironmentUnawareEventExecution($listenerClass, $eventFactory)
+    #[Dataprovider('environmentUnawareEventExecutionDataProvider')]
+    public function testEnvironmentUnawareEventExecution($listenerClass, $eventFactory): void
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename']);
-        self::assertTrue($listener->wantToExecute($eventFactory('tablename')), $listenerClass);
-        self::assertFalse($listener->wantToExecute($eventFactory('anotherTable')), $listenerClass);
+        self::assertTrue($listener->wantToExecute($eventFactory('tablename', $this)), $listenerClass);
+        self::assertFalse($listener->wantToExecute($eventFactory('anotherTable', $this)), $listenerClass);
 
         $listener = new $listenerClass($this->getCallback($listenerClass));
-        self::assertTrue($listener->wantToExecute($eventFactory('tablename')), $listenerClass);
-        self::assertTrue($listener->wantToExecute($eventFactory('anotherTable')), $listenerClass);
+        self::assertTrue($listener->wantToExecute($eventFactory('tablename', $this)), $listenerClass);
+        self::assertTrue($listener->wantToExecute($eventFactory('anotherTable', $this)), $listenerClass);
     }
 
-    public function operationRestrictedEventExecutionDataProvider()
+    public static function operationRestrictedEventExecutionDataProvider(): array
     {
-        $that = $this;
-        return [[
+        return [
+            [
                 ContainerGlobalButtonCallbackListener::class,
-                function ($tableName, $operationName) use ($that) {
-                    $event = $this
+                static function ($tableName, $operationName, TestCase $test) {
+                    $event = $test
                         ->getMockBuilder(GetGlobalButtonEvent::class)
-                        ->setMethods(['getEnvironment', 'getKey'])
+                        ->onlyMethods(['getEnvironment', 'getKey'])
                         ->disableOriginalConstructor()
                         ->getMock();
 
                     $event
                         ->method('getEnvironment')
-                        ->willReturn($that->mockEnvironment($tableName));
+                        ->willReturn(self::getEnvironment($tableName));
                     $event
                         ->method('getKey')
                         ->willReturn($operationName);
@@ -271,16 +276,16 @@ class AbstractContainerCallbackListenerTest extends TestCase
             ],
             [
                 ModelOperationButtonCallbackListener::class,
-                function ($tableName, $operationName) use ($that) {
-                    $event = $this
+                function ($tableName, $operationName, TestCase $test) {
+                    $event = $test
                         ->getMockBuilder(GetOperationButtonEvent::class)
-                        ->setMethods(['getEnvironment', 'getKey'])
+                        ->onlyMethods(['getEnvironment', 'getKey'])
                         ->disableOriginalConstructor()
                         ->getMock();
 
                     $event
                         ->method('getEnvironment')
-                        ->willReturn($that->mockEnvironment($tableName));
+                        ->willReturn(self::getEnvironment($tableName));
                     $event
                         ->method('getKey')
                         ->willReturn($operationName);
@@ -291,22 +296,20 @@ class AbstractContainerCallbackListenerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider operationRestrictedEventExecutionDataProvider
-     */
-    public function testOperationRestrictedEventExecution($listenerClass, $eventFactory)
+    #[Dataprovider('operationRestrictedEventExecutionDataProvider')]
+    public function testOperationRestrictedEventExecution($listenerClass, $eventFactory): void
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename', 'operationName']);
         self::assertTrue(
-            $listener->wantToExecute($eventFactory('tablename', 'operationName')),
+            $listener->wantToExecute($eventFactory('tablename', 'operationName', $this)),
             $listenerClass
         );
         self::assertFalse(
-            $listener->wantToExecute($eventFactory('anotherTable', 'operationName')),
+            $listener->wantToExecute($eventFactory('anotherTable', 'operationName', $this)),
             $listenerClass
         );
         self::assertFalse(
-            $listener->wantToExecute($eventFactory('tablename', 'anotherOperationName')),
+            $listener->wantToExecute($eventFactory('tablename', 'anotherOperationName', $this)),
             $listenerClass
         );
     }

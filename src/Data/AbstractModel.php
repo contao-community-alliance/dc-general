@@ -39,6 +39,7 @@ abstract class AbstractModel implements ModelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getMeta($strMetaName)
     {
         return ($this->arrMetaInformation[$strMetaName] ?? null);
@@ -47,6 +48,7 @@ abstract class AbstractModel implements ModelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setMeta($strMetaName, $varValue)
     {
         $this->arrMetaInformation[$strMetaName] = $varValue;

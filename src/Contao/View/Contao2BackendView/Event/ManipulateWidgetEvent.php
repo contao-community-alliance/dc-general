@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,24 +36,26 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  * If you want to create the widget entirely by yourself refer to the BuildWidgetEvent event.
  *
  * @see BuildWidgetEvent
+ *
+ * @api
  */
 class ManipulateWidgetEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.manipulate-widget';
+    public const string NAME = 'dc-general.view.contao2backend.manipulate-widget';
 
     /**
      * The widget instance to manipulate.
      *
      * @var Widget
      */
-    protected $widget;
+    protected Widget $widget;
 
     /**
      * The property information for which the widget has been created.
      *
      * @var PropertyInterface
      */
-    protected $property;
+    protected PropertyInterface $property;
 
     /**
      * Create a new event.

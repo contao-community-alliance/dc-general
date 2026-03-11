@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,6 +35,8 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
  * @see https://github.com/contao/core/blob/master/system/modules/core/widgets/PageTree.php
  *
  * @psalm-suppress PropertyNotSetInConstructor
+ *
+ * @api
  */
 class PageTree extends TreePicker
 {
@@ -53,6 +55,7 @@ class PageTree extends TreePicker
      * @return null|string|list<string>
      *
      */
+    #[\Override]
     protected function validator($varInput)
     {
         $translator = $this->getEnvironment()->getTranslator();
@@ -75,6 +78,7 @@ class PageTree extends TreePicker
      *
      * @return CollectionInterface
      */
+    #[\Override]
     public function loadCollection($rootId = null, $level = 0, $providerName = null)
     {
         $collection = $this->getTreeCollectionRecursive($rootId, $level, $providerName);
@@ -111,6 +115,7 @@ class PageTree extends TreePicker
      *
      * @return string
      */
+    #[\Override]
     protected function generatePickerUrl()
     {
         $extra = [

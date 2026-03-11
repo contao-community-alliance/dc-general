@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Handy helper class to generate and manipulate AND filter arrays.
  *
  * This class is intended to be only used via the FilterBuilder main class.
+ *
+ * @api
  */
 class PropertyValueInFilterBuilder extends BaseFilterBuilder
 {
@@ -82,6 +84,7 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
      *
      * @return array
      */
+    #[\Override]
     public function get()
     {
         return [

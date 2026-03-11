@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
 /**
  * Implementation of a "new" command.
+ *
+ * @api
  */
 class CreateModelCommand extends Command
 {

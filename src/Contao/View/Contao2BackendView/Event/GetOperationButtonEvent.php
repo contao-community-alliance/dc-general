@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <mail@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,66 +29,68 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInte
  * Class GetOperationButtonEvent.
  *
  * This event gets emitted when an operation button is rendered.
+ *
+ * @api
  */
 class GetOperationButtonEvent extends BaseButtonEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.get-operation-button';
+    public const string NAME = 'dc-general.view.contao2backend.get-operation-button';
 
     /**
      * The command for which the button is being rendered.
      *
      * @var CommandInterface|null
      */
-    protected $command;
+    protected ?CommandInterface $command = null;
 
     /**
      * The model to which the command shall be applied to.
      *
      * @var ModelInterface|null
      */
-    protected $model;
+    protected ?ModelInterface $model = null;
 
     /**
      * The ids of any child records of the model.
      *
      * @var array|null
      */
-    protected $childRecordIds;
+    protected ?array $childRecordIds = null;
 
     /**
      * Determinator if there is a circular reference from an item in the clipboard to the current model.
      *
      * @var bool|null
      */
-    protected $circularReference;
+    protected ?bool $circularReference = null;
 
     /**
      * The next model succeeding the current model.
      *
      * @var ModelInterface|null
      */
-    protected $next;
+    protected ?ModelInterface $next = null;
 
     /**
      * The model preceeding the current model.
      *
      * @var ModelInterface|null
      */
-    protected $previous;
+    protected ?ModelInterface $previous = null;
 
     /**
      * The href for the command.
      *
      * @var string|null
      */
-    protected $href;
+    protected ?string $href = null;
 
     /**
      * Disabled state of the button.
      *
      * @var bool|null
      */
-    protected $disabled;
+    protected ?bool $disabled = null;
 
     /**
      * Set the attached command.

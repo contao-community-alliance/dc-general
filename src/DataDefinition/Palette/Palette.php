@@ -30,6 +30,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a palette.
+ *
+ * @api
  */
 class Palette implements PaletteInterface
 {
@@ -57,6 +59,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setName($name)
     {
         $this->name = $name;
@@ -67,6 +70,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -75,6 +79,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $properties = [[]];
@@ -88,6 +93,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getVisibleProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $properties = [];
@@ -105,6 +111,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEditableProperties(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $properties = [];
@@ -124,6 +131,7 @@ class Palette implements PaletteInterface
      *
      * @throws DcGeneralRuntimeException When the palette does not contain the desired property.
      */
+    #[\Override]
     public function getProperty($propertyName)
     {
         foreach ($this->getLegends() as $legend) {
@@ -144,6 +152,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function clearLegends()
     {
         $this->legends = [];
@@ -154,6 +163,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setLegends(array $legends)
     {
         $this->clearLegends()->addLegends($legends);
@@ -164,6 +174,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addLegends(array $legends, ?LegendInterface $before = null)
     {
         foreach ($legends as $legend) {
@@ -176,6 +187,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasLegend($name)
     {
         foreach ($this->legends as $legend) {
@@ -190,6 +202,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function containsLegend(LegendInterface $legend)
     {
         return isset($this->legends[\spl_object_hash($legend)]);
@@ -200,6 +213,7 @@ class Palette implements PaletteInterface
      *
      * @throws DcGeneralInvalidArgumentException When the legend passed as $before can not be found.
      */
+    #[\Override]
     public function addLegend(LegendInterface $legend, ?LegendInterface $before = null)
     {
         $hash = \spl_object_hash($legend);
@@ -239,6 +253,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeLegend(LegendInterface $legend)
     {
         unset($this->legends[\spl_object_hash($legend)]);
@@ -251,6 +266,7 @@ class Palette implements PaletteInterface
      *
      * @throws DcGeneralRuntimeException When the legend does not exist.
      */
+    #[\Override]
     public function getLegend($name)
     {
         foreach ($this->legends as $legend) {
@@ -265,6 +281,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getLegends()
     {
         return \array_values($this->legends);
@@ -273,6 +290,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setCondition(?PaletteConditionInterface $condition = null)
     {
         $this->condition = $condition;
@@ -283,6 +301,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getCondition()
     {
         return $this->condition;
@@ -291,6 +310,7 @@ class Palette implements PaletteInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
         /** @var Legend[] $legends */
