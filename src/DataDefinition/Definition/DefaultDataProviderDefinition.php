@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * This is the default implementation of a collection of data provider information.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
+ *
+ * @api
  */
 class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
 {
@@ -37,7 +39,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      *
      * @var array<string, DataProviderInformationInterface>
      */
-    protected $information = [];
+    protected array $information = [];
 
     /**
      * {@inheritdoc}
@@ -45,6 +47,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      * @throws DcGeneralInvalidArgumentException When an invalid instance has been passed or a provider definition with
      *                                           the given name has already been registered.
      */
+    #[\Override]
     public function addInformation($information)
     {
         if (!($information instanceof DataProviderInformationInterface)) {
@@ -88,6 +91,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeInformation($information)
     {
         unset($this->information[$this->makeName($information)]);
@@ -98,6 +102,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setInformation($name, $information)
     {
         $this->information[$name] = $information;
@@ -108,6 +113,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasInformation($information)
     {
         return \array_key_exists($this->makeName($information), $this->information);
@@ -116,6 +122,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getInformation($information)
     {
         return $this->information[$this->makeName($information)];
@@ -124,6 +131,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getProviderNames()
     {
         return \array_keys($this->information);
@@ -132,6 +140,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->information);
@@ -140,6 +149,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function count(): int
     {
         return \count($this->information);
@@ -148,6 +158,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetExists($offset): bool
     {
         return $this->hasInformation($offset);
@@ -156,6 +167,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetGet($offset): mixed
     {
         return $this->getInformation($offset);
@@ -164,6 +176,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetSet($offset, $value): void
     {
         assert(\is_string($offset));
@@ -173,6 +186,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetUnset($offset): void
     {
         $this->removeInformation($offset);

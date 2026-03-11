@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\PanelLayout
 
 /**
  * Reference implementation for BasicDefinitionInterface.
+ *
+ * @api
  */
 class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterface
 {
@@ -77,6 +80,7 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getListingConfig()
     {
         return $this->listingConfig;
@@ -85,6 +89,7 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getGlobalCommands()
     {
         return $this->globalCommands;
@@ -93,6 +98,7 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getModelCommands()
     {
         return $this->modelCommands;
@@ -101,6 +107,7 @@ class Contao2BackendViewDefinition implements Contao2BackendViewDefinitionInterf
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPanelLayout()
     {
         return $this->panelLayout;

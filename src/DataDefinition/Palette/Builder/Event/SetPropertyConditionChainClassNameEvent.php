@@ -31,17 +31,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\
  *
  * @psalm-type TConditionInterface=ConditionChainInterface&PropertyConditionInterface
  *
+ * @api
+ *
  */
 class SetPropertyConditionChainClassNameEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.set-property-condition-chain-class-name';
+    public const string NAME = 'dc-general.data-definition.palette.builder.set-property-condition-chain-class-name';
 
     /**
      * The class name.
      *
      * @var class-string<TConditionInterface>
      */
-    protected $className;
+    protected string $className;
 
     /**
      * Create a new instance.

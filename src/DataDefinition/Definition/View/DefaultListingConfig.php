@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -29,6 +30,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Default implementation of a listing config.
  *
  * @SuppressWarnings(PHPMD.LongVariable)
+ *
+ * @api
  */
 class DefaultListingConfig implements ListingConfigInterface
 {
@@ -37,68 +40,74 @@ class DefaultListingConfig implements ListingConfigInterface
      *
      * @var GroupAndSortingDefinitionCollectionInterface
      */
-    protected $groupAndSorting;
+    protected GroupAndSortingDefinitionCollectionInterface|DefaultGroupAndSortingDefinitionCollection $groupAndSorting;
 
     /**
      * The properties to display in the header (parented mode only).
      *
      * @var list<string>
      */
-    protected $headerProperties = [];
+    protected array $headerProperties = [];
 
     /**
      * The root icon to use (hierarchical mode only).
      *
      * @var string|null
      */
-    protected $rootIcon;
+    protected ?string $rootIcon;
 
     /**
      * The root label.
      *
      * @var string|null
      */
-    protected $rootLabel;
+    protected ?string $rootLabel;
 
     /**
      * The CSS class to apply to each item in the listing.
      *
      * @var string|null
      */
-    protected $itemCssClass;
+    protected ?string $itemCssClass;
 
     /**
      * The item formatter to use.
      *
      * @var array<string, ModelFormatterConfigInterface>
      */
-    protected $itemFormatter = [];
+    protected array $itemFormatter = [];
 
     /**
      * Flag if the properties displayed shall be shown as table layout.
      *
      * @var bool|null
      */
-    protected $showColumns;
+    protected ?bool $showColumns;
 
     /**
      * The parent table property name.
      *
      * @var string|null
      */
-    protected $parentTablePropertyName;
+    protected ?string $parentTablePropertyName;
 
     /**
      * Create a new instance.
      */
     public function __construct()
     {
-        $this->groupAndSorting = new DefaultGroupAndSortingDefinitionCollection();
+        $this->groupAndSorting         = new DefaultGroupAndSortingDefinitionCollection();
+        $this->rootIcon                = null;
+        $this->rootLabel               = null;
+        $this->itemCssClass            = null;
+        $this->showColumns             = false;
+        $this->parentTablePropertyName = null;
     }
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDefaultSortingFields()
     {
         $definitions = $this->getGroupAndSortingDefinition();
@@ -121,6 +130,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setGroupAndSortingDefinition($definition)
     {
         $this->groupAndSorting = $definition;
@@ -131,6 +141,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getGroupAndSortingDefinition()
     {
         return $this->groupAndSorting;
@@ -139,6 +150,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setHeaderPropertyNames($value)
     {
         $this->headerProperties = $value;
@@ -149,6 +161,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getHeaderPropertyNames()
     {
         return $this->headerProperties;
@@ -157,6 +170,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setRootIcon($value)
     {
         $this->rootIcon = $value;
@@ -167,6 +181,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getRootIcon()
     {
         return $this->rootIcon;
@@ -175,6 +190,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setRootLabel($value)
     {
         $this->rootLabel = $value;
@@ -185,6 +201,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getRootLabel()
     {
         return $this->rootLabel;
@@ -193,6 +210,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setItemCssClass($value)
     {
         $this->itemCssClass = $value;
@@ -203,6 +221,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getItemCssClass()
     {
         return $this->itemCssClass;
@@ -211,6 +230,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setLabelFormatter($providerName, $value)
     {
         $this->itemFormatter[$providerName] = $value;
@@ -221,6 +241,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasLabelFormatter($providerName)
     {
         return isset($this->itemFormatter[$providerName]);
@@ -231,6 +252,7 @@ class DefaultListingConfig implements ListingConfigInterface
      *
      * @throws DcGeneralInvalidArgumentException When no formatter has been defined.
      */
+    #[\Override]
     public function getLabelFormatter($providerName)
     {
         if (!isset($this->itemFormatter[$providerName])) {
@@ -245,6 +267,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setShowColumns($value)
     {
         $this->showColumns = $value;
@@ -255,6 +278,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getShowColumns()
     {
         return $this->showColumns;
@@ -263,6 +287,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getParentTablePropertyName()
     {
         return $this->parentTablePropertyName;
@@ -271,6 +296,7 @@ class DefaultListingConfig implements ListingConfigInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setParentTablePropertyName($propertyName)
     {
         $this->parentTablePropertyName = $propertyName;

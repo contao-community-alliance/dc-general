@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Exception;
 
 /**
  * General exception originating from the DcGeneral.
+ *
+ * @api
  */
 class DcGeneralException extends \Exception
 {

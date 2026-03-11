@@ -108,6 +108,7 @@ abstract class AbstractBoolPaletteCondition extends AbstractWeightAwarePaletteCo
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

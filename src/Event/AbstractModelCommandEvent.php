@@ -53,6 +53,7 @@ abstract class AbstractModelCommandEvent extends AbstractCommandEvent implements
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getModel()
     {
         return $this->model;

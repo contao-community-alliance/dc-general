@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,6 +35,8 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 /**
  * The check permission subscriber.
+ *
+ * @api
  */
 class CheckPermission implements EventSubscriberInterface
 {
@@ -61,6 +63,7 @@ class CheckPermission implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [
@@ -94,7 +97,7 @@ class CheckPermission implements EventSubscriberInterface
         foreach ($palettesDefinition->getPalettes() as $palette) {
             foreach ($palette->getProperties() as $property) {
                 if (!$properties->hasProperty($name = $property->getName())) {
-                    // @codingStandardsIgnoreStart
+                    // phpcs:disable
                     @\trigger_error(
                         \sprintf(
                             'Warning: unknown property "%s" in palette: %s',
@@ -103,7 +106,7 @@ class CheckPermission implements EventSubscriberInterface
                         ),
                         E_USER_WARNING
                     );
-                    // @codingStandardsIgnoreEnd
+                    // phpcs:enable
                     continue;
                 }
                 $excluded = $properties->getProperty($name)->isExcluded();

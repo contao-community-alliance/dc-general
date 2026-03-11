@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * This project is provided in good faith and hope to be usable by anyone.
+ * This project is provided in good faith and hopes to be usable by anyone.
  *
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
@@ -24,38 +24,31 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRela
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootConditionInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * This tests the DefaultModelRelationshipDefinition.
  */
-class DefaultModelRelationshipDefinitionTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversMethod(DefaultModelRelationshipDefinition::class, 'setRootCondition')]
+#[CoversMethod(DefaultModelRelationshipDefinition::class, 'getRootCondition')]
+#[CoversMethod(DefaultModelRelationshipDefinition::class, 'getChildCondition')]
+#[CoversMethod(DefaultModelRelationshipDefinition::class, 'getChildConditions')]
+#[CoversMethod(DefaultModelRelationshipDefinition::class, '__clone')]
+final class DefaultModelRelationshipDefinitionTest extends TestCase
 {
-    /**
-     * Test the root condition setter and getter.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::setRootCondition()
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::getRootCondition()
-     */
-    public function testSetGetRootCondition()
+    public function testSetGetRootCondition(): void
     {
         $definition = new DefaultModelRelationshipDefinition();
-        $root       = $this->getMockForAbstractClass(RootConditionInterface::class);
+        $root       = $this->getMockBuilder(RootConditionInterface::class)->getMock();
 
         self::assertSame($definition, $definition->setRootCondition($root));
         self::assertSame($root, $definition->getRootCondition());
     }
 
-    /**
-     * Test the addition and retrieval of child conditions.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::addChildCondition()
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::getChildCondition()
-     */
-    public function testAddGetChildCondition()
+    public function testAddGetChildCondition(): void
     {
         $definition = new DefaultModelRelationshipDefinition();
         $condition  = $this->mockChildCondition('parent', 'child');
@@ -64,14 +57,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         self::assertSame($condition, $definition->getChildCondition('parent', 'child'));
     }
 
-    /**
-     * Test the retrieval of child conditions.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::getChildCondition()
-     */
-    public function testGetChildConditionWithoutMatch()
+    public function testGetChildConditionWithoutMatch(): void
     {
         $definition = new DefaultModelRelationshipDefinition();
         $condition  = $this->mockChildCondition('another-parent', 'child');
@@ -80,14 +66,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         self::assertNull($definition->getChildCondition('parent', 'child'));
     }
 
-    /**
-     * Test the retrieval of child conditions.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::getChildConditions()
-     */
-    public function testGetChildConditions()
+    public function testGetChildConditions(): void
     {
         $definition = new DefaultModelRelationshipDefinition();
 
@@ -101,14 +80,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         self::assertEquals([$condition1, $condition2, $condition3], $conditions);
     }
 
-    /**
-     * Test the retrieval of child conditions from empty definition.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::getChildConditions()
-     */
-    public function testGetChildConditionsFromEmpty()
+    public function testGetChildConditionsFromEmpty(): void
     {
         $definition = new DefaultModelRelationshipDefinition();
 
@@ -117,14 +89,7 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         self::assertEquals([], $conditions);
     }
 
-    /**
-     * Test the retrieval of all child conditions.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::getChildConditions()
-     */
-    public function testGetChildConditionsReturnsAllWithoutSource()
+    public function testGetChildConditionsReturnsAllWithoutSource(): void
     {
         $definition = new DefaultModelRelationshipDefinition();
 
@@ -138,20 +103,11 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
         self::assertEquals([$condition1, $condition2, $condition3, $condition4], $conditions);
     }
 
-    /**
-     * Test that cloning also clones embedded objects.
-     *
-     * @return void
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefaultModelRelationshipDefinition::__clone()
-     */
-    public function testClone()
+    public function testClone(): void
     {
         $definition = new DefaultModelRelationshipDefinition();
         $condition  = $this->mockChildCondition('parent', 'child');
-        $root       = $this->getMockForAbstractClass(
-            RootConditionInterface::class
-        );
+        $root       = $this->getMockBuilder(RootConditionInterface::class)->getMock();
 
         $definition->addChildCondition($condition);
         $definition->setRootCondition($root);
@@ -169,16 +125,14 @@ class DefaultModelRelationshipDefinitionTest extends TestCase
     }
 
     /**
-     * Mock a parent child condition.
+     * Mock a parent child's condition.
      *
      * @param string $source      The source name.
      * @param string $destination The destination name.
-     *
-     * @return ParentChildConditionInterface|\PHPUnit_Framework_MockObject_MockObject
      */
-    private function mockChildCondition($source, $destination)
+    private function mockChildCondition(string $source, string $destination): ParentChildConditionInterface&MockObject
     {
-        $condition = $this->getMockForAbstractClass(ParentChildConditionInterface::class);
+        $condition = $this->getMockBuilder(ParentChildConditionInterface::class)->getMock();
         $condition->method('getSourceName')->willReturn($source);
         $condition->method('getDestinationName')->willReturn($destination);
 

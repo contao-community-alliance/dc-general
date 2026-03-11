@@ -27,11 +27,13 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
  * This event is emitted when a submitted and updated model has to be validated.
  *
  * This is triggered after the model has been updated but before rendering the edit mask and pre-persist.
+ *
+ * @api
  */
 class ValidateModelEvent extends AbstractModelAwareEvent
 {
     /** @psalm-suppress MissingClassConstType */
-    public const NAME = 'dc-general.model.validate';
+    public const string NAME = 'dc-general.model.validate';
 
     /**
      * Create a new model aware event.

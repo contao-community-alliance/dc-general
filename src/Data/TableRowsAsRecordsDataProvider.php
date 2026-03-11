@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -33,6 +33,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
  * This data provider allows to map multiple rows of a SQL table into a single model for usage in a MultiColumnWizard.
  *
  * @psalm-suppress MissingConstructor - properties will get set in setBaseConfig().
+ *
+ * @api
  */
 class TableRowsAsRecordsDataProvider extends DefaultDataProvider
 {
@@ -41,14 +43,14 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @var string
      */
-    protected $strGroupCol = 'pid';
+    protected string $strGroupCol = 'pid';
 
     /**
      * Sorting column to sort the entries by.
      *
      * @var string
      */
-    protected $strSortCol = '';
+    protected string $strSortCol = '';
 
     /**
      * Set base config with source and other necessary parameter.
@@ -59,6 +61,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @throws DcGeneralException When no source has been defined.
      */
+    #[\Override]
     public function setBaseConfig(array $config)
     {
         parent::setBaseConfig($config);
@@ -128,6 +131,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function delete($item)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -144,6 +148,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @throws DcGeneralException If config object does not contain an Id.
      */
+    #[\Override]
     public function fetch(ConfigInterface $config)
     {
         if (!$config->getId()) {
@@ -186,6 +191,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function fetchAll(ConfigInterface $config)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -202,6 +208,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function getCount(ConfigInterface $config)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -220,6 +227,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function isUniqueValue($field, $new, $primaryId = null)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -236,6 +244,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function resetFallback($field)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -263,6 +272,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function save(ModelInterface $item, $timestamp = 0, $recursive = false)
     {
         $data = $item->getProperty('rows');
@@ -331,6 +341,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function saveEach(CollectionInterface $items, $timestamp = 0)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -345,6 +356,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @return boolean
      */
+    #[\Override]
     public function fieldExists($columnName)
     {
         return 'tstamp' === $columnName;
@@ -362,6 +374,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function getVersion($mixID, $mixVersion)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -377,6 +390,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function getVersions($mixID, $onlyActive = false)
     {
         // Sorry, versioning not supported.
@@ -395,6 +409,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function saveVersion(ModelInterface $model, $username)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -412,6 +427,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function setVersionActive($mixID, $mixVersion)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -428,6 +444,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function getActiveVersion($mixID)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -445,6 +462,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function sameModels($firstModel, $secondModel)
     {
         $this->youShouldNotCallMe(__METHOD__);
@@ -463,6 +481,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     protected function insertUndo($sourceSQL, $saveSQL, $table)
     {
         $this->youShouldNotCallMe(__METHOD__);

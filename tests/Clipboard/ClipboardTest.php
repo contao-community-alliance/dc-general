@@ -24,24 +24,22 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Item;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * This class tests the clipboard.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\Clipboard
- */
-class ClipboardTest extends TestCase
+#[CoversClass(Clipboard::class)]
+final class ClipboardTest extends TestCase
 {
     /**
      * Mocks the environment with session storage.
      *
      * @return DefaultEnvironment
      */
-    private function mockEnvironment()
+    private function mockEnvironment(): DefaultEnvironment
     {
         $environment = new DefaultEnvironment();
         $environment->setSessionStorage(new MockedSessionStorage());
@@ -49,18 +47,13 @@ class ClipboardTest extends TestCase
         return $environment;
     }
 
-    /**
-     * Test various operations.
-     *
-     * @return void
-     */
-    public function testAll()
+    public function testAll(): void
     {
         $environment = $this->mockEnvironment();
 
         $clipboard    = new Clipboard();
         $filterGetAll = new Filter();
-        $createItem   = new UnsavedItem(Item::CREATE, null, 'dummy-provider');
+        $createItem   = new UnsavedItem(ItemInterface::CREATE, null, 'dummy-provider');
 
         self::assertTrue($clipboard->isEmpty($filterGetAll));
         self::assertFalse($clipboard->isNotEmpty($filterGetAll));
@@ -80,18 +73,13 @@ class ClipboardTest extends TestCase
         self::assertTrue($clipboard2->has(clone $createItem));
     }
 
-    /**
-     * Test that the same model may be stored multiple times.
-     *
-     * @return void
-     */
-    public function testAcceptsModelMultipleTimes()
+    public function testAcceptsModelMultipleTimes(): void
     {
         $modelId      = ModelId::fromValues('dummy-provider', '15');
         $clipboard    = new Clipboard();
         $filterGetAll = new Filter();
-        $cutItem      = new Item(Item::CUT, null, $modelId);
-        $copyItem     = new Item(Item::COPY, null, $modelId);
+        $cutItem      = new Item(ItemInterface::CUT, null, $modelId);
+        $copyItem     = new Item(ItemInterface::COPY, null, $modelId);
 
         $clipboard->push($cutItem);
         $clipboard->push($copyItem);
@@ -103,20 +91,15 @@ class ClipboardTest extends TestCase
         self::assertCount(2, $items);
     }
 
-    /**
-     * Test removeByClipboardId() method.
-     *
-     * @return void
-     */
-    public function testRemoveByClipboardIdRemovesOnlyOneOfModel()
+    public function testRemoveByClipboardIdRemovesOnlyOneOfModel(): void
     {
         $modelId       = ModelId::fromValues('dummy-provider', '15');
         $otherModelId  = ModelId::fromValues('dummy-provider', '16');
         $clipboard     = new Clipboard();
         $filterGetAll  = new Filter();
-        $cutItem       = new Item(Item::CUT, null, $modelId);
-        $copyItem      = new Item(Item::COPY, null, $modelId);
-        $copyOtherItem = new Item(Item::COPY, null, $otherModelId);
+        $cutItem       = new Item(ItemInterface::CUT, null, $modelId);
+        $copyItem      = new Item(ItemInterface::COPY, null, $modelId);
+        $copyOtherItem = new Item(ItemInterface::COPY, null, $otherModelId);
 
         $clipboard->push($cutItem);
         $clipboard->push($copyItem);
@@ -132,20 +115,15 @@ class ClipboardTest extends TestCase
         self::assertCount(2, $items);
     }
 
-    /**
-     * Test removeById() method.
-     *
-     * @return void
-     */
-    public function testRemoveByIdRemovesAllOfModel()
+    public function testRemoveByIdRemovesAllOfModel(): void
     {
         $modelId       = ModelId::fromValues('dummy-provider', '15');
         $otherModelId  = ModelId::fromValues('dummy-provider', '16');
         $clipboard     = new Clipboard();
         $filterGetAll  = new Filter();
-        $cutItem       = new Item(Item::CUT, null, $modelId);
-        $copyItem      = new Item(Item::COPY, null, $modelId);
-        $copyOtherItem = new Item(Item::COPY, null, $otherModelId);
+        $cutItem       = new Item(ItemInterface::CUT, null, $modelId);
+        $copyItem      = new Item(ItemInterface::COPY, null, $modelId);
+        $copyOtherItem = new Item(ItemInterface::COPY, null, $otherModelId);
 
         $clipboard->push($cutItem);
         $clipboard->push($copyItem);
@@ -161,20 +139,15 @@ class ClipboardTest extends TestCase
         self::assertCount(1, $items);
     }
 
-    /**
-     * Test remove() method.
-     *
-     * @return void
-     */
-    public function testRemoveRemovesOnlyOneOfModel()
+    public function testRemoveRemovesOnlyOneOfModel(): void
     {
         $modelId       = ModelId::fromValues('dummy-provider', '15');
         $otherModelId  = ModelId::fromValues('dummy-provider', '16');
         $clipboard     = new Clipboard();
         $filterGetAll  = new Filter();
-        $cutItem       = new Item(Item::CUT, null, $modelId);
-        $copyItem      = new Item(Item::COPY, null, $modelId);
-        $copyOtherItem = new Item(Item::COPY, null, $otherModelId);
+        $cutItem       = new Item(ItemInterface::CUT, null, $modelId);
+        $copyItem      = new Item(ItemInterface::COPY, null, $modelId);
+        $copyOtherItem = new Item(ItemInterface::COPY, null, $otherModelId);
 
         $clipboard->push($cutItem);
         $clipboard->push($copyItem);

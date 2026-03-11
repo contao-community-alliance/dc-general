@@ -26,20 +26,15 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * Test for Item
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\Item::equals
- */
-class ItemTest extends TestCase
+#[CoversClass(Item::class)]
+final class ItemTest extends TestCase
 {
-    public const TEST_PROVIDER = 'dummy-provider';
+    public const string TEST_PROVIDER = 'dummy-provider';
 
     /**
      * Run the tests with a parent id.
-     *
-     * @param ModelIdInterface|null $parentId Optional parent id.
      */
     private function runAssertsWithParentId(?ModelIdInterface $parentId): void
     {
@@ -69,9 +64,7 @@ class ItemTest extends TestCase
 
 
     /**
-     * Test the comparing.
-     *
-     * @return void
+     * Test the comparison.
      */
     public function testCompare(): void
     {

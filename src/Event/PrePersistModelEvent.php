@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * This event is emitted just before a model is saved to the data provider.
+ *
+ * @api
  */
 class PrePersistModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.pre-persist';
+    public const string NAME = 'dc-general.model.pre-persist';
 
     /**
      * The original model attached to the event.
      *
      * @var ModelInterface|null
      */
-    protected $originalModel;
+    protected ?ModelInterface $originalModel;
 
     /**
      * Create a new model aware event.

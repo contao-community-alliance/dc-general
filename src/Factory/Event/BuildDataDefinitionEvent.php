@@ -27,17 +27,19 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is emitted when a data definition is being built.
+ *
+ * @api
  */
 class BuildDataDefinitionEvent extends Event
 {
-    public const NAME = 'dc-general.factory.build-data-definition';
+    public const string NAME = 'dc-general.factory.build-data-definition';
 
     /**
      * The data definition container being built.
      *
      * @var ContainerInterface
      */
-    protected $container;
+    protected ContainerInterface $container;
 
     /**
      * Create a new instance.

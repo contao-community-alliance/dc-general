@@ -26,12 +26,15 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 
 /**
  * Condition checking that the value of a property is true.
+ *
+ * @api
  */
 class PropertyTrueCondition extends AbstractBoolPaletteCondition
 {
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getMatchCount(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         if (!$this->propertyName) {

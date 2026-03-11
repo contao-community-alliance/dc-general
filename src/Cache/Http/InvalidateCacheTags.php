@@ -85,6 +85,7 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function purgeCacheTags(ModelInterface $model, EnvironmentInterface $environment): void
     {
         if (null === $this->cacheManager) {

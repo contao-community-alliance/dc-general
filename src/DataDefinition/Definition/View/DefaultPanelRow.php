@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * Default implementation of a panel row.
+ *
+ * @api
  */
 class DefaultPanelRow implements PanelRowInterface
 {
@@ -35,11 +37,12 @@ class DefaultPanelRow implements PanelRowInterface
      *
      * @var list<ElementInformationInterface>
      */
-    protected $elements = [];
+    protected array $elements = [];
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getElements()
     {
         $names = [];
@@ -54,6 +57,7 @@ class DefaultPanelRow implements PanelRowInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function addElement(ElementInformationInterface $element, $index = -1)
     {
         if ($this->hasElement($element)) {
@@ -74,6 +78,7 @@ class DefaultPanelRow implements PanelRowInterface
      *
      * @SuppressWarnings(PHPMD.LongVariable)
      */
+    #[\Override]
     public function deleteElement($indexOrNameOrInstance)
     {
         if ($indexOrNameOrInstance instanceof ElementInformationInterface) {
@@ -105,6 +110,7 @@ class DefaultPanelRow implements PanelRowInterface
      *
      * @throws DcGeneralInvalidArgumentException When an invalid value for the element name has been passed.
      */
+    #[\Override]
     public function hasElement($instanceOrName)
     {
         if ($instanceOrName instanceof ElementInformationInterface) {
@@ -124,6 +130,7 @@ class DefaultPanelRow implements PanelRowInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getCount()
     {
         return \count($this->elements);
@@ -135,6 +142,7 @@ class DefaultPanelRow implements PanelRowInterface
      * @throws DcGeneralInvalidArgumentException When an invalid value for the element name has been passed or the
      *                                           index is out of bounds.
      */
+    #[\Override]
     public function getElement($indexOrName)
     {
         if (\is_string($indexOrName)) {
@@ -157,6 +165,7 @@ class DefaultPanelRow implements PanelRowInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->elements);

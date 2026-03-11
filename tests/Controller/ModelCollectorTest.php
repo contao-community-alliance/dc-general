@@ -43,18 +43,25 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use DateTime;
 use Generator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
+
+use function is_object;
 
 /**
  * Test case for the relationship manager.
  *
- * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class ModelCollectorTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(ModelCollector::class)]
+final class ModelCollectorTest extends TestCase
 {
     /**
      * Test that construction bails without root condition.
@@ -63,7 +70,7 @@ class ModelCollectorTest extends TestCase
      *
      * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::__construct()
      */
-    public function testBailsForNoRootCondition()
+    public function testBailsForNoRootCondition(): void
     {
         $basicDefinition = $this->mockBasicDefinition();
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_HIERARCHICAL);
@@ -72,7 +79,7 @@ class ModelCollectorTest extends TestCase
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
         $environment->method('getDataDefinition')->willReturn($definition);
 
         $this->expectException(DcGeneralRuntimeException::class);
@@ -82,10 +89,8 @@ class ModelCollectorTest extends TestCase
 
     /**
      * Data provider for the testGetModel().
-     *
-     * @return array
      */
-    public function providerGetModel()
+    public static function providerGetModel(): array
     {
         return [
             'fetch from explicit values' => ['test-id', 'provider-name'],
@@ -100,14 +105,9 @@ class ModelCollectorTest extends TestCase
      * @param string|ModelIdInterface $modelId      This is either the id of the model or a serialized id.
      * @param string|null             $providerName The name of the provider, if this is empty, the id will be
      *                                              deserialized and the provider name will get extracted from there.
-     *
-     * @return void
-     *
-     * @dataProvider providerGetModel
-     *
-     * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel()
      */
-    public function testGetModel($modelId, $providerName)
+    #[Dataprovider('providerGetModel')]
+    public function testGetModel(ModelIdInterface|string $modelId, ?string $providerName): void
     {
         $basicDefinition = $this->mockBasicDefinition();
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_FLAT);
@@ -120,28 +120,28 @@ class ModelCollectorTest extends TestCase
         $definition->method('getName')->willReturn($providerName);
         $definition->method('getPropertiesDefinition')->willReturn($propertiesDefinition);
 
-        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
         $environment->method('getDataDefinition')->willReturn($definition);
 
-        $config = $this->getMockForAbstractClass(ConfigInterface::class);
-        $config->expects(self::once())->method('setId')->with('test-id')->willReturn($config);
+        $config = $this->getMockBuilder(ConfigInterface::class)->getMock();
+        $config->expects($this->once())->method('setId')->with('test-id')->willReturn($config);
 
-        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $provider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $provider->method('getEmptyConfig')->willReturn($config);
         $provider->method('fieldExists')->willReturn(true);
-        $model = $this->getMockForAbstractClass(ModelInterface::class);
-        $provider->expects(self::once())->method('fetch')->with($config)->willReturn($model);
-        $environment->expects(self::once())->method('getDataProvider')->with('provider-name')->willReturn($provider);
+        $model = $this->getMockBuilder(ModelInterface::class)->getMock();
+        $provider->expects($this->once())->method('fetch')->with($config)->willReturn($model);
+        $environment->expects($this->once())->method('getDataProvider')->with('provider-name')->willReturn($provider);
 
         $collector = new ModelCollector($environment);
 
         // Test with parent definition
-        if (false !== \strpos(\is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
+        if (str_contains(is_object($modelId) ? $modelId->getSerialized() : $modelId, '::')) {
             $parentProperties = $this->mockPropertiesDefinition();
             $parentProperties->method('getPropertyNames')->willReturn(['test-parent-property']);
             $parentDataDefinition = $this->mockDefinitionContainer();
             $parentDataDefinition->method('getName')->willReturn(
-                ModelId::fromSerialized(\is_object($modelId) ? $modelId->getSerialized() : $modelId)
+                ModelId::fromSerialized(is_object($modelId) ? $modelId->getSerialized() : $modelId)
                     ->getDataProviderName()
             );
             $parentDataDefinition->method('getPropertiesDefinition')->willReturn($parentProperties);
@@ -159,7 +159,7 @@ class ModelCollectorTest extends TestCase
      *
      * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel()
      */
-    public function testGetModelThrowsExceptionForInvalidId()
+    public function testGetModelThrowsExceptionForInvalidId(): void
     {
         $basicDefinition = $this->mockBasicDefinition();
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_FLAT);
@@ -168,25 +168,23 @@ class ModelCollectorTest extends TestCase
         $definition->method('getBasicDefinition')->willReturn($basicDefinition);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
         $environment->method('getDataDefinition')->willReturn($definition);
 
         $collector = new ModelCollector($environment);
 
         $this->expectException('InvalidArgumentException');
 
-        $collector->getModel(new \DateTime());
+        $collector->getModel(new DateTime());
     }
 
     /**
      * Test the collectSiblingsOf() method.
-     *
-     * @return void
      */
-    public function testCollectSiblingsOf()
+    public function testCollectSiblingsOf(): void
     {
-        $model           = $this->getMockForAbstractClass(ModelInterface::class);
-        $rootCondition   = $this->getMockForAbstractClass(RootConditionInterface::class);
+        $model           = $this->getMockBuilder(ModelInterface::class)->getMock();
+        $rootCondition   = $this->getMockBuilder(RootConditionInterface::class)->getMock();
         $basicDefinition = $this->mockBasicDefinition();
         $basicDefinition->method('getMode')->willReturn(BasicDefinitionInterface::MODE_HIERARCHICAL);
         $basicDefinition->method('getRootDataProvider')->willReturn('root-provider');
@@ -198,23 +196,23 @@ class ModelCollectorTest extends TestCase
         $rootCondition->method('getFilterArray')->willReturn([['local' => 'pid', 'remote' => 'id']]);
         $rootCondition->method('matches')->with($model)->willReturn(true);
 
-        $config = $this->getMockForAbstractClass(ConfigInterface::class);
-        $config->expects(self::once())
+        $config = $this->getMockBuilder(ConfigInterface::class)->getMock();
+        $config->expects($this->once())
             ->method('setFilter')
             ->with([['local' => 'pid', 'remote' => 'id']])
             ->willReturn($config);
 
-        $configRegistry = $this->getMockForAbstractClass(BaseConfigRegistryInterface::class);
+        $configRegistry = $this->getMockBuilder(BaseConfigRegistryInterface::class)->getMock();
         $configRegistry->method('getBaseConfig')->with(null)->willReturn($config);
-        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
         $environment->method('getDataDefinition')->willReturn($definition);
         $environment->method('getBaseConfigRegistry')->willReturn($configRegistry);
 
-        $collection = $this->getMockForAbstractClass(CollectionInterface::class);
+        $collection = $this->getMockBuilder(CollectionInterface::class)->getMock();
 
-        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $provider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $model->method('getProviderName')->willReturn('root-provider');
-        $provider->expects(self::once())->method('fetchAll')->with($config)->willReturn($collection);
+        $provider->expects($this->once())->method('fetchAll')->with($config)->willReturn($collection);
         $environment->method('getDataProvider')->with('root-provider')->willReturn($provider);
 
 
@@ -225,30 +223,28 @@ class ModelCollectorTest extends TestCase
 
     /**
      * Provides data for the testSearchParentOfInWithoutRecursion test.
-     *
-     * @return Generator
      */
-    public function provideForTestSearchParentOfInWithoutRecursion(): Generator
+    public static function provideForTestSearchParentOfInWithoutRecursion(): Generator
     {
         $collection = new DefaultCollection();
-        $collection->push($parentA = $this->createModel('parent', 1));
-        $collection->push($parentB = $this->createModel('parent', 2));
+        $collection->push($parentA = self::createModel('parent', 1));
+        $collection->push($parentB = self::createModel('parent', 2));
 
         yield [
             $parentB,
-            $this->createModel('child', 1, ['pid' => 2]),
+            self::createModel('child', 1, ['pid' => 2]),
             $collection,
         ];
 
         yield [
             $parentA,
-            $this->createModel('child', 1, ['pid' => 1]),
+            self::createModel('child', 1, ['pid' => 1]),
             $collection
         ];
 
         yield [
             null,
-            $this->createModel('child', 1, ['pid' => 3]),
+            self::createModel('child', 1, ['pid' => 3]),
             $collection
         ];
     }
@@ -261,9 +257,8 @@ class ModelCollectorTest extends TestCase
      * @param CollectionInterface             $candidates The given candidates of the parent for the model.
      *
      * @return void
-     *
-     * @dataProvider provideForTestSearchParentOfInWithoutRecursion
      */
+    #[Dataprovider('provideForTestSearchParentOfInWithoutRecursion')]
     public function testSearchParentOfInWithoutRecursion(
         ?ModelInterface $expected,
         ModelInterface $model,
@@ -282,19 +277,19 @@ class ModelCollectorTest extends TestCase
         $relationships->method('getChildConditions')->willReturn($conditions);
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
         $environment->method('getDataDefinition')->willReturn($definition);
 
-        $config = $this->getMockForAbstractClass(ConfigInterface::class);
+        $config = $this->getMockBuilder(ConfigInterface::class)->getMock();
         $config
             ->method('setFilter')
             ->willReturn($config);
 
-        $parentProvider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $parentProvider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $parentProvider->method('getEmptyConfig')->willReturn($config);
         $parentProvider->method('fetchAll')->with($config)->willReturn(new DefaultCollection());
 
-        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $provider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $provider->method('getEmptyConfig')->willReturn($config);
         $provider->method('fetchAll')->with($config)->willReturn(new DefaultCollection());
 
@@ -307,7 +302,7 @@ class ModelCollectorTest extends TestCase
                         return $parentProvider;
 
                     default:
-                        throw new RuntimeException();
+                        throw new \RuntimeException();
                 }
             }
         );
@@ -322,33 +317,33 @@ class ModelCollectorTest extends TestCase
      *
      * @return Generator
      */
-    public function provideForTestSearchParentOfInWithRecursion(): Generator
+    public static function provideForTestSearchParentOfInWithRecursion(): Generator
     {
         $parents = new DefaultCollection();
-        $parents->push($parentA = $this->createModel('parent', 1, ['pid' => 10]));
-        $parents->push($parentB = $this->createModel('parent', 2, ['pid' => 11]));
+        $parents->push($parentA = self::createModel('parent', 1, ['pid' => 10]));
+        $parents->push($parentB = self::createModel('parent', 2, ['pid' => 11]));
 
         $grandParents = new DefaultCollection();
-        $grandParents->push($this->createModel('grandparent', 10));
-        $grandParents->push($this->createModel('grandparent', 11));
+        $grandParents->push(self::createModel('grandparent', 10));
+        $grandParents->push(self::createModel('grandparent', 11));
 
         yield [
             $parentB,
-            $this->createModel('child', 1, ['pid' => 2]),
+            self::createModel('child', 1, ['pid' => 2]),
             $parents,
             $grandParents,
         ];
 
         yield [
             $parentA,
-            $this->createModel('child', 1, ['pid' => 1]),
+            self::createModel('child', 1, ['pid' => 1]),
             $parents,
             $grandParents,
         ];
 
         yield [
             null,
-            $this->createModel('child', 1, ['pid' => 3]),
+            self::createModel('child', 1, ['pid' => 3]),
             $parents,
             $grandParents,
         ];
@@ -363,9 +358,8 @@ class ModelCollectorTest extends TestCase
      * @param CollectionInterface $grandParents The given candidates of the parent for the model.
      *
      * @return void
-     *
-     * @dataProvider provideForTestSearchParentOfInWithRecursion
      */
+    #[Dataprovider('provideForTestSearchParentOfInWithRecursion')]
     public function testSearchParentOfInWithRecursion(
         ?ModelInterface $expected,
         ModelInterface $model,
@@ -397,28 +391,28 @@ class ModelCollectorTest extends TestCase
 
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
         $environment->method('getDataDefinition')->willReturn($definition);
 
-        $config = $this->getMockForAbstractClass(ConfigInterface::class);
+        $config = $this->getMockBuilder(ConfigInterface::class)->getMock();
         $config
             ->method('setFilter')
             ->willReturn($config);
 
-        $parentProvider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $parentProvider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $parentProvider->method('getEmptyConfig')->willReturn($config);
         $parentProvider->method('fetchAll')->with($config)->willReturn($parents);
 
-        $config = $this->getMockForAbstractClass(ConfigInterface::class);
+        $config = $this->getMockBuilder(ConfigInterface::class)->getMock();
         $config
             ->method('setFilter')
             ->willReturn($config);
 
-        $grandParentProvider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $grandParentProvider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $grandParentProvider->method('getEmptyConfig')->willReturn($config);
         $grandParentProvider->method('fetchAll')->with($config)->willReturn(new DefaultCollection());
 
-        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $provider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $provider->method('getEmptyConfig')->willReturn($config);
         $provider->method('fetchAll')->with($config)->willReturn(new DefaultCollection());
 
@@ -447,24 +441,24 @@ class ModelCollectorTest extends TestCase
      *
      * @return Generator
      */
-    public function provideForTestSearchParentOfInHierarchicalByInverseFilter(): Generator
+    public static function provideForTestSearchParentOfInHierarchicalByInverseFilter(): Generator
     {
-        $parentNodeA = $this->createModel('node', 10);
-        $parentNodeB = $this->createModel('node', 11);
+        $parentNodeA = self::createModel('node', 10);
+        $parentNodeB = self::createModel('node', 11);
 
         yield [
             $parentNodeA,
-            $this->createModel('node', 1, ['pid' => 10, 'parentId' => 1]),
+            self::createModel('node', 1, ['pid' => 10, 'parentId' => 1]),
         ];
 
         yield [
             $parentNodeB,
-            $this->createModel('node', 1, ['pid' => 11, 'parentId' => 2]),
+            self::createModel('node', 1, ['pid' => 11, 'parentId' => 2]),
         ];
 
         yield [
             null,
-            $this->createModel('node', 1, ['pid' => 12, 'parentId' => 1]),
+            self::createModel('node', 1, ['pid' => 12, 'parentId' => 1]),
         ];
     }
 
@@ -481,9 +475,8 @@ class ModelCollectorTest extends TestCase
      * @param ModelInterface      $model    The given instance of the model.
      *
      * @return void
-     *
-     * @dataProvider provideForTestSearchParentOfInHierarchicalByInverseFilter
      */
+    #[Dataprovider('provideForTestSearchParentOfInHierarchicalByInverseFilter')]
     public function testSearchParentOfInHierarchicalByInverseFilter(
         ?ModelInterface $expected,
         ModelInterface $model
@@ -504,18 +497,18 @@ class ModelCollectorTest extends TestCase
             ]
         );
 
-        $rootCondition = $this->getMockForAbstractClass(RootConditionInterface::class);
+        $rootCondition = $this->getMockBuilder(RootConditionInterface::class)->getMock();
         $relationships->method('getRootCondition')->willReturn($rootCondition);
 
         $definition->method('getModelRelationshipDefinition')->willReturn($relationships);
 
-        $environment = $this->getMockForAbstractClass(EnvironmentInterface::class);
+        $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
         $environment->method('getDataDefinition')->willReturn($definition);
 
-        $config = $this->getMockForAbstractClass(ConfigInterface::class);
+        $config = $this->getMockBuilder(ConfigInterface::class)->getMock();
         $config->method('setFilter')->willReturn($config);
 
-        $parentProvider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $parentProvider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $parentProvider->method('getEmptyConfig')->willReturn($config);
         // There won't be a call to the parent, because we don't need it, we are in a hierarchical check.
         //$parentProvider
@@ -523,7 +516,7 @@ class ModelCollectorTest extends TestCase
         //    ->method('fetch')
         //    ->willReturn(null);
 
-        $provider = $this->getMockForAbstractClass(DataProviderInterface::class);
+        $provider = $this->getMockBuilder(DataProviderInterface::class)->getMock();
         $provider->method('getEmptyConfig')->willReturn($config);
         $provider
             ->expects($this->once())
@@ -558,9 +551,9 @@ class ModelCollectorTest extends TestCase
      *
      * @return BasicDefinitionInterface|MockObject
      */
-    private function mockBasicDefinition()
+    private function mockBasicDefinition(): BasicDefinitionInterface|MockObject
     {
-        return $this->getMockForAbstractClass(BasicDefinitionInterface::class);
+        return $this->getMockBuilder(BasicDefinitionInterface::class)->getMock();
     }
 
     /**
@@ -568,9 +561,9 @@ class ModelCollectorTest extends TestCase
      *
      * @return ModelRelationshipDefinitionInterface|MockObject
      */
-    private function mockRelationshipDefinition()
+    private function mockRelationshipDefinition(): MockObject|ModelRelationshipDefinitionInterface
     {
-        return $this->getMockForAbstractClass(ModelRelationshipDefinitionInterface::class);
+        return $this->getMockBuilder(ModelRelationshipDefinitionInterface::class)->getMock();
     }
 
     /**
@@ -578,9 +571,9 @@ class ModelCollectorTest extends TestCase
      *
      * @return ContainerInterface|MockObject
      */
-    private function mockDefinitionContainer()
+    private function mockDefinitionContainer(): MockObject|ContainerInterface
     {
-        return $this->getMockForAbstractClass(ContainerInterface::class);
+        return $this->getMockBuilder(ContainerInterface::class)->getMock();
     }
 
     /**
@@ -588,12 +581,12 @@ class ModelCollectorTest extends TestCase
      *
      * @return PropertiesDefinitionInterface|MockObject
      */
-    private function mockPropertiesDefinition()
+    private function mockPropertiesDefinition(): PropertiesDefinitionInterface|MockObject
     {
-        return $this->getMockForAbstractClass(PropertiesDefinitionInterface::class);
+        return $this->getMockBuilder(PropertiesDefinitionInterface::class)->getMock();
     }
 
-    private function createModel(string $providerName, int $id, array $properties = []): ModelInterface
+    private static function createModel(string $providerName, int $id, array $properties = []): ModelInterface
     {
         $model = new DefaultModel();
         $model->setID($id);

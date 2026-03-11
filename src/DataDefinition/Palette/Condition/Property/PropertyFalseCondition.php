@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition checking that the value of a property is false.
+ *
+ * @api
  */
 class PropertyFalseCondition implements PropertyConditionInterface
 {
@@ -37,6 +39,7 @@ class PropertyFalseCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function match(
         ?ModelInterface $model = null,
         ?PropertyValueBag $input = null,

@@ -25,12 +25,15 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  * Class DefaultLimitElementInformation.
  *
  * Default implementation of a limit definition.
+ *
+ * @api
  */
 class DefaultLimitElementInformation implements LimitElementInformationInterface
 {
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getName()
     {
         return 'limit';

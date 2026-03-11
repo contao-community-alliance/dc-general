@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -72,6 +72,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class TreeView extends BaseView
 {
@@ -106,25 +108,25 @@ class TreeView extends BaseView
             $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
             assert($tokenManager instanceof CsrfTokenManagerInterface);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
         if (null === $tokenName) {
             $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
             assert(\is_string($tokenName));
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->tokenManager = $tokenManager;
@@ -406,7 +408,7 @@ class TreeView extends BaseView
 
         $toggleScript = \sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, %s);',
-            \htmlspecialchars(\json_encode($toggleData, JSON_FORCE_OBJECT))
+            \htmlspecialchars((string) \json_encode($toggleData, JSON_FORCE_OBJECT))
         );
 
         $this
@@ -686,6 +688,7 @@ class TreeView extends BaseView
      *
      * @return void
      */
+    #[\Override]
     public function enforceModelRelationship($model)
     {
         $environment = $this->getEnvironment();
@@ -699,6 +702,7 @@ class TreeView extends BaseView
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function showAll(Action $action)
     {
         $environment = $this->getEnvironment();
@@ -780,6 +784,7 @@ class TreeView extends BaseView
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.ExitExpression)
      */
+    #[\Override]
     public function handleAjaxCall()
     {
         $environment = $this->getEnvironment();

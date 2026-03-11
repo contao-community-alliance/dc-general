@@ -35,14 +35,14 @@ abstract class BuilderEvent extends AbstractContainerAwareEvent
     /**
      * @var string
      */
-    public const NAME = 'dc-general.data-definition.palette.builder.builder';
+    public const string NAME = 'dc-general.data-definition.palette.builder.builder';
 
     /**
      * The palette builder in use.
      *
      * @var PaletteBuilder
      */
-    protected $paletteBuilder;
+    protected PaletteBuilder $paletteBuilder;
 
     /**
      * Create a new instance.

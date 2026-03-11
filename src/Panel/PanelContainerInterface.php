@@ -77,7 +77,7 @@ interface PanelContainerInterface extends \IteratorAggregate, \Countable
      *
      * @return PanelContainerInterface
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null);
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null);
 
     /**
      * Determinator if the panels should be updated from the InputProvider or not.

@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Default implementation of the data definition container.
  *
  * This container holds all created data definitions.
+ *
+ * @api
  */
 class DataDefinitionContainer implements DataDefinitionContainerInterface
 {
@@ -41,6 +43,7 @@ class DataDefinitionContainer implements DataDefinitionContainerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setDefinition($name, $definition)
     {
         if (null !== $definition) {
@@ -55,6 +58,7 @@ class DataDefinitionContainer implements DataDefinitionContainerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function hasDefinition($name)
     {
         return isset($this->definitions[$name]);
@@ -65,6 +69,7 @@ class DataDefinitionContainer implements DataDefinitionContainerInterface
      *
      * @throws DcGeneralInvalidArgumentException When a definition is requested that is not contained.
      */
+    #[\Override]
     public function getDefinition($name)
     {
         if (!$this->hasDefinition($name)) {

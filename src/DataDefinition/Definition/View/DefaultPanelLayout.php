@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
 /**
  * Default implementation of a panel layout definition.
+ *
+ * @api
  */
 class DefaultPanelLayout implements PanelLayoutInterface
 {
@@ -31,7 +33,7 @@ class DefaultPanelLayout implements PanelLayoutInterface
      *
      * @var PanelRowCollectionInterface
      */
-    protected $rows;
+    protected DefaultPanelRowCollection|PanelRowCollectionInterface $rows;
 
     /**
      * Create a new instance.
@@ -44,6 +46,7 @@ class DefaultPanelLayout implements PanelLayoutInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getRows()
     {
         return $this->rows;

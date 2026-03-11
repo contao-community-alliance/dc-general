@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +25,7 @@
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Alex Wuttke <alex@das-l.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -197,6 +197,7 @@ class DefaultDataProvider implements DataProviderInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
+    #[\Override]
     public function setBaseConfig(array $config)
     {
         // Check configuration.
@@ -214,12 +215,12 @@ class DefaultDataProvider implements DataProviderInterface
 
             $this->connection = $config['connection'];
         } else {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 'You should pass a doctrine database connection to "' . __METHOD__ . '".',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             $this->connection = $this->getDefaultConnection();
         }
@@ -247,6 +248,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEmptyConfig()
     {
         return DefaultConfig::init();
@@ -255,6 +257,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEmptyModel()
     {
         $model = new DefaultModel();
@@ -265,6 +268,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEmptyCollection()
     {
         return new DefaultCollection();
@@ -279,12 +283,12 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getEmptyFilterOptionCollection()
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
         return new DefaultFilterOptionCollection();
     }
 
@@ -293,6 +297,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws DcGeneralRuntimeException When an unusable object has been passed.
      */
+    #[\Override]
     public function delete($item)
     {
         $modelId = null;
@@ -350,6 +355,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function fetch(ConfigInterface $config)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -387,6 +393,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function fetchAll(ConfigInterface $config)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -429,6 +436,7 @@ class DefaultDataProvider implements DataProviderInterface
      * @throws DcGeneralRuntimeException If improper values have been passed (i.e. not exactly one field requested).
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function getFilterOptions(ConfigInterface $config)
     {
         $internalConfig = $this->prefixDataProviderProperties($config);
@@ -467,6 +475,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function getCount(ConfigInterface $config)
     {
         $internalConfig = $this->prefixDataProviderProperties($config);
@@ -482,6 +491,7 @@ class DefaultDataProvider implements DataProviderInterface
      * {@inheritDoc}
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function isUniqueValue($field, $new, $primaryId = null)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -504,14 +514,15 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function resetFallback($field)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             __CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $this->connection->executeQuery('UPDATE ' . $this->source . ' SET ' . $field . ' = \'\'');
     }
@@ -693,6 +704,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function save(ModelInterface $item, $timestamp = 0)
     {
         if (\in_array($item->getId(), [null, ''])) {
@@ -707,6 +719,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function saveEach(CollectionInterface $items, $timestamp = 0)
     {
         foreach ($items as $value) {
@@ -717,6 +730,7 @@ class DefaultDataProvider implements DataProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function fieldExists($columnName)
     {
         if (null === $this->schema) {
@@ -731,6 +745,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function getVersion($mixID, $mixVersion)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -783,6 +798,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function getVersions($mixID, $onlyActive = false)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -837,6 +853,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function saveVersion(ModelInterface $model, $username)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -879,6 +896,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws Exception
      */
+    #[\Override]
     public function setVersionActive($mixID, $mixVersion)
     {
         $updateValues = ['tl_version.pid' => $mixID, 'tl_version.fromTable' => $this->source];
@@ -900,6 +918,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @throws \Doctrine\DBAL\Exception
      */
+    #[\Override]
     public function getActiveVersion($mixID)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
@@ -934,6 +953,7 @@ class DefaultDataProvider implements DataProviderInterface
      *
      * @return boolean True - If both models are same, false if not.
      */
+    #[\Override]
     public function sameModels($firstModel, $secondModel)
     {
         foreach ($firstModel as $key => $value) {
@@ -1031,12 +1051,12 @@ class DefaultDataProvider implements DataProviderInterface
     private function fallbackFromDatabaseToConnection(array &$config)
     {
         if (isset($config['database'])) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 'Config key database is deprecated use instead connection. Fallback will be dropped.',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             if (!isset($config['connection'])) {
                 $config['connection'] = $config['database'];
@@ -1046,13 +1066,13 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         if (isset($config['connection']) && $config['connection'] instanceof Database) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 '"' . __METHOD__ . '" now accepts doctrine instances - ' .
                 'passing Contao database instances is deprecated.',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
             $reflection = new \ReflectionProperty(Database::class, 'resConnection');
             $reflection->setAccessible(true);
 

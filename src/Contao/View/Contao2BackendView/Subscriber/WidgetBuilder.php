@@ -147,6 +147,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @return EnvironmentInterface
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->environment;

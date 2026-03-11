@@ -27,17 +27,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\
 
 /**
  * This event gets emitted when a property value condition class name is set.
+ *
+ * @api
  */
 class SetPropertyValueConditionClassNameEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.set-property-value-condition-class-name';
+    public const string NAME = 'dc-general.data-definition.palette.builder.set-property-value-condition-class-name';
 
     /**
      * The class name.
      *
      * @var class-string<PropertyConditionInterface>
      */
-    protected $className;
+    protected string $className;
 
     /**
      * Create a new instance.

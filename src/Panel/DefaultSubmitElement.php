@@ -27,19 +27,23 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
  * Default implementation of a submit panel element.
+ *
+ * @api
  */
 class DefaultSubmitElement extends AbstractElement implements SubmitElementInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
+    #[\Override]
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
     }
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function render(ViewTemplateInterface $viewTemplate)
     {
         return $this;

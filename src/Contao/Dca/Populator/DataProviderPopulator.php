@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -33,10 +34,12 @@ use ContaoCommunityAlliance\DcGeneral\Factory\Event\PopulateEnvironmentEvent;
  *
  * This class reacts to the PopulateEnvironmentEvent and populates the environment with all data providers implementing
  * the interface ContaoDataProviderInformation.
+ *
+ * @api
  */
 class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 {
-    public const PRIORITY = 100;
+    public const int PRIORITY = 100;
 
     /**
      * The cached instances of the data provider.
@@ -69,6 +72,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
      *
      * @throws DcGeneralRuntimeException When a data provider has already been added to the environment.
      */
+    #[\Override]
     public function populate(EnvironmentInterface $environment)
     {
         if (null === $definition = $environment->getDataDefinition()) {
@@ -87,7 +91,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
 
                 $initializationData = $information->getInitializationData();
                 \ksort($initializationData);
-                $cacheKey = \md5(\json_encode($initializationData) . $information->getClassName());
+                $cacheKey = \md5(\json_encode($initializationData, JSON_THROW_ON_ERROR) . $information->getClassName());
                 if (!isset($this->instances[$cacheKey])) {
                     /** @var DataProviderInterface $dataProvider */
                     $dataProvider = (new \ReflectionClass($information->getClassName()))->newInstance();

@@ -43,21 +43,21 @@ abstract class AbstractEventDrivenDataDefinitionBuilder implements DataDefinitio
      *
      * @deprecated Should not be used at all.
      */
-    public const PRIORITY = null;
+    public const int PRIORITY = 0;
 
     /**
      * The event dispatcher currently calling.
      *
      * @var EventDispatcherInterface|null
      */
-    protected $dispatcher = null;
+    protected ?EventDispatcherInterface $dispatcher = null;
 
     /**
      * The name of the called event.
      *
      * @var string
      */
-    protected $eventName = '';
+    protected string $eventName = '';
 
     /**
      * Retrieve the dispatcher.

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <mail@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * This is the reference implementation for PropertiesDefinitionInterface.
+ *
+ * @api
  */
 class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
 {
@@ -36,11 +38,12 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      *
      * @var PropertyInterface[]
      */
-    protected $properties = [];
+    protected array $properties = [];
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getProperties()
     {
         return $this->properties;
@@ -49,6 +52,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPropertyNames()
     {
         return \array_keys($this->properties);
@@ -60,6 +64,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      * @throws DcGeneralInvalidArgumentException When an invalid property has been passed or a property with the given
      *                                           name has already been registered.
      */
+    #[\Override]
     public function addProperty($property)
     {
         if (!($property instanceof PropertyInterface)) {
@@ -82,6 +87,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      *
      * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
      */
+    #[\Override]
     public function removeProperty($property)
     {
         $name = ($property instanceof PropertyInterface) ? $property->getName() : $property;
@@ -98,6 +104,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasProperty($name)
     {
         return isset($this->properties[$name]);
@@ -108,6 +115,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      *
      * @throws DcGeneralInvalidArgumentException When a property with the given name has not been registered.
      */
+    #[\Override]
     public function getProperty($name)
     {
         if (!$this->hasProperty($name)) {
@@ -120,6 +128,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->properties);

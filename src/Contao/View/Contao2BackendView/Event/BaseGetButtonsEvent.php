@@ -37,14 +37,14 @@ class BaseGetButtonsEvent extends AbstractEnvironmentAwareEvent
      *
      * @var string
      */
-    public const NAME = 'dc-general.view.contao2backend.get-buttons';
+    public const string NAME = 'dc-general.view.contao2backend.get-buttons';
 
     /**
      * The list of buttons.
      *
      * @var string[]
      */
-    protected $buttons = [];
+    protected array $buttons = [];
 
     /**
      * Set the list of buttons.

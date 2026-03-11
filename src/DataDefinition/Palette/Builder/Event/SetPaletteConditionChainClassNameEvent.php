@@ -30,17 +30,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
  * This event gets emitted when a palette condition chain class name is set.
  *
  * @psalm-type TConditionInterface=ConditionChainInterface&PaletteConditionInterface
+ *
+ * @api
  */
 class SetPaletteConditionChainClassNameEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.set-palette-condition-chain-class-name';
+    public const string NAME = 'dc-general.data-definition.palette.builder.set-palette-condition-chain-class-name';
 
     /**
      * The class name.
      *
      * @var class-string<TConditionInterface>
      */
-    protected $className;
+    protected string $className;
 
     /**
      * Create a new instance.

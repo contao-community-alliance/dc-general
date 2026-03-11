@@ -79,6 +79,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getUrl(PickerConfig $config): string|null
     {
         return $this->generateUrl($config, false);
@@ -87,6 +88,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function createMenuItem(PickerConfig $config): ItemInterface
     {
         $name = $this->getName();
@@ -116,6 +118,7 @@ abstract class AbstractAwarePickerProvider implements PickerProviderInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isCurrent(PickerConfig $config): bool
     {
         return $config->getCurrent() === $this->getName();

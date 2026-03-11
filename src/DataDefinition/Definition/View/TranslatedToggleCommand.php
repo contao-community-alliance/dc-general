@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
 /**
  * Translated toggle command - language aware command for toggling a boolean property between '1' and '' (empty string).
+ *
+ * @api
  */
 class TranslatedToggleCommand extends ToggleCommand implements TranslatedToggleCommandInterface
 {
@@ -31,11 +33,12 @@ class TranslatedToggleCommand extends ToggleCommand implements TranslatedToggleC
      *
      * @var string
      */
-    protected $language = '';
+    protected string $language = '';
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getLanguage()
     {
         return $this->language;
@@ -44,6 +47,7 @@ class TranslatedToggleCommand extends ToggleCommand implements TranslatedToggleC
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setLanguage($language)
     {
         $this->language = $language;

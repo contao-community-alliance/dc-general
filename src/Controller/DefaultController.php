@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +25,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Tim Gatzky <info@tim-gatzky.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -90,6 +90,8 @@ use function trigger_error;
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @psalm-suppress MissingConstructor
+ *
+ * @api
  */
 class DefaultController implements ControllerInterface
 {
@@ -98,21 +100,21 @@ class DefaultController implements ControllerInterface
      *
      * @var EnvironmentInterface
      */
-    private $environment;
+    private EnvironmentInterface $environment;
 
     /**
      * The relationship manager.
      *
      * @var RelationshipManager
      */
-    private $relationshipManager;
+    private RelationshipManager $relationshipManager;
 
     /**
      * The model collector.
      *
      * @var ModelCollector
      */
-    private $modelCollector;
+    private ModelCollector $modelCollector;
 
     /**
      * Error message.
@@ -148,6 +150,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setEnvironment(EnvironmentInterface $environment)
     {
         $this->environment = $environment;
@@ -170,6 +173,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->environment;
@@ -178,6 +182,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function handle(Action $action)
     {
         $event = new ActionEvent($this->getEnvironment(), $action);
@@ -197,14 +202,15 @@ class DefaultController implements ControllerInterface
      *
      * @see        ModelCollector::searchParentOfIn
      */
+    #[\Override]
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $parent = $this->modelCollector->searchParentOfIn($model, $models);
         if (null === $parent) {
@@ -223,14 +229,15 @@ class DefaultController implements ControllerInterface
      *
      * @see        ModelCollector::searchParentOf
      */
+    #[\Override]
     public function searchParentOf(ModelInterface $model)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $parent = $this->modelCollector->searchParentOf($model);
         if (null === $parent) {
@@ -247,14 +254,15 @@ class DefaultController implements ControllerInterface
      *
      * @see        ModelCollector::collectChildrenOf
      */
+    #[\Override]
     public function assembleAllChildrenFrom($model, $providerName = '')
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf()',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         return $this->modelCollector->collectChildrenOf($model, $providerName);
     }
@@ -277,12 +285,12 @@ class DefaultController implements ControllerInterface
         $sortingProperty = null,
         ?ModelIdInterface $parentId = null
     ) {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf()',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         return $this->modelCollector->collectSiblingsOf($model, $sortingProperty, $parentId);
     }
@@ -338,6 +346,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function updateModelFromPropertyBag($model, $propertyValues)
     {
         $environment = $this->getEnvironment();
@@ -359,6 +368,7 @@ class DefaultController implements ControllerInterface
      *
      * @return array
      */
+    #[\Override]
     public function getSupportedLanguages($mixID)
     {
         $environment  = $this->getEnvironment();
@@ -434,6 +444,7 @@ class DefaultController implements ControllerInterface
      *
      * @throws DcGeneralRuntimeException For constraint violations.
      */
+    #[\Override]
     public function createClonedModel($model)
     {
         $clone = clone $model;
@@ -470,14 +481,15 @@ class DefaultController implements ControllerInterface
      *
      * @see        ModelCollector::getModel
      */
+    #[\Override]
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel()',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $model = $this->modelCollector->getModel($modelId, $providerName);
         if (null === $model) {
@@ -490,6 +502,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function createEmptyModelWithDefaults()
     {
         $environment = $this->getEnvironment();
@@ -518,6 +531,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getModelFromClipboardItem(ItemInterface $item)
     {
         $modelId = $item->getModelId();
@@ -532,6 +546,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getModelsFromClipboardItems(array $items)
     {
         $environment = $this->getEnvironment();
@@ -559,6 +574,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getModelsFromClipboard(?ModelIdInterface $parentModelId = null)
     {
         $environment = $this->getEnvironment();
@@ -587,12 +603,13 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function applyClipboardActions(
         ?ModelIdInterface $source = null,
         ?ModelIdInterface $after = null,
         ?ModelIdInterface $into = null,
         ?ModelIdInterface $parentModelId = null,
-        ?FilterInterface  $filter = null,
+        ?FilterInterface $filter = null,
         array &$items = [],
     ) {
         if ($source) {
@@ -1177,6 +1194,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function pasteTop(CollectionInterface $models, $sortedBy, ?ModelIdInterface $parentId = null)
     {
         $environment = $this->getEnvironment();
@@ -1200,6 +1218,7 @@ class DefaultController implements ControllerInterface
      *
      * @throws RuntimeException When no models have been passed.
      */
+    #[\Override]
     public function pasteAfter(ModelInterface $previousModel, CollectionInterface $models, $sortedBy)
     {
         if (0 === $models->length()) {
@@ -1245,6 +1264,7 @@ class DefaultController implements ControllerInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function pasteInto(ModelInterface $parentModel, CollectionInterface $models, $sortedBy)
     {
         $environment = $this->getEnvironment();
@@ -1286,6 +1306,7 @@ class DefaultController implements ControllerInterface
      *
      * @see        RelationshipManager::isRoot
      */
+    #[\Override]
     public function isRootModel(ModelInterface $model)
     {
         return $this->relationshipManager->isRoot($model);
@@ -1298,6 +1319,7 @@ class DefaultController implements ControllerInterface
      *
      * @see        RelationshipManager::setRoot
      */
+    #[\Override]
     public function setRootModel(ModelInterface $model)
     {
         $this->relationshipManager->setRoot($model);
@@ -1312,6 +1334,7 @@ class DefaultController implements ControllerInterface
      *
      * @see        RelationshipManager::setParent
      */
+    #[\Override]
     public function setParent(ModelInterface $childModel, ModelInterface $parentModel)
     {
         $this->relationshipManager->setParent($childModel, $parentModel);
@@ -1326,6 +1349,7 @@ class DefaultController implements ControllerInterface
      *
      * @see        RelationshipManager::setSameParent
      */
+    #[\Override]
     public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable)
     {
         if ($this->relationshipManager->isRoot($sourceModel)) {

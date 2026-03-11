@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 
 /**
  * This event gets emitted when a legend is used.
+ *
+ * @api
  */
 class UseLegendEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.use-legend';
+    public const string NAME = 'dc-general.data-definition.palette.builder.use-legend';
 
     /**
      * The legend interface.
      *
      * @var LegendInterface
      */
-    protected $legend;
+    protected LegendInterface $legend;
 
     /**
      * Create a new instance.

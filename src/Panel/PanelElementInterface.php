@@ -54,7 +54,7 @@ interface PanelElementInterface
      *
      * @return void
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null);
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null);
 
     /**
      * Render the element using the given Template.

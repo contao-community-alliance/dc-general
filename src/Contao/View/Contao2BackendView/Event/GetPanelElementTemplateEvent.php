@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,27 +28,29 @@ use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 
 /**
  * This event is fired when a template instance for a panel element shall be created.
+ *
+ * @api
  */
 class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
 {
     /**
      * The name of the event.
      */
-    public const NAME = 'dc-general.view.contao2backend.get.panel.element.template';
+    public const string NAME = 'dc-general.view.contao2backend.get.panel.element.template';
 
     /**
      * The element for which a template shall get retrieved.
      *
      * @var PanelElementInterface
      */
-    protected $element;
+    protected PanelElementInterface $element;
 
     /**
      * The template instance.
      *
      * @var ViewTemplateInterface|null
      */
-    protected $template;
+    protected ?ViewTemplateInterface $template;
 
     /**
      * Create a new instance.
@@ -58,7 +61,8 @@ class GetPanelElementTemplateEvent extends AbstractEnvironmentAwareEvent
     public function __construct(EnvironmentInterface $environment, PanelElementInterface $element)
     {
         parent::__construct($environment);
-        $this->element = $element;
+        $this->element  = $element;
+        $this->template = null;
     }
 
     /**

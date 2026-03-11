@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * This class defines a collection of grouping and sorting information for the view.
  *
  * @SuppressWarnings(PHPMD.LongClassName)
+ *
+ * @api
  */
 class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefinitionCollectionInterface
 {
@@ -35,18 +37,19 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      *
      * @var list<GroupAndSortingDefinitionInterface>
      */
-    protected $information = [];
+    protected array $information = [];
 
     /**
      * Index of the default information.
      *
      * @var int
      */
-    protected $default = -1;
+    protected int $default = -1;
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function add($index = -1)
     {
         $information = new DefaultGroupAndSortingDefinition();
@@ -64,6 +67,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function delete($index)
     {
         if ($index === $this->default) {
@@ -78,6 +82,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getCount()
     {
         return \count($this->information);
@@ -88,6 +93,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      *
      * @throws DcGeneralInvalidArgumentException When the offset does not exist.
      */
+    #[\Override]
     public function get($index = -1)
     {
         if ($index === -1) {
@@ -106,6 +112,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      *
      * @throws DcGeneralInvalidArgumentException When the information is neither a proper instance nor an integer.
      */
+    #[\Override]
     public function markDefault($information)
     {
         if ($information instanceof GroupAndSortingDefinitionInterface) {
@@ -124,6 +131,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function hasDefault()
     {
         return (-1 !== $this->getDefaultIndex());
@@ -134,6 +142,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
      *
      * @throws DcGeneralInvalidArgumentException When no default has been defined.
      */
+    #[\Override]
     public function getDefault()
     {
         $index = $this->getDefaultIndex();
@@ -147,6 +156,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getDefaultIndex()
     {
         return $this->default;
@@ -155,6 +165,7 @@ class DefaultGroupAndSortingDefinitionCollection implements GroupAndSortingDefin
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->information);

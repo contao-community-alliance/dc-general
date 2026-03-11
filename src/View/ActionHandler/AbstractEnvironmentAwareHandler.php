@@ -48,6 +48,7 @@ abstract class AbstractEnvironmentAwareHandler extends AbstractHandler implement
      *
      * @return EnvironmentInterface
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->environment;
@@ -70,6 +71,7 @@ abstract class AbstractEnvironmentAwareHandler extends AbstractHandler implement
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function handleEvent(ActionEvent $event)
     {
         $this->setEnvironment($event->getEnvironment());

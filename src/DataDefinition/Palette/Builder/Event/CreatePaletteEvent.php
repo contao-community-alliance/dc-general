@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 
 /**
  * This event is emitted when a new palette has been created.
+ *
+ * @api
  */
 class CreatePaletteEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.create-palette';
+    public const string NAME = 'dc-general.data-definition.palette.builder.create-palette';
 
     /**
      * The palette that has been created.
      *
      * @var PaletteInterface
      */
-    protected $palette;
+    protected PaletteInterface $palette;
 
     /**
      * Create a new instance.

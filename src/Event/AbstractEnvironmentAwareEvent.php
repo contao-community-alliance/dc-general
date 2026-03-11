@@ -51,6 +51,7 @@ abstract class AbstractEnvironmentAwareEvent extends Event implements Environmen
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->environment;

@@ -26,23 +26,64 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Test for the Filter.
  *
- * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\Filter
- *
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
-class FilterTest extends TestCase
+#[CoversClass(Filter::class)]
+final class FilterTest extends TestCase
 {
     /**
      * Provide an action matrix with 3 different actions per row.
-     *
-     * @return array
      */
-    public function provideActions()
+    public static function provideTwoActions(): array
+    {
+        return [
+            [ItemInterface::CREATE, ItemInterface::COPY],
+            [ItemInterface::COPY, ItemInterface::CREATE],
+            [ItemInterface::DEEP_COPY, ItemInterface::COPY],
+            [ItemInterface::CREATE, ItemInterface::COPY],
+            [ItemInterface::CUT, ItemInterface::COPY],
+        ];
+    }
+
+    #[Dataprovider('provideTwoActions')]
+    public function testAndActionIs($action1, $action2): void
+    {
+        $filter = new Filter();
+        $filter->andSub(new MockedFilter(true));
+        $filter->andActionIs($action1);
+
+        $item = new MockedAbstractItem($action1);
+        self::assertTrue($filter->accepts($item));
+
+        $item2 = new MockedAbstractItem($action2);
+        self::assertFalse($filter->accepts($item2));
+    }
+
+    #[Dataprovider('provideTwoActions')]
+    public function testAndActionIsNot($action1, $action2): void
+    {
+        $filter = new Filter();
+        $filter->andSub(new MockedFilter(true));
+        $filter->andActionIsNot($action1);
+
+        $item = new MockedAbstractItem($action1);
+        self::assertFalse($filter->accepts($item));
+
+        $item2 = new MockedAbstractItem($action2);
+        self::assertTrue($filter->accepts($item2));
+    }
+
+    /**
+     * Provide an action matrix with 3 different actions per row.
+     */
+    public static function provideActions(): array
     {
         return [
             [ItemInterface::CREATE, ItemInterface::COPY, ItemInterface::CUT],
@@ -52,154 +93,93 @@ class FilterTest extends TestCase
             [ItemInterface::CUT, ItemInterface::COPY, ItemInterface::CREATE],
         ];
     }
-
-    /**
-     * Test andActionIs filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testAndActionIs($action1, $action2)
-    {
-        $filter = new Filter();
-        $filter->andSub(new MockedFilter(true));
-        $filter->andActionIs($action1);
-
-        $item = new MockedAbstractItem($action1);
-        self::assertEquals(true, $filter->accepts($item));
-
-        $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(false, $filter->accepts($item2));
-    }
-
-    /**
-     * Test andActionIsNot filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testAndActionIsNot($action1, $action2)
-    {
-        $filter = new Filter();
-        $filter->andSub(new MockedFilter(true));
-        $filter->andActionIsNot($action1);
-
-        $item = new MockedAbstractItem($action1);
-        self::assertEquals(false, $filter->accepts($item));
-
-        $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(true, $filter->accepts($item2));
-    }
-
-    /**
-     * Test orActionIs filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testOrActionIs($action1, $action2, $action3)
+    #[Dataprovider('provideActions')]
+    public function testOrActionIs($action1, $action2, $action3): void
     {
         $filter = new Filter();
         $filter->orSub(new MockedFilter(false));
         $filter->orActionIs($action1)->orActionIs($action2);
 
         $item = new MockedAbstractItem($action1);
-        self::assertEquals(true, $filter->accepts($item));
+        self::assertTrue($filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(true, $filter->accepts($item2));
+        self::assertTrue($filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        self::assertEquals(false, $filter->accepts($item3));
+        self::assertFalse($filter->accepts($item3));
     }
 
-    /**
-     * Test orActionIsNot filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testOrActionIsNot($action1, $action2, $action3)
+    #[Dataprovider('provideActions')]
+    public function testOrActionIsNot($action1, $action2, $action3): void
     {
         $filter = new Filter();
         $filter->andSub(new MockedFilter(false));
         $filter->orActionIsNot($action1);
 
         $item = new MockedAbstractItem($action1);
-        self::assertEquals(false, $filter->accepts($item));
+        self::assertFalse($filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(true, $filter->accepts($item2));
+        self::assertTrue($filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        self::assertEquals(true, $filter->accepts($item3));
+        self::assertTrue($filter->accepts($item3));
     }
 
-    /**
-     * Test andActionIsIn filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testAndActionIsIn($action1, $action2, $action3)
+    #[Dataprovider('provideActions')]
+    public function testAndActionIsIn($action1, $action2, $action3): void
     {
         $filter = new Filter();
         $filter->andSub(new MockedFilter(true));
         $filter->andActionIsIn([$action1]);
 
         $item = new MockedAbstractItem($action1);
-        self::assertEquals(true, $filter->accepts($item));
+        self::assertTrue($filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(false, $filter->accepts($item2));
+        self::assertFalse($filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        self::assertEquals(false, $filter->accepts($item3));
+        self::assertFalse($filter->accepts($item3));
     }
 
-    /**
-     * Test andActionIsNotIn filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testAndActionIsNotIn($action1, $action2, $action3)
+    #[Dataprovider('provideActions')]
+    public function testAndActionIsNotIn($action1, $action2, $action3): void
     {
         $filter = new Filter();
         $filter->andSub(new MockedFilter(true));
         $filter->andActionIsNotIn([$action1, $action2]);
 
         $item = new MockedAbstractItem($action1);
-        self::assertEquals(false, $filter->accepts($item));
+        self::assertFalse($filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(false, $filter->accepts($item2));
+        self::assertFalse($filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        self::assertEquals(true, $filter->accepts($item3));
+        self::assertTrue($filter->accepts($item3));
     }
 
-    /**
-     * Test andActionIsIn filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testOrActionIsIn($action1, $action2, $action3)
+    #[Dataprovider('provideActions')]
+    public function testOrActionIsIn($action1, $action2, $action3): void
     {
         $filter = new Filter();
         $filter->orSub(new MockedFilter(false));
         $filter->orActionIsIn([$action1]);
 
         $item = new MockedAbstractItem($action1);
-        self::assertEquals(true, $filter->accepts($item));
+        self::assertTrue($filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(false, $filter->accepts($item2));
+        self::assertFalse($filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        self::assertEquals(false, $filter->accepts($item3));
+        self::assertFalse($filter->accepts($item3));
     }
 
-    /**
-     * Test orActionIsNotIn filter.
-     *
-     * @dataProvider provideActions()
-     */
-    public function testOrActionIsNotIn($action1, $action2, $action3)
+    #[Dataprovider('provideActions')]
+    public function testOrActionIsNotIn($action1, $action2, $action3): void
     {
         $filter = new Filter();
         $filter
@@ -208,19 +188,16 @@ class FilterTest extends TestCase
             ->orActionIsNotIn([$action1, $action2]);
 
         $item = new MockedAbstractItem($action1);
-        self::assertEquals(false, $filter->accepts($item));
+        self::assertFalse($filter->accepts($item));
 
         $item2 = new MockedAbstractItem($action2);
-        self::assertEquals(true, $filter->accepts($item2));
+        self::assertTrue($filter->accepts($item2));
 
         $item3 = new MockedAbstractItem($action3);
-        self::assertEquals(true, $filter->accepts($item3));
+        self::assertTrue($filter->accepts($item3));
     }
 
-    /**
-     * Test andHasNoParent filter.
-     */
-    public function testAndHasNoParent()
+    public function testAndHasNoParent(): void
     {
         $filter = new Filter();
 
@@ -231,14 +208,11 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(true));
         $filter->andHasNoParent();
 
-        self::assertEquals(false, $filter->accepts($item));
-        self::assertEquals(true, $filter->accepts($item2));
+        self::assertFalse($filter->accepts($item));
+        self::assertTrue($filter->accepts($item2));
     }
 
-    /**
-     * Test orHasNoParent filter.
-     */
-    public function testOrHasNoParent()
+    public function testOrHasNoParent(): void
     {
         $filter = new Filter();
 
@@ -249,16 +223,11 @@ class FilterTest extends TestCase
         $filter->andSub(new MockedFilter(false));
         $filter->orHasNoParent();
 
-        self::assertEquals(false, $filter->accepts($item));
-        self::assertEquals(true, $filter->accepts($item2));
+        self::assertFalse($filter->accepts($item));
+        self::assertTrue($filter->accepts($item2));
     }
 
-    /**
-     * Provide test matrix for testOrParentIs and testAndParentIs.
-     *
-     * @return array
-     */
-    public function provideParents()
+    public static function provideParentsForOr(): array
     {
         $parentId1 = new ModelId('dummy-provider', 4);
         $parentId2 = new ModelId('dummy-provider', 5);
@@ -271,12 +240,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test orParentIs filter.
-     *
-     * @dataProvider provideParents()
-     */
-    public function testOrParentIs($expected, $parentId1, $parentId2, $parentId3)
+    #[Dataprovider('provideParentsForOr')]
+    public function testOrParentIs($expected, $parentId1, $parentId2, $parentId3): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
@@ -287,12 +252,20 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Test orParentIs filter.
-     *
-     * @dataProvider provideParents()
-     */
-    public function testAndParentIs($expected, $parentId1, $parentId2)
+    public static function provideParentsForAnd(): array
+    {
+        $parentId1 = new ModelId('dummy-provider', 4);
+        $parentId2 = new ModelId('dummy-provider', 5);
+
+        return [
+            [true, $parentId1, $parentId1],
+            [false, $parentId1, $parentId2],
+            [false, null, $parentId2],
+        ];
+    }
+
+    #[Dataprovider('provideParentsForAnd')]
+    public function testAndParentIs($expected, $parentId1, $parentId2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
@@ -303,12 +276,7 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Provide test matrix for testAndModelIdIs.
-     *
-     * @return array
-     */
-    public function provideForAndModelIdIs()
+    public static function provideForAndModelIdIs(): array
     {
         $modelId1 = new ModelId('dummy-provider', 4);
         $modelId2 = new ModelId('dummy-provider', 5);
@@ -320,12 +288,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test andModelIs filter.
-     *
-     * @dataProvider provideForAndModelIdIs()
-     */
-    public function testAndModelIdIs($expected, $modelId1, $modelId2)
+    #[Dataprovider('provideForAndModelIdIs')]
+    public function testAndModelIdIs($expected, $modelId1, $modelId2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, null, $modelId1);
@@ -336,12 +300,7 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Provide test matrix for testAndModelIdIsNot.
-     *
-     * @return array
-     */
-    public function provideForAndModelIdIsNot()
+    public static function provideForAndModelIdIsNot(): array
     {
         $modelId1 = new ModelId('dummy-provider', 4);
         $modelId2 = new ModelId('dummy-provider', 5);
@@ -353,12 +312,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test andModelIs filter.
-     *
-     * @dataProvider provideForAndModelIdIsNot()
-     */
-    public function testAndModelIdIsNot($expected, $modelId1, $modelId2)
+    #[Dataprovider('provideForAndModelIdIsNot')]
+    public function testAndModelIdIsNot($expected, $modelId1, $modelId2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, null, $modelId1);
@@ -369,12 +324,7 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Provide test matrix for testOrModelIdIs.
-     *
-     * @return array
-     */
-    public function provideForOrModelIdIs()
+    public static function provideForOrModelIdIs(): array
     {
         $modelId1 = new ModelId('dummy-provider', 4);
         $modelId2 = new ModelId('dummy-provider', 5);
@@ -387,12 +337,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test andModelIs filter.
-     *
-     * @dataProvider provideForOrModelIdIs()
-     */
-    public function testOrModelIdIs($expected, $modelId1, $modelId2, $modelId3)
+    #[Dataprovider('provideForOrModelIdIs')]
+    public function testOrModelIdIs($expected, $modelId1, $modelId2, $modelId3): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, null, $modelId1);
@@ -403,12 +349,7 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Provide test matrix for testOrModelIdIsNot.
-     *
-     * @return array
-     */
-    public function provideForOrModelIdIsNot()
+    public static function provideForOrModelIdIsNot(): array
     {
         $modelId1 = new ModelId('dummy-provider', 4);
         $modelId2 = new ModelId('dummy-provider', 5);
@@ -421,12 +362,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test andModelIs filter.
-     *
-     * @dataProvider provideForOrModelIdIsNot()
-     */
-    public function testOrModelIdIsNot($expected, $modelId1, $modelId2, $modelId3)
+    #[Dataprovider('provideForOrModelIdIsNot')]
+    public function testOrModelIdIsNot($expected, $modelId1, $modelId2, $modelId3): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, null, $modelId1);
@@ -437,12 +374,7 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Provide test matrix for testForModelIsFromDataProvider.
-     *
-     * @return array
-     */
-    public function provideForModelIsFromDataProvider()
+    public static function provideForModelIsFromDataProvider(): array
     {
         $provider1 = 'dummy-a';
         $provider2 = 'dummy-b';
@@ -454,12 +386,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test andModelIs filter.
-     *
-     * @dataProvider provideForModelIsFromDataProvider()
-     */
-    public function testModelIsFromDataProvider($expected, $provider1, $provider2)
+    #[Dataprovider('provideForModelIsFromDataProvider')]
+    public function testModelIsFromDataProvider($expected, $provider1, $provider2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, null, $provider1);
@@ -470,12 +398,8 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Test andModelIs filter.
-     *
-     * @dataProvider provideForModelIsFromDataProvider()
-     */
-    public function testParentIdIsFromDataProvider($expected, $provider1, $provider2)
+    #[Dataprovider('provideForModelIsFromDataProvider')]
+    public function testParentIdIsFromDataProvider($expected, $provider1, $provider2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, new ModelId($provider1, 3), null);
@@ -486,12 +410,7 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Provide test matrix for testModelIsNotFromDataProvider.
-     *
-     * @return array
-     */
-    public function provideForModelIsNotFromDataProvider()
+    public static function provideForModelIsNotFromDataProvider(): array
     {
         $provider1 = 'dummy-a';
         $provider2 = 'dummy-b';
@@ -503,12 +422,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test andModelIs filter.
-     *
-     * @dataProvider provideForModelIsNotFromDataProvider()
-     */
-    public function testModelIsNotFromDataProvider($expected, $provider1, $provider2)
+    #[Dataprovider('provideForModelIsNotFromDataProvider')]
+    public function testModelIsNotFromDataProvider($expected, $provider1, $provider2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, null, $provider1);
@@ -519,13 +434,8 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-
-    /**
-     * Test andParentIsNotFromProvider filter.
-     *
-     * @dataProvider provideForModelIsNotFromDataProvider()
-     */
-    public function testParentIdIsNotFromDataProvider($expected, $provider1, $provider2)
+    #[Dataprovider('provideForModelIsNotFromDataProvider')]
+    public function testParentIdIsNotFromDataProvider($expected, $provider1, $provider2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, new ModelId($provider1, 3), null);
@@ -536,12 +446,8 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Test orParentIsNotFromProvider filter.
-     *
-     * @dataProvider provideForModelIsNotFromDataProvider()
-     */
-    public function testOrParentIsNotFromProvider($expected, $provider1, $provider2)
+    #[Dataprovider('provideForModelIsNotFromDataProvider')]
+    public function testOrParentIsNotFromProvider($expected, $provider1, $provider2): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, new ModelId($provider1, 3), null);
@@ -552,12 +458,8 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Test testAndParentIsIn filter.
-     *
-     * @dataProvider provideParents()
-     */
-    public function testAndParentIsIn($expected, $parentId1, $parentId2, $parentId3)
+    #[Dataprovider('provideParentsForOr')]
+    public function testAndParentIsIn($expected, $parentId1, $parentId2, $parentId3): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
@@ -567,12 +469,8 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Test testAndParentIsIn filter.
-     *
-     * @dataProvider provideParents()
-     */
-    public function testParentIsNotIn($expected, $parentId1, $parentId2, $parentId3)
+    #[Dataprovider('provideParentsForOr')]
+    public function testParentIsNotIn($expected, $parentId1, $parentId2, $parentId3): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
@@ -582,12 +480,8 @@ class FilterTest extends TestCase
         self::assertEquals(!$expected, $filter->accepts($item));
     }
 
-    /**
-     * Test testAndParentIsIn filter.
-     *
-     * @dataProvider provideParents()
-     */
-    public function testOrParentIsIn($expected, $parentId1, $parentId2, $parentId3)
+    #[Dataprovider('provideParentsForOr')]
+    public function testOrParentIsIn($expected, $parentId1, $parentId2, $parentId3): void
     {
         $filter = new Filter();
         $item   = new MockedAbstractItem(ItemInterface::CREATE, $parentId1);
@@ -597,12 +491,7 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Provide sub filter test values.
-     *
-     * @return array
-     */
-    public function provideSubFilter()
+    public static function provideSubFilter(): array
     {
         return [
             [true, new MockedFilter(true)],
@@ -610,12 +499,8 @@ class FilterTest extends TestCase
         ];
     }
 
-    /**
-     * Test and sub filter.
-     *
-     * @dataProvider provideSubFilter()
-     */
-    public function testAndSub($expected, FilterInterface $subFilter)
+    #[Dataprovider('provideSubFilter')]
+    public function testAndSub($expected, FilterInterface $subFilter): void
     {
         $item   = new MockedAbstractItem(ItemInterface::CREATE);
 
@@ -628,12 +513,8 @@ class FilterTest extends TestCase
         self::assertEquals($expected, $filter->accepts($item));
     }
 
-    /**
-     * Test and sub filter.
-     *
-     * @dataProvider provideSubFilter()
-     */
-    public function testOrSub($expected, FilterInterface $subFilter)
+    #[Dataprovider('provideSubFilter')]
+    public function testOrSub($expected, FilterInterface $subFilter): void
     {
         $item   = new MockedAbstractItem(ItemInterface::CREATE);
 

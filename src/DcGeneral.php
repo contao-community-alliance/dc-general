@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral;
 
 /**
  * This class holds everything together.
+ *
+ * @api
  */
 class DcGeneral implements EnvironmentAwareInterface
 {
@@ -46,6 +48,7 @@ class DcGeneral implements EnvironmentAwareInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->environment;

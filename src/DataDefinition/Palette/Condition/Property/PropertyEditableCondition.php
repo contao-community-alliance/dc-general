@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition checking that a property is editable.
+ *
+ * @api
  */
 class PropertyEditableCondition implements PropertyConditionInterface
 {
@@ -75,6 +77,7 @@ class PropertyEditableCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function match(
         ?ModelInterface $model = null,
         ?PropertyValueBag $input = null,
@@ -95,6 +98,7 @@ class PropertyEditableCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

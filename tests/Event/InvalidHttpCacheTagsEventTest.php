@@ -23,12 +23,13 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Event;
 
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent
- */
-class InvalidHttpCacheTagsEventTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(InvalidHttpCacheTagsEvent::class)]
+final class InvalidHttpCacheTagsEventTest extends TestCase
 {
     public function testEvent(): void
     {

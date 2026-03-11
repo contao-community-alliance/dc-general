@@ -23,8 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is emitted before a model is created.
+ *
+ * @api
  */
 class PreCreateModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.pre-create';
+    public const string NAME = 'dc-general.model.pre-create';
 }

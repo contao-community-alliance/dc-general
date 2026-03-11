@@ -21,17 +21,18 @@ namespace ContaoCommunityAlliance\DcGeneral\Test;
 
 use ContaoCommunityAlliance\DcGeneral\CcaDcGeneralBundle;
 use ContaoCommunityAlliance\DcGeneral\DependencyInjection\Compiler\AddSessionBagsPass;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * Test the general bundle.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\CcaDcGeneralBundle
- */
-class CcaDcGeneralBundleTest extends TestCase
+use function count;
+use function get_class;
+use function in_array;
+
+#[CoversClass(CcaDcGeneralBundle::class)]
+final class CcaDcGeneralBundleTest extends TestCase
 {
-    public function testBuild()
+    public function testBuild(): void
     {
         $passes    = [
             AddSessionBagsPass::class
@@ -39,12 +40,12 @@ class CcaDcGeneralBundleTest extends TestCase
 
         $container = $this->createMock(ContainerBuilder::class);
         $container
-            ->expects(self::exactly(\count($passes)))
+            ->expects($this->exactly(count($passes)))
             ->method('addCompilerPass')
             ->with(
                 self::callback(
-                    function ($param) use ($passes) {
-                        return \in_array(\get_class($param), $passes, true);
+                    static function ($param) use ($passes) {
+                        return in_array(get_class($param), $passes, true);
                     }
                 )
             );

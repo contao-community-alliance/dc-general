@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -80,6 +80,7 @@ abstract class Ajax implements EnvironmentAwareInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->getDataContainer()->getEnvironment();
@@ -130,7 +131,7 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     protected function getAjaxId()
     {
-        return preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', (string) $this->getPost('id'));
+        return (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', (string) $this->getPost('id'));
     }
 
     /**
@@ -146,13 +147,7 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     protected function loadStructure()
     {
-        // Method ajaxTreeView is in TreeView.php - watch out!
-        /** @psalm-suppress DeprecatedMethod */
-        $response = new Response(
-            $this->getDataContainer()->ajaxTreeView($this->getAjaxId(), (int) $this->getPost('level'))
-        );
-
-        throw new ResponseException($response);
+        throw new ResponseException(new Response());
     }
 
     /**
@@ -163,15 +158,12 @@ abstract class Ajax implements EnvironmentAwareInterface
      * @return never
      *
      * @throws ResponseException Throws a response exception.
+     *
+     * @deprecated
      */
     protected function loadFileManager()
     {
-        // Method ajaxTreeView is in TreeView.php - watch out!
-        $response = new Response(
-            $this->getDataContainer()->ajaxTreeView($this->getPost('folder', true), (int) $this->getPost('level'))
-        );
-
-        throw new ResponseException($response);
+        throw new ResponseException(new Response());
     }
 
     /**
@@ -316,9 +308,9 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     protected function exitScript()
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error('Use own response exit!', E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $requestStack = System::getContainer()->get('request_stack');
         assert($requestStack instanceof RequestStack);

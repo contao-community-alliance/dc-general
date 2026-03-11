@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition using a custom callback function for flexible custom conditions.
+ *
+ * @api
  */
 class PropertyCallbackCondition implements PropertyConditionInterface
 {
@@ -51,6 +53,7 @@ class PropertyCallbackCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function match(
         ?ModelInterface $model = null,
         ?PropertyValueBag $input = null,
@@ -63,6 +66,7 @@ class PropertyCallbackCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

@@ -22,6 +22,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Exception;
 
 /**
  * This exception is thrown whenever any property value is invalid.
+ *
+ * @api
  */
 class DcGeneralInvalidPropertyValueException extends \RuntimeException
 {

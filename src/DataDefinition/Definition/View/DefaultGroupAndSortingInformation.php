@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
 /**
  * This class defines a grouping and sorting information for the view.
+ *
+ * @api
  */
 class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInterface
 {
@@ -31,39 +33,40 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
      *
      * @var string
      */
-    protected $property = '';
+    protected string $property = '';
 
     /**
      * The sorting method to use.
      *
      * @var string
      */
-    protected $sorting = GroupAndSortingInformationInterface::SORT_ASC;
+    protected string $sorting = GroupAndSortingInformationInterface::SORT_ASC;
 
     /**
      * The grouping to be applied.
      *
      * @var string
      */
-    protected $grouping = GroupAndSortingInformationInterface::GROUP_NONE;
+    protected string $grouping = GroupAndSortingInformationInterface::GROUP_NONE;
 
     /**
      * The grouping length (used when grouping mode is char).
      *
      * @var int
      */
-    protected $groupingLength = 0;
+    protected int $groupingLength = 0;
 
     /**
      * Flag determining if this information is for manual sorting.
      *
      * @var bool
      */
-    protected $manualSorting = false;
+    protected bool $manualSorting = false;
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setProperty($property)
     {
         $this->property = $property;
@@ -74,6 +77,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getProperty()
     {
         return $this->property;
@@ -82,6 +86,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setGroupingMode($value)
     {
         $this->grouping = $value;
@@ -92,6 +97,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getGroupingMode()
     {
         return $this->grouping;
@@ -100,6 +106,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setGroupingLength($value)
     {
         $this->groupingLength = $value;
@@ -110,6 +117,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getGroupingLength(): int
     {
         return $this->groupingLength;
@@ -118,6 +126,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setSortingMode($value)
     {
         $this->sorting = $value;
@@ -128,6 +137,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getSortingMode()
     {
         return $this->sorting;
@@ -136,6 +146,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setManualSorting($value = true)
     {
         $this->manualSorting = $value;
@@ -146,6 +157,7 @@ class DefaultGroupAndSortingInformation implements GroupAndSortingInformationInt
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function isManualSorting()
     {
         return $this->manualSorting;

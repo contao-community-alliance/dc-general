@@ -24,18 +24,20 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Command;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollection;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandCollection
- */
-class CommandCollectionTest extends TestCase
+use function array_search;
+use function array_values;
+
+#[CoversClass(CommandCollection::class)]
+final class CommandCollectionTest extends TestCase
 {
-    protected function assertIndexIs($expected, $array, $command)
+    protected function assertIndexIs($expected, $array, $command): void
     {
-        self::assertSame($expected, \array_search($command, \array_values($array)));
+        self::assertSame($expected, array_search($command, array_values($array), true));
     }
 
-    public function testAddOne()
+    public function testAddOne(): void
     {
         $collection = new CommandCollection();
 
@@ -49,7 +51,7 @@ class CommandCollectionTest extends TestCase
         $this->assertIndexIs(0, $collection->getCommands(), $command);
     }
 
-    public function testAddOneBefore()
+    public function testAddOneBefore(): void
     {
         $collection = new CommandCollection();
 
@@ -70,7 +72,7 @@ class CommandCollectionTest extends TestCase
         $this->assertIndexIs(0, $collection->getCommands(), $command2);
     }
 
-    public function testAddOneBeforeNonExistant()
+    public function testAddOneBeforeNonExistant(): void
     {
         $collection = new CommandCollection();
 
@@ -92,7 +94,7 @@ class CommandCollectionTest extends TestCase
         $this->assertIndexIs(false, $collection->getCommands(), $command2);
     }
 
-    public function testAddTwo()
+    public function testAddTwo(): void
     {
         $collection = new CommandCollection();
 
@@ -111,7 +113,7 @@ class CommandCollectionTest extends TestCase
         $this->assertIndexIs(1, $collection->getCommands(), $command2);
     }
 
-    public function testAddTwoBefore()
+    public function testAddTwoBefore(): void
     {
         $collection = new CommandCollection();
 
@@ -136,7 +138,7 @@ class CommandCollectionTest extends TestCase
         $this->assertIndexIs(2, $collection->getCommands(), $command3);
     }
 
-    public function testAddTwoBeforeNonExistant()
+    public function testAddTwoBeforeNonExistant(): void
     {
         $collection = new CommandCollection();
 

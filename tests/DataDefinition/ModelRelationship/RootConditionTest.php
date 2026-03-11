@@ -23,20 +23,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\ModelRelationshi
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultModel;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * This class tests the RootCondition.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondition
- */
-class RootConditionTest extends TestCase
+#[CoversClass(RootCondition::class)]
+final class RootConditionTest extends TestCase
 {
-    /**
-     * Test that the matches method does not match for models from another provider.
-     *
-     * @return void
-     */
-    public function testMatchesForChildFromOtherProvider()
+    public function testMatchesForChildFromOtherProvider(): void
     {
         $model = new DefaultModel();
         $model->setID(1);
@@ -59,12 +51,7 @@ class RootConditionTest extends TestCase
         self::assertFalse($condition->matches($model));
     }
 
-    /**
-     * Test the matches method().
-     *
-     * @return void
-     */
-    public function testMatches()
+    public function testMatches(): void
     {
         $model = new DefaultModel();
         $model->setId(1);

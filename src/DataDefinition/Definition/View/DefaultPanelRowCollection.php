@@ -25,6 +25,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * Default implementation for a panel row collection.
+ *
+ * @api
  */
 class DefaultPanelRowCollection implements PanelRowCollectionInterface
 {
@@ -33,11 +35,12 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
      *
      * @var list<PanelRowInterface>
      */
-    protected $rows = [];
+    protected array $rows = [];
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getRows()
     {
         $names = [];
@@ -52,6 +55,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function addRow($index = -1)
     {
         $row = new DefaultPanelRow();
@@ -68,6 +72,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function deleteRow($index)
     {
         unset($this->rows[$index]);
@@ -79,6 +84,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getRowCount()
     {
         return \count($this->rows);
@@ -89,6 +95,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
      *
      * @throws DcGeneralInvalidArgumentException When the index does not exist.
      */
+    #[\Override]
     public function getRow($index)
     {
         if (!isset($this->rows[$index])) {
@@ -101,6 +108,7 @@ class DefaultPanelRowCollection implements PanelRowCollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->rows);

@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * Default implementation of a root condition.
+ *
+ * @api
  */
 class RootCondition extends AbstractCondition implements RootConditionInterface
 {
@@ -35,25 +37,26 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
      *
      * @var array
      */
-    protected $filter = [];
+    protected array $filter = [];
 
     /**
      * The setter information to use when a model shall get marked as root item.
      *
      * @var array
      */
-    protected $setOn = [];
+    protected array $setOn = [];
 
     /**
      * The name of the table this condition is being applied to.
      *
      * @var string
      */
-    protected $sourceProvider = '';
+    protected string $sourceProvider = '';
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setFilterArray($value)
     {
         $this->filter = $value;
@@ -64,6 +67,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getFilterArray()
     {
         return $this->filter;
@@ -72,6 +76,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setSetters($value)
     {
         $this->setOn = $value;
@@ -82,6 +87,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getSetters()
     {
         return $this->setOn;
@@ -90,6 +96,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setSourceName($value)
     {
         $this->sourceProvider = $value;
@@ -100,6 +107,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getSourceName()
     {
         return $this->sourceProvider;
@@ -110,6 +118,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
      *
      * @throws DcGeneralRuntimeException When an incomplete rule is encountered in the setters.
      */
+    #[\Override]
     public function applyTo($model)
     {
         $this->guardProviderName($model);
@@ -141,6 +150,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function matches($objModel)
     {
         try {

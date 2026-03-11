@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -76,6 +76,8 @@ use function trim;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ *
+ * @api
  */
 class ButtonRenderer
 {
@@ -342,10 +344,10 @@ class ButtonRenderer
             }
             $attributes = strtr($attributes, ['%id%' => $model->getId()]);
         }
-        $icon = $extra['icon'];
+        $icon = (string) $extra['icon'];
 
         if ($command instanceof ToggleCommandInterface) {
-            $iconDisabled = ($extra['icon_disabled'] ?? 'invisible.svg');
+            $iconDisabled = (string) ($extra['icon_disabled'] ?? 'invisible.svg');
 
             $attributes .= sprintf(
                 ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
@@ -370,7 +372,7 @@ class ButtonRenderer
             ->setLabel($this->getCommandLabel($command, $definitionName, ['%id%' => $model->getId()]))
             ->setTitle(
                 $this->translateButtonDescription(
-                    \preg_replace('#(\.description|\.1)$#', '', $command->getDescription()),
+                    (string) \preg_replace('#(\.description|\.1)$#', '', $command->getDescription()),
                     $definitionName,
                     ['%id%' => $model->getId()]
                 )
@@ -787,7 +789,7 @@ class ButtonRenderer
         }
 
         return $this->translateButtonLabel(
-            \preg_replace('#(\.label|\.0)$#', '', $label),
+            (string) \preg_replace('#(\.label|\.0)$#', '', $label),
             $definitionName,
             $parameter
         );

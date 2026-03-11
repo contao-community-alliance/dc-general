@@ -23,8 +23,10 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is emitted after a model has been pasted.
+ *
+ * @api
  */
 class PostPasteModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.post-paste';
+    public const string NAME = 'dc-general.model.post-paste';
 }

@@ -24,6 +24,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * This class defines a collection of grouping and sorting information for the view.
+ *
+ * @api
  */
 class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInterface
 {
@@ -32,18 +34,19 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
      *
      * @var GroupAndSortingInformationInterface[]
      */
-    protected $information = [];
+    protected array $information = [];
 
     /**
      * The name of the definition.
      *
      * @var string
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function add($index = -1)
     {
         $information = new DefaultGroupAndSortingInformation();
@@ -60,6 +63,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function delete($index)
     {
         unset($this->information[$index]);
@@ -71,6 +75,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getCount()
     {
         return \count($this->information);
@@ -81,6 +86,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
      *
      * @throws DcGeneralInvalidArgumentException When the given offset does not exist.
      */
+    #[\Override]
     public function get($index)
     {
         if (!isset($this->information[$index])) {
@@ -93,6 +99,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -101,6 +108,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setName($name)
     {
         $this->name = $name;
@@ -111,6 +119,7 @@ class DefaultGroupAndSortingDefinition implements GroupAndSortingDefinitionInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->information);

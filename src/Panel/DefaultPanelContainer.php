@@ -28,6 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 
 /**
  * Default implementation of a panel container.
+ *
+ * @api
  */
 class DefaultPanelContainer implements PanelContainerInterface
 {
@@ -48,6 +50,7 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         if (null === $this->objEnvironment) {
@@ -60,6 +63,7 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEnvironment(EnvironmentInterface $objEnvironment)
     {
         $this->objEnvironment = $objEnvironment;
@@ -70,6 +74,7 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addPanel($panelName, $panel)
     {
         $this->panels[$panelName] = $panel;
@@ -81,6 +86,7 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPanel($panelName)
     {
         return $this->panels[$panelName];
@@ -89,7 +95,8 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
+    #[\Override]
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
         /** @var PanelInterface $panel */
         foreach ($this as $panel) {
@@ -102,6 +109,7 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function updateValues()
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
@@ -113,6 +121,7 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->panels);
@@ -121,6 +130,7 @@ class DefaultPanelContainer implements PanelContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function count(): int
     {
         return \count($this->panels);

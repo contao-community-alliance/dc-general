@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,67 +37,67 @@ interface ModelInterface extends \IteratorAggregate
     /**
      * Name of the parent provider.
      */
-    public const PARENT_PROVIDER_NAME = 'ptable';
+    public const string PARENT_PROVIDER_NAME = 'ptable';
 
     /**
      * Id value of the parent model.
      */
-    public const PARENT_ID = 'pid';
+    public const string PARENT_ID = 'pid';
 
     /**
      * State if we have children.
      */
-    public const HAS_CHILDREN = 'dc_gen_tv_children';
+    public const string HAS_CHILDREN = 'dc_gen_tv_children';
 
     /**
      * If the children shall be shown (i.e. unfolded in tree mode).
      */
-    public const SHOW_CHILDREN = 'dc_gen_tv_open';
+    public const string SHOW_CHILDREN = 'dc_gen_tv_open';
 
     /**
      * All child collections.
      */
-    public const CHILD_COLLECTIONS = 'dc_gen_children_collection';
+    public const string CHILD_COLLECTIONS = 'dc_gen_children_collection';
 
     /**
      * Meta name for the model operation buttons.
      */
-    public const OPERATION_BUTTONS = '%buttons%';
+    public const string OPERATION_BUTTONS = '%buttons%';
 
     /**
      * Meta name for the model label arguments.
      */
-    public const LABEL_ARGS = '%args%';
+    public const string LABEL_ARGS = '%args%';
 
     /**
      * Meta name for the model label (sprintf string).
      */
-    public const LABEL_VALUE = '%content%';
+    public const string LABEL_VALUE = '%content%';
 
     /**
      * Meta name for the model group header.
      */
-    public const GROUP_HEADER = '%header%';
+    public const string GROUP_HEADER = '%header%';
 
     /**
      * Meta name for the model group value.
      */
-    public const GROUP_VALUE = '%group%';
+    public const string GROUP_VALUE = '%group%';
 
     /**
      * Meta name for the model label class.
      */
-    public const CSS_CLASS = '%class%';
+    public const string CSS_CLASS = '%class%';
 
     /**
      * Meta name for the model label class.
      */
-    public const CSS_ROW_CLASS = '%rowClass%';
+    public const string CSS_ROW_CLASS = '%rowClass%';
 
     /**
      * State if the model is changed
      */
-    public const IS_CHANGED = 'isChanged';
+    public const string IS_CHANGED = 'isChanged';
 
     /**
      * Copy this model, without the id.

@@ -24,6 +24,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
  * Cut command - special implementation for cutting an entry.
  *
  * Ths is merely just an empty container to tell cut commands and generic commands apart.
+ *
+ * @api
  */
 class CutCommand extends Command implements CutCommandInterface
 {

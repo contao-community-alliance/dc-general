@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,31 +31,33 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  *
  * This event is issued when a property value has to be converted from data understood by the widget into the native
  * data (presented by the data provider).
+ *
+ * @api
  */
 class EncodePropertyValueFromWidgetEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.encode-property-value-from-widget';
+    public const string NAME = 'dc-general.view.contao2backend.encode-property-value-from-widget';
 
     /**
      * The name of the property for which the data shall be decoded.
      *
      * @var string
      */
-    protected $property = '';
+    protected string $property = '';
 
     /**
      * The value of the data.
      *
      * @var mixed
      */
-    protected $value;
+    protected mixed $value;
 
     /**
      * The property value bag where values are to be retrieved from.
      *
      * @var PropertyValueBagInterface
      */
-    protected $propertyValues;
+    protected PropertyValueBagInterface $propertyValues;
 
     /**
      * Create a new model aware event.

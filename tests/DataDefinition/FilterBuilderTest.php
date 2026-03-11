@@ -22,20 +22,21 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\FilterBuilder;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\FilterBuilder
- */
-class FilterBuilderTest extends TestCase
+use function array_merge;
+
+#[CoversClass(FilterBuilder::class)]
+final class FilterBuilderTest extends TestCase
 {
-    public function testEmpty()
+    public function testEmpty(): void
     {
         $builder = new FilterBuilder();
 
         self::assertEquals([], $builder->getAllAsArray());
     }
 
-    public function testNoOp()
+    public function testNoOp(): void
     {
         $filter = [['operation' => '=', 'property' => 'prop', 'value' => '1']];
 
@@ -44,10 +45,10 @@ class FilterBuilderTest extends TestCase
         self::assertEquals($filter, $builder->getAllAsArray());
     }
 
-    public function testAddAnd()
+    public function testAddAnd(): void
     {
         $filter = [['operation' => '=', 'property' => 'prop', 'value' => '1']];
-        $result = \array_merge($filter, [['operation' => '=', 'property' => 'prop2', 'value' => '2']]);
+        $result = array_merge($filter, [['operation' => '=', 'property' => 'prop2', 'value' => '2']]);
 
         $builder = new FilterBuilder($filter, true);
 

@@ -42,6 +42,7 @@ class DataProviderInformation implements DataProviderInformationInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setName($name)
     {
         $this->name = $name;
@@ -52,6 +53,7 @@ class DataProviderInformation implements DataProviderInformationInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -60,6 +62,7 @@ class DataProviderInformation implements DataProviderInformationInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setVersioningEnabled($versioningEnabled)
     {
         $this->versioningEnabled = $versioningEnabled;
@@ -70,6 +73,7 @@ class DataProviderInformation implements DataProviderInformationInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isVersioningEnabled()
     {
         return $this->versioningEnabled;

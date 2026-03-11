@@ -34,24 +34,26 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  *
  * @template TCondition of PaletteConditionInterface|PropertyConditionInterface
  * @template TTarget of PaletteInterface|PropertyInterface
+ *
+ * @api
  */
 class AddConditionEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.add-condition';
+    public const string NAME = 'dc-general.data-definition.palette.builder.add-condition';
 
     /**
      * The condition that is being added.
      *
      * @var TCondition
      */
-    protected $condition;
+    protected PaletteConditionInterface|PropertyConditionInterface $condition;
 
     /**
      * The target to which the condition is being added.
      *
      * @var TTarget
      */
-    protected $target;
+    protected PropertyInterface|PaletteInterface $target;
 
     /**
      * Create a new instance.

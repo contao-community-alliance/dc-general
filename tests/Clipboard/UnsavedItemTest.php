@@ -22,16 +22,19 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\Clipboard;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
+use Exception;
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * The clipboard unsaved item test.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Clipboard\UnsavedItem
  */
-class UnsavedItemTest extends TestCase
+#[CoversClass(UnsavedItem::class)]
+final class UnsavedItemTest extends TestCase
 {
-    public function dataNotProvideAction()
+    public static function dataNotProvideAction(): array
     {
         return [
             [ItemInterface::COPY],
@@ -40,20 +43,18 @@ class UnsavedItemTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataNotProvideAction
-     */
-    public function testNotProvideAction($action)
+    #[Dataprovider('dataNotProvideAction')]
+    public function testNotProvideAction($action): void
     {
         try {
             new UnsavedItem($action, null, 'non');
-        } catch (\Exception $exception) {
-            self::assertInstanceOf(\InvalidArgumentException::class, $exception);
+        } catch (Exception $exception) {
+            self::assertInstanceOf(InvalidArgumentException::class, $exception);
             self::assertSame('UnsavedItem is designed for create actions only.', $exception->getMessage());
         }
     }
 
-    public function dataTestGetter()
+    public static function dataTestGetter(): array
     {
         $modelId = ModelId::fromValues('parent', 'foo');
         return [
@@ -62,10 +63,8 @@ class UnsavedItemTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataTestGetter
-     */
-    public function testGetter($parentId, $providerName, $exceptedProviderName, $exceptedClipboardId)
+    #[Dataprovider('dataTestGetter')]
+    public function testGetter($parentId, $providerName, $exceptedProviderName, $exceptedClipboardId): void
     {
         $unsavedItem = new UnsavedItem(ItemInterface::CREATE, $parentId, $providerName);
 

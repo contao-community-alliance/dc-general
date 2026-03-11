@@ -25,13 +25,12 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PaletteConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\AbstractConditionChainTestBase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteConditionChain
- */
-class PaletteConditionChainTest extends AbstractConditionChainTestBase
+#[CoversClass(PaletteConditionChain::class)]
+final class PaletteConditionChainTest extends AbstractConditionChainTestBase
 {
-    public function testClone()
+    public function testClone(): void
     {
         $condition = new PaletteConditionChain();
 
@@ -41,7 +40,7 @@ class PaletteConditionChainTest extends AbstractConditionChainTestBase
         $this->assertCloneMatch($condition);
     }
 
-    public function testGetMatch()
+    public function testGetMatch(): void
     {
         $condition = new PaletteConditionChain();
         $condition->setConjunction(PaletteConditionChain::AND_CONJUNCTION);

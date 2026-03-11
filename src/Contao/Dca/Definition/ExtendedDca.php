@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,10 +29,12 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\DefinitionInterf
  *
  * This interface holds information that extends the default DC_Table compatible definition.
  * It holds reference of which classes to use for the controller, the view and the callbacks.
+ *
+ * @api
  */
 class ExtendedDca implements DefinitionInterface
 {
-    public const NAME = 'extended-dca';
+    public const string NAME = 'extended-dca';
 
     /**
      * Controller class to use.

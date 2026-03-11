@@ -26,6 +26,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\Fil
  * Handy helper class to generate and manipulate less than filter arrays.
  *
  * This class is intended to be only used via the FilterBuilder main class.
+ *
+ * @api
  */
 class PropertyLessThanFilterBuilder extends BaseComparingFilterBuilder
 {

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -60,6 +60,8 @@ use function urldecode;
  * Contao handling.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class Ajax3X extends Ajax
 {
@@ -121,6 +123,7 @@ class Ajax3X extends Ajax
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
+    #[\Override]
     protected function loadPagetree()
     {
         $environment = $this->getEnvironment();
@@ -140,11 +143,11 @@ class Ajax3X extends Ajax
         $level  = (int) $input->getValue('level');
         $rootId = (string) $input->getValue('id');
 
-        $ajaxId   = preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
+        $ajaxId   = (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
         $ajaxKey  = str_replace('_' . $ajaxId, '', $rootId);
         $ajaxName = '';
         if ('editAll' === $input->getValue('act')) {
-            $ajaxKey  = preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
+            $ajaxKey  = (string) preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
             $ajaxName = (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
 
@@ -183,6 +186,7 @@ class Ajax3X extends Ajax
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
+    #[\Override]
     protected function loadFiletree()
     {
         $environment = $this->getEnvironment();
@@ -338,6 +342,7 @@ class Ajax3X extends Ajax
      *
      * @return never
      */
+    #[\Override]
     protected function reloadPagetree()
     {
         $this->reloadTree();
@@ -348,6 +353,7 @@ class Ajax3X extends Ajax
      *
      * @return never
      */
+    #[\Override]
     protected function reloadFiletree()
     {
         $this->reloadTree();
@@ -360,6 +366,7 @@ class Ajax3X extends Ajax
      *
      * @return never
      */
+    #[\Override]
     protected function setLegendState()
     {
         $environment = $this->getEnvironment();

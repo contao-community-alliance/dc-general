@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition for specifying an explicit boolean value (Useful for determining if a property shall be editable i.e.).
+ *
+ * @api
  */
 class BooleanCondition implements PropertyConditionInterface
 {
@@ -78,6 +80,7 @@ class BooleanCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function match(
         ?ModelInterface $model = null,
         ?PropertyValueBag $input = null,
@@ -90,6 +93,7 @@ class BooleanCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

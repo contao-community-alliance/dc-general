@@ -34,6 +34,7 @@ final class DeleteModelInvalidateCacheTags extends AbstractInvalidateCacheTags
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function getEnvironment(AbstractModelAwareEvent $event): EnvironmentInterface
     {
         $environment = $event->getEnvironment();

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,6 +31,8 @@ use Contao\Validator;
  * The ContaoWidgetManager does not allow input values without a widget. This is used as helper widget instead.
  *
  * @psalm-suppress PropertyNotSetInConstructor
+ *
+ * @api
  */
 class FileTreeOrder extends AbstractWidget
 {
@@ -44,6 +46,7 @@ class FileTreeOrder extends AbstractWidget
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     protected function validator($varInput)
     {
         return \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
@@ -54,6 +57,7 @@ class FileTreeOrder extends AbstractWidget
      *
      * @return string The widget markup
      */
+    #[\Override]
     public function generate()
     {
         // Nothing to do here. Markup is in the widget template.

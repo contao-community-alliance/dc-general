@@ -33,6 +33,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * Handy helper class to generate and manipulate filter arrays.
+ *
+ * @api
  */
 class FilterBuilder
 {
@@ -41,14 +43,14 @@ class FilterBuilder
      *
      * @var AndFilterBuilder
      */
-    protected $filters;
+    protected AndFilterBuilder $filters;
 
     /**
      * Flag determining if the current filter is a root filter or parent child filter.
      *
      * @var bool
      */
-    protected $isRootFilter;
+    protected bool $isRootFilter;
 
     /**
      * Create a new instance.

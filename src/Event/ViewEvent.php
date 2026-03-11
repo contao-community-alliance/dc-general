@@ -26,6 +26,8 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * This event occurs when a view should rendered.
+ *
+ * @api
  */
 class ViewEvent extends AbstractActionAwareEvent
 {
@@ -34,21 +36,21 @@ class ViewEvent extends AbstractActionAwareEvent
      *
      * @var string
      */
-    protected $viewName;
+    protected string $viewName;
 
     /**
      * The view context attributes.
      *
      * @var array
      */
-    protected $context;
+    protected array $context;
 
     /**
      * The action response, if any is set.
      *
      * @var string|null
      */
-    protected $response;
+    protected ?string $response;
 
     /**
      * Create a new instance.
@@ -64,6 +66,7 @@ class ViewEvent extends AbstractActionAwareEvent
         /** @psalm-suppress RedundantCastGivenDocblockType - only redundant when strict typed */
         $this->viewName = (string) $viewName;
         $this->context  = $context;
+        $this->response = null;
     }
 
     /**
