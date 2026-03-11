@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -25,6 +25,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition;
 
 /**
  * Default implementation of the basic information about the data definition.
+ *
+ * @api
  */
 class DefaultBasicDefinition implements BasicDefinitionInterface
 {
@@ -33,88 +35,89 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
      *
      * @var int|null
      */
-    protected $mode;
+    protected ?int $mode = null;
 
     /**
      * The name of the data provider of the root elements.
      *
      * @var string|null
      */
-    protected $rootProviderName;
+    protected ?string $rootProviderName = null;
 
     /**
      * The name of the data provider of the parent element.
      *
      * @var string|null
      */
-    protected $parentProviderName;
+    protected ?string $parentProviderName = null;
 
     /**
      * The name of the data provider of the elements being processed.
      *
      * @var string|null
      */
-    protected $providerName;
+    protected ?string $providerName = null;
 
     /**
      * Array of filter rules.
      *
      * @var array|null
      */
-    protected $additionalFilter;
+    protected ?array $additionalFilter = null;
 
     /**
      * If true, only edit mode is used.
      *
      * @var bool
      */
-    protected $isEditOnlyMode = false;
+    protected bool $isEditOnlyMode = false;
 
     /**
      * Boolean flag determining if this data container is editable.
      *
      * @var bool
      */
-    protected $isEditable = true;
+    protected bool $isEditable = true;
 
     /**
      * Boolean flag determining if this data container is deletable.
      *
      * @var bool
      */
-    protected $isDeletable = true;
+    protected bool $isDeletable = true;
 
     /**
      * Determines if new entries may be created within this data container.
      *
      * @var bool
      */
-    protected $isCreatable = true;
+    protected bool $isCreatable = true;
 
     /**
      * Determines if the view shall switch automatically into edit mode.
      *
      * @var bool
      */
-    protected $switchToEditEnabled = false;
+    protected bool $switchToEditEnabled = false;
 
     /**
      * The ids of the root entries.
      *
      * @var mixed[]|null
      */
-    protected $rootEntries = [];
+    protected ?array $rootEntries = [];
 
     /**
      * Determines if the data container is an dynamic parent table.
      *
      * @var bool
      */
-    protected $dynamicParentTable = false;
+    protected bool $dynamicParentTable = false;
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setMode($mode)
     {
         $this->mode = $mode;
@@ -125,6 +128,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getMode()
     {
         return $this->mode;
@@ -133,6 +137,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setRootDataProvider($providerName)
     {
         $this->rootProviderName = $providerName;
@@ -143,6 +148,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getRootDataProvider()
     {
         return $this->rootProviderName;
@@ -151,6 +157,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setParentDataProvider($providerName)
     {
         $this->parentProviderName = $providerName;
@@ -161,6 +168,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getParentDataProvider()
     {
         return $this->parentProviderName;
@@ -169,6 +177,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDataProvider($providerName)
     {
         $this->providerName = $providerName;
@@ -179,6 +188,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDataProvider()
     {
         return $this->providerName;
@@ -187,6 +197,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setAdditionalFilter($dataProvider, $filter)
     {
         $this->additionalFilter[$dataProvider] = $filter;
@@ -197,30 +208,41 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasAdditionalFilter($dataProvider = null)
     {
         if (null === $dataProvider) {
             $dataProvider = $this->getDataProvider();
         }
 
-        return isset($this->additionalFilter[$dataProvider]);
+        if (null === $dataProvider) {
+            return false;
+        }
+
+        return $this->additionalFilter[$dataProvider] ?? false;
     }
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getAdditionalFilter($dataProvider = null)
     {
         if (null === $dataProvider) {
             $dataProvider = $this->getDataProvider();
         }
 
-        return isset($this->additionalFilter[$dataProvider]) ? $this->additionalFilter[$dataProvider] : [];
+        if (null === $dataProvider) {
+            return [];
+        }
+
+        return  $this->additionalFilter[$dataProvider] ?? [];
     }
 
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEditOnlyMode($value)
     {
         $this->isEditOnlyMode = $value;
@@ -231,6 +253,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isEditOnlyMode()
     {
         return $this->isEditOnlyMode;
@@ -239,6 +262,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEditable($value)
     {
         $this->isEditable = $value;
@@ -249,6 +273,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isEditable()
     {
         return $this->isEditable;
@@ -257,6 +282,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDeletable($value)
     {
         $this->isDeletable = $value;
@@ -267,6 +293,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isDeletable()
     {
         return $this->isDeletable;
@@ -275,6 +302,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setCreatable($value)
     {
         $this->isCreatable = $value;
@@ -285,6 +313,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isCreatable()
     {
         return $this->isCreatable;
@@ -293,6 +322,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setSwitchToEditEnabled($switchToEditEnabled)
     {
         $this->switchToEditEnabled = $switchToEditEnabled;
@@ -303,6 +333,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isSwitchToEditEnabled()
     {
         return $this->switchToEditEnabled;
@@ -311,6 +342,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setRootEntries($entries)
     {
         $this->rootEntries = $entries;
@@ -321,6 +353,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getRootEntries()
     {
         return $this->rootEntries;
@@ -329,6 +362,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setDynamicParentTable($dynamicParentTable)
     {
         $this->dynamicParentTable = $dynamicParentTable;
@@ -340,6 +374,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function isDynamicParentTable()
     {
         return $this->dynamicParentTable;

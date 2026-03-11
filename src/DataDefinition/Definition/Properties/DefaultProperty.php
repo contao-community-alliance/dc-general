@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,6 +28,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties
  * Default implementation of a property definition.
  *
  * @SuppressWarnings(PHPMD.TooManyFields)
+ *
+ * @api
  */
 class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInterface
 {
@@ -36,98 +38,98 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
      *
      * @var string
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
      * The label of the property.
      *
      * @var string
      */
-    protected $label = '';
+    protected string $label = '';
 
     /**
      * The description of the property.
      *
      * @var string
      */
-    protected $description = '';
+    protected string $description = '';
 
     /**
      * The default value of the property.
      *
      * @var mixed
      */
-    protected $defaultValue;
+    protected mixed $defaultValue;
 
     /**
      * Define if this property shall be excluded by default.
      *
      * @var bool
      */
-    protected $excluded = false;
+    protected bool $excluded = false;
 
     /**
      * Flag if this property shall be searchable.
      *
      * @var bool
      */
-    protected $searchable = false;
+    protected bool $searchable = false;
 
     /**
      * Flag if this property shall be sortable.
      *
      * @var bool
      */
-    protected $sortable = false;
+    protected bool $sortable = false;
 
     /**
      * Flag if this property shall be filterable.
      *
      * @var bool
      */
-    protected $filterable = false;
+    protected bool $filterable = false;
 
     /**
      * The input widget type to use.
      *
      * @var string
      */
-    protected $widgetType = '';
+    protected string $widgetType = '';
 
     /**
      * The value options for this property.
      *
      * @var array|null
      */
-    protected $options;
+    protected ?array $options = null;
 
     /**
      * The explanation string for this property.
      *
      * @var string
      */
-    protected $explanation = '';
+    protected string $explanation = '';
 
     /**
      * The extra information for this property.
      *
      * @var array
      */
-    protected $extra = [];
+    protected array $extra = [];
 
     /**
      * Flag if an empty value has been set.
      *
      * @var bool
      */
-    private $hasEmptyValue = false;
+    private bool $hasEmptyValue = false;
 
     /**
      * The empty value.
      *
      * @var mixed
      */
-    private $emptyValue;
+    private mixed $emptyValue;
 
     /**
      * Create an instance.
@@ -142,6 +144,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -150,6 +153,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setLabel($value)
     {
         $this->label = $value;
@@ -160,6 +164,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getLabel()
     {
         return $this->label;
@@ -168,6 +173,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDescription($value)
     {
         $this->description = $value;
@@ -178,6 +184,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDescription()
     {
         return $this->description;
@@ -186,6 +193,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDefaultValue($value)
     {
         $this->defaultValue = $value;
@@ -196,6 +204,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDefaultValue()
     {
         return $this->defaultValue;
@@ -204,6 +213,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setExcluded($value)
     {
         $this->excluded = $value;
@@ -214,6 +224,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isExcluded()
     {
         return $this->excluded;
@@ -222,6 +233,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setSearchable($value)
     {
         $this->searchable = $value;
@@ -232,6 +244,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isSearchable()
     {
         return $this->searchable;
@@ -240,6 +253,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setFilterable($value)
     {
         $this->filterable = $value;
@@ -250,6 +264,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isFilterable()
     {
         return $this->filterable;
@@ -258,6 +273,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setWidgetType($value)
     {
         $this->widgetType = $value;
@@ -268,6 +284,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getWidgetType()
     {
         return $this->widgetType;
@@ -276,6 +293,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setOptions($value)
     {
         $this->options = $value;
@@ -286,6 +304,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getOptions()
     {
         return $this->options;
@@ -294,6 +313,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setExplanation($value)
     {
         $this->explanation = $value;
@@ -304,6 +324,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getExplanation()
     {
         return $this->explanation;
@@ -312,6 +333,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setExtra($value)
     {
         $this->extra = $value;
@@ -322,6 +344,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getExtra()
     {
         return $this->extra;
@@ -330,6 +353,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasEmptyValue()
     {
         return $this->hasEmptyValue;
@@ -338,6 +362,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEmptyValue()
     {
         return $this->emptyValue;
@@ -346,6 +371,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEmptyValue($value)
     {
         $this->emptyValue    = $value;
@@ -357,6 +383,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function resetEmptyValue()
     {
         $this->emptyValue    = null;

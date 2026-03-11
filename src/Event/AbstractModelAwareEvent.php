@@ -54,6 +54,7 @@ class AbstractModelAwareEvent extends AbstractEnvironmentAwareEvent implements M
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getModel()
     {
         return $this->model;

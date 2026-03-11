@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -74,6 +74,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.NPathComplexity)
  * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ *
+ * @api
  */
 class EditMask
 {
@@ -82,21 +84,21 @@ class EditMask
      *
      * @var EnvironmentInterface
      */
-    protected $environment;
+    protected EnvironmentInterface $environment;
 
     /**
      * The model to be manipulated.
      *
      * @var ModelInterface
      */
-    protected $model;
+    protected ModelInterface $model;
 
     /**
      * The original model from the database.
      *
      * @var ModelInterface
      */
-    protected $originalModel;
+    protected ModelInterface $originalModel;
 
     /**
      * The method to be executed before the model is persisted.
@@ -117,7 +119,7 @@ class EditMask
      *
      * @var string
      */
-    protected $breadcrumb;
+    protected string $breadcrumb;
 
     /**
      * The default edit information.
@@ -157,12 +159,12 @@ class EditMask
         $this->breadcrumb    = $breadcrumb;
 
         if (null === $editInformation) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'DefaultEditInformation is missing. It has to be passed in the constructor. Fallback will be dropped.',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
             $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
             assert($editInformation instanceof EditInformationInterface);
         }
@@ -398,7 +400,7 @@ class EditMask
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
-    protected function getEditButtons()
+    protected function getEditButtons(): string
     {
         $inputProvider = $this->getEnvironment()->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
@@ -516,7 +518,10 @@ class EditMask
         $submitButtonTemplate = new ContaoBackendViewTemplate('dc_general_submit_button');
         $submitButtonTemplate->setData($submitButtons);
 
-        return \preg_replace('/(\s\s+|\t|\n)/', '', $submitButtonTemplate->parse());
+        $buttons = \preg_replace('/(\s\s+|\t|\n)/', '', $submitButtonTemplate->parse());
+        assert(\is_string($buttons));
+
+        return $buttons;
     }
 
     /**
@@ -635,9 +640,9 @@ class EditMask
 
         // Check if input mask has visible properties.
         if (!$fieldSets) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         return $fieldSets;
@@ -760,9 +765,9 @@ class EditMask
      */
     protected function getHeadline(): string
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - use getSubHeadline()!', E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         return $this->getSubHeadline();
     }
@@ -988,9 +993,9 @@ class EditMask
 
         // Check if input mask has visible properties.
         if (!\count($palette->getProperties($model))) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $propertyValues = $this->processInput($widgetManager);

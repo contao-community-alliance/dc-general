@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-20234 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -32,17 +32,19 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  * Class GetGroupHeaderEvent.
  *
  * Render the group header in the listing view.
+ *
+ * @api
  */
 class GetGroupHeaderEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.get-group-header';
+    public const string NAME = 'dc-general.view.contao2backend.get-group-header';
 
     /**
      * The current property to be rendered for the group header.
      *
      * @var string
      */
-    protected $groupField;
+    protected string $groupField;
 
     /**
      * The grouping mode in use as defined in the listing config.
@@ -51,7 +53,7 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
      *
      * @see ListingConfigInterface
      */
-    protected $groupingMode;
+    protected string $groupingMode;
 
     /**
      * The grouping length in use as defined in the listing config.
@@ -60,14 +62,14 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
      *
      * @see ListingConfigInterface
      */
-    protected $groupingLength;
+    protected int $groupingLength;
 
     /**
      * The value to be rendered.
      *
      * @var string|null
      */
-    protected $value;
+    protected ?string $value;
 
     /**
      * Create a new group header event.
@@ -82,10 +84,10 @@ class GetGroupHeaderEvent extends AbstractModelAwareEvent
     public function __construct(
         EnvironmentInterface $environment,
         ModelInterface $model,
-        $propertyName,
-        $propertyValue,
-        $groupingMode,
-        $groupingLength
+        string $propertyName,
+        ?string $propertyValue,
+        string $groupingMode,
+        int $groupingLength
     ) {
         parent::__construct($environment, $model);
 

@@ -26,38 +26,32 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-/**
- * This class tests the DcGeneralFactory
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory
- */
-class DcGeneralFactoryTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(DcGeneralFactory::class)]
+final class DcGeneralFactoryTest extends TestCase
 {
-    /**
-     * Test that the build method works correctly.
-     *
-     * @return void
-     */
-    public function testCreateDcGeneral()
+    public function testCreateDcGeneral(): void
     {
         $eventDispatcher = new EventDispatcher();
-        $mockTranslator = $this->getMockForAbstractClass(TranslatorInterface::class);
+        $mockTranslator = $this->getMockBuilder(TranslatorInterface::class)->getMock();
 
-        System::setContainer($container = $this->getMockForAbstractClass(ContainerInterface::class));
+        System::setContainer($container = $this->getMockBuilder(ContainerInterface::class)->getMock());
 
-        $definitionContainer = $this->getMockForAbstractClass(DataDefinitionContainerInterface::class);
+        $definitionContainer = $this->getMockBuilder(DataDefinitionContainerInterface::class)->getMock();
         $container
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('get')
             ->with('cca.dc-general.data-definition-container')
             ->willReturn($definitionContainer);
 
         $definitionContainer
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('hasDefinition')
             ->with('test-container')
             ->willReturn(false);

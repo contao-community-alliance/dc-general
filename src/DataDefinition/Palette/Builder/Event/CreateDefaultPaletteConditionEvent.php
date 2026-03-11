@@ -27,17 +27,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
 
 /**
  * This event gets emitted when a condition for the default palette is created.
+ *
+ * @api
  */
 class CreateDefaultPaletteConditionEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.create-default-palette-condition';
+    public const string NAME = 'dc-general.data-definition.palette.builder.create-default-palette-condition';
 
     /**
      * The default palette condition.
      *
      * @var PaletteConditionInterface
      */
-    protected $paletteCondition;
+    protected PaletteConditionInterface $paletteCondition;
 
     /**
      * Create a new instance.

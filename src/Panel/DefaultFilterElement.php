@@ -35,6 +35,8 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a filter panel element.
+ *
+ * @api
  */
 class DefaultFilterElement extends AbstractElement implements FilterElementInterface
 {
@@ -179,7 +181,8 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * {@inheritDoc}
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
+    #[\Override]
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
         $this->updateValue();
 
@@ -206,6 +209,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function render(ViewTemplateInterface $viewTemplate)
     {
         $definition = $this->getEnvironment()->getDataDefinition();
@@ -246,6 +250,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setPropertyName($strProperty)
     {
         $this->strProperty = $strProperty;
@@ -256,6 +261,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getPropertyName()
     {
         return $this->strProperty;
@@ -264,6 +270,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setValue($mixValue)
     {
         $this->mixValue = $mixValue;
@@ -274,6 +281,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getValue()
     {
         return $this->mixValue;

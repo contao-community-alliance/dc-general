@@ -24,12 +24,15 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  * Class DefaultSubmitElementInformation.
  *
  * Default implementation for a submit panel element information.
+ *
+ * @api
  */
 class DefaultSubmitElementInformation implements SubmitElementInformationInterface
 {
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getName()
     {
         return 'submit';

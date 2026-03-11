@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Exception;
 
 /**
  * This exception is thrown whenever any argument or parameter is invalid.
+ *
+ * @api
  */
 class DcGeneralInvalidArgumentException extends \InvalidArgumentException
 {

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,10 +32,12 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractActionAwareEvent;
  *
  * This event gets emitted when a multiple action shall be handled. A list of affected model ids are given. Use this
  * event to apply permission based filtering.
+ *
+ * @api
  */
 class PrepareMultipleModelsActionEvent extends AbstractActionAwareEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.prepare-multiple-models-action';
+    public const string NAME = 'dc-general.view.contao2backend.prepare-multiple-models-action';
 
     /**
      * The model ids.

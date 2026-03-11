@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -28,10 +29,12 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
  * Class ModelToLabelEvent.
  *
  * This event gets emitted when a model shall be translated to an html representation.
+ *
+ * @api
  */
 class ModelToLabelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.model-to-label';
+    public const string NAME = 'dc-general.view.contao2backend.model-to-label';
 
     /**
      * The label for the model.
@@ -40,7 +43,7 @@ class ModelToLabelEvent extends AbstractModelAwareEvent
      *
      * @var string
      */
-    protected $label = '';
+    protected string $label = '';
 
     /**
      * The label information instance.
@@ -49,14 +52,14 @@ class ModelToLabelEvent extends AbstractModelAwareEvent
      *
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    protected $listLabel;
+    protected ModelFormatterConfigInterface $listLabel;
 
     /**
      * The arguments to use when building the label from the format string.
      *
      * @var array<string, string>
      */
-    protected $args = [];
+    protected array $args = [];
 
     /**
      * Set the arguments to use when generating the final string representation using the format string.

@@ -32,7 +32,10 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -42,9 +45,11 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(DefaultEnvironment::class)]
 class DefaultEnvironmentTest extends TestCase
 {
-    public function testSetterAndGetter()
+    public function testSetterAndGetter(): void
     {
         $controller      = $this->getMockBuilder(ControllerInterface::class)->getMock();
         $view            = $this->getMockBuilder(ViewInterface::class)->getMock();
@@ -116,18 +121,18 @@ class DefaultEnvironmentTest extends TestCase
         self::assertSame($eventDispatcher, $environment->getEventDispatcher());
     }
 
-    public function testDataProvider()
+    public function testDataProvider(): void
     {
         $basicDefinition = $this
             ->getMockBuilder(DefaultBasicDefinition::class)
-            ->setMethods(['getDataProvider'])
+            ->onlyMethods(['getDataProvider'])
             ->getMock();
         $basicDefinition->method('getDataProvider')->willReturn('foo');
 
         $container = $this
             ->getMockBuilder(DefaultContainer::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getBasicDefinition'])
+            ->onlyMethods(['getBasicDefinition'])
             ->getMock();
         $container->method('getBasicDefinition')->willReturn($basicDefinition);
 
@@ -138,7 +143,7 @@ class DefaultEnvironmentTest extends TestCase
 
         try {
             $environment->getDataProvider();
-        } catch (\Exception $exception) {
+        } catch (RuntimeException $exception) {
             self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
             self::assertSame('Data provider foo not defined', $exception->getMessage());
         }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,6 +31,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Provides the page picker.
+ *
+ * @api
  */
 class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProviderInterface
 {
@@ -49,13 +51,13 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             $translator = System::getContainer()->get('translator');
             assert($translator instanceof TranslatorInterface);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the translator as argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         parent::__construct($menuFactory, $router, $translator);
@@ -64,13 +66,13 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             $security = System::getContainer()->get('security.helper');
             assert($security instanceof Security);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the security as argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->security = $security;
@@ -79,6 +81,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName(): string
     {
         return 'ccaPagePicker';
@@ -87,6 +90,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function supportsContext(string $context): bool
     {
         return \in_array($context, ['cca_page', 'cca_link'], true)
@@ -96,6 +100,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function supportsValue(PickerConfig $config): bool
     {
         if ('page' === $config->getContext()) {
@@ -108,6 +113,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDcaTable(?PickerConfig $config = null): string
     {
         return 'tl_page';
@@ -116,6 +122,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDcaAttributes(PickerConfig $config): array
     {
         $value      = $config->getValue();
@@ -155,6 +162,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function convertDcaValue(PickerConfig $config, mixed $value): int|string
     {
         if ('page' === $config->getContext()) {
@@ -167,6 +175,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     protected function getRouteParameters(PickerConfig|null $config = null): array
     {
         return ['do' => 'page'];

@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * This event gets emitted when a property gets created.
+ *
+ * @api
  */
 class CreatePropertyEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.create-property';
+    public const string NAME = 'dc-general.data-definition.palette.builder.create-property';
 
     /**
      * The property.
      *
      * @var PropertyInterface
      */
-    protected $property;
+    protected PropertyInterface $property;
 
     /**
      * Create a new instance.

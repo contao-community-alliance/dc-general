@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event occurs when an action should handled.
+ *
+ * @api
  */
 class ActionEvent extends AbstractActionAwareEvent
 {

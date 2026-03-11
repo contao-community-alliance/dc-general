@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 
 /**
  * This event is emitted after a model has been duplicated.
+ *
+ * @api
  */
 class PostDuplicateModelEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.model.post-duplicate';
+    public const string NAME = 'dc-general.model.post-duplicate';
 
     /**
      * The source model.
      *
      * @var ModelInterface
      */
-    protected $sourceModel;
+    protected ModelInterface $sourceModel;
 
     /**
      * Create a new instance.

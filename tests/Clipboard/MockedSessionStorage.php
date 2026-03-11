@@ -26,72 +26,38 @@ use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 /**
  * This class simply mocks a session storage.
  */
-class MockedSessionStorage implements SessionStorageInterface
+final class MockedSessionStorage implements SessionStorageInterface
 {
     /**
      * The values.
      *
      * @var array
      */
-    private $values;
+    private array $values = [];
 
-    /**
-     * Checks if an attribute is defined.
-     *
-     * @param string $name The attribute name.
-     *
-     * @return bool
-     */
-    public function has($name)
+    public function has($name): bool
     {
         return isset($this->values[$name]);
     }
 
-    /**
-     * Returns an attribute.
-     *
-     * @param string $name The attribute name.
-     *
-     * @return mixed
-     */
-    public function get($name)
+    public function get($name): mixed
     {
-        return $this->values[$name];
+        return $this->values[$name] ?? null;
     }
 
-    /**
-     * Sets an attribute.
-     *
-     * @param string $name  The attribute name.
-     * @param mixed  $value The attribute value.
-     *
-     * @return MockedSessionStorage
-     */
-    public function set($name, $value)
+    public function set($name, $value): self
     {
         $this->values[$name] = $value;
 
         return $this;
     }
 
-    /**
-     * Returns all attributes.
-     *
-     * @return array
-     */
-    public function all()
+    public function all(): array
     {
         return $this->values;
     }
 
-    /**
-     * Sets attributes.
-     *
-     * @param array $attributes Array of attributes.
-     *
-     * @return MockedSessionStorage
-     */
-    public function replace(array $attributes)
+    public function replace(array $attributes): self
     {
         foreach ($attributes as $name => $value) {
             $this->values[$name] = $value;
@@ -100,26 +66,14 @@ class MockedSessionStorage implements SessionStorageInterface
         return $this;
     }
 
-    /**
-     * Removes an attribute.
-     *
-     * @param string $name The attribute name.
-     *
-     * @return MockedSessionStorage
-     */
-    public function remove($name)
+    public function remove($name): self
     {
         unset($this->values[$name]);
 
         return $this;
     }
 
-    /**
-     * Clears all attributes.
-     *
-     * @return MockedSessionStorage
-     */
-    public function clear()
+    public function clear(): self
     {
         $this->values = [];
 

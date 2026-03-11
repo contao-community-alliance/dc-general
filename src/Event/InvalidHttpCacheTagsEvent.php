@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Event;
 
 /**
  * This event is for collected invalid http cache tags.
+ *
+ * @api
  */
 class InvalidHttpCacheTagsEvent extends AbstractEnvironmentAwareEvent
 {

@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * A chain of palette conditions.
+ *
+ * @api
  */
 class PaletteConditionChain extends AbstractConditionChain implements PaletteConditionInterface
 {
@@ -38,6 +40,7 @@ class PaletteConditionChain extends AbstractConditionChain implements PaletteCon
      * @throws DcGeneralRuntimeException When a condition that does not implement PaletteConditionInterface
      *                                   is encountered.
      */
+    #[\Override]
     public function getMatchCount(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         $totalCount = false;

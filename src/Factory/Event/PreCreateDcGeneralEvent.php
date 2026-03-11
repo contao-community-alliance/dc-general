@@ -26,17 +26,19 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * This event is emitted when a DcGeneral instance has been created.
+ *
+ * @api
  */
 class PreCreateDcGeneralEvent extends Event
 {
-    public const NAME = 'dc-general.factory.pre-create-dc-general';
+    public const string NAME = 'dc-general.factory.pre-create-dc-general';
 
     /**
      * The factory calling.
      *
      * @var DcGeneralFactoryInterface
      */
-    protected $factory;
+    protected DcGeneralFactoryInterface $factory;
 
     /**
      * Create a new instance.

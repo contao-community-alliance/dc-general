@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -42,6 +42,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  * This class is the default fallback populator in the Contao Backend to instantiate a BackendView.
  *
  * @psalm-suppress PropertyNotSetInConstructor - can not make setScopeDeterminator() final without major release.
+ *
+ * @api
  */
 class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
@@ -77,25 +79,25 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
             $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
             assert($tokenManager instanceof CsrfTokenManagerInterface);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
         if (null === $tokenName) {
             $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
             assert(\is_string($tokenName));
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->tokenManager = $tokenManager;
@@ -188,6 +190,7 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
      *
      * @return void
      */
+    #[\Override]
     public function populate(EnvironmentInterface $environment)
     {
         if (!$this->getScopeDeterminator()->currentScopeIsBackend()) {

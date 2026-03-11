@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -43,6 +43,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * Factory to create a DcGeneral instance.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * @api
  */
 class DcGeneralFactory implements DcGeneralFactoryInterface
 {
@@ -61,12 +63,12 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     public function __construct(?CacheInterface $cache = null)
     {
         if (null === $cache) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 'You should pass an instance of ' . CacheInterface::class . ' .',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
             /** @psalm-suppress DeprecatedClass */
             $cache = System::getContainer()->get(DcGeneralFactoryCache::class);
 
@@ -183,6 +185,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEnvironmentClassName($environmentClassName)
     {
         $this->environmentClassName = $environmentClassName;
@@ -193,6 +196,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEnvironmentClassName()
     {
         return $this->environmentClassName;
@@ -201,6 +205,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setContainerName($containerName)
     {
         $this->containerName = $containerName;
@@ -211,6 +216,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getContainerName()
     {
         return $this->containerName;
@@ -219,6 +225,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setContainerClassName($containerClassName)
     {
         $this->containerClassName = $containerClassName;
@@ -229,6 +236,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getContainerClassName()
     {
         return $this->containerClassName;
@@ -237,6 +245,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDcGeneralClassName($dcGeneralClassName)
     {
         $this->dcGeneralClassName = $dcGeneralClassName;
@@ -247,6 +256,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDcGeneralClassName()
     {
         return $this->dcGeneralClassName;
@@ -255,6 +265,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEventDispatcher($dispatcher)
     {
         $this->eventDispatcher = $dispatcher;
@@ -265,6 +276,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEventDispatcher()
     {
         if (null === $this->eventDispatcher) {
@@ -277,6 +289,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setTranslator(TranslatorInterface $translator)
     {
         $this->translator = $translator;
@@ -287,6 +300,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getTranslator()
     {
         if (null === $this->translator) {
@@ -299,6 +313,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEnvironment(?EnvironmentInterface $environment = null)
     {
         $this->environment = $environment;
@@ -309,6 +324,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->environment;
@@ -317,6 +333,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDataContainer(?ContainerInterface $dataContainer = null)
     {
         $this->dataContainer = $dataContainer;
@@ -327,6 +344,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDataContainer()
     {
         return $this->dataContainer;
@@ -337,6 +355,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      *
      * @throws DcGeneralRuntimeException When no container name, no container or no event propagator is given.
      */
+    #[\Override]
     public function createDcGeneral()
     {
         if (empty($this->containerName) && !$this->dataContainer) {
@@ -372,6 +391,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      * @throws DcGeneralRuntimeException When no container name, no container, no event propagator or no translator
      *                                   is given.
      */
+    #[\Override]
     public function createEnvironment()
     {
         if (empty($this->containerName) && !$this->dataContainer) {
@@ -406,6 +426,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
+    #[\Override]
     public function createContainer()
     {
         if (empty($this->containerName)) {

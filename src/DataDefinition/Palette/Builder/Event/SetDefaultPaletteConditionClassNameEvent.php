@@ -27,17 +27,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
 
 /**
  * This event gets emitted when the class name of the default palette condition is set.
+ *
+ * @api
  */
 class SetDefaultPaletteConditionClassNameEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
+    public const string NAME = 'dc-general.data-definition.palette.builder.set-default-palette-condition-class-name';
 
     /**
      * The class name.
      *
      * @var class-string<PaletteConditionInterface>
      */
-    protected $className;
+    protected string $className;
 
     /**
      * Create a new instance.

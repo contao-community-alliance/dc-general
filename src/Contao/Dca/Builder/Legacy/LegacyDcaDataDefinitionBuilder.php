@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -132,6 +132,8 @@ use function trigger_error;
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ *
+ * @api
  */
 class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 {
@@ -140,6 +142,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function build(ContainerInterface $container, BuildDataDefinitionEvent $event)
     {
         if (!$this->loadDca($container->getName(), $this->getDispatcher())) {
@@ -335,9 +338,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 if (isset($callback['deprecated'])) {
-                    // @codingStandardsIgnoreStart
+                    // phpcs:disable
                     @trigger_error($callback['deprecated']);
-                    // @codingStandardsIgnoreEnd
+                    // phpcs:enable
                     continue;
                 }
 
@@ -582,12 +585,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
             $providerInformation->setVersioningEnabled(false);
             if (true === (bool) $this->getFromDca('config/enableVersioning')) {
-                // @codingStandardsIgnoreStart
+                // phpcs:disable
                 @trigger_error(
                     'Versioning is not supported yet and will get implemented in a future release.',
                     E_USER_WARNING
                 );
-                // @codingStandardsIgnoreEnd
+                // phpcs:enable
             }
 
             if (null === $container->getBasicDefinition()->getDataProvider()) {
@@ -1301,17 +1304,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Parse the label of a single property.
      *
      * @param PropertyInterface $property The property to parse the label for.
-     * @param string|array      $label    The label value.
+     * @param array|string      $label    The label value.
      *
      * @return void
      */
-    protected function parseSinglePropertyLabel(PropertyInterface $property, $label)
+    protected function parseSinglePropertyLabel(PropertyInterface $property, array|string $label): void
     {
         if (!$property->getLabel()) {
             if (is_array($label)) {
                 $lang        = $label;
-                $label       = reset($lang);
-                $description = next($lang);
+                $label       = (string) reset($lang);
+                $description = (string) next($lang);
 
                 $property->setDescription($description);
             }
@@ -1330,7 +1333,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    protected function parseSingleProperty(PropertyInterface $property, array $propInfo)
+    protected function parseSingleProperty(PropertyInterface $property, array $propInfo): void
     {
         foreach ($propInfo as $key => $value) {
             switch ($key) {
@@ -1586,8 +1589,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $lang = $commandDca['label'];
 
             if (is_array($lang)) {
-                $label       = reset($lang);
-                $description = next($lang);
+                $label       = (string) reset($lang);
+                $description = (string) next($lang);
 
                 $command->setDescription($description);
             } else {

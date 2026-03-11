@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -529,7 +529,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $submitButtonTemplate = new ContaoBackendViewTemplate('dc_general_submit_button');
         $submitButtonTemplate->setData($buttons);
 
-        return \preg_replace('/(\s\s+|\t|\n)/', '', $submitButtonTemplate->parse());
+        $submitButton = \preg_replace('/(\s\s+|\t|\n)/', '', $submitButtonTemplate->parse());
+        assert(\is_string($submitButton));
+
+        return $submitButton;
     }
 
     /**
@@ -563,6 +566,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
+    #[\Override]
     protected function getPropertyValueBagFromModel(
         Action $action,
         ModelInterface $model,
@@ -800,6 +804,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function getSession(Action $action, EnvironmentInterface $environment)
     {
         $dataDefinition = $this->getDataDefinition($environment);
@@ -814,6 +819,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function getPropertiesFromSession(Action $action, EnvironmentInterface $environment)
     {
         $dataDefinition = $this->getDataDefinition($environment);

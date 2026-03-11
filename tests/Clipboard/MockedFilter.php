@@ -25,32 +25,23 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 
 /**
  * Mocked Filter class returns just a predefined value.
- *
- * @package ContaoCommunityAlliance\DcGeneral\Test\Clipboard
  */
-class MockedFilter implements FilterInterface
+final readonly class MockedFilter implements FilterInterface
 {
-    /**
-     * Accepts state.
-     *
-     * @var bool
-     */
-    private $accepts;
-
     /**
      * MockedFilter constructor.
      *
      * @param bool $accepts Accept state.
      */
-    public function __construct($accepts)
-    {
-        $this->accepts = (bool) $accepts;
+    public function __construct(
+        private bool $accepts
+    ) {
     }
 
     /**
      * {@inheritDoc}
      */
-    public function accepts(ItemInterface $item)
+    public function accepts(ItemInterface $item): bool
     {
         return $this->accepts;
     }

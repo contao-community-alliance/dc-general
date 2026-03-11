@@ -24,6 +24,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
 /**
  * Format a model and create a listing child record.
+ *
+ * @api
  */
 class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
 {
@@ -32,25 +34,26 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
      *
      * @var array
      */
-    protected $propertyNames = [];
+    protected array $propertyNames = [];
 
     /**
      * The format string.
      *
      * @var string
      */
-    protected $format = '';
+    protected string $format = '';
 
     /**
      * The maximum length of the formatted string.
      *
      * @var int|null
      */
-    protected $maxLength = null;
+    protected ?int $maxLength = null;
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setPropertyNames(array $propertyNames)
     {
         $this->propertyNames = $propertyNames;
@@ -61,6 +64,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getPropertyNames()
     {
         return $this->propertyNames;
@@ -69,6 +73,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setFormat($format)
     {
         $this->format = $format;
@@ -79,6 +84,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getFormat()
     {
         return $this->format;
@@ -87,6 +93,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setMaxLength($maxLength)
     {
         $this->maxLength = (null !== $maxLength) ? $maxLength : null;
@@ -97,6 +104,7 @@ class DefaultModelFormatterConfig implements ModelFormatterConfigInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getMaxLength()
     {
         return $this->maxLength;

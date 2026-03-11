@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 
 /**
  * Condition checking that the value of a property is the same as a passed value.
+ *
+ * @api
  */
 class PropertyValueCondition implements PropertyConditionInterface
 {
@@ -144,6 +146,7 @@ class PropertyValueCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function match(
         ?ModelInterface $model = null,
         ?PropertyValueBag $input = null,
@@ -164,6 +167,7 @@ class PropertyValueCondition implements PropertyConditionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

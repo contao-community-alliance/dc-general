@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -62,12 +62,15 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ *
+ * @api
  */
 class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 {
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function wantToHandle($mode, Action $action)
     {
         return BasicDefinitionInterface::MODE_PARENTEDLIST === $mode;
@@ -78,6 +81,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      *
      * Render a model - this allows to override the rendering via parent-child-record-event.
      */
+    #[\Override]
     protected function renderModel(ModelInterface $model, EnvironmentInterface $environment)
     {
         $event = new ParentViewChildRecordEvent($environment, $model);
@@ -102,6 +106,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function determineTemplate($groupingInformation)
     {
         // Add template.
@@ -117,6 +122,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     protected function renderTemplate(ContaoBackendViewTemplate $template, EnvironmentInterface $environment)
     {
         parent::renderTemplate($template, $environment);

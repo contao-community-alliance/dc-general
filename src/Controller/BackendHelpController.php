@@ -9,7 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Twig\Environment;
 
-#[Route("/contao/cca/backend-help/{table}/{property}", name: 'cca.backend-help', defaults: ['_scope' => 'backend', '_token_check' => true])]
+#[Route(
+    "/contao/cca/backend-help/{table}/{property}",
+    name: 'cca.backend-help',
+    defaults: ['_scope' => 'backend', '_token_check' => true]
+)]
 final readonly class BackendHelpController
 {
     public function __invoke(

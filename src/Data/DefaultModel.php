@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,7 +18,7 @@
  * @author     Patrick Kahl <kahl.patrick@googlemail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -31,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Class DefaultModel.
  *
  * Reference implementation of a dumb model.
+ *
+ * @api
  */
 class DefaultModel extends AbstractModel
 {
@@ -39,27 +41,28 @@ class DefaultModel extends AbstractModel
      *
      * @var array<string, mixed>
      */
-    protected $arrProperties = [];
+    protected array $arrProperties = [];
 
     /**
      * The ID of this model.
      *
      * @var mixed
      */
-    protected $mixID;
+    protected mixed $mixID = null;
 
     /**
      * The name of the corresponding data provider.
      *
      * @var string
      */
-    protected $strProviderName = '';
+    protected string $strProviderName = '';
 
     /**
      * Copy this model, without the id.
      *
      * @return void
      */
+    #[\Override]
     public function __clone()
     {
         $this->mixID = null;
@@ -70,6 +73,7 @@ class DefaultModel extends AbstractModel
      *
      * @return string The ID for this model.
      */
+    #[\Override]
     public function getID()
     {
         return $this->mixID;
@@ -84,6 +88,7 @@ class DefaultModel extends AbstractModel
      *
      * @return mixed The value of the given property.
      */
+    #[\Override]
     public function getProperty($propertyName)
     {
         if ('id' === $propertyName) {
@@ -102,6 +107,7 @@ class DefaultModel extends AbstractModel
      *
      * @return array
      */
+    #[\Override]
     public function getPropertiesAsArray()
     {
         return \array_merge($this->arrProperties, ['id' => $this->mixID]);
@@ -118,6 +124,7 @@ class DefaultModel extends AbstractModel
      *
      * @return void
      */
+    #[\Override]
     public function setId($mixId)
     {
         if (null === $this->mixID) {
@@ -163,6 +170,7 @@ class DefaultModel extends AbstractModel
      *
      * @return void
      */
+    #[\Override]
     public function setProperty($strPropertyName, $varValue)
     {
         if ($varValue !== $this->getProperty($strPropertyName)) {
@@ -178,6 +186,7 @@ class DefaultModel extends AbstractModel
      *
      * @return void
      */
+    #[\Override]
     public function setPropertiesAsArray($properties)
     {
         if (\array_key_exists('id', $properties)) {
@@ -194,6 +203,7 @@ class DefaultModel extends AbstractModel
      *
      * @return boolean true if any property has been stored, false otherwise.
      */
+    #[\Override]
     public function hasProperties()
     {
         return 0 !== \count($this->arrProperties);
@@ -204,6 +214,7 @@ class DefaultModel extends AbstractModel
      *
      * @return \ArrayIterator
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->arrProperties);
@@ -231,6 +242,7 @@ class DefaultModel extends AbstractModel
      *
      * @return string the name of the corresponding data provider.
      */
+    #[\Override]
     public function getProviderName()
     {
         return $this->strProviderName;
@@ -241,6 +253,7 @@ class DefaultModel extends AbstractModel
      *
      * @throws DcGeneralInvalidArgumentException When a property in the value bag has been marked as invalid.
      */
+    #[\Override]
     public function readFromPropertyValueBag(PropertyValueBagInterface $valueBag)
     {
         foreach (\array_keys($this->arrProperties) as $name) {
@@ -261,6 +274,7 @@ class DefaultModel extends AbstractModel
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function writeToPropertyValueBag(PropertyValueBagInterface $valueBag)
     {
         foreach (\array_keys($this->arrProperties) as $name) {

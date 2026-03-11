@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,25 +23,27 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event;
 
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\PaletteBuilder;
-// @codingStandardsIgnoreStart
+// phpcs:disable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition as PalettePropertyValueCondition;
-// @codingStandardsIgnoreEnd
+// phpcs:enable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 
 /**
  * This event gets emitted when a property value condition gets created.
+ *
+ * @api
  */
 class CreatePropertyValueConditionEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
+    public const string NAME = 'dc-general.data-definition.palette.builder.create-property-value-condition';
 
     /**
      * The property value condition.
      *
      * @var PalettePropertyValueCondition|PropertyValueCondition
      */
-    protected $condition;
+    protected PropertyValueCondition|PalettePropertyValueCondition $condition;
 
     /**
      * Create a new instance.

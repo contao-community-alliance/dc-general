@@ -28,17 +28,19 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 
 /**
  * This event gets emitted when a condition has been finished.
+ *
+ * @api
  */
 class FinishConditionEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.finish-condition';
+    public const string NAME = 'dc-general.data-definition.palette.builder.finish-condition';
 
     /**
      * The condition.
      *
      * @var PaletteConditionInterface|PropertyConditionInterface
      */
-    protected $condition;
+    protected PaletteConditionInterface|PropertyConditionInterface $condition;
 
     /**
      * Create a new instance.

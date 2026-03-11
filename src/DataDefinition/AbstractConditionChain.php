@@ -56,6 +56,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function clearConditions()
     {
         $this->conditions = [];
@@ -65,6 +66,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setConditions(array $conditions)
     {
         $this->clearConditions()->addConditions($conditions);
@@ -74,6 +76,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addConditions(array $conditions)
     {
         foreach ($conditions as $condition) {
@@ -85,6 +88,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addCondition(ConditionInterface $condition)
     {
         $this->conditions[\spl_object_hash($condition)] = $condition;
@@ -94,6 +98,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeCondition(ConditionInterface $condition)
     {
         unset($this->conditions[\spl_object_hash($condition)]);
@@ -103,6 +108,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getConditions()
     {
         return \array_values($this->conditions);
@@ -113,6 +119,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
      *
      * @throws DcGeneralInvalidArgumentException When the conjunction is neither AND nor OR.
      */
+    #[\Override]
     public function setConjunction($conjunction)
     {
         if ((static::AND_CONJUNCTION !== $conjunction) && (static::OR_CONJUNCTION !== $conjunction)) {
@@ -130,6 +137,7 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getConjunction()
     {
         return $this->conjunction;

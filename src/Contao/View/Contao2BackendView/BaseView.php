@@ -104,6 +104,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public static function getSubscribedEvents()
     {
         return [
@@ -189,6 +190,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setEnvironment(EnvironmentInterface $environment)
     {
         $dispatcher = $environment->getEventDispatcher();
@@ -205,6 +207,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         return $this->environment;
@@ -290,6 +293,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setPanel($panelContainer)
     {
         $this->panel = $panelContainer;
@@ -300,6 +304,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getPanel()
     {
         return $this->panel;
@@ -436,6 +441,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @return void
      */
+    #[\Override]
     public function handleAjaxCall()
     {
         $environment = $this->getEnvironment();
@@ -470,6 +476,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function create(Action $action)
     {
         throw new \RuntimeException('I should not be here! :-\\');
@@ -482,6 +489,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     public function paste(Action $action)
     {
         throw new \RuntimeException('I should not be here! :-\\');
@@ -494,6 +502,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @throws \RuntimeException This method is not in use anymore.
      */
+    #[\Override]
     public function delete(Action $action)
     {
         throw new \RuntimeException('I should not be here! :-\\');
@@ -502,6 +511,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function move(Action $action)
     {
         $environment = $this->getEnvironment();
@@ -521,6 +531,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function undo(Action $action)
     {
         $environment = $this->getEnvironment();
@@ -539,6 +550,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function enforceModelRelationship($model)
     {
         // No op in this base class but implemented in subclasses to enforce parent<->child relationship.
@@ -549,6 +561,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      *
      * @throws \RuntimeException This method is not in use anymore.
      */
+    #[\Override]
     public function edit(Action $action)
     {
         throw new \RuntimeException('I should not be here! :-\\');
@@ -557,6 +570,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function showAll(Action $action)
     {
         $environment = $this->getEnvironment();

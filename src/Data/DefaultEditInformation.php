@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -24,6 +24,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 
 /**
  * This class is the base implementation for EditInformationInterface.
+ *
+ * @api
  */
 class DefaultEditInformation implements EditInformationInterface
 {
@@ -32,21 +34,21 @@ class DefaultEditInformation implements EditInformationInterface
      *
      * @var array
      */
-    protected $models = [];
+    protected array $models = [];
 
     /**
      * The model errors.
      *
      * @var array<string, array<string, list<string>>>
      */
-    protected $modelErrors = [];
+    protected array $modelErrors = [];
 
     /**
      * The uniform time.
      *
      * @var integer
      */
-    protected $uniformTime;
+    protected int $uniformTime;
 
     /**
      * DefaultEditInformation constructor.
@@ -59,6 +61,7 @@ class DefaultEditInformation implements EditInformationInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function hasAnyModelError()
     {
         return !empty($this->modelErrors);
@@ -67,6 +70,7 @@ class DefaultEditInformation implements EditInformationInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getModelError(ModelInterface $model)
     {
         $modelId = ModelId::fromModel($model);
@@ -77,6 +81,7 @@ class DefaultEditInformation implements EditInformationInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setModelError(ModelInterface $model, array $error, PropertyInterface $property)
     {
         $modelId  = ModelId::fromModel($model)->getSerialized();
@@ -103,6 +108,7 @@ class DefaultEditInformation implements EditInformationInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function uniformTime()
     {
         return $this->uniformTime;

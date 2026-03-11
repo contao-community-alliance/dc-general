@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,27 +28,27 @@ use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
 use ContaoCommunityAlliance\DcGeneral\Exception\NotDeletableException;
 
 spl_autoload_register(
-    function ($class) {
+    static function ($class) {
         static $classes = [
-            // @codingStandardsIgnoreStart Line exceeds 120 characters
+            // phpcs:disable Generic.Files.LineLength.TooLong
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\DefinitionException'          => DefinitionException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException'        => EditOnlyModeException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotCreatableException'        => NotCreatableException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeletableException'        => NotDeletableException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' => ColorPickerWizardListener::class,
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         ];
 
         if (isset($classes[$class])) {
-            // @codingStandardsIgnoreStart Silencing errors is discouraged
+            // phpcs:disable Silencing errors is discouraged
             @trigger_error('Class "' . $class . '" has been renamed to "' . $classes[$class] . '"', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
-            if (!class_exists($classes[$class])) {
-                spl_autoload_call($class);
+            if (!\class_exists($classes[$class])) {
+                \spl_autoload_call($class);
             }
 
-            class_alias($classes[$class], $class);
+            \class_alias($classes[$class], $class);
         }
     }
 );

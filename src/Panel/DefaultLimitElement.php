@@ -34,6 +34,8 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a limit panel element.
+ *
+ * @api
  */
 class DefaultLimitElement extends AbstractElement implements LimitElementInterface
 {
@@ -163,7 +165,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * {@inheritDoc}
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
+    #[\Override]
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
         if (null !== $element) {
             $config->setStart($this->getOffset());
@@ -248,6 +251,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      */
+    #[\Override]
     public function render(ViewTemplateInterface $viewTemplate)
     {
         $translator = $this->getEnvironment()->getTranslator();
@@ -307,6 +311,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setOffset($intOffset)
     {
         $this->intOffset = $intOffset;
@@ -317,6 +322,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getOffset()
     {
         return $this->intOffset;
@@ -325,6 +331,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setAmount($intAmount)
     {
         $this->intAmount = $intAmount;
@@ -335,6 +342,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getAmount()
     {
         return $this->intAmount;

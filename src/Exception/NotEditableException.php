@@ -23,6 +23,8 @@ namespace ContaoCommunityAlliance\DcGeneral\Exception;
  * Class NotEditableException.
  *
  * This exception is thrown if a data definition does not support edit actions.
+ *
+ * @api
  */
 class NotEditableException extends DefinitionException
 {

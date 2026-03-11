@@ -23,16 +23,16 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer;
 use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use Exception;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Test for the data definition container.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinitionContainer
- */
-class DataDefinitionContainerTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(DataDefinitionContainer::class)]
+final class DataDefinitionContainerTest extends TestCase
 {
-    public function testSetterAndGetter()
+    public function testSetterAndGetter(): void
     {
         $container  = $this->getMockBuilder(ContainerInterface::class)->getMock();
         $definition = new DataDefinitionContainer();
@@ -40,7 +40,7 @@ class DataDefinitionContainerTest extends TestCase
         self::assertFalse($definition->hasDefinition('foo'));
         try {
             $definition->getDefinition('foo');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             self::assertInstanceOf(DcGeneralInvalidArgumentException::class, $exception);
             self::assertSame('Data definition foo is not contained.', $exception->getMessage());
         }

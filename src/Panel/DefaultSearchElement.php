@@ -31,6 +31,8 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 
 /**
  * Default implementation of a search panel element.
+ *
+ * @api
  */
 class DefaultSearchElement extends AbstractElement implements SearchElementInterface
 {
@@ -114,7 +116,8 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritdoc}
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null)
+    #[\Override]
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
         $session = $this->getSessionStorage();
         $input   = $this->getInputProvider();
@@ -169,6 +172,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function render(ViewTemplateInterface $viewTemplate)
     {
         $definition = $this->getEnvironment()->getDataDefinition();
@@ -197,6 +201,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function addProperty($strProperty)
     {
         $this->arrProperties[] = $strProperty;
@@ -207,6 +212,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getPropertyNames(): array
     {
         return $this->arrProperties;
@@ -215,6 +221,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setSelectedProperty($strProperty = '')
     {
         $this->strSelectedProperty = $strProperty;
@@ -225,6 +232,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getSelectedProperty()
     {
         return $this->strSelectedProperty;
@@ -233,6 +241,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setValue($mixValue = null)
     {
         $this->mixValue = $mixValue;
@@ -243,6 +252,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getValue()
     {
         return $this->mixValue;

@@ -34,8 +34,8 @@
  *
  * @SuppressWarnings(PHPMD.CamelCaseClassName)
  */
-// @codingStandardsIgnoreStart
+// phpcs:disable
 class DC_General extends ContaoCommunityAlliance\DcGeneral\DC\General
 {
 }
-// @codingStandardsIgnoreEnd
+// phpcs:enable

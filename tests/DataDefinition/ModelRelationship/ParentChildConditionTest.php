@@ -23,20 +23,12 @@ namespace ContaoCommunityAlliance\DcGeneral\Test\DataDefinition\ModelRelationshi
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultModel;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * This class tests the ParentChildCondition.
- *
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\ParentChildCondition
- */
-class ParentChildConditionTest extends TestCase
+#[CoversClass(ParentChildCondition::class)]
+final class ParentChildConditionTest extends TestCase
 {
-    /**
-     * Test that the matches method does not match for children from another provider.
-     *
-     * @return void
-     */
-    public function testMatchesForChildFromOtherProvider()
+    public function testMatchesForChildFromOtherProvider(): void
     {
         $parent = new DefaultModel();
         $parent->setID(1);
@@ -63,12 +55,7 @@ class ParentChildConditionTest extends TestCase
         self::assertFalse($condition->matches($parent, $child));
     }
 
-    /**
-     * Test that the matches method does not match for children from another provider.
-     *
-     * @return void
-     */
-    public function testMatchesForParentFromOtherProvider()
+    public function testMatchesForParentFromOtherProvider(): void
     {
         $parent = new DefaultModel();
         $parent->setID(1);
@@ -95,12 +82,7 @@ class ParentChildConditionTest extends TestCase
         self::assertFalse($condition->matches($parent, $child));
     }
 
-    /**
-     * Test that the matches method does not match when no provider name set.
-     *
-     * @return void
-     */
-    public function testMatchesForNoParentProvider()
+    public function testMatchesForNoParentProvider(): void
     {
         $parent = new DefaultModel();
         $parent->setID(1);
@@ -126,12 +108,7 @@ class ParentChildConditionTest extends TestCase
         self::assertFalse($condition->matches($parent, $child));
     }
 
-    /**
-     * Test that the matches method does not match when no provider name set.
-     *
-     * @return void
-     */
-    public function testMatchesForNoDestinationProvider()
+    public function testMatchesForNoDestinationProvider(): void
     {
         $parent = new DefaultModel();
         $parent->setID(1);
@@ -157,12 +134,7 @@ class ParentChildConditionTest extends TestCase
         self::assertFalse($condition->matches($parent, $child));
     }
 
-    /**
-     * Test the matches method().
-     *
-     * @return void
-     */
-    public function testMatches()
+    public function testMatches(): void
     {
         $parent = new DefaultModel();
         $parent->setID(1);
@@ -184,12 +156,7 @@ class ParentChildConditionTest extends TestCase
         self::assertTrue($condition->matches($parent, $child));
     }
 
-    /**
-     * Test the matches method().
-     *
-     * @return void
-     */
-    public function testMatchesRemoteValue()
+    public function testMatchesRemoteValue(): void
     {
         $parent = new DefaultModel();
         $parent->setID(1);

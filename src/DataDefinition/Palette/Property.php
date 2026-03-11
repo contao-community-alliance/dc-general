@@ -29,6 +29,8 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\
 
 /**
  * A property contained within a palette.
+ *
+ * @api
  */
 class Property implements PropertyInterface
 {
@@ -66,6 +68,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setName($name)
     {
         $this->name = $name;
@@ -76,6 +79,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -84,6 +88,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isVisible(
         ?ModelInterface $model = null,
         ?PropertyValueBagInterface $input = null,
@@ -101,6 +106,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function isEditable(
         ?ModelInterface $model = null,
         ?PropertyValueBagInterface $input = null,
@@ -118,6 +124,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setVisibleCondition(?PropertyConditionInterface $condition = null)
     {
         $this->visibleCondition = $condition;
@@ -128,6 +135,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getVisibleCondition()
     {
         return $this->visibleCondition;
@@ -136,6 +144,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setEditableCondition(?PropertyConditionInterface $condition = null)
     {
         $this->editableCondition = $condition;
@@ -146,6 +155,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getEditableCondition()
     {
         return $this->editableCondition;
@@ -154,6 +164,7 @@ class Property implements PropertyInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
         if (null !== $this->visibleCondition) {

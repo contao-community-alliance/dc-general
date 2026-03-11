@@ -26,6 +26,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 
 /**
  * Default implementation of a panel row.
+ *
+ * @api
  */
 class DefaultPanel implements PanelInterface
 {
@@ -54,6 +56,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getContainer()
     {
         if (null === $this->objContainer) {
@@ -66,6 +69,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setContainer(PanelContainerInterface $container)
     {
         $this->objContainer = $container;
@@ -76,6 +80,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function addElement($panelName, $element)
     {
         $this->arrElements[$panelName] = $element;
@@ -87,6 +92,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getElement($elementName)
     {
         return ($this->arrElements[$elementName] ?? null);
@@ -95,6 +101,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null)
     {
         /** @var PanelElementInterface $currentElement */
@@ -106,6 +113,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->arrElements);
@@ -114,6 +122,7 @@ class DefaultPanel implements PanelInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function count(): int
     {
         return \count($this->arrElements);

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,6 +37,8 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
  * Small compatibility layer for callbacks, that expect a "full-featured" DC instance.
  *
  * @psalm-suppress PropertyNotSetInConstructor
+ *
+ * @api
  */
 class DcCompat extends General
 {
@@ -45,14 +47,14 @@ class DcCompat extends General
      *
      * @var ModelInterface|null
      */
-    protected $model;
+    protected ?ModelInterface $model;
 
     /**
      * Name of the property currently working on.
      *
      * @var string|null
      */
-    protected $propertyName;
+    protected ?string $propertyName;
 
     /**
      * Create a new instance.
@@ -61,8 +63,11 @@ class DcCompat extends General
      * @param ModelInterface|null  $model        The model within scope (optional).
      * @param string|null          $propertyName The name of the property within scope (optional).
      */
-    public function __construct(EnvironmentInterface $environment, ?ModelInterface $model = null, ?string $propertyName = null)
-    {
+    public function __construct(
+        EnvironmentInterface $environment,
+        ?ModelInterface $model = null,
+        ?string $propertyName = null
+    ) {
         // Prevent "Recoverable error: Argument X passed to SomClass::someMethod() must be an instance of DataContainer,
         // instance of ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat given" in callbacks.
         if (!\class_exists('\DataContainer', false)) {
@@ -114,7 +119,8 @@ class DcCompat extends General
      *
      * @throws DcGeneralException This method is for internal use only.
      */
-    protected function getTablenameCallback($tableName)
+    #[\Override]
+    protected function getTablenameCallback($tableName): string
     {
         throw new DcGeneralException(
             __CLASS__ . '::getTablenameCallback() is internal use only and must not be called'
@@ -126,6 +132,7 @@ class DcCompat extends General
      *
      * @throws DcGeneralRuntimeException The magic setter is unsupported and has been deactivated.
      */
+    #[\Override]
     public function __set($strKey, $varValue)
     {
         throw new DcGeneralRuntimeException('The magic setter is not supported anymore!');
@@ -138,8 +145,12 @@ class DcCompat extends General
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
+    #[\Override]
     public function __get($name)
     {
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
         switch ($name) {
             case 'id':
                 if (null !== $this->getModel()) {
@@ -147,8 +158,6 @@ class DcCompat extends General
                     assert($model instanceof ModelInterface);
                     return $model->getId();
                 }
-
-                $environment = $this->getEnvironment();
 
                 $dataDefinition = $environment->getDataDefinition();
                 assert($dataDefinition instanceof ContainerInterface);
@@ -182,8 +191,8 @@ class DcCompat extends General
                 return $parentModelId->getId();
 
             case 'parentTable':
-                if ($this->getEnvironment()->getParentDataDefinition()) {
-                    $container = $this->getEnvironment()->getParentDataDefinition();
+                if ($environment->getParentDataDefinition()) {
+                    $container = $environment->getParentDataDefinition();
                     assert($container instanceof ContainerInterface);
 
                     return $container->getName();
@@ -200,7 +209,7 @@ class DcCompat extends General
                 throw new DcGeneralRuntimeException('The magic property $dc->createNewVersion is not supported yet!');
 
             case 'table':
-                $dataProvider = $this->getEnvironment()->getDataProvider();
+                $dataProvider = $environment->getDataProvider();
                 assert($dataProvider instanceof DataProviderInterface);
 
                 return $dataProvider->getEmptyModel()->getProviderName();
@@ -214,10 +223,8 @@ class DcCompat extends General
                 }
                 return null;
 
-            case 'field':
-                return $this->propertyName;
-
             case 'inputName':
+            case 'field':
                 return $this->propertyName;
 
             case 'palette':
@@ -233,6 +240,7 @@ class DcCompat extends General
         throw new DcGeneralRuntimeException('The magic property ' . $name . ' is not supported (yet)!');
     }
 
+    #[\Override]
     public function getCurrentRecord(int|string|null $id = null, string|null $table = null): array|null
     {
         // FIXME: we can not implement this properly with dc caching as in DataContainer due to static functions there.

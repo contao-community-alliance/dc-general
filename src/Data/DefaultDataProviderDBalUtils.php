@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,6 +35,8 @@ use Doctrine\DBAL\Query\QueryBuilder;
  * @psalm-type TSQLFilterLIKE=array{operation: 'LIKE'|'NOT LIKE', property: string, value: string}
  * @psalm-type TSQLFilterNULL=array{operation: 'IS NULL'|'IS NOT NULL', property: string, value: string}
  * @psalm-type TSQLFilter=TSQLFilterAND|TSQLFilterOR|TSQLFilterCMP|TSQLFilterIN|TSQLFilterLIKE|TSQLFilterNULL
+ *
+ * @api
  */
 class DefaultDataProviderDBalUtils
 {
@@ -355,7 +357,8 @@ class DefaultDataProviderDBalUtils
      */
     private static function filterInOrNotInList(array $operation, QueryBuilder $queryBuilder): string
     {
-        $expressionMethod = \lcfirst(\preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
+        $expressionMethod =
+            \lcfirst((string) \preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
 
         $values = [];
         foreach ($operation['values'] as $index => $value) {
@@ -366,7 +369,10 @@ class DefaultDataProviderDBalUtils
 
         return $queryBuilder
             ->expr()
-            ->{$expressionMethod}($operation['property'], $values);
+            ->{$expressionMethod}(
+                $operation['property'],
+                $values
+            );
     }
 
     /**
@@ -400,10 +406,13 @@ class DefaultDataProviderDBalUtils
      */
     private static function filterIsNullOrIsNotNull(array $operation, QueryBuilder $queryBuilder): string
     {
-        $expressionMethod = \lcfirst(\preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
+        $expressionMethod =
+            \lcfirst((string) \preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
 
         return $queryBuilder
             ->expr()
-            ->{$expressionMethod}($operation['property']);
+            ->{$expressionMethod}(
+                $operation['property']
+            );
     }
 }

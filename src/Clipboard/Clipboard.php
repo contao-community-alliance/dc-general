@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,6 +37,8 @@ use function unserialize;
  * Default implementation of the clipboard.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ *
+ * @api
  */
 class Clipboard implements ClipboardInterface
 {
@@ -57,6 +59,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function loadFrom($environment)
     {
         if (null === $session = $environment->getSessionStorage()) {
@@ -80,6 +83,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function saveTo($environment)
     {
         if (null === $session = $environment->getSessionStorage()) {
@@ -95,6 +99,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function push(ItemInterface $item)
     {
         $clipboardId = $item->getClipboardId();
@@ -111,6 +116,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function remove(ItemInterface $item)
     {
         $clipboardId = $item->getClipboardId();
@@ -127,6 +133,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function removeById(ModelIdInterface $modelId)
     {
         $serializedId = $modelId->getSerialized();
@@ -144,6 +151,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function removeByClipboardId($clipboardId)
     {
         if (isset($this->items[$clipboardId])) {
@@ -159,6 +167,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function has(ItemInterface $item)
     {
         $clipboardId = $item->getClipboardId();
@@ -175,6 +184,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function hasId(ModelIdInterface $modelId)
     {
         return (bool) ($this->itemsByModelId[$modelId->getSerialized()] ?? false);
@@ -183,6 +193,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function fetch(FilterInterface $filter)
     {
         $items = [];
@@ -199,6 +210,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function isEmpty(FilterInterface $filter)
     {
         foreach ($this->items as $item) {
@@ -213,6 +225,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function isNotEmpty(FilterInterface $filter)
     {
         return !$this->isEmpty($filter);
@@ -221,6 +234,7 @@ class Clipboard implements ClipboardInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function clear()
     {
         $this->items = [];

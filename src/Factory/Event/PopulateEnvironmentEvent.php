@@ -25,8 +25,10 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractEnvironmentAwareEvent;
 
 /**
  * This event is emitted when an environment gets populated.
+ *
+ * @api
  */
 class PopulateEnvironmentEvent extends AbstractEnvironmentAwareEvent
 {
-    public const NAME = 'dc-general.factory.populate-environment';
+    public const string NAME = 'dc-general.factory.populate-environment';
 }

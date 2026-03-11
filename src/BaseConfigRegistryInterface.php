@@ -33,9 +33,9 @@ interface BaseConfigRegistryInterface extends EnvironmentAwareInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
-     * @param ModelIdInterface $parentId The optional parent to use.
+     * @param ?ModelIdInterface $parentId The optional parent to use.
      *
      * @return ConfigInterface
      */
-    public function getBaseConfig(ModelIdInterface $parentId = null);
+    public function getBaseConfig(?ModelIdInterface $parentId = null);
 }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2020 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,8 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2020 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -30,6 +31,8 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
  * Class InputProvider.
  *
  * This class is the Contao binding of an input provider.
+ *
+ * @api
  */
 class InputProvider implements InputProviderInterface
 {
@@ -38,6 +41,7 @@ class InputProvider implements InputProviderInterface
      *
      * {@inheritDoc}
      */
+    #[\Override]
     public function getParameter($key, $raw = false)
     {
         return Input::get($key);
@@ -46,6 +50,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setParameter($key, $value)
     {
         Input::setGet($key, $value);
@@ -56,6 +61,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function unsetParameter($key)
     {
         Input::setGet($key, null);
@@ -66,6 +72,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function hasParameter($key)
     {
         return (null !== Input::get($key, false, true));
@@ -74,6 +81,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getValue($key, $raw = false)
     {
         if ($raw) {
@@ -86,6 +94,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setValue($key, $value)
     {
         Input::setPost($key, $value);
@@ -96,6 +105,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function unsetValue($key)
     {
         Input::setPost($key, null);
@@ -106,6 +116,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function hasValue($key)
     {
         return (null !== Input::post($key));
@@ -114,6 +125,7 @@ class InputProvider implements InputProviderInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getRequestUrl()
     {
         return Environment::get('request');

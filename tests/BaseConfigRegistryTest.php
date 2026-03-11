@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -37,18 +38,22 @@ use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use Exception;
+use LogicException;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test the base configuration registry.
  *
- * @covers \ContaoCommunityAlliance\DcGeneral\BaseConfigRegistry
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class BaseConfigRegistryTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(BaseConfigRegistry::class)]
+final class BaseConfigRegistryTest extends TestCase
 {
-    public function testSetterAndGetter()
+    public function testSetterAndGetter(): void
     {
         $environment = $this->getMockBuilder(EnvironmentInterface::class)->getMock();
 
@@ -59,11 +64,11 @@ class BaseConfigRegistryTest extends TestCase
         self::assertSame($environment, $configRegistry->getEnvironment());
     }
 
-    public function testGetterThrowsWhenEnvironmentNotSet()
+    public function testGetterThrowsWhenEnvironmentNotSet(): void
     {
         $configRegistry = new BaseConfigRegistry();
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
 
         $configRegistry->getEnvironment();
     }
@@ -72,11 +77,10 @@ class BaseConfigRegistryTest extends TestCase
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      * @SuppressWarnings(PHPMD.LongVariable)
      */
-    public function testGetBaseConfig()
+    public function testGetBaseConfig(): void
     {
         // Common test settings.
-        $basicDefinition      =
-            $this->getMockBuilder(DefaultBasicDefinition::class)->enableProxyingToOriginalMethods()->getMock();
+        $basicDefinition      = new DefaultBasicDefinition();
         $dataDefinition       =
             $this->getMockBuilder(DefaultContainer::class)->disableOriginalConstructor()->getMock();
         $environment          =
@@ -86,40 +90,35 @@ class BaseConfigRegistryTest extends TestCase
         $modelRelationShip    = $this->createMock(ModelRelationshipDefinitionInterface::class);
         $parentChildCondition = $this->createMock(ParentChildConditionInterface::class);
 
+        $listingConfig->method('getDefaultSortingFields')->willReturn([]);
         $viewDefinition->method('getListingConfig')->willReturn($listingConfig);
 
         $definition = [
             Contao2BackendViewDefinitionInterface::NAME => $viewDefinition
         ];
-        $dataDefinition->method('hasDefinition')->will(
-            self::returnCallback(
-                function ($definitionName) use ($definition) {
-                    return array_key_exists($definitionName, $definition);
-                }
-            )
+        $dataDefinition->method('hasDefinition')->willReturnCallback(
+            function ($definitionName) use ($definition) {
+                return array_key_exists($definitionName, $definition);
+            }
         );
-        $dataDefinition->method('getDefinition')->will(
-            self::returnCallback(
-                function ($definitionName) use ($definition) {
-                    return $definition[$definitionName];
-                }
-            )
+        $dataDefinition->method('getDefinition')->willReturnCallback(
+            function ($definitionName) use ($definition) {
+                return $definition[$definitionName];
+            }
         );
         $dataDefinition->method('getModelRelationshipDefinition')->willReturn($modelRelationShip);
 
         $parentChildFilter = ['child' => 'bar'];
         $parentChildCondition->method('getFilter')->willReturn($parentChildFilter);
 
-        $modelRelationShip->method('getChildCondition')->will(
-            self::returnCallback(
-                function ($parentProviderName) use ($parentChildCondition) {
-                    if ('parentIdWithCondition' === $parentProviderName) {
-                        return $parentChildCondition;
-                    }
-
-                    return null;
+        $modelRelationShip->method('getChildCondition')->willReturnCallback(
+            function ($parentProviderName) use ($parentChildCondition) {
+                if ('parentIdWithCondition' === $parentProviderName) {
+                    return $parentChildCondition;
                 }
-            )
+
+                return null;
+            }
         );
 
         $environment->method('getDataDefinition')->willReturn($dataDefinition);
@@ -159,7 +158,7 @@ class BaseConfigRegistryTest extends TestCase
         $basicDefinition->setParentDataProvider('unexpectedDataProvider');
         try {
             $configRegistry->getBaseConfig($unexpectedModelId);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
             self::assertSame(
                 'Unexpected parent provider parentId (expected unexpectedDataProvider)',
@@ -172,7 +171,7 @@ class BaseConfigRegistryTest extends TestCase
         $basicDefinition->setParentDataProvider('parentId');
         try {
             $configRegistry->getBaseConfig($itemNotFoundModelId);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             self::assertInstanceOf(DcGeneralRuntimeException::class, $exception);
             self::assertSame(
                 'Parent item parentId::Iml0ZW0tbm90LWZvdW5kIg== not found in parentId',
@@ -207,16 +206,15 @@ class BaseConfigRegistryTest extends TestCase
     }
 
     /** @SuppressWarnings(PHPMD.LongVariable) */
-    public function testGetBaseConfigParentListMode()
+    public function testGetBaseConfigParentListMode(): void
     {
-        $basicDefinition    =
-            $this->getMockBuilder(DefaultBasicDefinition::class)->enableProxyingToOriginalMethods()->getMock();
+        $basicDefinition    = new DefaultBasicDefinition();
         $dataDefinition     =
             $this->getMockBuilder(DefaultContainer::class)->disableOriginalConstructor()->getMock();
         $environment        =
             $this
                 ->getMockBuilder(DefaultEnvironment::class)
-                ->setMethods(
+                ->onlyMethods(
                     [
                         'getDataDefinition',
                         'getInputProvider'
@@ -232,6 +230,7 @@ class BaseConfigRegistryTest extends TestCase
         $dataProviderConfig = DefaultConfig::init();
         $dataProvider->method('getEmptyConfig')->willReturn($dataProviderConfig);
 
+        $listingConfig->method('getDefaultSortingFields')->willReturn([]);
         $viewDefinition->method('getListingConfig')->willReturn($listingConfig);
 
         $modelRelationShip->method('getChildCondition')->willReturn(null);
@@ -240,19 +239,15 @@ class BaseConfigRegistryTest extends TestCase
         $definition = [
             Contao2BackendViewDefinitionInterface::NAME => $viewDefinition
         ];
-        $dataDefinition->method('hasDefinition')->will(
-            self::returnCallback(
-                function ($definitionName) use ($definition) {
-                    return array_key_exists($definitionName, $definition);
-                }
-            )
+        $dataDefinition->method('hasDefinition')->willReturnCallback(
+            function ($definitionName) use ($definition) {
+                return array_key_exists($definitionName, $definition);
+            }
         );
-        $dataDefinition->method('getDefinition')->will(
-            self::returnCallback(
-                function ($definitionName) use ($definition) {
-                    return $definition[$definitionName];
-                }
-            )
+        $dataDefinition->method('getDefinition')->willReturnCallback(
+            function ($definitionName) use ($definition) {
+                return $definition[$definitionName];
+            }
         );
 
         $inputProvider = $this->createMock(InputProviderInterface::class);

@@ -25,12 +25,15 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  * Class DefaultSortElementInformation.
  *
  * Default implementation of a sort definition.
+ *
+ * @api
  */
 class DefaultSortElementInformation implements SortElementInformationInterface
 {
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getName()
     {
         return 'sort';

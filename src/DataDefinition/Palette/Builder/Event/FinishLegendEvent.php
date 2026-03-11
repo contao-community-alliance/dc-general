@@ -26,17 +26,19 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 
 /**
  * This event gets emitted when a legend is finished.
+ *
+ * @api
  */
 class FinishLegendEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.finish-legend';
+    public const string NAME = 'dc-general.data-definition.palette.builder.finish-legend';
 
     /**
      * The legend.
      *
      * @var LegendInterface
      */
-    protected $legend;
+    protected LegendInterface $legend;
 
     /**
      * Create a new instance.

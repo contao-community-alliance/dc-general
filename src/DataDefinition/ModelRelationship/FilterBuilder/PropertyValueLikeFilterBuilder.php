@@ -24,6 +24,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\Fil
  * Handy helper class to generate and manipulate AND filter arrays.
  *
  * This class is intended to be only used via the FilterBuilder main class.
+ *
+ * @api
  */
 class PropertyValueLikeFilterBuilder extends BaseComparingFilterBuilder
 {

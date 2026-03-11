@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -50,6 +50,8 @@ use function uasort;
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) - There is no elegant way to reduce this class more without
  *                                                     reducing the interface.
+ *
+ * @api
  */
 class DefaultCollection implements CollectionInterface
 {
@@ -63,6 +65,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function length(): int
     {
         return \count($this->arrCollection);
@@ -71,6 +74,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function count(): int
     {
         return $this->length();
@@ -79,6 +83,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetExists($offset): bool
     {
         return \array_key_exists($offset, $this->arrCollection);
@@ -87,6 +92,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetGet($offset): ?ModelInterface
     {
         return $this->get($offset);
@@ -95,6 +101,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetSet($offset, $value): void
     {
         assert(\is_int($offset));
@@ -104,6 +111,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function offsetUnset($offset): void
     {
         unset($this->arrCollection[$offset]);
@@ -112,6 +120,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function get($index): ?ModelInterface
     {
         if (\array_key_exists($index, $this->arrCollection)) {
@@ -124,6 +133,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function push(ModelInterface $model): void
     {
         $this->arrCollection[] = $model;
@@ -132,6 +142,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function pop(): ?ModelInterface
     {
         if (\count($this->arrCollection)) {
@@ -144,6 +155,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function unshift(ModelInterface $model): void
     {
         if ($model->hasProperties()) {
@@ -154,6 +166,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function shift(): ?ModelInterface
     {
         if (\count($this->arrCollection)) {
@@ -166,6 +179,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function insert($index, ModelInterface $model): void
     {
         if ($model->hasProperties()) {
@@ -176,6 +190,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function remove($mixedValue): void
     {
         if (\is_object($mixedValue)) {
@@ -194,6 +209,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getModelIds(): array
     {
         $ids = [];
@@ -208,6 +224,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function removeById($modelId): void
     {
         foreach ($this->arrCollection as $index => $model) {
@@ -220,6 +237,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function contains($model): bool
     {
         /** @var ModelInterface $localModel */
@@ -235,6 +253,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function containsById($modelId): bool
     {
         /** @var ModelInterface $localModel */
@@ -250,6 +269,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function intersect($collection): CollectionInterface
     {
         $intersection = new DefaultCollection();
@@ -272,6 +292,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function union($collection): CollectionInterface
     {
         $union = clone $this;
@@ -287,6 +308,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function diff($collection): CollectionInterface
     {
         $diff = new DefaultCollection();
@@ -310,6 +332,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function isSubsetOf($collection): bool
     {
         /** @var ModelInterface $localModel */
@@ -331,6 +354,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function reverse(): CollectionInterface
     {
         $newCollection = clone $this;
@@ -343,6 +367,7 @@ class DefaultCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function sort($callback): CollectionInterface
     {
         $newCollection = clone $this;
@@ -358,6 +383,7 @@ class DefaultCollection implements CollectionInterface
      *
      * @return Traversable<int, ModelInterface>
      */
+    #[\Override]
     public function getIterator(): Traversable
     {
         return new ArrayIterator($this->arrCollection);

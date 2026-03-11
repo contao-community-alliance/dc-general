@@ -55,6 +55,7 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
      *
      * @return void
      */
+    #[\Override]
     public function setRestrictions(?string $dataContainerName = null, ?string $propertyName = null)
     {
         parent::setRestrictions($dataContainerName);
@@ -64,6 +65,7 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function wantToExecute($event)
     {
         return parent::wantToExecute($event)

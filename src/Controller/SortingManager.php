@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 
 /**
  * Handy helper class to keep manually sorted lists more manageable.
+ *
+ * @api
  */
 class SortingManager
 {
@@ -35,56 +37,56 @@ class SortingManager
      *
      * @var CollectionInterface|null
      */
-    protected $models;
+    protected ?CollectionInterface $models;
 
     /**
      * The collection containing the models that are siblings.
      *
      * @var CollectionInterface|null
      */
-    protected $siblings = null;
+    protected ?CollectionInterface $siblings;
 
     /**
      * The collection containing the models that are siblings (working copy).
      *
      * @var CollectionInterface|null
      */
-    protected $siblingsCopy;
+    protected ?CollectionInterface $siblingsCopy;
 
     /**
      * The result collection.
      *
      * @var CollectionInterface|null
      */
-    protected $results;
+    protected ?CollectionInterface $results;
 
     /**
      * The model preceding the target position of the first model from the collection.
      *
      * @var ModelInterface|null
      */
-    protected $previousModel;
+    protected ?ModelInterface $previousModel;
 
     /**
      * The property that is used for sorting.
      *
      * @var string
      */
-    protected $sortingProperty = '';
+    protected string $sortingProperty = '';
 
     /**
      * Temporary marker containing the model currently in scope.
      *
      * @var ModelInterface|null
      */
-    protected $marker;
+    protected ?ModelInterface $marker;
 
     /**
      * The current position value.
      *
      * @var int
      */
-    protected $position = 0;
+    protected int $position = 0;
 
     /**
      * Create a new instance.
@@ -101,6 +103,13 @@ class SortingManager
         ?string $sortedBy = null,
         ?ModelInterface $previousModel = null
     ) {
+        $this->models        = null;
+        $this->siblings      = null;
+        $this->siblingsCopy  = null;
+        $this->results       = null;
+        $this->previousModel = null;
+        $this->marker        = null;
+
         if ($models) {
             $this->setModels($models);
         }
@@ -292,9 +301,9 @@ class SortingManager
      *
      * Delta value will be between 2 and a multiple 128 which is large enough to contain all models being moved.
      *
-     * @return float|int
+     * @return int
      */
-    private function determineDelta()
+    private function determineDelta(): int
     {
         $marker = $this->marker;
         assert($marker instanceof ModelInterface);
@@ -307,12 +316,12 @@ class SortingManager
         );
 
         // If delta too narrow, we need to make room.
-        // Prevent delta to exceed, also. Use minimum delta which is calculated as multiple of 128.
+        // Prevent delta from exceeding, also. Use minimum delta which is calculated as multiple of 128.
         if (($delta < 2) || ($delta > 128)) {
-            return (\ceil($results->length() / 128) * 128);
+            return (int) (\ceil($results->length() / 128) * 128.);
         }
 
-        return $delta;
+        return (int) $delta;
     }
 
     /**
@@ -340,7 +349,7 @@ class SortingManager
 
         // Loop over all models and increment sorting value.
         foreach ($this->results as $model) {
-            $this->position += (int) $delta;
+            $this->position += $delta;
             /** @var ModelInterface $model */
             $model->setProperty($this->getSortingProperty(), $this->position);
         }
@@ -358,7 +367,7 @@ class SortingManager
                     continue;
                 }
 
-                $this->position += (int) $delta;
+                $this->position += $delta;
                 $this->marker->setProperty($this->getSortingProperty(), $this->position);
                 $this->results->push($this->marker);
 

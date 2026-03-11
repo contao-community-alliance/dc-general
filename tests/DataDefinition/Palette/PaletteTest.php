@@ -26,13 +26,12 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Property;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette
- */
-class PaletteTest extends TestCase
+#[CoversClass(Palette::class)]
+final class PaletteTest extends TestCase
 {
-    public function testClone()
+    public function testClone(): void
     {
         $palette = new Palette();
 

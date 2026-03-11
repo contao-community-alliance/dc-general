@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,7 +15,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -35,6 +35,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * This class handles events to reset the fallback of any property having the fallback extra value.
+ *
+ * @api
  */
 class FallbackResetSubscriber implements EventSubscriberInterface
 {
@@ -56,6 +58,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
      *
      * @return array<string, array{0: string, 1: int}> The event names to listen to.
      */
+    #[\Override]
     public static function getSubscribedEvents()
     {
         return [
@@ -121,13 +124,13 @@ class FallbackResetSubscriber implements EventSubscriberInterface
             if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
                 // BC Layer - use old reset fallback methodology until it gets removed.
                 if (null === ($config = $this->determineFilterConfig($event))) {
-                    // @codingStandardsIgnoreStart
+                    // phpcs:disable
                     @\trigger_error(
                         'DataProviderInterface::resetFallback is deprecated - ' .
                         'Please specify proper parent child relationship',
                         E_USER_DEPRECATED
                     );
-                    // @codingStandardsIgnoreEnd
+                    // phpcs:enable
                     /** @psalm-suppress DeprecatedMethod */
                     $dataProvider->resetFallback($propertyName);
                     $dataProvider->save($model);

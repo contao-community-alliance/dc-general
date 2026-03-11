@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -33,6 +34,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * Default implementation of a data definition container.
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods) We have to keep them as we implement the interfaces.
+ *
+ * @api
  */
 class DefaultContainer implements ContainerInterface
 {
@@ -41,14 +44,14 @@ class DefaultContainer implements ContainerInterface
      *
      * @var string
      */
-    protected $name;
+    protected string $name;
 
     /**
      * The contained definition instances.
      *
      * @var DefinitionInterface[]
      */
-    protected $definitions = [];
+    protected array $definitions = [];
 
     /**
      * Create a new default container.
@@ -63,6 +66,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getName()
     {
         return $this->name;
@@ -71,6 +75,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasDefinition($definitionName)
     {
         return isset($this->definitions[$definitionName]);
@@ -79,6 +84,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function clearDefinitions()
     {
         $this->definitions = [];
@@ -89,6 +95,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDefinitions(array $definitions)
     {
         $this->clearDefinitions()->addDefinitions($definitions);
@@ -101,6 +108,7 @@ class DefaultContainer implements ContainerInterface
      *
      * @throws DcGeneralInvalidArgumentException When a passed definition does not implement the DefinitionInterface.
      */
+    #[\Override]
     public function addDefinitions(array $definitions)
     {
         foreach ($definitions as $name => $definition) {
@@ -119,6 +127,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDefinition($definitionName, DefinitionInterface $definition)
     {
         $this->definitions[$definitionName] = $definition;
@@ -129,6 +138,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function removeDefinition($definitionName)
     {
         unset($this->definitions[$definitionName]);
@@ -141,6 +151,7 @@ class DefaultContainer implements ContainerInterface
      *
      * @throws DcGeneralInvalidArgumentException Is thrown when there is no definition with this name.
      */
+    #[\Override]
     public function getDefinition($definitionName)
     {
         if (!$this->hasDefinition($definitionName)) {
@@ -155,6 +166,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDefinitionNames()
     {
         return \array_keys($this->definitions);
@@ -163,6 +175,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasBasicDefinition()
     {
         return $this->hasDefinition(BasicDefinitionInterface::NAME);
@@ -171,6 +184,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setBasicDefinition(BasicDefinitionInterface $basicDefinition)
     {
         return $this->setDefinition(BasicDefinitionInterface::NAME, $basicDefinition);
@@ -179,6 +193,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getBasicDefinition()
     {
         $definition = $this->getDefinition(BasicDefinitionInterface::NAME);
@@ -190,6 +205,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasPropertiesDefinition()
     {
         return $this->hasDefinition(PropertiesDefinitionInterface::NAME);
@@ -198,6 +214,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setPropertiesDefinition(PropertiesDefinitionInterface $propertiesDefinition)
     {
         return $this->setDefinition(PropertiesDefinitionInterface::NAME, $propertiesDefinition);
@@ -206,6 +223,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPropertiesDefinition()
     {
         $definition = $this->getDefinition(PropertiesDefinitionInterface::NAME);
@@ -217,6 +235,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasPalettesDefinition()
     {
         return $this->hasDefinition(PalettesDefinitionInterface::NAME);
@@ -225,6 +244,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setPalettesDefinition(PalettesDefinitionInterface $palettesDefinition)
     {
         return $this->setDefinition(PalettesDefinitionInterface::NAME, $palettesDefinition);
@@ -233,6 +253,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getPalettesDefinition()
     {
         $definition = $this->getDefinition(PalettesDefinitionInterface::NAME);
@@ -244,6 +265,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasDataProviderDefinition()
     {
         return $this->hasDefinition(DataProviderDefinitionInterface::NAME);
@@ -252,6 +274,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setDataProviderDefinition(DataProviderDefinitionInterface $definition)
     {
         return $this->setDefinition(DataProviderDefinitionInterface::NAME, $definition);
@@ -260,6 +283,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getDataProviderDefinition()
     {
         $definition = $this->getDefinition(DataProviderDefinitionInterface::NAME);
@@ -271,6 +295,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function hasModelRelationshipDefinition()
     {
         return $this->hasDefinition(ModelRelationshipDefinitionInterface::NAME);
@@ -279,6 +304,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function setModelRelationshipDefinition(ModelRelationshipDefinitionInterface $definition)
     {
         return $this->setDefinition(ModelRelationshipDefinitionInterface::NAME, $definition);
@@ -287,6 +313,7 @@ class DefaultContainer implements ContainerInterface
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getModelRelationshipDefinition()
     {
         $definition = $this->getDefinition(ModelRelationshipDefinitionInterface::NAME);

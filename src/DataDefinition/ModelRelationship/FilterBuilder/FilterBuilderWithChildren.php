@@ -100,6 +100,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @throws DcGeneralRuntimeException When the current position is invalid.
      */
+    #[\Override]
     public function current(): BaseFilterBuilder
     {
         if (-1 === $this->index) {
@@ -120,6 +121,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[\Override]
     #[ReturnTypeWillChange]
     public function next(): ?BaseFilterBuilder
     {
@@ -133,6 +135,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @return int scalar on success, or null on failure.
      */
+    #[\Override]
     public function key(): int
     {
         return $this->index;
@@ -143,6 +146,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @return boolean Returns true on success or false on failure.
      */
+    #[\Override]
     public function valid(): bool
     {
         return ($this->index > -1) && ($this->index < count($this->children));
@@ -157,6 +161,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[\Override]
     #[ReturnTypeWillChange]
     public function rewind(): ?BaseFilterBuilder
     {
@@ -186,6 +191,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @return boolean true on success or false on failure.
      */
+    #[\Override]
     public function offsetExists($offset): bool
     {
         return isset($this->children[$offset]);
@@ -198,6 +204,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @return BaseFilterBuilder
      */
+    #[\Override]
     public function offsetGet($offset): BaseFilterBuilder
     {
         return $this->children[$offset];
@@ -213,6 +220,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[\Override]
     #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): FilterBuilderWithChildren
     {
@@ -230,6 +238,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
      *
      * @psalm-suppress ImplementedReturnTypeMismatch
      */
+    #[\Override]
     #[ReturnTypeWillChange]
     public function offsetUnset($offset): FilterBuilderWithChildren
     {
@@ -241,6 +250,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setBuilder($builder)
     {
         parent::setBuilder($builder);
@@ -332,6 +342,7 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function get()
     {
         $children = [];

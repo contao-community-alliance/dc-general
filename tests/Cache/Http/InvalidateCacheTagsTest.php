@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2022 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2022 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace ContaoCommunityAlliance\DcGeneral\Test\Cache\Http;
 
 use ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidateCacheTags;
-use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
+use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultConfig;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -35,36 +35,38 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ModelRelationship\RootCondi
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent;
 use FOS\HttpCache\CacheInvalidator;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @covers \ContaoCommunityAlliance\DcGeneral\Cache\Http\InvalidateCacheTags
- * @covers \ContaoCommunityAlliance\DcGeneral\Event\InvalidHttpCacheTagsEvent
- * @covers \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class InvalidateCacheTagsTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversClass(InvalidateCacheTags::class)]
+#[CoversClass(InvalidHttpCacheTagsEvent::class)]
+#[CoversClass(ModelCollector::class)]
+final class InvalidateCacheTagsTest extends TestCase
 {
     public function testCacheManagerNotAvailable(): void
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('dispatch');
 
         $environment = $this->createMock(EnvironmentInterface::class);
         $environment
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('getDataDefinition');
 
         $model = $this->createMock(ModelInterface::class);
         $model
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('getId');
         $model
-            ->expects(self::never())
+            ->expects($this->never())
             ->method('getProviderName');
 
         $invalidCacheTags = new InvalidateCacheTags('namespace.', $dispatcher);
@@ -77,38 +79,39 @@ class InvalidateCacheTagsTest extends TestCase
 
         $environment = $this->createMock(EnvironmentInterface::class);
         $environment
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getParentDataDefinition')
             ->willReturn(null);
 
         $model1 = $this->createMock(ModelInterface::class);
         $model1
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getId')
             ->willReturn(1);
         $model1
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getProviderName')
             ->willReturn('foo');
 
         $model2 = $this->createMock(ModelInterface::class);
         $model2
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getId')
             ->willReturn(2);
         $model2
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getProviderName')
             ->willReturn('bar');
 
         $actualInvalidTags = [];
         $cacheManager      = $this->createMock(CacheInvalidator::class);
         $cacheManager
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('invalidateTags')
             ->willReturnCallback(
-                function (array $invalidTags) use (&$actualInvalidTags) {
+                function (array $invalidTags) use (&$actualInvalidTags, $cacheManager) {
                     $actualInvalidTags = $invalidTags;
+                    return $cacheManager;
                 }
             );
 
@@ -125,7 +128,7 @@ class InvalidateCacheTagsTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('dispatch')
             ->willReturnCallback(
                 function (InvalidHttpCacheTagsEvent $event) {
@@ -140,28 +143,29 @@ class InvalidateCacheTagsTest extends TestCase
 
         $environment = $this->createMock(EnvironmentInterface::class);
         $environment
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getParentDataDefinition')
             ->willReturn(null);
 
         $model = $this->createMock(ModelInterface::class);
         $model
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getId')
             ->willReturn(1);
         $model
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getProviderName')
             ->willReturn('foo');
 
         $actualInvalidTags = [];
         $cacheManager      = $this->createMock(CacheInvalidator::class);
         $cacheManager
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('invalidateTags')
             ->willReturnCallback(
-                function (array $invalidTags) use (&$actualInvalidTags) {
+                function (array $invalidTags) use (&$actualInvalidTags, $cacheManager) {
                     $actualInvalidTags = $invalidTags;
+                    return $cacheManager;
                 }
             );
 
@@ -177,69 +181,69 @@ class InvalidateCacheTagsTest extends TestCase
 
         $model1 = $this->createMock(ModelInterface::class);
         $model1
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getId')
             ->willReturn(1);
         $model1
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getProviderName')
             ->willReturn('foo');
 
         $model2 = $this->createMock(ModelInterface::class);
         $model2
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getId')
             ->willReturn(2);
         $model2
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getProviderName')
             ->willReturn('bar');
 
         $dataProvider = $this->createMock(DataProviderInterface::class);
         $dataProvider
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getEmptyConfig')
             ->willReturn(DefaultConfig::init());
         $dataProvider
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('fetch')
             ->willReturn($model2);
 
         $parentChildCondition = $this->createMock(ParentChildConditionInterface::class);
         $parentChildCondition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getInverseFilterFor')
-            ->withConsecutive([$model1])
+            ->with($model1)
             ->willReturn(['filter for get the parent model']);
 
         $relationships = $this->createMock(ModelRelationshipDefinitionInterface::class);
         $relationships
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getChildCondition')
-            ->withConsecutive(['bar', 'foo'])
+            ->with('bar', 'foo')
             ->willReturn($parentChildCondition);
 
         $basicDefinition = $this->createMock(BasicDefinitionInterface::class);
         $basicDefinition
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getMode')
             ->willReturn(1);
         $basicDefinition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getDataProvider')
             ->willReturn('foo');
         $basicDefinition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getParentDataProvider')
             ->willReturn('bar');
 
         $dataDefinition = $this->createMock(ContainerInterface::class);
         $dataDefinition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getModelRelationshipDefinition')
             ->willReturn($relationships);
         $dataDefinition
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getBasicDefinition')
             ->willReturn($basicDefinition);
 
@@ -247,16 +251,16 @@ class InvalidateCacheTagsTest extends TestCase
 
         $environment = $this->createMock(EnvironmentInterface::class);
         $environment
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getParentDataDefinition')
             ->willReturn($parentDataDefinition);
         $environment
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getDataDefinition')
             ->willReturn($dataDefinition);
 
         $environment
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getDataProvider')
             ->willReturn($dataProvider);
 
@@ -264,11 +268,12 @@ class InvalidateCacheTagsTest extends TestCase
         $actualInvalidTags = [];
         $cacheManager      = $this->createMock(CacheInvalidator::class);
         $cacheManager
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('invalidateTags')
             ->willReturnCallback(
-                function (array $invalidTags) use (&$actualInvalidTags) {
+                static function (array $invalidTags) use (&$actualInvalidTags, $cacheManager) {
                     $actualInvalidTags = $invalidTags;
+                    return $cacheManager;
                 }
             );
 
@@ -284,21 +289,21 @@ class InvalidateCacheTagsTest extends TestCase
 
         $model1 = $this->createMock(ModelInterface::class);
         $model1
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getId')
             ->willReturn(1);
         $model1
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getProviderName')
             ->willReturn('foo');
 
         $model2 = $this->createMock(ModelInterface::class);
         $model2
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getId')
             ->willReturn(2);
         $model2
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getProviderName')
             ->willReturn('bar');
 
@@ -306,11 +311,11 @@ class InvalidateCacheTagsTest extends TestCase
 
         $parentDataProvider = $this->createMock(DataProviderInterface::class);
         $parentDataProvider
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getEmptyConfig')
             ->willReturn(DefaultConfig::init());
         $parentDataProvider
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('fetch')
             ->willReturn($model2);
 
@@ -318,48 +323,47 @@ class InvalidateCacheTagsTest extends TestCase
 
         $parentChildCondition = $this->createMock(ParentChildConditionInterface::class);
         $parentChildCondition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getInverseFilterFor')
-            ->withConsecutive([$model1])
+            ->with($model1)
             ->willReturn(['filter for get the parent model']);
 
         $relationships = $this->createMock(ModelRelationshipDefinitionInterface::class);
         $relationships
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getRootCondition')
-            ->withConsecutive()
             ->willReturn($rootCondition);
         $relationships
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getChildCondition')
-            ->withConsecutive(['bar', 'foo'])
+            ->with('bar', 'foo')
             ->willReturn($parentChildCondition);
 
         $basicDefinition = $this->createMock(BasicDefinitionInterface::class);
         $basicDefinition
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getMode')
             ->willReturn(2);
         $basicDefinition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getDataProvider')
             ->willReturn('foo');
         $basicDefinition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getRootDataProvider')
             ->willReturn('foo');
         $basicDefinition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getParentDataProvider')
             ->willReturn('bar');
 
         $dataDefinition = $this->createMock(ContainerInterface::class);
         $dataDefinition
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('getModelRelationshipDefinition')
             ->willReturn($relationships);
         $dataDefinition
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getBasicDefinition')
             ->willReturn($basicDefinition);
 
@@ -367,29 +371,41 @@ class InvalidateCacheTagsTest extends TestCase
 
         $environment = $this->createMock(EnvironmentInterface::class);
         $environment
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getParentDataDefinition')
             ->willReturn($parentDataDefinition);
         $environment
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getDataDefinition')
             ->willReturn($dataDefinition);
 
         $environment
-            ->expects(self::exactly(2))
+            ->expects($this->exactly(2))
             ->method('getDataProvider')
-            ->withConsecutive(['foo'], ['bar'])
-            ->willReturn($rootDataProvider, $parentDataProvider);
-
+            ->willReturnCallback(
+                static function (string $name) use ($rootDataProvider, $parentDataProvider) {
+                    static $counter = 0;
+                    switch ($counter++) {
+                        case 0:
+                            self::assertSame('foo', $name);
+                            return $rootDataProvider;
+                        case 1:
+                            self::assertSame('bar', $name);
+                            return $parentDataProvider;
+                    }
+                    self::fail('Unexpected call');
+                }
+            );
 
         $actualInvalidTags = [];
         $cacheManager      = $this->createMock(CacheInvalidator::class);
         $cacheManager
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('invalidateTags')
             ->willReturnCallback(
-                function (array $invalidTags) use (&$actualInvalidTags) {
+                function (array $invalidTags) use (&$actualInvalidTags, $cacheManager) {
                     $actualInvalidTags = $invalidTags;
+                    return $cacheManager;
                 }
             );
 

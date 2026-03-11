@@ -31,17 +31,19 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
  * This event gets emitted when a condition is created.
  *
  * @template TCondition of PaletteConditionInterface|PropertyConditionInterface
+ *
+ * @api
  */
 class CreateConditionEvent extends BuilderEvent
 {
-    public const NAME = 'dc-general.data-definition.palette.builder.create-condition';
+    public const string NAME = 'dc-general.data-definition.palette.builder.create-condition';
 
     /**
      * The condition being created.
      *
      * @var TCondition
      */
-    protected $condition;
+    protected PaletteConditionInterface|PropertyConditionInterface $condition;
 
     /**
      * Create a new instance.

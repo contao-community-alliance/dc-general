@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -33,6 +33,8 @@ use function array_merge;
 
 /**
  * Registry for default data provider configurations to only resolve them once.
+ *
+ * @api
  */
 class BaseConfigRegistry implements BaseConfigRegistryInterface
 {
@@ -67,6 +69,7 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getEnvironment()
     {
         if (null === $this->environment) {
@@ -201,11 +204,12 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
      *
      * This includes parent filter when in parented list mode and the additional filters from the data definition.
      *
-     * @param ModelIdInterface $parentId The optional parent to use.
+     * @param ?ModelIdInterface $parentId The optional parent to use.
      *
      * @return ConfigInterface
      */
-    public function getBaseConfig(ModelIdInterface $parentId = null)
+    #[\Override]
+    public function getBaseConfig(?ModelIdInterface $parentId = null)
     {
         $key = $parentId ? $parentId->getSerialized() : '';
 

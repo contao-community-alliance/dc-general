@@ -27,6 +27,8 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 
 /**
  * Condition checking that the value of a property is the same as a passed value.
+ *
+ * @api
  */
 class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
 {
@@ -141,6 +143,7 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getMatchCount(?ModelInterface $model = null, ?PropertyValueBag $input = null)
     {
         if (!$this->propertyName) {
@@ -163,6 +166,7 @@ class PropertyValueCondition extends AbstractWeightAwarePaletteCondition
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function __clone()
     {
     }

@@ -26,6 +26,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  * Class DefaultSearchElementInformation.
  *
  * Default implementation of a search definition on properties.
+ *
+ * @api
  */
 class DefaultSearchElementInformation implements SearchElementInformationInterface
 {
@@ -34,11 +36,12 @@ class DefaultSearchElementInformation implements SearchElementInformationInterfa
      *
      * @var array
      */
-    protected $properties = [];
+    protected array $properties = [];
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getName()
     {
         return 'search';
@@ -47,6 +50,7 @@ class DefaultSearchElementInformation implements SearchElementInformationInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function addProperty($propertyName)
     {
         $this->properties[] = $propertyName;
@@ -57,6 +61,7 @@ class DefaultSearchElementInformation implements SearchElementInformationInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getPropertyNames()
     {
         return $this->properties;

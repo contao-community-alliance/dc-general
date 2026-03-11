@@ -26,12 +26,15 @@ use ContaoCommunityAlliance\DcGeneral\ViewAwareInterface;
 
 /**
  * Abstract event class referencing an environment and a view.
+ *
+ * @api
  */
 class AbstractViewAwareEvent extends AbstractEnvironmentAwareEvent implements ViewAwareInterface
 {
     /**
      * {@inheritdoc}
      */
+    #[\Override]
     public function getView()
     {
         $view = $this->getEnvironment()->getView();

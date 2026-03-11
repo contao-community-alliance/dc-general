@@ -53,6 +53,7 @@ abstract class AbstractCommandEvent extends AbstractEnvironmentAwareEvent implem
      *
      * @return CommandInterface
      */
+    #[\Override]
     public function getCommand()
     {
         return $this->command;

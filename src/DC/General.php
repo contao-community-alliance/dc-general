@@ -199,6 +199,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @deprecated magic access is deprecated.
      */
+    #[\Override]
     public function __get($name)
     {
         $environment   = $this->getEnvironment();
@@ -247,6 +248,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @throws DcGeneralRuntimeException When no environment has been set.
      */
+    #[\Override]
     public function getEnvironment()
     {
         if (null === $this->objEnvironment) {
@@ -325,6 +327,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function copy()
     {
         return $this->callAction();
@@ -337,6 +340,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function create()
     {
         return $this->callAction();
@@ -349,6 +353,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function cut()
     {
         return $this->callAction();
@@ -361,6 +366,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function delete()
     {
         return $this->callAction();
@@ -373,6 +379,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function edit()
     {
         return $this->callAction();
@@ -397,6 +404,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function show()
     {
         return $this->callAction();
@@ -409,6 +417,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function showAll()
     {
         return $this->callAction();
@@ -421,6 +430,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @return string
      */
+    #[\Override]
     public function undo()
     {
         return $this->callAction();
@@ -435,6 +445,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @throws DcGeneralRuntimeException Throws exception because method is not supported.
      */
+    #[\Override]
     public function getPalette()
     {
         throw new DcGeneralRuntimeException('DC General does not support $dc->getPalette().');
@@ -453,6 +464,7 @@ class General extends DataContainer implements DataContainerInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
+    #[\Override]
     protected function save($varValue)
     {
         throw new DcGeneralRuntimeException('DC General does not support $dc->save.');

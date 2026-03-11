@@ -20,6 +20,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Test\Contao\Callback;
 
+use Closure;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOptionsCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener;
 use ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener;
@@ -34,43 +35,48 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\Manip
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\DefaultContainer;
 use ContaoCommunityAlliance\DcGeneral\DefaultEnvironment;
 use ContaoCommunityAlliance\DcGeneral\Test\TestCase;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
+use Symfony\Contracts\EventDispatcher\Event;
+
+use function method_exists;
 
 /**
  * Test for AbstractReturningPropertyCallbackListenerTest
  *
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnLoadCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent::getProperty
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyOnSaveCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent::getProperty
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\ModelOptionsCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPropertyOptionsEvent::getPropertyName
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent::getProperty
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetWizardCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getProperty
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\Callback\PropertyInputFieldGetXLabelCallbackListener::wantToExecute
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getEnvironment
- * @covers \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ManipulateWidgetEvent::getProperty
- *
  * @SuppressWarnings(PHPMD.LongClassName)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class AbstractReturningPropertyCallbackListenerTest extends TestCase
+#[AllowMockObjectsWithoutExpectations]
+#[CoversMethod(BuildWidgetEvent::class, 'getEnvironment')]
+#[CoversMethod(BuildWidgetEvent::class, 'getProperty')]
+#[CoversMethod(DecodePropertyValueForWidgetEvent::class, 'getEnvironment')]
+#[CoversMethod(DecodePropertyValueForWidgetEvent::class, 'getProperty')]
+#[CoversMethod(EncodePropertyValueFromWidgetEvent::class, 'getEnvironment')]
+#[CoversMethod(EncodePropertyValueFromWidgetEvent::class, 'getProperty')]
+#[CoversMethod(GetPropertyOptionsEvent::class, 'getEnvironment')]
+#[CoversMethod(GetPropertyOptionsEvent::class, 'getPropertyName')]
+#[CoversMethod(ManipulateWidgetEvent::class, 'getEnvironment')]
+#[CoversMethod(ManipulateWidgetEvent::class, 'getProperty')]
+#[CoversMethod(ModelOptionsCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PropertyInputFieldCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PropertyInputFieldGetWizardCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PropertyInputFieldGetXLabelCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PropertyOnLoadCallbackListener::class, 'wantToExecute')]
+#[CoversMethod(PropertyOnSaveCallbackListener::class, 'wantToExecute')]
+final class AbstractReturningPropertyCallbackListenerTest extends TestCase
 {
-    /** @SuppressWarnings(PHPMD.UnusedFormalParameter) - phpmd can not handle the use syntax. */
-    protected function getCallback($value)
+    protected function getCallback($value): Closure
     {
-        return function () use ($value) {
-            throw new \Exception('The callback should not be executed as it is only mocked');
+        return static function () use ($value) {
+            throw new RuntimeException('The callback should not be executed as it is only mocked: ' . $value);
         };
     }
 
-    protected function mockEnvironment($dataContainerName)
+    protected function mockEnvironment($dataContainerName): DefaultEnvironment
     {
         $environment = new DefaultEnvironment();
         $environment->setDataDefinition(new DefaultContainer($dataContainerName));
@@ -78,12 +84,13 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
         return $environment;
     }
 
-    protected function mockPropertyEvent($class, $tablename, $propertyName)
+    protected function mockPropertyEvent($class, $tablename, $propertyName): MockObject&Event
     {
-        if (\method_exists($class, 'getProperty')) {
+        if (method_exists($class, 'getProperty')) {
+            /** @var MockObject&Event $event */
             $event = $this
                 ->getMockBuilder($class)
-                ->setMethods(['getEnvironment', 'getProperty'])
+                ->onlyMethods(['getEnvironment', 'getProperty'])
                 ->disableOriginalConstructor()
                 ->getMock();
 
@@ -91,9 +98,10 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
                 ->method('getProperty')
                 ->willReturn($propertyName);
         } else {
+            /** @var MockObject&Event $event */
             $event = $this
                 ->getMockBuilder($class)
-                ->setMethods(['getEnvironment', 'getPropertyName'])
+                ->onlyMethods(['getEnvironment', 'getPropertyName'])
                 ->disableOriginalConstructor()
                 ->getMock();
             $event
@@ -109,9 +117,10 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
     }
 
 
-    public function propertyCallbackDataProvider()
+    public static function propertyCallbackDataProvider(): array
     {
-        return [[
+        return [
+            [
                 PropertyOnLoadCallbackListener::class,
                 DecodePropertyValueForWidgetEvent::class
             ],
@@ -138,10 +147,8 @@ class AbstractReturningPropertyCallbackListenerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider propertyCallbackDataProvider
-     */
-    public function testExecution($listenerClass, $eventClass)
+    #[Dataprovider('propertyCallbackDataProvider')]
+    public function testExecution($listenerClass, $eventClass): void
     {
         $listener = new $listenerClass($this->getCallback($listenerClass), ['tablename', 'propertyName']);
         self::assertTrue(

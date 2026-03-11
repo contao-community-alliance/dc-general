@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -60,7 +60,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ *
+ * @api
  */
+#[\Attribute]
 class Subscriber implements EventSubscriberInterface
 {
     /**
@@ -90,6 +93,7 @@ class Subscriber implements EventSubscriberInterface
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public static function getSubscribedEvents(): array
     {
         return [
@@ -612,24 +616,22 @@ class Subscriber implements EventSubscriberInterface
      * @param RenderReadablePropertyValueEvent $event    The event to store the value to.
      * @param PropertyInterface                $property The property holding the options.
      * @param mixed                            $value    The value to format.
-     *
-     * @return void
      */
     private static function renderOptionValueReadable(
         RenderReadablePropertyValueEvent $event,
         PropertyInterface $property,
         mixed $value
     ): void {
-        // Can not be an array key.
-        if ((null !== $value) && !is_scalar($value)) {
-            return;
-        }
-
         if (null === ($options = $property->getOptions())) {
             $options = self::getOptions($event->getEnvironment(), $event->getModel(), $event->getProperty());
             if (null !== $options) {
                 $property->setOptions($options);
             }
+        }
+
+        // Cannot be an array key.
+        if (!is_scalar($value)) {
+            return;
         }
 
         if (ArrayUtil::isAssoc($options) && isset($options[$value])) {

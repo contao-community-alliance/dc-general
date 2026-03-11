@@ -26,6 +26,8 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\Panel
  * Class DefaultFilterElementInformation.
  *
  * Default implementation of a filter definition for a property.
+ *
+ * @api
  */
 class DefaultFilterElementInformation implements FilterElementInformationInterface
 {
@@ -34,11 +36,12 @@ class DefaultFilterElementInformation implements FilterElementInformationInterfa
      *
      * @var string
      */
-    protected $propertyName = '';
+    protected string $propertyName = '';
 
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getName()
     {
         return \sprintf('filter[%s]', $this->getPropertyName());
@@ -47,6 +50,7 @@ class DefaultFilterElementInformation implements FilterElementInformationInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function setPropertyName($propertyName)
     {
         $this->propertyName = $propertyName;
@@ -57,6 +61,7 @@ class DefaultFilterElementInformation implements FilterElementInformationInterfa
     /**
      * {@inheritDoc}
      */
+    #[\Override]
     public function getPropertyName()
     {
         return $this->propertyName;

@@ -28,31 +28,33 @@ use ContaoCommunityAlliance\DcGeneral\Event\AbstractModelAwareEvent;
 
 /**
  * This event is emitted when a property value of a model shall be transformed into a readable string representation.
+ *
+ * @api
  */
 class RenderReadablePropertyValueEvent extends AbstractModelAwareEvent
 {
-    public const NAME = 'dc-general.view.contao2backend.render-readable-property-value';
+    public const string NAME = 'dc-general.view.contao2backend.render-readable-property-value';
 
     /**
      * The property that shall be transformed.
      *
      * @var PropertyInterface
      */
-    protected $property;
+    protected PropertyInterface $property;
 
     /**
      * The value that shall be transformed.
      *
      * @var mixed
      */
-    protected $value;
+    protected mixed $value;
 
     /**
      * The transformed string representation.
      *
      * @var string|null
      */
-    protected $rendered;
+    protected ?string $rendered;
 
     /**
      * Create a new instance.
@@ -66,11 +68,12 @@ class RenderReadablePropertyValueEvent extends AbstractModelAwareEvent
         EnvironmentInterface $environment,
         ModelInterface $model,
         PropertyInterface $property,
-        $value
+        mixed $value
     ) {
         parent::__construct($environment, $model);
         $this->property = $property;
         $this->value    = $value;
+        $this->rendered = null;
     }
 
     /**
