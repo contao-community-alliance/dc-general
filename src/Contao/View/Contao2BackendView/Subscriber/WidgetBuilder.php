@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -51,6 +51,14 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+
+use function array_key_exists;
+use function class_exists;
+use function in_array;
+use function is_array;
+use function is_numeric;
+use function sprintf;
+use function strtr;
 
 /**
  * Widget Builder build Contao backend widgets.
@@ -170,9 +178,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         $className = $GLOBALS['BE_FFL'][$property->getWidgetType()] ?? '';
-        if (!\class_exists($className)) {
+        if (!class_exists($className)) {
             throw new DcGeneralRuntimeException(
-                \sprintf('Failed to get widget class for property "%s".', $property->getName())
+                sprintf('Failed to get widget class for property "%s".', $property->getName())
             );
         }
 
@@ -223,11 +231,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $propExtra = $property->getExtra();
 
         // Check to overwrite param.
-        if (
-            \array_key_exists('fetchOptions', $propExtra)
-            && (true === $propExtra['fetchOptions'])
-        ) {
-            return true;
+        if (array_key_exists('fetchOptions', $propExtra)) {
+            return (true === $propExtra['fetchOptions']);
         }
 
         // Check the class.
@@ -236,7 +241,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         }
 
         // Check if multiple is active.
-        return \array_key_exists('multiple', $propExtra) && (true === $propExtra['multiple']);
+        return array_key_exists('multiple', $propExtra) && (true === $propExtra['multiple']);
     }
 
     /**
@@ -270,7 +275,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $shrinkEvent = new GenerateHtmlEvent(
             'demagnify.svg',
             $ccaTranslator->translate('shrink.0', $defName),
-            \sprintf(
+            sprintf(
                 'title="%s" ' .
                 'style="vertical-align:text-bottom; cursor:pointer;" ' .
                 'onclick="Backend.tableWizardResize(0.9);"',
@@ -281,7 +286,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $expandEvent = new GenerateHtmlEvent(
             'magnify.svg',
             $ccaTranslator->translate('expand.0', $defName),
-            \sprintf(
+            sprintf(
                 'title="%s" ' .
                 'style="vertical-align:text-bottom; cursor:pointer;" ' .
                 'onclick="Backend.tableWizardResize(1.1);"',
@@ -294,7 +299,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $dispatcher->dispatch($shrinkEvent, ContaoEvents::IMAGE_GET_HTML);
         $dispatcher->dispatch($expandEvent, ContaoEvents::IMAGE_GET_HTML);
 
-        return \sprintf(
+        return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
             StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($ccaTranslator->translate('importTable.1', $defName)),
@@ -335,7 +340,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $dispatcher->dispatch($urlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $dispatcher->dispatch($importListEvent, ContaoEvents::IMAGE_GET_HTML);
 
-        return \sprintf(
+        return sprintf(
             ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
             StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($ccaTranslator->translate('importList.1', $defName)),
@@ -358,11 +363,11 @@ class WidgetBuilder implements EnvironmentAwareInterface
         assert($ccaTranslator instanceof CcaTranslator);
 
         // Toggle line wrap (textarea).
-        if (('textarea' === $propInfo->getWidgetType()) && !\array_key_exists('rte', $propInfo->getExtra())) {
+        if (('textarea' === $propInfo->getWidgetType()) && !array_key_exists('rte', $propInfo->getExtra())) {
             $event = new GenerateHtmlEvent(
                 'wrap.svg',
                 $ccaTranslator->translate('wordWrap', 'dc-general'),
-                \sprintf(
+                sprintf(
                     'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
                     StringUtil::specialchars($ccaTranslator->translate('wordWrap', 'dc-general')),
                     $propInfo->getName()
@@ -411,7 +416,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return '';
         }
 
-        if (\array_key_exists('helptext', $extra)) {
+        if (array_key_exists('helptext', $extra)) {
             $event = new GenerateHtmlEvent(
                 'help.svg',
                 $ccaTranslator->translate('helpWizard', 'dc-general'),
@@ -427,7 +432,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             assert($definition instanceof ContainerInterface);
 
             $generator = System::getContainer()->get('router');
-            return \strtr(
+            return strtr(
                 ' <a href="{url}" title="{title}" ' .
                 'onclick="Backend.openModalIframe({\'title\':\'{windowTitle}\',\'url\':this.href});' .
                 'return false">{icon}</a>',
@@ -448,7 +453,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             );
         }
 
-        if (\array_key_exists('helpwizard', $extra)) {
+        if (array_key_exists('helpwizard', $extra)) {
             $event = new GenerateHtmlEvent(
                 'help.svg',
                 $ccaTranslator->translate('helpWizard', 'dc-general'),
@@ -463,7 +468,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             $definition = $environment->getDataDefinition();
             assert($definition instanceof ContainerInterface);
 
-            return \sprintf(
+            return sprintf(
                 ' <a href="/contao/help?table=%s&amp;field=%s" ' .
                 'title="%s" ' .
                 'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
@@ -499,7 +504,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             || !static::$scopeDeterminator->currentScopeIsBackend()
         ) {
             throw new DcGeneralRuntimeException(
-                \sprintf(
+                sprintf(
                     'WidgetBuilder only supports the backend mode. Running in mode "%s".',
                     static::$scopeDeterminator->currentScopeIsUnknown() ? 'unknown' : 'frontend'
                 )
@@ -554,9 +559,9 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         if (
             (0 === (int) $value)
-            && \is_numeric($value)
+            && is_numeric($value)
             && empty($propExtra['mandatory'])
-            && (isset($propExtra['rgxp']) && \in_array($propExtra['rgxp'], ['date', 'time', 'datim']))
+            && (isset($propExtra['rgxp']) && in_array($propExtra['rgxp'], ['date', 'time', 'datim']))
         ) {
             $value = '';
         }
@@ -638,8 +643,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
             && isset($widgetConfig['eval']['submitOnChange'])
             && $widgetConfig['eval']['submitOnChange']
             && isset($GLOBALS['TL_DCA'][$defName]['subpalettes'])
-            && \is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
-            && \array_key_exists($property->getName(), $GLOBALS['TL_DCA'][$defName]['subpalettes'])
+            && is_array($GLOBALS['TL_DCA'][$defName]['subpalettes'])
+            && array_key_exists($property->getName(), $GLOBALS['TL_DCA'][$defName]['subpalettes'])
         ) {
             // We have to override the onclick, do not append to it as Contao adds it's own code here in
             // Widget::getAttributesFromDca() which kills our sub palette handling!
@@ -662,7 +667,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         if (
             isset($propExtra['readonly'])
             && $propExtra['readonly']
-            && \in_array($property->getWidgetType(), ['checkbox', 'select', 'radio'], true)
+            && in_array($property->getWidgetType(), ['checkbox', 'select', 'radio'], true)
         ) {
             $propExtra['disabled'] = true;
             unset($propExtra['chosen']);
