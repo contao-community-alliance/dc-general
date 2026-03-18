@@ -335,9 +335,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 if (isset($callback['deprecated'])) {
-                    // @codingStandardsIgnoreStart
+                    // phpcs:disable
                     @trigger_error($callback['deprecated']);
-                    // @codingStandardsIgnoreEnd
+                    // phpcs:enable
                     continue;
                 }
 
@@ -582,12 +582,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
             $providerInformation->setVersioningEnabled(false);
             if (true === (bool) $this->getFromDca('config/enableVersioning')) {
-                // @codingStandardsIgnoreStart
+                // phpcs:disable
                 @trigger_error(
                     'Versioning is not supported yet and will get implemented in a future release.',
                     E_USER_WARNING
                 );
-                // @codingStandardsIgnoreEnd
+                // phpcs:enable
             }
 
             if (null === $container->getBasicDefinition()->getDataProvider()) {

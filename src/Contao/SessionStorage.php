@@ -98,9 +98,9 @@ class SessionStorage implements SessionStorageInterface
     public function setScope($scope)
     {
         if (null !== $this->scope) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('The scope can not be change! Use a new session storage.', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->scope = $scope;
@@ -256,9 +256,9 @@ class SessionStorage implements SessionStorageInterface
     private function getScope(): ?string
     {
         if (null === $this->scope) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('The scope for this session storage is not defined!', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             return null;
         }

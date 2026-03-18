@@ -59,9 +59,9 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
         if ($environment->getController()) {
             return;
         }
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $environment->setController((new DefaultController())->setEnvironment($environment));
     }
@@ -83,32 +83,32 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
 
             $sessionStorage->setScope('DC_GENERAL_' . \strtoupper($definition->getName()));
             $environment->setSessionStorage($sessionStorage);
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         if (!$environment->getInputProvider()) {
             $environment->setInputProvider(new InputProvider());
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         if (!$environment->getClipboard()) {
             $environment->setClipboard(new Clipboard());
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         if (!$environment->getBaseConfigRegistry()) {
             $baseConfigRegistry = new BaseConfigRegistry();
             $baseConfigRegistry->setEnvironment($environment);
             $environment->setBaseConfigRegistry($baseConfigRegistry);
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Fallback populator in use - implement a proper populator!', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->populateController($environment);

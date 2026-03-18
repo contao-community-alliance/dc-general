@@ -61,12 +61,12 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     public function __construct(CacheInterface $cache = null)
     {
         if (null === $cache) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 'You should pass an instance of ' . CacheInterface::class . ' .',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
             /** @psalm-suppress DeprecatedClass */
             $cache = System::getContainer()->get(DcGeneralFactoryCache::class);
 

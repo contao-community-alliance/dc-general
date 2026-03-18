@@ -37,7 +37,7 @@
     "contao-community-alliance/events-contao-bindings": "^5.0.1",
     "contao-community-alliance/translator": "^2.5",
     "contao-community-alliance/url-builder": "^2.0",
-    "contao/core-bundle": "^5.3",
+    "contao/core-bundle": "~5.3.0",
     "contao/image": "^1.2",
     "doctrine/cache": "^2.1",
     "doctrine/dbal": "^3.6",

@@ -153,12 +153,12 @@ class DefaultConfig implements ConfigInterface
      */
     public function getIds()
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.',
             E_USER_NOTICE
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         /** @psalm-suppress DeprecatedProperty */
         return $this->arrIds;
@@ -175,14 +175,14 @@ class DefaultConfig implements ConfigInterface
      */
     public function setIds($arrIds)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.
             Use set filter
             $dataConfig->setFilter([[\'operation\' => \'IN\', \'property\' => \'id\', \'values\' => [4,3,2,1]]]).',
             E_USER_NOTICE
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         /** @psalm-suppress DeprecatedProperty */
         $this->arrIds = $arrIds;

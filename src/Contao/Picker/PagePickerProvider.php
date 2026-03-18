@@ -49,13 +49,13 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             $translator = System::getContainer()->get('translator');
             assert($translator instanceof TranslatorInterface);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the translator as argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         parent::__construct($menuFactory, $router, $translator);
@@ -64,13 +64,13 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             $security = System::getContainer()->get('security.helper');
             assert($security instanceof Security);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the security as argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->security = $security;

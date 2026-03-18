@@ -205,13 +205,13 @@ class ModelCollector
                     continue;
                 }
 
-                // @codingStandardsIgnoreStart
+                // phpcs:disable
                 @\trigger_error(
                     'Only real property is allowed in the property definition.' .
                     'This will no longer be supported in the future.',
                     E_USER_DEPRECATED
                 );
-                // @codingStandardsIgnoreEnd
+                // phpcs:enable
             }
             $config->setFields($properties);
         }
@@ -570,8 +570,8 @@ class ModelCollector
             $provider = $this->environment->getDataProvider($condition->getSourceName());
             assert($provider instanceof DataProviderInterface);
 
-            $config   = $provider->getEmptyConfig()->setFilter($inverseFilter);
-            $parent   = $provider->fetch($config);
+            $config = $provider->getEmptyConfig()->setFilter($inverseFilter);
+            $parent = $provider->fetch($config);
 
             if (null !== $parent) {
                 return $parent;

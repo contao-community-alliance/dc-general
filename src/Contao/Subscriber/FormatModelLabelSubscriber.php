@@ -173,9 +173,9 @@ class FormatModelLabelSubscriber
     {
         $label = [];
         if (!\is_array($args)) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error('Warning, column layout without arguments will not be supported.', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
             $label[] = [
                 'colspan' => \count($propertyNames),
                 'class'   => 'tl_file_list col_all',
