@@ -659,6 +659,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         if (5 === $this->getFromDca('list/sorting/mode')) {
             $rootProvider = $this->getRootProviderName($container);
 
+            // Abstain if the dca contains an extended configuration which shall be the single source of truth then.
+            if ($this->getFromDca('dca_config/childCondition')) {
+                return;
+            }
+
             if (null === ($relationship = $definition->getRootCondition())) {
                 $relationship = new RootCondition();
                 $relationship
