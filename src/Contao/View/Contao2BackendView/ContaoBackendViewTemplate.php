@@ -143,7 +143,7 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
         return (new GlobalButtonRenderer($environment))->render();
     }
 
-    // @codingStandardsIgnoreStart
+    // phpcs:disable
     /**
      * {@inheritDoc}
      */
@@ -178,5 +178,5 @@ class ContaoBackendViewTemplate extends BackendTemplate implements ViewTemplateI
         /** @psalm-suppress DeprecatedMethod */
         parent::output();
     }
-    // @codingStandardsIgnoreEnd
+    // phpcs:enable
 }

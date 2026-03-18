@@ -154,7 +154,7 @@ var BackendGeneral =
 
           // Find the icon depending on the view (tree view, list view, parent view)
           if (div.hasClass('tl_right')) {
-            img = div.getPrevious('div').getElement('img');
+            img = div.getPrevious('div').getElement('div.tl_pagetree_content').getElement('img');
           } else if (div.hasClass('tl_listing_container')) {
             img = el.getParent('td').getPrevious('td').getFirst('div.list_icon');
             if (img == null) { // Comments

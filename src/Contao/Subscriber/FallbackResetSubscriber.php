@@ -121,13 +121,13 @@ class FallbackResetSubscriber implements EventSubscriberInterface
             if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
                 // BC Layer - use old reset fallback methodology until it gets removed.
                 if (null === ($config = $this->determineFilterConfig($event))) {
-                    // @codingStandardsIgnoreStart
+                    // phpcs:disable
                     @\trigger_error(
                         'DataProviderInterface::resetFallback is deprecated - ' .
                         'Please specify proper parent child relationship',
                         E_USER_DEPRECATED
                     );
-                    // @codingStandardsIgnoreEnd
+                    // phpcs:enable
                     /** @psalm-suppress DeprecatedMethod */
                     $dataProvider->resetFallback($propertyName);
                     $dataProvider->save($model);

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -205,13 +205,13 @@ class ModelCollector
                     continue;
                 }
 
-                // @codingStandardsIgnoreStart
+                // phpcs:disable
                 @\trigger_error(
                     'Only real property is allowed in the property definition.' .
                     'This will no longer be supported in the future.',
                     E_USER_DEPRECATED
                 );
-                // @codingStandardsIgnoreEnd
+                // phpcs:enable
             }
             $config->setFields($properties);
         }
@@ -457,6 +457,7 @@ class ModelCollector
             $providerName = $model->getProviderName();
         }
 
+        // FIXME: why do we include the parent here?
         $ids = ($model->getProviderName() === $providerName) ? [$model->getId()] : [];
 
         // Check all data providers for children of the given element.
@@ -483,6 +484,7 @@ class ModelCollector
                 if (false === $recursive) {
                     continue;
                 }
+
                 // Head into recursion.
                 $childIds[] = $this->collectChildrenOf($child, $providerName);
             }
@@ -548,6 +550,7 @@ class ModelCollector
     {
         $this->guardRootProviderDefined();
 
+        $needDeepSearch = null;
         foreach ($this->relationships->getChildConditions() as $condition) {
             // Skip conditions where the destination is not the provider
             if (
@@ -558,19 +561,27 @@ class ModelCollector
             }
 
             if (null === ($inverseFilter = $condition->getInverseFilterFor($model))) {
+                $needDeepSearch = true;
                 continue;
             }
-
+            if (null === $needDeepSearch) {
+                $needDeepSearch = false;
+            }
             $provider = $this->environment->getDataProvider($condition->getSourceName());
             assert($provider instanceof DataProviderInterface);
 
-            $config   = $provider->getEmptyConfig()->setFilter($inverseFilter);
-            $parent   = $provider->fetch($config);
+            $config = $provider->getEmptyConfig()->setFilter($inverseFilter);
+            $parent = $provider->fetch($config);
 
             if (null !== $parent) {
                 return $parent;
             }
         }
+
+        if (!$needDeepSearch) {
+            return null;
+        }
+
         // Start from the root data provider and walk through the whole tree.
         // To speed up, some conditions have an inverse filter - we should use them!
         $rootProvider = $this->rootProvider;
@@ -580,6 +591,7 @@ class ModelCollector
         $config = $rootProvider->getEmptyConfig()->setFilter($rootCondition->getFilterArray());
         $parentCollection = $rootProvider->fetchAll($config);
         assert($parentCollection instanceof CollectionInterface);
+
         return $this->searchParentOfIn($model, $parentCollection);
     }
 

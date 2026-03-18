@@ -29,19 +29,19 @@ use ContaoCommunityAlliance\DcGeneral\Exception\NotDeletableException;
 spl_autoload_register(
     function ($class) {
         static $classes = [
-            // @codingStandardsIgnoreStart Line exceeds 120 characters
+            // phpcs:disable
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\DefinitionException'          => DefinitionException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\EditOnlyModeException'        => EditOnlyModeException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotCreatableException'        => NotCreatableException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\NotDeletableException'        => NotDeletableException::class,
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber\ColorPickerWizardSubscriber' => ColorPickerWizardListener::class,
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         ];
 
         if (isset($classes[$class])) {
-            // @codingStandardsIgnoreStart Silencing errors is discouraged
+            // phpcs:disable
             @trigger_error('Class "' . $class . '" has been renamed to "' . $classes[$class] . '"', E_USER_DEPRECATED);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             if (!class_exists($classes[$class])) {
                 spl_autoload_call($class);

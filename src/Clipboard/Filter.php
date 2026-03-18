@@ -979,9 +979,9 @@ EXPR;
         }
 
         $variables = $this->variables;
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         return eval($this->compiled);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
     }
 
     /**

@@ -66,7 +66,7 @@ class DumpingPropertyCondition implements PropertyConditionInterface
     ) {
         $result = $this->propertyCondition->match($model, $input, $property, $legend);
 
-        // @codingStandardsIgnoreStart - We explicitly allow var_dump() here for debugging purposes.
+        // phpcs:disable - We explicitly allow var_dump() here for debugging purposes.
         echo '<pre>$condition: </pre>';
         \var_dump($this->propertyCondition);
         echo '<pre>$model: </pre>';
@@ -78,7 +78,7 @@ class DumpingPropertyCondition implements PropertyConditionInterface
         echo '<pre>';
         debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
         echo '</pre>';
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         return $result;
     }

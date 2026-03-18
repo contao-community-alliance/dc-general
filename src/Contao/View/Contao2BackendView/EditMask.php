@@ -157,12 +157,12 @@ class EditMask
         $this->breadcrumb    = $breadcrumb;
 
         if (null === $editInformation) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'DefaultEditInformation is missing. It has to be passed in the constructor. Fallback will be dropped.',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
             $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
             assert($editInformation instanceof EditInformationInterface);
         }
@@ -635,9 +635,9 @@ class EditMask
 
         // Check if input mask has visible properties.
         if (!$fieldSets) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         return $fieldSets;
@@ -760,9 +760,9 @@ class EditMask
      */
     protected function getHeadline(): string
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - use getSubHeadline()!', E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         return $this->getSubHeadline();
     }
@@ -988,9 +988,9 @@ class EditMask
 
         // Check if input mask has visible properties.
         if (!\count($palette->getProperties($model))) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             \trigger_error('No visible properties for this edit mask defined!', E_USER_ERROR);
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $propertyValues = $this->processInput($widgetManager);

@@ -94,7 +94,7 @@ class CheckPermission implements EventSubscriberInterface
         foreach ($palettesDefinition->getPalettes() as $palette) {
             foreach ($palette->getProperties() as $property) {
                 if (!$properties->hasProperty($name = $property->getName())) {
-                    // @codingStandardsIgnoreStart
+                    // phpcs:disable
                     @\trigger_error(
                         \sprintf(
                             'Warning: unknown property "%s" in palette: %s',
@@ -103,7 +103,7 @@ class CheckPermission implements EventSubscriberInterface
                         ),
                         E_USER_WARNING
                     );
-                    // @codingStandardsIgnoreEnd
+                    // phpcs:enable
                     continue;
                 }
                 $excluded = $properties->getProperty($name)->isExcluded();

@@ -177,11 +177,11 @@ class ContaoWidgetManager
     {
         try {
             return ($this->getWidget($property) instanceof Widget);
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
         } catch (\Exception $e) {
             // Fall though and return false.
         }
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
         return false;
     }
 
@@ -483,10 +483,10 @@ class ContaoWidgetManager
      */
     public function processInput(PropertyValueBag $propertyValues): void
     {
-        // @codingStandardsIgnoreStart - Remember current POST data and clear it.
+        // phpcs:disable - Remember current POST data and clear it.
         $post  = $_POST;
         $_POST = [];
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
         Input::resetCache();
 
         // Set all POST data, these get used within the Widget::validate() method.

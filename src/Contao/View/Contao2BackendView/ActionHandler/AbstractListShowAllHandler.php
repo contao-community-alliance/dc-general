@@ -148,25 +148,25 @@ abstract class AbstractListShowAllHandler
             $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
             assert($tokenManager instanceof CsrfTokenManagerInterface);
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token manager as 4th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
         if (null === $tokenName) {
             $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
             assert(is_string($tokenName));
 
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Not passing the csrf token name as 5th argument to "' . __METHOD__ . '" is deprecated ' .
                 'and will cause an error in DCG 3.0',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
         }
 
         $this->tokenManager = $tokenManager;
@@ -335,14 +335,14 @@ abstract class AbstractListShowAllHandler
 
         // Fallback translate for non symfony domain.
         if (null !== $domain && $translated === $key && !str_starts_with($domain, 'contao_')) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @trigger_error(
                 'Fallback translation for contao lang in the global array for key "' . $key .
                 '" in domain "' . $domain . '". ' .
                 'This will get removed in the future, use the symfony domain translation.',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             $oldKey = sprintf('%s.%s', $domain, $key);
             $translated =

@@ -199,12 +199,12 @@ class DefaultController implements ControllerInterface
      */
     public function searchParentOfIn(ModelInterface $model, CollectionInterface $models)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOfIn().',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $parent = $this->modelCollector->searchParentOfIn($model, $models);
         if (null === $parent) {
@@ -225,12 +225,12 @@ class DefaultController implements ControllerInterface
      */
     public function searchParentOf(ModelInterface $model)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::searchParentOf().',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $parent = $this->modelCollector->searchParentOf($model);
         if (null === $parent) {
@@ -249,12 +249,12 @@ class DefaultController implements ControllerInterface
      */
     public function assembleAllChildrenFrom($model, $providerName = '')
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectChildrenOf()',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         return $this->modelCollector->collectChildrenOf($model, $providerName);
     }
@@ -277,12 +277,12 @@ class DefaultController implements ControllerInterface
         $sortingProperty = null,
         ModelIdInterface $parentId = null
     ) {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::collectSiblingsOf()',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         return $this->modelCollector->collectSiblingsOf($model, $sortingProperty, $parentId);
     }
@@ -472,12 +472,12 @@ class DefaultController implements ControllerInterface
      */
     public function fetchModelFromProvider($modelId, $providerName = null)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @trigger_error(
             'Use \ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector::getModel()',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $model = $this->modelCollector->getModel($modelId, $providerName);
         if (null === $model) {
