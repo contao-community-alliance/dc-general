@@ -47,9 +47,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetLe
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteCollectionClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPaletteConditionChainClassNameEvent;
-// @codingStandardsIgnoreStart
+// phpcs:disable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPalettePropertyValueConditionClassNameEvent;
-// @codingStandardsIgnoreEnd
+// phpcs:enable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyConditionChainClassNameEvent;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Builder\Event\SetPropertyValueConditionClassNameEvent;
@@ -63,9 +63,9 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\P
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Palette\PropertyValueCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
-// @codingStandardsIgnoreStart
+// phpcs:disable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyValueCondition as PropertyPropertyValueCondition;
-// @codingStandardsIgnoreEnd
+// phpcs:enable
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Legend;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Palette;

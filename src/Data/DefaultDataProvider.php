@@ -214,12 +214,12 @@ class DefaultDataProvider implements DataProviderInterface
 
             $this->connection = $config['connection'];
         } else {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 'You should pass a doctrine database connection to "' . __METHOD__ . '".',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             $this->connection = $this->getDefaultConnection();
         }
@@ -279,12 +279,12 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function getEmptyFilterOptionCollection()
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
         return new DefaultFilterOptionCollection();
     }
 
@@ -506,12 +506,12 @@ class DefaultDataProvider implements DataProviderInterface
      */
     public function resetFallback($field)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             __CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $this->connection->executeQuery('UPDATE ' . $this->source . ' SET ' . $field . ' = \'\'');
     }
@@ -1031,12 +1031,12 @@ class DefaultDataProvider implements DataProviderInterface
     private function fallbackFromDatabaseToConnection(array &$config)
     {
         if (isset($config['database'])) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 'Config key database is deprecated use instead connection. Fallback will be dropped.',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
 
             if (!isset($config['connection'])) {
                 $config['connection'] = $config['database'];
@@ -1046,13 +1046,13 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         if (isset($config['connection']) && $config['connection'] instanceof Database) {
-            // @codingStandardsIgnoreStart
+            // phpcs:disable
             @\trigger_error(
                 '"' . __METHOD__ . '" now accepts doctrine instances - ' .
                 'passing Contao database instances is deprecated.',
                 E_USER_DEPRECATED
             );
-            // @codingStandardsIgnoreEnd
+            // phpcs:enable
             $reflection = new \ReflectionProperty(Database::class, 'resConnection');
             $reflection->setAccessible(true);
 

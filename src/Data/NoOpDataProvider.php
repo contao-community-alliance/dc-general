@@ -78,12 +78,12 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function getEmptyFilterOptionCollection()
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(
             'Method ' . __METHOD__ . ' was never intended to be called via interface and will get removed',
             E_USER_DEPRECATED
         );
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
         return new DefaultFilterOptionCollection();
     }
 
@@ -187,9 +187,9 @@ class NoOpDataProvider implements DataProviderInterface
      */
     public function resetFallback($field)
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error(__CLASS__ . '::' . __METHOD__ . ' is deprecated - handle resetting manually', E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
     }
 
     /**

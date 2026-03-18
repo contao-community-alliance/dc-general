@@ -161,9 +161,9 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         ModelInterface $model = null,
         EnvironmentInterface $environment
     ) {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error('This function where remove in 3.0. ' . __CLASS__  . '::' . __FUNCTION__, E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         if ((null === $propertyValueBag) || (null === $model)) {
             return;

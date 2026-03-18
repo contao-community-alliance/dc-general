@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -335,9 +335,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 if (isset($callback['deprecated'])) {
-                    // @codingStandardsIgnoreStart
+                    // phpcs:disable
                     @trigger_error($callback['deprecated']);
-                    // @codingStandardsIgnoreEnd
+                    // phpcs:enable
                     continue;
                 }
 
@@ -582,12 +582,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
             $providerInformation->setVersioningEnabled(false);
             if (true === (bool) $this->getFromDca('config/enableVersioning')) {
-                // @codingStandardsIgnoreStart
+                // phpcs:disable
                 @trigger_error(
                     'Versioning is not supported yet and will get implemented in a future release.',
                     E_USER_WARNING
                 );
-                // @codingStandardsIgnoreEnd
+                // phpcs:enable
             }
 
             if (null === $container->getBasicDefinition()->getDataProvider()) {
@@ -655,6 +655,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         // If mode is 5, we need to define tree view.
         if (5 === $this->getFromDca('list/sorting/mode')) {
             $rootProvider = $this->getRootProviderName($container);
+
+            // Abstain if the dca contains an extended configuration which shall be the single source of truth then.
+            if ($this->getFromDca('dca_config/childCondition')) {
+                return;
+            }
 
             if (null === ($relationship = $definition->getRootCondition())) {
                 $relationship = new RootCondition();

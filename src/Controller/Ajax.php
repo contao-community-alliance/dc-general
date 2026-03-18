@@ -316,9 +316,9 @@ abstract class Ajax implements EnvironmentAwareInterface
      */
     protected function exitScript()
     {
-        // @codingStandardsIgnoreStart
+        // phpcs:disable
         @\trigger_error('Use own response exit!', E_USER_DEPRECATED);
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable
 
         $requestStack = System::getContainer()->get('request_stack');
         assert($requestStack instanceof RequestStack);

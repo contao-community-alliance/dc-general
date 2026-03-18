@@ -44,6 +44,9 @@ phpcq:
     phpcs:
       version: ^1.0
       signed: false
+      requirements:
+        phpcs:
+          version: ^3.12.0
     composer-normalize:
       version: ^1.0
       signed: false
