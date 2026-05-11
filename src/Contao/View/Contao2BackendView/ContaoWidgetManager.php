@@ -212,10 +212,17 @@ class ContaoWidgetManager
         // This test if the rich text editor template exist.
         $templateLoader->getPath($templateName, 'html5');
 
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+        $propExtra = $definition->getPropertiesDefinition()->hasProperty($widget->id)
+            ? $definition->getPropertiesDefinition()->getProperty($widget->id)->getExtra()
+            : [];
+
         $template = new ContaoBackendViewTemplate($templateName);
         $template
             ->set('selector', 'ctrl_' . $widget->id)
-            ->set('readonly', $widget->readonly);
+            ->set('readonly', $widget->readonly)
+            ->set('rows', (int) ($propExtra['rows'] ?? 0));
 
         if ($isAce) {
             /** @psalm-suppress UndefinedMagicPropertyFetch */
