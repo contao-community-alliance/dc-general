@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,14 +19,13 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use Contao\Backend;
 use Contao\Config;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Date;
@@ -206,25 +205,28 @@ class ContaoWidgetManager
         }
 
         /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
-        $backendAdapter = $this->framework->getAdapter(Backend::class);
-        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $templateLoader = $this->framework->getAdapter(TemplateLoader::class);
 
-        [$file, $type] = \explode('|', $rte) + ['', ''];
-
-        $templateName = 'be_' . $file;
+        $isAce        = (0 === \strncmp($rte, 'ace', 3));
+        $templateName = 'be_' . $rte;
         // This test if the rich text editor template exist.
         $templateLoader->getPath($templateName, 'html5');
+
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+        $propExtra = $definition->getPropertiesDefinition()->hasProperty($widget->id)
+            ? $definition->getPropertiesDefinition()->getProperty($widget->id)->getExtra()
+            : [];
 
         $template = new ContaoBackendViewTemplate($templateName);
         $template
             ->set('selector', 'ctrl_' . $widget->id)
-            ->set('type', $type)
-            ->set('readonly', $widget->readonly);
+            ->set('readonly', $widget->readonly)
+            ->set('rows', (int) ($propExtra['rows'] ?? 0));
 
-        if (0 !== \strncmp($rte, 'tiny', 4)) {
-            /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
-            $template->set('language', $backendAdapter->getTinyMceLanguage());
+        if ($isAce) {
+            /** @psalm-suppress UndefinedMagicPropertyFetch */
+            $template->set('type', \strtolower((string) ($widget->highlight ?? '')));
         }
 
         $buffer .= $template->parse();
