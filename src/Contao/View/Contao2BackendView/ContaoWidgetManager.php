@@ -196,19 +196,24 @@ class ContaoWidgetManager
     {
         /** @psalm-suppress UndefinedMagicPropertyFetch */
         $rte = $widget->rte;
-        if (
-            (null === $rte)
-            || ((0 !== (\strncmp($rte, 'tiny', 4)))
-                && (0 !== \strncmp($rte, 'ace', 3)))
-        ) {
+        if (null === $rte) {
+            return $buffer;
+        }
+
+        // Contao DCA allows "ace|sql" syntax to pass the highlight type via pipe.
+        $rteParts     = \explode('|', $rte, 2);
+        $rteBase      = $rteParts[0];
+        $rteHighlight = $rteParts[1] ?? null;
+
+        if ((0 !== \strncmp($rteBase, 'tiny', 4)) && (0 !== \strncmp($rteBase, 'ace', 3))) {
             return $buffer;
         }
 
         /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $templateLoader = $this->framework->getAdapter(TemplateLoader::class);
 
-        $isAce        = (0 === \strncmp($rte, 'ace', 3));
-        $templateName = 'be_' . $rte;
+        $isAce        = (0 === \strncmp($rteBase, 'ace', 3));
+        $templateName = 'be_' . $rteBase;
         // This test if the rich text editor template exist.
         $templateLoader->getPath($templateName, 'html5');
 
@@ -225,8 +230,10 @@ class ContaoWidgetManager
             ->set('rows', (int) ($propExtra['rows'] ?? 0));
 
         if ($isAce) {
+            // Pipe syntax takes precedence over the highlight field.
             /** @psalm-suppress UndefinedMagicPropertyFetch */
-            $template->set('type', \strtolower((string) ($widget->highlight ?? '')));
+            $highlight = $rteHighlight ?? \strtolower((string) ($widget->highlight ?? ''));
+            $template->set('type', $highlight);
         }
 
         $buffer .= $template->parse();
