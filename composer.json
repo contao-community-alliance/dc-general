@@ -92,6 +92,7 @@
   },
   "extra": {
     "branch-alias": {
+      "dev-hotfix/2.4.14": "2.4.x-dev",
       "dev-release/2.4.0": "2.4.x-dev"
     },
     "contao-manager-plugin": "ContaoCommunityAlliance\\DcGeneral\\ContaoManager\\Plugin"

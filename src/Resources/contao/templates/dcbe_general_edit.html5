@@ -45,11 +45,12 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
     $this->insert(
         'dcbe_general_language_selector',
         [
-            'language'      => $this->language,
-            'languages'     => $this->languages,
-            'request'       => $request,
-            'submit'        => $this->languageSubmit,
-            'REQUEST_TOKEN' => $requestToken,
+            'language'         => $this->language,
+            'languages'        => $this->languages,
+            'fallbackLanguage' => $this->fallbackLanguage,
+            'request'          => $request,
+            'submit'           => $this->languageSubmit,
+            'REQUEST_TOKEN'    => $requestToken,
         ]
     ) ?>
 
@@ -60,7 +61,7 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
             <?= $this->breadcrumb ?>
         </div>
     <?php endif; ?>
-    <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline !== '') ? ' - ' . $this->languageHeadline : '' ?></h2>
+    <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline !== '') ? ' - ' . $this->languageHeadline . ($this->language === $this->fallbackLanguage ? ' <span title="' . StringUtil::specialchars($translator->trans('language_selector.fallback_title', [], 'dc-general')) . '">[' . $translator->trans('language_selector.fallback', [], 'dc-general') . ']</span>' : '') : '' ?></h2>
     <?= Message::generate() ?>
 
 <form class="tl_form tableextended" method="post"

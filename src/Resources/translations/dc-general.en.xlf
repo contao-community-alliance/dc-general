@@ -11,6 +11,16 @@
         <source>Switch language</source>
       </segment>
     </unit>
+    <unit id="language_selector.fallback" name="language_selector.fallback">
+      <segment>
+        <source>Fb</source>
+      </segment>
+    </unit>
+    <unit id="language_selector.fallback_title" name="language_selector.fallback_title">
+      <segment>
+        <source>This is the fallback language. Values that are not yet translated fall back to this language.</source>
+      </segment>
+    </unit>
     <unit id="treePicker" name="treePicker">
       <segment>
         <source>Table: %table%</source>
