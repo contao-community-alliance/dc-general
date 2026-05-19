@@ -15,8 +15,8 @@
     </unit>
     <unit id="language_selector.fallback" name="language_selector.fallback">
       <segment>
-        <source>Fb</source>
-        <target>Fb</target>
+        <source>Fallback</source>
+        <target>Fallback</target>
       </segment>
     </unit>
     <unit id="language_selector.fallback_title" name="language_selector.fallback_title">

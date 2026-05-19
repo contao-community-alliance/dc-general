@@ -13,7 +13,7 @@
     </unit>
     <unit id="language_selector.fallback" name="language_selector.fallback">
       <segment>
-        <source>Fb</source>
+        <source>Fallback</source>
       </segment>
     </unit>
     <unit id="language_selector.fallback_title" name="language_selector.fallback_title">

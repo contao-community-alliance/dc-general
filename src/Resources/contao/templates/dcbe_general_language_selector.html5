@@ -17,7 +17,7 @@ $fallbackTitle  = $translator->trans('language_selector.fallback_title', [], 'dc
           <select name="language" id="selectLanguage" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
             <?php foreach ($this->languages as $langCode => $languageName) : ?>
               <option value="<?= $langCode ?>"<?php if ($langCode === $this->language): ?> selected="selected"<?php endif; ?><?php if ($langCode === $this->fallbackLanguage): ?> title="<?= StringUtil::specialchars($fallbackTitle) ?>"<?php endif; ?>>
-                <?= $languageName ?><?php if ($langCode === $this->fallbackLanguage): ?> [<?= $fallbackLabel ?>]<?php endif; ?>
+                  <?= $languageName ?><?php if ($langCode === $this->fallbackLanguage): ?> [<?= $fallbackLabel ?>]<?php endif; ?>
               </option>
             <?php endforeach; ?>
         </select>

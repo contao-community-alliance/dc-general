@@ -61,7 +61,7 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
             <?= $this->breadcrumb ?>
         </div>
     <?php endif; ?>
-    <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline !== '') ? ' - ' . $this->languageHeadline . ($this->language === $this->fallbackLanguage ? ' <span title="' . StringUtil::specialchars($translator->trans('language_selector.fallback_title', [], 'dc-general')) . '">[' . $translator->trans('language_selector.fallback', [], 'dc-general') . ']</span>' : '') : '' ?></h2>
+    <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline !== '') ? ' - ' . $this->languageHeadline . ($this->language === $this->fallbackLanguage ? ' <span class="lang-hint--fallback" title="' . StringUtil::specialchars($translator->trans('language_selector.fallback_title', [], 'dc-general')) . '">' . $translator->trans('language_selector.fallback', [], 'dc-general') . '</span>' : '') : '' ?></h2>
     <?= Message::generate() ?>
 
 <form class="tl_form tableextended" method="post"
