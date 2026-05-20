@@ -52,3 +52,17 @@
   top: 4px;
   vertical-align: top;
 }
+
+.sub_headline span.lang-hint--fallback {
+  display: inline-block;
+  margin-left: 0.5ch;
+  padding: 0 3px;
+  font-size: 0.75em;
+  font-weight: bold;
+  line-height: 1.4;
+  vertical-align: middle;
+  border-radius: 2px;
+  cursor: help;
+  color: #fff;
+  background-color: #e6a118;
+}
