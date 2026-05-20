@@ -204,17 +204,19 @@ class ContaoWidgetManager
     {
         /** @psalm-suppress UndefinedMagicPropertyFetch */
         $rte = $widget->rte;
-        if (
-            (null === $rte)
-            || ((0 !== (\strncmp($rte, 'tiny', 4)))
-                && (0 !== \strncmp($rte, 'ace', 3)))
-        ) {
+        if (null === $rte) {
+            return $buffer;
+        }
+        // Contao DCA allows "ace|sql" syntax to pass the highlight type via pipe.
+        [$rteBase, $rteHighlight] = \explode('|', $rte, 2);
+        $rteHighlight = $rteHighlight ?? null;
+
+        if (!str_starts_with($rteBase, 'tiny') && !str_starts_with($rteBase, 'ace')) {
             return $buffer;
         }
 
         /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $backendAdapter = $this->framework->getAdapter(Backend::class);
-        [$file, $type] = \explode('|', $rte) + ['', ''];
         $fileBrowserTypes = [];
         $pickerBuilder = System::getContainer()->get('contao.picker.builder');
         foreach (['file' => 'image', 'link' => 'file'] as $context => $fileBrowserType) {
@@ -222,12 +224,17 @@ class ContaoWidgetManager
                 $fileBrowserTypes[] = $fileBrowserType;
             }
         }
-        $objTemplate = new BackendTemplate('be_' . $file);
-        $objTemplate->selector = 'ctrl_' . $widget->id;
-        $objTemplate->type = $type;
-        $objTemplate->fileBrowserTypes = implode(' ', $fileBrowserTypes);
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+        $propExtra = $definition->getPropertiesDefinition()->hasProperty($widget->id)
+            ? $definition->getPropertiesDefinition()->getProperty($widget->id)->getExtra()
+            : [];
+
+        $template = new BackendTemplate('be_' . $rteBase);
+        $template->selector = 'ctrl_' . $widget->id;
+        $template->fileBrowserTypes = implode(' ', $fileBrowserTypes);
         // FIXME: Contao sets this as table.id while dcg uses table::id - Problem?
-        $objTemplate->source = ModelId::fromModel($this->model)->getSerialized();
+        $template->source = ModelId::fromModel($this->model)->getSerialized();
         /**
          * Contao widget class does not ensure that the property is set and of type bool.
          * @psalm-suppress RedundantCastGivenDocblockType
@@ -236,14 +243,15 @@ class ContaoWidgetManager
          * @psalm-suppress RedundantCondition
          * @psalm-suppress TypeDoesNotContainNull
          */
-        $objTemplate->readonly = (bool) ($widget->readonly ?? false);
-        $objTemplate->theme = $backendAdapter->getTheme();
-        $objTemplate->enableAce = $GLOBALS['TL_CONFIG']['useCE'] ?? false;
-        $objTemplate->aceType = $backendAdapter->getAceType($type);
-        $objTemplate->enableTinyMce = $GLOBALS['TL_CONFIG']['useRTE'] ?? false;
-        $objTemplate->tinyMceLanguage = $backendAdapter->getTinyMceLanguage();
+        $template->readonly = (bool) ($widget->readonly ?? false);
+        $template->theme = $backendAdapter->getTheme();
+        $template->enableAce = $GLOBALS['TL_CONFIG']['useCE'] ?? false;
+        $template->aceType = $backendAdapter->getAceType($rteHighlight);
+        $template->enableTinyMce = $GLOBALS['TL_CONFIG']['useRTE'] ?? false;
+        $template->tinyMceLanguage = $backendAdapter->getTinyMceLanguage();
+        $template->rows = (int) ($propExtra['rows'] ?? 0);
 
-        return $buffer . $objTemplate->parse();
+        return $buffer. $template->parse();
     }
 
     /**

@@ -768,6 +768,7 @@ class TreeView extends BaseView
         return $template
             ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
+            ->set('fallbackLanguage', $dataProvider->getFallbackLanguage(null)?->getLocale())
             ->set('submit', $translator->translate('change-language', 'dc-general'))
             ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();

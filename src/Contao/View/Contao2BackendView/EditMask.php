@@ -1078,6 +1078,7 @@ class EditMask
             $template
                 ->set('languages', $controller->getSupportedLanguages($this->model->getId()))
                 ->set('language', $dataProvider->getCurrentLanguage())
+                ->set('fallbackLanguage', $dataProvider->getFallbackLanguage($this->model->getId())?->getLocale())
                 ->set('languageSubmit', $translator->translate('change-language', 'dc-general'))
                 ->set('languageHeadline', $languages[$dataProvider->getCurrentLanguage()] ?? '');
 
@@ -1086,6 +1087,7 @@ class EditMask
 
         $template
             ->set('languages', null)
+            ->set('fallbackLanguage', null)
             ->set('languageHeadline', '');
     }
 

@@ -303,6 +303,7 @@ abstract class AbstractListShowAllHandler
         return $template
             ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
+            ->set('fallbackLanguage', $dataProvider->getFallbackLanguage(null)?->getLocale())
             ->set('submit', $this->translator->trans('change-language', [], 'dc-general'))
             ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();

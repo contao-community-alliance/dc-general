@@ -54,7 +54,6 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -602,7 +601,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             return null;
         }
 
-        if ($allowPasteTop = (bool) ViewHelpers::getManualSortingProperty($environment)) {
+        if (!($allowPasteTop = (bool) ViewHelpers::getManualSortingProperty($environment))) {
             $subFilter = new Filter();
             $subFilter->andActionIsNotIn([ItemInterface::COPY, ItemInterface::DEEP_COPY]);
             $subFilter->andParentIsNot(ModelId::fromModel($parentModel));
@@ -612,7 +611,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             assert(\is_string($dataProvider));
 
             $dataParentProvider = $basicDefinition->getParentDataProvider();
-            assert(is_string($dataParentProvider));
+            assert(\is_string($dataParentProvider));
 
             $filter = new Filter();
             $filter->andModelIsFromProvider($dataProvider);

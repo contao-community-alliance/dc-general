@@ -8,11 +8,12 @@ $request = System::getContainer()->get('request_stack')->getCurrentRequest()->ge
 $this->insert(
     'dcbe_general_language_selector',
     [
-        'language'      => $this->currentLanguage,
-        'languages'     => $this->languages,
-        'request'       => $request,
-        'submit'        => $this->languageSubmit,
-        'REQUEST_TOKEN' => $this->requestToken,
+        'language'         => $this->currentLanguage,
+        'languages'        => $this->languages,
+        'fallbackLanguage' => $this->fallbackLanguage,
+        'request'          => $request,
+        'submit'           => $this->languageSubmit,
+        'REQUEST_TOKEN'    => $this->requestToken,
     ]
 );
 
