@@ -27,6 +27,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\Backend;
+use Contao\BackendTemplate;
 use Contao\Config;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Date;
@@ -209,29 +210,30 @@ class ContaoWidgetManager
 
         /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
         $backendAdapter = $this->framework->getAdapter(Backend::class);
-        /** @psalm-suppress InternalMethod - Class Adapter is internal, not the __call() method. Blame Contao. */
-        $templateLoader = $this->framework->getAdapter(TemplateLoader::class);
-
         [$file, $type] = \explode('|', $rte) + ['', ''];
-
-        $templateName = 'be_' . $file;
-        // This test if the rich text editor template exist.
-        $templateLoader->getPath($templateName, 'html5');
-
-        $template = new ContaoBackendViewTemplate($templateName);
-        $template
-            ->set('selector', 'ctrl_' . $widget->id)
-            ->set('type', $type)
-            ->set('readonly', $widget->readonly);
-
-        if (0 !== \strncmp($rte, 'tiny', 4)) {
-            /** @deprecated Deprecated since Contao 4.0, to be removed in Contao 5.0 */
-            $template->set('language', $backendAdapter->getTinyMceLanguage());
+        $fileBrowserTypes = [];
+        $pickerBuilder = System::getContainer()->get('contao.picker.builder');
+        foreach (['file' => 'image', 'link' => 'file'] as $context => $fileBrowserType)
+        {
+            if ($pickerBuilder->supportsContext($context))
+            {
+                $fileBrowserTypes[] = $fileBrowserType;
+            }
         }
+        $objTemplate = new BackendTemplate('be_' . $file);
+        $objTemplate->selector = 'ctrl_' . $widget->id;
+        $objTemplate->type = $type;
+        $objTemplate->fileBrowserTypes = implode(' ', $fileBrowserTypes);
+        // FIXME: Contao sets this as table.id while dcg uses table::id - Problem?
+        $objTemplate->source = ModelId::fromModel($this->model)->getSerialized();
+        $objTemplate->readonly = (bool) ($widget->readonly ?? false);
+        $objTemplate->theme = $backendAdapter->getTheme();
+        $objTemplate->enableAce = $GLOBALS['TL_CONFIG']['useCE'] ?? false;
+        $objTemplate->aceType = $backendAdapter->getAceType($type);
+        $objTemplate->enableTinyMce = $GLOBALS['TL_CONFIG']['useRTE'] ?? false;
+        $objTemplate->tinyMceLanguage = $backendAdapter->getTinyMceLanguage();
 
-        $buffer .= $template->parse();
-
-        return $buffer;
+        return $buffer . $objTemplate->parse();
     }
 
     /**
