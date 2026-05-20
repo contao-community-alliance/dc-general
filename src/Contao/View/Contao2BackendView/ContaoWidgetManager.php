@@ -233,6 +233,8 @@ class ContaoWidgetManager
          * @psalm-suppress RedundantCastGivenDocblockType
          * @psalm-suppress RedundantConditionGivenDocblockType
          * @psalm-suppress DocblockTypeContradiction
+         * @psalm-suppress RedundantCondition
+         * @psalm-suppress TypeDoesNotContainNull
          */
         $objTemplate->readonly = (bool) ($widget->readonly ?? false);
         $objTemplate->theme = $backendAdapter->getTheme();
