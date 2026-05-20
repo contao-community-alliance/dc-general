@@ -463,6 +463,20 @@ var BackendGeneral =
       });
 
       return true;
+    },
+
+    autoSubmit: function (tableName) {
+      window.dispatchEvent(new Event('store-scroll-offset'));
+      var element = new Element('input', {
+        type: 'hidden',
+        name: 'SUBMIT_TYPE',
+        value: 'auto'
+      }),
+      form = $(tableName) || tableName;
+      element.inject(form, 'bottom');
+      form.noValidate = !0;
+      form.mustRedirect = false;
+      form.requestSubmit();
     }
   };
 
