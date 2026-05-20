@@ -59,7 +59,7 @@ class DefaultProperty implements PropertyInterface, EmptyValueAwarePropertyInter
      *
      * @var mixed
      */
-    protected mixed $defaultValue;
+    protected mixed $defaultValue = null;
 
     /**
      * Define if this property shall be excluded by default.
