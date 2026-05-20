@@ -195,6 +195,10 @@ class ContaoWidgetManager
      * @param Widget $widget The widget.
      *
      * @return string The widget.
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
+     *
+     * @psalm-suppress UndefinedMagicPropertyAssignment
      */
     public function loadRichTextEditor($buffer, Widget $widget)
     {
@@ -213,10 +217,8 @@ class ContaoWidgetManager
         [$file, $type] = \explode('|', $rte) + ['', ''];
         $fileBrowserTypes = [];
         $pickerBuilder = System::getContainer()->get('contao.picker.builder');
-        foreach (['file' => 'image', 'link' => 'file'] as $context => $fileBrowserType)
-        {
-            if ($pickerBuilder->supportsContext($context))
-            {
+        foreach (['file' => 'image', 'link' => 'file'] as $context => $fileBrowserType) {
+            if ($pickerBuilder->supportsContext($context)) {
                 $fileBrowserTypes[] = $fileBrowserType;
             }
         }
