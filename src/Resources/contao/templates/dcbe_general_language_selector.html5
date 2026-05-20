@@ -4,11 +4,12 @@ use Contao\StringUtil;
 use Contao\System;
 ?>
 <?php if ($this->language && !empty($this->languages)): ?>
-  <div class="tl_panel tl_language_panel">
-    <form action="<?= StringUtil::ampersand($this->request, true) ?>" id="language_switch" class="tl_form" method="post">
-      <div class="tl_formbody">
+  <form action="<?= StringUtil::ampersand($this->request, true) ?>" id="language_switch" class="tl_form tl_language_panel" method="post">
+    <div class="tl_formbody">
+      <div class="tl_panel">
         <input type="hidden" name="FORM_SUBMIT" value="language_switch" />
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $this->REQUEST_TOKEN ?>" />
+        <fieldset class="tl_subpanel">
           <label for="selectLanguage"><strong><?= System::getContainer()->get('translator')->trans('language', [], 'dc-general') ?>: </strong></label>
           <select name="language" id="selectLanguage" class="tl_select" onchange="Backend.autoSubmit('language_switch')">
             <?php foreach ($this->languages as $langCode => $languageName) : ?>
@@ -16,9 +17,11 @@ use Contao\System;
                 <?= $languageName ?>
               </option>
             <?php endforeach; ?>
-        </select>
-        <input type="submit" name="switchLanguage" id="switchLanguage" class="tl_submit" value="<?= StringUtil::specialchars($this->submit) ?>" />
+          </select>
+          <button type="submit" name="switchLanguage" id="switchLanguage" class="tl_img_submit"><?= StringUtil::specialchars($this->submit) ?></button>
+        </fieldset>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
+  <div class="clear-content-filter"></div>
 <?php endif; ?>

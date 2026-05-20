@@ -13,7 +13,6 @@ $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDef
                 <?php foreach ($arrRow as $strPanel): ?>
                     <?= $strPanel ?>
                 <?php endforeach; ?>
-                <div class="clear"></div>
             </div>
         <?php endforeach; ?>
     </div>

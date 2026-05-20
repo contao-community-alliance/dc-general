@@ -5,11 +5,11 @@ use Contao\System;
 $translator = System::getContainer()->get('translator');
 assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
 ?>
-<div class="tl_sorting tl_subpanel <?= $this->rowClass; ?>">
-    <strong><?= $translator->trans(id: 'sortBy', domain: 'dc-general') ?>:</strong>
+<fieldset class="tl_sorting tl_subpanel <?= $this->rowClass; ?>">
+    <label for="tl_sort"><?= $translator->trans(id: 'sortBy', domain: 'dc-general') ?>:</label>
     <select name="tl_sort" id="tl_sort" class="tl_select">
         <?php foreach ($this->options as $arrOption): ?>
             <option value="<?= $arrOption['value'] ?>"<?= $arrOption['attributes'] ?>><?= $arrOption['content'] ?></option>
         <?php endforeach; ?>
     </select>
-</div>
+</fieldset>

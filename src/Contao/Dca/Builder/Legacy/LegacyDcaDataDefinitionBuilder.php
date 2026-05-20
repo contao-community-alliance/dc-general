@@ -1144,7 +1144,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
         if (!$this->hasSubmit($rows) && $rows->getRowCount()) {
             $row = $rows->getRow($rows->getRowCount() - 1);
-            $row->addElement(new DefaultSubmitElementInformation(), 0);
+            $row->addElement(new DefaultSubmitElementInformation(), -1);
         }
     }
 

@@ -256,14 +256,26 @@ abstract class AbstractListShowAllHandler
             ? [SortElementInterface::class]
             : [];
 
-        return implode(
-            "\n",
+        return strtr(
+            <<<EOF
+            <div class="tl_show_all">
+                <div class="content-filter">
+                {language}
+                {panel}
+                </div>
+                <div class="content-inner">
+                {buttons}
+                {clipboard}
+                {body}
+                </div>
+            </div>
+            EOF,
             [
-                'language'  => $this->languageSwitcher($environment),
-                'panel'     => $this->panel($environment, $ignoredPanels),
-                'buttons'   => $this->generateHeaderButtons($environment),
-                'clipboard' => $clipboard->getResponse(),
-                'body'      => $template->parse()
+                '{language}'  => $this->languageSwitcher($environment),
+                '{panel}'     => $this->panel($environment, $ignoredPanels),
+                '{buttons}'   => $this->generateHeaderButtons($environment),
+                '{clipboard}' => $clipboard->getResponse(),
+                '{body}'      => $template->parse()
             ]
         );
     }
