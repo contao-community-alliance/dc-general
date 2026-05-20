@@ -228,6 +228,12 @@ class ContaoWidgetManager
         $objTemplate->fileBrowserTypes = implode(' ', $fileBrowserTypes);
         // FIXME: Contao sets this as table.id while dcg uses table::id - Problem?
         $objTemplate->source = ModelId::fromModel($this->model)->getSerialized();
+        /**
+         * Contao widget class does not ensure that the property is set and of type bool.
+         * @psalm-suppress RedundantCastGivenDocblockType
+         * @psalm-suppress RedundantConditionGivenDocblockType
+         * @psalm-suppress DocblockTypeContradiction
+         */
         $objTemplate->readonly = (bool) ($widget->readonly ?? false);
         $objTemplate->theme = $backendAdapter->getTheme();
         $objTemplate->enableAce = $GLOBALS['TL_CONFIG']['useCE'] ?? false;

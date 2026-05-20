@@ -640,7 +640,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         if (
             in_array($widgetConfig['inputType'], ['checkbox', 'checkboxWizard', 'radio', 'radioTable'])
-            && ($widgetConfig['eval']['submitOnChange'] ?? false)
+            && ((bool) $widgetConfig['eval']['submitOnChange'] ?? false)
         ) {
             // We have to override the onclick, do not append to it as Contao adds it's own code here in
             // Widget::getAttributesFromDca() which kills our sub palette handling!
