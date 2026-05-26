@@ -37,7 +37,7 @@ class DefaultConfig implements ConfigInterface
      *
      * @var mixed
      */
-    protected mixed $mixId;
+    protected mixed $mixId = null;
 
     /**
      * The ids to be retrieved.
@@ -129,7 +129,7 @@ class DefaultConfig implements ConfigInterface
      * @return mixed
      */
     #[\Override]
-    public function getId()
+    public function getId(): mixed
     {
         return $this->mixId;
     }
@@ -142,7 +142,7 @@ class DefaultConfig implements ConfigInterface
      * @return ConfigInterface
      */
     #[\Override]
-    public function setId($mixId)
+    public function setId($mixId): ConfigInterface
     {
         $this->mixId = $mixId;
 
