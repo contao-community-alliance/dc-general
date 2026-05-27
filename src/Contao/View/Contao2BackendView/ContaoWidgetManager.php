@@ -33,15 +33,12 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Date;
 use Contao\Input;
 use Contao\System;
-use Contao\TemplateLoader;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\DecodePropertyValueForWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\EncodePropertyValueFromWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\ResolveWidgetErrorMessageEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
-use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
@@ -208,7 +205,7 @@ class ContaoWidgetManager
             return $buffer;
         }
         // Contao DCA allows "ace|sql" syntax to pass the highlight type via pipe.
-        [$rteBase, $rteHighlight] = \explode('|', $rte, 2);
+        [$rteBase, $rteHighlight] = \explode('|', $rte, 2) + [null, null];
         $rteHighlight = $rteHighlight ?? null;
 
         if (!str_starts_with($rteBase, 'tiny') && !str_starts_with($rteBase, 'ace')) {
