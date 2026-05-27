@@ -18,7 +18,7 @@ phpcq:
       signed: false
       requirements:
         psalm:
-          version: ^5.26.1
+          version: ^6.16
     composer-require-checker:
       version: ^1.0
       signed: false
