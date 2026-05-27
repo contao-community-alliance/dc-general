@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -420,6 +420,28 @@ class SelectHandler
         );
 
         return  $this->callAction($environment, 'editAll', ['mode' => 'edit']);
+    }
+
+    /**
+     * Handle the select edit all action (re-display edit all page on GET, session already populated).
+     *
+     * This is called when the browser accesses ?act=select&select=edit via GET (e.g. back navigation).
+     * The model/property session data was already stored in the original POST flow.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     * @param Action               $action      The action.
+     *
+     * @return string|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     */
+    private function handleSelectEditAllAction(EnvironmentInterface $environment, Action $action): ?string
+    {
+        $this->clearClipboard($environment);
+        $this->handleGlobalCommands($environment);
+
+        return $this->callAction($environment, 'editAll', ['mode' => 'edit']);
     }
 
     /**
