@@ -632,7 +632,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $editProperties = [];
 
         $modelIds = [];
-        foreach ($session['models'] as $modelId) {
+        foreach (($session['models'] ?? []) as $modelId) {
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
 
             if ($addEditProperties) {
@@ -642,6 +642,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
                 $editProperties[$modelId] = $modelEditProperties;
             }
+        }
+
+        if ([] === $modelIds) {
+            return $dataProvider->getEmptyCollection();
         }
 
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
@@ -827,7 +831,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $session = $this->getSession($action, $environment);
 
         $selectPropertyNames = [];
-        foreach ($session['properties'] as $modelId) {
+        foreach (($session['properties'] ?? []) as $modelId) {
             $selectPropertyNames[] = ModelId::fromSerialized($modelId)->getId();
         }
 

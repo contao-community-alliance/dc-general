@@ -21,6 +21,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
+use Contao\CoreBundle\Intl\Locales;
 use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
@@ -31,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
@@ -105,20 +107,59 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
+        $dataProvider = $environment->getDataProvider($definition->getName());
+        assert($dataProvider instanceof DataProviderInterface);
+
         return $this->renderTemplate(
             $action,
-            [
-                'subHeadline' =>
-                    $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
-                    $translator->translate('editAll.label', 'dc-general'),
-                'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
-                'table'       => $definition->getName(),
-                'error'       => $renderInformation->offsetGet('error'),
-                'breadcrumb'  => $this->renderBreadcrumb($environment),
-                'editButtons' => $this->getEditButtons($action, $environment),
-                'noReload'    => (bool) $renderInformation->offsetGet('error')
-            ]
+            \array_merge(
+                [
+                    'subHeadline' =>
+                        $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
+                        $translator->translate('editAll.label', 'dc-general'),
+                    'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
+                    'table'       => $definition->getName(),
+                    'error'       => $renderInformation->offsetGet('error'),
+                    'breadcrumb'  => $this->renderBreadcrumb($environment),
+                    'editButtons' => $this->getEditButtons($action, $environment),
+                    'noReload'    => (bool) $renderInformation->offsetGet('error')
+                ],
+                $this->buildLanguageVars($dataProvider)
+            )
         );
+    }
+
+    /**
+     * Build language-related template variables.
+     *
+     * @param DataProviderInterface $dataProvider The data provider.
+     *
+     * @return array{language: string|null, languages: null, fallbackLanguage: string|null, languageHeadline: string}
+     */
+    private function buildLanguageVars(DataProviderInterface $dataProvider): array
+    {
+        if (
+            ($dataProvider instanceof MultiLanguageDataProviderInterface)
+            && (null !== $dataProvider->getLanguages(null))
+        ) {
+            $locales = System::getContainer()->get('contao.intl.locales');
+            assert($locales instanceof Locales);
+            $languages = $locales->getLocales(null, true);
+
+            return [
+                'language'         => $dataProvider->getCurrentLanguage(),
+                'languages'        => null,
+                'fallbackLanguage' => $dataProvider->getFallbackLanguage(null)?->getLocale(),
+                'languageHeadline' => $languages[$dataProvider->getCurrentLanguage()] ?? '',
+            ];
+        }
+
+        return [
+            'language'         => null,
+            'languages'        => null,
+            'fallbackLanguage' => null,
+            'languageHeadline' => '',
+        ];
     }
 
     /**
@@ -264,28 +305,38 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 
             $properties->addProperty($editProperty);
 
-            $this->setPropertyValue($editModel, $selectProperty, $propertyValuesBag);
             $rawValues = new PropertyValueBag();
-            foreach ($propertyValuesBag as $propName => $value) {
-                $rawValues->setPropertyValue($propName, $widgetManager->decodeValue($propName, $value));
-            }
-            $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
-            foreach ($editErrors as $propName => $errors) {
-                $rawValues->markPropertyValueAsInvalid($propName, $errors);
+            if (!empty($editProperty->getExtra()['readonly'])) {
+                // For readonly properties (e.g. force_alias, force_combinedvalues):
+                // Pre-set the value under the mangled property name so the widget can display it.
+                // Pass null as raw values to bypass updateModelFromPropertyBag, which would null
+                // out readonly+alwaysSave properties and produce an empty display value.
+                $model->setProperty($editProperty->getName(), $model->getProperty($selectProperty->getName()));
+                $fields[] = $widgetManager->renderWidget($editProperty->getName(), false, null);
+            } else {
+                $this->setPropertyValue($editModel, $selectProperty, $propertyValuesBag);
+                foreach ($propertyValuesBag as $propName => $value) {
+                    $rawValues->setPropertyValue($propName, $widgetManager->decodeValue($propName, $value));
+                }
+                $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
+                foreach ($editErrors as $propName => $errors) {
+                    $rawValues->markPropertyValueAsInvalid($propName, $errors);
+                }
+
+                $this->markEditErrors($editProperty, $selectProperty, $rawValues);
+                $this->markModelErrors(
+                    $action,
+                    $model,
+                    $model,
+                    $editProperty,
+                    $selectProperty,
+                    $rawValues,
+                    $environment
+                );
+
+                $fields[] = $widgetManager->renderWidget($editProperty->getName(), false, $rawValues);
             }
 
-            $this->markEditErrors($editProperty, $selectProperty, $rawValues);
-            $this->markModelErrors(
-                $action,
-                $model,
-                $model,
-                $editProperty,
-                $selectProperty,
-                $rawValues,
-                $environment
-            );
-
-            $fields[] = $widgetManager->renderWidget($editProperty->getName(), false, $rawValues);
             $fields[] = $this->injectSelectSubPropertiesInformation(
                 $selectProperty,
                 $editModel,

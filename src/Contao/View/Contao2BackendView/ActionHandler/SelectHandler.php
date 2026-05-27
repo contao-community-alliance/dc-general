@@ -425,6 +425,28 @@ class SelectHandler
     }
 
     /**
+     * Handle the select edit all action (re-display edit all page on GET, session already populated).
+     *
+     * This is called when the browser accesses ?act=select&select=edit via GET (e.g. back navigation).
+     * The model/property session data was already stored in the original POST flow.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     * @param Action               $action      The action.
+     *
+     * @return string|null
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.UnusedPrivateMethod)
+     */
+    private function handleSelectEditAllAction(EnvironmentInterface $environment, Action $action): ?string
+    {
+        $this->clearClipboard($environment);
+        $this->handleGlobalCommands($environment);
+
+        return $this->callAction($environment, 'editAll', ['mode' => 'edit']);
+    }
+
+    /**
      * Handle the override all action.
      *
      * @param EnvironmentInterface $environment The environment.
