@@ -1,5 +1,7 @@
 <?php
 
+// Unused template - delete this!
+
 use Contao\System;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
