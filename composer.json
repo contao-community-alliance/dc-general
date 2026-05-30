@@ -34,9 +34,9 @@
     "php": "^8.4",
     "ext-json": "*",
     "ext-pdo": "*",
-    "contao-community-alliance/events-contao-bindings": "^5.7@dev",
-    "contao-community-alliance/translator": "^2.6@dev",
-    "contao-community-alliance/url-builder": "^2.1@dev",
+    "contao-community-alliance/events-contao-bindings": "^5.7",
+    "contao-community-alliance/translator": "^2.6",
+    "contao-community-alliance/url-builder": "^2.1",
     "contao/core-bundle": "^5.7",
     "contao/image": "^1.2",
     "doctrine/cache": "^2.1",
@@ -62,7 +62,7 @@
   },
   "require-dev": {
     "contao/manager-plugin": "^2.8",
-    "menatwork/contao-multicolumnwizard-bundle": "^3.6.8",
+    "menatwork/contao-multicolumnwizard-bundle": "^3.6.15",
     "phpcq/runner-bootstrap": "^1.0@dev"
   },
   "autoload": {

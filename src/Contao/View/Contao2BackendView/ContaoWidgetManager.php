@@ -206,7 +206,7 @@ class ContaoWidgetManager
         }
         // Contao DCA allows "ace|sql" syntax to pass the highlight type via pipe.
         [$rteBase, $rteHighlight] = \explode('|', $rte, 2) + [null, null];
-        $rteHighlight = $rteHighlight ?? null;
+        $rteHighlight = $rteHighlight ?? '';
 
         if (!str_starts_with($rteBase, 'tiny') && !str_starts_with($rteBase, 'ace')) {
             return $buffer;
@@ -248,7 +248,7 @@ class ContaoWidgetManager
         $template->tinyMceLanguage = $backendAdapter->getTinyMceLanguage();
         $template->rows = (int) ($propExtra['rows'] ?? 0);
 
-        return $buffer. $template->parse();
+        return $buffer . $template->parse();
     }
 
     /**

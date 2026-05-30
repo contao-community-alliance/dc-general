@@ -573,9 +573,6 @@ class ModelCollector
                 $needDeepSearch = true;
                 continue;
             }
-            if (null === $needDeepSearch) {
-                $needDeepSearch = false;
-            }
             $provider = $this->environment->getDataProvider($condition->getSourceName());
             assert($provider instanceof DataProviderInterface);
 
@@ -585,6 +582,7 @@ class ModelCollector
             if (null !== $parent) {
                 return $parent;
             }
+            $needDeepSearch = true;
         }
 
         if (!$needDeepSearch) {
