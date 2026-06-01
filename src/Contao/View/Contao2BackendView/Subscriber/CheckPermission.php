@@ -28,6 +28,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandColl
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\BooleanCondition;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionChain;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\Factory\Event\BuildDataDefinitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -94,10 +95,21 @@ class CheckPermission implements EventSubscriberInterface
         $palettesDefinition = $container->getPalettesDefinition();
         $definitionName     = $container->getName();
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($palettesDefinition->getPalettes() as $palette) {
+            assert($palette instanceof PaletteInterface);
+            /** @psalm-suppress MixedMethodCall */
+            /** @psalm-suppress MixedAssignment */
             foreach ($palette->getProperties() as $property) {
-                if (!$properties->hasProperty($name = $property->getName())) {
+                assert($property instanceof PropertyInterface);
+                /** @psalm-suppress MixedAssignment */
+                /** @psalm-suppress MixedMethodCall */
+                $name = $property->getName();
+                /** @psalm-suppress MixedArgument */
+                if (!$properties->hasProperty($name)) {
                     // phpcs:disable
+                    /** @psalm-suppress MixedArgument */
+                    /** @psalm-suppress MixedMethodCall */
                     @\trigger_error(
                         \sprintf(
                             'Warning: unknown property "%s" in palette: %s',
@@ -109,8 +121,10 @@ class CheckPermission implements EventSubscriberInterface
                     // phpcs:enable
                     continue;
                 }
+                /** @psalm-suppress MixedArgument */
                 $excluded = $properties->getProperty($name)->isExcluded();
                 // Include all excluded fields which are allowed for the current user.
+                /** @psalm-suppress MixedOperand */
                 if (
                     $excluded
                     && $this->security->isGranted(
@@ -121,6 +135,7 @@ class CheckPermission implements EventSubscriberInterface
                     $excluded = false;
                 }
 
+                /** @psalm-suppress MixedArgument */
                 $this
                     ->getVisibilityConditionChain($property)
                     ->addCondition(new BooleanCondition(!$excluded));

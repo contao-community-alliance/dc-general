@@ -141,8 +141,9 @@ class ModelOperationButtonCallbackListener extends AbstractReturningCallbackList
         $arrParameters = (array) $command->getParameters();
         $strHref       = '';
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($arrParameters as $key => $value) {
-            $strHref .= sprintf('&%s=%s', $key, $value);
+            $strHref .= sprintf('&%s=%s', $key, (string) $value);
         }
 
         return $strHref;

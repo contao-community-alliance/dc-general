@@ -76,7 +76,7 @@ interface PaletteCollectionInterface
     /**
      * Return all palettes in this collection.
      *
-     * @return array|PaletteInterface[]
+     * @return list<PaletteInterface>
      */
     public function getPalettes();
 

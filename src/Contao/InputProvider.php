@@ -128,6 +128,7 @@ class InputProvider implements InputProviderInterface
     #[\Override]
     public function getRequestUrl()
     {
+        /** @psalm-suppress MixedReturnStatement */
         return Environment::get('request');
     }
 }

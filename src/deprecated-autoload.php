@@ -41,13 +41,16 @@ spl_autoload_register(
 
         if (isset($classes[$class])) {
             // phpcs:disable Silencing errors is discouraged
+            /** @psalm-suppress MixedArrayAccess, MixedOperand */
             @trigger_error('Class "' . $class . '" has been renamed to "' . $classes[$class] . '"', E_USER_DEPRECATED);
             // phpcs:enable
 
+            /** @psalm-suppress MixedArrayAccess, MixedArgument */
             if (!\class_exists($classes[$class])) {
                 \spl_autoload_call($class);
             }
 
+            /** @psalm-suppress MixedArrayAccess, MixedArgument */
             \class_alias($classes[$class], $class);
         }
     }

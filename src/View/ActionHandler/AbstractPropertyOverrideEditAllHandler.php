@@ -149,6 +149,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $error = [];
         foreach (\array_keys($modelError) as $modelId) {
+            /** @psalm-suppress MixedArgument */
             $error[] = \sprintf(
                 '<strong><a href="%s#pal_%s">%s</a></strong>',
                 Environment::get('request'),
@@ -167,6 +168,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             }
         }
 
+        /** @psalm-suppress MixedArgument */
         $renderInformation->offsetSet('error', \array_merge($renderInformation->offsetGet('error'), $error));
     }
 
@@ -218,7 +220,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     private function resetPropertyValueErrors(PropertyValueBagInterface $propertyValueBag)
     {
         foreach (\array_keys($propertyValueBag->getInvalidPropertyErrors()) as $errorProperty) {
-            $propertyValueBag->resetPropertyValueErrors($errorProperty);
+            $propertyValueBag->resetPropertyValueErrors((string) $errorProperty);
         }
     }
 
@@ -266,6 +268,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                         $errorPropertyName
                     );
 
+                    /** @psalm-suppress MixedArrayAssignment, MixedArgument */
                     $modelError[ModelId::fromModel($model)->getSerialized()][$errorPropertyName][] = \sprintf(
                         '<a href="%s#%s">No saved model[%s]. %s</a>',
                         Environment::get('request'),
@@ -318,28 +321,28 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionProperties = $this->getPropertiesFromSession($action, $environment);
 
         foreach (\array_keys($sessionProperties) as $sessionPropertyName) {
-            if (!$sourceBag->hasPropertyValue($sessionPropertyName)) {
+            if (!$sourceBag->hasPropertyValue((string) $sessionPropertyName)) {
                 continue;
             }
 
-            if (!$updateBag->isPropertyValueInvalid($sessionPropertyName)) {
+            if (!$updateBag->isPropertyValueInvalid((string) $sessionPropertyName)) {
                 $editModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($model->getId()));
                 assert($editModel instanceof ModelInterface);
 
                 $updateBag->setPropertyValue(
-                    $sessionPropertyName,
-                    $editModel->getProperty($sessionPropertyName)
+                    (string) $sessionPropertyName,
+                    (string) $editModel->getProperty((string) $sessionPropertyName)
                 );
             }
 
-            if ($updateBag->isPropertyValueInvalid($sessionPropertyName)) {
+            if ($updateBag->isPropertyValueInvalid((string) $sessionPropertyName)) {
                 continue;
             }
 
             $updateBag->markPropertyValueAsInvalid(
-                $sessionPropertyName,
+                (string) $sessionPropertyName,
                 $sourceBag->getPropertyValueErrors(
-                    $sessionPropertyName
+                    (string) $sessionPropertyName
                 )
             );
         }
@@ -430,6 +433,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputValues = [];
         foreach (\array_keys($_POST) as $valueName) {
             $valueName = (string) $valueName;
+            /** @psalm-suppress MixedAssignment */
             $inputValues[$valueName] = $inputProvider->getValue($valueName, true);
             $inputProvider->unsetValue($valueName);
 
@@ -443,8 +447,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                 case 'FORM_INPUTS':
                     $inputProvider->setValue($valueName, \array_keys($editProperties));
 
+                    /** @psalm-suppress MixedArgumentTypeCoercion */
                     foreach (\array_keys($editProperties) as $editPropertyName) {
-                        $inputProvider->setValue($editPropertyName, $editProperties[$editPropertyName]);
+                        $inputProvider->setValue($editPropertyName, (string) $editProperties[$editPropertyName]);
                     }
 
                     break;
@@ -484,12 +489,16 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputProvider = $this->getInputProvider($environment);
 
         unset($_POST);
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         foreach (\array_keys($inputValues) as $postName) {
-            $inputProvider->setValue($postName, $inputValues[$postName]);
+            $inputProvider->setValue($postName, (string) $inputValues[$postName]);
         }
 
         foreach (\array_keys($editProperties) as $editedPropertyName) {
-            $propertyValueBag->setPropertyValue($editedPropertyName, $model->getProperty($editedPropertyName));
+            $propertyValueBag->setPropertyValue(
+                (string) $editedPropertyName,
+                (string) $model->getProperty((string) $editedPropertyName)
+            );
         }
     }
 
@@ -579,27 +588,29 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $propertyValueBag = new PropertyValueBag();
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($model->getPropertiesAsArray() as $propertyName => $propertyValue) {
-            if (!$propertiesDefinition->hasProperty($propertyName)) {
+            if (!$propertiesDefinition->hasProperty((string) $propertyName)) {
                 continue;
             }
 
-            $property = $propertiesDefinition->getProperty($propertyName);
+            $property = $propertiesDefinition->getProperty((string) $propertyName);
             if (!$property->getWidgetType()) {
                 continue;
             }
 
             $modelError = $editInformation->getModelError($model);
+            /** @psalm-suppress MixedArrayTypeCoercion */
             if ($modelError && isset($modelError[$propertyName])) {
                 $sessionValues = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
 
-                $propertyValueBag->setPropertyValue($propertyName, $sessionValues[$propertyName]);
-                $propertyValueBag->markPropertyValueAsInvalid($propertyName, $modelError[$propertyName]);
+                $propertyValueBag->setPropertyValue((string) $propertyName, $sessionValues[(string) $propertyName]);
+                $propertyValueBag->markPropertyValueAsInvalid((string) $propertyName, $modelError[$propertyName]);
 
                 continue;
             }
 
-            $propertyValueBag->setPropertyValue($propertyName, $propertyValue);
+            $propertyValueBag->setPropertyValue((string) $propertyName, $propertyValue);
         }
 
         return $propertyValueBag;
@@ -632,14 +643,18 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $editProperties = [];
 
         $modelIds = [];
+        /** @psalm-suppress MixedAssignment */
         foreach (($session['models'] ?? []) as $modelId) {
-            $modelIds[] = ModelId::fromSerialized($modelId)->getId();
+            /** @psalm-suppress MixedAssignment */
+            $modelIds[] = ModelId::fromSerialized((string) $modelId)->getId();
 
             if ($addEditProperties) {
                 $transformed         = \str_replace('::', '____', (string) $modelId) . '_';
+                /** @psalm-suppress MixedAssignment */
                 $modelEditProperties = $inputProvider->getValue($transformed, true);
                 $inputProvider->unsetValue($transformed);
 
+                /** @psalm-suppress MixedAssignment, MixedArrayOffset */
                 $editProperties[$modelId] = $modelEditProperties;
             }
         }
@@ -648,6 +663,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return $dataProvider->getEmptyCollection();
         }
 
+        /** @psalm-suppress MixedAssignment */
         $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
@@ -679,6 +695,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     ) {
         $session = $this->getSession($action, $environment);
 
+        /** @psalm-suppress MixedArrayAccess, MixedReturnStatement */
         return $session['editProperties'][$modelId->getSerialized()] ?? [];
     }
 
@@ -704,6 +721,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return null;
         }
 
+        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = '/bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         $template = new ContaoBackendViewTemplate('dcbe_general_breadcrumb');
@@ -755,11 +773,14 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             $originalModel = clone $revertModel;
             $revertModel->setId($revertModel->getId());
 
+            /** @psalm-suppress MixedAssignment */
             foreach ($properties as $property) {
+                /** @psalm-suppress MixedMethodCall */
                 if (('edit' === $this->getMode($action)) && !\in_array($property->getName(), $modelErrors)) {
                     continue;
                 }
 
+                /** @psalm-suppress MixedArgument, MixedMethodCall, MixedArgument, MixedMethodCall */
                 $revertModel->setProperty($property->getName(), $model->getProperty($property->getName()));
             }
 
@@ -802,6 +823,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     {
         $arguments = $action->getArguments();
 
+        /** @psalm-suppress MixedReturnStatement */
         return $arguments['mode'];
     }
 
@@ -815,6 +837,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
+        /** @psalm-suppress MixedAssignment */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getMode($action));
 
         return (array) $session;
@@ -831,8 +854,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $session = $this->getSession($action, $environment);
 
         $selectPropertyNames = [];
+        /** @psalm-suppress MixedAssignment */
         foreach (($session['properties'] ?? []) as $modelId) {
-            $selectPropertyNames[] = ModelId::fromSerialized($modelId)->getId();
+            /** @psalm-suppress MixedAssignment */
+            $selectPropertyNames[] = ModelId::fromSerialized((string) $modelId)->getId();
         }
 
         $properties = [];
@@ -841,6 +866,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                 continue;
             }
 
+            /** @psalm-suppress MixedArrayOffset, MixedArgument */
             $properties[$propertyName] = $dataDefinition->getPropertiesDefinition()->getProperty($propertyName);
         }
 

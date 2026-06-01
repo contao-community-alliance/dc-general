@@ -76,6 +76,7 @@ class DefaultModel extends AbstractModel
     #[\Override]
     public function getID()
     {
+        /** @psalm-suppress MixedReturnStatement */
         return $this->mixID;
     }
 
@@ -129,6 +130,7 @@ class DefaultModel extends AbstractModel
     {
         if (null === $this->mixID) {
             $this->setIdRaw($mixId);
+            /** @psalm-suppress MixedArgument */
             $this->setMeta(static::IS_CHANGED, true);
         }
     }
@@ -174,6 +176,7 @@ class DefaultModel extends AbstractModel
     public function setProperty($strPropertyName, $varValue)
     {
         if ($varValue !== $this->getProperty($strPropertyName)) {
+            /** @psalm-suppress MixedArgument */
             $this->setMeta(static::IS_CHANGED, true);
             $this->setPropertyRaw($strPropertyName, $varValue);
         }
@@ -193,8 +196,9 @@ class DefaultModel extends AbstractModel
             unset($properties['id']);
         }
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($properties as $propertyName => $value) {
-            $this->setProperty($propertyName, $value);
+            $this->setProperty((string) $propertyName, $value);
         }
     }
 

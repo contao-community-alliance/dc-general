@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -69,10 +69,13 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         $values = [];
         if ($this->getSessionStorage()->has('search')) {
+            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('search');
         }
 
+        /** @psalm-suppress MixedArgument */
         if (\array_key_exists($definition->getName(), $values)) {
+            /** @psalm-suppress MixedArrayAccess, MixedReturnStatement */
             return $values[$definition->getName()];
         }
 
@@ -96,17 +99,22 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         $values = [];
         if ($this->getSessionStorage()->has('search')) {
+            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('search');
         }
 
         if (!empty($searchValue)) {
             if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
+                /** @psalm-suppress MixedArrayAssignment */
                 $values[$definitionName] = [];
             }
 
+            /** @psalm-suppress MixedArrayAccess, MixedArrayAssignment */
             $values[$definitionName]['field'] = $propertyName;
+            /** @psalm-suppress MixedArrayAccess, MixedArrayAssignment */
             $values[$definitionName]['value'] = $searchValue;
         } else {
+            /** @psalm-suppress MixedArrayAccess */
             unset($values[$definitionName]);
         }
 
@@ -128,19 +136,26 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
+                /** @psalm-suppress MixedAssignment */
                 $field = $input->getValue('tl_field');
+                /** @psalm-suppress MixedAssignment */
                 $value = $input->getValue('tl_value');
 
+                /** @psalm-suppress MixedArgument, MixedArgument */
                 $this->setPersistent($field, $value);
             } elseif ($session->has('search')) {
                 $persistent = $this->getPersistent();
                 if ($persistent) {
+                    /** @psalm-suppress MixedAssignment */
                     $field = $persistent['field'];
+                    /** @psalm-suppress MixedAssignment */
                     $value = $persistent['value'];
                 }
             }
 
+            /** @psalm-suppress MixedArgument */
             $this->setSelectedProperty($field);
+            /** @psalm-suppress MixedArgument */
             $this->setValue($value);
         } else {
             $this->setPersistent('', '');
@@ -211,6 +226,8 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
     /**
      * {@inheritDoc}
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     #[\Override]
     public function getPropertyNames(): array
@@ -255,6 +272,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     #[\Override]
     public function getValue()
     {
+        /** @psalm-suppress MixedReturnStatement */
         return $this->mixValue;
     }
 }

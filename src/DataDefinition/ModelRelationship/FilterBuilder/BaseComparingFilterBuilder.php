@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,8 @@
  * @package    contao-community-alliance/dc-general
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -105,13 +106,18 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
 
         if ($isRemote) {
             if ($isRemoteProp) {
+                /** @psalm-suppress MixedAssignment */
                 $value = $array['remote'];
             } else {
+                /** @psalm-suppress MixedAssignment */
                 $value = $array['remote_value'];
             }
+            /** @psalm-suppress MixedAssignment */
             $property = $array['local'];
         } else {
+            /** @psalm-suppress MixedAssignment */
             $value    = $array['value'];
+            /** @psalm-suppress MixedAssignment */
             $property = $array['property'];
         }
 
@@ -119,7 +125,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
             throw new DcGeneralInvalidArgumentException('Invalid filter array provided  ' . \var_export($array, true));
         }
 
-        /** @psalm-suppress UnsafeInstantiation */
+        /** @psalm-suppress UnsafeInstantiation, MixedArgument */
         return new static($property, $value, $isRemote, $isRemoteProp);
     }
 
@@ -134,11 +140,14 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
         if ($this->isRemote()) {
             $result['local'] = $this->getProperty();
             if ($this->isRemoteProperty()) {
+                /** @psalm-suppress MixedAssignment */
                 $result['remote'] = $this->value;
             } else {
+                /** @psalm-suppress MixedAssignment */
                 $result['remote_value'] = $this->value;
             }
         } else {
+            /** @psalm-suppress MixedAssignment */
             $result['value']    = $this->value;
             $result['property'] = $this->getProperty();
         }

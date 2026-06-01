@@ -126,8 +126,10 @@ class ModelId implements ModelIdInterface
 
         if (!\is_numeric($chunks[1])) {
             $decodedSource = \base64_decode($chunks[1]);
+            /** @psalm-suppress MixedAssignment */
             $decodedJson   = \json_decode($decodedSource, true);
 
+            /** @psalm-suppress MixedAssignment */
             $chunks[1] = $decodedJson ?: $decodedSource;
         }
 

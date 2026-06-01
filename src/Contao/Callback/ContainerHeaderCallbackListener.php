@@ -55,7 +55,7 @@ class ContainerHeaderCallbackListener extends AbstractReturningCallbackListener
             return;
         }
 
-        $event->setAdditional($value);
+        $event->setAdditional((array) $value);
         $event->stopPropagation();
     }
 }

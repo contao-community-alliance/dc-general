@@ -117,7 +117,7 @@ class FileSelect
 
         $ajax = $this->runAjaxRequest();
 
-        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
 
         $this->setupItemContainer($modelId);
 
@@ -131,6 +131,7 @@ class FileSelect
         assert($sessionStorage instanceof SessionStorageInterface);
 
         // Define the current ID.
+        /** @psalm-suppress MixedArgument */
         \define(
             'CURRENT_ID',
             ($modelId->getDataProviderName()
@@ -151,10 +152,12 @@ class FileSelect
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->language = $GLOBALS['TL_LANGUAGE'];
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        /** @psalm-suppress MixedArrayAccess, MixedArgument */
         $template->title = StringUtil::specialchars($GLOBALS['TL_LANG']['MSC']['treepicker']);
         /**
          * @psalm-suppress UndefinedMagicPropertyAssignment
          * @psalm-suppress UndefinedDocblockClass
+         * @psalm-suppress MixedArrayAccess
          */
         $template->charset = $GLOBALS['TL_CONFIG']['characterSet'];
         /**
@@ -164,15 +167,19 @@ class FileSelect
          */
         $template->addSearch = $fileSelector->searchField;
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        /** @psalm-suppress MixedArrayAccess */
         $template->search = $GLOBALS['TL_LANG']['MSC']['search'];
+        /** @psalm-suppress MixedArgument */
         $template->action = StringUtil::ampersand(Environment::get('request'));
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->value = $sessionStorage->get('file_selector_search');
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        /** @psalm-suppress MixedArrayAccess */
         $template->manager = $GLOBALS['TL_LANG']['MSC']['treepickerManager'];
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->managerHref = '';
 
+        /** @psalm-suppress MixedArrayAccess */
         if (
             'tl_files' !== $inputProvider->getValue('do')
             && (null === $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'])
@@ -180,6 +187,7 @@ class FileSelect
             Backend::addFilesBreadcrumb('tl_files_picker');
         }
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
+        /** @psalm-suppress MixedArrayAccess */
         $template->breadcrumb = $GLOBALS['TL_DCA']['tl_files']['list']['sorting']['breadcrumb'];
 
         $user = BackendUser::getInstance();
@@ -187,6 +195,7 @@ class FileSelect
         /** @psalm-suppress UndefinedMethod */
         if ($user->hasAccess('files', 'modules')) {
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
+            /** @psalm-suppress MixedArrayAccess */
             $template->manager = $GLOBALS['TL_LANG']['MSC']['fileManager'];
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $template->managerHref = 'contao/main.php?do=files&amp;popup=1';
@@ -198,13 +207,16 @@ class FileSelect
          */
         if (Input::get('switch') && $user->hasAccess('page', 'modules')) {
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
+            /** @psalm-suppress MixedArrayAccess */
             $template->switch = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
+            /** @psalm-suppress MixedArgument */
             $template->switchHref =
                 \str_replace('contao/file.php', 'contao/page.php', StringUtil::ampersand(Environment::get('request')));
         }
 
         // Prevent debug output at all cost.
+        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_CONFIG']['debugMode'] = false;
         //$template->output();
     }
@@ -258,7 +270,9 @@ class FileSelect
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
+        /** @psalm-suppress MixedAssignment */
         $propertyName = $inputProvider->getParameter('field');
+        /** @psalm-suppress MixedArrayAccess, MixedArrayOffset */
         $information  = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
 
         if (!isset($information['eval'])) {
@@ -272,6 +286,7 @@ class FileSelect
         assert($definition instanceof ContainerInterface);
 
         // Merge with the information from the data container.
+        /** @psalm-suppress MixedArgument */
         $property = $definition->getPropertiesDefinition()->getProperty($propertyName);
         $extra    = $property->getExtra();
 
@@ -281,6 +296,7 @@ class FileSelect
         assert($sessionStorage instanceof SessionStorageInterface);
         $sessionStorage->set('filePickerRef', Environment::get('request'));
 
+        /** @psalm-suppress MixedArgument */
         $combat = new DcCompat($itemContainer->getEnvironment(), $this->getActiveModel($modelId), $propertyName);
 
         /**
@@ -288,6 +304,8 @@ class FileSelect
          *
          * @psalm-suppress DeprecatedClass
          * @psalm-suppress UndefinedDocblockClass
+         * @psalm-suppress MixedMethodCall
+         * @psalm-suppress MixedArrayAccess
          */
         $fileSelector = new $GLOBALS['BE_FFL']['fileSelector'](
             Widget::getAttributesFromDca(
@@ -332,25 +350,31 @@ class FileSelect
         assert($inputProvider instanceof InputProviderInterface);
 
         $fileSelectorValues = [];
-        foreach (\array_filter(\explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
+        foreach (\array_filter(\explode(',', (string) $inputProvider->getParameter('value'))) as $k => $v) {
             // Can be a UUID or a path
             if (Validator::isStringUuid($v)) {
                 $fileSelectorValues[$k] = StringUtil::uuidToBin($v);
             }
         }
 
+        /** @psalm-suppress MixedArrayAccess */
         if (\is_array($GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'])) {
+            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             $callbacks = $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName]['load_callback'];
+            /** @psalm-suppress MixedAssignment */
             foreach ($callbacks as $callback) {
                 if (\is_array($callback)) {
+                    /** @psalm-suppress MixedAssignment */
                     $fileSelectorValues =
                         Callbacks::callArgs($callback, [$fileSelectorValues, $combat]);
                 } elseif (\is_callable($callback)) {
+                    /** @psalm-suppress MixedAssignment */
                     $fileSelectorValues = $callback($fileSelectorValues, $combat);
                 }
             }
         }
 
+        /** @psalm-suppress MixedReturnStatement */
         return $fileSelectorValues;
     }
 

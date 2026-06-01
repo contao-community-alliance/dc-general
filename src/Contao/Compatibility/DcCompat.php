@@ -170,7 +170,7 @@ class DcCompat extends General
                     return null;
                 }
 
-                $modelId = ModelId::fromSerialized($inputProvider->getParameter($idParameter));
+                $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter($idParameter));
                 if ($modelId->getDataProviderName() === $dataDefinition->getName()) {
                     return $modelId->getId();
                 }
@@ -183,7 +183,7 @@ class DcCompat extends General
                     return null;
                 }
 
-                $parentModelId = ModelId::fromSerialized($inputProvider->getParameter('pid'));
+                $parentModelId = ModelId::fromSerialized((string) $inputProvider->getParameter('pid'));
                 if ($dataDefinition->getName() !== $parentModelId->getDataProviderName()) {
                     return null;
                 }
@@ -240,12 +240,14 @@ class DcCompat extends General
         throw new DcGeneralRuntimeException('The magic property ' . $name . ' is not supported (yet)!');
     }
 
+    /** @psalm-suppress MixedReturnTypeCoercion */
     #[\Override]
     public function getCurrentRecord(int|string|null $id = null, string|null $table = null): array|null
     {
         // FIXME: we can not implement this properly with dc caching as in DataContainer due to static functions there.
 
         if ((null === $id && null === $table) && $this->model instanceof ModelInterface) {
+            /** @psalm-suppress MixedReturnTypeCoercion */
             return $this->model->getPropertiesAsArray();
         }
 

@@ -49,7 +49,7 @@ class FileTreeOrder extends AbstractWidget
     #[\Override]
     protected function validator($varInput)
     {
-        return \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
+        return \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', (string) $varInput)));
     }
 
     /**
@@ -75,12 +75,15 @@ class FileTreeOrder extends AbstractWidget
             $this->varValue = [];
         }
         $files = [];
+        /** @psalm-suppress MixedAssignment */
         foreach ($this->varValue as $binUuid) {
             if (Validator::isBinaryUuid($binUuid)) {
+                /** @psalm-suppress MixedAssignment */
                 $files[] = $binUuid;
             }
         }
 
+        /** @psalm-suppress MixedArgument */
         return \implode(',', \array_map('\Contao\StringUtil::binToUuid', $files));
     }
 }

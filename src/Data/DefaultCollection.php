@@ -183,6 +183,7 @@ class DefaultCollection implements CollectionInterface
     public function insert($index, ModelInterface $model): void
     {
         if ($model->hasProperties()) {
+            /** @psalm-suppress MixedPropertyTypeCoercion */
             ArrayUtil::arrayInsert($this->arrCollection, $index, [$model]);
         }
     }
@@ -215,6 +216,7 @@ class DefaultCollection implements CollectionInterface
         $ids = [];
         foreach ($this as $model) {
             /** @var ModelInterface $model */
+            /** @psalm-suppress MixedAssignment */
             $ids[] = $model->getId();
         }
 

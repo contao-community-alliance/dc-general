@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -96,10 +96,13 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         $values = [];
         if ($this->getSessionStorage()->has('sorting')) {
+            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('sorting');
         }
 
+        /** @psalm-suppress MixedArgument */
         if (\array_key_exists($definition->getName(), $values)) {
+            /** @psalm-suppress MixedArrayAccess, MixedReturnStatement */
             return $values[$definition->getName()];
         }
 
@@ -123,12 +126,15 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         $values = [];
 
         if ($this->getSessionStorage()->has('sorting')) {
+            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('sorting');
         }
 
         if ($propertyName) {
+            /** @psalm-suppress MixedArrayAssignment */
             $values[$definitionName] = $propertyName;
         } else {
+            /** @psalm-suppress MixedArrayAccess */
             unset($values[$definitionName]);
         }
 
@@ -173,8 +179,10 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
+                /** @psalm-suppress MixedAssignment */
                 $value = $input->getValue('tl_sort');
 
+                /** @psalm-suppress MixedArgument */
                 $this->setPersistent($value);
             }
 
@@ -183,6 +191,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
                 if ($this->getGroupAndSortingDefinition()->hasDefault()) {
                     $persistent = $this->getGroupAndSortingDefinition()->getDefault()->getName();
                 }
+                /** @psalm-suppress MixedArgument */
                 $this->setPersistent($value);
             }
 

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -197,24 +197,30 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         ];
 
         if (isset($filter['local'])) {
+            /** @psalm-suppress MixedAssignment */
             $applied['property'] = $filter['local'];
         }
 
         if (isset($filter['remote'])) {
-            $applied['value'] = $model->getProperty($filter['remote']);
+            /** @psalm-suppress MixedAssignment */
+            $applied['value'] = $model->getProperty((string) $filter['remote']);
         }
 
         if (isset($filter['remote_value'])) {
+            /** @psalm-suppress MixedAssignment */
             $applied['value'] = $filter['remote_value'];
         }
 
         if (isset($filter['value'])) {
+            /** @psalm-suppress MixedAssignment */
             $applied['value'] = $filter['value'];
         }
 
         if (isset($filter['children'])) {
-            foreach ($filter['children'] as $child) {
-                $applied['children'][] = $this->parseFilter($child, $model);
+            /** @psalm-suppress MixedAssignment */
+            foreach ((array) $filter['children'] as $child) {
+                /** @psalm-suppress MixedArgument */
+                $applied['children'][] = $this->parseFilter((array) $child, $model);
             }
         }
 
@@ -230,8 +236,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     public function getFilter($parent)
     {
         $result = [];
+        /** @psalm-suppress MixedAssignment */
         foreach ($this->getFilterArray() as $child) {
-            $result[] = $this->parseFilter($child, $parent);
+            /** @psalm-suppress MixedArgument */
+            $result[] = $this->parseFilter((array) $child, $parent);
         }
 
         return $result;
@@ -274,6 +282,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             );
         }
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($setters as $setter) {
             if (!$this->isValidSetter($setter)) {
                 throw new DcGeneralRuntimeException(
@@ -286,12 +295,17 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             }
 
             if (isset($setter['from_field'])) {
-                $objChild->setProperty($setter['to_field'], $objParent->getProperty($setter['from_field']));
+                /** @psalm-suppress MixedArrayAccess, MixedArgument */
+                $objChild->setProperty(
+                    (string) $setter['to_field'],
+                    $objParent->getProperty((string) $setter['from_field'])
+                );
 
                 continue;
             }
 
-            $objChild->setProperty($setter['to_field'], $setter['value']);
+            /** @psalm-suppress MixedArrayAccess, MixedArgument */
+            $objChild->setProperty((string) $setter['to_field'], $setter['value']);
         }
     }
 
@@ -318,6 +332,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             );
         }
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($setters as $setter) {
             if (!$this->isValidSetter($setter)) {
                 throw new DcGeneralRuntimeException(
@@ -330,12 +345,17 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             }
 
             if (isset($setter['from_field'])) {
-                $destinationModel->setProperty($setter['to_field'], $sourceModel->getProperty($setter['to_field']));
+                /** @psalm-suppress MixedArrayAccess, MixedArgument */
+                $destinationModel->setProperty(
+                    (string) $setter['to_field'],
+                    $sourceModel->getProperty((string) $setter['to_field'])
+                );
 
                 continue;
             }
 
-            $destinationModel->setProperty($setter['to_field'], $setter['value']);
+            /** @psalm-suppress MixedArrayAccess, MixedArgument */
+            $destinationModel->setProperty((string) $setter['to_field'], $setter['value']);
         }
     }
 
@@ -348,20 +368,25 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         $this->guardProviderNames($child);
 
         $result = [];
+        /** @psalm-suppress MixedAssignment */
+        /** @psalm-suppress MixedAssignment, MixedArrayAccess */
         foreach ($this->getInverseFilterArray() as $arrRule) {
             $applied = [
                 'operation' => $arrRule['operation'],
             ];
 
             if (isset($arrRule['remote'])) {
+                /** @psalm-suppress MixedAssignment, MixedArrayAccess */
                 $applied['property'] = $arrRule['remote'];
             }
 
             if (isset($arrRule['local'])) {
-                $applied['value'] = $child->getProperty($arrRule['local']);
+                /** @psalm-suppress MixedAssignment, MixedArrayAccess, MixedArgument */
+                $applied['value'] = $child->getProperty((string) $arrRule['local']);
             }
 
             if (isset($arrRule['value'])) {
+                /** @psalm-suppress MixedAssignment, MixedArrayAccess */
                 $applied['value'] = $arrRule['value'];
             }
 
@@ -392,8 +417,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         if (\in_array($rule['operation'], ['AND', 'OR'])) {
             $children = [];
 
+            /** @psalm-suppress MixedAssignment */
             foreach ($rule['children'] as $childRule) {
-                $children[] = $this->prepareRule($childRule, $child);
+                /** @psalm-suppress MixedArgument */
+                $children[] = $this->prepareRule((array) $childRule, $child);
             }
 
             $applied['children'] = $children;
@@ -403,15 +430,19 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
         // Local is child property name.
         if (isset($rule['local'])) {
-            $applied['value'] = $child->getProperty($rule['local']);
+            /** @psalm-suppress MixedAssignment, MixedArrayAccess, MixedArgument */
+            $applied['value'] = $child->getProperty((string) $rule['local']);
         } elseif (isset($rule['value'])) {
+            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             $applied['value'] = $rule['value'];
         }
 
         // Remote is parent property name.
         if (isset($rule['remote'])) {
+            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             $applied['property'] = $rule['remote'];
         } elseif (isset($rule['remote_value'])) {
+            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             $applied['remote_value'] = $rule['remote_value'];
         }
 
@@ -449,15 +480,20 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
      * @return list<string>
      *
      * @throws \RuntimeException When an unexpected filter rule is encountered.
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function extractNeededProperties($rule)
     {
         if (\in_array($rule['operation'], ['AND', 'OR'])) {
             $properties = [[]];
+            /** @psalm-suppress MixedAssignment */
             foreach ($rule['children'] ?? [] as $childRule) {
-                $properties[] = $this->extractNeededProperties($childRule);
+                /** @psalm-suppress MixedArgument */
+                $properties[] = $this->extractNeededProperties((array) $childRule);
             }
 
+            /** @psalm-suppress MixedReturnTypeCoercion */
             return \array_merge(...$properties);
         }
 
@@ -491,6 +527,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             );
         }
 
+        /** @psalm-suppress MixedReturnTypeCoercion */
         return $this->neededProperties;
     }
 

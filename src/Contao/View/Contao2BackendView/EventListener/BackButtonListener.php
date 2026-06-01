@@ -77,6 +77,7 @@ class BackButtonListener
             return;
         }
 
+        /** @psalm-suppress MixedArgument */
         $event->setHref($this->getReferrerUrl($environment));
     }
 

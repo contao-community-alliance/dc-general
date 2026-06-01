@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -174,16 +174,19 @@ class WidgetBuilder implements EnvironmentAwareInterface
     protected function getWidgetClass(PropertyInterface $property)
     {
         if (isset(static::$widgetMapping[$property->getWidgetType()])) {
+            /** @psalm-suppress MixedReturnStatement */
             return static::$widgetMapping[$property->getWidgetType()];
         }
 
+        /** @psalm-suppress MixedArrayAccess, MixedAssignment */
         $className = $GLOBALS['BE_FFL'][$property->getWidgetType()] ?? '';
-        if (!class_exists($className)) {
+        if (!class_exists((string) $className)) {
             throw new DcGeneralRuntimeException(
                 sprintf('Failed to get widget class for property "%s".', $property->getName())
             );
         }
 
+        /** @psalm-suppress MixedReturnStatement, LessSpecificReturnStatement */
         return $className;
     }
 
@@ -432,6 +435,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
             assert($definition instanceof ContainerInterface);
 
             $generator = System::getContainer()->get('router');
+            assert($generator instanceof \Symfony\Component\Routing\RouterInterface);
+            /** @psalm-suppress MixedMethodCall */
             return strtr(
                 ' <a href="{url}" title="{title}" ' .
                 'onclick="Backend.openModalIframe({\'title\':\'{windowTitle}\',\'url\':this.href});' .
@@ -515,10 +520,12 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $class       = $this->getWidgetClass($property);
 
         $prepareAttributes = $this->prepareWidgetAttributes($model, $property);
+        /** @psalm-suppress MixedMethodCall */
         $widget            = new $class($prepareAttributes, new DcCompat($environment, $model, $property->getName()));
         assert($widget instanceof Widget);
 
         // OH: what is this? source: DataContainer 232.
+        /** @psalm-suppress MixedMethodCall */
         $widget->currentRecord = $model->getId();
 
         $widget->xlabel .= $this->getXLabel($property);
@@ -553,6 +560,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         assert($dispatcher instanceof EventDispatcherInterface);
 
         $dispatcher->dispatch($event, $event::NAME);
+        /** @psalm-suppress MixedAssignment */
         $value = $event->getValue();
 
         $propExtra = $property->getExtra();
@@ -588,6 +596,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         $defName   = $definition->getName();
         $propExtra = $property->getExtra();
+        /** @psalm-suppress MixedAssignment */
         $value     = $this->valueToWidget($model, $property);
 
         $propExtra['required'] = ('' === $value) && !empty($propExtra['mandatory']);
@@ -612,11 +621,15 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         if (isset($propExtra['reference'])) {
             $references = [];
+            /** @psalm-suppress MixedAssignment */
             foreach ($propExtra['reference'] as $refName => $refLabelKey) {
                 if (!is_string($refLabelKey)) {
+                    /** @psalm-suppress MixedAssignment */
+                    /** @psalm-suppress MixedArrayOffset */
                     $references[$refName] = $refName;
                     continue;
                 }
+                /** @psalm-suppress MixedArrayOffset */
                 $references[$refName] = $this->translator->trans($refLabelKey, [], $defName);
             }
             $widgetConfig['reference'] = $references;

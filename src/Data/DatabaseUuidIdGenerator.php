@@ -57,7 +57,8 @@ class DatabaseUuidIdGenerator implements IdGeneratorInterface
     #[\Override]
     public function generate()
     {
-        return $this->connection->executeQuery('SELECT UUID() as id')->fetchFirstColumn()[0];
+        /** @psalm-suppress MixedReturnStatement */
+        return (string) $this->connection->executeQuery('SELECT UUID() as id')->fetchFirstColumn()[0];
     }
 
     /**

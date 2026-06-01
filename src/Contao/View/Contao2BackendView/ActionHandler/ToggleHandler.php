@@ -165,6 +165,7 @@ class ToggleHandler
         // Select the previous language.
         if (isset($language)) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
+            /** @psalm-suppress MixedArgument */
             $dataProvider->setCurrentLanguage($language);
         }
     }
@@ -217,16 +218,18 @@ class ToggleHandler
         assert($inputProvider instanceof InputProviderInterface);
 
         if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+            $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
         }
 
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
+        /** @psalm-suppress MixedMethodCall */
         if (!(isset($modelId) && ($definition->getName() === $modelId->getDataProviderName()))) {
             return null;
         }
 
+        /** @psalm-suppress MixedReturnStatement */
         return $modelId;
     }
 

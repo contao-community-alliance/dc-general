@@ -144,8 +144,12 @@ class FileTree extends AbstractWidget
     {
         parent::__construct($attributes, $dataContainer);
 
+        /** @psalm-suppress MixedAssignment */
         $this->allowedDownload =
-            ($attributes['allowedDownload'] ?? StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload'))));
+            ($attributes['allowedDownload'] ?? StringUtil::trimsplit(
+                ',',
+                \strtolower((string) Config::get('allowedDownload'))
+            ));
 
         $this->setUp();
     }
@@ -163,18 +167,22 @@ class FileTree extends AbstractWidget
     {
         switch ($strKey) {
             case 'subTemplate':
+                /** @psalm-suppress MixedAssignment */
                 $this->subTemplate = $varValue;
                 break;
 
             case 'thumbnailHeight':
+                /** @psalm-suppress MixedAssignment */
                 $this->thumbnailHeight = $varValue;
                 break;
 
             case 'thumbnailWidth':
+                /** @psalm-suppress MixedAssignment */
                 $this->thumbnailWidth = $varValue;
                 break;
 
             case 'placeholderImage':
+                /** @psalm-suppress MixedAssignment */
                 $this->placeholderImage = $varValue;
                 break;
 
@@ -265,6 +273,7 @@ class FileTree extends AbstractWidget
         $model = $this->dataContainer->getModel();
         assert($model instanceof ModelInterface);
 
+        /** @psalm-suppress MixedAssignment */
         $value = $model->getProperty($this->orderField);
 
         // support serialized values.
@@ -301,7 +310,7 @@ class FileTree extends AbstractWidget
             return '';
         }
 
-        $varInput = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
+        $varInput = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', (string) $varInput)));
 
         return $this->multiple ? $varInput : $varInput[0];
     }
@@ -473,6 +482,7 @@ class FileTree extends AbstractWidget
         if (('' !== $this->orderField) && \is_array($this->orderFieldValue)) {
             $ordered = [];
 
+            /** @psalm-suppress MixedAssignment */
             foreach ($this->orderFieldValue as $uuid) {
                 $iconKey = \md5($uuid);
                 if (isset($icons[$iconKey])) {
@@ -481,8 +491,9 @@ class FileTree extends AbstractWidget
                 }
             }
 
+            /** @psalm-suppress MixedAssignment */
             foreach ($icons as $uuid => $icon) {
-                $ordered[\md5($uuid)] = $icon;
+                $ordered[\md5((string) $uuid)] = $icon;
             }
 
             $icons = $ordered;
@@ -606,7 +617,8 @@ class FileTree extends AbstractWidget
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $propertyName = $inputProvider->getValue('name');
+        $propertyName = (string) $inputProvider->getValue('name');
+        /** @psalm-suppress MixedArrayAccess */
         $information  = (array) $GLOBALS['TL_DCA'][$dataContainer->getName()]['fields'][$propertyName];
 
         // Merge with the information from the data container.
@@ -618,10 +630,11 @@ class FileTree extends AbstractWidget
         $combat = new DcCompat($environment, null, $propertyName);
 
         /** @var class-string<FileSelector> $widgetClass */
-        /** @psalm-suppress DeprecatedClass - we know we are deprecated ourselves. :D */
+        // phpcs:ignore Generic.Files.LineLength.TooLong
+        /** @psalm-suppress DeprecatedClass, MixedAssignment, MixedArrayAccess */
         $widgetClass = $GLOBALS['BE_FFL']['fileSelector'];
 
-        /** @psalm-suppress UnsafeInstantiation - no better way to instantiate :( */
+        /** @psalm-suppress UnsafeInstantiation, MixedMethodCall */
         $widget = new $widgetClass(
             $widgetClass::getAttributesFromDca(
                 $information,
@@ -635,15 +648,17 @@ class FileTree extends AbstractWidget
 
         // Load a particular node
         if ('' !== $inputProvider->getValue('folder', true)) {
+            /** @psalm-suppress MixedAssignment, MixedMethodCall */
             $content = $widget->generateAjax(
                 $inputProvider->getValue('folder', true),
                 $inputProvider->getValue('field'),
                 (int) $inputProvider->getValue('level')
             );
         } else {
+            /** @psalm-suppress MixedAssignment, MixedMethodCall */
             $content = $widget->generate();
         }
 
-        throw new ResponseException(new Response($content));
+        throw new ResponseException(new Response((string) $content));
     }
 }

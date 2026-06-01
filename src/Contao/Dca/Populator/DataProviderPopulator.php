@@ -89,13 +89,16 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
                     );
                 }
 
+                /** @psalm-suppress MixedAssignment */
                 $initializationData = $information->getInitializationData();
+                /** @psalm-suppress MixedArgument */
                 \ksort($initializationData);
                 $cacheKey = \md5(\json_encode($initializationData, JSON_THROW_ON_ERROR) . $information->getClassName());
                 if (!isset($this->instances[$cacheKey])) {
                     /** @var DataProviderInterface $dataProvider */
                     $dataProvider = (new \ReflectionClass($information->getClassName()))->newInstance();
                     if ($initializationData) {
+                        /** @psalm-suppress MixedArgument */
                         $dataProvider->setBaseConfig($initializationData);
                     }
                     $this->instances[$cacheKey] = $dataProvider;

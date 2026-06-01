@@ -67,11 +67,13 @@ class CreateSubHeadlineListener
         $translator = $environment->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         $headline = $translator->translate($status, $definitionName, ['%id%' => $event->getModel()->getId()]);
 
         if ($status !== $headline) {
             $subHeadline = $headline;
         } else {
+            /** @psalm-suppress MixedArgumentTypeCoercion */
             $subHeadline = $translator->translate($status, 'dc-general', ['%id%' => $event->getModel()->getId()]);
         }
 

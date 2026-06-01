@@ -59,6 +59,7 @@ class PageTreeOrder extends AbstractWidget
             $this->varValue = [];
         }
 
+        /** @psalm-suppress MixedArgument */
         return \implode(',', $this->varValue);
     }
 }

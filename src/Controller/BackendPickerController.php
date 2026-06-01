@@ -1,5 +1,22 @@
 <?php
 
+/**
+ * This file is part of contao-community-alliance/dc-general.
+ *
+ * (c) 2013-2026 Contao Community Alliance.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * This project is provided in good faith and hope to be usable by anyone.
+ *
+ * @package    contao-community-alliance/dc-general
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
+ * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
+ * @filesource
+ */
+
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -108,7 +125,11 @@ final readonly class BackendPickerController
         return $response;
     }
 
-    /** @return array{0: string|list<string>, 1: TreePicker, 2: PickerInterface} */
+    /**
+     * @return array{0: string|list<string>, 1: TreePicker, 2: PickerInterface}
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
+     */
     private function getTemplateData(Request $request): array
     {
         if ('' === ($pickerConfig = (string) $request->query->get('picker'))) {
@@ -128,6 +149,7 @@ final readonly class BackendPickerController
 
         $sessionBag->set($treeSelector->getSearchSessionKey(), $value);
 
+        /** @psalm-suppress MixedReturnTypeCoercion */
         return [
             $sessionBag->get($treeSelector->getSearchSessionKey()),
             $treeSelector,
@@ -138,7 +160,9 @@ final readonly class BackendPickerController
     /** @throws InvalidArgumentException If invalid characters in the data provider name. */
     private function prepareTreeSelector(PickerInterface $picker): TreePicker
     {
-        if (Validator::isInsecurePath($table = $picker->getConfig()->getExtra('sourceName'))) {
+        /** @psalm-suppress MixedAssignment */
+        $table = $picker->getConfig()->getExtra('sourceName');
+        if (Validator::isInsecurePath((string) $table)) {
             throw new InvalidArgumentException('The table name contains invalid characters');
         }
 
@@ -149,7 +173,7 @@ final readonly class BackendPickerController
         assert($sessionBag instanceof AttributeBagInterface);
 
         $itemContainer = (new DcGeneralFactory())
-            ->setContainerName($table)
+            ->setContainerName((string) $table)
             ->setTranslator(new SymfonyTranslatorBridge($this->translator))
             ->setEventDispatcher($this->dispatcher)
             ->createDcGeneral();
@@ -158,15 +182,16 @@ final readonly class BackendPickerController
         assert($definition instanceof ContainerInterface);
 
         $dcCompat = new DcCompat($itemContainer->getEnvironment());
+        /** @psalm-suppress MixedArgument */
         $treeSelector = new TreePicker(
             Widget::getAttributesFromDca(
                 [
-                    'eval' => ['sourceName' => $table, 'idProperty' => 'id']
+                    'eval' => ['sourceName' => (string) $table, 'idProperty' => 'id']
                 ],
                 'id',
                 null,
                 'id',
-                $table,
+                (string) $table,
                 $dcCompat
             ),
             $dcCompat

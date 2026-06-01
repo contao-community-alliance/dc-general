@@ -139,10 +139,13 @@ class GlobalButtonRenderer
         }
 
         if (isset($extra['href'])) {
+            /** @psalm-suppress MixedAssignment */
             $href = $extra['href'];
         } else {
             $href = '';
+            /** @psalm-suppress MixedAssignment */
             foreach ($command->getParameters() as $key => $value) {
+                /** @psalm-suppress MixedOperand */
                 $href .= '&' . $key . '=' . $value;
             }
 
@@ -161,11 +164,11 @@ class GlobalButtonRenderer
 
         $buttonEvent = new GetGlobalButtonEvent($this->environment);
         $buttonEvent
-            ->setAccessKey(isset($extra['accesskey']) ? \trim($extra['accesskey']) : '')
-            ->setAttributes(' ' . \ltrim($extra['attributes'] ?? ''))
-            ->setClass($extra['class'] ?? '')
+            ->setAccessKey(isset($extra['accesskey']) ? \trim((string) $extra['accesskey']) : '')
+            ->setAttributes(' ' . \ltrim((string) ($extra['attributes'] ?? '')))
+            ->setClass((string) ($extra['class'] ?? ''))
             ->setKey($command->getName())
-            ->setHref($href)
+            ->setHref((string) $href)
             ->setLabel($label)
             ->setTitle($description);
         $this->dispatcher->dispatch($buttonEvent, GetGlobalButtonEvent::NAME);

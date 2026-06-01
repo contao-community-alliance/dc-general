@@ -77,15 +77,18 @@ class SessionStorage implements SessionStorageInterface
             return;
         }
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($databaseKeys as $index => $databaseKeyItems) {
             foreach ((array) $databaseKeyItems as $databaseKey) {
-                if (('common' === $index) || (\str_starts_with($index, 'DC_GENERAL_'))) {
+                if (('common' === $index) || (\str_starts_with((string) $index, 'DC_GENERAL_'))) {
+                    /** @psalm-suppress MixedArrayAssignment */
                     $this->databaseKeys[$index][] = $databaseKey;
 
                     continue;
                 }
 
-                $this->databaseKeys['DC_GENERAL_' . \strtoupper($index)][] = $databaseKey;
+                /** @psalm-suppress MixedArrayAssignment */
+                $this->databaseKeys['DC_GENERAL_' . \strtoupper((string) $index)][] = $databaseKey;
             }
         }
     }
@@ -245,16 +248,23 @@ class SessionStorage implements SessionStorageInterface
      */
     private function filterAttributes(bool $determineDatabase = false): array
     {
+        /** @psalm-suppress MixedAssignment */
         $databaseAttributes = $this->databaseKeys['common'] ?? [];
         if (null !== ($scope = $this->getScope())) {
-            $databaseAttributes = \array_merge($databaseAttributes, $this->databaseKeys[$scope] ?? []);
+            /** @psalm-suppress MixedArgument */
+            $databaseAttributes = \array_merge(
+                (array) $databaseAttributes,
+                (array) ($this->databaseKeys[$scope] ?? [])
+            );
         }
 
         if ($determineDatabase) {
-            return \array_intersect_key($this->attributes, \array_flip($databaseAttributes));
+            /** @psalm-suppress MixedArgument */
+            return \array_intersect_key($this->attributes, \array_flip((array) $databaseAttributes));
         }
 
-        return \array_diff_key($this->attributes, \array_flip($databaseAttributes));
+        /** @psalm-suppress MixedArgument */
+        return \array_diff_key($this->attributes, \array_flip((array) $databaseAttributes));
     }
 
     /**

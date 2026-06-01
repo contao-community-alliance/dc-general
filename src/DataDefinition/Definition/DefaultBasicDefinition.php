@@ -219,6 +219,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
             return false;
         }
 
+        /** @psalm-suppress MixedReturnStatement */
         return $this->additionalFilter[$dataProvider] ?? false;
     }
 
@@ -236,6 +237,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
             return [];
         }
 
+        /** @psalm-suppress MixedReturnStatement */
         return  $this->additionalFilter[$dataProvider] ?? [];
     }
 

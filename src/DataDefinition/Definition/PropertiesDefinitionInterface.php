@@ -27,7 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 /**
  * This interface describes the data definition that holds all property information.
  *
- * @extends \IteratorAggregate<int, PropertyInterface>
+ * @extends \IteratorAggregate<string, PropertyInterface>
  */
 interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAggregate
 {
@@ -39,14 +39,14 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
     /**
      * Get all properties.
      *
-     * @return PropertyInterface[]|array
+     * @return PropertyInterface[]
      */
     public function getProperties();
 
     /**
      * Get all property names.
      *
-     * @return string[]|array
+     * @return string[]
      */
     public function getPropertyNames();
 

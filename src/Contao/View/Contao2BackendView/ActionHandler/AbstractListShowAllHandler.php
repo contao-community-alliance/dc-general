@@ -416,7 +416,8 @@ abstract class AbstractListShowAllHandler
         $event = new FormatModelLabelEvent($environment, $model);
         $dispatcher->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
-        $model->setMeta($model::LABEL_VALUE, $event->getLabel());
+        /** @psalm-suppress MixedArgument, InvalidCast */
+        $model->setMeta($model::LABEL_VALUE, (string) $event->getLabel());
     }
 
     /**
@@ -459,7 +460,7 @@ abstract class AbstractListShowAllHandler
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
         // Fixup form action for edit multiple selection screens.
-        $action = '/' . StringUtil::ampersand(Environment::get('request'));
+        $action = '/' . StringUtil::ampersand((string) Environment::get('request'));
         if (
 //            ('tl_select' === $provider->getValue('FORM_SUBMIT'))
 //            && (null !== $provider->getValue('edit'))
@@ -568,12 +569,16 @@ abstract class AbstractListShowAllHandler
             $this->addGroupHeader($environment, $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if (null !== $listing->getItemCssClass()) {
-                $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
+                /** @psalm-suppress MixedArgument */
+                $model->setMeta($model::CSS_CLASS, (string) $listing->getItemCssClass());
             }
             $cssClasses = [(0 === (++$eoCount) % 2) ? 'even' : 'odd'];
 
-            (null !== $model->getMeta($model::CSS_ROW_CLASS)) ?
-                $cssClasses[] = $model->getMeta($model::CSS_ROW_CLASS) : null;
+            /** @psalm-suppress MixedAssignment, MixedArgument */
+            $existingRowClass = $model->getMeta($model::CSS_ROW_CLASS);
+            if (null !== $existingRowClass) {
+                $cssClasses[] = (string) $existingRowClass;
+            }
 
             $modelId = ModelId::fromModel($model);
 
@@ -584,6 +589,7 @@ abstract class AbstractListShowAllHandler
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
+            /** @psalm-suppress MixedArgument */
             $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             $this->renderModel($model, $environment);
@@ -612,13 +618,14 @@ abstract class AbstractListShowAllHandler
     ): void {
         if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
             $remoteNew = $this->renderGroupHeader(
-                $grouping['property'],
+                (string) $grouping['property'],
                 $model,
-                $grouping['mode'],
-                $grouping['length'],
+                (string) $grouping['mode'],
+                (int) $grouping['length'],
                 $environment
             );
 
+            /** @psalm-suppress MixedArgument */
             $model->setMeta(
                 $model::GROUP_VALUE,
                 [
@@ -667,10 +674,13 @@ abstract class AbstractListShowAllHandler
         $formatter  = $this->getViewSection($definition)->getListingConfig()->getLabelFormatter($definition->getName());
         $sorting    = ViewHelpers::getCurrentSorting($environment);
         $columns    = $this->getSortingColumns($sorting);
+        /** @psalm-suppress MixedAssignment */
         foreach ($formatter->getPropertyNames() as $field) {
+            $fieldName = (string) $field;
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . (in_array($field, $columns) ? ' ordered_by' : ''),
-                'content' => $this->translateButtonLabel($field, $definition->getName())
+                'class'   => 'tl_folder_tlist col_' . $fieldName
+                    . (in_array($fieldName, $columns) ? ' ordered_by' : ''),
+                'content' => $this->translateButtonLabel($fieldName, $definition->getName())
             ];
         }
 
@@ -846,6 +856,7 @@ abstract class AbstractListShowAllHandler
             return null;
         }
 
+        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = '/bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         return $this
@@ -897,22 +908,26 @@ abstract class AbstractListShowAllHandler
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $sessionName = $definition->getName() . '.' . $inputProvider->getParameter('mode');
+        $sessionName = $definition->getName() . '.' . (string) $inputProvider->getParameter('mode');
         if (!$sessionStorage->has($sessionName)) {
             return [];
         }
 
+        /** @psalm-suppress MixedAssignment */
         $selectAction = $inputProvider->getParameter('select');
         if (!$selectAction) {
             return [];
         }
 
+        /** @psalm-suppress MixedAssignment */
         $session = $sessionStorage->get($sessionName);
-        if (!array_key_exists($selectAction, $session)) {
+        /** @psalm-suppress MixedArgument */
+        if (!array_key_exists((string) $selectAction, (array) $session)) {
             return [];
         }
 
-        return $session[$selectAction];
+        /** @psalm-suppress MixedArrayAccess, MixedArrayOffset, MixedReturnStatement */
+        return $session[(string) $selectAction];
     }
 
     /**

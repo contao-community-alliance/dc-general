@@ -114,9 +114,12 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             $action,
             \array_merge(
                 [
+                    /** @psalm-suppress MixedOperand */
                     'subHeadline' =>
-                        $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
-                        $translator->translate('editAll.label', 'dc-general'),
+                        $translator->translate(
+                            (string) $inputProvider->getParameter('mode') . 'Selected',
+                            'dc-general'
+                        ) . ': ' . $translator->translate('editAll.label', 'dc-general'),
                     'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
                     'table'       => $definition->getName(),
                     'error'       => $renderInformation->offsetGet('error'),
@@ -178,6 +181,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
+        /** @psalm-suppress MixedAssignment */
         $formInputs = $inputProvider->getValue('FORM_INPUTS');
         $collection = $this->getCollectionFromSession($action, $environment);
 
@@ -207,12 +211,14 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
+            /** @psalm-suppress MixedArgumentTypeCoercion */
+            $palette = \implode('', $fields);
             $fieldSets[] = [
                 'label'   => $modelId->getSerialized(),
                 'model'   => $model,
                 'legend'  => \str_replace('::', '____', $modelId->getSerialized()),
                 'class'   => 'tl_box',
-                'palette' => \implode('', $fields)
+                'palette' => $palette
             ];
         }
 
@@ -239,10 +245,14 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         }
 
         foreach (\array_keys($fieldSets) as $index) {
-            if ($editInformation->getModelError($fieldSets[$index]['model'])) {
+            /** @psalm-suppress MixedArrayAccess */
+            $fieldSetModel = $fieldSets[$index]['model'];
+            assert($fieldSetModel instanceof ModelInterface);
+            if ($editInformation->getModelError($fieldSetModel)) {
                 continue;
             }
 
+            /** @psalm-suppress MixedOperand, MixedArrayAccess, MixedArrayAssignment */
             $fieldSets[$index]['class'] .= ' collapsed';
         }
 
@@ -287,6 +297,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $fields = [];
         foreach ($selectProperties as $selectProperty) {
+            assert($selectProperty instanceof PropertyInterface);
             if (
                 !$this->ensurePropertyVisibleInModel(
                     $action,
@@ -315,12 +326,15 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 $fields[] = $widgetManager->renderWidget($editProperty->getName(), false, null);
             } else {
                 $this->setPropertyValue($editModel, $selectProperty, $propertyValuesBag);
+                /** @psalm-suppress MixedAssignment */
                 foreach ($propertyValuesBag as $propName => $value) {
                     $rawValues->setPropertyValue($propName, $widgetManager->decodeValue($propName, $value));
                 }
                 $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
+                /** @psalm-suppress MixedAssignment */
                 foreach ($editErrors as $propName => $errors) {
-                    $rawValues->markPropertyValueAsInvalid($propName, $errors);
+                    /** @psalm-suppress MixedArgumentTypeCoercion, MixedArgument */
+                    $rawValues->markPropertyValueAsInvalid((string) $propName, $errors);
                 }
 
                 $this->markEditErrors($editProperty, $selectProperty, $rawValues);
@@ -383,6 +397,8 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $propertyValueBag = new PropertyValueBag();
 
         foreach (\array_keys($selectProperties) as $visiblePropertyName) {
+            $visiblePropertyName = (string) $visiblePropertyName;
+            /** @psalm-suppress MixedAssignment */
             $visiblePropertyValue = $editModel->getProperty($visiblePropertyName);
 
             $propertyValueBag->setPropertyValue($visiblePropertyName, $visiblePropertyValue);
@@ -440,6 +456,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             ($editErrors = $propertyValuesBag->getInvalidPropertyErrors())
             && \array_key_exists($selectProperty->getName(), $editErrors)
         ) {
+            /** @psalm-suppress MixedArgument */
             $propertyValuesBag->markPropertyValueAsInvalid(
                 $editProperty->getName(),
                 $editErrors[$selectProperty->getName()]
@@ -488,6 +505,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 $sessionValues[$selectProperty->getName()]
             );
 
+            /** @psalm-suppress MixedArgument */
             $propertyValuesBag->markPropertyValueAsInvalid(
                 $editProperty->getName(),
                 $modelError[$selectProperty->getName()]

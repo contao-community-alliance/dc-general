@@ -150,6 +150,7 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
+        /** @psalm-suppress MixedAssignment */
         $error = $event->getError();
 
         if ($error instanceof \Exception) {
@@ -255,6 +256,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $property = $event->getProperty();
+        /** @psalm-suppress MixedAssignment */
         $value    = self::decodeValue(
             $event->getEnvironment(),
             $event->getModel(),
@@ -309,9 +311,12 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
+        /** @psalm-suppress MixedAssignment */
         $contaoTwig  = $event->getContaoTwig();
+        /** @psalm-suppress MixedAssignment, MixedMethodCall */
         $environment = $contaoTwig->getEnvironment();
 
+        /** @psalm-suppress MixedMethodCall */
         $environment->addExtension(new DcGeneralExtension());
     }
 
@@ -431,13 +436,18 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($value as $kk => $vv) {
             if (\is_array($vv)) {
-                $vals       = \array_values($vv);
-                $value[$kk] = $vals[0] . (null !== ($val = $vals[1] ?? null) ? ' (' . $val . ')' : '');
+                $vals = \array_values($vv);
+                /** @psalm-suppress MixedAssignment */
+                $val  = $vals[1] ?? null;
+                /** @psalm-suppress MixedOperand, MixedAssignment, PossiblyUndefinedArrayOffset */
+                $value[$kk] = $vals[0] . (null !== $val ? ' (' . $val . ')' : '');
             }
         }
 
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         $event->setRendered(\implode(', ', $value));
     }
 
@@ -469,7 +479,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered(
-            self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
+            self::parseDateTime($dispatcher, (string) self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
         );
     }
 
@@ -497,7 +507,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         // Date and time format.
-        $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
+        $event->setRendered(self::parseDateTime($dispatcher, (string) self::getConfig()->get('timeFormat'), $value));
     }
 
     /**
@@ -548,7 +558,11 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered(
-            self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat') ?? '', $value->getTimestamp())
+            self::parseDateTime(
+                $dispatcher,
+                (string) (self::getConfig()->get('datimFormat') ?? ''),
+                $value->getTimestamp()
+            )
         );
     }
 
@@ -574,13 +588,16 @@ class Subscriber implements EventSubscriberInterface
             return;
         }
 
+        /** @psalm-suppress MixedArrayAccess */
         if (\is_array($extra['reference'][$value])) {
-            $event->setRendered($extra['reference'][$value][0]);
+            /** @psalm-suppress MixedArrayAccess, MixedArgument */
+            $event->setRendered((string) $extra['reference'][$value][0]);
 
             return;
         }
 
-        $event->setRendered($extra['reference'][$value]);
+        /** @psalm-suppress MixedArrayAccess, MixedArgument */
+        $event->setRendered((string) $extra['reference'][$value]);
     }
 
     /**
@@ -635,7 +652,8 @@ class Subscriber implements EventSubscriberInterface
         }
 
         if (ArrayUtil::isAssoc($options) && isset($options[$value])) {
-            $event->setRendered($options[$value]);
+            /** @psalm-suppress MixedArgument */
+            $event->setRendered((string) $options[$value]);
         }
     }
 }

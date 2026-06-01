@@ -199,13 +199,13 @@ class ContaoWidgetManager
      */
     public function loadRichTextEditor($buffer, Widget $widget)
     {
-        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        /** @psalm-suppress UndefinedMagicPropertyFetch, MixedAssignment */
         $rte = $widget->rte;
         if (null === $rte) {
             return $buffer;
         }
         // Contao DCA allows "ace|sql" syntax to pass the highlight type via pipe.
-        [$rteBase, $rteHighlight] = \explode('|', $rte, 2) + [null, null];
+        [$rteBase, $rteHighlight] = \explode('|', (string) $rte, 2) + [null, null];
         $rteHighlight = $rteHighlight ?? '';
 
         if (!str_starts_with($rteBase, 'tiny') && !str_starts_with($rteBase, 'ace')) {
@@ -217,6 +217,7 @@ class ContaoWidgetManager
         $fileBrowserTypes = [];
         $pickerBuilder = System::getContainer()->get('contao.picker.builder');
         foreach (['file' => 'image', 'link' => 'file'] as $context => $fileBrowserType) {
+            /** @psalm-suppress MixedMethodCall */
             if ($pickerBuilder->supportsContext($context)) {
                 $fileBrowserTypes[] = $fileBrowserType;
             }
@@ -276,9 +277,11 @@ class ContaoWidgetManager
         }
 
         $modelId = ModelId::fromModel($this->model);
+        /** @psalm-suppress MixedAssignment, MixedArrayAccess */
         $fields  = $sessionStorage->get($modelId->getDataProviderName() . '.edit')['properties'];
 
         $fieldId = new ModelId('property.' . $modelId->getDataProviderName(), $propertyName);
+        /** @psalm-suppress MixedArgument */
         if (!\in_array($fieldId->getSerialized(), $fields)) {
             return $selector;
         }
@@ -326,6 +329,7 @@ class ContaoWidgetManager
             assert($controller instanceof ControllerInterface);
 
             $values = new PropertyValueBag();
+            /** @psalm-suppress MixedAssignment */
             foreach ($inputValues->getIterator() as $propertyName => $propertyValue) {
                 try {
                     $values->setPropertyValue(
@@ -361,6 +365,7 @@ class ContaoWidgetManager
      */
     protected function buildDatePicker($objWidget)
     {
+        /** @psalm-suppress MixedAssignment, MixedArrayAccess */
         $strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
 
         switch ($objWidget->rgxp) {
@@ -376,10 +381,11 @@ class ContaoWidgetManager
                 $time = '';
         }
 
+        /** @psalm-suppress MixedOperand */
         return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
             draggable:false,
             toggle:$$("#toggle_' . $objWidget->id . '"),
-            format:"' . Date::formatToJs($strFormat) . '",
+            format:"' . Date::formatToJs((string) $strFormat) . '",
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
             useFadeInOut:!Browser.ie,
@@ -446,6 +452,7 @@ class ContaoWidgetManager
         /** @psalm-suppress UndefinedMagicPropertyFetch */
         $isHideInput = (bool) $widget->hideInput;
 
+        /** @psalm-suppress MixedArgument */
         $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
 
         /** @psalm-suppress UndefinedMagicPropertyFetch */
@@ -486,7 +493,9 @@ class ContaoWidgetManager
         }
 
         $values = [[]];
+        /** @psalm-suppress MixedAssignment */
         foreach ($value as $key => $item) {
+            /** @psalm-suppress MixedArgument */
             $values[] = $this->buildHiddenFields($item, $propertyName . '[' . $key . ']');
         }
 
@@ -510,6 +519,7 @@ class ContaoWidgetManager
         Input::resetCache();
 
         // Set all POST data, these get used within the Widget::validate() method.
+        /** @psalm-suppress MixedAssignment */
         foreach ($propertyValues as $property => $propertyValue) {
             Input::setPost($property, $propertyValue);
         }
@@ -527,7 +537,9 @@ class ContaoWidgetManager
             $widget->validate();
 
             if ($widget->hasErrors()) {
+                /** @psalm-suppress MixedAssignment */
                 foreach ($widget->getErrors() as $error) {
+                    /** @psalm-suppress MixedArgument */
                     $propertyValues->markPropertyValueAsInvalid($property, $error);
                 }
             } elseif ($widget->submitInput()) {
@@ -538,12 +550,15 @@ class ContaoWidgetManager
                     );
                 } catch (\Exception $exception) {
                     $widget->addError($exception->getMessage());
+                    /** @psalm-suppress MixedAssignment */
                     foreach ($widget->getErrors() as $error) {
+                        /** @psalm-suppress MixedArgument */
                         $propertyValues->markPropertyValueAsInvalid($property, $error);
                     }
                 }
             }
         }
+        /** @psalm-suppress MixedAssignment */
         foreach ($encodedValues->getArrayCopy() as $propertyName => $propertyValue) {
             $propertyValues->setPropertyValue($propertyName, $propertyValue);
         }
@@ -566,13 +581,17 @@ class ContaoWidgetManager
         $dispatcher = $this->getEnvironment()->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($propertyErrors as $property => $errors) {
-            $widget = $this->getWidget($property);
+            $widget = $this->getWidget((string) $property);
             assert($widget instanceof Widget);
 
+            /** @psalm-suppress MixedAssignment */
             foreach ($errors as $error) {
+                /** @psalm-suppress MixedArgument */
                 $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
                 $dispatcher->dispatch($event, ResolveWidgetErrorMessageEvent::NAME);
+                /** @psalm-suppress MixedArgument */
                 $widget->addError($event->getError());
             }
         }
@@ -601,7 +620,9 @@ class ContaoWidgetManager
 
         $reflectionPropClass = new \ReflectionProperty(\get_class($widget), 'strClass');
         $reflectionPropClass->setAccessible(true);
-        $reflectionPropClass->setValue($widget, \str_replace('error', '', $reflectionPropClass->getValue($widget)));
+        /** @psalm-suppress MixedArgument */
+        $currentClass = (string) $reflectionPropClass->getValue($widget);
+        $reflectionPropClass->setValue($widget, \str_replace('error', '', $currentClass));
     }
 
     /**

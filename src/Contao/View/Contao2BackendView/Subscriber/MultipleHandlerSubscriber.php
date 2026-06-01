@@ -261,12 +261,15 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $originalExtra = $copiedExtra = $originalProperty->getExtra();
 
         if (!empty($originalExtra['orderField'])) {
+            /** @psalm-suppress MixedOperand */
             $orderId = \str_replace('::', '____', $modelId->getSerialized()) . '_' . $copiedExtra['orderField'];
 
             $copiedExtra['orderField'] = $orderId;
 
+            /** @psalm-suppress MixedAssignment, MixedArgument */
             $isChanged = $model->getMeta($model::IS_CHANGED);
-            $model->setProperty($orderId, $model->getProperty($originalExtra['orderField']));
+            $model->setProperty($orderId, $model->getProperty((string) $originalExtra['orderField']));
+            /** @psalm-suppress MixedArgument */
             $model->setMeta($model::IS_CHANGED, $isChanged);
         }
 
@@ -321,6 +324,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
+        /** @psalm-suppress MixedOperand */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
         if (!is_array($session) || !isset($session['models'])) {
             return;
@@ -328,6 +332,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         /** @var array{models: list<string>} $session */
 
         $model = null;
+        /** @psalm-suppress MixedAssignment */
         foreach ($session['models'] as $sessionModel) {
             $model = $sessionModel;
 
@@ -347,7 +352,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
             throw new DcGeneralException('Failed to find a model.');
         }
 
-        $modelId = ModelId::fromSerialized($model);
+        $modelId = ModelId::fromSerialized((string) $model);
 
         $event->getModel()->setId($modelId->getId());
     }

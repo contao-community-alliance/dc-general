@@ -273,17 +273,22 @@ class TreePicker extends Widget
             $inputProvider = $environment->getInputProvider();
             assert($inputProvider instanceof InputProviderInterface);
 
+            /** @psalm-suppress MixedArgument */
             $property = $definition
                 ->getPropertiesDefinition()
                 ->getProperty($inputProvider->getValue('name'));
 
+            /** @psalm-suppress MixedAssignment */
             foreach ($property->getExtra() as $k => $v) {
                 $this->$k = $v;
             }
 
+            /** @psalm-suppress MixedAssignment */
             $name           = $inputProvider->getValue('name');
             $this->strField = $name;
+            /** @psalm-suppress MixedAssignment */
             $this->strName  = $name;
+            /** @psalm-suppress MixedAssignment */
             $this->strId    = $name;
             $this->label    = $property->getLabel() ?: $name;
             $this->strTable = $definition->getName();
@@ -344,9 +349,11 @@ class TreePicker extends Widget
 
         $this->handleInputNameForEditAll();
 
+        /** @psalm-suppress MixedOperand */
         $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
                   '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
 
+        /** @psalm-suppress MixedArrayAccess */
         if ($GLOBALS['TL_CONFIG']['showHelp']) {
             $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
         }
@@ -387,6 +394,7 @@ class TreePicker extends Widget
             $sessionStorage = $environment->getSessionStorage();
             assert($sessionStorage instanceof SessionStorageInterface);
 
+            /** @psalm-suppress MixedArgument */
             $this->nodeStates = new TreeNodeStates(
                 $sessionStorage->get($this->getToggleId()),
                 $this->determineParentsOfValues()
@@ -429,6 +437,7 @@ class TreePicker extends Widget
     {
         switch ($key) {
             case 'sourceName':
+                /** @psalm-suppress MixedAssignment */
                 $this->sourceName = $value;
                 break;
 
@@ -439,6 +448,7 @@ class TreePicker extends Widget
                 break;
 
             case 'titleIcon':
+                /** @psalm-suppress MixedAssignment */
                 $this->titleIcon = $value;
                 break;
 
@@ -447,10 +457,12 @@ class TreePicker extends Widget
                 break;
 
             case 'orderField':
+                /** @psalm-suppress MixedAssignment */
                 $this->orderField = $value;
                 break;
 
             case 'value':
+                /** @psalm-suppress MixedArgument */
                 $this->varValue = $this->widgetToValue($value);
                 break;
 
@@ -567,9 +579,11 @@ class TreePicker extends Widget
             assert($sessionStorage instanceof SessionStorageInterface);
 
             $session         = (array) $sessionStorage->get('dc_general');
+            /** @psalm-suppress MixedAssignment */
             $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
             $languages       = $controller->getSupportedLanguages($rootId);
 
+            /** @psalm-suppress MixedArgument */
             if ([] !== $languages && !array_key_exists($currentLanguage, $languages)) {
                 $fallbackLanguage = $dataDriver->getFallbackLanguage($rootId);
                 assert($fallbackLanguage instanceof LanguageInformationInterface);
@@ -577,6 +591,7 @@ class TreePicker extends Widget
                 $currentLanguage = $fallbackLanguage->getLocale();
             }
 
+            /** @psalm-suppress MixedArgument */
             $dataDriver->setCurrentLanguage($currentLanguage);
         }
     }
@@ -623,8 +638,10 @@ class TreePicker extends Widget
     public function renderItemsPlain()
     {
         $values = [];
+        /** @psalm-suppress MixedAssignment */
         $value  = $this->varValue;
         /** @psalm-suppress UndefinedThisPropertyFetch */
+        /** @psalm-suppress MixedAssignment */
         $idProperty = $this->idProperty ?: 'id';
 
         if ('radio' === $this->fieldType && !empty($value)) {
@@ -641,6 +658,7 @@ class TreePicker extends Widget
             assert($registry instanceof BaseConfigRegistryInterface);
 
             $config      = $registry->getBaseConfig();
+            /** @psalm-suppress MixedArgument */
             $filter      = FilterBuilder::fromArrayForRoot()
                 ->getFilter()
                 ->andPropertyValueIn($idProperty, $value)
@@ -660,7 +678,9 @@ class TreePicker extends Widget
                 }
 
                 $formatted        = $this->formatModel($model, false);
+                /** @psalm-suppress MixedAssignment, MixedArgument, MixedArrayOffset, MixedArrayAccess */
                 $idValue          = $model->getProperty($idProperty);
+                /** @psalm-suppress MixedAssignment, MixedArrayOffset, MixedArrayAccess */
                 $values[$idValue] = $formatted[0]['content'];
             }
 
@@ -686,6 +706,7 @@ class TreePicker extends Widget
         /** @var array $orderValues */
         $orderValues = $this->{$this->orderField};
         $result      = [];
+        /** @psalm-suppress MixedAssignment, MixedArrayOffset */
         foreach ($orderValues as $i) {
             if (isset($values[$i])) {
                 $result[$i] = $values[$i];
@@ -693,6 +714,7 @@ class TreePicker extends Widget
             }
         }
         if (!empty($values)) {
+            /** @psalm-suppress MixedAssignment */
             foreach ($values as $k => $v) {
                 $result[$k] = $v;
             }
@@ -711,6 +733,7 @@ class TreePicker extends Widget
     #[\Override]
     public function generate()
     {
+        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
@@ -876,6 +899,7 @@ class TreePicker extends Widget
         $model = $dataContainer->getModel();
         assert($model instanceof ModelInterface);
 
+        /** @psalm-suppress MixedArgument */
         $configPicker = new PickerConfig(
             'cca_tree',
             [
@@ -911,6 +935,7 @@ class TreePicker extends Widget
      */
     private function generateBreadCrumbUrl(ModelInterface $model)
     {
+        /** @psalm-suppress MixedOperand */
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
@@ -939,6 +964,7 @@ class TreePicker extends Widget
      */
     private function generateToggleUrl(ModelInterface $model)
     {
+        /** @psalm-suppress MixedOperand */
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
@@ -1000,7 +1026,7 @@ class TreePicker extends Widget
         $translator = $this->getEnvironment()->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        /** @psalm-suppress UndefinedThisPropertyFetch */
+        /** @psalm-suppress UndefinedThisPropertyFetch, MixedArgumentTypeCoercion */
         $template
             ->set('hasOrder', true)
             ->set('orderId', $this->orderField)
@@ -1020,6 +1046,7 @@ class TreePicker extends Widget
      */
     public function generatePopup()
     {
+        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
 
         $environment = $this->getEnvironment();
@@ -1056,6 +1083,7 @@ class TreePicker extends Widget
 
         // Create Tree Render with custom root points.
         $tree = '';
+        /** @psalm-suppress MixedAssignment */
         foreach ($this->getRootIds() as $pid) {
             $tree .= $this->generateTreeView($this->loadCollection($pid), 'tree');
         }
@@ -1073,6 +1101,7 @@ class TreePicker extends Widget
     private function getRootIds()
     {
         /** @psalm-suppress UndefinedThisPropertyFetch */
+        /** @psalm-suppress MixedAssignment */
         $root = $this->root;
         $root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? [$root] : []);
         $root = array_merge($root, [null]);
@@ -1091,12 +1120,15 @@ class TreePicker extends Widget
         assert($input instanceof InputProviderInterface);
 
         if ($input->hasValue('action') && ('DcGeneralLoadSubTree' === $input->getValue('action'))) {
+            /** @psalm-suppress MixedAssignment */
             $provider = $input->getValue('providerName');
+            /** @psalm-suppress MixedAssignment */
             $rootId   = $input->getValue('id');
 
             $sessionStorage = $this->getEnvironment()->getSessionStorage();
             assert($sessionStorage instanceof SessionStorageInterface);
 
+            /** @psalm-suppress MixedArgument */
             $sessionStorage->set(
                 $this->getToggleId(),
                 $this->getTreeNodeStates()->toggleModel($provider, $rootId)->getStates()
@@ -1156,7 +1188,9 @@ class TreePicker extends Widget
      */
     protected function determineModelState(ModelInterface $model, $level)
     {
+        /** @psalm-suppress MixedArgument */
         $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
+        /** @psalm-suppress MixedArgument */
         $model->setMeta(
             $model::SHOW_CHILDREN,
             $this->getTreeNodeStates()->isModelOpen(
@@ -1187,11 +1221,14 @@ class TreePicker extends Widget
 
         $this->determineModelState($model, ($level - 1));
 
+        /** @psalm-suppress MixedAssignment */
         $rootId           = $model->getId();
         $childCollections = [];
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($subTables as $subTable) {
             // Evaluate the child filter for this item.
+            /** @psalm-suppress MixedArgument */
             $childFilter = $relationships->getChildCondition($model->getProviderName(), $subTable);
 
             // If we do not know how to render this table within here, continue with the next one.
@@ -1200,6 +1237,7 @@ class TreePicker extends Widget
             }
 
             // Create a new config and fetch the children from the child provider.
+            /** @psalm-suppress MixedArgument */
             $dataProvider = $environment->getDataProvider($subTable);
             assert($dataProvider instanceof DataProviderInterface);
             $this->setLanguageInProvider($dataProvider, $rootId);
@@ -1214,6 +1252,7 @@ class TreePicker extends Widget
             $hasChild = ($childCollection->length() > 0);
 
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
+            /** @psalm-suppress MixedArgument */
             if ($hasChild && !$model->getMeta($model::SHOW_CHILDREN)) {
                 break;
             }
@@ -1224,6 +1263,7 @@ class TreePicker extends Widget
                 $childCollections[] = $childCollection;
 
                 // Speed up, if collapsed, one item is enough to break as we have some children.
+                /** @psalm-suppress MixedArgument */
                 if (!$model->getMeta($model::SHOW_CHILDREN)) {
                     break;
                 }
@@ -1231,10 +1271,13 @@ class TreePicker extends Widget
         }
 
         // If expanded, store children.
+        /** @psalm-suppress MixedArgument */
         if ($model->getMeta($model::SHOW_CHILDREN) && (count($childCollections))) {
+            /** @psalm-suppress MixedArgument */
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
+        /** @psalm-suppress MixedArgument */
         $model->setMeta($model::HAS_CHILDREN, $hasChild);
     }
 
@@ -1256,7 +1299,9 @@ class TreePicker extends Widget
 
         foreach ($childCollection as $childModel) {
             // Let the child know about its parent.
+            /** @psalm-suppress MixedArgument */
             $model->setMeta($model::PARENT_ID, $model->getId());
+            /** @psalm-suppress MixedArgument */
             $model->setMeta($model::PARENT_PROVIDER_NAME, $model->getProviderName());
 
             $mySubTables = [];
@@ -1383,9 +1428,12 @@ class TreePicker extends Widget
         $relationships = $definition->getModelRelationshipDefinition();
 
         if ($inputProvider->hasParameter('orderProperty') && $inputProvider->hasParameter('sortDirection')) {
+            /** @psalm-suppress MixedAssignment */
             $orderProperty = $inputProvider->getParameter('orderProperty');
+            /** @psalm-suppress MixedAssignment */
             $sortDirection = $inputProvider->getParameter('sortDirection');
 
+            /** @psalm-suppress MixedArrayOffset, MixedArgumentTypeCoercion */
             $baseConfig->setSorting([$orderProperty => $sortDirection]);
         }
 
@@ -1435,8 +1483,10 @@ class TreePicker extends Widget
             $model    = $collection->get(0);
             assert($model instanceof ModelInterface);
 
+            /** @psalm-suppress MixedArgument, MixedAssignment */
             foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $collection) {
                 foreach ($collection as $subModel) {
+                    /** @psalm-suppress MixedArgument */
                     $treeData->push($subModel);
                 }
             }
@@ -1522,10 +1572,14 @@ class TreePicker extends Widget
         $formatter         = $this->getFormatter($model, $treeMode);
 
         $arguments = [];
+        /** @psalm-suppress MixedAssignment */
         foreach ($formatter->getPropertyNames() as $propertyName) {
+            /** @psalm-suppress MixedArgument */
             if ($properties->hasProperty($propertyName)) {
+                /** @psalm-suppress MixedAssignment, MixedArgument */
                 $propertyValue            = $model->getProperty($propertyName);
                 /** @psalm-suppress RedundantCast */
+                /** @psalm-suppress MixedArrayOffset */
                 $arguments[$propertyName] = match (true) {
                     is_bool($propertyValue),
                     is_int($propertyValue),
@@ -1536,11 +1590,13 @@ class TreePicker extends Widget
                     default => '-'
                 };
             } else {
+                /** @psalm-suppress MixedArrayOffset */
                 $arguments[$propertyName] = '-';
             }
         }
 
         $event = new ModelToLabelEvent($environment, $model);
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         $event
             ->setArgs($arguments)
             ->setLabel($formatter->getFormat())
@@ -1552,6 +1608,7 @@ class TreePicker extends Widget
         $dispatcher->dispatch($event, $event::NAME);
 
         $labelList = [];
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         $this->prepareLabelWithDisplayedProperties($formatter, $event->getArgs(), $firstSorting, $labelList);
         $this->prepareLabelWithOutDisplayedProperties($formatter, $event->getArgs(), $event->getLabel(), $labelList);
 
@@ -1587,7 +1644,9 @@ class TreePicker extends Widget
 
         $fieldList = $formatter->getPropertyNames();
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($fieldList as $j => $propertyName) {
+            /** @psalm-suppress MixedArrayTypeCoercion, MixedArrayOffset */
             $labelList[] = [
                 'colspan' => 1,
                 'class'   => 'tl_file_list col_' . $j . (($propertyName === $firstSorting) ? ' ordered_by' : ''),
@@ -1623,6 +1682,7 @@ class TreePicker extends Widget
             return;
         }
 
+        /** @psalm-suppress MixedArgumentTypeCoercion */
         $string = vsprintf($label, $arguments);
 
         if ((null !== $maxLength = $formatter->getMaxLength()) && strlen($string) > $maxLength) {
@@ -1646,31 +1706,36 @@ class TreePicker extends Widget
      */
     protected function parseModel($model, $toggleID)
     {
+        /** @psalm-suppress MixedArgument */
         $model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
 
         $translator = $this->getEnvironment()->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
+        /** @psalm-suppress MixedArgument */
         if ($model->getMeta($model::SHOW_CHILDREN)) {
             $toggleTitle = $translator->translate('collapseNode', 'dc-general');
         } else {
             $toggleTitle = $translator->translate('expandNode', 'dc-general');
         }
 
+        /** @psalm-suppress MixedArgument */
         $toggleScript = sprintf(
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
             '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'url\':\'%s\'});',
             $toggleID,
             $model->getId(),
             $model->getProviderName(),
+            /** @psalm-suppress MixedArgument */
             $model->getMeta('dc_gen_tv_level'),
             $this->generateToggleUrl($model)
         );
 
         $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
         /** @psalm-suppress UndefinedThisPropertyFetch */
+        /** @psalm-suppress MixedAssignment, MixedArgument */
         $idValue  = $model->getProperty($this->idProperty);
-        /** @psalm-suppress UndefinedThisPropertyFetch */
+        /** @psalm-suppress UndefinedThisPropertyFetch, MixedArgument */
         $template
             ->setTranslator($translator)
             ->set('id', $this->strId)
@@ -1687,6 +1752,7 @@ class TreePicker extends Widget
             ->set('idProperty', $this->idProperty)
             ->set('idValue', $this->idTranscoder ? $this->idTranscoder->encode($idValue) : $idValue);
 
+        /** @psalm-suppress MixedAssignment */
         $level = $model->getMeta(DCGE::TREE_VIEW_LEVEL);
         if (($this->minLevel > 0) && ($level < ($this->minLevel - 1))) {
             $template->set('fieldType', 'none');
@@ -1712,15 +1778,19 @@ class TreePicker extends Widget
         foreach ($collection as $model) {
             /** @var ModelInterface $model */
 
+            /** @psalm-suppress MixedOperand */
             $toggleID = $model->getProviderName() . '_' . $treeClass . '_' . $model->getId();
 
             $content[] = $this->parseModel($model, $toggleID);
 
+            /** @psalm-suppress MixedArgument */
             if ($model->getMeta($model::HAS_CHILDREN) && $model->getMeta($model::SHOW_CHILDREN)) {
                 $template = new ContaoBackendViewTemplate('widget_treepicker_child');
                 $subHtml  = '';
 
+                /** @psalm-suppress MixedArgument, MixedAssignment */
                 foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $objChildCollection) {
+                    /** @psalm-suppress MixedArgument */
                     $subHtml .= $this->generateTreeView($objChildCollection, $treeClass);
                 }
 
@@ -1770,11 +1840,13 @@ class TreePicker extends Widget
             $parent = $collector->searchParentOf($model);
             assert($parent instanceof ModelInterface);
 
+            /** @psalm-suppress MixedArrayOffset */
             if (!isset($parents[$model->getProviderName()][$parent->getId()])) {
                 $this->parentsOf($parent, $parents);
             }
         }
 
+        /** @psalm-suppress MixedArrayAssignment, MixedArrayOffset */
         $parents[$model->getProviderName()][$model->getId()] = 1;
     }
 
@@ -1797,6 +1869,7 @@ class TreePicker extends Widget
             return [];
         }
 
+        /** @psalm-suppress MixedAssignment */
         foreach ((array) $this->varValue as $value) {
             $dataDriver = $environment->getDataProvider();
             assert($dataDriver instanceof DataProviderInterface);
@@ -1828,7 +1901,7 @@ class TreePicker extends Widget
             return;
         }
 
-        $tableName      = explode('____', $inputProvider->getValue('name'))[0];
+        $tableName      = explode('____', (string) $inputProvider->getValue('name'))[0];
         $sessionKey     = 'DC_GENERAL_' . strtoupper($tableName);
         $sessionFactory = System::getContainer()->get('cca.dc-general.session_factory');
         assert($sessionFactory instanceof SessionStorageFactory);
@@ -1837,19 +1910,23 @@ class TreePicker extends Widget
         assert($sessionStorage instanceof SessionStorageInterface);
         $sessionStorage->setScope($sessionKey);
 
+        /** @psalm-suppress MixedAssignment */
         $selectAction = $inputProvider->getParameter('select');
 
         /** @var array{models: list<string>} $session */
+        /** @psalm-suppress MixedAssignment, MixedOperand */
         $session = $sessionStorage->get($tableName . '.' . $selectAction);
 
         $propertyNamePrefix   = '';
         $originalPropertyName = null;
 
+        /** @psalm-suppress MixedArrayAccess, MixedAssignment */
         foreach ($session['models'] as $modelId) {
             if (null !== $originalPropertyName) {
                 break;
             }
 
+            /** @psalm-suppress PossiblyInvalidOperand, MixedArgument */
             $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
             if (0 !== strpos($this->strName, $propertyNamePrefix)) {
                 continue;

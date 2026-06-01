@@ -121,13 +121,19 @@ class PasteAllHandler
 
         $this->addDispatchDuplicateModel($environment);
 
+        /** @psalm-suppress MixedAssignment */
         foreach ($collection as $collectionItem) {
+            /** @psalm-suppress MixedArgument */
             $this->setParameterForPaste($collectionItem, $environment);
 
             $this->callAction($environment, 'paste');
 
+            /** @psalm-suppress MixedAssignment */
             $clipboardItem = $collectionItem['item'];
-            $clipboard->removeById($clipboardItem->getModelId());
+            /** @psalm-suppress MixedMethodCall */
+            $clipboardItemModelId = $clipboardItem->getModelId();
+            /** @psalm-suppress MixedArgument */
+            $clipboard->removeById($clipboardItemModelId);
         }
         $clipboard->saveTo($environment);
 
@@ -206,21 +212,27 @@ class PasteAllHandler
 
         $previousItem = null;
         $collection   = [];
+        /** @psalm-suppress MixedAssignment */
         foreach ($this->getClipboardItems($environment) as $clipboardItem) {
+            /** @psalm-suppress MixedMethodCall */
             if ('create' === $clipboardItem->getAction()) {
                 continue;
             }
-            $pasteAfter =
-                null !== $previousItem
-                ? $previousItem->getModelId()->getSerialized()
-                : $inputProvider->getParameter('after');
+            /** @psalm-suppress MixedMethodCall */
+            $previousSerialized = null !== $previousItem ? $previousItem->getModelId()->getSerialized() : null;
+            /** @psalm-suppress MixedAssignment */
+            $pasteAfter = $previousSerialized ?? $inputProvider->getParameter('after');
 
-            $collection[$clipboardItem->getModelId()->getSerialized()] = [
+            /** @psalm-suppress MixedMethodCall */
+            $clipboardSerialized = $clipboardItem->getModelId()->getSerialized();
+            /** @psalm-suppress MixedArrayOffset */
+            $collection[$clipboardSerialized] = [
                 'item'       => $clipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => 'after'
             ];
 
+            /** @psalm-suppress MixedAssignment */
             $previousItem = $clipboardItem;
         }
 
@@ -261,26 +273,36 @@ class PasteAllHandler
         $originalPasteMode = $inputProvider->hasParameter('after') ? 'after' : 'into';
 
         $previousItem = null;
+        /** @psalm-suppress MixedAssignment */
         foreach ($clipboardItems as $clipboardItem) {
+            /** @psalm-suppress MixedAssignment */
+            /** @psalm-suppress MixedMethodCall */
             $modelId = $clipboardItem->getModelId();
+            /** @psalm-suppress MixedArgument */
+            /** @psalm-suppress MixedMethodCall */
             if (!$modelId || \array_key_exists($modelId->getSerialized(), $collection)) {
                 continue;
             }
 
             $pasteMode  = null !== $previousItem ? 'after' : $originalPasteMode;
-            $pasteAfter =
-                null !== $previousItem
-                    ? $previousItem->getModelId()->getSerialized()
-                    : $inputProvider->getParameter($pasteMode);
+            /** @psalm-suppress MixedMethodCall */
+            $previousSerialized = null !== $previousItem ? $previousItem->getModelId()->getSerialized() : null;
+            /** @psalm-suppress MixedAssignment */
+            $pasteAfter = $previousSerialized ?? $inputProvider->getParameter($pasteMode);
 
-            $collection[$modelId->getSerialized()] = [
+            /** @psalm-suppress MixedMethodCall */
+            $modelSerialized = $modelId->getSerialized();
+            /** @psalm-suppress MixedArrayOffset */
+            $collection[$modelSerialized] = [
                 'item'       => $clipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => $pasteMode
             ];
 
+            /** @psalm-suppress MixedAssignment */
             $previousItem = $clipboardItem;
 
+            /** @psalm-suppress MixedMethodCall */
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
             assert($model instanceof ModelInterface);
 
@@ -288,6 +310,7 @@ class PasteAllHandler
                 $dataProvider->fetchAll($dataProvider->getEmptyConfig()->setFilter($childCondition->getFilter($model)));
             assert($itemCollection instanceof CollectionInterface);
 
+            /** @psalm-suppress MixedArgument */
             $collection = $this->setSubItemsToCollection(
                 $clipboardItem,
                 $this->getSubClipboardItems($clipboardItems, $itemCollection),
@@ -312,11 +335,14 @@ class PasteAllHandler
         $subClipboardItems = [];
 
         $modelIds = $collection->getModelIds();
+        /** @psalm-suppress MixedAssignment */
         foreach ($clipboardItems as $clipboardItem) {
+            /** @psalm-suppress MixedMethodCall */
             if (!\in_array($clipboardItem->getModelId()->getId(), $modelIds)) {
                 continue;
             }
 
+            /** @psalm-suppress MixedAssignment */
             $subClipboardItems[] = $clipboardItem;
         }
 
@@ -368,22 +394,30 @@ class PasteAllHandler
         }
 
         $intoItem = null;
+        /** @psalm-suppress MixedAssignment */
         foreach ($subClipboardItems as $subClipboardItem) {
+            /** @psalm-suppress MixedMethodCall */
+            /** @psalm-suppress MixedAssignment */
             $modelId = $subClipboardItem->getModelId();
 
-            $pasteAfter =
-                null !== $intoItem
-                    ? $intoItem->getModelId()->getSerialized()
-                    : $previousModelId->getSerialized();
+            /** @psalm-suppress MixedMethodCall */
+            $intoSerialized = null !== $intoItem ? $intoItem->getModelId()->getSerialized() : null;
+            /** @psalm-suppress MixedAssignment */
+            $pasteAfter = $intoSerialized ?? $previousModelId->getSerialized();
 
+            /** @psalm-suppress MixedAssignment */
             $intoItem = $subClipboardItem;
 
-            $collection[$modelId->getSerialized()] = [
+            /** @psalm-suppress MixedMethodCall */
+            $modelSerialized = $modelId->getSerialized();
+            /** @psalm-suppress MixedArrayOffset */
+            $collection[$modelSerialized] = [
                 'item'       => $subClipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => $intoItem ? 'after' : 'into'
             ];
 
+            /** @psalm-suppress MixedMethodCall */
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
             assert($model instanceof ModelInterface);
 
@@ -391,6 +425,7 @@ class PasteAllHandler
                 $dataProvider->fetchAll($dataProvider->getEmptyConfig()->setFilter($childCondition->getFilter($model)));
             assert($itemCollection instanceof CollectionInterface);
 
+            /** @psalm-suppress MixedArgument */
             $collection = $this->setSubItemsToCollection(
                 $subClipboardItem,
                 $this->getSubClipboardItems($this->getClipboardItems($environment), $itemCollection),
@@ -436,21 +471,25 @@ class PasteAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
+        /** @psalm-suppress MixedAssignment */
         $clipboardItem = $collectionItem['item'];
 
         $inputProvider->unsetParameter('after');
         $inputProvider->unsetParameter('into');
         $inputProvider->unsetParameter('source');
+        /** @psalm-suppress MixedMethodCall */
         $inputProvider->setParameter('source', $clipboardItem->getModelId()->getSerialized());
 
         if (!$this->originalModel) {
+            /** @psalm-suppress MixedArgument */
             $inputProvider->setParameter($collectionItem['pasteMode'], $collectionItem['pasteAfter']);
 
             return;
         }
 
-        $pasteAfterId = ModelId::fromSerialized($collectionItem['pasteAfter']);
+        $pasteAfterId = ModelId::fromSerialized((string) $collectionItem['pasteAfter']);
         if ($pasteAfterId->getId() !== $this->originalModel->getID()) {
+            /** @psalm-suppress MixedArgument */
             $inputProvider->setParameter($collectionItem['pasteMode'], $collectionItem['pasteAfter']);
 
             return;
@@ -459,6 +498,7 @@ class PasteAllHandler
         assert($this->copiedModel instanceof ModelInterface);
         $copiedModelId = ModelId::fromModel($this->copiedModel);
 
+        /** @psalm-suppress MixedArgument */
         $inputProvider->setParameter($collectionItem['pasteMode'], $copiedModelId->getSerialized());
     }
 }

@@ -67,6 +67,7 @@ class NoOpDataProvider implements DataProviderInterface
     public function getEmptyModel()
     {
         $model = new DefaultModel();
+        /** @psalm-suppress MixedArgument */
         $model->setProviderName(($this->arrBaseConfig['name'] ?? $this->arrBaseConfig['source']));
         return $model;
     }

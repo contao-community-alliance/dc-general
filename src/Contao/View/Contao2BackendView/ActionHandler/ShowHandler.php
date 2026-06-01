@@ -149,7 +149,7 @@ class ShowHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId      = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
@@ -169,7 +169,7 @@ class ShowHandler
             new LogEvent(
                 sprintf(
                     'Could not find ID %s in %s. DC_General show()',
-                    $modelId->getId(),
+                    (string) $modelId->getId(),
                     $definition->getName()
                 ),
                 __CLASS__ . '::' . __FUNCTION__,
@@ -256,6 +256,7 @@ class ShowHandler
             $visibleProperty = $properties->getProperty($palettePropertyName);
 
             // Make it human-readable.
+            /** @psalm-suppress MixedAssignment */
             $values['visible'][$palettePropertyName] = ViewHelpers::getReadableFieldValue(
                 $environment,
                 $visibleProperty,
@@ -272,6 +273,7 @@ class ShowHandler
             if (isset($values['visible'][$propertyName])) {
                 continue;
             }
+            /** @psalm-suppress MixedAssignment */
             $values['system'][$propertyName] = $model->getProperty($propertyName);
             $labels['system'][$propertyName] =
                 sprintf('%s [%s]', $this->getPropertyLabel($environment, $property), $propertyName);
@@ -296,7 +298,7 @@ class ShowHandler
         $headline = $translator->translate(
             'showRecord',
             $model->getProviderName(),
-            ['%id%' => 'ID ' . $model->getId()]
+            ['%id%' => 'ID ' . (string) $model->getId()]
         );
 
         if ('showRecord' !== $headline) {
@@ -306,7 +308,7 @@ class ShowHandler
         return $translator->translate(
             'showRecord',
             'dc-general',
-            ['%id%' => 'ID ' . $model->getId()]
+            ['%id%' => 'ID ' . (string) $model->getId()]
         );
     }
 
@@ -333,7 +335,7 @@ class ShowHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId      = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
 
         $translator = $environment->getTranslator();

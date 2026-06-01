@@ -101,11 +101,12 @@ class Callbacks
             $callback[0] = get_class($callback[0]);
         }
 
+        /** @psalm-suppress MixedArgument */
         throw new DcGeneralRuntimeException(
             sprintf(
                 'Execute callback %s failed - Exception message: %s',
                 (is_array($callback)
-                    ? implode('::', $callback)
+                    ? implode('::', array_map('strval', $callback))
                     : (is_string($callback)
                         ? $callback
                         : get_class($callback)
@@ -150,6 +151,7 @@ class Callbacks
                 $getInstanceMethod = $class->getMethod('getInstance');
 
                 if ($getInstanceMethod->isStatic()) {
+                    /** @psalm-suppress MixedAssignment */
                     $callback[0] = $getInstanceMethod->invoke(null);
                     return $callback;
                 }
@@ -184,18 +186,20 @@ class Callbacks
     {
         $container = System::getContainer();
 
+        $serviceId = (string) $callback[0];
         if (
-            $container->has($callback[0])
-            && ((false !== strpos($callback[0], '\\')) || !class_exists($callback[0]))
+            $container->has($serviceId)
+            && ((false !== strpos($serviceId, '\\')) || !class_exists($serviceId))
         ) {
-            $callback[0] = $container->get($callback[0]);
+            $callback[0] = $container->get($serviceId);
 
             return $callback;
         }
 
-        if ($container instanceof Container && isset($container->getRemovedIds()[$callback[0]])) {
+        /** @psalm-suppress MixedArrayOffset */
+        if ($container instanceof Container && isset($container->getRemovedIds()[$serviceId])) {
             throw new ServiceNotFoundException(
-                $callback[0],
+                $serviceId,
                 null,
                 null,
                 [],
@@ -203,7 +207,7 @@ class Callbacks
                     'The "%s" service or alias has been removed or inlined when the container was compiled. ' .
                     'You should either make it public, ' .
                     'or stop using the container directly and use dependency injection instead.',
-                    $callback[0]
+                    $serviceId
                 )
             );
         }

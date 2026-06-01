@@ -136,25 +136,33 @@ class GetGroupHeaderSubscriber
         $evaluation = $property->getExtra();
 
         if (isset($evaluation['multiple']) && !$evaluation['multiple'] && ('checkbox' === $property->getWidgetType())) {
-            return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
+            return $this->formatCheckboxOptionLabel((string) $model->getProperty($property->getName()));
         }
 
         if (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingMode) {
             return $this->formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model);
         }
 
+        /** @psalm-suppress MixedAssignment */
         $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
 
         if (isset($evaluation['reference'])) {
+            /** @psalm-suppress MixedAssignment */
+            /** @psalm-suppress MixedArrayOffset */
+            /** @psalm-suppress MixedArrayAccess */
             $remoteNew = $evaluation['reference'][$value] ?? null;
         } elseif (ArrayUtil::isAssoc($property->getOptions())) {
             $options   = $property->getOptions();
+            /** @psalm-suppress MixedAssignment */
+            /** @psalm-suppress MixedArrayOffset */
             $remoteNew = $options[$value] ?? null;
         } else {
+            /** @psalm-suppress MixedAssignment */
             $remoteNew = $value;
         }
 
         if (\is_array($remoteNew)) {
+            /** @psalm-suppress MixedAssignment */
             $remoteNew = $remoteNew[0];
         }
 
@@ -162,6 +170,7 @@ class GetGroupHeaderSubscriber
             $remoteNew = '-';
         }
 
+        /** @psalm-suppress MixedReturnStatement */
         return $remoteNew;
     }
 
@@ -198,7 +207,7 @@ class GetGroupHeaderSubscriber
         switch ($groupingMode) {
             case GroupAndSortingInformationInterface::GROUP_CHAR:
                 return $this->formatByCharGrouping(
-                    ViewHelpers::getReadableFieldValue($environment, $property, $model),
+                    (string) ViewHelpers::getReadableFieldValue($environment, $property, $model),
                     $groupingLength
                 );
 
@@ -215,6 +224,7 @@ class GetGroupHeaderSubscriber
                 return $this->formatByYearGrouping((int) $model->getProperty($property->getName()));
 
             default:
+                /** @psalm-suppress MixedReturnStatement */
                 return ViewHelpers::getReadableFieldValue($environment, $property, $model);
         }
     }
@@ -251,7 +261,7 @@ class GetGroupHeaderSubscriber
             return '-';
         }
 
-        $event = new ParseDateEvent($value, Config::get('dateFormat'));
+        $event = new ParseDateEvent($value, (string) Config::get('dateFormat'));
         $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
 
         return $event->getResult();

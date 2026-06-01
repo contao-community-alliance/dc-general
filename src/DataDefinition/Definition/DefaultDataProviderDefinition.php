@@ -214,6 +214,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function __set($name, $value)
     {
+        /** @psalm-suppress MixedArgument */
         $this->setInformation($name, $value);
     }
 

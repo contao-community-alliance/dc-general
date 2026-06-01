@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -41,6 +42,7 @@ abstract class AbstractCondition
      */
     protected static function checkAndFilter($model, $filter)
     {
+        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($filter as $child) {
             // AND => first false means false.
             if (!self::checkCondition($model, $child)) {
@@ -60,6 +62,7 @@ abstract class AbstractCondition
      */
     protected static function checkOrFilter($model, $filter)
     {
+        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($filter as $child) {
             // OR => first true means true.
             if (self::checkCondition($model, $child)) {
@@ -79,6 +82,7 @@ abstract class AbstractCondition
      */
     protected static function getConditionValue($condition, $parent)
     {
+        /** @psalm-suppress MixedArgument */
         return ($condition['remote_value'] ?? $parent->getProperty($condition['property']));
     }
 
@@ -96,9 +100,11 @@ abstract class AbstractCondition
     {
         switch ($arrFilter['operation']) {
             case 'AND':
+                /** @psalm-suppress MixedArgument */
                 return self::checkAndFilter($objParentModel, $arrFilter['children']);
 
             case 'OR':
+                /** @psalm-suppress MixedArgument */
                 return self::checkOrFilter($objParentModel, $arrFilter['children']);
 
             case '=':
@@ -111,6 +117,7 @@ abstract class AbstractCondition
                 return (self::getConditionValue($arrFilter, $objParentModel) < $arrFilter['value']);
 
             case 'IN':
+                /** @psalm-suppress MixedArgument */
                 return \in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['values']);
 
             case 'LIKE':
