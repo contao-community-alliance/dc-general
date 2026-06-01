@@ -55,13 +55,6 @@ use function sprintf;
 /**
  * This abstract visibility handler provide methods for the visibility of properties.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedArrayOffset/MixedOperand from PaletteCondition::getPropertyName() returning mixed.
- * - UndefinedInterfaceMethod: addCondition() not defined on PropertyConditionInterface.
- *   Proper fix: Use PropertyConditionChainInterface which has addCondition().
- * - PossiblyNullReference: getVisibleCondition() can return null.
- *   Proper fix: Add null check before calling addCondition().
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -219,6 +212,9 @@ abstract class AbstractPropertyVisibilityHandler
                 $invisibleProperty = $legend->getProperty($property->getName());
                 $conditions        = $invisibleProperty->getVisibleCondition();
 
+                if (!$conditions instanceof ConditionChainInterface) {
+                    continue;
+                }
                 $conditions->addCondition($visibleCondition);
             }
         }
