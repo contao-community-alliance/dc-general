@@ -70,6 +70,12 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  *
  * Implementation for tree displaying.
  *
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment/MixedMethodCall from ModelInterface::getMeta() returning mixed.
+ *   Proper fix: Add typed getMeta<T>() or use assert() + cast at each call site.
+ * - MixedArgument when passing getMeta() results (e.g. CHILD_COLLECTIONS, TREE_VIEW_LEVEL) to typed methods.
+ * - UndefinedClass/MissingDependency from missing devstack symlinks (not code issues).
+ *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
@@ -156,7 +162,6 @@ class TreeView extends BaseView
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $openElements = $sessionStorage->get($this->getToggleId());
 
         if (!\is_array($openElements)) {
@@ -199,7 +204,6 @@ class TreeView extends BaseView
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
         if (($modelId = $input->getParameter('ptg')) && ($providerName = $input->getParameter('provider'))) {
             $states = $this->getTreeNodeStates();
             // Check if the open/close all has been triggered or just a model.
@@ -209,7 +213,7 @@ class TreeView extends BaseView
                 }
                 $states->setAllOpen($states->isAllOpen());
             } else {
-                $this->toggleModel((string) $providerName, (string) $modelId);
+                $this->toggleModel($providerName, $modelId);
             }
 
             ViewHelpers::redirectCleanHome($environment, ['ptg', 'provider']);
@@ -291,9 +295,7 @@ class TreeView extends BaseView
                 return $treeData;
             }
 
-            /** @psalm-suppress MixedArgument, MixedAssignment */
             foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $collection) {
-                /** @psalm-suppress MixedAssignment, MixedArgument */
                 foreach ($collection as $objSubModel) {
                     $treeData->push($objSubModel);
                 }
@@ -321,7 +323,6 @@ class TreeView extends BaseView
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
         if (!($parentId = $inputProvider->getParameter('pid'))) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent id defined, somehow none is defined?',
@@ -329,7 +330,7 @@ class TreeView extends BaseView
             );
         }
 
-        $pid = ModelId::fromSerialized((string) $parentId);
+        $pid = ModelId::fromSerialized($parentId);
 
         if (!($parentProvider = $environment->getDataProvider($pid->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
@@ -384,7 +385,6 @@ class TreeView extends BaseView
 
         $dispatcher->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
-        /** @psalm-suppress MixedArgument */
         $model->setMeta($model::LABEL_VALUE, $event->getLabel());
 
         $template = $this->getTemplate('dcbe_general_treeview_entry');
@@ -392,14 +392,12 @@ class TreeView extends BaseView
         $translator = $environment->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        /** @psalm-suppress MixedArgument */
         if ($model->getMeta($model::SHOW_CHILDREN)) {
             $toggleTitle = $translator->translate('collapseNode', 'dc-general');
         } else {
             $toggleTitle = $translator->translate('expandNode', 'dc-general');
         }
 
-        /** @psalm-suppress MixedOperand */
         $toggleUrlEvent = new AddToUrlEvent(
             'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
@@ -457,19 +455,15 @@ class TreeView extends BaseView
         foreach ($collection as $model) {
             /** @var ModelInterface $model */
 
-            /** @psalm-suppress MixedOperand */
             $toggleID = $model->getProviderName() . '_' . $treeClass . '_' . $model->getId();
 
             $content[] = $this->parseModel($model, $toggleID);
 
-            /** @psalm-suppress MixedArgument */
             if ($model->getMeta($model::HAS_CHILDREN) && $model->getMeta($model::SHOW_CHILDREN)) {
                 $template = $this->getTemplate('dcbe_general_treeview_child');
                 $subHtml  = '';
 
-                /** @psalm-suppress MixedArgument, MixedAssignment */
                 foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $childCollection) {
-                    /** @psalm-suppress MixedArgument */
                     $subHtml .= $this->generateTreeView($childCollection, $treeClass);
                 }
 
@@ -812,7 +806,6 @@ class TreeView extends BaseView
             return;
         }
 
-        /** @psalm-suppress MixedArgument */
         $response = new Response(
             $this->ajaxTreeView(
                 $input->getValue('id'),
@@ -873,7 +866,6 @@ class TreeView extends BaseView
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        /** @psalm-suppress MixedOperand */
         $sessionName = $definition->getName() . '.' . $inputProvider->getParameter('mode');
 
         $sessionStorage = $environment->getSessionStorage();
@@ -883,20 +875,16 @@ class TreeView extends BaseView
             return [];
         }
 
-        /** @psalm-suppress MixedAssignment */
         $selectAction = $inputProvider->getParameter('select');
         if (!$selectAction) {
             return [];
         }
 
-        /** @psalm-suppress MixedAssignment */
         $session = $sessionStorage->get($sessionName);
-        /** @psalm-suppress MixedArgument */
         if (!\array_key_exists($selectAction, $session)) {
             return [];
         }
 
-        /** @psalm-suppress MixedArrayAccess, MixedArrayOffset, MixedReturnStatement */
         return $session[$selectAction];
     }
 }

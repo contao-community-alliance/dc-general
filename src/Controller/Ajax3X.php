@@ -59,6 +59,12 @@ use function urldecode;
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
  * Contao handling.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from InputProviderInterface::getValue() (returns mixed).
+ * - MixedReturnTypeCoercion from string conversion of mixed DCA values.
+ * - MixedArgument when passing dynamic widget ($widget) results to Response.
+ * - Proper fix: Cast getValue() results to expected types at each call site.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api
@@ -138,7 +144,6 @@ class Ajax3X extends Ajax
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $field  = $input->getValue('field');
         $name   = (string) $input->getValue('name');
         $level  = (int) $input->getValue('level');
@@ -152,9 +157,7 @@ class Ajax3X extends Ajax
             $ajaxName = (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
 
-        /** @psalm-suppress MixedAssignment */
         $nodes          = $session->get($ajaxKey);
-        /** @psalm-suppress MixedArrayAssignment */
         $nodes[$ajaxId] = (int) $input->getValue('state');
         $session->set($ajaxKey, $nodes);
 
@@ -166,20 +169,17 @@ class Ajax3X extends Ajax
 
         /**
          * @psalm-suppress UndefinedDocblockClass
-         * @psalm-suppress MixedMethodCall
-         * @psalm-suppress MixedArrayAccess
          * @var PageSelector $widget
          */
         $widget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
         /** @psalm-suppress UndefinedClass */
-        $widget->value = $this->getTreeValue('page', (string) $input->getValue('value'));
+        $widget->value = $this->getTreeValue('page', $input->getValue('value'));
 
         /**
          * @psalm-suppress InvalidArgument - rather pass it "as is", we do not trust Contao annotations.
          * @psalm-suppress UndefinedDocblockClass
-         * @psalm-suppress MixedArgument
          */
-        $response = new Response($widget->generateAjax($ajaxId, (string) $field, $level));
+        $response = new Response($widget->generateAjax($ajaxId, $field, $level));
 
         throw new ResponseException($response);
     }
@@ -204,44 +204,33 @@ class Ajax3X extends Ajax
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $folder = $input->getValue('folder');
-        /** @psalm-suppress MixedAssignment */
         $field  = $input->getValue('field');
         $level  = (int) $input->getValue('level');
 
-        /** @psalm-suppress MixedAssignment */
         $arrData             = [];
-        /** @psalm-suppress MixedAssignment */
         $arrData['strTable'] = $input->getParameter('table');
-        /** @psalm-suppress MixedAssignment */
         $arrData['id']       = $field;
-        /** @psalm-suppress MixedAssignment */
         $arrData['name']     = $field;
         $arrData             = array_merge(
-            $definition->getPropertiesDefinition()->getProperty((string) $field)->getExtra(),
+            $definition->getPropertiesDefinition()->getProperty($field)->getExtra(),
             $arrData
         );
 
         /**
          * @psalm-suppress UndefinedClass
-         * @psalm-suppress MixedMethodCall
-         * @psalm-suppress MixedArrayAccess
          * @var FileSelector $widget
          */
         $widget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
 
         /** @psalm-suppress UndefinedClass */
-        $widget->value = $this->getTreeValue((string) $field, (string) $input->getValue('value'));
+        $widget->value = $this->getTreeValue($field, $input->getValue('value'));
         // Load a particular node.
         if ('' !== $folder) {
-            /**
-             * @psalm-suppress UndefinedDocblockClass
-             * @psalm-suppress MixedArgument
-             */
-            $response = new Response($widget->generateAjax((string) $folder, (string) $field, $level));
+            /** @psalm-suppress UndefinedDocblockClass */
+            $response = new Response($widget->generateAjax($folder, $field, $level));
         } else {
-            /** @psalm-suppress UndefinedDocblockClass, MixedArgument */
+            /** @psalm-suppress UndefinedDocblockClass */
             $response = new Response($widget->generate());
         }
 
@@ -257,8 +246,6 @@ class Ajax3X extends Ajax
      * @param string $value The value as comma separated list.
      *
      * @return list<string> The value array.
-     *
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     protected function getTreeValue($type, $value)
     {
@@ -270,9 +257,8 @@ class Ajax3X extends Ajax
 
         // Automatically add resources to the DBAFS.
         if ('file' === $type) {
-            /** @psalm-suppress MixedAssignment */
             foreach ($value as $k => $v) {
-                $uuid = Dbafs::addResource(urldecode((string) $v))->uuid;
+                $uuid = Dbafs::addResource(urldecode($v))->uuid;
                 assert(is_string($uuid));
                 $value[$k] = StringUtil::binToUuid($uuid);
             }
@@ -341,9 +327,7 @@ class Ajax3X extends Ajax
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $serializedId = ($input->hasParameter('id') && $input->getParameter('id')) ? $input->getParameter('id') : null;
-        /** @psalm-suppress MixedAssignment */
         $value        = $input->hasValue('value') ? $input->getValue('value', true) : '';
 
         $fieldName = $this->getFieldName();
@@ -351,8 +335,7 @@ class Ajax3X extends Ajax
             throw new ResponseException(new Response('No update of the widget, as no field name was found.'));
         }
 
-        /** @psalm-suppress MixedArgument */
-        $widget = $this->getWidget($fieldName, null === $serializedId ? null : (string) $serializedId, (string) $value);
+        $widget = $this->getWidget($fieldName, $serializedId, $value);
         assert($widget instanceof Widget);
 
         $this->generateWidget($widget);
@@ -401,13 +384,9 @@ class Ajax3X extends Ajax
         $session = $environment->getSessionStorage();
         assert($session instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $states = $session->get('LEGENDS');
 
-        $table  = (string) $input->getValue('table');
-        $legend = (string) $input->getValue('legend');
-        /** @psalm-suppress MixedArrayAccess, MixedArrayOffset, MixedArrayAssignment */
-        $states[$table][$legend] = (bool) $input->getValue('state');
+        $states[$input->getValue('table')][$input->getValue('legend')] = (bool) $input->getValue('state');
         $session->set('LEGENDS', $states);
 
         throw new ResponseException(new Response(''));
@@ -429,14 +408,12 @@ class Ajax3X extends Ajax
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $fieldName = $inputProvider->hasValue('name') ? $inputProvider->getValue('name') : null;
         if (null === $fieldName) {
             return null;
         }
 
         if (('select' !== $inputProvider->getParameter('act')) && ('edit' !== $inputProvider->getParameter('mode'))) {
-            /** @psalm-suppress MixedReturnStatement */
             return $fieldName;
         }
 
@@ -446,7 +423,6 @@ class Ajax3X extends Ajax
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedOperand */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('select'));
         if (!is_array($session) || !isset($session['models'])) {
             return null;
@@ -454,21 +430,20 @@ class Ajax3X extends Ajax
         /** @var array{models: list<string>} $session */
 
         $originalPropertyName = null;
-        /** @psalm-suppress MixedAssignment */
         foreach ($session['models'] as $modelId) {
             if (null !== $originalPropertyName) {
                 break;
             }
+
             $propertyNamePrefix = str_replace('::', '____', ((string) $modelId)) . '_';
-            if (!str_starts_with((string) $fieldName, $propertyNamePrefix)) {
+            if (!str_starts_with($fieldName, $propertyNamePrefix)) {
                 continue;
             }
 
-            $originalPropertyName = substr((string) $fieldName, strlen($propertyNamePrefix));
+            $originalPropertyName = substr($fieldName, strlen($propertyNamePrefix));
         }
 
         if (null === $originalPropertyName) {
-            /** @psalm-suppress MixedReturnStatement */
             return $fieldName;
         }
 
@@ -502,8 +477,7 @@ class Ajax3X extends Ajax
         $model = $dataProvider->getEmptyModel();
         $model->setProperty($widget->name, $widget->value);
 
-        /** @psalm-suppress MixedArgument */
-        $widget = (new ContaoWidgetManager($environment, $model))->getWidget((string) $inputProvider->getValue('name'));
+        $widget = (new ContaoWidgetManager($environment, $model))->getWidget($inputProvider->getValue('name'));
         assert($widget instanceof Widget);
 
         echo $widget->parse();

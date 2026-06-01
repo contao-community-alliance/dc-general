@@ -114,7 +114,6 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         $properties = $definition->getPropertiesDefinition();
 
         foreach (\array_keys($model->getPropertiesAsArray()) as $propertyName) {
-            $propertyName = (string) $propertyName;
             if (!$properties->hasProperty($propertyName)) {
                 continue;
             }

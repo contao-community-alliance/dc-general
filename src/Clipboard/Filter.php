@@ -588,7 +588,6 @@ EXPR;
         }
 
         $expression = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($parentModelIds as $parentModelId) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::PARENT_IS_EXPRESSION, $index);
@@ -693,7 +692,6 @@ EXPR;
         }
 
         $expression = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($parentModelIds as $parentModelId) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::PARENT_IS_NOT_EXPRESSION, $index);
@@ -798,7 +796,6 @@ EXPR;
         }
 
         $expression = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($actions as $action) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::ACTION_IS_EXPRESSION, $index);
@@ -903,7 +900,6 @@ EXPR;
         }
 
         $expression = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($actions as $action) {
             $index             = count($this->variables);
             $expression[]      = sprintf(self::ACTION_IS_NOT_EXPRESSION, $index);
@@ -988,7 +984,6 @@ EXPR;
 
         $variables = $this->variables;
         // phpcs:disable
-        /** @psalm-suppress MixedReturnStatement */
         return eval($this->compiled);
         // phpcs:enable
     }
@@ -1002,7 +997,6 @@ EXPR;
      */
     public function getExpression()
     {
-        /** @psalm-suppress MixedArgumentTypeCoercion */
         return $this->expression ? implode(' ', $this->expression) : 'true';
     }
 

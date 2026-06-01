@@ -97,7 +97,7 @@ class ContainerGlobalButtonCallbackListener extends AbstractReturningCallbackLis
             return;
         }
 
-        $event->setHtml((string) $value);
+        $event->setHtml($value);
         $event->stopPropagation();
     }
 }

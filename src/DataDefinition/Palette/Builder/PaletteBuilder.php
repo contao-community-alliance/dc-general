@@ -925,7 +925,6 @@ class PaletteBuilder
         $propertyNames = func_get_args();
 
         $this->property = [];
-        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($propertyNames as $propertyName) {
             $property = $this->propertyClass->newInstance($propertyName);
 
@@ -1359,7 +1358,6 @@ class PaletteBuilder
         $dispatcher = System::getContainer()->get('event_dispatcher');
         assert($dispatcher instanceof EventDispatcherInterface);
 
-        /** @psalm-suppress MixedArgument */
         $dispatcher->dispatch($event, $event::NAME);
     }
 }

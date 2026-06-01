@@ -74,6 +74,11 @@ use function trim;
 /**
  * This class is a helper for rendering the operation buttons in the views.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from ModelInterface::getMeta() (returns mixed).
+ * - MixedArgument when passing mixed typed values to typed methods.
+ * - Proper fix: Typed meta accessors per meta key.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *
@@ -174,9 +179,8 @@ class ButtonRenderer
         $collector = new ModelCollector($environment);
         foreach ($cutModels as $model) {
             $providerName = $model->getProviderName();
-            /** @psalm-suppress MixedAssignment */
             foreach ($collector->collectChildrenOf($model) as $subModel) {
-                $this->circularModelIds[] = ModelId::fromValues($providerName, (string) $subModel)->getSerialized();
+                $this->circularModelIds[] = ModelId::fromValues($providerName, $subModel)->getSerialized();
             }
         }
     }
@@ -263,7 +267,6 @@ class ButtonRenderer
             }
         }
 
-        /** @psalm-suppress MixedArgument */
         $model->setMeta(
             $model::OPERATION_BUTTONS,
             implode(' ', $buttons)
@@ -339,17 +342,15 @@ class ButtonRenderer
         array $childIds
     ): string {
         $extra      = (array) $command->getExtra();
-        /** @psalm-suppress MixedAssignment */
-        if ('' !== ($attributes = (string) ($extra['attributes'] ?? ''))) {
-            /** @psalm-suppress MixedArgument */
+        if ('' !== ($attributes = $extra['attributes'] ?? '')) {
+            // BC compatibility with legacy strings containing 'Edit item %s'
             if (false === str_contains($attributes, '%id%')) {
-                /** @psalm-suppress MixedArgument */
-                $attributes = sprintf($attributes, (string) $model->getID());
+                $attributes = sprintf($attributes, $model->getID());
             }
-            /** @psalm-suppress MixedArgument */
-            $attributes = strtr($attributes, ['%id%' => (string) $model->getId()]);
+            $attributes = strtr($attributes, ['%id%' => $model->getId()]);
         }
         $icon = (string) $extra['icon'];
+
         if ($command instanceof ToggleCommandInterface) {
             $iconDisabled = (string) ($extra['icon_disabled'] ?? 'invisible.svg');
 
@@ -439,21 +440,15 @@ class ButtonRenderer
      */
     private function getChildIds(ModelInterface $model): array
     {
-        /** @psalm-suppress MixedAssignment, MixedArgument */
-        $childCollections = $model->getMeta($model::CHILD_COLLECTIONS);
-        if (null === $childCollections) {
+        if (null === ($childCollections = $model->getMeta($model::CHILD_COLLECTIONS))) {
             return [];
         }
 
         $ids = [ModelId::fromModel($model)->getSerialized()];
 
         $childIds = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($childCollections as $collection) {
-            /** @psalm-suppress MixedAssignment */
             foreach ($collection as $child) {
-                assert($child instanceof ModelInterface);
-                /** @psalm-suppress MixedArgument */
                 $childIds[] = $this->getChildIds($child);
             }
         }
@@ -468,8 +463,6 @@ class ButtonRenderer
      * @param string           $serializedModelId The model id to use.
      *
      * @return string[]
-     *
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function calculateParameters(CommandInterface $command, string $serializedModelId): array
     {
@@ -480,7 +473,6 @@ class ButtonRenderer
             $parameters['act'] = $command->getName();
             $parameters['id']  = $serializedModelId;
 
-            /** @psalm-suppress MixedReturnTypeCoercion */
             return $parameters;
         }
 
@@ -495,14 +487,12 @@ class ButtonRenderer
 
             // If we have a pid add it, used for mode 4 and all parent -> current views.
             if ($inputProvider->hasParameter('pid')) {
-                /** @psalm-suppress MixedAssignment */
                 $parameters['pid'] = $inputProvider->getParameter('pid');
             }
 
             // Source is the id of the element which should move.
             $parameters['source'] = $serializedModelId;
 
-            /** @psalm-suppress MixedReturnTypeCoercion */
             return $parameters;
         }
 
@@ -511,7 +501,6 @@ class ButtonRenderer
 
         $parameters[($extra['idparam'] ?? '') ?: 'id'] = $serializedModelId;
 
-        /** @psalm-suppress MixedReturnTypeCoercion */
         return $parameters;
     }
 
@@ -658,13 +647,13 @@ class ButtonRenderer
     protected function translateButtonLabel(string $buttonName, string $definitionName, array $parameter = []): string
     {
         // New way via symfony translator.
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        $header = $this->translator->translate($buttonName . '.label', $definitionName, $parameter);
-        if ($buttonName . '.label' !== $header) {
+        if (
+            $buttonName . '.label' !== ($header =
+                $this->translator->translate($buttonName . '.label', $definitionName, $parameter))
+        ) {
             return $header;
         }
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
         return $this->translator->translate($buttonName . '.0', $definitionName, $parameter);
     }
 
@@ -674,27 +663,27 @@ class ButtonRenderer
         array $parameter = []
     ): string {
         // New way via symfony translator.
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        $header = $this->translator->translate($buttonName . '.description', $definitionName, $parameter);
-        if ($buttonName . '.description' !== $header) {
+        if (
+            $buttonName . '.description'
+            !== ($header = $this->translator->translate($buttonName . '.description', $definitionName, $parameter))
+        ) {
             return $header;
         }
 
         if (
             1 !== preg_match('#%(?:[bcdeEfFgGhHosuxX]|\d*\$[bcdeEfFgGhHosuxX])#', $buttonName)
+            && $definitionName . '.' . $buttonName . '.1'
+               !== (
+                   $header = $this->translator->translate(
+                       $definitionName . '.' . $buttonName . '.1',
+                       'contao_' . $definitionName,
+                       $parameter
+                   )
+               )
         ) {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
-            $header = $this->translator->translate(
-                $definitionName . '.' . $buttonName . '.1',
-                'contao_' . $definitionName,
-                $parameter
-            );
-            if ($definitionName . '.' . $buttonName . '.1' !== $header) {
-                return $header;
-            }
+            return $header;
         }
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
         return vsprintf($buttonName, $parameter);
     }
 
@@ -747,7 +736,6 @@ class ButtonRenderer
         $propModel      = $model;
         $toggleProperty = $command->getToggleProperty();
 
-        /** @psalm-suppress MixedOperand */
         if (
             $command instanceof TranslatedToggleCommandInterface
             && $dataProvider instanceof MultiLanguageDataProviderInterface
@@ -761,7 +749,7 @@ class ButtonRenderer
                     ->setFields([$toggleProperty])
             );
             if (null === $propModel) {
-                throw new DcGeneralInvalidArgumentException('Model not found: ' . (string) $model->getId());
+                throw new DcGeneralInvalidArgumentException('Model not found: ' . $model->getId());
             }
             $dataProvider->setCurrentLanguage($language);
         }

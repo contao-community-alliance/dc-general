@@ -69,15 +69,12 @@ class FormatModelLabelSubscriber
         $properties    = $dataDefinition->getPropertiesDefinition();
         $formatter     = $listing->getLabelFormatter($model->getProviderName());
         $sorting       = ViewHelpers::getGroupingMode($environment);
-        /** @psalm-suppress MixedArgument */
         $firstSorting  = $this->getFirstSorting(($sorting['sorting'] ?? null));
         $propertyNames = $formatter->getPropertyNames();
 
         $modelToLabelEvent = new ModelToLabelEvent($environment, $model);
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        $labelArgs = $this->prepareLabelArguments($propertyNames, $properties, $environment, $model);
         $modelToLabelEvent
-            ->setArgs($labelArgs)
+            ->setArgs($this->prepareLabelArguments($propertyNames, $properties, $environment, $model))
             ->setLabel($formatter->getFormat())
             ->setFormatter($formatter);
 
@@ -89,7 +86,6 @@ class FormatModelLabelSubscriber
 
         // Add columns.
         if ($listing->getShowColumns()) {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $event->setLabel($this->renderWithColumns($propertyNames, $modelToLabelEvent->getArgs(), $firstSorting));
             return;
         }

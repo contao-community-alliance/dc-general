@@ -209,11 +209,7 @@ class ModelCollector
             $properties = [];
             // Filter real properties from the property definition.
             foreach ($propertyDefinition->getPropertyNames() as $propertyName) {
-                /** @psalm-suppress MixedAssignment */
-                $propertyName = $propertyName;
-                /** @psalm-suppress MixedArgument */
                 if ($dataProvider->fieldExists($propertyName)) {
-                    /** @psalm-suppress MixedAssignment */
                     $properties[] = $propertyName;
                     continue;
                 }
@@ -226,7 +222,6 @@ class ModelCollector
                 );
                 // phpcs:enable
             }
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $config->setFields($properties);
         }
 
@@ -401,7 +396,7 @@ class ModelCollector
                     $filters[] = [
                         'operation' => '=',
                         'property'  => $propertyName,
-                        'value'     => $model->getProperty((string) $propertyName)
+                        'value'     => $model->getProperty($propertyName)
                     ];
                 }
 
@@ -429,7 +424,6 @@ class ModelCollector
      */
     public function collectChildrenOf(ModelInterface $model, $providerName = '')
     {
-        /** @psalm-suppress MixedReturnTypeCoercion */
         return $this->internalCollectChildrenOf($model, $providerName, true);
     }
 
@@ -462,8 +456,6 @@ class ModelCollector
      * @return list<string>
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     *
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function internalCollectChildrenOf(
         ModelInterface $model,
@@ -495,7 +487,6 @@ class ModelCollector
                 /** @var ModelInterface $child */
 
                 if (!$recursive && $child->getProviderName() === $providerName) {
-                    /** @psalm-suppress MixedAssignment */
                     $ids[] = $child->getId();
                 }
 
@@ -508,7 +499,6 @@ class ModelCollector
             }
         }
 
-        /** @psalm-suppress MixedReturnTypeCoercion */
         return \array_values(\array_merge($ids, ...$childIds));
     }
 

@@ -57,14 +57,8 @@ class PropertyValueBag implements PropertyValueBagInterface
     public function __construct($properties = null)
     {
         if (\is_iterable($properties)) {
-            /**
-             * @psalm-suppress MixedAssignment
-             * @var mixed $property
-             * @var mixed $value
-             */
             foreach ($properties as $property => $value) {
-                /** @psalm-suppress MixedArgument */
-                $this->setPropertyValue((string) $property, $value);
+                $this->setPropertyValue($property, $value);
             }
         } elseif (null !== $properties) {
             throw new DcGeneralInvalidArgumentException(

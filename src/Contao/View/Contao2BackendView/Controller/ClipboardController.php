@@ -59,6 +59,11 @@ use function sprintf;
 /**
  * Class ClipboardController.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from ModelInterface::getMeta() and session data (returns mixed).
+ * - MixedArgument when passing getMeta() results to typed methods.
+ * - Proper fix: Typed session accessors and typed meta data accessors.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api
@@ -165,8 +170,7 @@ class ClipboardController implements EventSubscriberInterface
                 break;
 
             case 'cut':
-                /** @psalm-suppress MixedOperand */
-                $permissionMessage .= (string) $inputProvider->getParameter('source');
+                $permissionMessage .= $inputProvider->getParameter('source');
                 break;
 
             default:
@@ -203,10 +207,7 @@ class ClipboardController implements EventSubscriberInterface
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
-        $clipboardId = $input->getParameter('clipboard-item');
-        if ($clipboardId) {
-            /** @psalm-suppress MixedArgument */
+        if ($clipboardId = $input->getParameter('clipboard-item')) {
             $clipboard->removeByClipboardId($clipboardId);
         } else {
             $clipboard->clear();
@@ -217,17 +218,14 @@ class ClipboardController implements EventSubscriberInterface
             return;
         }
 
-        /** @psalm-suppress MixedOperand */
-        $originalAct   = (string) $input->getParameter('original-act');
-        $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $originalAct);
+        $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $input->getParameter('original-act'));
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $url = new UrlBuilder($addToUrlEvent->getUrl());
         parse_str($url->getQueryString() ?? '', $parameters);
-        /** @psalm-suppress MixedAssignment */
         foreach ($parameters as $name => $value) {
             if ('' === $value) {
-                $url->unsetQueryParameter((string) $name);
+                $url->unsetQueryParameter($name);
             }
         }
 
@@ -277,10 +275,9 @@ class ClipboardController implements EventSubscriberInterface
         assert($clipboard instanceof ClipboardInterface);
 
 
-        /** @psalm-suppress MixedAssignment */
         $parentIdRaw = $input->getParameter('pid');
         if ($parentIdRaw) {
-            $parentId = ModelId::fromSerialized((string) $parentIdRaw);
+            $parentId = ModelId::fromSerialized($parentIdRaw);
         } else {
             $parentId = null;
         }
@@ -305,9 +302,8 @@ class ClipboardController implements EventSubscriberInterface
             // Remove other create items, there can only be one create item in the clipboard or many others.
             $clipboard->clear();
         } else {
-            /** @psalm-suppress MixedAssignment */
             $modelIdRaw = $input->getParameter('source');
-            $modelId    = ModelId::fromSerialized((string) $modelIdRaw);
+            $modelId    = ModelId::fromSerialized($modelIdRaw);
 
             // If edit several don´t remove items from the clipboard.
             $this->removeItemsFromClipboard($event);
@@ -419,12 +415,9 @@ class ClipboardController implements EventSubscriberInterface
 
                 $formatModelLabel = new FormatModelLabelEvent($environment, $model);
                 $eventDispatcher->dispatch($formatModelLabel, DcGeneralEvents::FORMAT_MODEL_LABEL);
-                /** @psalm-suppress MixedAssignment */
                 $label = $formatModelLabel->getLabel();
-                /** @psalm-suppress MixedAssignment */
                 $label = array_shift($label);
                 assert(is_array($label));
-                /** @psalm-suppress MixedAssignment */
                 $label = $label['content'] ?? '';
             } else {
                 $model = $dataProvider->getEmptyModel();
@@ -438,16 +431,13 @@ class ClipboardController implements EventSubscriberInterface
             $options[$item->getClipboardId()] = ['item'  => $item, 'model' => $model, 'label' => $label];
         }
 
-        /** @psalm-suppress MixedAssignment */
         $inputAction   = $input->getParameter('act');
-        /** @psalm-suppress MixedOperand */
-        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . (string) $inputAction);
+        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $inputAction);
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearUrl = $addToUrlEvent->getUrl();
 
-        /** @psalm-suppress MixedOperand */
         $addToUrlEvent = new AddToUrlEvent(
-            'clipboard-item=%id%&act=clear-clipboard&original-act=' . (string) $inputAction
+            'clipboard-item=%id%&act=clear-clipboard&original-act=' . $inputAction
         );
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearItemUrl = $addToUrlEvent->getUrl();

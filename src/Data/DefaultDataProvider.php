@@ -46,6 +46,12 @@ use Doctrine\DBAL\Schema\Table;
  *
  * Default implementation for a data provider using the Contao default database as backend.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment when iterating over model properties (values are mixed by design).
+ * - MixedReturnTypeCoercion for fetchAll() returning mixed collection.
+ * - MixedAssignment: $data[$this->idProperty] = $model->getId() — mixed key.
+ * - Proper fix: Type the property value store; add typed id accessor.
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)     - We have to keep them as we implement the interfaces.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) - There is no elegant way to reduce this class more without
  *                                                     reducing the interface.
@@ -232,19 +238,16 @@ class DefaultDataProvider implements DataProviderInterface
             }
         }
 
-        /** @psalm-suppress MixedAssignment */
-        $this->source = (string) $config['source'];
+        $this->source = $config['source'];
 
         if (isset($config['timeStampProperty'])) {
-            /** @psalm-suppress MixedArgument */
-            $this->setTimeStampProperty((string) $config['timeStampProperty']);
+            $this->setTimeStampProperty($config['timeStampProperty']);
         } elseif ($this->fieldExists('tstamp')) {
             $this->setTimeStampProperty('tstamp');
         }
 
         if (isset($config['idProperty'])) {
-            /** @psalm-suppress MixedArgument */
-            $this->setIdProperty((string) $config['idProperty']);
+            $this->setIdProperty($config['idProperty']);
         }
     }
 
@@ -305,28 +308,24 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $modelId = null;
         if (\is_numeric($item) || \is_string($item)) {
-            /** @psalm-suppress MixedAssignment */
             $modelId = $item;
         } elseif (\is_object($item) && $item instanceof ModelInterface && null !== $item->getId()) {
-            /** @psalm-suppress MixedAssignment */
             $modelId = $item->getId();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
         }
 
         // Insert undo.
-        /** @psalm-suppress MixedArgument */
-        $modelIdString = (string) $modelId;
         $this->insertUndo(
             \sprintf(
                 'DELETE FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                $modelIdString
+                $modelId
             ),
             \sprintf(
                 'SELECT * FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                $modelIdString
+                $modelId
             ),
             $this->source
         );
@@ -346,14 +345,12 @@ class DefaultDataProvider implements DataProviderInterface
         $model = $this->getEmptyModel();
         assert($model instanceof DefaultModel);
 
-        /** @psalm-suppress MixedAssignment */
         foreach ($result as $key => $value) {
             if ($key === $this->idProperty) {
                 $model->setIdRaw($value);
             }
 
-            /** @psalm-suppress MixedArgumentTypeCoercion */
-            $model->setPropertyRaw((string) $key, StringUtil::deserialize($value));
+            $model->setPropertyRaw($key, StringUtil::deserialize($value));
         }
 
         return $model;
@@ -401,8 +398,6 @@ class DefaultDataProvider implements DataProviderInterface
      * {@inheritDoc}
      *
      * @throws \Doctrine\DBAL\Exception
-     *
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     #[\Override]
     public function fetchAll(ConfigInterface $config)
@@ -425,12 +420,10 @@ class DefaultDataProvider implements DataProviderInterface
             if ($config->getIdOnly()) {
                 return [];
             }
-            /** @psalm-suppress MixedReturnTypeCoercion */
             return $collection;
         }
 
         if ($config->getIdOnly()) {
-            /** @psalm-suppress MixedReturnTypeCoercion */
             return $statement->fetchFirstColumn();
         }
 
@@ -477,8 +470,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $collection = new DefaultFilterOptionCollection();
         foreach ($values as $value) {
-            /** @psalm-suppress MixedArgument */
-            $collection->add((string) $value[$filterProperty], (string) $value[$filterProperty]);
+            $collection->add($value[$filterProperty], $value[$filterProperty]);
         }
 
         return $collection;
@@ -601,24 +593,16 @@ class DefaultDataProvider implements DataProviderInterface
      */
     private function filterPrefixer(array &$filter)
     {
-        /** @psalm-suppress MixedAssignment */
         foreach ($filter as &$child) {
-            /** @psalm-suppress MixedAssignment */
-            $childArray = $child;
-            /** @psalm-suppress MixedArgument */
             if (
-                \is_array($childArray)
-                && \array_key_exists('property', $childArray)
-                && (false === \strpos((string) $childArray['property'], $this->source . '.'))
-                && $this->fieldExists((string) $childArray['property'])
+                \array_key_exists('property', $child)
+                && (false === \strpos($child['property'], $this->source . '.'))
+                && $this->fieldExists($child['property'])
             ) {
-                /** @psalm-suppress MixedArrayAssignment, MixedOperand */
-                $child['property'] = $this->source . '.' . $childArray['property'];
+                $child['property'] = $this->source . '.' . $child['property'];
             }
 
-            /** @psalm-suppress MixedArgument */
-            if (\is_array($childArray) && \array_key_exists('children', $childArray)) {
-                /** @psalm-suppress MixedArrayAccess, MixedArgument */
+            if (\array_key_exists('children', $child)) {
                 $this->filterPrefixer($child['children']);
             }
         }
@@ -655,15 +639,14 @@ class DefaultDataProvider implements DataProviderInterface
     private function convertModelToDataPropertyArray(ModelInterface $model, int $timestamp)
     {
         $data = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($model as $key => $value) {
             if (($key === $this->idProperty) || !$this->fieldExists($key)) {
                 continue;
             }
+
             if (\is_array($value)) {
                 $data[$this->source . '.' . $key] = \serialize($value);
             } else {
-                /** @psalm-suppress MixedAssignment */
                 $data[$this->source . '.' . $key] = $value;
             }
         }
@@ -688,18 +671,15 @@ class DefaultDataProvider implements DataProviderInterface
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
         if ($generator = $this->getIdGenerator()) {
             $model->setId($generator->generate());
-            /** @psalm-suppress MixedAssignment */
             $data[$this->idProperty] = $model->getId();
         }
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
         $this->connection->insert($this->source, $data);
 
         $insertId = $this->connection->lastInsertId($this->source);
 
         if (('' !== $insertId) && !isset($data[$this->idProperty])) {
             // Retrieve id with query to set type.
-            /** @psalm-suppress MixedAssignment */
             $modelId = $this->connection->createQueryBuilder()
                 ->select('t.id')
                 ->from($this->source, 't')
@@ -724,7 +704,6 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $data = $this->convertModelToDataPropertyArray($model, $timestamp);
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
         $this->connection->update($this->source, $data, ['id' => $model->getId()]);
     }
 
@@ -803,14 +782,12 @@ class DefaultDataProvider implements DataProviderInterface
 
         $model = $this->getEmptyModel();
         $model->setID($mixID);
-        /** @psalm-suppress MixedAssignment */
         foreach ($data as $key => $value) {
             if ($key === $this->idProperty) {
                 continue;
             }
 
-            /** @psalm-suppress MixedArgumentTypeCoercion */
-            $model->setProperty((string) $key, $value);
+            $model->setProperty($key, $value);
         }
 
         return $model;
@@ -858,7 +835,6 @@ class DefaultDataProvider implements DataProviderInterface
             $model = $this->getEmptyModel();
             $model->setId($mixID);
 
-            /** @psalm-suppress MixedAssignment */
             foreach ($versionValue as $key => $value) {
                 if ($key === $this->idProperty) {
                     continue;
@@ -895,14 +871,11 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->setParameter('fromTable', $this->source);
 
         $statement = $queryBuilder->executeQuery();
-        /** @psalm-suppress MixedAssignment */
         $count     = $statement->fetchOne();
 
-        /** @psalm-suppress MixedAssignment */
         $mixNewVersion = ((int) $count + 1);
         $mixData       = $model->getPropertiesAsArray();
 
-        /** @psalm-suppress MixedAssignment */
         $mixData[$this->idProperty] = $model->getId();
 
         $insert = [
@@ -938,7 +911,6 @@ class DefaultDataProvider implements DataProviderInterface
         $this->connection->update('tl_version', ['tl_version.active' => ''], $updateValues);
 
         // Set version active.
-        /** @psalm-suppress MixedAssignment */
         $updateValues['version'] = $mixVersion;
         $this->connection->update('tl_version', ['tl_version.active' => 1], $updateValues);
     }
@@ -990,7 +962,6 @@ class DefaultDataProvider implements DataProviderInterface
     #[\Override]
     public function sameModels($firstModel, $secondModel)
     {
-        /** @psalm-suppress MixedAssignment */
         foreach ($firstModel as $key => $value) {
             if ($key === $this->idProperty) {
                 continue;
@@ -1094,7 +1065,6 @@ class DefaultDataProvider implements DataProviderInterface
             // phpcs:enable
 
             if (!isset($config['connection'])) {
-                /** @psalm-suppress MixedAssignment */
                 $config['connection'] = $config['database'];
             }
 
@@ -1112,7 +1082,6 @@ class DefaultDataProvider implements DataProviderInterface
             $reflection = new \ReflectionProperty(Database::class, 'resConnection');
             $reflection->setAccessible(true);
 
-            /** @psalm-suppress MixedAssignment */
             $config['connection'] = $reflection->getValue($config['connection']);
         }
     }

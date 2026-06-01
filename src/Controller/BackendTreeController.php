@@ -58,6 +58,12 @@ use function is_array;
 /**
  * Handles the backend tree.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from $GLOBALS access.
+ * - MixedMethodCall/UnsafeInstantiation on dynamic TreePicker class.
+ * - LessSpecificReturnStatement for prepareTreeSelector() return type.
+ * - Proper fix: Typed factory for TreePicker creation.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api
@@ -171,7 +177,6 @@ class BackendTreeController
             )
             ->set('charset', 'utf-8');
 
-        /** @psalm-suppress MixedReturnTypeCoercion */
         return $template->getResponse();
     }
 
@@ -207,7 +212,6 @@ class BackendTreeController
             )
             ->set('charset', 'utf-8');
 
-        /** @psalm-suppress MixedReturnTypeCoercion */
         return $template->getResponse();
     }
 
@@ -252,7 +256,7 @@ class BackendTreeController
 
         [$value, , $picker] = $this->getTemplateData($request, true);
 
-        $modelId = ModelId::fromSerialized((string) $picker->getConfig()->getExtra('modelId'));
+        $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
         $factory = new DcGeneralFactory();
         $general = $factory
@@ -286,10 +290,9 @@ class BackendTreeController
             $value = $values;
         }
 
-        /** @psalm-suppress MixedAssignment */
         $propertyName   = $picker->getConfig()->getExtra('propertyName');
         $propertyValues = new PropertyValueBag();
-        $propertyValues->setPropertyValue((string) $propertyName, $value);
+        $propertyValues->setPropertyValue($propertyName, $value);
 
         $controller = $general->getEnvironment()->getController();
         assert($controller instanceof ControllerInterface);
@@ -297,8 +300,7 @@ class BackendTreeController
         $controller->updateModelFromPropertyBag($model, $propertyValues);
 
         $widgetManager = new ContaoWidgetManager($general->getEnvironment(), $model);
-        /** @psalm-suppress MixedArgument */
-        $buffer        = $widgetManager->renderWidget((string) $propertyName, false, $propertyValues);
+        $buffer        = $widgetManager->renderWidget($propertyName, false, $propertyValues);
 
         $response = new Response($buffer);
         $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
@@ -311,8 +313,6 @@ class BackendTreeController
      * @param bool    $valueFromRequest Flag if the value shall be read from the request.
      *
      * @return array{0: string|list<string>, 1: TreePicker, 2: PickerInterface}
-     *
-     * @psalm-suppress MixedReturnTypeCoercion
      */
     private function getTemplateData(Request $request, bool $valueFromRequest = false): array
     {
@@ -336,7 +336,6 @@ class BackendTreeController
 
         $sessionBag->set($treeSelector->getSearchSessionKey(), $value);
 
-        /** @psalm-suppress MixedReturnTypeCoercion */
         return [
             $sessionBag->get($treeSelector->getSearchSessionKey()),
             $treeSelector,
@@ -354,20 +353,16 @@ class BackendTreeController
      * @throws InvalidArgumentException If invalid characters in the data provider name or property name.
      *
      * @SuppressWarnings(PHPMD.Superglobals)
-     *
-     * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement
      */
     private function prepareTreeSelector(PickerInterface $picker)
     {
-        $modelId = ModelId::fromSerialized((string) $picker->getConfig()->getExtra('modelId'));
+        $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
 
         if (Validator::isInsecurePath($table = $modelId->getDataProviderName())) {
             throw new InvalidArgumentException('The table name contains invalid characters');
         }
 
-        /** @psalm-suppress MixedAssignment */
-        $field = $picker->getConfig()->getExtra('propertyName');
-        if (Validator::isInsecurePath((string) $field)) {
+        if (Validator::isInsecurePath($field = $picker->getConfig()->getExtra('propertyName'))) {
             throw new InvalidArgumentException('The field name contains invalid characters');
         }
 
@@ -385,36 +380,32 @@ class BackendTreeController
         assert($definition instanceof ContainerInterface);
 
         // Merge with the information from the data container.
-        /** @psalm-suppress MixedArgument */
         $property = $definition
             ->getPropertiesDefinition()
-            ->getProperty((string) $picker->getConfig()->getExtra('propertyName'));
+            ->getProperty($picker->getConfig()->getExtra('propertyName'));
 
-        /** @psalm-suppress MixedArrayOffset, MixedArrayAccess */
-        $information = (array) ($GLOBALS['TL_DCA'][$table]['fields'][(string) $field] ?? []);
+        $information = (array) ($GLOBALS['TL_DCA'][$table]['fields'][$field] ?? []);
         if (!isset($information['eval'])) {
             $information['eval'] = [];
         }
-        /** @psalm-suppress MixedArgument */
         $information['eval'] = array_merge($property->getExtra(), $information['eval']);
 
         $dcCompat = new DcCompat($itemContainer->getEnvironment());
         /** @var class-string<TreePicker> $class */
-        /** @psalm-suppress MixedArrayAccess, MixedAssignment */
         $class = $GLOBALS['BE_FFL']['DcGeneralTreePicker'];
-        /** @psalm-suppress MixedArgument */
-        $widgetAttributes = Widget::getAttributesFromDca(
-            $information,
-            (string) $field,
-            array_filter(explode(',', $picker->getConfig()->getValue())),
-            (string) $field,
-            $table,
+        /** @psalm-suppress UnsafeInstantiation - No other way to instantiate. */
+        $treeSelector = new $class(
+            Widget::getAttributesFromDca(
+                $information,
+                $field,
+                array_filter(explode(',', $picker->getConfig()->getValue())),
+                $field,
+                $table,
+                $dcCompat
+            ),
             $dcCompat
         );
-        /** @psalm-suppress UnsafeInstantiation, MixedMethodCall */
-        $treeSelector = new $class($widgetAttributes, $dcCompat);
 
-        /** @psalm-suppress MixedMethodCall */
         $treeSelector->id = 'tl_listing';
 
         return $treeSelector;

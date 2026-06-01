@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2026 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2026 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -113,16 +113,13 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     {
         $values = [];
         if ($this->getSessionStorage()->has('limit')) {
-            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('limit');
         }
 
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        /** @psalm-suppress MixedArgument */
         if (\array_key_exists($definition->getName(), $values)) {
-            /** @psalm-suppress MixedArrayAccess, MixedReturnStatement */
             return $values[$definition->getName()];
         }
 
@@ -147,23 +144,18 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         $values = [];
 
         if ($this->getSessionStorage()->has('limit')) {
-            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('limit');
         }
 
         if (!$offset && !$amount) {
             // Filter reset.
-            /** @psalm-suppress MixedArrayAccess */
             unset($values[$definitionName]);
         } else {
             if (!isset($values[$definitionName]) || !\is_array($values[$definitionName])) {
-                /** @psalm-suppress MixedArrayAssignment */
                 $values[$definitionName] = [];
             }
 
-            /** @psalm-suppress MixedArrayAssignment */
             $values[$definitionName]['offset'] = $offset;
-            /** @psalm-suppress MixedArrayAssignment */
             $values[$definitionName]['amount'] = $amount;
         }
 
@@ -217,7 +209,6 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         assert($panel instanceof PanelInterface);
 
         if ($input->hasValue('tl_limit') && $panel->getContainer()->updateValues()) {
-            /** @psalm-suppress MixedAssignment */
             $limit = $input->getValue('tl_limit');
             if ('all' === $limit) {
                 $offset = 0;
@@ -225,7 +216,6 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 $this->setPersistent($offset, $amount);
                 return;
             }
-            /** @psalm-suppress MixedAssignment, MixedArgument */
             [$offset, $amount] = \explode(',', $input->getValue('tl_limit')) + [0, 0];
             $offset = (int) $offset;
             $amount = (int) $amount;
@@ -234,9 +224,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
         $persistent = $this->getPersistent();
         if ($persistent) {
-            /** @psalm-suppress MixedAssignment */
             $offset = $persistent['offset'];
-            /** @psalm-suppress MixedAssignment */
             $amount = $persistent['amount'];
 
             // Hotfix the offset - we also might want to store it persistent.

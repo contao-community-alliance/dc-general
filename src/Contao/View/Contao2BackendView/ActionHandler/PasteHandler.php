@@ -137,9 +137,7 @@ class PasteHandler
 
         $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
-        /** @psalm-suppress MixedAssignment */
         foreach ($items as $item) {
-            /** @psalm-suppress MixedArgument */
             $clipboard->remove($item);
         }
 
@@ -232,9 +230,8 @@ class PasteHandler
      */
     private function modelIdFromParameter(InputProviderInterface $input, $name)
     {
-        /** @psalm-suppress MixedAssignment */
         if ($input->hasParameter($name) && ($value = $input->getParameter($name))) {
-            return ModelId::fromSerialized((string) $value);
+            return ModelId::fromSerialized($value);
         }
 
         return null;

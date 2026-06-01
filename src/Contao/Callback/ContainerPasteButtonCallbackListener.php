@@ -66,7 +66,7 @@ class ContainerPasteButtonCallbackListener extends AbstractReturningCallbackList
             return;
         }
 
-        $event->setHtml((string) $value);
+        $event->setHtml($value);
         $event->stopPropagation();
     }
 }

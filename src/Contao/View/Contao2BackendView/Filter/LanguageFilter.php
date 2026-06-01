@@ -152,18 +152,14 @@ class LanguageFilter implements EventSubscriberInterface
             return;
         }
 
-        /** @var array<string,string> $languages */
-        /** @psalm-suppress MixedArgumentTypeCoercion */
         $this->checkLanguageSubmit($environment, $languages);
 
         // Load language from Session.
         $session = (array) $sessionStorage->get('dc_general');
 
         // Try to get the language from session.
-        /** @psalm-suppress MixedAssignment */
         $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
 
-        /** @psalm-suppress MixedArgument */
         if (!\array_key_exists($currentLanguage, $languages)) {
             $fallbackLanguage = $dataProvider->getFallbackLanguage($modelId);
             assert($fallbackLanguage instanceof LanguageInformationInterface);
@@ -171,12 +167,10 @@ class LanguageFilter implements EventSubscriberInterface
             $currentLanguage = $fallbackLanguage->getLocale();
         }
 
-        /** @psalm-suppress MixedAssignment */
-        /** @psalm-suppress MixedArrayAssignment */
         $session['ml_support'][$providerName] = $currentLanguage;
         $sessionStorage->set('dc_general', $session);
 
-        $dataProvider->setCurrentLanguage((string) $currentLanguage);
+        $dataProvider->setCurrentLanguage($currentLanguage);
     }
 
     /**
@@ -195,12 +189,9 @@ class LanguageFilter implements EventSubscriberInterface
         assert($inputProvider instanceof InputProviderInterface);
 
         if ($inputProvider->hasParameter('language')) {
-            /** @psalm-suppress MixedAssignment */
             $newLanguage = $inputProvider->getParameter('language');
-            $this->selectLanguage((string) $newLanguage, $languages, $environment);
-            $newUrl = UrlBuilder::fromUrl((string) Environment::get('request'))
-                ->unsetQueryParameter('language')
-                ->getUrl();
+            $this->selectLanguage($newLanguage, $languages, $environment);
+            $newUrl = UrlBuilder::fromUrl(Environment::get('request'))->unsetQueryParameter('language')->getUrl();
 
             $dispatcher = $environment->getEventDispatcher();
             assert($dispatcher instanceof EventDispatcherInterface);
@@ -211,7 +202,7 @@ class LanguageFilter implements EventSubscriberInterface
 
         // Check for post or preset as get value.
         if ('language_switch' === $inputProvider->getValue('FORM_SUBMIT') && $inputProvider->hasValue('language')) {
-            $this->selectLanguage((string) $inputProvider->getValue('language'), $languages, $environment);
+            $this->selectLanguage($inputProvider->getValue('language'), $languages, $environment);
         }
     }
 
@@ -225,8 +216,7 @@ class LanguageFilter implements EventSubscriberInterface
     private function modelIdFromInput(InputProviderInterface $inputProvider)
     {
         if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            /** @psalm-suppress MixedReturnStatement */
-            return ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getId();
+            return ModelId::fromSerialized($inputProvider->getParameter('id'))->getId();
         }
 
         return null;
@@ -242,10 +232,7 @@ class LanguageFilter implements EventSubscriberInterface
         assert($definition instanceof ContainerInterface);
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $session = $sessionStorage->get('dc_general') ?? [];
-        /** @psalm-suppress MixedArrayAccess */
-        /** @psalm-suppress MixedArrayAssignment */
         $session['ml_support'][$definition->getName()] = $newLanguage;
         $sessionStorage->set('dc_general', $session);
     }

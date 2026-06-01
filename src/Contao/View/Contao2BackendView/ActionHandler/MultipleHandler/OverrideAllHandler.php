@@ -35,7 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
@@ -47,6 +46,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * The class handle the "overrideAll" commands.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from session and model property values.
+ * - Proper fix: Typed session and property accessors.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api
@@ -109,17 +112,12 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $propertyValueBag = new PropertyValueBag();
         foreach ($this->getOverrideProperties($action, $environment) as $property) {
-            /** @psalm-suppress MixedAssignment */
-            $property = $property;
-            assert($property instanceof PropertyInterface);
             $propertyValueBag->setPropertyValue($property->getName(), $property->getDefaultValue());
         }
 
         if (false !== $inputProvider->hasValue('FORM_INPUTS')) {
-            /** @psalm-suppress MixedAssignment */
             foreach ($inputProvider->getValue('FORM_INPUTS') as $formInput) {
-                /** @psalm-suppress MixedArgument */
-                $propertyValueBag->setPropertyValue((string) $formInput, $inputProvider->getValue((string) $formInput));
+                $propertyValueBag->setPropertyValue($formInput, $inputProvider->getValue($formInput));
             }
         }
 
@@ -138,12 +136,9 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         return $this->renderTemplate(
             $action,
             [
-                /** @psalm-suppress MixedOperand */
                 'subHeadline' =>
-                    $translator->translate(
-                        (string) $inputProvider->getParameter('mode') . 'Selected',
-                        'dc-general'
-                    ) . ': ' . $translator->translate('editAll.label', 'dc-general'),
+                    $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
+                    $translator->translate('editAll.label', 'dc-general'),
                 'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
                 'table'       => $definition->getName(),
                 'error'       => $renderInformation->offsetGet('error'),
@@ -264,7 +259,6 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
 
         $properties = [];
         foreach (\array_keys($selectProperties) as $propertyName) {
-            /** @psalm-suppress MixedAssignment */
             $properties[$propertyName] = $selectProperties[$propertyName];
         }
 
@@ -304,9 +298,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
-            /** @psalm-suppress MixedAssignment */
             $property = $properties[$propertyName];
-            assert($property instanceof PropertyInterface);
 
             $this->setDefaultValue($model, $propertyValues, $propertyName, $environment);
 
@@ -322,11 +314,8 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
-            /** @psalm-suppress MixedAssignment */
-            $extra = $property->getExtra();
-            if ($extra) {
+            if ($extra = $property->getExtra()) {
                 foreach (['tl_class'] as $extraName) {
-                    /** @psalm-suppress MixedArrayAccess */
                     unset($extra[$extraName]);
                 }
 
@@ -429,7 +418,6 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $propertiesDefinition = $definition->getPropertiesDefinition();
 
         // If in the intersect model the value available, then set it as default.
-        /** @psalm-suppress MixedAssignment */
         if ($modelValue = $model->getProperty($propertyName)) {
             $propertyValueBag->setPropertyValue($propertyName, $modelValue);
 

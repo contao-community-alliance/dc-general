@@ -61,7 +61,6 @@ class PageTree extends TreePicker
         $translator = $this->getEnvironment()->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        /** @psalm-suppress MixedArgument */
         $widgetValue = $this->widgetToValue($varInput);
         if ((null === $widgetValue) && $this->mandatory) {
             $this->addError($translator->translate('mandatory', 'ERR', [$this->strLabel]));
@@ -92,9 +91,7 @@ class PageTree extends TreePicker
             $objModel = $collection->get(0);
             assert($objModel instanceof ModelInterface);
 
-            /** @psalm-suppress MixedArgument, MixedAssignment */
             foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) ?? [] as $childCollection) {
-                /** @psalm-suppress MixedAssignment, MixedArgument */
                 foreach ($childCollection as $subModel) {
                     $treeData->push($subModel);
                 }

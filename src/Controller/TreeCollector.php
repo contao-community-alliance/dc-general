@@ -143,7 +143,6 @@ class TreeCollector implements EnvironmentAwareInterface
     private function determineModelState(ModelInterface $model, $level)
     {
         $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
-        /** @psalm-suppress MixedArgument */
         $model->setMeta(
             $model::SHOW_CHILDREN,
             $this->states->isModelOpen($model->getProviderName(), $model->getId())
@@ -243,7 +242,6 @@ class TreeCollector implements EnvironmentAwareInterface
         $providerName     = $model->getProviderName();
         $mySubTables      = $this->getChildProvidersOf($providerName, $relationships);
         $childCollections = [];
-        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($subTables as $subTable) {
             // Evaluate the child filter for this item.
             $childFilter = $relationships->getChildCondition($providerName, $subTable);
@@ -253,7 +251,6 @@ class TreeCollector implements EnvironmentAwareInterface
                 continue;
             }
 
-            /** @psalm-suppress MixedArgument */
             $dataProvider = $environment->getDataProvider($subTable);
             assert($dataProvider instanceof DataProviderInterface);
 
@@ -262,7 +259,6 @@ class TreeCollector implements EnvironmentAwareInterface
 
             if ($hasChildren) {
                 // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-                /** @psalm-suppress MixedArgument */
                 if (!$model->getMeta($model::SHOW_CHILDREN)) {
                     break;
                 }
@@ -278,13 +274,10 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // If expanded, store children.
-        /** @psalm-suppress MixedArgument */
         if ($model->getMeta($model::SHOW_CHILDREN) && count($childCollections)) {
-            /** @psalm-suppress MixedArgument */
             $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
         }
 
-        /** @psalm-suppress MixedArgument */
         $model->setMeta($model::HAS_CHILDREN, $hasChildren);
     }
 
@@ -352,7 +345,6 @@ class TreeCollector implements EnvironmentAwareInterface
         $registry = $this->getEnvironment()->getBaseConfigRegistry();
         assert($registry instanceof BaseConfigRegistryInterface);
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
         $rootConfig = $registry
             ->getBaseConfig()
             ->setSorting($this->getSorting());

@@ -55,7 +55,6 @@ class PropertyInputFieldCallbackListener extends AbstractReturningPropertyCallba
     #[\Override]
     public function update($event, $value)
     {
-        /** @psalm-suppress MixedArgument */
         $event->setWidget($value);
     }
 }

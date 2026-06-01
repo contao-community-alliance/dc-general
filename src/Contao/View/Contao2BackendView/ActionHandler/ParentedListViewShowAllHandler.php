@@ -59,6 +59,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * This class handles the rendering of parented list view "showAll" actions.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment/MixedArgument from command parameters (array values are mixed).
+ * - Proper fix: Type the command parameter values.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *
@@ -97,7 +101,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
                 'content' => $event->getHtml()
             ]
         ];
-        /** @psalm-suppress MixedArgument */
         $model->setMeta($model::LABEL_VALUE, $information);
 
         parent::renderModel($model, $environment);
@@ -148,7 +151,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $pidDetails = ModelId::fromSerialized((string) $inputProvider->getParameter('pid'));
+        $pidDetails = ModelId::fromSerialized($inputProvider->getParameter('pid'));
 
         if (!($provider = $environment->getDataProvider($pidDetails->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
@@ -191,11 +194,10 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $properties = $parentDefinition->getPropertiesDefinition();
         foreach ($this->getViewSection($definition)->getListingConfig()->getHeaderPropertyNames() as $field) {
-            /** @psalm-suppress MixedAssignment */
             $value = StringUtil::deserialize($parentModel->getProperty($field));
 
             if ('tstamp' === $field) {
-                $value = date((string) Config::get('datimFormat'), (int) $value);
+                $value = date(Config::get('datimFormat'), $value);
             } else {
                 $value = $this->renderParentProperty($environment, $properties->getProperty($field), $value);
             }
@@ -265,29 +267,22 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $evaluation = $property->getExtra();
 
         if (\is_array($value)) {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             return \implode(', ', $value);
         }
 
         $isRendered = false;
 
-        /** @psalm-suppress MixedAssignment */
         $value = $this->renderForCheckbox($property, $value, $isRendered);
-        /** @psalm-suppress MixedAssignment */
         $value = $this->renderForDateTime($environment, $property, $value, $isRendered);
-        /** @psalm-suppress MixedAssignment */
         $value = isset($evaluation['reference'])
             ? $this->renderReference($value, $evaluation['reference'], $isRendered)
             : $value;
 
         $options = $property->getOptions();
         if (\is_array($options) && (($evaluation['isAssociative'] ?? false) || ArrayUtil::isAssoc($options))) {
-            /** @psalm-suppress MixedAssignment */
-            /** @psalm-suppress MixedArrayOffset */
             $value = $options[$value];
         }
 
-        /** @psalm-suppress MixedReturnStatement */
         return $value ?? '';
     }
 
@@ -348,8 +343,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $isRendered = true;
 
-        /** @psalm-suppress MixedArgument */
-        $event = new ParseDateEvent($value, (string) Config::get((string) $evaluation['rgxp'] . 'Format'));
+        $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
 
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
@@ -369,20 +363,16 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function renderReference($value, $reference, &$isRendered)
     {
-        /** @psalm-suppress MixedArrayOffset */
         if ((true === $isRendered) || !isset($reference[$value])) {
             return $value;
         }
 
         $isRendered = true;
 
-        /** @psalm-suppress MixedArrayOffset */
         if (\is_array($reference[$value])) {
-            /** @psalm-suppress MixedArrayOffset */
             return $reference[$value][0];
         }
 
-        /** @psalm-suppress MixedArrayOffset */
         return $reference[$value];
     }
 
@@ -466,7 +456,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $parameters['do']    = $inputProvider->getParameter('do');
         $parameters['table'] = $parentName;
         $parameters['pid']   = '';
@@ -496,7 +485,6 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         );
 
         $href = '';
-        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($parameters as $key => $value) {
             $href .= \sprintf('&%s=%s', $key, $value ?? '');
         }

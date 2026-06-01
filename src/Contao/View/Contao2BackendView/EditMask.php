@@ -69,6 +69,13 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * It also handles the persisting of the model.
  *
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment/MixedArgument from InputProviderInterface::getValue()/getParameter() returning mixed.
+ *   Proper fix: Use typed input accessor or cast explicitly at each call site.
+ * - MixedAssignment from iterating over property collections (PropertyValueBag, etc.)
+ * - MixedArgumentTypeCoercion when passing array-key values to methods expecting string.
+ *   Proper fix: Ensure foreach variables are explicitly typed (e.g. (string) $key).
+ *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
@@ -205,8 +212,7 @@ class EditMask
         $inputProvider = $this->getEnvironment()->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedReturnStatement */
-        return (bool) $inputProvider->getParameter('popup');
+        return $inputProvider->getParameter('popup');
     }
 
     /**
@@ -309,13 +315,8 @@ class EditMask
             );
 
             // Process input and update changed properties.
-            /** @psalm-suppress MixedAssignment */
             foreach ($propertyNames as $propertyName) {
-                /** @psalm-suppress MixedAssignment, MixedArgument */
-                $propertyValue = $input->hasValue($propertyName)
-                    ? $input->getValue($propertyName, true)
-                    : null;
-                /** @psalm-suppress MixedArgument */
+                $propertyValue = $input->hasValue($propertyName) ? $input->getValue($propertyName, true) : null;
                 $propertyValues->setPropertyValue($propertyName, $propertyValue);
             }
 
@@ -601,7 +602,6 @@ class EditMask
                 continue;
             }
 
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $legendVisible = $this->isLegendVisible($legend, $legendStates);
 
             foreach ($properties as $property) {
@@ -666,7 +666,6 @@ class EditMask
      */
     protected function storeVersion(ModelInterface $model)
     {
-        /** @psalm-suppress MixedAssignment */
         $modelId     = $model->getId();
         $environment = $this->getEnvironment();
         $definition  = $this->getDataDefinition();
@@ -682,7 +681,6 @@ class EditMask
         }
 
         // Compare version and current record.
-        /** @psalm-suppress MixedAssignment */
         $currentVersion = $dataProvider->getActiveVersion($modelId);
         $model = $dataProvider->getVersion($modelId, $currentVersion);
         assert($model instanceof ModelInterface);
@@ -840,7 +838,7 @@ class EditMask
             assert(\is_string($manualSortingProperty));
 
             if ($inputProvider->hasParameter('after')) {
-                $after = ModelId::fromSerialized((string) $inputProvider->getParameter('after'));
+                $after = ModelId::fromSerialized($inputProvider->getParameter('after'));
 
                 $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
                 assert($previousDataProvider instanceof DataProviderInterface);
@@ -855,7 +853,7 @@ class EditMask
                     $controller->pasteTop($models, $manualSortingProperty);
                 }
             } elseif ($inputProvider->hasParameter('into')) {
-                $into = ModelId::fromSerialized((string) $inputProvider->getParameter('into'));
+                $into = ModelId::fromSerialized($inputProvider->getParameter('into'));
 
                 $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
                 assert($parentDataProvider instanceof DataProviderInterface);
@@ -915,22 +913,17 @@ class EditMask
         assert($editInformation instanceof EditInformationInterface);
 
         // Run each and check the unique flag.
-        /** @psalm-suppress MixedAssignment */
         foreach ($this->getDataDefinition()->getPropertiesDefinition()->getPropertyNames() as $propertyName) {
-            /** @psalm-suppress MixedArgument */
             $definition = $this->getDataDefinition()->getPropertiesDefinition()->getProperty($propertyName);
             $extra      = $definition->getExtra();
-            /** @psalm-suppress MixedAssignment, MixedArgument */
             $value      = $this->model->getProperty($propertyName);
 
             // Check the flag and the value.
             if (isset($extra['unique']) && $extra['unique'] && ('' !== (string) $value)) {
                 // Check the database. If return true the value is already in the database.
-                /** @psalm-suppress MixedArgument */
                 if (!$dataProvider->isUniqueValue($propertyName, $value, $this->model->getId())) {
                     $editInformation->setModelError(
                         $this->model,
-                        /** @psalm-suppress MixedArgumentTypeCoercion */
                         [$translator->translate('not_unique', 'dc-general', ['%property%' => $propertyName])],
                         $definition
                     );
@@ -1154,12 +1147,9 @@ class EditMask
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $legendStates = $sessionStorage->get('LEGENDS') ?: [];
 
-        /** @psalm-suppress MixedArgument */
         if (\array_key_exists($definition->getName(), $legendStates)) {
-            /** @psalm-suppress MixedArrayAccess, MixedReturnStatement */
             return $legendStates[$definition->getName()];
         }
 

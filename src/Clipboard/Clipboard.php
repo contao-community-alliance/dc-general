@@ -66,20 +66,12 @@ class Clipboard implements ClipboardInterface
             return $this;
         }
 
-        /** @psalm-suppress MixedAssignment */
         $data = $session->get('CLIPBOARD');
 
         if ($data) {
-            /** @psalm-suppress MixedAssignment */
-            $this->items = unserialize(base64_decode((string) $data), ['allowed_classes' => true]);
-            /** @psalm-suppress MixedAssignment */
+            $this->items = unserialize(base64_decode($data), ['allowed_classes' => true]);
             foreach ($this->items as $item) {
-                /** @psalm-suppress MixedAssignment */
-                /** @psalm-suppress MixedMethodCall */
                 if ($modelId = $item->getModelId()) {
-                    /** @psalm-suppress MixedMethodCall */
-                    /** @psalm-suppress MixedArrayOffset */
-                    /** @psalm-suppress MixedPropertyTypeCoercion */
                     $this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()] = $item;
                 }
             }

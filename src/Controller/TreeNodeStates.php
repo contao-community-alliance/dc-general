@@ -172,13 +172,8 @@ class TreeNodeStates
             return true;
         }
 
-        /** @psalm-suppress MixedArrayOffset */
-        $stateOpen    = isset($this->states[$providerName][$modelId]) && $this->states[$providerName][$modelId];
-        /** @psalm-suppress MixedArrayOffset */
-        $implicitOpen = isset($this->implicitOpen[$providerName][$modelId])
-            && $this->implicitOpen[$providerName][$modelId];
-
-        return $stateOpen || $implicitOpen;
+        return (isset($this->states[$providerName][$modelId]) && $this->states[$providerName][$modelId])
+            || (isset($this->implicitOpen[$providerName][$modelId]) && $this->implicitOpen[$providerName][$modelId]);
     }
 
     /**
@@ -213,8 +208,6 @@ class TreeNodeStates
             $this->states[$providerName] = [];
         }
 
-        /** @psalm-suppress MixedArrayAssignment */
-        /** @psalm-suppress MixedArrayOffset */
         $this->states[$providerName][$modelId] = $state;
 
         return $this;

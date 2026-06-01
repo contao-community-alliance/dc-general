@@ -15,7 +15,6 @@
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     David Molineus <mail@netzmacht.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @author     Ingolf Steinhardt <info@e-spin.de>
  * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
@@ -71,7 +70,6 @@ class CommandCollection implements CommandCollectionInterface
     #[\Override]
     public function addCommands(array $commands, ?CommandInterface $before = null)
     {
-        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($commands as $command) {
             $this->addCommand($command, $before);
         }
@@ -85,7 +83,6 @@ class CommandCollection implements CommandCollectionInterface
     #[\Override]
     public function removeCommands(array $commands)
     {
-        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($commands as $command) {
             $this->removeCommand($command);
         }

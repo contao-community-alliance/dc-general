@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2026 Contao Community Alliance.
+ * (c) 2013-2025 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Martin Treml <github@r2pi.net>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2026 Contao Community Alliance.
+ * @copyright  2013-2025 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -59,6 +59,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * This class is the base class for the different backend view mode sub-classes.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from session data and model meta values.
+ * - Proper fix: Typed session accessors; typed model meta accessors.
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
@@ -124,7 +128,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      */
     public function handleAction(ActionEvent $event)
     {
-        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/generalDriver.css';
 
         $environment = $event->getEnvironment();
@@ -158,24 +161,20 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if ('showAll' === $name) {
-            /** @psalm-suppress MixedAssignment */
             $response = \call_user_func_array(
                 [$this, $name],
                 \array_values(\array_merge([$action], $action->getArguments()))
             );
-            /** @psalm-suppress MixedArgument */
             $event->setResponse($response);
 
             return;
         }
 
         if ('select' === $name) {
-            /** @psalm-suppress MixedAssignment */
             $response = \call_user_func_array(
                 [$this, $name],
                 \array_merge([$action], $action->getArguments())
             );
-            /** @psalm-suppress MixedArgument */
             $event->setResponse($response);
 
             return;
@@ -185,12 +184,10 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        /** @psalm-suppress MixedAssignment */
         $response = \call_user_func_array(
             [$this, $name],
             \array_merge([$action], $action->getArguments())
         );
-        /** @psalm-suppress MixedArgument */
         $event->setResponse($response);
     }
 
@@ -459,11 +456,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if (true === ($input->hasParameter('id'))) {
             // Redefine the parameter id if this isn´t model id conform.
-            if (false === \strpos((string) $input->getParameter('id'), '::')) {
-                $modelId = new ModelId((string) $input->getParameter('table'), (string) $input->getParameter('id'));
+            if (false === \strpos($input->getParameter('id'), '::')) {
+                $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
                 $input->setParameter('id', $modelId->getSerialized());
             }
-            $modelId      = ModelId::fromSerialized((string) $input->getParameter('id'));
+            $modelId      = ModelId::fromSerialized($input->getParameter('id'));
             $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
             assert($dataProvider instanceof DataProviderInterface);
 
@@ -473,7 +470,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $this->addAjaxPropertyForEditAll();
 
         $handler = new Ajax3X();
-        /** @psalm-suppress MixedArgument */
         $handler->executePostActions(new DcCompat($environment, ($model ?? null)));
     }
 
@@ -649,7 +645,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return '';
         }
 
-        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = '/bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         return $this->getTemplate('dcbe_general_breadcrumb')
@@ -681,7 +676,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        /** @psalm-suppress MixedArgument */
         $originalProperty = $this->findOriginalPropertyByModelId($inputProvider->getValue('name'));
         if (null === $originalProperty) {
             return;
@@ -730,10 +724,8 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $selectAction = $inputProvider->getParameter('select');
 
-        /** @psalm-suppress MixedOperand */
         $session = $sessionStorage->get($definition->getName() . '.' . $selectAction);
         if (!is_array($session) || !isset($session['models'])) {
             return null;
@@ -741,7 +733,6 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         /** @var array{models: list<string>} $session */
 
         $originalPropertyName = null;
-        /** @psalm-suppress MixedAssignment */
         foreach ($session['models'] as $modelId) {
             $propertyNamePrefix = \str_replace('::', '____', ((string) $modelId)) . '_';
             if (!str_starts_with($propertyName, $propertyNamePrefix)) {

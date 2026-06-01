@@ -178,7 +178,6 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
             /** @var Contao2BackendViewDefinitionInterface $viewDefinition */
             $viewDefinition = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
             /** @psalm-suppress DeprecatedMethod - we can not change this in 2.x */
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $config->setSorting($viewDefinition->getListingConfig()->getDefaultSortingFields());
         }
 
@@ -190,10 +189,9 @@ class BaseConfigRegistry implements BaseConfigRegistryInterface
             if (null === $input) {
                 throw new DcGeneralRuntimeException('Input provider not set.');
             }
-            /** @psalm-suppress MixedAssignment */
             $pid = $input->getParameter('pid');
             if (null !== $pid) {
-                $pidDetails = ModelId::fromSerialized((string) $pid);
+                $pidDetails = ModelId::fromSerialized($pid);
                 $this->addParentFilter($pidDetails, $config);
             }
         }

@@ -253,7 +253,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                         '%property%' => $translator->translate($property->getLabel(), $modelName)
                             ?: $property->getName(),
                         '%mode%'     => $translator->translate(
-                            (string) $inputProvider->getParameter('mode') . 'Selected',
+                            $inputProvider->getParameter('mode') . 'Selected',
                             'dc-general'
                         )
                     ]
@@ -323,14 +323,9 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $dataDefinition = $environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
 
-        /** @psalm-suppress MixedAssignment */
-        $sessionKey = $dataDefinition->getName() . '.' . (string) $inputProvider->getParameter('mode');
-        /** @psalm-suppress MixedAssignment */
-        $session     = $sessionStorage->get($sessionKey);
+        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
-        /** @psalm-suppress MixedArrayAccess */
-        /** @psalm-suppress MixedArgument */
-        return \array_key_exists($property->getName(), (array) $session['intersectProperties']);
+        return \array_key_exists($property->getName(), $session['intersectProperties']);
     }
 
     /**
@@ -360,17 +355,14 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                         });
                     </script>';
 
-        /** @psalm-suppress MixedOperand */
-        $orderField = (string) $extra['orderField'];
         $mooScript =
             \sprintf(
                 $script,
                 'properties_' . $property->getName(),
-                'properties_' . $orderField,
-                'properties_' . $orderField
+                'properties_' . $extra['orderField'],
+                'properties_' . $extra['orderField']
             );
 
-        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_MOOTOOLS']['cca.dc-general.fileTree-' . \md5($mooScript)] = $mooScript;
     }
 
@@ -388,7 +380,6 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             return;
         }
 
-        /** @psalm-suppress MixedArgument */
         $model->setMeta($model::CSS_ROW_CLASS, 'invisible');
     }
 
@@ -418,7 +409,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                 'subHeadline',
                 \sprintf(
                     '%s: %s',
-                    $this->translate((string) $inputProvider->getParameter('mode') . 'Selected', 'dc-general'),
+                    $this->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general'),
                     $this->translate('edit_all_select_properties', 'dc-general')
                 )
             )
@@ -429,23 +420,20 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
 
         if (
             (null !== $template->get('action'))
-            /** @psalm-suppress MixedArgument */
-            && (false !== \strpos((string) $template->get('action'), 'select=properties'))
+            && (false !== \strpos($template->get('action'), 'select=properties'))
         ) {
             $template->set(
                 'action',
-                /** @psalm-suppress MixedArgument */
                 \str_replace(
                     'select=properties',
-                    'select=' . ((string) ($inputProvider->getParameter('mode') ?? 'edit')),
-                    (string) $template->get('action')
+                    'select=' . ($inputProvider->getParameter('mode') ?? 'edit'),
+                    $template->get('action')
                 )
             );
         }
 
         if (\count($this->messages) > 0) {
             foreach (\array_keys($this->messages) as $messageType) {
-                /** @psalm-suppress MixedArgumentTypeCoercion */
                 $template->set($messageType, $this->messages[$messageType]);
             }
         }
@@ -485,8 +473,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
-        $continueName = (string) $inputProvider->getParameter('mode');
+        $continueName = $inputProvider->getParameter('mode');
 
         return [
             'continue' => \sprintf(

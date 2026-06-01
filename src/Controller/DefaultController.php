@@ -461,11 +461,11 @@ class DefaultController implements ControllerInterface
 
         foreach (array_keys($clone->getPropertiesAsArray()) as $propName) {
             // If the property is not known, remove it.
-            if (!$properties->hasProperty((string) $propName)) {
+            if (!$properties->hasProperty($propName)) {
                 continue;
             }
 
-            $property = $properties->getProperty((string) $propName);
+            $property = $properties->getProperty($propName);
             $this->handleClonedModelProperty($clone, $property, $dataProvider);
         }
 
@@ -518,15 +518,9 @@ class DefaultController implements ControllerInterface
         $model              = $dataProvider->getEmptyModel();
 
         foreach ($properties as $property) {
-            /** @psalm-suppress MixedAssignment */
-            $property = $property;
-            /** @psalm-suppress MixedAssignment */
-            /** @psalm-suppress MixedMethodCall */
             $propName = $property->getName();
 
-            /** @psalm-suppress MixedMethodCall */
             if (null !== $property->getDefaultValue()) {
-                /** @psalm-suppress MixedArgument */
                 $model->setProperty($propName, $property->getDefaultValue());
             }
         }
@@ -759,7 +753,6 @@ class DefaultController implements ControllerInterface
         $deepCopyList = [];
 
         // Apply to create and copy actions.
-        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($actions as &$action) {
             $this->applyAction($action, $deepCopyList, $parentModel);
         }
@@ -872,20 +865,16 @@ class DefaultController implements ControllerInterface
         $groupingMode = ViewHelpers::getGroupingMode($environment);
         if (null !== $groupingMode && null !== $after && $after->getId()) {
             // when pasting after another item, inherit the grouping field
-            /** @psalm-suppress MixedAssignment */
             $groupingField = $groupingMode['property'];
             $previous      = $this->modelCollector->getModel($after);
             assert($previous instanceof ModelInterface);
 
-            /** @psalm-suppress MixedAssignment */
-            $groupingValue = $previous->getProperty((string) $groupingField);
+            $groupingValue = $previous->getProperty($groupingField);
 
-            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             foreach ($actions as $action) {
                 /** @var ModelInterface $model */
                 $model = $action['model'];
-                /** @psalm-suppress MixedArgument */
-                $model->setProperty((string) $groupingField, $groupingValue);
+                $model->setProperty($groupingField, $groupingValue);
             }
         }
     }
@@ -1052,7 +1041,6 @@ class DefaultController implements ControllerInterface
     private function createModelCollectionFromActions(array $actions, array &$items)
     {
         $models = new DefaultCollection();
-        /** @psalm-suppress MixedAssignment, MixedArrayAccess, MixedArgument */
         foreach ($actions as $action) {
             $models->push($action['model']);
             $items[] = $action['item'];
@@ -1122,7 +1110,6 @@ class DefaultController implements ControllerInterface
         $modelRelationshipDefinition = $dataDefinition->getModelRelationshipDefinition();
         $childConditions             = $modelRelationshipDefinition->getChildConditions($dataDefinition->getName());
 
-        /** @psalm-suppress MixedAssignment, MixedArrayAccess */
         foreach ($deepCopyList as $deepCopy) {
             /** @var ModelInterface $origin */
             $origin = $deepCopy['origin'];

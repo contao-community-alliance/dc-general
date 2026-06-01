@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2026 Contao Community Alliance.
+ * (c) 2013-2019 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2026 Contao Community Alliance.
+ * @copyright  2013-2019 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -84,30 +83,22 @@ class FilterBuilder
     {
         switch ($filter['operation']) {
             case 'AND':
-                /** @psalm-suppress MixedReturnStatement */
                 return AndFilterBuilder::fromArray($filter, $builder);
             case 'OR':
-                /** @psalm-suppress MixedReturnStatement */
                 return OrFilterBuilder::fromArray($filter, $builder);
             case '=':
-                /** @psalm-suppress MixedReturnStatement */
                 return PropertyEqualsFilterBuilder::fromArray($filter);
             case '>':
-                /** @psalm-suppress MixedReturnStatement */
                 return PropertyGreaterThanFilterBuilder::fromArray($filter);
             case '<':
-                /** @psalm-suppress MixedReturnStatement */
                 return PropertyLessThanFilterBuilder::fromArray($filter);
             case 'IN':
-                /** @psalm-suppress MixedReturnStatement */
                 return PropertyValueInFilterBuilder::fromArray($filter);
             case 'LIKE':
-                /** @psalm-suppress MixedReturnStatement */
                 return PropertyValueLikeFilterBuilder::fromArray($filter);
             default:
         }
 
-        /** @psalm-suppress MixedOperand */
         throw new DcGeneralInvalidArgumentException(
             'Invalid operation ' . $filter['operation'] . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
         );
@@ -202,7 +193,6 @@ class FilterBuilder
     {
         $array = $this->filters->get();
 
-        /** @psalm-suppress MixedReturnStatement */
         return $array['children'];
     }
 

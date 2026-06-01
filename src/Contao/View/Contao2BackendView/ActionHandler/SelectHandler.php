@@ -73,6 +73,11 @@ use function unserialize;
  *
  * This class handles multiple actions.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from session data (returns mixed).
+ * - MixedAssignment when iterating over model property names.
+ * - Proper fix: Typed session accessor; cast array-key to string.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *
@@ -137,10 +142,7 @@ class SelectHandler
             ucfirst($this->getSubmitAction($environment, $this->regardSelectMode($environment)))
         );
 
-        /** @psalm-suppress MixedAssignment */
-        $response = $this->{$actionMethod}($environment, $action);
-        if (null !== $response) {
-            /** @psalm-suppress MixedReturnStatement */
+        if (null !== ($response = $this->{$actionMethod}($environment, $action))) {
             return $response;
         }
 
@@ -165,7 +167,7 @@ class SelectHandler
             && $inputProvider->hasParameter('select')
             && !$inputProvider->hasValue('properties')
         ) {
-            return 'select' . ucfirst((string) $inputProvider->getParameter('select'));
+            return 'select' . ucfirst($inputProvider->getParameter('select'));
         }
 
         if (null !== ($action = $this->determineAction($environment))) {
@@ -173,12 +175,11 @@ class SelectHandler
         }
 
         if ($regardSelectMode) {
-            /** @psalm-suppress MixedReturnStatement */
             return $inputProvider->getParameter('mode') ?: '';
         }
 
         return $inputProvider->getParameter('select') ?
-            'select' . ucfirst((string) $inputProvider->getParameter('select')) : '';
+            'select' . ucfirst($inputProvider->getParameter('select')) : '';
     }
 
     /**
@@ -543,7 +544,6 @@ class SelectHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedReturnStatement */
         return $inputProvider->getParameter('select');
     }
 
@@ -633,21 +633,17 @@ class SelectHandler
         $dataProvider = $environment->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $session        =
             $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
         $modelIds = [];
-        /** @psalm-suppress MixedArrayAccess, MixedAssignment */
         foreach (($session['models'] ?? []) as $modelId) {
-            /** @psalm-suppress MixedArgument */
-            $modelIds[] = ModelId::fromSerialized((string) $modelId)->getId();
+            $modelIds[] = ModelId::fromSerialized($modelId)->getId();
         }
         if ([] === $modelIds) {
             return $dataProvider->getEmptyCollection();
         }
 
-        /** @psalm-suppress MixedAssignment */
         $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
@@ -680,11 +676,9 @@ class SelectHandler
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $session =
             $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
-        /** @psalm-suppress MixedArrayAssignment */
         $session['intersectProperties'] = $this->collectIntersectModelProperties($collection, $environment);
         $sessionStorage->set($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true), $session);
     }
@@ -705,16 +699,12 @@ class SelectHandler
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
-        /** @psalm-suppress MixedArrayAccess */
-        /** @psalm-suppress MixedArgument */
-        if (!$session['intersectProperties'] || !count((array) $session['intersectProperties'])) {
+        if (!$session['intersectProperties'] || !count($session['intersectProperties'])) {
             return;
         }
 
-        /** @psalm-suppress MixedArrayAssignment */
         $session['intersectValues'] = $this->collectIntersectValues($collection, $environment);
         $sessionStorage->set($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true), $session);
     }
@@ -739,15 +729,11 @@ class SelectHandler
             $palette = $palettesDefinition->findPalette($model);
 
             $modelProperties = $this->getVisibleAndEditAbleProperties($palette, $model);
-            /** @psalm-suppress MixedAssignment */
             foreach ($modelProperties as $modelProperty) {
-                /** @psalm-suppress MixedArrayOffset */
                 if (empty($properties[$modelProperty])) {
-                    /** @psalm-suppress MixedArrayOffset */
                     $properties[$modelProperty] = 0;
                 }
 
-                /** @psalm-suppress MixedArrayOffset */
                 ++$properties[$modelProperty];
             }
         }
@@ -755,9 +741,7 @@ class SelectHandler
         // We always have to keep the id in the array.
         $dataProvider = $environment->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);
-        /** @psalm-suppress MixedAssignment */
         $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
-        /** @psalm-suppress MixedArrayOffset */
         $properties[$idProperty] = $collection->count();
 
         return array_filter(
@@ -784,15 +768,11 @@ class SelectHandler
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        /** @psalm-suppress MixedAssignment */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
         $values = [];
         foreach ($collection->getIterator() as $model) {
-            /** @psalm-suppress MixedArrayAccess */
-            /** @psalm-suppress MixedArgument */
-            $modelValues = array_intersect_key($model->getPropertiesAsArray(), (array) $session['intersectProperties']);
-            /** @psalm-suppress MixedAssignment */
+            $modelValues = array_intersect_key($model->getPropertiesAsArray(), $session['intersectProperties']);
             foreach ($modelValues as $modelProperty => $modelValue) {
                 $values[$modelProperty][] = $modelValue;
             }
@@ -857,17 +837,10 @@ class SelectHandler
         }
 
         if (!$serializedValues) {
-            /** @psalm-suppress MixedReturnStatement */
             return 1 === count(array_unique($values)) ? $values[0] : null;
         }
 
-        /** @psalm-suppress MixedReturnStatement */
-        /** @psalm-suppress MixedArgument */
-        if (1 !== count(array_unique($values))) {
-            return null;
-        }
-
-        return unserialize((string) $values[0], ['allowed_classes' => true]);
+        return 1 === count(array_unique($values)) ? unserialize($values[0], ['allowed_classes' => true]) : null;
     }
 
     /**
@@ -898,7 +871,6 @@ class SelectHandler
         $session = ['models' => [], 'intersectProperties' => [], 'intersectValues' => []];
         $sessionKey = $dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true);
         if ($sessionStorage->has($sessionKey)) {
-            /** @psalm-suppress MixedAssignment */
             $session = $sessionStorage->get($sessionKey);
         }
 
@@ -909,7 +881,6 @@ class SelectHandler
                 $collection
             );
 
-            /** @psalm-suppress MixedArrayAssignment */
             $session[$index] = $sessionCollection;
 
             $sessionStorage->set($sessionKey, $session);
@@ -925,10 +896,8 @@ class SelectHandler
 
         // Get the verify collection from the session and return it.
         return array_map(
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             static fn (string $item): ModelIdInterface => ModelId::fromSerialized($item),
-            /** @psalm-suppress MixedArgument */
-            array_values((array) $session[$index])
+            array_values($session[$index])
         );
     }
 }

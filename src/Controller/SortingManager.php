@@ -244,7 +244,6 @@ class SortingManager
         $ids = [];
         foreach ($this->models as $model) {
             /** @var ModelInterface $model */
-            /** @psalm-suppress MixedAssignment */
             $ids[] = $model->getId();
         }
 
@@ -286,7 +285,6 @@ class SortingManager
                     if (\in_array($this->marker->getId(), $ids, true)) {
                         continue;
                     }
-                    /** @psalm-suppress MixedAssignment */
                     $this->position = $this->marker->getProperty($this->getSortingProperty());
                 }
             } while ($this->marker && $this->marker->getId() !== $previousModel->getId());
@@ -313,8 +311,6 @@ class SortingManager
         $results = $this->results;
         assert($results instanceof CollectionInterface);
 
-        /** @psalm-suppress MixedAssignment */
-        /** @psalm-suppress MixedOperand */
         $delta = (
             ($marker->getProperty($this->getSortingProperty()) - $this->position) / $results->length()
         );

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2026 Contao Community Alliance.
+ * (c) 2013-2023 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2026 Contao Community Alliance.
+ * @copyright  2013-2023 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -70,21 +70,16 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     {
         $values = [];
         if ($this->getSessionStorage()->has('filter')) {
-            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('filter');
         }
 
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        /** @psalm-suppress MixedArgument */
         if (\array_key_exists($definition->getName(), $values)) {
-            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             $values = $values[$definition->getName()];
 
-            /** @psalm-suppress MixedArgument */
             if (\array_key_exists($this->getPropertyName(), $values)) {
-                /** @psalm-suppress MixedArrayAccess */
                 return $values[$this->getPropertyName()];
             }
         }
@@ -109,20 +104,16 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $values = [];
 
         if ($this->getSessionStorage()->has('filter')) {
-            /** @psalm-suppress MixedAssignment */
             $values = $this->getSessionStorage()->get('filter');
         }
 
         if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
-            /** @psalm-suppress MixedArrayAssignment */
             $values[$definition->getName()] = [];
         }
 
         if ((null !== $values) && ($value !== 'tl_' . $this->getPropertyName())) {
-            /** @psalm-suppress MixedAssignment, MixedArrayAccess, MixedArrayAssignment */
             $values[$definitionName][$this->getPropertyName()] = $value;
         } else {
-            /** @psalm-suppress MixedArrayAccess */
             unset($values[$definitionName][$this->getPropertyName()]);
         }
 
@@ -146,16 +137,13 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
 
         if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue($this->getPropertyName()) && $this->getPanel()->getContainer()->updateValues()) {
-                /** @psalm-suppress MixedAssignment */
                 $value = $input->getValue($this->getPropertyName());
 
                 $this->setPersistent($value);
             }
 
             if ($session->has('filter')) {
-                /** @psalm-suppress MixedAssignment */
                 $persistent = $this->getPersistent();
-                /** @psalm-suppress MixedAssignment */
                 $value      = $persistent;
             }
         } else {
@@ -240,9 +228,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
             ]
         ];
 
-        /** @psalm-suppress MixedAssignment */
         $selectedValue = $this->getValue();
-        /** @psalm-suppress MixedAssignment */
         foreach ($this->arrFilterOptions as $key => $value) {
             $options[] = [
                 'value'      => (string) $key,

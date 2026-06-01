@@ -56,6 +56,6 @@ class ContainerGetBreadcrumbCallbackListener extends AbstractReturningCallbackLi
             return;
         }
 
-        $event->setElements((array) $value);
+        $event->setElements($value);
     }
 }

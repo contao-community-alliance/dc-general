@@ -54,6 +54,10 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * Class CopyModelController handles copy action on a model.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment from session data (returns mixed).
+ * - Proper fix: Typed session accessor.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api
@@ -212,7 +216,7 @@ class CopyHandler
 
         if (!$model) {
             throw new DcGeneralRuntimeException(
-                'Model not found with ID ' . (string) $modelId->getId()
+                'Model not found with ID ' . $modelId->getId()
             );
         }
 
@@ -261,7 +265,6 @@ class CopyHandler
         }
 
         $request   = $this->requestStack->getCurrentRequest();
-        /** @psalm-suppress MixedAssignment */
         $routeName = $request?->attributes->get('_route');
         // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
         $urlBuilder = new UrlBuilder();
@@ -271,24 +274,19 @@ class CopyHandler
                 'act'       => 'edit',
                 'id'        => $copiedModelId->getSerialized(),
             ];
-            /** @psalm-suppress MixedAssignment */
-            $pid = $inputProvider->getParameter('pid');
-            if (null !== $pid) {
-                /** @psalm-suppress MixedAssignment */
+            if (null !== ($pid = $inputProvider->getParameter('pid'))) {
                 $params['pid'] = $pid;
             }
-            $url = $this->urlGenerator->generate((string) $routeName, $params);
+            $url = $this->urlGenerator->generate($routeName, $params);
         } else {
             $urlBuilder
                 ->setPath('contao')
-                ->setQueryParameter('do', (string) $inputProvider->getParameter('do'))
+                ->setQueryParameter('do', $inputProvider->getParameter('do'))
                 ->setQueryParameter('table', $copiedModelId->getDataProviderName())
                 ->setQueryParameter('act', 'edit')
                 ->setQueryParameter('id', $copiedModelId->getSerialized());
-            /** @psalm-suppress MixedAssignment */
-            $pid = $inputProvider->getParameter('pid');
-            if (null !== $pid) {
-                $urlBuilder->setQueryParameter('pid', (string) $pid);
+            if (null !== ($pid = $inputProvider->getParameter('pid'))) {
+                $urlBuilder->setQueryParameter('pid', $pid);
             }
             $url = $urlBuilder->getUrl();
         }
@@ -310,7 +308,7 @@ class CopyHandler
             return false;
         }
 
-        $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('source'));
+        $modelId = ModelId::fromSerialized($inputProvider->getParameter('source'));
 
         if (null === ($definition = $environment->getDataDefinition())) {
             return false;
@@ -372,7 +370,7 @@ class CopyHandler
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for copy model %s.
             </div>',
-            ModelId::fromSerialized((string) $inputProvider->getParameter('source'))->getSerialized()
+            ModelId::fromSerialized($inputProvider->getParameter('source'))->getSerialized()
         );
     }
 }

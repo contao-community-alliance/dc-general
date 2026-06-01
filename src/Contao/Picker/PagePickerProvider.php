@@ -129,19 +129,14 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
         $attributes = ['fieldType' => 'radio'];
 
         if ('page' === $config->getContext()) {
-            /** @psalm-suppress MixedAssignment */
             if ($fieldType = $config->getExtra('fieldType')) {
-                /** @psalm-suppress MixedAssignment */
                 $attributes['fieldType'] = $fieldType;
             }
 
-            /** @psalm-suppress MixedAssignment */
             if ($source = $config->getExtra('source')) {
-                /** @psalm-suppress MixedAssignment */
                 $attributes['preserveRecord'] = $source;
             }
 
-            /** @psalm-suppress MixedAssignment */
             if (\is_array($rootNodes = $config->getExtra('rootNodes'))) {
                 $attributes['rootNodes'] = $rootNodes;
             }
@@ -174,7 +169,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             return (int) $value;
         }
 
-        return '{{link_url::' . (string) $value . '}}';
+        return '{{link_url::' . $value . '}}';
     }
 
     /**

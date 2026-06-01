@@ -69,11 +69,9 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
         if (!$config['group_column']) {
             throw new DcGeneralException(__CLASS__ . ' needs a grouping column.', 1);
         }
-        /** @psalm-suppress MixedAssignment */
         $this->strGroupCol = $config['group_column'];
 
         if ($config['sort_column']) {
-            /** @psalm-suppress MixedAssignment */
             $this->strSortCol = $config['sort_column'];
         }
     }
@@ -277,24 +275,19 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     #[\Override]
     public function save(ModelInterface $item, $timestamp = 0, $recursive = false)
     {
-        /** @psalm-suppress MixedAssignment */
         $data = $item->getProperty('rows');
         if (!($data && $item->getId())) {
             throw new DcGeneralException('invalid input data in model.', 1);
         }
 
         $keep = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($data as $row) {
-            /** @psalm-suppress MixedAssignment */
             $sqlData = $row;
 
             // Update all.
-            /** @psalm-suppress MixedArrayAccess */
             $intId = (int) $row['id'];
 
             // Always unset id.
-            /** @psalm-suppress MixedArrayAccess */
             unset($sqlData['id']);
 
             // Work around the fact that multicolumnwizard does not clear any hidden fields when copying a dataset.
@@ -304,7 +297,6 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             }
 
             if ($intId > 0) {
-                /** @psalm-suppress MixedArgument */
                 $this->connection->update(
                     $this->source,
                     $sqlData,
@@ -316,10 +308,8 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
             }
 
             // Force group col value.
-            /** @psalm-suppress MixedAssignment, MixedArrayAssignment */
             $sqlData[$this->strGroupCol] = $item->getId();
 
-            /** @psalm-suppress MixedArgument */
             $this->connection->insert($this->source, $sqlData);
             if (false === $lastInsertId = $this->connection->lastInsertId($this->source)) {
                 throw new \RuntimeException('Failed to insert');

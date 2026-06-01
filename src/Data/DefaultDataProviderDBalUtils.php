@@ -367,7 +367,6 @@ class DefaultDataProviderDBalUtils
             $queryBuilder->setParameter($parameterName, $value);
         }
 
-        /** @psalm-suppress MixedReturnStatement */
         return $queryBuilder
             ->expr()
             ->{$expressionMethod}(
@@ -410,7 +409,6 @@ class DefaultDataProviderDBalUtils
         $expressionMethod =
             \lcfirst((string) \preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
 
-        /** @psalm-suppress MixedReturnStatement */
         return $queryBuilder
             ->expr()
             ->{$expressionMethod}(

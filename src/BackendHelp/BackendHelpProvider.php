@@ -14,11 +14,9 @@ final readonly class BackendHelpProvider implements BackendHelpProviderInterface
     #[\Override]
     public function getHelpFor(string $table, string $property): iterable
     {
-        /** @psalm-suppress MixedAssignment */
         foreach ($this->helpText as $section => $helpTexts) {
-            /** @psalm-suppress MixedAssignment */
-            foreach ((array) $helpTexts as $caption => $description) {
-                yield new HelpText((string) $section, (string) $caption, (string) $caption, (string) $description);
+            foreach ($helpTexts as $caption => $description) {
+                yield new HelpText($section, $caption, $caption, $description);
             }
         }
     }

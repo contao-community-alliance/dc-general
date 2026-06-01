@@ -78,7 +78,7 @@ interface PaletteCollectionInterface
      *
      * @return list<PaletteInterface>
      */
-    public function getPalettes();
+    public function getPalettes(): array;
 
     /**
      * Check if a palette exists in this collection.

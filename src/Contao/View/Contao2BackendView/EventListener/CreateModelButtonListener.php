@@ -104,9 +104,8 @@ class CreateModelButtonListener
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        /** @psalm-suppress MixedAssignment */
         if ($serializedPid = $inputProvider->getParameter('pid')) {
-            $url->setQueryParameter('pid', ModelId::fromSerialized((string) $serializedPid)->getSerialized());
+            $url->setQueryParameter('pid', ModelId::fromSerialized($serializedPid)->getSerialized());
         }
 
         $event->setHref($url->getUrl());

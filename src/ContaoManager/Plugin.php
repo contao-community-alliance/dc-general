@@ -68,7 +68,6 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
         $loader = $resolver->resolve(__DIR__ . '/../Resources/config/routing.yml');
         assert($loader instanceof LoaderInterface);
 
-        /** @psalm-suppress MixedReturnStatement */
         return $loader->load(__DIR__ . '/../Resources/config/routing.yml');
     }
 }

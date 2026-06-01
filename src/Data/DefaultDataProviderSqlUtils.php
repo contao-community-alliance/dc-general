@@ -205,7 +205,6 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterAndOr($operation, &$params)
     {
-        /** @psalm-suppress MixedAssignment */
         $children = $operation['children'];
 
         if (empty($children)) {
@@ -213,12 +212,10 @@ class DefaultDataProviderSqlUtils
         }
 
         $combine = [];
-        /** @psalm-suppress MixedAssignment, MixedArgument */
         foreach ($children as $child) {
             $combine[] = static::calculateSubfilter($child, $params);
         }
 
-        /** @psalm-suppress MixedArgument */
         return \implode(\sprintf(' %s ', $operation['operation']), $combine);
     }
 
@@ -232,10 +229,8 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterComparing($operation, &$params)
     {
-        /** @psalm-suppress MixedAssignment */
         $params[] = $operation['value'];
 
-        /** @psalm-suppress MixedArgument */
         return \sprintf('(%s %s ?)', $operation['property'], $operation['operation']);
     }
 
@@ -249,12 +244,9 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterInList($operation, &$params)
     {
-        /** @psalm-suppress MixedArgument */
         $params    = \array_merge($params, \array_values($operation['values']));
-        /** @psalm-suppress MixedArgument */
         $wildcards = \rtrim(\str_repeat('?,', \count($operation['values'])), ',');
 
-        /** @psalm-suppress MixedArgument */
         return \sprintf('(%s IN (%s))', $operation['property'], $wildcards);
     }
 
@@ -275,7 +267,6 @@ class DefaultDataProviderSqlUtils
         $wildcards = \str_replace(['*', '?'], ['%', '_'], $value);
         $params[]  = $wildcards;
 
-        /** @psalm-suppress MixedArgument */
         return \sprintf('(%s LIKE %s)', $operation['property'], $wildcards);
     }
 }

@@ -46,7 +46,6 @@ class ModelManipulator
         ModelInterface $model,
         PropertyValueBagInterface $values
     ) {
-        /** @psalm-suppress MixedAssignment */
         foreach ($values as $propertyName => $value) {
             try {
                 if (!$properties->hasProperty($propertyName)) {
@@ -71,7 +70,6 @@ class ModelManipulator
                         $model->setProperty($propertyName, static::sanitizeValue($property, null));
                     }
 
-                    /** @psalm-suppress MixedArgument */
                     $model->setMeta($model::IS_CHANGED, true);
                 }
             } catch (\Exception $exception) {

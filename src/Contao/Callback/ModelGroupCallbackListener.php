@@ -59,7 +59,7 @@ class ModelGroupCallbackListener extends AbstractReturningCallbackListener
             return;
         }
 
-        $event->setValue((string) $value);
+        $event->setValue($value);
         $event->stopPropagation();
     }
 }

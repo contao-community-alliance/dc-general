@@ -196,7 +196,6 @@ class PanelRenderer
 
         $panels = [];
         foreach ($panelContainer as $panel) {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $row = $this->renderPanelRow($panel, $ignoredPanels);
             if ([] !== $row) {
                 $panels[] = $row;

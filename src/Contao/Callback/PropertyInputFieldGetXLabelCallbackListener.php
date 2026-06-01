@@ -57,7 +57,7 @@ class PropertyInputFieldGetXLabelCallbackListener extends AbstractReturningPrope
     {
         $widget = $event->getWidget();
         if ($widget instanceof Widget) {
-            $widget->xlabel .= (string) $value;
+            $widget->xlabel .= $value;
         }
     }
 }

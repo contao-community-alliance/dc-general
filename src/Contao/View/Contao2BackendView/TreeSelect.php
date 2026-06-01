@@ -51,6 +51,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * Back end tree picker for usage in generaltree.php.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedAssignment/MixedArrayAccess from $GLOBALS['TL_DCA'] lookups.
+ * - MixedArgument from dynamic class/widget access.
+ * - Proper fix: Typed DCA and widget registry services.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @deprecated Do not use - here for legacy reasons only.
@@ -117,20 +122,15 @@ class TreeSelect
         // Ajax request.
         // phpcs:disable - We need POST access here.
         if ($_POST && Environment::get('isAjaxRequest')) { // phpcs:enable
-            /** @psalm-suppress MixedArgument */
             $ajax = new Ajax($inputProvider->getValue('action'));
             $ajax->executePreActions();
         }
 
-        /** @psalm-suppress MixedAssignment */
         $inputTable = $inputProvider->getParameter('table');
-        /** @psalm-suppress MixedAssignment */
         $inputField = $inputProvider->getParameter('field');
-        /** @psalm-suppress MixedAssignment */
         $inputId    = $inputProvider->getParameter('id');
 
         // Define the current ID.
-        /** @psalm-suppress MixedArgument */
         \define('CURRENT_ID', ($inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId));
 
         $dispatcher = System::getContainer()->get('event_dispatcher');
@@ -139,14 +139,12 @@ class TreeSelect
         $translator = new TranslatorChain();
         $translator->add(new LangArrayTranslator($dispatcher));
 
-        /** @psalm-suppress MixedArgument */
         $this->itemContainer = (new DcGeneralFactory())
             ->setContainerName($inputTable)
             ->setTranslator($translator)
             ->setEventDispatcher($dispatcher)
             ->createDcGeneral();
 
-        /** @psalm-suppress MixedArrayAccess, MixedArrayOffset */
         $information = (array) $GLOBALS['TL_DCA'][$inputTable]['fields'][$inputField];
 
         if (!isset($information['eval'])) {
@@ -157,13 +155,11 @@ class TreeSelect
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        /** @psalm-suppress MixedArgument */
         $property = $definition
             ->getPropertiesDefinition()
             ->getProperty($inputField);
         $extra    = $property->getExtra();
 
-        /** @psalm-suppress MixedArgument */
         $information['eval'] = \array_merge($extra, $information['eval']);
 
         $property->setExtra(\array_merge($property->getExtra(), $information['eval']));
@@ -173,7 +169,7 @@ class TreeSelect
 
         $model = $dataProvider->getEmptyModel();
         if ($inputProvider->getParameter('id')) {
-            $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
+            $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
             $model   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
             assert($model instanceof ModelInterface);
         }
@@ -185,19 +181,17 @@ class TreeSelect
 
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $treeSelector */
         $treeSelector        = $widgetBuilder->buildWidget($property, $model);
-        $treeSelector->value = \array_filter(\explode(',', (string) $inputProvider->getParameter('value')));
+        $treeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
 
         // AJAX request.
         if (isset($ajax)) {
             $treeSelector->generateAjax();
-            /** @psalm-suppress MixedMethodCall */
             $ajax->executePostActions(new DcCompat($environment));
         }
 
 
         $template = new ContaoBackendViewTemplate('be_main');
         /** @psalm-suppress UndefinedMagicPropertyFetch */
-        /** @psalm-suppress MixedArrayAccess, MixedArgument */
         $template
             ->set('isPopup', true)
             ->set('main', $treeSelector->generatePopup())
@@ -212,15 +206,11 @@ class TreeSelect
          * @psalm-suppress UndefinedMagicPropertyFetch
          */
         if ($treeSelector->managerHref) {
-            /** @psalm-suppress MixedArgument */
-            $template->set(
-                'managerHref',
-                'contao?' . StringUtil::ampersand($treeSelector->managerHref) . '&amp;popup=1'
-            );
+            $template
+                ->set('managerHref', 'contao?' . StringUtil::ampersand($treeSelector->managerHref) . '&amp;popup=1');
         }
 
         // Prevent debug output at all cost.
-        /** @psalm-suppress MixedArrayAssignment */
         $GLOBALS['TL_CONFIG']['debugMode'] = false;
         $template->output();
     }

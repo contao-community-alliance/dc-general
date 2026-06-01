@@ -221,7 +221,7 @@ class DeleteHandler
         $dataDefinition = $environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
 
-        $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
+        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
 
         // Guard that we are in the preloaded environment. Otherwise, checking the data definition could belong to
         // another model.
@@ -269,7 +269,7 @@ class DeleteHandler
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for delete model %s.
             </div>',
-            ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getSerialized()
+            ModelId::fromSerialized($inputProvider->getParameter('id'))->getSerialized()
         );
     }
 

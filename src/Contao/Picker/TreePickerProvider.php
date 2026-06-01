@@ -80,13 +80,10 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
         $attributes = ['fieldType' => 'radio'];
 
         if ('cca_tree' === $config->getContext()) {
-            /** @psalm-suppress MixedAssignment */
             if ($fieldType = $config->getExtra('fieldType')) {
-                /** @psalm-suppress MixedAssignment */
                 $attributes['fieldType'] = $fieldType;
             }
 
-            /** @psalm-suppress MixedAssignment */
             if (\is_array($rootNodes = $config->getExtra('rootNodes'))) {
                 $attributes['rootNodes'] = $rootNodes;
             }
@@ -115,7 +112,7 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
             return (int) $value;
         }
 
-        return '{{link_url::' . (string) $value . '}}';
+        return '{{link_url::' . $value . '}}';
     }
 
     /**

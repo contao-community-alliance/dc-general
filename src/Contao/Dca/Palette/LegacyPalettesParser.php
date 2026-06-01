@@ -248,12 +248,10 @@ class LegacyPalettesParser
 
         // Legacy fallback, try to split on $selectors with optimistic suggestion of values.
         if (false === strpos($paletteSelector, '|')) {
-            /** @psalm-suppress MixedAssignment */
             foreach ($selectorFieldNames as $selectorFieldName) {
-                $selectorFieldStr  = (string) $selectorFieldName;
-                $paletteSelector   = str_replace(
-                    $selectorFieldStr,
-                    '|' . $selectorFieldStr . '|',
+                $paletteSelector = str_replace(
+                    $selectorFieldName,
+                    '|' . $selectorFieldName . '|',
                     $paletteSelector
                 );
             }
@@ -278,11 +276,10 @@ class LegacyPalettesParser
             // The part is a value (but which?) (select box like selector).
             $orCondition = new PaletteConditionChain([], PaletteConditionChain::OR_CONJUNCTION);
 
-            /** @psalm-suppress MixedAssignment */
             foreach ($selectorFieldNames as $selectorFieldName) {
                 $orCondition->addCondition(
                     new PalettePropertyValueCondition(
-                        (string) $selectorFieldName,
+                        $selectorFieldName,
                         $paletteSelectorPart,
                         true
                     )

@@ -128,6 +128,11 @@ use function trigger_error;
 /**
  * Build the container config from legacy DCA syntax.
  *
+ * FIXME: This class has multiple psalm type issues due to the inherently untyped nature of Contao DCA arrays.
+ * The root cause is that DcaReadingDataDefinitionBuilder::getFromDca() returns mixed.
+ * Proper fix: Introduce typed accessor methods (getStringFromDca, getBoolFromDca, getArrayFromDca, etc.)
+ * and refactor all call sites to use them. See individual FIXME comments for details.
+ *
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -163,32 +168,30 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     /**
      * Register the callback handlers for the given legacy callbacks.
      *
+     * The callbacks parameter accepts mixed because DCA callback values are inherently untyped;
+     * internally it is cast to array.
+     *
      * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param list<callable>|callable  $callbacks  The callbacks to be handled.
+     * @param mixed                    $callbacks  The callbacks to be handled (from DCA, any type).
      * @param string                   $eventName  The event to be registered to.
      * @param array                    $arguments  The arguments to pass to the constructor.
      * @param class-string             $listener   The listener class to use.
      *
      * @return void
-     *
-     * @psalm-suppress DocblockTypeContradiction - only redundant when strict types active.
-     * @psalm-suppress RedundantConditionGivenDocblockType - only redundant when strict types active.
-     * @psalm-suppress RedundantCastGivenDocblockType - only redundant when strict types active.
      */
-    protected function parseCallback($dispatcher, $callbacks, $eventName, $arguments, $listener)
+    protected function parseCallback($dispatcher, mixed $callbacks, $eventName, $arguments, $listener)
     {
         // If only one callback given, ensure the loop below handles it correctly.
         if (is_array($callbacks) && (2 === count($callbacks)) && !is_array($callbacks[0] ?? [])) {
             $callbacks = [$callbacks];
         }
 
-        /** @psalm-suppress MixedAssignment */
         foreach ((array) $callbacks as $callback) {
             if ($this->isCallbackBlacklisted($callback, $listener)) {
                 continue;
             }
 
-            /** @psalm-suppress MixedMethodCall */
+            // FIXME: @psalm-suppress MixedMethodCall — $listener is a class-string but typed as mixed here
             $dispatcher->addListener(
                 $eventName,
                 new $listener($callback, $arguments)
@@ -209,7 +212,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         return ((ContainerOnLoadCallbackListener::class === $listener)
                 && is_array($callback)
                 && ('checkPermission' === $callback[1])
-                && (str_starts_with((string) $callback[0], 'tl_')));
+                && is_string($callback[0])
+                && (str_starts_with($callback[0], 'tl_')));
     }
 
     /**
@@ -222,8 +226,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parsePropertyCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
-        /** @psalm-suppress MixedAssignment */
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
+            if (!is_array($propInfo)) {
+                continue;
+            }
             $args = [$container->getName(), $propName];
             foreach (
                 [
@@ -254,7 +260,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ] as $name => $callback
             ) {
                 if (isset($propInfo[$name])) {
-                    /** @psalm-suppress MixedArrayAccess, MixedArgument */
                     $this->parseCallback($dispatcher, $propInfo[$name], $callback['event'], $args, $callback['class']);
                 }
             }
@@ -334,10 +339,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ]
             ] as $name => $callback
         ) {
-            /** @psalm-suppress MixedAssignment */
+            // FIXME: @psalm-suppress MixedAssignment — getFromDca() returns mixed; DCA callbacks are intentionally untyped
             if ($callbacks = $this->getFromDca($name)) {
                 if (isset($callback['event']) && isset($callback['class'])) {
-                    /** @psalm-suppress MixedArgument */
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
 
                     continue;
@@ -352,16 +356,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 /** @var list<array{event: string, class: class-string}> $callback */
                 foreach ($callback as $sub) {
-                    /** @psalm-suppress MixedArgument */
                     $this->parseCallback($dispatcher, $callbacks, $sub['event'], $args, $sub['class']);
                 }
             }
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array in practice
         foreach ((array) $this->getFromDca('list/global_operations') as $name => $operation) {
-            if (isset($operation['button_callback'])) {
-                /** @psalm-suppress MixedArgumentTypeCoercion, MixedArrayAccess */
+            if (is_array($operation) && isset($operation['button_callback'])) {
                 $this->parseCallback(
                     $dispatcher,
                     [$operation['button_callback']],
@@ -372,10 +374,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array in practice
         foreach ((array) $this->getFromDca('list/operations') as $name => $operation) {
-            if (isset($operation['button_callback'])) {
-                /** @psalm-suppress MixedArgumentTypeCoercion, MixedArrayAccess */
+            if (is_array($operation) && isset($operation['button_callback'])) {
                 $this->parseCallback(
                     $dispatcher,
                     [$operation['button_callback']],
@@ -436,39 +437,40 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseBasicFlags(BasicDefinitionInterface $config)
     {
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — getFromDca() returns mixed; all DCA bool-flags are bool in practice.
+        // Proper fix: introduce a typed getBoolFromDca(string $path): ?bool accessor.
         if (null !== ($switchToEdit = $this->getFromDca('config/switchToEdit'))) {
             $config->setSwitchToEditEnabled((bool) $switchToEdit);
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — see above
         if (null !== ($value = $this->getFromDca('config/forceEdit'))) {
             $config->setEditOnlyMode((bool) $value);
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — see above
         if (null !== ($value = $this->getFromDca('config/closed'))) {
             $config
                 ->setEditable(!$value)
                 ->setCreatable(!$value);
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — see above
         if (null !== ($value = $this->getFromDca('config/notEditable'))) {
             $config->setEditable(!$value);
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — see above
         if (null !== ($value = $this->getFromDca('config/notDeletable'))) {
             $config->setDeletable(!$value);
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — see above
         if (null !== ($value = $this->getFromDca('config/notCreatable'))) {
             $config->setCreatable(!(bool) $value);
         }
 
-        /** @psalm-suppress MixedAssignment */
+        // FIXME: @psalm-suppress MixedAssignment — see above
         if (null !== ($value = $this->getFromDca('config/dynamicPtable'))) {
             $config->setDynamicParentTable((bool) $value);
         }
@@ -494,7 +496,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBasicMode($config);
         $this->parseBasicFlags($config);
 
-        /** @psalm-suppress MixedAssignment */
         if (
             (null !== ($filters = $this->getFromDca('list/sorting/filter')))
             && is_array($filters)
@@ -506,10 +507,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 $builder = FilterBuilder::fromArrayForRoot()->getFilter();
             }
 
-            /** @psalm-suppress MixedAssignment */
             foreach ($filters as $filter) {
-                /** @psalm-suppress MixedArrayAccess, MixedArgument */
-                $builder->andPropertyEquals($filter[0], $filter[1]);
+                if (!is_array($filter) || !isset($filter[0], $filter[1])) {
+                    continue;
+                }
+                // FIXME: @psalm-suppress MixedArgument - DCA filter[1] (value) is intentionally mixed
+                $builder->andPropertyEquals((string) $filter[0], $filter[1]);
             }
 
             $config->setAdditionalFilter((string) $config->getDataProvider(), $builder->getAllAsArray());
@@ -543,22 +546,21 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $container->getBasicDefinition()->setRootDataProvider($container->getName());
         }
 
-        /** @psalm-suppress MixedAssignment */
-        if (null !== ($parentTable = $this->getFromDca('config/ptable'))) {
+        if (is_string($parentTable = $this->getFromDca('config/ptable'))) {
             // Check config if it already exists, if not, add it.
-            if (!$config->hasInformation((string) $parentTable)) {
+            if (!$config->hasInformation($parentTable)) {
                 $providerInformation = new ContaoDataProviderInformation();
-                $providerInformation->setName((string) $parentTable);
+                $providerInformation->setName($parentTable);
                 $config->addInformation($providerInformation);
             } else {
-                $providerInformation = $config->getInformation((string) $parentTable);
+                $providerInformation = $config->getInformation($parentTable);
             }
 
             if ($providerInformation instanceof ContaoDataProviderInformation) {
                 $initializationData = (array) $providerInformation->getInitializationData();
 
                 $providerInformation
-                    ->setTableName((string) $parentTable)
+                    ->setTableName($parentTable)
                     ->setInitializationData(
                         array_merge(
                             [
@@ -570,10 +572,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     );
 
                 if (null === $container->getBasicDefinition()->getRootDataProvider()) {
-                    $container->getBasicDefinition()->setRootDataProvider((string) $parentTable);
+                    $container->getBasicDefinition()->setRootDataProvider($parentTable);
                 }
                 if (null === $container->getBasicDefinition()->getParentDataProvider()) {
-                    $container->getBasicDefinition()->setParentDataProvider((string) $parentTable);
+                    $container->getBasicDefinition()->setParentDataProvider($parentTable);
                 }
             }
         }
@@ -630,7 +632,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseRootEntries(ContainerInterface $container)
     {
-        /** @psalm-suppress MixedAssignment */
         if (is_array($root = $this->getFromDca('list/sorting/root'))) {
             $entries = $container->getBasicDefinition()->getRootEntries() ?? [];
 
@@ -807,17 +808,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
     {
         $listing = $view->getListingConfig();
-        /** @psalm-suppress MixedAssignment */
         $listDca = $this->getFromDca('list');
 
-        /** @psalm-suppress MixedAssignment */
         if ((null === $listing->getRootLabel()) && (null !== ($label = $this->getFromDca('config/label')))) {
-            $listing->setRootLabel((string) $label);
+            $listing->setRootLabel($label);
         }
 
-        /** @psalm-suppress MixedAssignment */
         if ((null === $listing->getRootIcon()) && (null !== ($icon = $this->getFromDca('config/icon')))) {
-            $listing->setRootIcon((string) $icon);
+            $listing->setRootIcon($icon);
         }
 
         // Cancel if no list configuration found.
@@ -825,9 +823,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             return [];
         }
 
-        /** @psalm-suppress MixedArgument */
         $parsedProperties = $this->parseListSorting($listing, $listDca);
-        /** @psalm-suppress MixedArgument */
         $this->parseListLabel($container, $listing, $listDca);
 
         return $parsedProperties;
@@ -845,9 +841,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     {
         $definitions = $view->getListingConfig()->getGroupAndSortingDefinition();
 
-        /** @psalm-suppress MixedAssignment */
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-            /** @psalm-suppress MixedArgumentTypeCoercion, MixedArgument */
             $this->parsePropertySortingAndGrouping($propName, $propInfo, $definitions, $parsedProperties);
         }
     }
@@ -872,7 +866,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $information = $definition->add();
         $information->setProperty($propName);
         if (isset($propInfo['length'])) {
-            $information->setGroupingLength((int) $propInfo['length']);
+            $information->setGroupingLength($propInfo['length']);
         }
 
         // Special case for field named "sorting" in Contao.
@@ -885,9 +879,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $definitions->markDefault($definition);
         }
 
-        /** @psalm-suppress MixedAssignment */
         $flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];
-        $this->evalFlag($information, (int) $flag);
+        $this->evalFlag($information, $flag);
     }
 
     /**
@@ -911,7 +904,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $parsedProperties = [];
         $sortingDca       = ($listDca['sorting'] ?? []);
 
-        /** @psalm-suppress RiskyTruthyFalsyComparison, MixedArrayAccess */
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
         if ($headerFields = ($sortingDca['headerFields'] ?? [])) {
             assert(\is_array($headerFields));
             /** @var list<string> $headerFields */
@@ -919,20 +912,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         if (isset($sortingDca['icon'])) {
-            /** @psalm-suppress MixedArrayAccess */
-            $listing->setRootIcon((string) $sortingDca['icon']);
+            $listing->setRootIcon($sortingDca['icon']);
         }
 
         if (isset($sortingDca['child_record_class'])) {
-            /** @psalm-suppress MixedArrayAccess */
-            $listing->setItemCssClass((string) $sortingDca['child_record_class']);
+            $listing->setItemCssClass($sortingDca['child_record_class']);
         }
 
         if (empty($sortingDca['fields'])) {
             return $parsedProperties;
         }
 
-        /** @psalm-suppress MixedAssignment */
         $fieldsDca = $this->getFromDca('fields');
 
         $definitions = $listing->getGroupAndSortingDefinition();
@@ -944,17 +934,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $definition = $definitions->getDefault();
         }
 
-        /** @psalm-suppress MixedAssignment */
         foreach ($sortingDca['fields'] as $field) {
             $groupAndSorting = $definition->add();
 
             if (isset($sortingDca['flag'])) {
-                /** @psalm-suppress MixedArrayAccess */
-                $this->evalFlag($groupAndSorting, (int) $sortingDca['flag']);
+                $this->evalFlag($groupAndSorting, $sortingDca['flag']);
             }
 
-            /** @psalm-suppress MixedArgument */
-            if (preg_match('~^(\w+)(?: (.+))?$~', (string) $field, $matches)) {
+            if (preg_match('~^(\w+)(?: (.+))?$~', $field, $matches)) {
                 $groupAndSorting
                     ->setProperty($matches[1])
                     ->setSortingMode(
@@ -971,14 +958,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
             if (isset($fieldsDca[$groupAndSorting->getProperty()])) {
                 if (isset($fieldsDca[$groupAndSorting->getProperty()]['flag'])) {
-                    /** @psalm-suppress MixedAssignment, MixedArrayAccess */
                     $flag = $fieldsDca[$groupAndSorting->getProperty()]['flag'];
-                    $this->evalFlagGrouping($groupAndSorting, (int) $flag);
-                    $this->evalFlagGroupingLength($groupAndSorting, (int) $flag);
+                    $this->evalFlagGrouping($groupAndSorting, $flag);
+                    $this->evalFlagGroupingLength($groupAndSorting, $flag);
                 }
 
-                /** @psalm-suppress MixedArgument */
-                if (1 === count((array) $sortingDca['fields'])) {
+                if (1 === count($sortingDca['fields'])) {
                     $definition->setName($groupAndSorting->getProperty());
                     $parsedProperties[] = $groupAndSorting->getProperty();
                 }
@@ -1003,26 +988,22 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseListLabel(ContainerInterface $container, ListingConfigInterface $listing, array $listDca)
     {
-        /** @psalm-suppress MixedAssignment */
         $labelDca   = ($listDca['label'] ?? []);
         $formatter  = new DefaultModelFormatterConfig();
         $configured = false;
 
         if (isset($labelDca['fields'])) {
-            /** @psalm-suppress MixedArgument */
             $formatter->setPropertyNames($labelDca['fields']);
             $configured = true;
         }
 
         if (isset($labelDca['format'])) {
-            /** @psalm-suppress MixedArgument */
-            $formatter->setFormat((string) $labelDca['format']);
+            $formatter->setFormat($labelDca['format']);
             $configured = true;
         }
 
         if (isset($labelDca['maxCharacters'])) {
-            /** @psalm-suppress MixedArgument */
-            $formatter->setMaxLength((int) $labelDca['maxCharacters']);
+            $formatter->setMaxLength($labelDca['maxCharacters']);
             $configured = true;
         }
 
@@ -1031,8 +1012,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         if (isset($labelDca['showColumns'])) {
-            /** @psalm-suppress MixedArgument */
-            $listing->setShowColumns((bool) $labelDca['showColumns']);
+            $listing->setShowColumns($labelDca['showColumns']);
         }
     }
 
@@ -1045,11 +1025,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parsePanelFilter(PanelRowInterface $row)
     {
-        /** @psalm-suppress MixedAssignment */
         foreach ($this->getFromDca('fields') as $property => $value) {
             if (isset($value['filter'])) {
                 $element = new DefaultFilterElementInformation();
-                $element->setPropertyName((string) $property);
+                $element->setPropertyName($property);
                 if (!$row->hasElement($element->getName())) {
                     $row->addElement($element);
                 }
@@ -1086,10 +1065,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $element = new DefaultSearchElementInformation();
         }
         assert($element instanceof SearchElementInformationInterface);
-        /** @psalm-suppress MixedAssignment */
-        foreach ((array) $this->getFromDca('fields') as $property => $value) {
+        foreach ($this->getFromDca('fields') as $property => $value) {
             if (isset($value['search'])) {
-                $element->addProperty((string) $property);
+                $element->addProperty($property);
             }
         }
         if ($element->getPropertyNames() && !$row->hasElement('search')) {
@@ -1234,8 +1212,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach (array_keys($operationsDca) as $operationName) {
-            /** @psalm-suppress MixedArgumentTypeCoercion, MixedArgument */
-            $command = $this->createCommand((string) $operationName, (array) $operationsDca[$operationName]);
+            $command = $this->createCommand($operationName, $operationsDca[$operationName]);
             $collection->addCommand($command);
         }
     }
@@ -1262,8 +1239,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 continue;
             }
             assert(is_array($operationDca));
-            /** @psalm-suppress MixedArgumentTypeCoercion */
-            $command = $this->createCommand((string) $operationName, $operationDca);
+            $command = $this->createCommand($operationName, $operationDca);
             $collection->addCommand($command);
         }
     }
@@ -1280,7 +1256,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function parsePalettes(ContainerInterface $container)
     {
         $palettesDefinitionArray    = $this->getFromDca('palettes');
-        /** @psalm-suppress MixedAssignment */
         $subPalettesDefinitionArray = $this->getFromDca('subpalettes');
 
         // Skip while there is no legacy palette definition.
@@ -1302,8 +1277,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         assert($palettesDefinition instanceof PalettesDefinitionInterface);
 
         $palettesParser = new LegacyPalettesParser();
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        $palettesParser->parse($palettesDefinitionArray, $subPalettesDefinitionArray, $palettesDefinition);
+        $palettesParser->parse(
+            $palettesDefinitionArray,
+            $subPalettesDefinitionArray,
+            $palettesDefinition
+        );
     }
 
     /**
@@ -1320,12 +1298,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $extra = $property->getExtra();
             if (
                 !isset($extra['orderField'])
-                || !$container->getPropertiesDefinition()->hasProperty((string) $extra['orderField'])
+                || !$container->getPropertiesDefinition()->hasProperty($extra['orderField'])
             ) {
                 continue;
             }
 
-            $orderProperty = $container->getPropertiesDefinition()->getProperty((string) $extra['orderField']);
+            $orderProperty = $container->getPropertiesDefinition()->getProperty($extra['orderField']);
             if (false === (bool) $orderProperty->getWidgetType()) {
                 continue;
             }
@@ -1398,7 +1376,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 case 'description':
                     if (!$property->getDescription()) {
-                        $property->setDescription((string) $value);
+                        $property->setDescription($value);
                     }
                     break;
 
@@ -1421,15 +1399,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     break;
 
                 case 'inputType':
-                    $property->setWidgetType((string) $value);
+                    $property->setWidgetType($value);
                     break;
 
                 case 'options':
-                    $property->setOptions((array) $value);
+                    $property->setOptions($value);
                     break;
 
                 case 'explanation':
-                    $property->setExplanation((string) $value);
+                    $property->setExplanation($value);
                     break;
 
                 case 'eval':
@@ -1451,7 +1429,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     break;
 
                 case 'sql':
-                    $this->determineEmptyValueFromSql($property, (string) $value);
+                    $this->determineEmptyValueFromSql($property, $value);
                     break;
 
                 default:
@@ -1484,7 +1462,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             ->setExtra(
                 array_merge(
                     [
-                        'sourceName' => explode('.', (string) $propInfo['foreignKey'])[0],
+                        'sourceName' => explode('.', $propInfo['foreignKey'])[0],
                         'idProperty' => 'id'
                     ],
                     $property->getExtra()
@@ -1530,15 +1508,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $container->setPropertiesDefinition($definition);
         }
 
-        /** @psalm-suppress MixedAssignment */
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
-            if ($definition->hasProperty((string) $propName)) {
-                /** @psalm-suppress MixedArgument */
-                $property = $definition->getProperty((string) $propName);
+            if ($definition->hasProperty($propName)) {
+                $property = $definition->getProperty($propName);
             } else {
-                /** @psalm-suppress MixedArgument */
-                $property = new DefaultProperty((string) $propName);
+                $property = new DefaultProperty($propName);
                 $definition->addProperty($property);
             }
 
@@ -1552,13 +1526,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $extra = $property->getExtra();
             if (
                 isset($extra['orderField'])
-                && array_key_exists((string) $extra['orderField'], (array) $this->getFromDca('fields'))
+                && array_key_exists($extra['orderField'], (array) $this->getFromDca('fields'))
             ) {
-                if (!$definition->hasProperty((string) $extra['orderField'])) {
-                    $definition->addProperty(new DefaultProperty((string) $extra['orderField']));
+                if (!$definition->hasProperty($extra['orderField'])) {
+                    $definition->addProperty(new DefaultProperty($extra['orderField']));
                 }
 
-                $orderProperty = $definition->getProperty((string) $extra['orderField']);
+                $orderProperty = $definition->getProperty($extra['orderField']);
                 $this->parseOrderProperty($property, $orderProperty);
             }
         }
@@ -1589,7 +1563,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 $command = new ToggleCommand();
 
                 if (isset($commandDca['toggleProperty'])) {
-                    $command->setToggleProperty((string) $commandDca['toggleProperty']);
+                    $command->setToggleProperty($commandDca['toggleProperty']);
                     unset($commandDca['toggleProperty']);
                 } else {
                     // Implicit fallback to "published" as in Contao core.
@@ -1597,7 +1571,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 if (isset($commandDca['toggleInverse'])) {
-                    $command->setInverse((bool) $commandDca['toggleInverse']);
+                    $command->setInverse($commandDca['toggleInverse']);
                     unset($commandDca['toggleInverse']);
                 }
 
@@ -1626,26 +1600,21 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $parameters = $command->getParameters();
 
         if (isset($commandDca['href'])) {
-            parse_str((string) $commandDca['href'], $queryParameters);
-            /** @psalm-suppress MixedAssignment */
+            parse_str($commandDca['href'], $queryParameters);
             foreach ($queryParameters as $name => $value) {
-                /** @psalm-suppress MixedAssignment, MixedArrayOffset, MixedArgument */
                 $parameters[$name] = $value;
             }
             unset($commandDca['href']);
         }
 
         if (isset($commandDca['parameters'])) {
-            /** @psalm-suppress MixedAssignment */
-            foreach ((array) $commandDca['parameters'] as $name => $value) {
-                /** @psalm-suppress MixedAssignment, MixedArrayOffset, MixedArgument */
+            foreach ($commandDca['parameters'] as $name => $value) {
                 $parameters[$name] = $value;
             }
             unset($commandDca['parameters']);
         }
 
         if (isset($commandDca['label'])) {
-            /** @psalm-suppress MixedAssignment */
             $lang = $commandDca['label'];
 
             if (is_array($lang)) {
@@ -1654,18 +1623,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 $command->setDescription($description);
             } else {
-                /** @psalm-suppress MixedAssignment */
                 $label = $lang;
             }
 
-            /** @psalm-suppress MixedArgument */
             $command->setLabel($label);
 
             unset($commandDca['label']);
         }
 
         if (isset($commandDca['description'])) {
-            $command->setDescription((string) $commandDca['description']);
+            $command->setDescription($commandDca['description']);
 
             unset($commandDca['description']);
         }
@@ -1676,9 +1643,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         if (count($commandDca)) {
             $extra = $command->getExtra();
 
-            /** @psalm-suppress MixedAssignment */
             foreach ($commandDca as $name => $value) {
-                /** @psalm-suppress MixedAssignment, MixedArgument */
                 $extra[$name] = $value;
             }
         }

@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2026 Contao Community Alliance.
+ * (c) 2013-2024 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +13,7 @@
  * @package    contao-community-alliance/dc-general
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2026 Contao Community Alliance.
+ * @copyright  2013-2024 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0
  * @filesource
  */
@@ -55,6 +55,13 @@ use function sprintf;
 /**
  * This abstract visibility handler provide methods for the visibility of properties.
  *
+
+ * FIXME: Multiple psalm type issues:
+ * - MixedArrayOffset/MixedOperand from PaletteCondition::getPropertyName() returning mixed.
+ * - UndefinedInterfaceMethod: addCondition() not defined on PropertyConditionInterface.
+ *   Proper fix: Use PropertyConditionChainInterface which has addCondition().
+ * - PossiblyNullReference: getVisibleCondition() can return null.
+ *   Proper fix: Add null check before calling addCondition().
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
@@ -74,11 +81,8 @@ abstract class AbstractPropertyVisibilityHandler
         $properties     = $this->getDataDefinition($environment)->getPropertiesDefinition();
         $editProperties = $this->getPropertiesFromSession($action, $environment);
 
-        /** @psalm-suppress MixedAssignment */
         foreach ($properties->getPropertyNames() as $propertyName) {
-            /** @psalm-suppress MixedArgument */
             $property = $properties->getProperty($propertyName);
-            /** @psalm-suppress MixedArrayTypeCoercion, MixedArrayOffset */
             if (isset($editProperties[$propertyName]) || !$property->getWidgetType()) {
                 continue;
             }
@@ -91,7 +95,6 @@ abstract class AbstractPropertyVisibilityHandler
             $propertyClass = get_class($property);
 
             /** @var PropertyInterface $newProperty */
-            /** @psalm-suppress MixedOperand */
             $newProperty = new $propertyClass($propertyName . '.dummy');
             $newProperty->setLabel($property->getLabel());
             $newProperty->setDescription($property->getDescription());
@@ -178,7 +181,7 @@ abstract class AbstractPropertyVisibilityHandler
 
             $paletteCounter = 0;
             foreach (array_keys($options) as $paletteName) {
-                $palettesDefinition->hasPaletteByName((string) $paletteName) ? ++$paletteCounter : null;
+                $palettesDefinition->hasPaletteByName($paletteName) ? ++$paletteCounter : null;
             }
             if ($paletteCounter !== count($options)) {
                 continue;
@@ -205,23 +208,17 @@ abstract class AbstractPropertyVisibilityHandler
     ): void {
         $palettes = $this->getDataDefinition($environment)->getPalettesDefinition();
 
-        /** @psalm-suppress MixedAssignment */
         foreach ($palettes->getPalettes() as $palette) {
-            /** @psalm-suppress MixedMethodCall, MixedAssignment */
             foreach ($palette->getLegends() as $legend) {
-                /** @psalm-suppress MixedMethodCall */
                 if (!$legend->hasProperty($property->getName())) {
                     continue;
                 }
 
                 $visibleCondition = new PropertyTrueCondition('dummyNotVisible');
 
-                /** @psalm-suppress MixedAssignment, MixedMethodCall */
                 $invisibleProperty = $legend->getProperty($property->getName());
-                /** @psalm-suppress MixedAssignment, MixedMethodCall */
                 $conditions        = $invisibleProperty->getVisibleCondition();
 
-                /** @psalm-suppress MixedMethodCall, PossiblyNullReference, UndefinedInterfaceMethod */
                 $conditions->addCondition($visibleCondition);
             }
         }
@@ -355,7 +352,7 @@ abstract class AbstractPropertyVisibilityHandler
         $invisibleProperty       = false;
         $paletteSelectorProperty = $propertiesDefinition->getProperty($selectorProperty->getName());
         foreach (array_keys($paletteSelectorProperty->getOptions() ?? []) as $paletteName) {
-            if (!$palettesDefinition->hasPaletteByName((string) $paletteName)) {
+            if (!$palettesDefinition->hasPaletteByName($paletteName)) {
                 continue;
             }
 
@@ -363,7 +360,7 @@ abstract class AbstractPropertyVisibilityHandler
                 $property,
                 $intersectModel,
                 $selectorProperty,
-                (string) $paletteName,
+                $paletteName,
                 $environment
             );
 
@@ -471,13 +468,10 @@ abstract class AbstractPropertyVisibilityHandler
         }
 
         $information = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($invisibleProperties as $propertyName => $informationProperty) {
-            /** @psalm-suppress MixedAssignment, MixedMethodCall, MixedMethodCall */
             $labelParentProperty = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
             $labelEditProperty   = !$property->getLabel() ? $property->getName() : $property->getLabel();
 
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $information[] = sprintf(
                 '<p class="tl_new">%s</p>',
                 $translator->translate(
@@ -517,9 +511,7 @@ abstract class AbstractPropertyVisibilityHandler
         }
 
         $information = [];
-        /** @psalm-suppress MixedAssignment */
         foreach ($properties as $propertyName => $informationProperty) {
-            /** @psalm-suppress MixedArgument, MixedMethodCall */
             $label = $translator->translate(
                 $informationProperty->getLabel() ?: $propertyName,
                 $environment->getDataDefinition()?->getName()
@@ -564,19 +556,15 @@ abstract class AbstractPropertyVisibilityHandler
 
         $palette = $palettesDefinition->findPalette($model);
         foreach ($palette->getProperties() as $paletteProperty) {
-            /** @psalm-suppress MixedArgument */
             if (!array_key_exists($paletteProperty->getName(), $session['intersectValues'])) {
                 continue;
             }
 
-            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             $paletteName = $session['intersectValues'][$paletteProperty->getName()];
-            /** @psalm-suppress MixedArgument */
             if (!$palettesDefinition->hasPaletteByName($paletteName)) {
                 continue;
             }
 
-            /** @psalm-suppress MixedArrayOffset, MixedOperand */
             $invisibleProperties[$paletteProperty->getName()]
                 = $propertiesDefinition->getProperty($paletteProperty->getName() . '.dummy');
 
@@ -611,7 +599,6 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            /** @psalm-suppress MixedArrayOffset, MixedOperand, MixedMethodCall */
             if (
                 isset($invisibleProperties[$condition->getPropertyName()])
                 || !$propertiesDefinition->hasProperty($condition->getPropertyName() . '.dummy')
@@ -619,7 +606,6 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            /** @psalm-suppress MixedArrayOffset, MixedOperand, MixedMethodCall */
             $invisibleProperties[$condition->getPropertyName()]
                 = $propertiesDefinition->getProperty($condition->getPropertyName() . '.dummy');
         }
@@ -762,15 +748,13 @@ abstract class AbstractPropertyVisibilityHandler
         $defaultPalette      = null;
         $legendPropertyNames = $this->getLegendPropertyNames($intersectModel, $environment, $defaultPalette);
 
-        /** @psalm-suppress MixedAssignment */
         $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
-        /** @psalm-suppress MixedAssignment */
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
             if (
                 ($idProperty === $intersectProperty)
-                || !$propertiesDefinition->hasProperty((string) $intersectProperty)
+                || !$propertiesDefinition->hasProperty($intersectProperty)
                 || (false === $this->useIntersectValue(
-                    (string) $intersectProperty,
+                    $intersectProperty,
                     $legendPropertyNames,
                     $environment,
                     $defaultPalette
@@ -779,19 +763,15 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            if ($inputProvider->hasValue((string) $intersectProperty)) {
-                $intersectModel->setProperty(
-                    (string) $intersectProperty,
-                    (string) $inputProvider->getValue((string) $intersectProperty)
-                );
+            if ($inputProvider->hasValue($intersectProperty)) {
+                $intersectModel->setProperty($intersectProperty, $inputProvider->getValue($intersectProperty));
 
                 continue;
             }
 
-            $intersectModel->setProperty((string) $intersectProperty, $intersectValue);
+            $intersectModel->setProperty($intersectProperty, $intersectValue);
         }
 
-        /** @psalm-suppress MixedArgument */
         $this->intersectModelSetPrimaryId($action, $intersectModel, $idProperty, $environment);
         $this->intersectModelSetParentId($intersectModel, $environment);
 
@@ -856,7 +836,6 @@ abstract class AbstractPropertyVisibilityHandler
         }
 
         $session = $this->getSession($action, $environment);
-        /** @psalm-suppress MixedAssignment */
         if (null !== ($idValue = $session['intersectValues'][$idProperty] ?? null)) {
             $intersectModel->setId($idValue);
             $intersectModel->setProperty($idProperty, $idValue);
@@ -892,23 +871,19 @@ abstract class AbstractPropertyVisibilityHandler
         }
 
         $parentField = null;
-        /** @psalm-suppress MixedAssignment */
         foreach ($childCondition->getSetters() as $setter) {
-            /** @psalm-suppress MixedArgument */
             if (!array_key_exists('to_field', $setter)) {
                 continue;
             }
 
-            /** @psalm-suppress MixedAssignment, MixedArrayAccess */
             $parentField = $setter['to_field'];
             break;
         }
 
         if (null !== $parentField) {
-            /** @psalm-suppress MixedArgument */
             $intersectModel->setProperty(
                 $parentField,
-                ModelId::fromSerialized((string) $this->getInputProvider($environment)->getParameter('pid'))
+                ModelId::fromSerialized($this->getInputProvider($environment)->getParameter('pid'))
                     ->getId()
             );
         }

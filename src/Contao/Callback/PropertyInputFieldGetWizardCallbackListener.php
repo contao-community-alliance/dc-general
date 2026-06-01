@@ -58,7 +58,7 @@ class PropertyInputFieldGetWizardCallbackListener extends AbstractReturningPrope
     {
         $widget = $event->getWidget();
         if ($widget instanceof Widget) {
-            $widget->wizard .= (string) $value;
+            $widget->wizard .= $value;
         }
     }
 }
