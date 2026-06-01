@@ -276,6 +276,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
@@ -339,7 +340,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ]
             ] as $name => $callback
         ) {
-            // FIXME: @psalm-suppress MixedAssignment — getFromDca() returns mixed; DCA callbacks are intentionally untyped
+            // FIXME: @psalm-suppress MixedAssignment — getFromDca() returns mixed; DCA callbacks are intentionally
+            //        untyped
             if ($callbacks = $this->getFromDca($name)) {
                 if (isset($callback['event']) && isset($callback['class'])) {
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
@@ -361,7 +363,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array in practice
+        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array
+        //        in practice
         foreach ((array) $this->getFromDca('list/global_operations') as $name => $operation) {
             if (is_array($operation) && isset($operation['button_callback'])) {
                 $this->parseCallback(
@@ -374,7 +377,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array in practice
+        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array
+        //        in practice
         foreach ((array) $this->getFromDca('list/operations') as $name => $operation) {
             if (is_array($operation) && isset($operation['button_callback'])) {
                 $this->parseCallback(
