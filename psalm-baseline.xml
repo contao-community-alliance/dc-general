@@ -337,7 +337,6 @@
     </MixedArrayOffset>
     <MixedAssignment>
       <code><![CDATA[$callback]]></code>
-      <code><![CDATA[$callbacks]]></code>
       <code><![CDATA[$extra[$name]]]></code>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$fieldsDca]]></code>
@@ -361,11 +360,6 @@
       <code><![CDATA[$property]]></code>
       <code><![CDATA[$root]]></code>
       <code><![CDATA[$subPalettesDefinitionArray]]></code>
-      <code><![CDATA[$switchToEdit]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
@@ -2414,12 +2408,6 @@
       <code><![CDATA[$condition->getPropertyName()]]></code>
       <code><![CDATA[$condition->getPropertyName()]]></code>
     </MixedOperand>
-    <PossiblyNullReference>
-      <code><![CDATA[addCondition]]></code>
-    </PossiblyNullReference>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[addCondition]]></code>
-    </UndefinedInterfaceMethod>
   </file>
   <file src="src/deprecated-autoload.php">
     <MixedArgument>

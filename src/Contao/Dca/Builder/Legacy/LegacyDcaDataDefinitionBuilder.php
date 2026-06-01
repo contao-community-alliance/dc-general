@@ -128,11 +128,6 @@ use function trigger_error;
 /**
  * Build the container config from legacy DCA syntax.
  *
- * FIXME: This class has multiple psalm type issues due to the inherently untyped nature of Contao DCA arrays.
- * The root cause is that DcaReadingDataDefinitionBuilder::getFromDca() returns mixed.
- * Proper fix: Introduce typed accessor methods (getStringFromDca, getBoolFromDca, getArrayFromDca, etc.)
- * and refactor all call sites to use them. See individual FIXME comments for details.
- *
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -179,7 +174,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @return void
      */
-    protected function parseCallback($dispatcher, mixed $callbacks, $eventName, $arguments, $listener)
+    protected function parseCallback($dispatcher, mixed $callbacks, $eventName, $arguments, string $listener)
     {
         // If only one callback given, ensure the loop below handles it correctly.
         if (is_array($callbacks) && (2 === count($callbacks)) && !is_array($callbacks[0] ?? [])) {
@@ -191,7 +186,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 continue;
             }
 
-            // FIXME: @psalm-suppress MixedMethodCall — $listener is a class-string but typed as mixed here
             $dispatcher->addListener(
                 $eventName,
                 new $listener($callback, $arguments)
@@ -340,9 +334,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ]
             ] as $name => $callback
         ) {
-            // FIXME: @psalm-suppress MixedAssignment — getFromDca() returns mixed; DCA callbacks are intentionally
-            //        untyped
-            if ($callbacks = $this->getFromDca($name)) {
+            if ($callbacks = $this->getArrayFromDca($name)) {
                 if (isset($callback['event']) && isset($callback['class'])) {
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
 
@@ -363,9 +355,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array
-        //        in practice
-        foreach ((array) $this->getFromDca('list/global_operations') as $name => $operation) {
+        foreach ($this->getArrayFromDca('list/global_operations') as $name => $operation) {
             if (is_array($operation) && isset($operation['button_callback'])) {
                 $this->parseCallback(
                     $dispatcher,
@@ -377,9 +367,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — DCA operation arrays are inherently untyped; $operation is array
-        //        in practice
-        foreach ((array) $this->getFromDca('list/operations') as $name => $operation) {
+        foreach ($this->getArrayFromDca('list/operations') as $name => $operation) {
             if (is_array($operation) && isset($operation['button_callback'])) {
                 $this->parseCallback(
                     $dispatcher,
@@ -441,43 +429,63 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseBasicFlags(BasicDefinitionInterface $config)
     {
-        // FIXME: @psalm-suppress MixedAssignment — getFromDca() returns mixed; all DCA bool-flags are bool in practice.
-        // Proper fix: introduce a typed getBoolFromDca(string $path): ?bool accessor.
-        if (null !== ($switchToEdit = $this->getFromDca('config/switchToEdit'))) {
-            $config->setSwitchToEditEnabled((bool) $switchToEdit);
+        if (null !== ($switchToEdit = $this->getBoolFromDca('config/switchToEdit'))) {
+            $config->setSwitchToEditEnabled($switchToEdit);
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — see above
-        if (null !== ($value = $this->getFromDca('config/forceEdit'))) {
-            $config->setEditOnlyMode((bool) $value);
+        if (null !== ($value = $this->getBoolFromDca('config/forceEdit'))) {
+            $config->setEditOnlyMode($value);
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — see above
-        if (null !== ($value = $this->getFromDca('config/closed'))) {
+        if (null !== ($value = $this->getBoolFromDca('config/closed'))) {
             $config
                 ->setEditable(!$value)
                 ->setCreatable(!$value);
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — see above
-        if (null !== ($value = $this->getFromDca('config/notEditable'))) {
+        if (null !== ($value = $this->getBoolFromDca('config/notEditable'))) {
             $config->setEditable(!$value);
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — see above
-        if (null !== ($value = $this->getFromDca('config/notDeletable'))) {
+        if (null !== ($value = $this->getBoolFromDca('config/notDeletable'))) {
             $config->setDeletable(!$value);
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — see above
-        if (null !== ($value = $this->getFromDca('config/notCreatable'))) {
-            $config->setCreatable(!(bool) $value);
+        if (null !== ($value = $this->getBoolFromDca('config/notCreatable'))) {
+            $config->setCreatable(!$value);
         }
 
-        // FIXME: @psalm-suppress MixedAssignment — see above
-        if (null !== ($value = $this->getFromDca('config/dynamicPtable'))) {
-            $config->setDynamicParentTable((bool) $value);
+        if (null !== ($value = $this->getBoolFromDca('config/dynamicPtable'))) {
+            $config->setDynamicParentTable($value);
         }
+    }
+
+    /**
+     * Retrieve a boolean value from the DCA, returning null if the key is not set.
+     *
+     * @param string $path The DCA path (slash-separated).
+     *
+     * @return bool|null
+     */
+    private function getBoolFromDca(string $path): ?bool
+    {
+        $value = $this->getFromDca($path);
+
+        return null === $value ? null : (bool) $value;
+    }
+
+    /**
+     * Retrieve an array value from the DCA, returning an empty array if the key is not set or not an array.
+     *
+     * @param string $path The DCA path (slash-separated).
+     *
+     * @return array<array-key, mixed>
+     */
+    private function getArrayFromDca(string $path): array
+    {
+        $value = $this->getFromDca($path);
+
+        return is_array($value) ? $value : [];
     }
 
     /**
