@@ -1942,12 +1942,6 @@
       <code><![CDATA[$value]]></code>
     </MixedArgument>
   </file>
-  <file src="src/DataDefinition/Definition/PropertiesDefinitionInterface.php">
-    <MismatchingDocblockReturnType>
-      <code><![CDATA[PropertiesDefinitionInterface]]></code>
-      <code><![CDATA[PropertiesDefinitionInterface]]></code>
-    </MismatchingDocblockReturnType>
-  </file>
   <file src="src/DataDefinition/Definition/View/CommandCollection.php">
     <MixedArgument>
       <code><![CDATA[$command]]></code>

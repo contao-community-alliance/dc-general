@@ -41,14 +41,16 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
      *
      * @return array<string, PropertyInterface>
      */
-    public function getProperties(): array;
+    #[\ReturnTypeWillChange]
+    public function getProperties();
 
     /**
      * Get all property names.
      *
      * @return list<string>
      */
-    public function getPropertyNames(): array;
+    #[\ReturnTypeWillChange]
+    public function getPropertyNames();
 
     /**
      * Add a property information to the definition.
@@ -57,7 +59,8 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
      *
      * @return PropertiesDefinitionInterface
      */
-    public function addProperty($property): static;
+    #[\ReturnTypeWillChange]
+    public function addProperty($property);
 
     /**
      * Remove a property information from the definition.
@@ -66,7 +69,8 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
      *
      * @return PropertiesDefinitionInterface
      */
-    public function removeProperty($property): static;
+    #[\ReturnTypeWillChange]
+    public function removeProperty($property);
 
     /**
      * Check if a property exists.
@@ -75,7 +79,8 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
      *
      * @return bool
      */
-    public function hasProperty($name): bool;
+    #[\ReturnTypeWillChange]
+    public function hasProperty($name);
 
     /**
      * Get a property by name.
@@ -84,5 +89,6 @@ interface PropertiesDefinitionInterface extends DefinitionInterface, \IteratorAg
      *
      * @return PropertyInterface
      */
-    public function getProperty($name): PropertyInterface;
+    #[\ReturnTypeWillChange]
+    public function getProperty($name);
 }
