@@ -51,7 +51,7 @@
     "symfony/event-dispatcher-contracts": "^3.0",
     "symfony/expression-language": "^7.4",
     "symfony/http-foundation": "^7.4",
-    "symfony/http-kernel": "7.4",
+    "symfony/http-kernel": "^7.4",
     "symfony/polyfill-mbstring": "^1.0",
     "symfony/routing": "^7.4",
     "symfony/security-bundle": "^7.4",
@@ -86,6 +86,11 @@
       "contao-components/installer": false,
       "contao/manager-plugin": false,
       "php-http/discovery": false
+    },
+    "audit": {
+      "ignore": [
+        "PKSA-dw7n-x7f5-zf63"
+      ]
     }
   },
   "extra": {
