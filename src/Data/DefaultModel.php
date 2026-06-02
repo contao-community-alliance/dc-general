@@ -182,7 +182,7 @@ class DefaultModel extends AbstractModel
     /**
      * Update all properties in the model.
      *
-     * @param array<string, mixed> $properties The property values as name => value pairs.
+     * @param array $properties The property values as name => value pairs.
      *
      * @return void
      */
@@ -194,7 +194,7 @@ class DefaultModel extends AbstractModel
         }
 
         foreach ($properties as $propertyName => $value) {
-            $this->setProperty($propertyName, $value);
+            $this->setProperty((string) $propertyName, $value);
         }
     }
 

@@ -24,18 +24,10 @@
     </MixedPropertyTypeCoercion>
   </file>
   <file src="src/Clipboard/Filter.php">
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$this->expression]]></code>
-    </MixedArgumentTypeCoercion>
     <MixedAssignment>
       <code><![CDATA[$action]]></code>
       <code><![CDATA[$action]]></code>
-      <code><![CDATA[$parentModelId]]></code>
-      <code><![CDATA[$parentModelId]]></code>
     </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[eval($this->compiled)]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Contao/Callback/AbstractReturningPropertyCallbackListener.php">
     <MixedAssignment>
@@ -62,9 +54,17 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/Callback/ModelLabelCallbackListener.php">
-    <InvalidArrayOffset>
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$updateArguments]]></code>
+    </MixedArgumentTypeCoercion>
+    <MixedArrayOffset>
       <code><![CDATA[$arguments[$propertyName]]]></code>
-    </InvalidArrayOffset>
+      <code><![CDATA[$updateArguments[$propertyName]]]></code>
+      <code><![CDATA[$updateArguments[$propertyName]]]></code>
+    </MixedArrayOffset>
+    <MixedArrayTypeCoercion>
+      <code><![CDATA[$arguments[$index]]]></code>
+    </MixedArrayTypeCoercion>
     <MixedAssignment>
       <code><![CDATA[$propertyName]]></code>
       <code><![CDATA[$propertyName]]></code>
@@ -303,15 +303,8 @@
   </file>
   <file src="src/Contao/Picker/PagePickerProvider.php">
     <MixedAssignment>
-      <code><![CDATA[$attributes['fieldType']]]></code>
-      <code><![CDATA[$attributes['preserveRecord']]]></code>
-      <code><![CDATA[$fieldType]]></code>
       <code><![CDATA[$rootNodes]]></code>
-      <code><![CDATA[$source]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$value]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/Picker/TreePickerProvider.php">
     <MixedAssignment>
@@ -350,9 +343,6 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/AbstractListShowAllHandler.php">
-    <ArgumentTypeCoercion>
-      <code><![CDATA[$ignoredPanels]]></code>
-    </ArgumentTypeCoercion>
     <MixedArgument>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$grouping['length']]]></code>
@@ -687,9 +677,6 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/BaseView.php">
-    <ArgumentTypeCoercion>
-      <code><![CDATA[$ignoredPanels]]></code>
-    </ArgumentTypeCoercion>
     <MixedArgument>
       <code><![CDATA[$input->getParameter('id')]]></code>
       <code><![CDATA[$input->getParameter('id')]]></code>
@@ -971,21 +958,11 @@
     </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Subscriber/MultipleHandlerSubscriber.php">
-    <MixedArgument>
-      <code><![CDATA[$model]]></code>
-      <code><![CDATA[$model::IS_CHANGED]]></code>
-      <code><![CDATA[$model::IS_CHANGED]]></code>
-      <code><![CDATA[$originalExtra['orderField']]]></code>
-    </MixedArgument>
     <MixedAssignment>
       <code><![CDATA[$isChanged]]></code>
       <code><![CDATA[$model]]></code>
       <code><![CDATA[$sessionModel]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$copiedExtra['orderField']]]></code>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Subscriber/WidgetBuilder.php">
     <MixedArgument>
@@ -1372,24 +1349,6 @@
       <code><![CDATA[list<string>]]></code>
     </MixedReturnTypeCoercion>
   </file>
-  <file src="src/Controller/BackendPickerController.php">
-    <MixedArgument>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table]]></code>
-      <code><![CDATA[$table = $picker->getConfig()->getExtra('sourceName')]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$table]]></code>
-    </MixedAssignment>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[[
-            $sessionBag->get($treeSelector->getSearchSessionKey()),
-            $treeSelector,
-            $picker
-        ]]]></code>
-      <code><![CDATA[array{0: string|list<string>, 1: TreePicker, 2: PickerInterface}]]></code>
-    </MixedReturnTypeCoercion>
-  </file>
   <file src="src/Controller/BackendTreeController.php">
     <MixedArgument>
       <code><![CDATA[$field]]></code>
@@ -1460,21 +1419,9 @@
     </MixedOperand>
   </file>
   <file src="src/Controller/TreeCollector.php">
-    <MixedArgument>
-      <code><![CDATA[$model::CHILD_COLLECTIONS]]></code>
-      <code><![CDATA[$model::HAS_CHILDREN]]></code>
-      <code><![CDATA[$model::SHOW_CHILDREN]]></code>
-      <code><![CDATA[$model::SHOW_CHILDREN]]></code>
-      <code><![CDATA[$model::SHOW_CHILDREN]]></code>
-      <code><![CDATA[$subTable]]></code>
-      <code><![CDATA[$subTable]]></code>
-    </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$this->getSorting()]]></code>
-    </MixedArgumentTypeCoercion>
-    <MixedAssignment>
-      <code><![CDATA[$subTable]]></code>
-    </MixedAssignment>
+    <MixedPropertyTypeCoercion>
+      <code><![CDATA[$sorting]]></code>
+    </MixedPropertyTypeCoercion>
   </file>
   <file src="src/Controller/TreeNodeStates.php">
     <MixedArrayAssignment>
@@ -1603,9 +1550,6 @@
     <MixedReturnStatement>
       <code><![CDATA[$this->mixID]]></code>
     </MixedReturnStatement>
-    <MoreSpecificImplementedParamType>
-      <code><![CDATA[$properties]]></code>
-    </MoreSpecificImplementedParamType>
   </file>
   <file src="src/Data/ModelId.php">
     <MixedAssignment>

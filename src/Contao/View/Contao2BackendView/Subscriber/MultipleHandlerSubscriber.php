@@ -27,6 +27,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\BuildWidgetEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DcGeneralEvents;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
@@ -261,13 +262,13 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $originalExtra = $copiedExtra = $originalProperty->getExtra();
 
         if (!empty($originalExtra['orderField'])) {
-            $orderId = \str_replace('::', '____', $modelId->getSerialized()) . '_' . $copiedExtra['orderField'];
+            $orderId = \str_replace('::', '____', $modelId->getSerialized()) . '_' . (string) $copiedExtra['orderField'];
 
             $copiedExtra['orderField'] = $orderId;
 
-            $isChanged = $model->getMeta($model::IS_CHANGED);
-            $model->setProperty($orderId, $model->getProperty($originalExtra['orderField']));
-            $model->setMeta($model::IS_CHANGED, $isChanged);
+            $isChanged = $model->getMeta(ModelInterface::IS_CHANGED);
+            $model->setProperty($orderId, $model->getProperty((string) $originalExtra['orderField']));
+            $model->setMeta(ModelInterface::IS_CHANGED, $isChanged);
         }
 
         $originalProperty->setExtra($copiedExtra);
@@ -321,7 +322,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
+        $session = $sessionStorage->get($dataDefinition->getName() . '.' . (string) $inputProvider->getParameter('mode'));
         if (!is_array($session) || !isset($session['models'])) {
             return;
         }
@@ -347,7 +348,7 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
             throw new DcGeneralException('Failed to find a model.');
         }
 
-        $modelId = ModelId::fromSerialized($model);
+        $modelId = ModelId::fromSerialized((string) $model);
 
         $event->getModel()->setId($modelId->getId());
     }

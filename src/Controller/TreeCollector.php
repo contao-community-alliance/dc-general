@@ -70,7 +70,7 @@ class TreeCollector implements EnvironmentAwareInterface
     /**
      * The sorting information.
      *
-     * @var array
+     * @var array<string, string>
      */
     private array $sorting;
 
@@ -125,7 +125,7 @@ class TreeCollector implements EnvironmentAwareInterface
     /**
      * Retrieve the sorting information.
      *
-     * @return array
+     * @return array<string, string>
      */
     public function getSorting()
     {
@@ -144,7 +144,7 @@ class TreeCollector implements EnvironmentAwareInterface
     {
         $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
         $model->setMeta(
-            $model::SHOW_CHILDREN,
+            ModelInterface::SHOW_CHILDREN,
             $this->states->isModelOpen($model->getProviderName(), $model->getId())
         );
     }
@@ -155,7 +155,7 @@ class TreeCollector implements EnvironmentAwareInterface
      * @param string                                    $parentProvider The name of the parent provider.
      * @param null|ModelRelationshipDefinitionInterface $relationships  The relationship information (optional).
      *
-     * @return array
+     * @return list<string>
      */
     private function getChildProvidersOf($parentProvider, $relationships = null)
     {
@@ -223,7 +223,7 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @param ModelInterface $model     The model to render.
      * @param int            $intLevel  The current level in the tree hierarchy.
-     * @param array          $subTables The names of data providers that shall be rendered "below" this item.
+     * @param list<string>   $subTables The names of data providers that shall be rendered "below" this item.
      *
      * @return void
      */
@@ -259,7 +259,7 @@ class TreeCollector implements EnvironmentAwareInterface
 
             if ($hasChildren) {
                 // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-                if (!$model->getMeta($model::SHOW_CHILDREN)) {
+                if (!$model->getMeta(ModelInterface::SHOW_CHILDREN)) {
                     break;
                 }
                 foreach ($childCollection as $childModel) {
@@ -274,11 +274,11 @@ class TreeCollector implements EnvironmentAwareInterface
         }
 
         // If expanded, store children.
-        if ($model->getMeta($model::SHOW_CHILDREN) && count($childCollections)) {
-            $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
+        if ($model->getMeta(ModelInterface::SHOW_CHILDREN) && count($childCollections)) {
+            $model->setMeta(ModelInterface::CHILD_COLLECTIONS, $childCollections);
         }
 
-        $model->setMeta($model::HAS_CHILDREN, $hasChildren);
+        $model->setMeta(ModelInterface::HAS_CHILDREN, $hasChildren);
     }
 
     /**

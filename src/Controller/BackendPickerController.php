@@ -128,8 +128,11 @@ final readonly class BackendPickerController
 
         $sessionBag->set($treeSelector->getSearchSessionKey(), $value);
 
+        /** @var string|list<string> $sessionValue */
+        $sessionValue = $sessionBag->get($treeSelector->getSearchSessionKey());
+
         return [
-            $sessionBag->get($treeSelector->getSearchSessionKey()),
+            $sessionValue,
             $treeSelector,
             $picker
         ];
@@ -138,7 +141,7 @@ final readonly class BackendPickerController
     /** @throws InvalidArgumentException If invalid characters in the data provider name. */
     private function prepareTreeSelector(PickerInterface $picker): TreePicker
     {
-        if (Validator::isInsecurePath($table = $picker->getConfig()->getExtra('sourceName'))) {
+        if (Validator::isInsecurePath($table = (string) $picker->getConfig()->getExtra('sourceName'))) {
             throw new InvalidArgumentException('The table name contains invalid characters');
         }
 

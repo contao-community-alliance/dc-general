@@ -129,11 +129,11 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
         $attributes = ['fieldType' => 'radio'];
 
         if ('page' === $config->getContext()) {
-            if ($fieldType = $config->getExtra('fieldType')) {
+            if ($fieldType = (string) $config->getExtra('fieldType')) {
                 $attributes['fieldType'] = $fieldType;
             }
 
-            if ($source = $config->getExtra('source')) {
+            if ($source = (string) $config->getExtra('source')) {
                 $attributes['preserveRecord'] = $source;
             }
 
@@ -169,7 +169,7 @@ class PagePickerProvider extends AbstractPickerProvider implements DcaPickerProv
             return (int) $value;
         }
 
-        return '{{link_url::' . $value . '}}';
+        return '{{link_url::' . (string) $value . '}}';
     }
 
     /**
