@@ -150,7 +150,10 @@ class FileTree extends AbstractWidget
         parent::__construct($attributes, $dataContainer);
 
         $this->allowedDownload =
-            ($attributes['allowedDownload'] ?? StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload'))));
+            (
+                $attributes['allowedDownload']
+                ?? StringUtil::trimsplit(',', \strtolower((string) Config::get('allowedDownload')))
+            );
 
         $this->setUp();
     }

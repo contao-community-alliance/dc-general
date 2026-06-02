@@ -39,8 +39,6 @@
       <code><![CDATA[$callback[0]]]></code>
       <code><![CDATA[$callback[0]]]></code>
       <code><![CDATA[$callback[0]]]></code>
-      <code><![CDATA[$callback[0]]]></code>
-      <code><![CDATA[$callback[0]]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$callback]]></code>
@@ -488,10 +486,6 @@
     </MixedMethodCall>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/SelectPropertyAllHandler.php">
-    <MixedArgument>
-      <code><![CDATA[$template->get('action')]]></code>
-      <code><![CDATA[$template->get('action')]]></code>
-    </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$session['intersectProperties']]]></code>
     </MixedArrayAccess>
@@ -553,8 +547,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/SelectHandler.php">
     <MixedArgument>
-      <code><![CDATA[$inputProvider->getParameter('select')]]></code>
-      <code><![CDATA[$inputProvider->getParameter('select')]]></code>
       <code><![CDATA[$session[$index]]]></code>
       <code><![CDATA[$session['intersectProperties']]]></code>
       <code><![CDATA[$session['intersectProperties']]]></code>
@@ -612,7 +604,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/BaseView.php">
     <MixedArgument>
-      <code><![CDATA[$input->getParameter('id')]]></code>
       <code><![CDATA[$input->getParameter('table')]]></code>
       <code><![CDATA[$inputProvider->getValue('name')]]></code>
       <code><![CDATA[$model ?? null]]></code>
@@ -675,7 +666,6 @@
       <code><![CDATA[$event->getError()]]></code>
       <code><![CDATA[$fields]]></code>
       <code><![CDATA[$item]]></code>
-      <code><![CDATA[$reflectionPropClass->getValue($widget)]]></code>
       <code><![CDATA[$strFormat]]></code>
       <code><![CDATA[$widget->value]]></code>
     </MixedArgument>
@@ -1064,7 +1054,6 @@
     <MixedArgument>
       <code><![CDATA[$content]]></code>
       <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[Config::get('allowedDownload')]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['BE_FFL']['fileSelector']]]></code>
@@ -1264,7 +1253,6 @@
     <MixedArgument>
       <code><![CDATA[$child['children']]]></code>
       <code><![CDATA[$child['property']]]></code>
-      <code><![CDATA[$child['property']]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$data]]></code>
@@ -1272,6 +1260,8 @@
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$child['children']]]></code>
+      <code><![CDATA[$child['property']]]></code>
+      <code><![CDATA[$child['property']]]></code>
       <code><![CDATA[$child['property']]]></code>
     </MixedArrayAccess>
     <MixedArrayAssignment>

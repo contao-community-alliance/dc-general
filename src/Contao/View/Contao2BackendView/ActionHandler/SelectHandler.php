@@ -167,7 +167,7 @@ class SelectHandler
             && $inputProvider->hasParameter('select')
             && !$inputProvider->hasValue('properties')
         ) {
-            return 'select' . ucfirst($inputProvider->getParameter('select'));
+            return 'select' . ucfirst((string) $inputProvider->getParameter('select'));
         }
 
         if (null !== ($action = $this->determineAction($environment))) {
@@ -179,7 +179,7 @@ class SelectHandler
         }
 
         return $inputProvider->getParameter('select') ?
-            'select' . ucfirst($inputProvider->getParameter('select')) : '';
+            'select' . ucfirst((string) $inputProvider->getParameter('select')) : '';
     }
 
     /**

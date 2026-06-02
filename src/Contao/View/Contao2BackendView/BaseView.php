@@ -456,7 +456,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
 
         if (true === ($input->hasParameter('id'))) {
             // Redefine the parameter id if this isn´t model id conform.
-            if (false === \strpos($input->getParameter('id'), '::')) {
+            if (false === \strpos((string) $input->getParameter('id'), '::')) {
                 $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
                 $input->setParameter('id', $modelId->getSerialized());
             }

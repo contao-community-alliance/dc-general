@@ -606,7 +606,10 @@ class ContaoWidgetManager
 
         $reflectionPropClass = new \ReflectionProperty(\get_class($widget), 'strClass');
         $reflectionPropClass->setAccessible(true);
-        $reflectionPropClass->setValue($widget, \str_replace('error', '', $reflectionPropClass->getValue($widget)));
+        $reflectionPropClass->setValue(
+            $widget,
+            \str_replace('error', '', (string) $reflectionPropClass->getValue($widget))
+        );
     }
 
     /**

@@ -186,7 +186,7 @@ class Callbacks
 
         if (
             $container->has($callback[0])
-            && ((false !== strpos($callback[0], '\\')) || !class_exists($callback[0]))
+            && ((false !== strpos((string) $callback[0], '\\')) || !class_exists((string) $callback[0]))
         ) {
             $callback[0] = $container->get($callback[0]);
 

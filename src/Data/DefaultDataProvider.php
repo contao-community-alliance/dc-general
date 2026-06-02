@@ -599,7 +599,7 @@ class DefaultDataProvider implements DataProviderInterface
         foreach ($filter as &$child) {
             if (
                 \array_key_exists('property', (array) $child)
-                && (false === \strpos($child['property'], $this->source . '.'))
+                && (false === \strpos((string) $child['property'], $this->source . '.'))
                 && $this->fieldExists($child['property'])
             ) {
                 $child['property'] = $this->source . '.' . $child['property'];
