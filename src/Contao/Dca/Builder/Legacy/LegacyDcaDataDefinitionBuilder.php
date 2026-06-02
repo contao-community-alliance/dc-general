@@ -854,7 +854,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $definitions = $view->getListingConfig()->getGroupAndSortingDefinition();
 
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-            $this->parsePropertySortingAndGrouping($propName, $propInfo, $definitions, $parsedProperties);
+            $this->parsePropertySortingAndGrouping((string) $propName, $propInfo, $definitions, $parsedProperties);
         }
     }
 
@@ -1224,7 +1224,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach (array_keys($operationsDca) as $operationName) {
-            $command = $this->createCommand($operationName, $operationsDca[$operationName]);
+            $command = $this->createCommand((string) $operationName, $operationsDca[$operationName]);
             $collection->addCommand($command);
         }
     }
@@ -1251,7 +1251,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 continue;
             }
             assert(is_array($operationDca));
-            $command = $this->createCommand($operationName, $operationDca);
+            $command = $this->createCommand((string) $operationName, $operationDca);
             $collection->addCommand($command);
         }
     }
@@ -1521,10 +1521,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-            if ($definition->hasProperty($propName)) {
-                $property = $definition->getProperty($propName);
+            if ($definition->hasProperty((string) $propName)) {
+                $property = $definition->getProperty((string) $propName);
             } else {
-                $property = new DefaultProperty($propName);
+                $property = new DefaultProperty((string) $propName);
                 $definition->addProperty($property);
             }
 

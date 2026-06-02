@@ -225,7 +225,7 @@ class ClipboardController implements EventSubscriberInterface
         parse_str($url->getQueryString() ?? '', $parameters);
         foreach ($parameters as $name => $value) {
             if ('' === $value) {
-                $url->unsetQueryParameter($name);
+                $url->unsetQueryParameter((string) $name);
             }
         }
 

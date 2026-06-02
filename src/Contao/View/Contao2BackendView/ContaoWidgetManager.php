@@ -572,7 +572,7 @@ class ContaoWidgetManager
         assert($dispatcher instanceof EventDispatcherInterface);
 
         foreach ($propertyErrors as $property => $errors) {
-            $widget = $this->getWidget($property);
+            $widget = $this->getWidget((string) $property);
             assert($widget instanceof Widget);
 
             foreach ($errors as $error) {

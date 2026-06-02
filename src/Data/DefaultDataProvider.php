@@ -790,7 +790,7 @@ class DefaultDataProvider implements DataProviderInterface
                 continue;
             }
 
-            $model->setProperty($key, $value);
+            $model->setProperty((string) $key, $value);
         }
 
         return $model;

@@ -202,13 +202,7 @@
       <code><![CDATA[$value]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
-      <code><![CDATA[$operationName]]></code>
-      <code><![CDATA[$operationName]]></code>
       <code><![CDATA[$palettesDefinitionArray]]></code>
-      <code><![CDATA[$propName]]></code>
-      <code><![CDATA[$propName]]></code>
-      <code><![CDATA[$propName]]></code>
-      <code><![CDATA[$propName]]></code>
       <code><![CDATA[$subPalettesDefinitionArray]]></code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
@@ -509,9 +503,6 @@
       <code><![CDATA[$template->get('action')]]></code>
       <code><![CDATA[$template->get('action')]]></code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$messageType]]></code>
-    </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$session['intersectProperties']]]></code>
     </MixedArrayAccess>
@@ -705,9 +696,6 @@
       <code><![CDATA[$strFormat]]></code>
       <code><![CDATA[$widget->value]]></code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$property]]></code>
-    </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format']]]></code>
       <code><![CDATA[$sessionStorage->get($modelId->getDataProviderName() . '.edit')['properties']]]></code>
@@ -738,9 +726,6 @@
       <code><![CDATA[$modelIdRaw]]></code>
       <code><![CDATA[$parentIdRaw]]></code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$name]]></code>
-    </MixedArgumentTypeCoercion>
     <MixedAssignment>
       <code><![CDATA[$clipboardId]]></code>
       <code><![CDATA[$inputAction]]></code>
@@ -1141,9 +1126,6 @@
       <code><![CDATA[$varInput]]></code>
       <code><![CDATA[Config::get('allowedDownload')]]></code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$uuid]]></code>
-    </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['BE_FFL']['fileSelector']]]></code>
       <code><![CDATA[$GLOBALS['TL_DCA'][$dataContainer->getName()]]]></code>
@@ -1157,7 +1139,7 @@
       <code><![CDATA[$content]]></code>
       <code><![CDATA[$icon]]></code>
       <code><![CDATA[$ordered[$iconKey]]]></code>
-      <code><![CDATA[$ordered[\md5($uuid)]]]></code>
+      <code><![CDATA[$ordered[\md5((string) $uuid)]]]></code>
       <code><![CDATA[$propertyName]]></code>
       <code><![CDATA[$this->allowedDownload]]></code>
       <code><![CDATA[$this->placeholderImage]]></code>
@@ -1315,10 +1297,6 @@
       <code><![CDATA[$groupingField]]></code>
       <code><![CDATA[$groupingField]]></code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$propName]]></code>
-      <code><![CDATA[$propName]]></code>
-    </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$action['item']]]></code>
       <code><![CDATA[$action['model']]]></code>
@@ -1398,7 +1376,6 @@
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$data]]></code>
       <code><![CDATA[$data]]></code>
-      <code><![CDATA[$key]]></code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$child['children']]]></code>
@@ -1749,12 +1726,6 @@
       <code><![CDATA[$this->getInputProvider($environment)->getParameter('pid')]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
-      <code><![CDATA[$intersectProperty]]></code>
-      <code><![CDATA[$intersectProperty]]></code>
-      <code><![CDATA[$intersectProperty]]></code>
-      <code><![CDATA[$intersectProperty]]></code>
-      <code><![CDATA[$intersectProperty]]></code>
-      <code><![CDATA[$intersectProperty]]></code>
       <code><![CDATA[['%parent_property%' => $labelParentProperty, '%edit_property%' => $labelEditProperty]]]></code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>

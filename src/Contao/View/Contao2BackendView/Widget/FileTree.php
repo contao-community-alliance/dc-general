@@ -487,7 +487,7 @@ class FileTree extends AbstractWidget
             }
 
             foreach ($icons as $uuid => $icon) {
-                $ordered[\md5($uuid)] = $icon;
+                $ordered[\md5((string) $uuid)] = $icon;
             }
 
             $icons = $ordered;

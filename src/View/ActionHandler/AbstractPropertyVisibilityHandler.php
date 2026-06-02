@@ -748,9 +748,9 @@ abstract class AbstractPropertyVisibilityHandler
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
             if (
                 ($idProperty === $intersectProperty)
-                || !$propertiesDefinition->hasProperty($intersectProperty)
+                || !$propertiesDefinition->hasProperty((string) $intersectProperty)
                 || (false === $this->useIntersectValue(
-                    $intersectProperty,
+                    (string) $intersectProperty,
                     $legendPropertyNames,
                     $environment,
                     $defaultPalette
@@ -759,13 +759,16 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            if ($inputProvider->hasValue($intersectProperty)) {
-                $intersectModel->setProperty($intersectProperty, $inputProvider->getValue($intersectProperty));
+            if ($inputProvider->hasValue((string) $intersectProperty)) {
+                $intersectModel->setProperty(
+                    (string) $intersectProperty,
+                    $inputProvider->getValue((string) $intersectProperty)
+                );
 
                 continue;
             }
 
-            $intersectModel->setProperty($intersectProperty, $intersectValue);
+            $intersectModel->setProperty((string) $intersectProperty, $intersectValue);
         }
 
         $this->intersectModelSetPrimaryId($action, $intersectModel, $idProperty, $environment);

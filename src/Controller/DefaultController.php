@@ -461,11 +461,11 @@ class DefaultController implements ControllerInterface
 
         foreach (array_keys($clone->getPropertiesAsArray()) as $propName) {
             // If the property is not known, remove it.
-            if (!$properties->hasProperty($propName)) {
+            if (!$properties->hasProperty((string) $propName)) {
                 continue;
             }
 
-            $property = $properties->getProperty($propName);
+            $property = $properties->getProperty((string) $propName);
             $this->handleClonedModelProperty($clone, $property, $dataProvider);
         }
 

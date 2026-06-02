@@ -434,7 +434,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
 
         if (\count($this->messages) > 0) {
             foreach (\array_keys($this->messages) as $messageType) {
-                $template->set($messageType, $this->messages[$messageType]);
+                $template->set((string) $messageType, $this->messages[$messageType]);
             }
         }
     }
