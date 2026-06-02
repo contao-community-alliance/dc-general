@@ -277,7 +277,7 @@ class ClipboardController implements EventSubscriberInterface
 
         $parentIdRaw = $input->getParameter('pid');
         if ($parentIdRaw) {
-            $parentId = ModelId::fromSerialized($parentIdRaw);
+            $parentId = ModelId::fromSerialized((string) $parentIdRaw);
         } else {
             $parentId = null;
         }
@@ -303,7 +303,7 @@ class ClipboardController implements EventSubscriberInterface
             $clipboard->clear();
         } else {
             $modelIdRaw = $input->getParameter('source');
-            $modelId    = ModelId::fromSerialized($modelIdRaw);
+            $modelId    = ModelId::fromSerialized((string) $modelIdRaw);
 
             // If edit several don´t remove items from the clipboard.
             $this->removeItemsFromClipboard($event);

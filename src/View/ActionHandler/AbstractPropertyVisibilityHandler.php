@@ -882,7 +882,7 @@ abstract class AbstractPropertyVisibilityHandler
         if (null !== $parentField) {
             $intersectModel->setProperty(
                 $parentField,
-                ModelId::fromSerialized($this->getInputProvider($environment)->getParameter('pid'))
+                ModelId::fromSerialized((string) $this->getInputProvider($environment)->getParameter('pid'))
                     ->getId()
             );
         }

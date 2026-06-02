@@ -169,7 +169,7 @@ class TreeSelect
 
         $model = $dataProvider->getEmptyModel();
         if ($inputProvider->getParameter('id')) {
-            $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+            $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
             $model   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
             assert($model instanceof ModelInterface);
         }

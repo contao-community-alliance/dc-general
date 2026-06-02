@@ -441,7 +441,6 @@
       <code><![CDATA[$clipboardItem]]></code>
       <code><![CDATA[$clipboardItem->getModelId()]]></code>
       <code><![CDATA[$collectionItem]]></code>
-      <code><![CDATA[$collectionItem['pasteAfter']]]></code>
       <code><![CDATA[$collectionItem['pasteMode']]]></code>
       <code><![CDATA[$collectionItem['pasteMode']]]></code>
       <code><![CDATA[$collectionItem['pasteMode']]]></code>
@@ -524,7 +523,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/ParentedListViewShowAllHandler.php">
     <MixedArgument>
-      <code><![CDATA[$inputProvider->getParameter('pid')]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value ?? '']]></code>
@@ -558,7 +556,6 @@
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/PasteHandler.php">
     <MixedArgument>
       <code><![CDATA[$item]]></code>
-      <code><![CDATA[$value]]></code>
     </MixedArgument>
     <MixedAssignment>
       <code><![CDATA[$item]]></code>
@@ -569,7 +566,6 @@
     <MixedArgument>
       <code><![CDATA[$inputProvider->getParameter('select')]]></code>
       <code><![CDATA[$inputProvider->getParameter('select')]]></code>
-      <code><![CDATA[$modelId]]></code>
       <code><![CDATA[$session[$index]]]></code>
       <code><![CDATA[$session['intersectProperties']]]></code>
       <code><![CDATA[$session['intersectProperties']]]></code>
@@ -627,7 +623,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/BaseView.php">
     <MixedArgument>
-      <code><![CDATA[$input->getParameter('id')]]></code>
       <code><![CDATA[$input->getParameter('id')]]></code>
       <code><![CDATA[$input->getParameter('table')]]></code>
       <code><![CDATA[$inputProvider->getValue('name')]]></code>
@@ -723,8 +718,6 @@
   <file src="src/Contao/View/Contao2BackendView/Controller/ClipboardController.php">
     <MixedArgument>
       <code><![CDATA[$clipboardId]]></code>
-      <code><![CDATA[$modelIdRaw]]></code>
-      <code><![CDATA[$parentIdRaw]]></code>
     </MixedArgument>
     <MixedAssignment>
       <code><![CDATA[$clipboardId]]></code>
@@ -744,8 +737,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/EditMask.php">
     <MixedArgument>
-      <code><![CDATA[$inputProvider->getParameter('after')]]></code>
-      <code><![CDATA[$inputProvider->getParameter('into')]]></code>
       <code><![CDATA[$legendStates]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
@@ -769,7 +760,6 @@
   <file src="src/Contao/View/Contao2BackendView/FileSelect.php">
     <MixedArgument>
       <code><![CDATA[$GLOBALS['TL_LANG']['MSC']['treepicker']]]></code>
-      <code><![CDATA[$inputProvider->getParameter('id')]]></code>
       <code><![CDATA[$inputProvider->getParameter('value')]]></code>
       <code><![CDATA[$modelId->getDataProviderName()
                 ? $sessionStorage->get('CURRENT_ID') : $inputProvider->getParameter('id')]]></code>
@@ -841,7 +831,6 @@
     <MixedArgument>
       <code><![CDATA[$currentLanguage]]></code>
       <code><![CDATA[$currentLanguage]]></code>
-      <code><![CDATA[$inputProvider->getParameter('id')]]></code>
       <code><![CDATA[$inputProvider->getValue('language')]]></code>
       <code><![CDATA[$newLanguage]]></code>
       <code><![CDATA[Environment::get('request')]]></code>
@@ -864,7 +853,7 @@
       <code><![CDATA[$session['ml_support'][$providerName]]]></code>
     </MixedAssignment>
     <MixedReturnStatement>
-      <code><![CDATA[ModelId::fromSerialized($inputProvider->getParameter('id'))->getId()]]></code>
+      <code><![CDATA[ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getId()]]></code>
     </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/GlobalButtonRenderer.php">
@@ -1025,7 +1014,6 @@
       <code><![CDATA[$GLOBALS['TL_LANG']['MSC']['treepicker']]]></code>
       <code><![CDATA[$information['eval']]]></code>
       <code><![CDATA[$inputField]]></code>
-      <code><![CDATA[$inputProvider->getParameter('id')]]></code>
       <code><![CDATA[$inputProvider->getParameter('value')]]></code>
       <code><![CDATA[$inputProvider->getValue('action')]]></code>
       <code><![CDATA[$inputTable]]></code>
@@ -1580,8 +1568,6 @@
   <file src="src/View/ActionHandler/AbstractPropertyOverrideEditAllHandler.php">
     <MixedArgument>
       <code><![CDATA[$model->getId()]]></code>
-      <code><![CDATA[$modelId]]></code>
-      <code><![CDATA[$modelId]]></code>
       <code><![CDATA[$property->getName()]]></code>
       <code><![CDATA[$property->getName()]]></code>
       <code><![CDATA[$renderInformation->offsetGet('error')]]></code>
@@ -1633,7 +1619,6 @@
       <code><![CDATA[$parentField]]></code>
       <code><![CDATA[$session['intersectValues']]]></code>
       <code><![CDATA[$setter]]></code>
-      <code><![CDATA[$this->getInputProvider($environment)->getParameter('pid')]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[['%parent_property%' => $labelParentProperty, '%edit_property%' => $labelEditProperty]]]></code>

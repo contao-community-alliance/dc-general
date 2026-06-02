@@ -151,7 +151,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $pidDetails = ModelId::fromSerialized($inputProvider->getParameter('pid'));
+        $pidDetails = ModelId::fromSerialized((string) $inputProvider->getParameter('pid'));
 
         if (!($provider = $environment->getDataProvider($pidDetails->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(

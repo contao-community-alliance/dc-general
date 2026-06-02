@@ -231,7 +231,7 @@ class PasteHandler
     private function modelIdFromParameter(InputProviderInterface $input, $name)
     {
         if ($input->hasParameter($name) && ($value = $input->getParameter($name))) {
-            return ModelId::fromSerialized($value);
+            return ModelId::fromSerialized((string) $value);
         }
 
         return null;

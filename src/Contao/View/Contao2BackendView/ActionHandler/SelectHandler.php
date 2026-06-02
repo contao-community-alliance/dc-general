@@ -638,7 +638,7 @@ class SelectHandler
 
         $modelIds = [];
         foreach (($session['models'] ?? []) as $modelId) {
-            $modelIds[] = ModelId::fromSerialized($modelId)->getId();
+            $modelIds[] = ModelId::fromSerialized((string) $modelId)->getId();
         }
         if ([] === $modelIds) {
             return $dataProvider->getEmptyCollection();

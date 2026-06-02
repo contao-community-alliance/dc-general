@@ -642,7 +642,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $modelIds = [];
         foreach (($session['models'] ?? []) as $modelId) {
-            $modelIds[] = ModelId::fromSerialized($modelId)->getId();
+            $modelIds[] = ModelId::fromSerialized((string) $modelId)->getId();
 
             if ($addEditProperties) {
                 $transformed         = \str_replace('::', '____', (string) $modelId) . '_';
@@ -841,7 +841,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $selectPropertyNames = [];
         foreach (($session['properties'] ?? []) as $modelId) {
-            $selectPropertyNames[] = ModelId::fromSerialized($modelId)->getId();
+            $selectPropertyNames[] = ModelId::fromSerialized((string) $modelId)->getId();
         }
 
         $properties = [];

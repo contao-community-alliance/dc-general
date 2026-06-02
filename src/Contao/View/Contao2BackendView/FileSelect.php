@@ -122,7 +122,7 @@ class FileSelect
 
         $ajax = $this->runAjaxRequest();
 
-        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
 
         $this->setupItemContainer($modelId);
 

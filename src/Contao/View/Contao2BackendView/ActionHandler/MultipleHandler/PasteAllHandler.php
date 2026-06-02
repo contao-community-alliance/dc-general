@@ -453,7 +453,7 @@ class PasteAllHandler
             return;
         }
 
-        $pasteAfterId = ModelId::fromSerialized($collectionItem['pasteAfter']);
+        $pasteAfterId = ModelId::fromSerialized((string) $collectionItem['pasteAfter']);
         if ($pasteAfterId->getId() !== $this->originalModel->getID()) {
             $inputProvider->setParameter($collectionItem['pasteMode'], $collectionItem['pasteAfter']);
 

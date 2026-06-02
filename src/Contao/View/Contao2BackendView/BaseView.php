@@ -460,7 +460,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
                 $input->setParameter('id', $modelId->getSerialized());
             }
-            $modelId      = ModelId::fromSerialized($input->getParameter('id'));
+            $modelId      = ModelId::fromSerialized((string) $input->getParameter('id'));
             $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
             assert($dataProvider instanceof DataProviderInterface);
 

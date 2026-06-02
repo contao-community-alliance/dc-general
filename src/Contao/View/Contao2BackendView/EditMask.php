@@ -838,7 +838,7 @@ class EditMask
             assert(\is_string($manualSortingProperty));
 
             if ($inputProvider->hasParameter('after')) {
-                $after = ModelId::fromSerialized($inputProvider->getParameter('after'));
+                $after = ModelId::fromSerialized((string) $inputProvider->getParameter('after'));
 
                 $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
                 assert($previousDataProvider instanceof DataProviderInterface);
@@ -853,7 +853,7 @@ class EditMask
                     $controller->pasteTop($models, $manualSortingProperty);
                 }
             } elseif ($inputProvider->hasParameter('into')) {
-                $into = ModelId::fromSerialized($inputProvider->getParameter('into'));
+                $into = ModelId::fromSerialized((string) $inputProvider->getParameter('into'));
 
                 $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
                 assert($parentDataProvider instanceof DataProviderInterface);

@@ -216,7 +216,7 @@ class LanguageFilter implements EventSubscriberInterface
     private function modelIdFromInput(InputProviderInterface $inputProvider)
     {
         if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            return ModelId::fromSerialized($inputProvider->getParameter('id'))->getId();
+            return ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getId();
         }
 
         return null;
