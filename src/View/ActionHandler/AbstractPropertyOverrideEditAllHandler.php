@@ -224,7 +224,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     private function resetPropertyValueErrors(PropertyValueBagInterface $propertyValueBag)
     {
         foreach (\array_keys($propertyValueBag->getInvalidPropertyErrors()) as $errorProperty) {
-            $propertyValueBag->resetPropertyValueErrors($errorProperty);
+            $propertyValueBag->resetPropertyValueErrors((string) $errorProperty);
         }
     }
 
@@ -324,28 +324,28 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionProperties = $this->getPropertiesFromSession($action, $environment);
 
         foreach (\array_keys($sessionProperties) as $sessionPropertyName) {
-            if (!$sourceBag->hasPropertyValue($sessionPropertyName)) {
+            if (!$sourceBag->hasPropertyValue((string) $sessionPropertyName)) {
                 continue;
             }
 
-            if (!$updateBag->isPropertyValueInvalid($sessionPropertyName)) {
+            if (!$updateBag->isPropertyValueInvalid((string) $sessionPropertyName)) {
                 $editModel = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($model->getId()));
                 assert($editModel instanceof ModelInterface);
 
                 $updateBag->setPropertyValue(
-                    $sessionPropertyName,
-                    $editModel->getProperty($sessionPropertyName)
+                    (string) $sessionPropertyName,
+                    $editModel->getProperty((string) $sessionPropertyName)
                 );
             }
 
-            if ($updateBag->isPropertyValueInvalid($sessionPropertyName)) {
+            if ($updateBag->isPropertyValueInvalid((string) $sessionPropertyName)) {
                 continue;
             }
 
             $updateBag->markPropertyValueAsInvalid(
-                $sessionPropertyName,
+                (string) $sessionPropertyName,
                 $sourceBag->getPropertyValueErrors(
-                    $sessionPropertyName
+                    (string) $sessionPropertyName
                 )
             );
         }
@@ -450,7 +450,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                     $inputProvider->setValue($valueName, \array_keys($editProperties));
 
                     foreach (\array_keys($editProperties) as $editPropertyName) {
-                        $inputProvider->setValue($editPropertyName, $editProperties[$editPropertyName]);
+                        $inputProvider->setValue((string) $editPropertyName, $editProperties[$editPropertyName]);
                     }
 
                     break;
@@ -491,11 +491,14 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         unset($_POST);
         foreach (\array_keys($inputValues) as $postName) {
-            $inputProvider->setValue($postName, $inputValues[$postName]);
+            $inputProvider->setValue((string) $postName, $inputValues[$postName]);
         }
 
         foreach (\array_keys($editProperties) as $editedPropertyName) {
-            $propertyValueBag->setPropertyValue($editedPropertyName, $model->getProperty($editedPropertyName));
+            $propertyValueBag->setPropertyValue(
+                (string) $editedPropertyName,
+                $model->getProperty((string) $editedPropertyName)
+            );
         }
     }
 
@@ -586,11 +589,11 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $propertyValueBag = new PropertyValueBag();
 
         foreach ($model->getPropertiesAsArray() as $propertyName => $propertyValue) {
-            if (!$propertiesDefinition->hasProperty($propertyName)) {
+            if (!$propertiesDefinition->hasProperty((string) $propertyName)) {
                 continue;
             }
 
-            $property = $propertiesDefinition->getProperty($propertyName);
+            $property = $propertiesDefinition->getProperty((string) $propertyName);
             if (!$property->getWidgetType()) {
                 continue;
             }
@@ -599,13 +602,13 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             if ($modelError && isset($modelError[$propertyName])) {
                 $sessionValues = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
 
-                $propertyValueBag->setPropertyValue($propertyName, $sessionValues[$propertyName]);
-                $propertyValueBag->markPropertyValueAsInvalid($propertyName, $modelError[$propertyName]);
+                $propertyValueBag->setPropertyValue((string) $propertyName, $sessionValues[$propertyName]);
+                $propertyValueBag->markPropertyValueAsInvalid((string) $propertyName, $modelError[$propertyName]);
 
                 continue;
             }
 
-            $propertyValueBag->setPropertyValue($propertyName, $propertyValue);
+            $propertyValueBag->setPropertyValue((string) $propertyName, $propertyValue);
         }
 
         return $propertyValueBag;

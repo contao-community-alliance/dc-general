@@ -72,7 +72,11 @@ class CreateSubHeadlineListener
         if ($status !== $headline) {
             $subHeadline = $headline;
         } else {
-            $subHeadline = $translator->translate($status, 'dc-general', ['%id%' => (string) $event->getModel()->getId()]);
+            $subHeadline = $translator->translate(
+                $status,
+                'dc-general',
+                ['%id%' => (string) $event->getModel()->getId()]
+            );
         }
 
         $event->setHeadline($subHeadline);

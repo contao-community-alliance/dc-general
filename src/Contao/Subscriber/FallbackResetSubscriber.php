@@ -114,12 +114,11 @@ class FallbackResetSubscriber implements EventSubscriberInterface
         $properties = $definition->getPropertiesDefinition();
 
         foreach (\array_keys($model->getPropertiesAsArray()) as $propertyName) {
-            $propertyName = (string) $propertyName;
-            if (!$properties->hasProperty($propertyName)) {
+            if (!$properties->hasProperty((string) $propertyName)) {
                 continue;
             }
 
-            $property = $properties->getProperty($propertyName);
+            $property = $properties->getProperty((string) $propertyName);
             $extra    = $property->getExtra();
 
             if (\array_key_exists('fallback', $extra) && (true === $extra['fallback'])) {
@@ -133,13 +132,13 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                     );
                     // phpcs:enable
                     /** @psalm-suppress DeprecatedMethod */
-                    $dataProvider->resetFallback($propertyName);
+                    $dataProvider->resetFallback((string) $propertyName);
                     $dataProvider->save($model);
                     continue;
                 }
 
                 // If value is empty, no need to reset the fallback.
-                if (!$model->getProperty($propertyName)) {
+                if (!$model->getProperty((string) $propertyName)) {
                     continue;
                 }
 
@@ -154,7 +153,7 @@ class FallbackResetSubscriber implements EventSubscriberInterface
                         continue;
                     }
 
-                    $resetModel->setProperty($propertyName, ModelManipulator::sanitizeValue($property, null));
+                    $resetModel->setProperty((string) $propertyName, ModelManipulator::sanitizeValue($property, null));
                     $dataProvider->save($resetModel);
                 }
             }

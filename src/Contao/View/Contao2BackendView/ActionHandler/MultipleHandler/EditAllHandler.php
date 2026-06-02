@@ -324,7 +324,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 }
                 $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
                 foreach ($editErrors as $propName => $errors) {
-                    $rawValues->markPropertyValueAsInvalid($propName, $errors);
+                    $rawValues->markPropertyValueAsInvalid((string) $propName, $errors);
                 }
 
                 $this->markEditErrors($editProperty, $selectProperty, $rawValues);
@@ -387,15 +387,15 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $propertyValueBag = new PropertyValueBag();
 
         foreach (\array_keys($selectProperties) as $visiblePropertyName) {
-            $visiblePropertyValue = $editModel->getProperty($visiblePropertyName);
+            $visiblePropertyValue = $editModel->getProperty((string) $visiblePropertyName);
 
-            $propertyValueBag->setPropertyValue($visiblePropertyName, $visiblePropertyValue);
+            $propertyValueBag->setPropertyValue((string) $visiblePropertyName, $visiblePropertyValue);
 
             $visibleModel->setProperty(
-                $visiblePropertyName,
+                (string) $visiblePropertyName,
                 $widgetManager->encodeValue(
-                    $visiblePropertyName,
-                    $widgetManager->decodeValue($visiblePropertyName, $visiblePropertyValue),
+                    (string) $visiblePropertyName,
+                    $widgetManager->decodeValue((string) $visiblePropertyName, $visiblePropertyValue),
                     $propertyValueBag
                 )
             );

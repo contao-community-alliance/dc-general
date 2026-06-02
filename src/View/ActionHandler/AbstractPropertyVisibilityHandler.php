@@ -348,8 +348,7 @@ abstract class AbstractPropertyVisibilityHandler
         $invisibleProperty       = false;
         $paletteSelectorProperty = $propertiesDefinition->getProperty($selectorProperty->getName());
         foreach (array_keys($paletteSelectorProperty->getOptions() ?? []) as $paletteName) {
-            $paletteName = (string) $paletteName;
-            if (!$palettesDefinition->hasPaletteByName($paletteName)) {
+            if (!$palettesDefinition->hasPaletteByName((string) $paletteName)) {
                 continue;
             }
 
@@ -357,7 +356,7 @@ abstract class AbstractPropertyVisibilityHandler
                 $property,
                 $intersectModel,
                 $selectorProperty,
-                $paletteName,
+                (string) $paletteName,
                 $environment
             );
 

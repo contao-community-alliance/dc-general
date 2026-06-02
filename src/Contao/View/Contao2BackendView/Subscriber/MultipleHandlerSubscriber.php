@@ -262,7 +262,8 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $originalExtra = $copiedExtra = $originalProperty->getExtra();
 
         if (!empty($originalExtra['orderField'])) {
-            $orderId = \str_replace('::', '____', $modelId->getSerialized()) . '_' . (string) $copiedExtra['orderField'];
+            $orderId = \str_replace('::', '____', $modelId->getSerialized())
+                . '_' . (string) $copiedExtra['orderField'];
 
             $copiedExtra['orderField'] = $orderId;
 
@@ -322,7 +323,9 @@ class MultipleHandlerSubscriber implements EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $session = $sessionStorage->get($dataDefinition->getName() . '.' . (string) $inputProvider->getParameter('mode'));
+        $session = $sessionStorage->get(
+            $dataDefinition->getName() . '.' . (string) $inputProvider->getParameter('mode')
+        );
         if (!is_array($session) || !isset($session['models'])) {
             return;
         }

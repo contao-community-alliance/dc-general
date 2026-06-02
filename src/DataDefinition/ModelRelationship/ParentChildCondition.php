@@ -292,7 +292,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             }
 
             if (isset($setter['from_field'])) {
-                $objChild->setProperty((string) $setter['to_field'], $objParent->getProperty((string) $setter['from_field']));
+                $objChild->setProperty(
+                    (string) $setter['to_field'],
+                    $objParent->getProperty((string) $setter['from_field'])
+                );
 
                 continue;
             }

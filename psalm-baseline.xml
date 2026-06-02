@@ -384,12 +384,6 @@
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$fields]]></code>
-      <code><![CDATA[$propName]]></code>
-      <code><![CDATA[$visiblePropertyName]]></code>
-      <code><![CDATA[$visiblePropertyName]]></code>
-      <code><![CDATA[$visiblePropertyName]]></code>
-      <code><![CDATA[$visiblePropertyName]]></code>
-      <code><![CDATA[$visiblePropertyName]]></code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$fieldSets[$index]['class']]]></code>
@@ -1707,25 +1701,6 @@
       <code><![CDATA[Environment::get('request')]]></code>
       <code><![CDATA[Environment::get('request')]]></code>
     </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$editPropertyName]]></code>
-      <code><![CDATA[$editedPropertyName]]></code>
-      <code><![CDATA[$editedPropertyName]]></code>
-      <code><![CDATA[$errorProperty]]></code>
-      <code><![CDATA[$postName]]></code>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$sessionPropertyName]]></code>
-      <code><![CDATA[$sessionPropertyName]]></code>
-      <code><![CDATA[$sessionPropertyName]]></code>
-      <code><![CDATA[$sessionPropertyName]]></code>
-      <code><![CDATA[$sessionPropertyName]]></code>
-      <code><![CDATA[$sessionPropertyName]]></code>
-      <code><![CDATA[$sessionPropertyName]]></code>
-    </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$session['editProperties'][$modelId->getSerialized()]]]></code>
     </MixedArrayAccess>
