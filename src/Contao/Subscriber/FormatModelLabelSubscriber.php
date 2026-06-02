@@ -69,7 +69,11 @@ class FormatModelLabelSubscriber
         $properties    = $dataDefinition->getPropertiesDefinition();
         $formatter     = $listing->getLabelFormatter($model->getProviderName());
         $sorting       = ViewHelpers::getGroupingMode($environment);
-        $firstSorting  = $this->getFirstSorting(($sorting['sorting'] ?? null));
+        $sortingValue  = $sorting['sorting'] ?? null;
+        $firstSorting  = $this->getFirstSorting(
+            $sortingValue instanceof GroupAndSortingDefinitionInterface ? $sortingValue : null
+        );
+        /** @var list<string> $propertyNames */
         $propertyNames = $formatter->getPropertyNames();
 
         $modelToLabelEvent = new ModelToLabelEvent($environment, $model);

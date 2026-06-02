@@ -234,11 +234,13 @@ class Palette implements PaletteInterface
             $hashes   = \array_keys($this->legends);
             $position = \array_search($beforeHash, $hashes);
 
-            $this->legends = \array_merge(
+            /** @var array<string, LegendInterface> $merged */
+            $merged        = \array_merge(
                 \array_slice($this->legends, 0, (int) $position),
                 [$hash => $legend],
                 \array_slice($this->legends, (int) $position)
             );
+            $this->legends = $merged;
 
             $legend->setPalette($this);
             return $this;
@@ -313,7 +315,7 @@ class Palette implements PaletteInterface
     #[\Override]
     public function __clone()
     {
-        /** @var Legend[] $legends */
+        /** @var array<string, LegendInterface> $legends */
         $legends = [];
         foreach ($this->legends as $legend) {
             $bobaFett = clone $legend;

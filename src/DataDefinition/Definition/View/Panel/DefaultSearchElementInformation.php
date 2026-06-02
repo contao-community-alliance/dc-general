@@ -34,7 +34,7 @@ class DefaultSearchElementInformation implements SearchElementInformationInterfa
     /**
      * The property names to search on.
      *
-     * @var array
+     * @var list<string>
      */
     protected array $properties = [];
 

@@ -60,7 +60,7 @@ class PropertyValueInFilterBuilder extends BaseFilterBuilder
     /**
      * Initialize an instance with the values from the given array.
      *
-     * @param array $array The initialization array.
+     * @param array{value: mixed, property: string} $array The initialization array.
      *
      * @return static
      *

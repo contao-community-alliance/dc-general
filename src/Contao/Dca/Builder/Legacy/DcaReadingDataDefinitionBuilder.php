@@ -41,7 +41,7 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
     /**
      * Buffer for the DCA.
      *
-     * @var array|null
+     * @var array<array-key, mixed>|null
      */
     protected $dca = null;
 
@@ -64,7 +64,7 @@ abstract class DcaReadingDataDefinitionBuilder extends AbstractEventDrivenDataDe
             ->dispatch(new LoadDataContainerEvent($dcaName, false), ContaoEvents::CONTROLLER_LOAD_DATA_CONTAINER);
 
         if (isset($GLOBALS['TL_DCA'][$dcaName])) {
-            $this->dca = $GLOBALS['TL_DCA'][$dcaName];
+            $this->dca = (array) $GLOBALS['TL_DCA'][$dcaName];
         }
 
         $dispatcher->dispatch(new LoadLanguageFileEvent($dcaName), ContaoEvents::SYSTEM_LOAD_LANGUAGE_FILE);

@@ -62,7 +62,8 @@ class ParentEnforcingListener
 
         $model = $event->getModel();
 
-        $parent = (new ModelCollector($environment))->getModel(ModelId::fromSerialized($input->getParameter('pid')));
+        $parent = (new ModelCollector($environment))
+            ->getModel(ModelId::fromSerialized((string) $input->getParameter('pid')));
         assert($parent instanceof ModelInterface);
 
         (new RelationshipManager($definition->getModelRelationshipDefinition(), $mode))->setParent($model, $parent);

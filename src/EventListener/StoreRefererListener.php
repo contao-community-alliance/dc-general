@@ -86,7 +86,7 @@ class StoreRefererListener
         $session   = $request->getSession();
         $key       = $request->query->has('popup') ? 'popupReferer' : 'referer';
         $refererId = $request->attributes->get('_contao_referer_id');
-        if (null === $refererId) {
+        if (!\is_string($refererId)) {
             return;
         }
         $referers  = $this->prepareBackendReferer($refererId, $session->get($key));
@@ -110,16 +110,17 @@ class StoreRefererListener
     }
 
     /**
-     * @param string                                $refererId
-     * @param ?array<string, array<string, string>> $referers
+     * @param string $refererId
+     * @param mixed  $referers
      *
      * @return array<string,array<string,string>>
      */
-    private function prepareBackendReferer(string $refererId, ?array $referers = null): array
+    private function prepareBackendReferer(string $refererId, mixed $referers = null): array
     {
         if (!is_array($referers)) {
             $referers = [];
         }
+        /** @var array<string, array<string, string>> $referers */
 
         if (!isset($referers[$refererId])) {
             $last = end($referers);

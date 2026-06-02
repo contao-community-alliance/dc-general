@@ -55,6 +55,10 @@ class PropertyInputFieldCallbackListener extends AbstractReturningPropertyCallba
     #[\Override]
     public function update($event, $value)
     {
+        if (!$value instanceof Widget) {
+            return;
+        }
+
         $event->setWidget($value);
     }
 }

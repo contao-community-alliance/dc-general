@@ -173,7 +173,7 @@ class PanelRenderer
     /**
      * Render the panels.
      *
-     * @param array $ignoredPanels A list with ignored elements [Optional].
+     * @param list<string> $ignoredPanels A list with ignored elements [Optional].
      *
      * @throws DcGeneralRuntimeException When no information of panels can be obtained from the data container.
      *

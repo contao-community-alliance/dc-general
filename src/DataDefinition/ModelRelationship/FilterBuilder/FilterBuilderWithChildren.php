@@ -224,7 +224,12 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
     #[ReturnTypeWillChange]
     public function offsetSet($offset, $value): FilterBuilderWithChildren
     {
-        $this->children[$offset] = $value;
+        assert($value instanceof BaseFilterBuilder);
+        if (null === $offset) {
+            $this->children[] = $value;
+        } else {
+            $this->children[(int) $offset] = $value;
+        }
 
         return $this;
     }
@@ -323,8 +328,8 @@ class FilterBuilderWithChildren extends BaseFilterBuilder implements Iterator, A
     /**
      * Initialize an instance with the values from the given array.
      *
-     * @param array         $array   The initialization array.
-     * @param FilterBuilder $builder The builder instance.
+     * @param array{children: list<array>} $array   The initialization array.
+     * @param FilterBuilder                 $builder The builder instance.
      *
      * @return BaseFilterBuilder
      */

@@ -157,6 +157,8 @@ class Legend implements LegendInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @param PropertyInterface[] $properties
      */
     #[\Override]
     public function addProperties(array $properties, ?PropertyInterface $before = null)

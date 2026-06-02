@@ -70,6 +70,7 @@ class CommandCollection implements CommandCollectionInterface
     #[\Override]
     public function addCommands(array $commands, ?CommandInterface $before = null)
     {
+        /** @var CommandInterface[] $commands */
         foreach ($commands as $command) {
             $this->addCommand($command, $before);
         }
@@ -83,6 +84,7 @@ class CommandCollection implements CommandCollectionInterface
     #[\Override]
     public function removeCommands(array $commands)
     {
+        /** @var CommandInterface[] $commands */
         foreach ($commands as $command) {
             $this->removeCommand($command);
         }

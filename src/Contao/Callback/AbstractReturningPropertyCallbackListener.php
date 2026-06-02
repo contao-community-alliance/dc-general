@@ -75,14 +75,15 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
     private function getProperty(Event $event): string
     {
         if (method_exists($event, 'getPropertyName')) {
-            return $event->getPropertyName();
+            return (string) $event->getPropertyName();
         }
         if (method_exists($event, 'getProperty')) {
-            if ($event->getProperty() instanceof PropertyInterface) {
-                return $event->getProperty()->getName();
-            } else {
-                return (string) $event->getProperty();
+            $property = $event->getProperty();
+            if ($property instanceof PropertyInterface) {
+                return $property->getName();
             }
+
+            return (string) $property;
         }
 
         throw new InvalidArgumentException('Neither Method getPropertyName() nor method getProperty() found');

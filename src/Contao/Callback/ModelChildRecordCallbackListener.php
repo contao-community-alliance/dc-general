@@ -56,7 +56,7 @@ class ModelChildRecordCallbackListener extends AbstractReturningCallbackListener
             return;
         }
 
-        $event->setHtml($value);
+        $event->setHtml((string) $value);
         $event->stopPropagation();
     }
 }

@@ -59,6 +59,9 @@ class PageTreeOrder extends AbstractWidget
             $this->varValue = [];
         }
 
-        return \implode(',', $this->varValue);
+        /** @var list<string> $value */
+        $value = (array) $this->varValue;
+
+        return \implode(',', $value);
     }
 }

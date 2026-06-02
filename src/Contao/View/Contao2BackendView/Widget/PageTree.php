@@ -91,9 +91,11 @@ class PageTree extends TreePicker
             $objModel = $collection->get(0);
             assert($objModel instanceof ModelInterface);
 
-            foreach ($objModel->getMeta($objModel::CHILD_COLLECTIONS) ?? [] as $childCollection) {
+            foreach ($objModel->getMeta(ModelInterface::CHILD_COLLECTIONS) ?? [] as $childCollection) {
                 foreach ($childCollection as $subModel) {
-                    $treeData->push($subModel);
+                    if ($subModel instanceof ModelInterface) {
+                        $treeData->push($subModel);
+                    }
                 }
             }
             return $treeData;

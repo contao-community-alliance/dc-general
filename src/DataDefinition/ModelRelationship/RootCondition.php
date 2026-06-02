@@ -42,7 +42,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     /**
      * The setter information to use when a model shall get marked as root item.
      *
-     * @var array
+     * @var list<array{property: string, value: mixed}>
      */
     protected array $setOn = [];
 
@@ -79,6 +79,7 @@ class RootCondition extends AbstractCondition implements RootConditionInterface
     #[\Override]
     public function setSetters($value)
     {
+        /** @var list<array{property: string, value: mixed}> $value */
         $this->setOn = $value;
 
         return $this;

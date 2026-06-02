@@ -116,7 +116,7 @@ class EditHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId      = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
@@ -168,7 +168,7 @@ class EditHandler
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for edit model %s.
                 </div>',
-                ModelId::fromSerialized($inputProvider->getParameter('id'))->getSerialized()
+                ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getSerialized()
             )
         );
 
@@ -217,8 +217,8 @@ class EditHandler
         if (null === ($model = $dataProvider->getVersion($modelId->getId(), $modelVersion))) {
             $message = \sprintf(
                 'Could not load version %s of record ID %s from %s',
-                $modelVersion,
-                $modelId->getId(),
+                (string) $modelVersion,
+                (string) $modelId->getId(),
                 $modelId->getDataProviderName()
             );
 

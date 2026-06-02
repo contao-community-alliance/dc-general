@@ -165,7 +165,7 @@ class ToggleHandler
         // Select the previous language.
         if (isset($language)) {
             /** @var MultiLanguageDataProviderInterface $dataProvider */
-            $dataProvider->setCurrentLanguage($language);
+            $dataProvider->setCurrentLanguage((string) $language);
         }
     }
 
@@ -216,14 +216,16 @@ class ToggleHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $serialized = (string) $inputProvider->getParameter('id');
+        if ('' === $serialized) {
+            return null;
         }
+        $modelId = ModelId::fromSerialized($serialized);
 
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        if (!(isset($modelId) && ($definition->getName() === $modelId->getDataProviderName()))) {
+        if ($definition->getName() !== $modelId->getDataProviderName()) {
             return null;
         }
 

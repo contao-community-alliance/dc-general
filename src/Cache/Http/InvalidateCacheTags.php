@@ -161,7 +161,7 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
     {
         $modelNamespace = $this->namespace . $model->getProviderName();
         $this->tags[]   = $modelNamespace;
-        $this->tags[]   = $modelNamespace . '.' . $model->getId();
+        $this->tags[]   = $modelNamespace . '.' . (string) $model->getId();
     }
 
     /**
@@ -173,7 +173,10 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
      */
     private function cleanUpTags(array $tags): array
     {
-        return \array_values(\array_filter(\array_unique($tags)));
+        /** @var string[] $cleaned */
+        $cleaned = \array_values(\array_filter(\array_unique($tags)));
+
+        return $cleaned;
     }
 
     /**

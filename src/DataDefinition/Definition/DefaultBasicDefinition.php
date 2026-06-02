@@ -219,7 +219,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
             return false;
         }
 
-        return $this->additionalFilter[$dataProvider] ?? false;
+        return isset($this->additionalFilter[$dataProvider]);
     }
 
     /**
@@ -236,7 +236,7 @@ class DefaultBasicDefinition implements BasicDefinitionInterface
             return [];
         }
 
-        return  $this->additionalFilter[$dataProvider] ?? [];
+        return (array) ($this->additionalFilter[$dataProvider] ?? []);
     }
 
     /**

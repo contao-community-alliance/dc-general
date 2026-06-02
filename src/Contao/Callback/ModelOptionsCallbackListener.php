@@ -57,7 +57,7 @@ class ModelOptionsCallbackListener extends AbstractReturningPropertyCallbackList
             return;
         }
 
-        $event->setOptions($value);
+        $event->setOptions((array) $value);
         $event->stopPropagation();
     }
 }

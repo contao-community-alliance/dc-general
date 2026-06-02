@@ -85,7 +85,7 @@ class BackButtonListener
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return mixed
+     * @return string
      */
     private function getReferrerUrl(EnvironmentInterface $environment)
     {
@@ -105,6 +105,8 @@ class BackButtonListener
 
         $dispatcher->dispatch($event, ContaoEvents::SYSTEM_GET_REFERRER);
 
-        return (\str_starts_with(($url = $event->getReferrerUrl()), '/')) ? $url : '/' . $url;
+        $url = $event->getReferrerUrl();
+
+        return \str_starts_with($url, '/') ? $url : '/' . $url;
     }
 }

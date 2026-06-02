@@ -268,7 +268,7 @@ abstract class Ajax implements EnvironmentAwareInterface
             return;
         }
 
-        $ajax = new ContaoAjax($action);
+        $ajax = new ContaoAjax((string) $action);
         $ajax->executePreActions();
         $ajax->executePostActions(new DcCompat($this->getEnvironment(), $this->getActiveModel()));
     }
@@ -287,7 +287,7 @@ abstract class Ajax implements EnvironmentAwareInterface
             return null;
         }
 
-        $modelId = ModelId::fromSerialized($input->getParameter('id'));
+        $modelId = ModelId::fromSerialized((string) $input->getParameter('id'));
 
         $dataProvider = $this->getEnvironment()->getDataProvider($modelId->getDataProviderName());
         assert($dataProvider instanceof DataProviderInterface);

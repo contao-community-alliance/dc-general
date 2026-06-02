@@ -922,6 +922,7 @@ class PaletteBuilder
             $this->finishProperty();
         }
 
+        /** @var list<string> $propertyNames */
         $propertyNames = func_get_args();
 
         $this->property = [];
@@ -1358,6 +1359,6 @@ class PaletteBuilder
         $dispatcher = System::getContainer()->get('event_dispatcher');
         assert($dispatcher instanceof EventDispatcherInterface);
 
-        $dispatcher->dispatch($event, $event::NAME);
+        $dispatcher->dispatch($event, (string) $event::NAME);
     }
 }

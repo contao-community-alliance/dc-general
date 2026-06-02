@@ -70,7 +70,7 @@ class ModelManipulator
                         $model->setProperty($propertyName, static::sanitizeValue($property, null));
                     }
 
-                    $model->setMeta($model::IS_CHANGED, true);
+                    $model->setMeta(ModelInterface::IS_CHANGED, true);
                 }
             } catch (\Exception $exception) {
                 $values->markPropertyValueAsInvalid($propertyName, $exception->getMessage());

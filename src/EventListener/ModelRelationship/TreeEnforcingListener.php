@@ -71,14 +71,14 @@ class TreeEnforcingListener
 
         if ($input->hasParameter('into')) {
             $this->handleInto(
-                ModelId::fromSerialized($input->getParameter('into')),
+                ModelId::fromSerialized((string) $input->getParameter('into')),
                 $relationships,
                 $collector,
                 $model
             );
         } elseif ($input->hasParameter('after')) {
             $this->handleAfter(
-                ModelId::fromSerialized($input->getParameter('after')),
+                ModelId::fromSerialized((string) $input->getParameter('after')),
                 $relationships,
                 $collector,
                 $model
@@ -87,7 +87,7 @@ class TreeEnforcingListener
 
         // Also enforce the parent condition of the parent provider (if any).
         if ($input->hasParameter('pid')) {
-            $parent = $collector->getModel($input->getParameter('pid'));
+            $parent = $collector->getModel((string) $input->getParameter('pid'));
             assert($parent instanceof ModelInterface);
             $relationships->setParent($model, $parent);
         }
