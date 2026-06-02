@@ -170,7 +170,7 @@ class DcCompat extends General
                     return null;
                 }
 
-                $modelId = ModelId::fromSerialized($inputProvider->getParameter($idParameter));
+                $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter($idParameter));
                 if ($modelId->getDataProviderName() === $dataDefinition->getName()) {
                     return $modelId->getId();
                 }
@@ -183,7 +183,7 @@ class DcCompat extends General
                     return null;
                 }
 
-                $parentModelId = ModelId::fromSerialized($inputProvider->getParameter('pid'));
+                $parentModelId = ModelId::fromSerialized((string) $inputProvider->getParameter('pid'));
                 if ($dataDefinition->getName() !== $parentModelId->getDataProviderName()) {
                     return null;
                 }
@@ -246,7 +246,10 @@ class DcCompat extends General
         // FIXME: we can not implement this properly with dc caching as in DataContainer due to static functions there.
 
         if ((null === $id && null === $table) && $this->model instanceof ModelInterface) {
-            return $this->model->getPropertiesAsArray();
+            /** @var array<string, mixed> $record */
+            $record = $this->model->getPropertiesAsArray();
+
+            return $record;
         }
 
         return null;

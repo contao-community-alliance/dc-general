@@ -96,11 +96,11 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         $values = [];
         if ($this->getSessionStorage()->has('sorting')) {
-            $values = $this->getSessionStorage()->get('sorting');
+            $values = (array) $this->getSessionStorage()->get('sorting');
         }
 
         if (\array_key_exists($definition->getName(), $values)) {
-            return $values[$definition->getName()];
+            return (string) $values[$definition->getName()];
         }
 
         return '';
@@ -123,7 +123,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         $values = [];
 
         if ($this->getSessionStorage()->has('sorting')) {
-            $values = $this->getSessionStorage()->get('sorting');
+            $values = (array) $this->getSessionStorage()->get('sorting');
         }
 
         if ($propertyName) {
@@ -173,7 +173,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
-                $value = $input->getValue('tl_sort');
+                $value = (string) $input->getValue('tl_sort');
 
                 $this->setPersistent($value);
             }

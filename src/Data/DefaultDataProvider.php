@@ -238,16 +238,16 @@ class DefaultDataProvider implements DataProviderInterface
             }
         }
 
-        $this->source = $config['source'];
+        $this->source = (string) $config['source'];
 
         if (isset($config['timeStampProperty'])) {
-            $this->setTimeStampProperty($config['timeStampProperty']);
+            $this->setTimeStampProperty((string) $config['timeStampProperty']);
         } elseif ($this->fieldExists('tstamp')) {
             $this->setTimeStampProperty('tstamp');
         }
 
         if (isset($config['idProperty'])) {
-            $this->setIdProperty($config['idProperty']);
+            $this->setIdProperty((string) $config['idProperty']);
         }
     }
 
@@ -320,12 +320,12 @@ class DefaultDataProvider implements DataProviderInterface
             \sprintf(
                 'DELETE FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                $modelId
+                (string) $modelId
             ),
             \sprintf(
                 'SELECT * FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                $modelId
+                (string) $modelId
             ),
             $this->source
         );
@@ -350,7 +350,7 @@ class DefaultDataProvider implements DataProviderInterface
                 $model->setIdRaw($value);
             }
 
-            $model->setPropertyRaw($key, StringUtil::deserialize($value));
+            $model->setPropertyRaw((string) $key, StringUtil::deserialize($value));
         }
 
         return $model;
@@ -424,7 +424,10 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         if ($config->getIdOnly()) {
-            return $statement->fetchFirstColumn();
+            /** @var list<string> $ids */
+            $ids = $statement->fetchFirstColumn();
+
+            return $ids;
         }
 
         $result = $statement->fetchAllAssociative();
@@ -470,7 +473,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $collection = new DefaultFilterOptionCollection();
         foreach ($values as $value) {
-            $collection->add($value[$filterProperty], $value[$filterProperty]);
+            $collection->add((string) $value[$filterProperty], (string) $value[$filterProperty]);
         }
 
         return $collection;

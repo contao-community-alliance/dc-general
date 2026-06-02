@@ -70,14 +70,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     {
         $values = [];
         if ($this->getSessionStorage()->has('filter')) {
-            $values = $this->getSessionStorage()->get('filter');
+            $values = (array) $this->getSessionStorage()->get('filter');
         }
 
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
         if (\array_key_exists($definition->getName(), $values)) {
-            $values = $values[$definition->getName()];
+            $values = (array) $values[$definition->getName()];
 
             if (\array_key_exists($this->getPropertyName(), $values)) {
                 return $values[$this->getPropertyName()];
@@ -104,14 +104,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $values = [];
 
         if ($this->getSessionStorage()->has('filter')) {
-            $values = $this->getSessionStorage()->get('filter');
+            $values = (array) $this->getSessionStorage()->get('filter');
         }
 
         if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
             $values[$definition->getName()] = [];
         }
 
-        if ((null !== $values) && ($value !== 'tl_' . $this->getPropertyName())) {
+        if ($value !== 'tl_' . $this->getPropertyName()) {
             $values[$definitionName][$this->getPropertyName()] = $value;
         } else {
             unset($values[$definitionName][$this->getPropertyName()]);

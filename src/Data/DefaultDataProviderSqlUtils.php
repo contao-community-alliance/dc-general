@@ -205,7 +205,7 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterAndOr($operation, &$params)
     {
-        $children = $operation['children'];
+        $children = (array) $operation['children'];
 
         if (empty($children)) {
             return '';
@@ -213,10 +213,10 @@ class DefaultDataProviderSqlUtils
 
         $combine = [];
         foreach ($children as $child) {
-            $combine[] = static::calculateSubfilter($child, $params);
+            $combine[] = static::calculateSubfilter((array) $child, $params);
         }
 
-        return \implode(\sprintf(' %s ', $operation['operation']), $combine);
+        return \implode(\sprintf(' %s ', (string) $operation['operation']), $combine);
     }
 
     /**
@@ -231,7 +231,7 @@ class DefaultDataProviderSqlUtils
     {
         $params[] = $operation['value'];
 
-        return \sprintf('(%s %s ?)', $operation['property'], $operation['operation']);
+        return \sprintf('(%s %s ?)', (string) $operation['property'], (string) $operation['operation']);
     }
 
     /**
@@ -244,10 +244,10 @@ class DefaultDataProviderSqlUtils
      */
     private static function filterInList($operation, &$params)
     {
-        $params    = \array_merge($params, \array_values($operation['values']));
-        $wildcards = \rtrim(\str_repeat('?,', \count($operation['values'])), ',');
+        $params    = \array_merge($params, \array_values((array) $operation['values']));
+        $wildcards = \rtrim(\str_repeat('?,', \count((array) $operation['values'])), ',');
 
-        return \sprintf('(%s IN (%s))', $operation['property'], $wildcards);
+        return \sprintf('(%s IN (%s))', (string) $operation['property'], $wildcards);
     }
 
     /**
@@ -267,6 +267,6 @@ class DefaultDataProviderSqlUtils
         $wildcards = \str_replace(['*', '?'], ['%', '_'], $value);
         $params[]  = $wildcards;
 
-        return \sprintf('(%s LIKE %s)', $operation['property'], $wildcards);
+        return \sprintf('(%s LIKE %s)', (string) $operation['property'], $wildcards);
     }
 }

@@ -75,16 +75,6 @@
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Contao/Compatibility/DcCompat.php">
-    <MixedArgument>
-      <code><![CDATA[$inputProvider->getParameter($idParameter)]]></code>
-      <code><![CDATA[$inputProvider->getParameter('pid')]]></code>
-    </MixedArgument>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[$this->model->getPropertiesAsArray()]]></code>
-      <code><![CDATA[array|null]]></code>
-    </MixedReturnTypeCoercion>
-  </file>
   <file src="src/Contao/Dca/Builder/Legacy/DcaReadingDataDefinitionBuilder.php">
     <MixedAssignment>
       <code><![CDATA[$dca]]></code>
@@ -383,24 +373,6 @@
     <MixedReturnStatement>
       <code><![CDATA[$session[$selectAction]]]></code>
     </MixedReturnStatement>
-  </file>
-  <file src="src/Contao/View/Contao2BackendView/ActionHandler/CopyHandler.php">
-    <MixedArgument>
-      <code><![CDATA[$inputProvider->getParameter('do')]]></code>
-      <code><![CDATA[$inputProvider->getParameter('source')]]></code>
-      <code><![CDATA[$inputProvider->getParameter('source')]]></code>
-      <code><![CDATA[$pid]]></code>
-      <code><![CDATA[$routeName]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$params['pid']]]></code>
-      <code><![CDATA[$pid]]></code>
-      <code><![CDATA[$pid]]></code>
-      <code><![CDATA[$routeName]]></code>
-    </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$modelId->getId()]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/EditHandler.php">
     <MixedAssignment>
@@ -1466,17 +1438,10 @@
       <code><![CDATA[$child['children']]]></code>
       <code><![CDATA[$child['property']]]></code>
       <code><![CDATA[$child['property']]]></code>
-      <code><![CDATA[$config['idProperty']]]></code>
-      <code><![CDATA[$config['timeStampProperty']]]></code>
-      <code><![CDATA[$modelId]]></code>
-      <code><![CDATA[$modelId]]></code>
-      <code><![CDATA[$value[$filterProperty]]]></code>
-      <code><![CDATA[$value[$filterProperty]]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$data]]></code>
       <code><![CDATA[$data]]></code>
-      <code><![CDATA[$key]]></code>
       <code><![CDATA[$key]]></code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
@@ -1495,7 +1460,6 @@
       <code><![CDATA[$mixData[$this->idProperty]]]></code>
       <code><![CDATA[$modelId]]></code>
       <code><![CDATA[$modelId]]></code>
-      <code><![CDATA[$this->source]]></code>
       <code><![CDATA[$updateValues['version']]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
@@ -1506,10 +1470,6 @@
     <MixedOperand>
       <code><![CDATA[$child['property']]]></code>
     </MixedOperand>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[$statement->fetchFirstColumn()]]></code>
-      <code><![CDATA[fetchAll]]></code>
-    </MixedReturnTypeCoercion>
   </file>
   <file src="src/Data/DefaultDataProviderDBalUtils.php">
     <MixedReturnStatement>
@@ -1527,19 +1487,8 @@
     </MixedReturnStatement>
   </file>
   <file src="src/Data/DefaultDataProviderSqlUtils.php">
-    <MixedArgument>
-      <code><![CDATA[$child]]></code>
-      <code><![CDATA[$operation['operation']]]></code>
-      <code><![CDATA[$operation['operation']]]></code>
-      <code><![CDATA[$operation['property']]]></code>
-      <code><![CDATA[$operation['property']]]></code>
-      <code><![CDATA[$operation['property']]]></code>
-      <code><![CDATA[$operation['values']]]></code>
-      <code><![CDATA[$operation['values']]]></code>
-    </MixedArgument>
     <MixedAssignment>
       <code><![CDATA[$child]]></code>
-      <code><![CDATA[$children]]></code>
       <code><![CDATA[$params[]]]></code>
     </MixedAssignment>
   </file>
@@ -1734,20 +1683,10 @@
     </MixedAssignment>
   </file>
   <file src="src/Panel/DefaultFilterElement.php">
-    <MixedArgument>
-      <code><![CDATA[$values]]></code>
-      <code><![CDATA[$values]]></code>
-    </MixedArgument>
     <MixedArrayAccess>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
       <code><![CDATA[$values[$definitionName][$this->getPropertyName()]]]></code>
-      <code><![CDATA[$values[$this->getPropertyName()]]]></code>
     </MixedArrayAccess>
     <MixedArrayAssignment>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
       <code><![CDATA[$values[$definitionName][$this->getPropertyName()]]]></code>
     </MixedArrayAssignment>
     <MixedAssignment>
@@ -1756,37 +1695,13 @@
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
-      <code><![CDATA[$values]]></code>
-      <code><![CDATA[$values]]></code>
-      <code><![CDATA[$values]]></code>
       <code><![CDATA[$values[$definitionName][$this->getPropertyName()]]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Panel/DefaultLimitElement.php">
-    <MixedArgument>
-      <code><![CDATA[$input->getValue('tl_limit')]]></code>
-      <code><![CDATA[$values]]></code>
-    </MixedArgument>
-    <MixedArrayAccess>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-    </MixedArrayAccess>
-    <MixedArrayAssignment>
-      <code><![CDATA[$values[$definitionName]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-    </MixedArrayAssignment>
     <MixedAssignment>
       <code><![CDATA[$amount]]></code>
-      <code><![CDATA[$amount]]></code>
-      <code><![CDATA[$limit]]></code>
-      <code><![CDATA[$offset]]></code>
-      <code><![CDATA[$values]]></code>
-      <code><![CDATA[$values]]></code>
     </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Panel/DefaultSearchElement.php">
     <MixedArgument>
@@ -1824,28 +1739,6 @@
       <code><![CDATA[$this->arrProperties]]></code>
       <code><![CDATA[array]]></code>
     </MixedReturnTypeCoercion>
-  </file>
-  <file src="src/Panel/DefaultSortElement.php">
-    <MixedArgument>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$values]]></code>
-    </MixedArgument>
-    <MixedArrayAccess>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-    </MixedArrayAccess>
-    <MixedArrayAssignment>
-      <code><![CDATA[$values[$definitionName]]]></code>
-    </MixedArrayAssignment>
-    <MixedAssignment>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$values]]></code>
-      <code><![CDATA[$values]]></code>
-    </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/View/ActionHandler/AbstractPropertyOverrideEditAllHandler.php">
     <MixedArgument>
