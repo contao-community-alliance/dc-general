@@ -1236,35 +1236,9 @@
     </MixedMethodCall>
   </file>
   <file src="src/Controller/BackendTreeController.php">
-    <MixedArgument>
-      <code><![CDATA[$field]]></code>
-      <code><![CDATA[$field]]></code>
-      <code><![CDATA[$field = $picker->getConfig()->getExtra('propertyName')]]></code>
-      <code><![CDATA[$information['eval']]]></code>
-      <code><![CDATA[$picker->getConfig()->getExtra('modelId')]]></code>
-      <code><![CDATA[$picker->getConfig()->getExtra('modelId')]]></code>
-      <code><![CDATA[$picker->getConfig()->getExtra('propertyName')]]></code>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
-    </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['BE_FFL']['DcGeneralTreePicker']]]></code>
     </MixedArrayAccess>
-    <MixedArrayOffset>
-      <code><![CDATA[$GLOBALS['TL_DCA'][$table]['fields'][$field]]]></code>
-    </MixedArrayOffset>
-    <MixedAssignment>
-      <code><![CDATA[$field]]></code>
-      <code><![CDATA[$propertyName]]></code>
-    </MixedAssignment>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[[
-            $sessionBag->get($treeSelector->getSearchSessionKey()),
-            $treeSelector,
-            $picker
-        ]]]></code>
-      <code><![CDATA[array{0: string|list<string>, 1: TreePicker, 2: PickerInterface}]]></code>
-    </MixedReturnTypeCoercion>
   </file>
   <file src="src/Controller/DefaultController.php">
     <MixedArgument>
@@ -1318,8 +1292,6 @@
   <file src="src/DC/General.php">
     <MixedArgument>
       <code><![CDATA[$callback]]></code>
-      <code><![CDATA[$inputProvider->getParameter($idParameter)]]></code>
-      <code><![CDATA[$inputProvider->getParameter('act') ?: 'showAll']]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback']]]></code>

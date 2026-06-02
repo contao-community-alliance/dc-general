@@ -216,7 +216,7 @@ class General extends DataContainer implements DataContainerInterface
                     break;
                 }
 
-                return ModelId::fromSerialized($inputProvider->getParameter($idParameter))->getId();
+                return ModelId::fromSerialized((string) $inputProvider->getParameter($idParameter))->getId();
             case 'table':
                 $definition = $environment->getDataDefinition();
                 assert($definition instanceof ContainerInterface);
@@ -315,7 +315,7 @@ class General extends DataContainer implements DataContainerInterface
         $controller = $environment->getController();
         assert($controller instanceof ControllerInterface);
 
-        $action = new Action($inputProvider->getParameter('act') ?: 'showAll');
+        $action = new Action((string) ($inputProvider->getParameter('act') ?: 'showAll'));
 
         return $controller->handle($action);
     }
