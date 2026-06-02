@@ -1113,17 +1113,6 @@
   <file src="src/Contao/View/Contao2BackendView/TreeView.php">
     <MixedArgument>
       <code><![CDATA[$childCollection]]></code>
-      <code><![CDATA[$input->getValue('id')]]></code>
-      <code><![CDATA[$input->getValue('level')]]></code>
-      <code><![CDATA[$input->getValue('providerName')]]></code>
-      <code><![CDATA[$model::CHILD_COLLECTIONS]]></code>
-      <code><![CDATA[$model::CHILD_COLLECTIONS]]></code>
-      <code><![CDATA[$model::HAS_CHILDREN]]></code>
-      <code><![CDATA[$model::LABEL_VALUE]]></code>
-      <code><![CDATA[$model::SHOW_CHILDREN]]></code>
-      <code><![CDATA[$model::SHOW_CHILDREN]]></code>
-      <code><![CDATA[$objSubModel]]></code>
-      <code><![CDATA[$parentId]]></code>
       <code><![CDATA[$providerName]]></code>
       <code><![CDATA[$selectAction]]></code>
       <code><![CDATA[$session]]></code>
@@ -1140,15 +1129,12 @@
       <code><![CDATA[$modelId]]></code>
       <code><![CDATA[$objSubModel]]></code>
       <code><![CDATA[$openElements]]></code>
-      <code><![CDATA[$parentId]]></code>
       <code><![CDATA[$providerName]]></code>
       <code><![CDATA[$selectAction]]></code>
       <code><![CDATA[$session]]></code>
     </MixedAssignment>
     <MixedOperand>
       <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
-      <code><![CDATA[$model->getId()]]></code>
-      <code><![CDATA[$model->getId()]]></code>
     </MixedOperand>
     <MixedReturnStatement>
       <code><![CDATA[$session[$selectAction]]]></code>
@@ -1599,12 +1585,6 @@
       <code><![CDATA[$childRule]]></code>
       <code><![CDATA[$filter['remote']]]></code>
       <code><![CDATA[$rule['local']]]></code>
-      <code><![CDATA[$setter['from_field']]]></code>
-      <code><![CDATA[$setter['to_field']]]></code>
-      <code><![CDATA[$setter['to_field']]]></code>
-      <code><![CDATA[$setter['to_field']]]></code>
-      <code><![CDATA[$setter['to_field']]]></code>
-      <code><![CDATA[$setter['to_field']]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$arrRule['local']]]></code>

@@ -59,7 +59,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * The values to use when enforcing a root condition.
      *
-     * @var array
+     * @var list<array<string, mixed>>
      */
     protected array $setOn = [];
 
@@ -111,6 +111,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     #[\Override]
     public function setSetters($value)
     {
+        /** @var list<array<string, mixed>> $value */
         $this->setOn = $value;
 
         return $this;
@@ -291,12 +292,12 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             }
 
             if (isset($setter['from_field'])) {
-                $objChild->setProperty($setter['to_field'], $objParent->getProperty($setter['from_field']));
+                $objChild->setProperty((string) $setter['to_field'], $objParent->getProperty((string) $setter['from_field']));
 
                 continue;
             }
 
-            $objChild->setProperty($setter['to_field'], $setter['value']);
+            $objChild->setProperty((string) $setter['to_field'], $setter['value']);
         }
     }
 
@@ -335,12 +336,15 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             }
 
             if (isset($setter['from_field'])) {
-                $destinationModel->setProperty($setter['to_field'], $sourceModel->getProperty($setter['to_field']));
+                $destinationModel->setProperty(
+                    (string) $setter['to_field'],
+                    $sourceModel->getProperty((string) $setter['to_field'])
+                );
 
                 continue;
             }
 
-            $destinationModel->setProperty($setter['to_field'], $setter['value']);
+            $destinationModel->setProperty((string) $setter['to_field'], $setter['value']);
         }
     }
 

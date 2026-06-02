@@ -295,9 +295,11 @@ class TreeView extends BaseView
                 return $treeData;
             }
 
-            foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $collection) {
+            foreach ($model->getMeta(ModelInterface::CHILD_COLLECTIONS) ?? [] as $collection) {
                 foreach ($collection as $objSubModel) {
-                    $treeData->push($objSubModel);
+                    if ($objSubModel instanceof ModelInterface) {
+                        $treeData->push($objSubModel);
+                    }
                 }
             }
 
@@ -323,7 +325,7 @@ class TreeView extends BaseView
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        if (!($parentId = $inputProvider->getParameter('pid'))) {
+        if ('' === ($parentId = (string) $inputProvider->getParameter('pid'))) {
             throw new DcGeneralRuntimeException(
                 'TreeView needs a proper parent id defined, somehow none is defined?',
                 1
@@ -385,21 +387,21 @@ class TreeView extends BaseView
 
         $dispatcher->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
-        $model->setMeta($model::LABEL_VALUE, $event->getLabel());
+        $model->setMeta(ModelInterface::LABEL_VALUE, $event->getLabel());
 
         $template = $this->getTemplate('dcbe_general_treeview_entry');
 
         $translator = $environment->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        if ($model->getMeta($model::SHOW_CHILDREN)) {
+        if ($model->getMeta(ModelInterface::SHOW_CHILDREN)) {
             $toggleTitle = $translator->translate('collapseNode', 'dc-general');
         } else {
             $toggleTitle = $translator->translate('expandNode', 'dc-general');
         }
 
         $toggleUrlEvent = new AddToUrlEvent(
-            'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
+            'ptg=' . (string) $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
         $dispatcher->dispatch($toggleUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
@@ -455,15 +457,15 @@ class TreeView extends BaseView
         foreach ($collection as $model) {
             /** @var ModelInterface $model */
 
-            $toggleID = $model->getProviderName() . '_' . $treeClass . '_' . $model->getId();
+            $toggleID = $model->getProviderName() . '_' . $treeClass . '_' . (string) $model->getId();
 
             $content[] = $this->parseModel($model, $toggleID);
 
-            if ($model->getMeta($model::HAS_CHILDREN) && $model->getMeta($model::SHOW_CHILDREN)) {
+            if ($model->getMeta(ModelInterface::HAS_CHILDREN) && $model->getMeta(ModelInterface::SHOW_CHILDREN)) {
                 $template = $this->getTemplate('dcbe_general_treeview_child');
                 $subHtml  = '';
 
-                foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $childCollection) {
+                foreach ($model->getMeta(ModelInterface::CHILD_COLLECTIONS) ?? [] as $childCollection) {
                     $subHtml .= $this->generateTreeView($childCollection, $treeClass);
                 }
 
@@ -808,9 +810,9 @@ class TreeView extends BaseView
 
         $response = new Response(
             $this->ajaxTreeView(
-                $input->getValue('id'),
-                $input->getValue('providerName'),
-                $input->getValue('level')
+                (string) $input->getValue('id'),
+                (string) $input->getValue('providerName'),
+                (int) $input->getValue('level')
             )
         );
 
