@@ -422,7 +422,7 @@ abstract class AbstractListShowAllHandler
         $event = new FormatModelLabelEvent($environment, $model);
         $dispatcher->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
-        $model->setMeta($model::LABEL_VALUE, $event->getLabel());
+        $model->setMeta(ModelInterface::LABEL_VALUE, $event->getLabel());
     }
 
     /**
@@ -574,12 +574,12 @@ abstract class AbstractListShowAllHandler
             $this->addGroupHeader($environment, $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if (null !== $listing->getItemCssClass()) {
-                $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
+                $model->setMeta(ModelInterface::CSS_CLASS, $listing->getItemCssClass());
             }
             $cssClasses = [(0 === (++$eoCount) % 2) ? 'even' : 'odd'];
 
-            (null !== $model->getMeta($model::CSS_ROW_CLASS)) ?
-                $cssClasses[] = $model->getMeta($model::CSS_ROW_CLASS) : null;
+            (null !== $model->getMeta(ModelInterface::CSS_ROW_CLASS)) ?
+                $cssClasses[] = $model->getMeta(ModelInterface::CSS_ROW_CLASS) : null;
 
             $modelId = ModelId::fromModel($model);
 
@@ -590,7 +590,7 @@ abstract class AbstractListShowAllHandler
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
-            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
+            $model->setMeta(ModelInterface::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             $this->renderModel($model, $environment);
         }
@@ -626,7 +626,7 @@ abstract class AbstractListShowAllHandler
             );
 
             $model->setMeta(
-                $model::GROUP_VALUE,
+                ModelInterface::GROUP_VALUE,
                 [
                     'class' => $groupClass,
                     'value' => $remoteNew

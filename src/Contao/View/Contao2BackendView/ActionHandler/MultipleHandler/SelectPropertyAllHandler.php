@@ -380,7 +380,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             return;
         }
 
-        $model->setMeta($model::CSS_ROW_CLASS, 'invisible');
+        $model->setMeta(ModelInterface::CSS_ROW_CLASS, 'invisible');
     }
 
     /**

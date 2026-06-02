@@ -268,7 +268,7 @@ class ButtonRenderer
         }
 
         $model->setMeta(
-            $model::OPERATION_BUTTONS,
+            ModelInterface::OPERATION_BUTTONS,
             implode(' ', $buttons)
         );
     }
@@ -440,7 +440,7 @@ class ButtonRenderer
      */
     private function getChildIds(ModelInterface $model): array
     {
-        if (null === ($childCollections = $model->getMeta($model::CHILD_COLLECTIONS))) {
+        if (null === ($childCollections = $model->getMeta(ModelInterface::CHILD_COLLECTIONS))) {
             return [];
         }
 

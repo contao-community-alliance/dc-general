@@ -1169,7 +1169,7 @@ class TreePicker extends Widget
     {
         $model->setMeta(DCGE::TREE_VIEW_LEVEL, $level);
         $model->setMeta(
-            $model::SHOW_CHILDREN,
+            ModelInterface::SHOW_CHILDREN,
             $this->getTreeNodeStates()->isModelOpen(
                 $model->getProviderName(),
                 $model->getId()
@@ -1225,7 +1225,7 @@ class TreePicker extends Widget
             $hasChild = ($childCollection->length() > 0);
 
             // Speed up - we may exit if we have at least one child but the parenting model is collapsed.
-            if ($hasChild && !$model->getMeta($model::SHOW_CHILDREN)) {
+            if ($hasChild && !$model->getMeta(ModelInterface::SHOW_CHILDREN)) {
                 break;
             }
 
@@ -1235,18 +1235,18 @@ class TreePicker extends Widget
                 $childCollections[] = $childCollection;
 
                 // Speed up, if collapsed, one item is enough to break as we have some children.
-                if (!$model->getMeta($model::SHOW_CHILDREN)) {
+                if (!$model->getMeta(ModelInterface::SHOW_CHILDREN)) {
                     break;
                 }
             }
         }
 
         // If expanded, store children.
-        if ($model->getMeta($model::SHOW_CHILDREN) && (count($childCollections))) {
-            $model->setMeta($model::CHILD_COLLECTIONS, $childCollections);
+        if ($model->getMeta(ModelInterface::SHOW_CHILDREN) && (count($childCollections))) {
+            $model->setMeta(ModelInterface::CHILD_COLLECTIONS, $childCollections);
         }
 
-        $model->setMeta($model::HAS_CHILDREN, $hasChild);
+        $model->setMeta(ModelInterface::HAS_CHILDREN, $hasChild);
     }
 
     /**
@@ -1267,8 +1267,8 @@ class TreePicker extends Widget
 
         foreach ($childCollection as $childModel) {
             // Let the child know about its parent.
-            $model->setMeta($model::PARENT_ID, $model->getId());
-            $model->setMeta($model::PARENT_PROVIDER_NAME, $model->getProviderName());
+            $model->setMeta(ModelInterface::PARENT_ID, $model->getId());
+            $model->setMeta(ModelInterface::PARENT_PROVIDER_NAME, $model->getProviderName());
 
             $mySubTables = [];
             foreach ($relationships->getChildConditions($model->getProviderName()) as $condition) {
@@ -1446,7 +1446,7 @@ class TreePicker extends Widget
             $model    = $collection->get(0);
             assert($model instanceof ModelInterface);
 
-            foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $collection) {
+            foreach ($model->getMeta(ModelInterface::CHILD_COLLECTIONS) ?? [] as $collection) {
                 foreach ($collection as $subModel) {
                     $treeData->push($subModel);
                 }
@@ -1657,12 +1657,12 @@ class TreePicker extends Widget
      */
     protected function parseModel($model, $toggleID)
     {
-        $model->setMeta($model::LABEL_VALUE, $this->formatModel($model));
+        $model->setMeta(ModelInterface::LABEL_VALUE, $this->formatModel($model));
 
         $translator = $this->getEnvironment()->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        if ($model->getMeta($model::SHOW_CHILDREN)) {
+        if ($model->getMeta(ModelInterface::SHOW_CHILDREN)) {
             $toggleTitle = $translator->translate('collapseNode', 'dc-general');
         } else {
             $toggleTitle = $translator->translate('expandNode', 'dc-general');
@@ -1727,11 +1727,11 @@ class TreePicker extends Widget
 
             $content[] = $this->parseModel($model, $toggleID);
 
-            if ($model->getMeta($model::HAS_CHILDREN) && $model->getMeta($model::SHOW_CHILDREN)) {
+            if ($model->getMeta(ModelInterface::HAS_CHILDREN) && $model->getMeta(ModelInterface::SHOW_CHILDREN)) {
                 $template = new ContaoBackendViewTemplate('widget_treepicker_child');
                 $subHtml  = '';
 
-                foreach ($model->getMeta($model::CHILD_COLLECTIONS) ?? [] as $objChildCollection) {
+                foreach ($model->getMeta(ModelInterface::CHILD_COLLECTIONS) ?? [] as $objChildCollection) {
                     $subHtml .= $this->generateTreeView($objChildCollection, $treeClass);
                 }
 

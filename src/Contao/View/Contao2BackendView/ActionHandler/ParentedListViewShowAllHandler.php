@@ -101,7 +101,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
                 'content' => $event->getHtml()
             ]
         ];
-        $model->setMeta($model::LABEL_VALUE, $information);
+        $model->setMeta(ModelInterface::LABEL_VALUE, $information);
 
         parent::renderModel($model, $environment);
     }

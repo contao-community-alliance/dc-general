@@ -174,7 +174,7 @@ abstract class AbstractPropertyVisibilityHandler
 
             $paletteCounter = 0;
             foreach (array_keys($options) as $paletteName) {
-                $palettesDefinition->hasPaletteByName($paletteName) ? ++$paletteCounter : null;
+                $palettesDefinition->hasPaletteByName((string) $paletteName) ? ++$paletteCounter : null;
             }
             if ($paletteCounter !== count($options)) {
                 continue;
@@ -348,6 +348,7 @@ abstract class AbstractPropertyVisibilityHandler
         $invisibleProperty       = false;
         $paletteSelectorProperty = $propertiesDefinition->getProperty($selectorProperty->getName());
         foreach (array_keys($paletteSelectorProperty->getOptions() ?? []) as $paletteName) {
+            $paletteName = (string) $paletteName;
             if (!$palettesDefinition->hasPaletteByName($paletteName)) {
                 continue;
             }
