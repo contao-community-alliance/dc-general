@@ -100,7 +100,7 @@ class FilterBuilder
         }
 
         throw new DcGeneralInvalidArgumentException(
-            'Invalid operation ' . $filter['operation'] . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
+            'Invalid operation ' . (string) $filter['operation'] . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
         );
     }
 
@@ -193,7 +193,7 @@ class FilterBuilder
     {
         $array = $this->filters->get();
 
-        return $array['children'];
+        return (array) $array['children'];
     }
 
     /**

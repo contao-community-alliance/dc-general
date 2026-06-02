@@ -94,7 +94,7 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
      *
      * @param array $array The initialization array.
      *
-     * @return mixed
+     * @return static
      *
      * @throws DcGeneralInvalidArgumentException When an invalid array has been passed.
      */

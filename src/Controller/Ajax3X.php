@@ -258,13 +258,13 @@ class Ajax3X extends Ajax
         // Automatically add resources to the DBAFS.
         if ('file' === $type) {
             foreach ($value as $k => $v) {
-                $uuid = Dbafs::addResource(urldecode($v))->uuid;
+                $uuid = Dbafs::addResource(urldecode((string) $v))->uuid;
                 assert(is_string($uuid));
                 $value[$k] = StringUtil::binToUuid($uuid);
             }
         }
 
-        return array_values($value);
+        return array_values(array_map('strval', $value));
     }
 
     /**
@@ -408,7 +408,7 @@ class Ajax3X extends Ajax
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $fieldName = $inputProvider->hasValue('name') ? $inputProvider->getValue('name') : null;
+        $fieldName = $inputProvider->hasValue('name') ? (string) $inputProvider->getValue('name') : null;
         if (null === $fieldName) {
             return null;
         }
@@ -423,7 +423,9 @@ class Ajax3X extends Ajax
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('select'));
+        $session = $sessionStorage->get(
+            $dataDefinition->getName() . '.' . (string) $inputProvider->getParameter('select')
+        );
         if (!is_array($session) || !isset($session['models'])) {
             return null;
         }

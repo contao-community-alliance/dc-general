@@ -1191,13 +1191,11 @@
     <MixedArgument>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$field]]></code>
-      <code><![CDATA[$fieldName]]></code>
-      <code><![CDATA[$fieldName]]></code>
       <code><![CDATA[$input->getValue('value')]]></code>
       <code><![CDATA[$input->getValue('value')]]></code>
       <code><![CDATA[$inputProvider->getValue('name')]]></code>
       <code><![CDATA[$serializedId]]></code>
-      <code><![CDATA[$v]]></code>
+      <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$widget->generate()]]></code>
       <code><![CDATA[$widget->generateAjax($ajaxId, $field, $level)]]></code>
@@ -1224,7 +1222,6 @@
       <code><![CDATA[$arrData['strTable']]]></code>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$field]]></code>
-      <code><![CDATA[$fieldName]]></code>
       <code><![CDATA[$folder]]></code>
       <code><![CDATA[$modelId]]></code>
       <code><![CDATA[$nodes]]></code>
@@ -1237,17 +1234,6 @@
       <code><![CDATA[new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer())]]></code>
       <code><![CDATA[new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer())]]></code>
     </MixedMethodCall>
-    <MixedOperand>
-      <code><![CDATA[$inputProvider->getParameter('select')]]></code>
-    </MixedOperand>
-    <MixedReturnStatement>
-      <code><![CDATA[$fieldName]]></code>
-      <code><![CDATA[$fieldName]]></code>
-    </MixedReturnStatement>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[array_values($value)]]></code>
-      <code><![CDATA[list<string>]]></code>
-    </MixedReturnTypeCoercion>
   </file>
   <file src="src/Controller/BackendTreeController.php">
     <MixedArgument>
@@ -1482,16 +1468,6 @@
       <code><![CDATA[$filter]]></code>
       <code><![CDATA[$filter]]></code>
     </MixedArgumentTypeCoercion>
-    <MixedOperand>
-      <code><![CDATA[$filter['operation']]]></code>
-    </MixedOperand>
-    <MixedReturnStatement>
-      <code><![CDATA[$array['children']]]></code>
-      <code><![CDATA[PropertyEqualsFilterBuilder::fromArray($filter)]]></code>
-      <code><![CDATA[PropertyGreaterThanFilterBuilder::fromArray($filter)]]></code>
-      <code><![CDATA[PropertyLessThanFilterBuilder::fromArray($filter)]]></code>
-      <code><![CDATA[PropertyValueLikeFilterBuilder::fromArray($filter)]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/DataDefinition/ModelRelationship/FilterBuilder/BaseComparingFilterBuilder.php">
     <MixedArgument>
