@@ -140,7 +140,7 @@ class GetGroupHeaderSubscriber
         $evaluation = $property->getExtra();
 
         if (isset($evaluation['multiple']) && !$evaluation['multiple'] && ('checkbox' === $property->getWidgetType())) {
-            return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
+            return $this->formatCheckboxOptionLabel((string) $model->getProperty($property->getName()));
         }
 
         if (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingMode) {
@@ -166,7 +166,7 @@ class GetGroupHeaderSubscriber
             $remoteNew = '-';
         }
 
-        return $remoteNew;
+        return (string) $remoteNew;
     }
 
     /**
@@ -202,7 +202,7 @@ class GetGroupHeaderSubscriber
         switch ($groupingMode) {
             case GroupAndSortingInformationInterface::GROUP_CHAR:
                 return $this->formatByCharGrouping(
-                    ViewHelpers::getReadableFieldValue($environment, $property, $model),
+                    (string) ViewHelpers::getReadableFieldValue($environment, $property, $model),
                     $groupingLength
                 );
 
@@ -219,7 +219,7 @@ class GetGroupHeaderSubscriber
                 return $this->formatByYearGrouping((int) $model->getProperty($property->getName()));
 
             default:
-                return ViewHelpers::getReadableFieldValue($environment, $property, $model);
+                return (string) ViewHelpers::getReadableFieldValue($environment, $property, $model);
         }
     }
 
@@ -255,7 +255,7 @@ class GetGroupHeaderSubscriber
             return '-';
         }
 
-        $event = new ParseDateEvent($value, Config::get('dateFormat'));
+        $event = new ParseDateEvent($value, (string) Config::get('dateFormat'));
         $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
 
         return $event->getResult();

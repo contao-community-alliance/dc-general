@@ -44,7 +44,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * The properties to be allowed to be searched on.
      *
-     * @var array
+     * @var list<string>
      */
     private array $arrProperties = [];
 
@@ -74,11 +74,11 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         $values = [];
         if ($this->getSessionStorage()->has('search')) {
-            $values = $this->getSessionStorage()->get('search');
+            $values = (array) $this->getSessionStorage()->get('search');
         }
 
         if (\array_key_exists($definition->getName(), $values)) {
-            return $values[$definition->getName()];
+            return (array) $values[$definition->getName()];
         }
 
         return [];
@@ -101,7 +101,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         $values = [];
         if ($this->getSessionStorage()->has('search')) {
-            $values = $this->getSessionStorage()->get('search');
+            $values = (array) $this->getSessionStorage()->get('search');
         }
 
         if (!empty($searchValue)) {
@@ -133,15 +133,15 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
-                $field = $input->getValue('tl_field');
-                $value = $input->getValue('tl_value');
+                $field = (string) $input->getValue('tl_field');
+                $value = (string) $input->getValue('tl_value');
 
                 $this->setPersistent($field, $value);
             } elseif ($session->has('search')) {
                 $persistent = $this->getPersistent();
                 if ($persistent) {
-                    $field = $persistent['field'];
-                    $value = $persistent['value'];
+                    $field = (string) $persistent['field'];
+                    $value = (string) $persistent['value'];
                 }
             }
 

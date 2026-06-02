@@ -873,11 +873,6 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Subscriber/GetGroupHeaderSubscriber.php">
-    <MixedArgument>
-      <code><![CDATA[$model->getProperty($property->getName())]]></code>
-      <code><![CDATA[Config::get('dateFormat')]]></code>
-      <code><![CDATA[ViewHelpers::getReadableFieldValue($environment, $property, $model)]]></code>
-    </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$evaluation['reference'][$value]]]></code>
     </MixedArrayAccess>
@@ -892,11 +887,6 @@
       <code><![CDATA[$remoteNew]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$remoteNew]]></code>
-      <code><![CDATA[$remoteNew]]></code>
-      <code><![CDATA[ViewHelpers::getReadableFieldValue($environment, $property, $model)]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Subscriber/MultipleHandlerSubscriber.php">
     <MixedAssignment>
@@ -1631,41 +1621,13 @@
     </MixedAssignment>
   </file>
   <file src="src/Panel/DefaultSearchElement.php">
-    <MixedArgument>
-      <code><![CDATA[$field]]></code>
-      <code><![CDATA[$field]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$values]]></code>
-    </MixedArgument>
-    <MixedArrayAccess>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-    </MixedArrayAccess>
     <MixedArrayAssignment>
-      <code><![CDATA[$values[$definitionName]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
-      <code><![CDATA[$values[$definitionName]]]></code>
       <code><![CDATA[$values[$definitionName]['field']]]></code>
       <code><![CDATA[$values[$definitionName]['value']]]></code>
     </MixedArrayAssignment>
-    <MixedAssignment>
-      <code><![CDATA[$field]]></code>
-      <code><![CDATA[$field]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$values]]></code>
-      <code><![CDATA[$values]]></code>
-    </MixedAssignment>
     <MixedReturnStatement>
       <code><![CDATA[$this->mixValue]]></code>
-      <code><![CDATA[$values[$definition->getName()]]]></code>
     </MixedReturnStatement>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[$this->arrProperties]]></code>
-      <code><![CDATA[array]]></code>
-    </MixedReturnTypeCoercion>
   </file>
   <file src="src/View/ActionHandler/AbstractPropertyOverrideEditAllHandler.php">
     <MixedArgument>
