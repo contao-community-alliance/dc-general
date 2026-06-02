@@ -112,7 +112,7 @@ class TreePickerProvider extends AbstractAwarePickerProvider implements DcaPicke
             return (int) $value;
         }
 
-        return '{{link_url::' . $value . '}}';
+        return '{{link_url::' . (string) $value . '}}';
     }
 
     /**

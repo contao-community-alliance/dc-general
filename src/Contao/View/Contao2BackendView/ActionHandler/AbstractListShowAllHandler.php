@@ -903,7 +903,7 @@ abstract class AbstractListShowAllHandler
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $sessionName = $definition->getName() . '.' . $inputProvider->getParameter('mode');
+        $sessionName = $definition->getName() . '.' . (string) $inputProvider->getParameter('mode');
         if (!$sessionStorage->has($sessionName)) {
             return [];
         }

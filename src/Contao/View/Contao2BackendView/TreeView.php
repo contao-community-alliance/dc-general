@@ -868,7 +868,7 @@ class TreeView extends BaseView
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $sessionName = $definition->getName() . '.' . $inputProvider->getParameter('mode');
+        $sessionName = $definition->getName() . '.' . (string) $inputProvider->getParameter('mode');
 
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);

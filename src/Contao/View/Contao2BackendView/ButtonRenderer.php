@@ -749,7 +749,7 @@ class ButtonRenderer
                     ->setFields([$toggleProperty])
             );
             if (null === $propModel) {
-                throw new DcGeneralInvalidArgumentException('Model not found: ' . $model->getId());
+                throw new DcGeneralInvalidArgumentException('Model not found: ' . (string) $model->getId());
             }
             $dataProvider->setCurrentLanguage($language);
         }

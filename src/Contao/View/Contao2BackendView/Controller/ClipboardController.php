@@ -170,7 +170,7 @@ class ClipboardController implements EventSubscriberInterface
                 break;
 
             case 'cut':
-                $permissionMessage .= $inputProvider->getParameter('source');
+                $permissionMessage .= (string) $inputProvider->getParameter('source');
                 break;
 
             default:
@@ -218,7 +218,9 @@ class ClipboardController implements EventSubscriberInterface
             return;
         }
 
-        $addToUrlEvent = new AddToUrlEvent('clipboard-item=&original-act=&act=' . $input->getParameter('original-act'));
+        $addToUrlEvent = new AddToUrlEvent(
+            'clipboard-item=&original-act=&act=' . (string) $input->getParameter('original-act')
+        );
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
 
         $url = new UrlBuilder($addToUrlEvent->getUrl());
@@ -432,12 +434,12 @@ class ClipboardController implements EventSubscriberInterface
         }
 
         $inputAction   = $input->getParameter('act');
-        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $inputAction);
+        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . (string) $inputAction);
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearUrl = $addToUrlEvent->getUrl();
 
         $addToUrlEvent = new AddToUrlEvent(
-            'clipboard-item=%id%&act=clear-clipboard&original-act=' . $inputAction
+            'clipboard-item=%id%&act=clear-clipboard&original-act=' . (string) $inputAction
         );
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearItemUrl = $addToUrlEvent->getUrl();

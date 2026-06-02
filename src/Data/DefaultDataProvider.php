@@ -602,7 +602,7 @@ class DefaultDataProvider implements DataProviderInterface
                 && (false === \strpos((string) $child['property'], $this->source . '.'))
                 && $this->fieldExists($child['property'])
             ) {
-                $child['property'] = $this->source . '.' . $child['property'];
+                $child['property'] = $this->source . '.' . (string) $child['property'];
             }
 
             if (\array_key_exists('children', (array) $child)) {

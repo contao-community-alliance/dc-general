@@ -597,13 +597,13 @@ abstract class AbstractPropertyVisibilityHandler
 
             if (
                 isset($invisibleProperties[$condition->getPropertyName()])
-                || !$propertiesDefinition->hasProperty($condition->getPropertyName() . '.dummy')
+                || !$propertiesDefinition->hasProperty((string) $condition->getPropertyName() . '.dummy')
             ) {
                 continue;
             }
 
             $invisibleProperties[$condition->getPropertyName()]
-                = $propertiesDefinition->getProperty($condition->getPropertyName() . '.dummy');
+                = $propertiesDefinition->getProperty((string) $condition->getPropertyName() . '.dummy');
         }
     }
 

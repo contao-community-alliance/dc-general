@@ -356,7 +356,7 @@ class TreePicker extends Widget
         $this->handleInputNameForEditAll();
 
         $result = '<input type="hidden" value="' . $this->strName . '" name="FORM_INPUTS[]">' .
-                  '<h3><label>' . $this->label . '</label></h3>' . $this->generate();
+                  '<h3><label>' . (string) $this->label . '</label></h3>' . $this->generate();
 
         if ($GLOBALS['TL_CONFIG']['showHelp']) {
             $result .= '<p class="tl_help tl_tip">' . $label . '</p>';
@@ -1723,7 +1723,7 @@ class TreePicker extends Widget
         foreach ($collection as $model) {
             /** @var ModelInterface $model */
 
-            $toggleID = $model->getProviderName() . '_' . $treeClass . '_' . $model->getId();
+            $toggleID = $model->getProviderName() . '_' . $treeClass . '_' . (string) $model->getId();
 
             $content[] = $this->parseModel($model, $toggleID);
 

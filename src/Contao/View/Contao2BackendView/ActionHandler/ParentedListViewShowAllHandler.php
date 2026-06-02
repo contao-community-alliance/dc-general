@@ -343,7 +343,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $isRendered = true;
 
-        $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
+        $event = new ParseDateEvent($value, Config::get((string) $evaluation['rgxp'] . 'Format'));
 
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);

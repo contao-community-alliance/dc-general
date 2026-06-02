@@ -285,9 +285,6 @@
       <code><![CDATA[$fieldType]]></code>
       <code><![CDATA[$rootNodes]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$value]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/SessionStorage.php">
     <MixedArgument>
@@ -343,7 +340,6 @@
     </MixedAssignment>
     <MixedOperand>
       <code><![CDATA[$field]]></code>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
     </MixedOperand>
     <MixedReturnStatement>
       <code><![CDATA[$session[$selectAction]]]></code>
@@ -385,7 +381,6 @@
     </MixedMethodCall>
     <MixedOperand>
       <code><![CDATA[$fieldSets[$index]['class']]]></code>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
     </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/OverrideAllHandler.php">
@@ -419,9 +414,6 @@
       <code><![CDATA[getName]]></code>
       <code><![CDATA[setExtra]]></code>
     </MixedMethodCall>
-    <MixedOperand>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/PasteAllHandler.php">
     <MixedArgument>
@@ -490,11 +482,6 @@
       <code><![CDATA[$session]]></code>
     </MixedAssignment>
     <MixedOperand>
-      <code><![CDATA[$extra['orderField']]]></code>
-      <code><![CDATA[$extra['orderField']]]></code>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
       <code><![CDATA[$inputProvider->getParameter('mode') ?? 'edit']]></code>
     </MixedOperand>
   </file>
@@ -502,8 +489,8 @@
     <MixedArgument>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
-      <code><![CDATA[Config::get($evaluation['rgxp'] . 'Format')]]></code>
       <code><![CDATA[Config::get('datimFormat')]]></code>
+      <code><![CDATA[Config::get((string) $evaluation['rgxp'] . 'Format')]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$value]]></code>
@@ -521,9 +508,6 @@
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$evaluation['rgxp']]]></code>
-    </MixedOperand>
     <MixedReturnStatement>
       <code><![CDATA[$value ?? '']]></code>
       <code><![CDATA[$value ?? '']]></code>
@@ -638,9 +622,6 @@
       <code><![CDATA[$collection]]></code>
       <code><![CDATA[$parameters['pid']]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$model->getId()]]></code>
-    </MixedOperand>
     <MixedReturnTypeCoercion>
       <code><![CDATA[$parameters]]></code>
       <code><![CDATA[$parameters]]></code>
@@ -696,12 +677,6 @@
       <code><![CDATA[$parentIdRaw]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$input->getParameter('original-act')]]></code>
-      <code><![CDATA[$inputAction]]></code>
-      <code><![CDATA[$inputAction]]></code>
-      <code><![CDATA[$inputProvider->getParameter('source')]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/EditMask.php">
     <MixedArgumentTypeCoercion>
@@ -954,9 +929,7 @@
     <MixedOperand>
       <code><![CDATA[$model->getId()]]></code>
       <code><![CDATA[$model->getId()]]></code>
-      <code><![CDATA[$model->getId()]]></code>
       <code><![CDATA[$selectAction]]></code>
-      <code><![CDATA[$this->label]]></code>
     </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/TreeSelect.php">
@@ -1012,9 +985,6 @@
       <code><![CDATA[$selectAction]]></code>
       <code><![CDATA[$session]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$inputProvider->getParameter('mode')]]></code>
-    </MixedOperand>
     <MixedReturnStatement>
       <code><![CDATA[$session[$selectAction]]]></code>
     </MixedReturnStatement>
@@ -1266,9 +1236,6 @@
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$child['property']]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Data/DefaultDataProviderDBalUtils.php">
     <MixedReturnStatement>
@@ -1570,10 +1537,6 @@
       <code><![CDATA[getLabel]]></code>
       <code><![CDATA[getLabel]]></code>
     </MixedMethodCall>
-    <MixedOperand>
-      <code><![CDATA[$condition->getPropertyName()]]></code>
-      <code><![CDATA[$condition->getPropertyName()]]></code>
-    </MixedOperand>
   </file>
   <file src="src/deprecated-autoload.php">
     <MixedArgument>
