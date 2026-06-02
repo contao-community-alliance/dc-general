@@ -814,7 +814,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     {
         $arguments = $action->getArguments();
 
-        return $arguments['mode'];
+        return (string) $arguments['mode'];
     }
 
     /**

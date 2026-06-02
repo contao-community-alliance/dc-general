@@ -212,7 +212,7 @@ class EditMask
         $inputProvider = $this->getEnvironment()->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        return $inputProvider->getParameter('popup');
+        return (bool) $inputProvider->getParameter('popup');
     }
 
     /**
@@ -1150,7 +1150,7 @@ class EditMask
         $legendStates = $sessionStorage->get('LEGENDS') ?: [];
 
         if (\array_key_exists($definition->getName(), (array) $legendStates)) {
-            return $legendStates[$definition->getName()];
+            return (array) $legendStates[$definition->getName()];
         }
 
         return [];

@@ -283,7 +283,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $value = $options[$value];
         }
 
-        return $value ?? '';
+        return (string) ($value ?? '');
     }
 
     /**

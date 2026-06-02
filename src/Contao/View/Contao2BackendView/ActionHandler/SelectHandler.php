@@ -175,7 +175,7 @@ class SelectHandler
         }
 
         if ($regardSelectMode) {
-            return $inputProvider->getParameter('mode') ?: '';
+            return (string) ($inputProvider->getParameter('mode') ?: '');
         }
 
         return $inputProvider->getParameter('select') ?
@@ -544,7 +544,7 @@ class SelectHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        return $inputProvider->getParameter('select');
+        return (string) $inputProvider->getParameter('select');
     }
 
     /**

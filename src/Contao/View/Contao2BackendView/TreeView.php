@@ -887,6 +887,6 @@ class TreeView extends BaseView
             return [];
         }
 
-        return $session[$selectAction];
+        return (array) $session[$selectAction];
     }
 }

@@ -334,9 +334,6 @@
       <code><![CDATA[$selectAction]]></code>
       <code><![CDATA[$session]]></code>
     </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$session[$selectAction]]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/EditHandler.php">
     <MixedAssignment>
@@ -494,10 +491,6 @@
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$value ?? '']]></code>
-      <code><![CDATA[$value ?? '']]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/PasteHandler.php">
     <MixedArgument>
@@ -549,9 +542,6 @@
       <code><![CDATA[$values[$modelProperty][]]]></code>
     </MixedAssignment>
     <MixedReturnStatement>
-      <code><![CDATA[$inputProvider->getParameter('mode') ?: '']]></code>
-      <code><![CDATA[$inputProvider->getParameter('mode') ?: '']]></code>
-      <code><![CDATA[$inputProvider->getParameter('select')]]></code>
       <code><![CDATA[$response]]></code>
       <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>
       <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>
@@ -674,10 +664,6 @@
       <code><![CDATA[$propertyValue]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$inputProvider->getParameter('popup')]]></code>
-      <code><![CDATA[$legendStates[$definition->getName()]]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/FileSelect.php">
     <MixedArgument>
@@ -961,9 +947,6 @@
       <code><![CDATA[$selectAction]]></code>
       <code><![CDATA[$session]]></code>
     </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$session[$selectAction]]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ViewHelpers.php">
     <MixedArgument>
@@ -1366,11 +1349,6 @@
       <code><![CDATA[$setter]]></code>
       <code><![CDATA[$setter]]></code>
     </MixedAssignment>
-    <MixedReturnTypeCoercion>
-      <code><![CDATA[[$rule['local']]]]></code>
-      <code><![CDATA[[$rule['property']]]]></code>
-      <code><![CDATA[list<string>]]></code>
-    </MixedReturnTypeCoercion>
   </file>
   <file src="src/DataDefinition/Palette/Condition/Palette/PropertyFalseCondition.php">
     <MixedAssignment>
@@ -1474,7 +1452,6 @@
       <code><![CDATA[getName]]></code>
     </MixedMethodCall>
     <MixedReturnStatement>
-      <code><![CDATA[$arguments['mode']]]></code>
       <code><![CDATA[$session['editProperties'][$modelId->getSerialized()] ?? []]]></code>
       <code><![CDATA[$session['editProperties'][$modelId->getSerialized()] ?? []]]></code>
     </MixedReturnStatement>

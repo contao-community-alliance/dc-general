@@ -919,7 +919,7 @@ abstract class AbstractListShowAllHandler
             return [];
         }
 
-        return $session[$selectAction];
+        return (array) $session[$selectAction];
     }
 
     /**

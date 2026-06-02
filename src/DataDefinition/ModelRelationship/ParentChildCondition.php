@@ -476,13 +476,13 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         // Local is child property name.
         if (isset($rule['local'])) {
             /** @var array{local: string} $rule */
-            return [$rule['local']];
+            return [(string) $rule['local']];
         }
 
         // Remote is parent property name.
         if (isset($rule['property'])) {
             /** @var array{property: string} $rule */
-            return [$rule['property']];
+            return [(string) $rule['property']];
         }
 
         throw new \RuntimeException('Unexpected filter rule ' . \var_export($rule, true));
