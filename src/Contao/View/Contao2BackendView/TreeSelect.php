@@ -157,7 +157,7 @@ class TreeSelect
 
         $property = $definition
             ->getPropertiesDefinition()
-            ->getProperty($inputField);
+            ->getProperty((string) $inputField);
         $extra    = $property->getExtra();
 
         $information['eval'] = \array_merge($extra, $information['eval']);

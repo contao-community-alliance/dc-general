@@ -769,7 +769,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                     continue;
                 }
 
-                $revertModel->setProperty($property->getName(), $model->getProperty($property->getName()));
+                $revertModel->setProperty(
+                    (string) $property->getName(),
+                    $model->getProperty((string) $property->getName())
+                );
             }
 
             $dataProvider->save($revertModel);

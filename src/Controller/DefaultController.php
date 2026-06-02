@@ -869,7 +869,7 @@ class DefaultController implements ControllerInterface
             $previous      = $this->modelCollector->getModel($after);
             assert($previous instanceof ModelInterface);
 
-            $groupingValue = $previous->getProperty($groupingField);
+            $groupingValue = $previous->getProperty((string) $groupingField);
 
             foreach ($actions as $action) {
                 /** @var ModelInterface $model */

@@ -1310,12 +1310,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $extra = $property->getExtra();
             if (
                 !isset($extra['orderField'])
-                || !$container->getPropertiesDefinition()->hasProperty($extra['orderField'])
+                || !$container->getPropertiesDefinition()->hasProperty((string) $extra['orderField'])
             ) {
                 continue;
             }
 
-            $orderProperty = $container->getPropertiesDefinition()->getProperty($extra['orderField']);
+            $orderProperty = $container->getPropertiesDefinition()->getProperty((string) $extra['orderField']);
             if (false === (bool) $orderProperty->getWidgetType()) {
                 continue;
             }
@@ -1540,11 +1540,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 isset($extra['orderField'])
                 && array_key_exists($extra['orderField'], (array) $this->getFromDca('fields'))
             ) {
-                if (!$definition->hasProperty($extra['orderField'])) {
+                if (!$definition->hasProperty((string) $extra['orderField'])) {
                     $definition->addProperty(new DefaultProperty($extra['orderField']));
                 }
 
-                $orderProperty = $definition->getProperty($extra['orderField']);
+                $orderProperty = $definition->getProperty((string) $extra['orderField']);
                 $this->parseOrderProperty($property, $orderProperty);
             }
         }

@@ -277,7 +277,7 @@ class FileSelect
         assert($definition instanceof ContainerInterface);
 
         // Merge with the information from the data container.
-        $property = $definition->getPropertiesDefinition()->getProperty($propertyName);
+        $property = $definition->getPropertiesDefinition()->getProperty((string) $propertyName);
         $extra    = $property->getExtra();
 
         $information['eval'] = \array_merge($extra, (array) $information['eval']);

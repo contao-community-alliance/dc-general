@@ -213,7 +213,7 @@ class Ajax3X extends Ajax
         $arrData['id']       = $field;
         $arrData['name']     = $field;
         $arrData             = array_merge(
-            $definition->getPropertiesDefinition()->getProperty($field)->getExtra(),
+            $definition->getPropertiesDefinition()->getProperty((string) $field)->getExtra(),
             $arrData
         );
 

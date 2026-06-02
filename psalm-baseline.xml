@@ -167,10 +167,6 @@
       <code><![CDATA[$commandDca['toggleProperty']]]></code>
       <code><![CDATA[$extra['orderField']]]></code>
       <code><![CDATA[$extra['orderField']]]></code>
-      <code><![CDATA[$extra['orderField']]]></code>
-      <code><![CDATA[$extra['orderField']]]></code>
-      <code><![CDATA[$extra['orderField']]]></code>
-      <code><![CDATA[$extra['orderField']]]></code>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$flag]]></code>
       <code><![CDATA[$flag]]></code>
@@ -764,7 +760,6 @@
       <code><![CDATA[$modelId->getDataProviderName()
                 ? $sessionStorage->get('CURRENT_ID') : $inputProvider->getParameter('id')]]></code>
       <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
       <code><![CDATA[Environment::get('request')]]></code>
       <code><![CDATA[Environment::get('request')]]></code>
     </MixedArgument>
@@ -914,22 +909,17 @@
       <code><![CDATA[$currentLanguage]]></code>
       <code><![CDATA[$currentLanguage]]></code>
       <code><![CDATA[$idProperty]]></code>
-      <code><![CDATA[$idProperty]]></code>
       <code><![CDATA[$idValue]]></code>
       <code><![CDATA[$idValue]]></code>
-      <code><![CDATA[$inputProvider->getValue('name')]]></code>
       <code><![CDATA[$inputProvider->getValue('name')]]></code>
       <code><![CDATA[$model->getId()]]></code>
       <code><![CDATA[$model->getMeta('dc_gen_tv_level')]]></code>
       <code><![CDATA[$objChildCollection]]></code>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
       <code><![CDATA[$provider]]></code>
       <code><![CDATA[$sessionStorage->get($this->getToggleId())]]></code>
       <code><![CDATA[$subModel]]></code>
       <code><![CDATA[$subTable]]></code>
       <code><![CDATA[$subTable]]></code>
-      <code><![CDATA[$this->idProperty]]></code>
       <code><![CDATA[$this->value]]></code>
       <code><![CDATA[$value]]></code>
     </MixedArgument>
@@ -1013,7 +1003,6 @@
     <MixedArgument>
       <code><![CDATA[$GLOBALS['TL_LANG']['MSC']['treepicker']]]></code>
       <code><![CDATA[$information['eval']]]></code>
-      <code><![CDATA[$inputField]]></code>
       <code><![CDATA[$inputProvider->getParameter('value')]]></code>
       <code><![CDATA[$inputProvider->getValue('action')]]></code>
       <code><![CDATA[$inputTable]]></code>
@@ -1100,7 +1089,6 @@
     <MixedArgument>
       <code><![CDATA[$content]]></code>
       <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
       <code><![CDATA[$varInput]]></code>
       <code><![CDATA[Config::get('allowedDownload')]]></code>
     </MixedArgument>
@@ -1178,7 +1166,6 @@
   <file src="src/Controller/Ajax3X.php">
     <MixedArgument>
       <code><![CDATA[$field]]></code>
-      <code><![CDATA[$field]]></code>
       <code><![CDATA[$input->getValue('value')]]></code>
       <code><![CDATA[$input->getValue('value')]]></code>
       <code><![CDATA[$inputProvider->getValue('name')]]></code>
@@ -1232,7 +1219,6 @@
     <MixedArgument>
       <code><![CDATA[$action]]></code>
       <code><![CDATA[$action['model']]]></code>
-      <code><![CDATA[$groupingField]]></code>
       <code><![CDATA[$groupingField]]></code>
     </MixedArgument>
     <MixedArrayAccess>
@@ -1568,8 +1554,6 @@
   <file src="src/View/ActionHandler/AbstractPropertyOverrideEditAllHandler.php">
     <MixedArgument>
       <code><![CDATA[$model->getId()]]></code>
-      <code><![CDATA[$property->getName()]]></code>
-      <code><![CDATA[$property->getName()]]></code>
       <code><![CDATA[$renderInformation->offsetGet('error')]]></code>
       <code><![CDATA[Environment::get('request')]]></code>
       <code><![CDATA[Environment::get('request')]]></code>

@@ -286,7 +286,7 @@ class TreePicker extends Widget
 
             $property = $definition
                 ->getPropertiesDefinition()
-                ->getProperty($inputProvider->getValue('name'));
+                ->getProperty((string) $inputProvider->getValue('name'));
 
             foreach ($property->getExtra() as $k => $v) {
                 $this->$k = $v;
@@ -671,7 +671,7 @@ class TreePicker extends Widget
                 }
 
                 $formatted        = $this->formatModel($model, false);
-                $idValue          = $model->getProperty($idProperty);
+                $idValue          = $model->getProperty((string) $idProperty);
                 $values[$idValue] = $formatted[0]['content'];
             }
 
@@ -1534,8 +1534,8 @@ class TreePicker extends Widget
 
         $arguments = [];
         foreach ($formatter->getPropertyNames() as $propertyName) {
-            if ($properties->hasProperty($propertyName)) {
-                $propertyValue            = $model->getProperty($propertyName);
+            if ($properties->hasProperty((string) $propertyName)) {
+                $propertyValue            = $model->getProperty((string) $propertyName);
                 /** @psalm-suppress RedundantCast */
                 $arguments[$propertyName] = match (true) {
                     is_bool($propertyValue),
@@ -1680,7 +1680,7 @@ class TreePicker extends Widget
 
         $template = new ContaoBackendViewTemplate('widget_treepicker_entry');
         /** @psalm-suppress UndefinedThisPropertyFetch */
-        $idValue  = $model->getProperty($this->idProperty);
+        $idValue  = $model->getProperty((string) $this->idProperty);
         /** @psalm-suppress UndefinedThisPropertyFetch */
         $template
             ->setTranslator($translator)

@@ -616,7 +616,7 @@ class FileTree extends AbstractWidget
 
         // Merge with the information from the data container.
         $information['eval'] = \array_merge(
-            $dataDefinition->getPropertiesDefinition()->getProperty($propertyName)->getExtra(),
+            $dataDefinition->getPropertiesDefinition()->getProperty((string) $propertyName)->getExtra(),
             (array) $information['eval']
         );
 
