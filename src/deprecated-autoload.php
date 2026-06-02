@@ -41,7 +41,10 @@ spl_autoload_register(
 
         if (isset($classes[$class])) {
             // phpcs:disable Silencing errors is discouraged
-            @trigger_error('Class "' . $class . '" has been renamed to "' . $classes[$class] . '"', E_USER_DEPRECATED);
+            @trigger_error(
+                'Class "' . $class . '" has been renamed to "' . (string) $classes[$class] . '"',
+                E_USER_DEPRECATED
+            );
             // phpcs:enable
 
             if (!\class_exists($classes[$class])) {

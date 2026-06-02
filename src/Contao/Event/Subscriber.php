@@ -439,7 +439,8 @@ class Subscriber implements EventSubscriberInterface
         foreach ($value as $kk => $vv) {
             if (\is_array($vv)) {
                 $vals       = \array_values($vv);
-                $value[$kk] = $vals[0] . (null !== ($val = $vals[1] ?? null) ? ' (' . $val . ')' : '');
+                $value[$kk] = (string) $vals[0]
+                    . (null !== ($val = $vals[1] ?? null) ? ' (' . (string) $val . ')' : '');
             }
         }
 

@@ -269,10 +269,6 @@
       <code><![CDATA[addExtension]]></code>
       <code><![CDATA[getEnvironment]]></code>
     </MixedMethodCall>
-    <MixedOperand>
-      <code><![CDATA[$val]]></code>
-      <code><![CDATA[$vals[0]]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/Picker/PagePickerProvider.php">
     <MixedAssignment>
@@ -338,9 +334,6 @@
       <code><![CDATA[$selectAction]]></code>
       <code><![CDATA[$session]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$field]]></code>
-    </MixedOperand>
     <MixedReturnStatement>
       <code><![CDATA[$session[$selectAction]]]></code>
     </MixedReturnStatement>
@@ -363,7 +356,6 @@
       <code><![CDATA[$fields]]></code>
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
-      <code><![CDATA[$fieldSets[$index]['class']]]></code>
       <code><![CDATA[$fieldSets[$index]['model']]]></code>
     </MixedArrayAccess>
     <MixedArrayAssignment>
@@ -379,9 +371,6 @@
     <MixedMethodCall>
       <code><![CDATA[getName]]></code>
     </MixedMethodCall>
-    <MixedOperand>
-      <code><![CDATA[$fieldSets[$index]['class']]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/OverrideAllHandler.php">
     <MixedArgument>
@@ -481,9 +470,6 @@
       <code><![CDATA[$continueName]]></code>
       <code><![CDATA[$session]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$inputProvider->getParameter('mode') ?? 'edit']]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/ParentedListViewShowAllHandler.php">
     <MixedArgument>
@@ -594,11 +580,7 @@
       <code><![CDATA[$response]]></code>
       <code><![CDATA[$response]]></code>
       <code><![CDATA[$response]]></code>
-      <code><![CDATA[$selectAction]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$selectAction]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ButtonRenderer.php">
     <MixedArgument>
@@ -911,7 +893,6 @@
       <code><![CDATA[$root]]></code>
       <code><![CDATA[$rootId]]></code>
       <code><![CDATA[$rootId]]></code>
-      <code><![CDATA[$selectAction]]></code>
       <code><![CDATA[$sortDirection]]></code>
       <code><![CDATA[$subModel]]></code>
       <code><![CDATA[$subTable]]></code>
@@ -926,11 +907,6 @@
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$values[$idValue]]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$model->getId()]]></code>
-      <code><![CDATA[$model->getId()]]></code>
-      <code><![CDATA[$selectAction]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/TreeSelect.php">
     <MixedArgument>
@@ -1548,8 +1524,5 @@
       <code><![CDATA[$classes[$class]]]></code>
       <code><![CDATA[$classes[$class]]]></code>
     </MixedArrayAccess>
-    <MixedOperand>
-      <code><![CDATA[$classes[$class]]]></code>
-    </MixedOperand>
   </file>
 </files>

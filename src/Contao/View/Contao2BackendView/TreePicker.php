@@ -923,7 +923,7 @@ class TreePicker extends Widget
     private function generateBreadCrumbUrl(ModelInterface $model)
     {
         $toggleUrlEvent = new AddToUrlEvent(
-            'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
+            'ptg=' . (string) $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
 
         $dispatcher = $this->getEnvironment()->getEventDispatcher();
@@ -951,7 +951,7 @@ class TreePicker extends Widget
     private function generateToggleUrl(ModelInterface $model)
     {
         $toggleUrlEvent = new AddToUrlEvent(
-            'ptg=' . $model->getId() . '&amp;provider=' . $model->getProviderName()
+            'ptg=' . (string) $model->getId() . '&amp;provider=' . $model->getProviderName()
         );
 
         $dispatcher = $this->getEnvironment()->getEventDispatcher();
@@ -1848,7 +1848,7 @@ class TreePicker extends Widget
         assert($sessionStorage instanceof SessionStorageInterface);
         $sessionStorage->setScope($sessionKey);
 
-        $selectAction = $inputProvider->getParameter('select');
+        $selectAction = (string) $inputProvider->getParameter('select');
 
         /** @var array{models: list<string>} $session */
         $session = $sessionStorage->get($tableName . '.' . $selectAction);

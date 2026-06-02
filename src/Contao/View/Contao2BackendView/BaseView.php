@@ -724,7 +724,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $selectAction = $inputProvider->getParameter('select');
+        $selectAction = (string) $inputProvider->getParameter('select');
 
         $session = $sessionStorage->get($definition->getName() . '.' . $selectAction);
         if (!is_array($session) || !isset($session['models'])) {

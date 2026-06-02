@@ -250,7 +250,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
-            $fieldSets[$index]['class'] .= ' collapsed';
+            $fieldSets[$index]['class'] = (string) ($fieldSets[$index]['class'] ?? '') . ' collapsed';
         }
 
         return $fieldSets;

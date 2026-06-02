@@ -428,7 +428,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                 'action',
                 \str_replace(
                     'select=properties',
-                    'select=' . ($inputProvider->getParameter('mode') ?? 'edit'),
+                    'select=' . (string) ($inputProvider->getParameter('mode') ?? 'edit'),
                     (string) $template->get('action')
                 )
             );

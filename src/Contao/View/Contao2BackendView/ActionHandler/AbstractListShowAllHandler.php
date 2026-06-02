@@ -675,7 +675,8 @@ abstract class AbstractListShowAllHandler
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . (in_array($field, $columns) ? ' ordered_by' : ''),
+                'class'   => 'tl_folder_tlist col_' . (string) $field
+                    . (in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $this->translateButtonLabel($field, $definition->getName())
             ];
         }
