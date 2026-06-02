@@ -89,7 +89,7 @@ interface LegendInterface
     /**
      * Set the properties of this legend.
      *
-     * @param array|PropertyInterface[] $properties The properties.
+     * @param PropertyInterface[] $properties The properties.
      *
      * @return LegendInterface
      */
@@ -98,7 +98,7 @@ interface LegendInterface
     /**
      * Add all properties to this legend.
      *
-     * @param array|PropertyInterface[] $properties The properties.
+     * @param PropertyInterface[] $properties The properties.
      * @param PropertyInterface|null    $before     The property before the passed properties shall be inserted
      *                                              (optional).
      *

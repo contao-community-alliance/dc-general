@@ -46,7 +46,7 @@ interface ConditionChainInterface extends ConditionInterface
     /**
      * Set the conditions in this chain.
      *
-     * @param array|ConditionInterface[] $conditions The conditions.
+     * @param ConditionInterface[] $conditions The conditions.
      *
      * @return ConditionChainInterface
      */
@@ -55,7 +55,7 @@ interface ConditionChainInterface extends ConditionInterface
     /**
      * Add multiple conditions to this chain.
      *
-     * @param array|ConditionInterface[] $conditions The conditions.
+     * @param ConditionInterface[] $conditions The conditions.
      *
      * @return ConditionChainInterface
      */

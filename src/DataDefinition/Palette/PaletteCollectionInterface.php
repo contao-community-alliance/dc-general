@@ -40,7 +40,7 @@ interface PaletteCollectionInterface
     /**
      * Set all palettes in this collection.
      *
-     * @param array|PaletteInterface[] $palettes The palettes.
+     * @param PaletteInterface[] $palettes The palettes.
      *
      * @return self
      */
@@ -49,7 +49,7 @@ interface PaletteCollectionInterface
     /**
      * Add multiple palettes to this collection.
      *
-     * @param array|PaletteInterface[] $palettes The palettes.
+     * @param PaletteInterface[] $palettes The palettes.
      *
      * @return self
      */
