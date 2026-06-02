@@ -160,7 +160,7 @@ class LanguageFilter implements EventSubscriberInterface
         // Try to get the language from session.
         $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
 
-        if (!\array_key_exists($currentLanguage, $languages)) {
+        if (!\array_key_exists((string) $currentLanguage, $languages)) {
             $fallbackLanguage = $dataProvider->getFallbackLanguage($modelId);
             assert($fallbackLanguage instanceof LanguageInformationInterface);
 

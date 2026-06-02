@@ -325,7 +325,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
 
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
 
-        return \array_key_exists($property->getName(), $session['intersectProperties']);
+        return \array_key_exists($property->getName(), (array) $session['intersectProperties']);
     }
 
     /**

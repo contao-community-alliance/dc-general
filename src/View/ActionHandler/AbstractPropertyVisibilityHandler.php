@@ -552,7 +552,7 @@ abstract class AbstractPropertyVisibilityHandler
 
         $palette = $palettesDefinition->findPalette($model);
         foreach ($palette->getProperties() as $paletteProperty) {
-            if (!array_key_exists($paletteProperty->getName(), $session['intersectValues'])) {
+            if (!array_key_exists($paletteProperty->getName(), (array) $session['intersectValues'])) {
                 continue;
             }
 
@@ -871,7 +871,7 @@ abstract class AbstractPropertyVisibilityHandler
 
         $parentField = null;
         foreach ($childCondition->getSetters() as $setter) {
-            if (!array_key_exists('to_field', $setter)) {
+            if (!array_key_exists('to_field', (array) $setter)) {
                 continue;
             }
 

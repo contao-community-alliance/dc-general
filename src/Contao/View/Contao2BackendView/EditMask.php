@@ -1149,7 +1149,7 @@ class EditMask
 
         $legendStates = $sessionStorage->get('LEGENDS') ?: [];
 
-        if (\array_key_exists($definition->getName(), $legendStates)) {
+        if (\array_key_exists($definition->getName(), (array) $legendStates)) {
             return $legendStates[$definition->getName()];
         }
 

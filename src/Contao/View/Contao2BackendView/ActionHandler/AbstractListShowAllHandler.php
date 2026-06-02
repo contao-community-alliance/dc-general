@@ -914,7 +914,7 @@ abstract class AbstractListShowAllHandler
         }
 
         $session = $sessionStorage->get($sessionName);
-        if (!array_key_exists($selectAction, $session)) {
+        if (!array_key_exists($selectAction, (array) $session)) {
             return [];
         }
 

@@ -1474,7 +1474,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             ->setExtra(
                 array_merge(
                     [
-                        'sourceName' => explode('.', $propInfo['foreignKey'])[0],
+                        'sourceName' => explode('.', (string) $propInfo['foreignKey'])[0],
                         'idProperty' => 'id'
                     ],
                     $property->getExtra()

@@ -581,7 +581,7 @@ class TreePicker extends Widget
             $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
             $languages       = $controller->getSupportedLanguages($rootId);
 
-            if ([] !== $languages && !array_key_exists($currentLanguage, $languages)) {
+            if ([] !== $languages && !array_key_exists((string) $currentLanguage, $languages)) {
                 $fallbackLanguage = $dataDriver->getFallbackLanguage($rootId);
                 assert($fallbackLanguage instanceof LanguageInformationInterface);
 
@@ -1839,7 +1839,7 @@ class TreePicker extends Widget
             return;
         }
 
-        $tableName      = explode('____', $inputProvider->getValue('name'))[0];
+        $tableName      = explode('____', (string) $inputProvider->getValue('name'))[0];
         $sessionKey     = 'DC_GENERAL_' . strtoupper($tableName);
         $sessionFactory = System::getContainer()->get('cca.dc-general.session_factory');
         assert($sessionFactory instanceof SessionStorageFactory);

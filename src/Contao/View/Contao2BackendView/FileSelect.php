@@ -337,7 +337,7 @@ class FileSelect
         assert($inputProvider instanceof InputProviderInterface);
 
         $fileSelectorValues = [];
-        foreach (\array_filter(\explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
+        foreach (\array_filter(\explode(',', (string) $inputProvider->getParameter('value'))) as $k => $v) {
             // Can be a UUID or a path
             if (Validator::isStringUuid($v)) {
                 $fileSelectorValues[$k] = StringUtil::uuidToBin($v);

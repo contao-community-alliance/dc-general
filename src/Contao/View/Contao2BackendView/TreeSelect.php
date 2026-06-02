@@ -181,7 +181,7 @@ class TreeSelect
 
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $treeSelector */
         $treeSelector        = $widgetBuilder->buildWidget($property, $model);
-        $treeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
+        $treeSelector->value = \array_filter(\explode(',', (string) $inputProvider->getParameter('value')));
 
         // AJAX request.
         if (isset($ajax)) {

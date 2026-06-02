@@ -183,7 +183,6 @@
       <code><![CDATA[$name]]></code>
       <code><![CDATA[$operationsDca[$operationName]]]></code>
       <code><![CDATA[$propInfo]]></code>
-      <code><![CDATA[$propInfo['foreignKey']]]></code>
       <code><![CDATA[$propInfo['length']]]></code>
       <code><![CDATA[$property]]></code>
       <code><![CDATA[$property]]></code>
@@ -329,7 +328,6 @@
       <code><![CDATA[$grouping['mode']]]></code>
       <code><![CDATA[$grouping['property']]]></code>
       <code><![CDATA[$selectAction]]></code>
-      <code><![CDATA[$session]]></code>
       <code><![CDATA[Environment::get('request')]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
@@ -494,7 +492,6 @@
     <MixedArgument>
       <code><![CDATA[$continueName]]></code>
       <code><![CDATA[$continueName]]></code>
-      <code><![CDATA[$session['intersectProperties']]]></code>
       <code><![CDATA[$template->get('action')]]></code>
       <code><![CDATA[$template->get('action')]]></code>
     </MixedArgument>
@@ -683,7 +680,6 @@
       <code><![CDATA[$fields]]></code>
       <code><![CDATA[$item]]></code>
       <code><![CDATA[$reflectionPropClass->getValue($widget)]]></code>
-      <code><![CDATA[$rte]]></code>
       <code><![CDATA[$strFormat]]></code>
       <code><![CDATA[$widget->value]]></code>
     </MixedArgument>
@@ -732,9 +728,6 @@
     </MixedOperand>
   </file>
   <file src="src/Contao/View/Contao2BackendView/EditMask.php">
-    <MixedArgument>
-      <code><![CDATA[$legendStates]]></code>
-    </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$legendStates]]></code>
     </MixedArgumentTypeCoercion>
@@ -756,7 +749,6 @@
   <file src="src/Contao/View/Contao2BackendView/FileSelect.php">
     <MixedArgument>
       <code><![CDATA[$GLOBALS['TL_LANG']['MSC']['treepicker']]]></code>
-      <code><![CDATA[$inputProvider->getParameter('value')]]></code>
       <code><![CDATA[$modelId->getDataProviderName()
                 ? $sessionStorage->get('CURRENT_ID') : $inputProvider->getParameter('id')]]></code>
       <code><![CDATA[$propertyName]]></code>
@@ -824,7 +816,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/Filter/LanguageFilter.php">
     <MixedArgument>
-      <code><![CDATA[$currentLanguage]]></code>
       <code><![CDATA[$currentLanguage]]></code>
       <code><![CDATA[$inputProvider->getValue('language')]]></code>
       <code><![CDATA[$newLanguage]]></code>
@@ -907,11 +898,9 @@
   <file src="src/Contao/View/Contao2BackendView/TreePicker.php">
     <MixedArgument>
       <code><![CDATA[$currentLanguage]]></code>
-      <code><![CDATA[$currentLanguage]]></code>
       <code><![CDATA[$idProperty]]></code>
       <code><![CDATA[$idValue]]></code>
       <code><![CDATA[$idValue]]></code>
-      <code><![CDATA[$inputProvider->getValue('name')]]></code>
       <code><![CDATA[$model->getId()]]></code>
       <code><![CDATA[$model->getMeta('dc_gen_tv_level')]]></code>
       <code><![CDATA[$objChildCollection]]></code>
@@ -1003,7 +992,6 @@
     <MixedArgument>
       <code><![CDATA[$GLOBALS['TL_LANG']['MSC']['treepicker']]]></code>
       <code><![CDATA[$information['eval']]]></code>
-      <code><![CDATA[$inputProvider->getParameter('value')]]></code>
       <code><![CDATA[$inputProvider->getValue('action')]]></code>
       <code><![CDATA[$inputTable]]></code>
       <code><![CDATA[$inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId]]></code>
@@ -1037,7 +1025,6 @@
       <code><![CDATA[$childCollection]]></code>
       <code><![CDATA[$providerName]]></code>
       <code><![CDATA[$selectAction]]></code>
-      <code><![CDATA[$session]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$session[$selectAction]]]></code>
@@ -1089,7 +1076,6 @@
     <MixedArgument>
       <code><![CDATA[$content]]></code>
       <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$varInput]]></code>
       <code><![CDATA[Config::get('allowedDownload')]]></code>
     </MixedArgument>
     <MixedArrayAccess>
@@ -1141,7 +1127,6 @@
   <file src="src/Contao/View/Contao2BackendView/Widget/FileTreeOrder.php">
     <MixedArgument>
       <code><![CDATA[$files]]></code>
-      <code><![CDATA[$varInput]]></code>
     </MixedArgument>
     <MixedAssignment>
       <code><![CDATA[$binUuid]]></code>
@@ -1289,8 +1274,6 @@
   </file>
   <file src="src/Data/DefaultDataProvider.php">
     <MixedArgument>
-      <code><![CDATA[$child]]></code>
-      <code><![CDATA[$child]]></code>
       <code><![CDATA[$child['children']]]></code>
       <code><![CDATA[$child['property']]]></code>
       <code><![CDATA[$child['property']]]></code>
@@ -1301,6 +1284,7 @@
     </MixedArgumentTypeCoercion>
     <MixedArrayAccess>
       <code><![CDATA[$child['children']]]></code>
+      <code><![CDATA[$child['property']]]></code>
     </MixedArrayAccess>
     <MixedArrayAssignment>
       <code><![CDATA[$child['property']]]></code>
@@ -1601,8 +1585,6 @@
       <code><![CDATA[$informationProperty->getLabel() ?: $propertyName]]></code>
       <code><![CDATA[$paletteName]]></code>
       <code><![CDATA[$parentField]]></code>
-      <code><![CDATA[$session['intersectValues']]]></code>
-      <code><![CDATA[$setter]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[['%parent_property%' => $labelParentProperty, '%edit_property%' => $labelEditProperty]]]></code>

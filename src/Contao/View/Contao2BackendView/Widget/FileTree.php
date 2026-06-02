@@ -306,7 +306,7 @@ class FileTree extends AbstractWidget
             return '';
         }
 
-        $varInput = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
+        $varInput = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', (string) $varInput)));
 
         return $this->multiple ? $varInput : $varInput[0];
     }
