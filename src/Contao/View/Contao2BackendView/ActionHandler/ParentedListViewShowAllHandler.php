@@ -486,7 +486,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $href = '';
         foreach ($parameters as $key => $value) {
-            $href .= \sprintf('&%s=%s', $key, $value ?? '');
+            $href .= \sprintf('&%s=%s', $key, (string) ($value ?? ''));
         }
         /** @var AddToUrlEvent $urlAfter */
         $urlAfter = $dispatcher->dispatch(new AddToUrlEvent($href), ContaoEvents::BACKEND_ADD_TO_URL);

@@ -203,7 +203,7 @@ class Callbacks
                     'The "%s" service or alias has been removed or inlined when the container was compiled. ' .
                     'You should either make it public, ' .
                     'or stop using the container directly and use dependency injection instead.',
-                    $callback[0]
+                    (string) $callback[0]
                 )
             );
         }

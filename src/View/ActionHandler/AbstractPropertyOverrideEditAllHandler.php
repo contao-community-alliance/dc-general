@@ -157,7 +157,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         foreach (\array_keys($modelError) as $modelId) {
             $error[] = \sprintf(
                 '<strong><a href="%s#pal_%s">%s</a></strong>',
-                Environment::get('request'),
+                (string) Environment::get('request'),
                 \str_replace('::', '____', $modelId),
                 $modelId
             );
@@ -274,9 +274,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
                     $modelError[ModelId::fromModel($model)->getSerialized()][$errorPropertyName][] = \sprintf(
                         '<a href="%s#%s">No saved model[%s]. %s</a>',
-                        Environment::get('request'),
+                        (string) Environment::get('request'),
                         $inputField,
-                        $model->getId(),
+                        (string) $model->getId(),
                         $error
                     );
 

@@ -478,8 +478,8 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         return [
             'continue' => \sprintf(
                 '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">',
-                $continueName,
-                $continueName,
+                (string) $continueName,
+                (string) $continueName,
                 'c',
                 StringUtil::specialchars($this->translate('continue', 'dc-general')),
                 $onClick

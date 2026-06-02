@@ -317,9 +317,9 @@ class ViewHelpers
                 $event = new RedirectEvent(
                     sprintf(
                         'contao?do=%s&table=%s&pid=%s',
-                        $input->getParameter('do'),
-                        $input->getParameter('table'),
-                        $input->getParameter('pid')
+                        (string) $input->getParameter('do'),
+                        (string) $input->getParameter('table'),
+                        (string) $input->getParameter('pid')
                     )
                 );
                 self::dispatchRedirect($environment, $event);
@@ -327,13 +327,13 @@ class ViewHelpers
             $event = new RedirectEvent(
                 sprintf(
                     'contao?do=%s&table=%s',
-                    $input->getParameter('do'),
-                    $input->getParameter('table')
+                    (string) $input->getParameter('do'),
+                    (string) $input->getParameter('table')
                 )
             );
             self::dispatchRedirect($environment, $event);
         }
-        $event = new RedirectEvent(sprintf('contao?do=%s', $input->getParameter('do')));
+        $event = new RedirectEvent(sprintf('contao?do=%s', (string) $input->getParameter('do')));
 
         self::dispatchRedirect($environment, $event);
     }

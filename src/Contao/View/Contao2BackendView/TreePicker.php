@@ -1672,9 +1672,9 @@ class TreePicker extends Widget
             'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
             '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'url\':\'%s\'});',
             $toggleID,
-            $model->getId(),
+            (string) $model->getId(),
             $model->getProviderName(),
-            $model->getMeta('dc_gen_tv_level'),
+            (string) $model->getMeta('dc_gen_tv_level'),
             $this->generateToggleUrl($model)
         );
 

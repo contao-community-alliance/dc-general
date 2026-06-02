@@ -41,7 +41,6 @@
       <code><![CDATA[$callback[0]]]></code>
       <code><![CDATA[$callback[0]]]></code>
       <code><![CDATA[$callback[0]]]></code>
-      <code><![CDATA[$callback[0]]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$callback]]></code>
@@ -490,8 +489,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/SelectPropertyAllHandler.php">
     <MixedArgument>
-      <code><![CDATA[$continueName]]></code>
-      <code><![CDATA[$continueName]]></code>
       <code><![CDATA[$template->get('action')]]></code>
       <code><![CDATA[$template->get('action')]]></code>
     </MixedArgument>
@@ -518,7 +515,6 @@
     <MixedArgument>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value ?? '']]></code>
       <code><![CDATA[Config::get($evaluation['rgxp'] . 'Format')]]></code>
       <code><![CDATA[Config::get('datimFormat')]]></code>
     </MixedArgument>
@@ -901,8 +897,6 @@
       <code><![CDATA[$idProperty]]></code>
       <code><![CDATA[$idValue]]></code>
       <code><![CDATA[$idValue]]></code>
-      <code><![CDATA[$model->getId()]]></code>
-      <code><![CDATA[$model->getMeta('dc_gen_tv_level')]]></code>
       <code><![CDATA[$objChildCollection]]></code>
       <code><![CDATA[$provider]]></code>
       <code><![CDATA[$sessionStorage->get($this->getToggleId())]]></code>
@@ -1051,12 +1045,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/ViewHelpers.php">
     <MixedArgument>
-      <code><![CDATA[$input->getParameter('do')]]></code>
-      <code><![CDATA[$input->getParameter('do')]]></code>
-      <code><![CDATA[$input->getParameter('do')]]></code>
-      <code><![CDATA[$input->getParameter('pid')]]></code>
-      <code><![CDATA[$input->getParameter('table')]]></code>
-      <code><![CDATA[$input->getParameter('table')]]></code>
       <code><![CDATA[$routeName]]></code>
       <code><![CDATA[$routeName]]></code>
     </MixedArgument>
@@ -1537,10 +1525,7 @@
   </file>
   <file src="src/View/ActionHandler/AbstractPropertyOverrideEditAllHandler.php">
     <MixedArgument>
-      <code><![CDATA[$model->getId()]]></code>
       <code><![CDATA[$renderInformation->offsetGet('error')]]></code>
-      <code><![CDATA[Environment::get('request')]]></code>
-      <code><![CDATA[Environment::get('request')]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$session['editProperties'][$modelId->getSerialized()]]]></code>
