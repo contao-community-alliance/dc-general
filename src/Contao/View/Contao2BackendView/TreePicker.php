@@ -1203,7 +1203,7 @@ class TreePicker extends Widget
 
         foreach ($subTables as $subTable) {
             // Evaluate the child filter for this item.
-            $childFilter = $relationships->getChildCondition($model->getProviderName(), $subTable);
+            $childFilter = $relationships->getChildCondition($model->getProviderName(), (string) $subTable);
 
             // If we do not know how to render this table within here, continue with the next one.
             if (!$childFilter) {

@@ -448,14 +448,14 @@ class PasteAllHandler
         $inputProvider->setParameter('source', $clipboardItem->getModelId()->getSerialized());
 
         if (!$this->originalModel) {
-            $inputProvider->setParameter($collectionItem['pasteMode'], $collectionItem['pasteAfter']);
+            $inputProvider->setParameter((string) $collectionItem['pasteMode'], $collectionItem['pasteAfter']);
 
             return;
         }
 
         $pasteAfterId = ModelId::fromSerialized((string) $collectionItem['pasteAfter']);
         if ($pasteAfterId->getId() !== $this->originalModel->getID()) {
-            $inputProvider->setParameter($collectionItem['pasteMode'], $collectionItem['pasteAfter']);
+            $inputProvider->setParameter((string) $collectionItem['pasteMode'], $collectionItem['pasteAfter']);
 
             return;
         }
@@ -463,6 +463,6 @@ class PasteAllHandler
         assert($this->copiedModel instanceof ModelInterface);
         $copiedModelId = ModelId::fromModel($this->copiedModel);
 
-        $inputProvider->setParameter($collectionItem['pasteMode'], $copiedModelId->getSerialized());
+        $inputProvider->setParameter((string) $collectionItem['pasteMode'], $copiedModelId->getSerialized());
     }
 }

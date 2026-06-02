@@ -80,9 +80,7 @@
   <file src="src/Contao/Dca/Builder/Legacy/ExtendedLegacyDcaDataDefinitionBuilder.php">
     <MixedArgument>
       <code><![CDATA[$childCondition['from']]]></code>
-      <code><![CDATA[$childCondition['from']]]></code>
       <code><![CDATA[$childCondition['inverse'] ?? []]]></code>
-      <code><![CDATA[$childCondition['to']]]></code>
       <code><![CDATA[$childCondition['to']]]></code>
       <code><![CDATA[$class]]></code>
       <code><![CDATA[$class]]></code>
@@ -104,7 +102,6 @@
       <code><![CDATA[$providerName]]></code>
       <code><![CDATA[$setter]]></code>
       <code><![CDATA[$setter]]></code>
-      <code><![CDATA[$sourceProvider]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$dataProviderDcaName]]></code>
@@ -325,7 +322,6 @@
       <code><![CDATA[$grouping['mode']]]></code>
       <code><![CDATA[$grouping['property']]]></code>
       <code><![CDATA[$selectAction]]></code>
-      <code><![CDATA[Environment::get('request')]]></code>
     </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$cssClasses]]></code>
@@ -432,9 +428,6 @@
       <code><![CDATA[$clipboardItem]]></code>
       <code><![CDATA[$clipboardItem->getModelId()]]></code>
       <code><![CDATA[$collectionItem]]></code>
-      <code><![CDATA[$collectionItem['pasteMode']]]></code>
-      <code><![CDATA[$collectionItem['pasteMode']]]></code>
-      <code><![CDATA[$collectionItem['pasteMode']]]></code>
       <code><![CDATA[$modelId->getSerialized()]]></code>
       <code><![CDATA[$subClipboardItem]]></code>
     </MixedArgument>
@@ -607,9 +600,6 @@
       <code><![CDATA[$input->getParameter('table')]]></code>
       <code><![CDATA[$inputProvider->getValue('name')]]></code>
       <code><![CDATA[$model ?? null]]></code>
-      <code><![CDATA[$response]]></code>
-      <code><![CDATA[$response]]></code>
-      <code><![CDATA[$response]]></code>
     </MixedArgument>
     <MixedArrayAssignment>
       <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb']]]></code>
@@ -738,8 +728,6 @@
       <code><![CDATA[$modelId->getDataProviderName()
                 ? $sessionStorage->get('CURRENT_ID') : $inputProvider->getParameter('id')]]></code>
       <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[Environment::get('request')]]></code>
-      <code><![CDATA[Environment::get('request')]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['BE_FFL']['fileSelector']]]></code>
@@ -892,7 +880,6 @@
       <code><![CDATA[$sessionStorage->get($this->getToggleId())]]></code>
       <code><![CDATA[$subModel]]></code>
       <code><![CDATA[$subTable]]></code>
-      <code><![CDATA[$subTable]]></code>
       <code><![CDATA[$this->value]]></code>
       <code><![CDATA[$value]]></code>
     </MixedArgument>
@@ -979,7 +966,6 @@
       <code><![CDATA[$inputProvider->getValue('action')]]></code>
       <code><![CDATA[$inputTable]]></code>
       <code><![CDATA[$inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId]]></code>
-      <code><![CDATA[$treeSelector->managerHref]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['TL_DCA'][$inputTable]]]></code>
@@ -1052,7 +1038,6 @@
   </file>
   <file src="src/Contao/View/Contao2BackendView/Widget/FileTree.php">
     <MixedArgument>
-      <code><![CDATA[$content]]></code>
       <code><![CDATA[$propertyName]]></code>
     </MixedArgument>
     <MixedArrayAccess>
@@ -1134,9 +1119,6 @@
       <code><![CDATA[$serializedId]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
-      <code><![CDATA[$widget->generate()]]></code>
-      <code><![CDATA[$widget->generateAjax($ajaxId, $field, $level)]]></code>
-      <code><![CDATA[$widget->generateAjax($folder, $field, $level)]]></code>
     </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['BE_FFL']['fileSelector']]]></code>

@@ -652,6 +652,6 @@ class FileTree extends AbstractWidget
             $content = $widget->generate();
         }
 
-        throw new ResponseException(new Response($content));
+        throw new ResponseException(new Response((string) $content));
     }
 }

@@ -165,7 +165,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 [$this, $name],
                 \array_values(\array_merge([$action], $action->getArguments()))
             );
-            $event->setResponse($response);
+            $event->setResponse((string) $response);
 
             return;
         }
@@ -175,7 +175,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
                 [$this, $name],
                 \array_merge([$action], $action->getArguments())
             );
-            $event->setResponse($response);
+            $event->setResponse((string) $response);
 
             return;
         }
@@ -188,7 +188,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             [$this, $name],
             \array_merge([$action], $action->getArguments())
         );
-        $event->setResponse($response);
+        $event->setResponse((string) $response);
     }
 
     /**

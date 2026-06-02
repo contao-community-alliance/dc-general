@@ -179,7 +179,7 @@ class Ajax3X extends Ajax
          * @psalm-suppress InvalidArgument - rather pass it "as is", we do not trust Contao annotations.
          * @psalm-suppress UndefinedDocblockClass
          */
-        $response = new Response($widget->generateAjax($ajaxId, $field, $level));
+        $response = new Response((string) $widget->generateAjax($ajaxId, $field, $level));
 
         throw new ResponseException($response);
     }
@@ -228,10 +228,10 @@ class Ajax3X extends Ajax
         // Load a particular node.
         if ('' !== $folder) {
             /** @psalm-suppress UndefinedDocblockClass */
-            $response = new Response($widget->generateAjax($folder, $field, $level));
+            $response = new Response((string) $widget->generateAjax($folder, $field, $level));
         } else {
             /** @psalm-suppress UndefinedDocblockClass */
-            $response = new Response($widget->generate());
+            $response = new Response((string) $widget->generate());
         }
 
         throw new ResponseException($response);

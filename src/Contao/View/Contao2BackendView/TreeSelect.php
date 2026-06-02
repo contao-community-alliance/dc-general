@@ -206,8 +206,10 @@ class TreeSelect
          * @psalm-suppress UndefinedMagicPropertyFetch
          */
         if ($treeSelector->managerHref) {
-            $template
-                ->set('managerHref', 'contao?' . StringUtil::ampersand($treeSelector->managerHref) . '&amp;popup=1');
+            $template->set(
+                'managerHref',
+                'contao?' . StringUtil::ampersand((string) $treeSelector->managerHref) . '&amp;popup=1'
+            );
         }
 
         // Prevent debug output at all cost.

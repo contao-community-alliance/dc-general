@@ -443,7 +443,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         if (null !== ($childConditions = $this->getFromDca('dca_config/childCondition'))) {
             foreach ((array) $childConditions as $childCondition) {
                 /** @var ParentChildConditionInterface $relationship */
-                $relationship = $definition->getChildCondition($childCondition['from'], $childCondition['to']);
+                $relationship = $definition->getChildCondition(
+                    (string) $childCondition['from'],
+                    (string) $childCondition['to']
+                );
                 if (!$relationship instanceof ParentChildConditionInterface) {
                     $relationship = new ParentChildCondition();
                     $relationship
@@ -603,7 +606,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         }
 
         $relationship   = $container->getModelRelationshipDefinition();
-        $childCondition = $relationship->getChildCondition($sourceProvider, $container->getName());
+        $childCondition = $relationship->getChildCondition((string) $sourceProvider, $container->getName());
         if (null === $childCondition) {
             throw new DcGeneralInvalidArgumentException(
                 'Invalid configuration. Child condition must be defined!'

@@ -170,7 +170,7 @@ class FileSelect
         $template->addSearch = $fileSelector->searchField;
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->search = $GLOBALS['TL_LANG']['MSC']['search'];
-        $template->action = StringUtil::ampersand(Environment::get('request'));
+        $template->action = StringUtil::ampersand((string) Environment::get('request'));
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->value = $sessionStorage->get('file_selector_search');
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
@@ -205,8 +205,11 @@ class FileSelect
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $template->switch = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
-            $template->switchHref =
-                \str_replace('contao/file.php', 'contao/page.php', StringUtil::ampersand(Environment::get('request')));
+            $template->switchHref = \str_replace(
+                'contao/file.php',
+                'contao/page.php',
+                StringUtil::ampersand((string) Environment::get('request'))
+            );
         }
 
         // Prevent debug output at all cost.

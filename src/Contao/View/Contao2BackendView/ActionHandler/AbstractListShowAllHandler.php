@@ -465,7 +465,7 @@ abstract class AbstractListShowAllHandler
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
         // Fixup form action for edit multiple selection screens.
-        $action = '/' . StringUtil::ampersand(Environment::get('request'));
+        $action = '/' . StringUtil::ampersand((string) Environment::get('request'));
         if (
 //            ('tl_select' === $provider->getValue('FORM_SUBMIT'))
 //            && (null !== $provider->getValue('edit'))
