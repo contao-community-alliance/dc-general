@@ -47,7 +47,7 @@ interface ConditionChainInterface extends ConditionInterface
     /**
      * Set the conditions in this chain.
      *
-     * @param ConditionInterface[] $conditions The conditions.
+     * @param list<ConditionInterface> $conditions The conditions.
      *
      * @return ConditionChainInterface
      */
@@ -56,7 +56,7 @@ interface ConditionChainInterface extends ConditionInterface
     /**
      * Add multiple conditions to this chain.
      *
-     * @param ConditionInterface[] $conditions The conditions.
+     * @param list<ConditionInterface> $conditions The conditions.
      *
      * @return ConditionChainInterface
      */
@@ -83,7 +83,7 @@ interface ConditionChainInterface extends ConditionInterface
     /**
      * Retrieve the conditions contained in the chain.
      *
-     * @return ConditionInterface[]
+     * @return list<ConditionInterface>
      */
     public function getConditions();
 

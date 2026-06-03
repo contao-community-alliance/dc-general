@@ -46,8 +46,8 @@ abstract class AbstractConditionChain implements ConditionChainInterface
     /**
      * Create a new condition chain.
      *
-     * @param ConditionInterface[] $conditions  The conditions to initialize the chain with (optional).
-     * @param string               $conjunction The conjunction this chain contains (defaults to AND).
+     * @param list<ConditionInterface> $conditions  The conditions to initialize the chain with (optional).
+     * @param string                   $conjunction The conjunction this chain contains (defaults to AND).
      */
     public function __construct(array $conditions = [], $conjunction = self::AND_CONJUNCTION)
     {
@@ -76,8 +76,6 @@ abstract class AbstractConditionChain implements ConditionChainInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @param ConditionInterface[] $conditions
      */
     #[\Override]
     public function addConditions(array $conditions)

@@ -63,8 +63,6 @@ class PaletteCollection implements PaletteCollectionInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @param PaletteInterface[] $palettes
      */
     #[\Override]
     public function addPalettes(array $palettes)
