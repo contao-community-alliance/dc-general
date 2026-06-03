@@ -58,11 +58,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 /**
  * Class Subscriber - gateway to the legacy Contao HOOK style callbacks.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from $GLOBALS['TL_DCA'] and event data (mixed by design).
- * - PossiblyUndefinedArrayOffset when accessing array_values() results.
- * - Proper fix: Add null coalescing for array access; type the event data.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *

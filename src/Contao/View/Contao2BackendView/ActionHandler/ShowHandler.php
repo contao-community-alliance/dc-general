@@ -59,10 +59,6 @@ use function sprintf;
 /**
  * Handler class for handling the "show" action.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedArgument from mixed typed model property values.
- * - Proper fix: Typed property value accessors.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

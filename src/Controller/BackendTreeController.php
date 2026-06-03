@@ -58,12 +58,6 @@ use function is_array;
 /**
  * Handles the backend tree.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from $GLOBALS access.
- * - MixedMethodCall/UnsafeInstantiation on dynamic TreePicker class.
- * - LessSpecificReturnStatement for prepareTreeSelector() return type.
- * - Proper fix: Typed factory for TreePicker creation.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

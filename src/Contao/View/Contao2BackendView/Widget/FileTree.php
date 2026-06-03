@@ -61,11 +61,6 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @see https://github.com/contao/core/blob/master/system/modules/core/widgets/FileTree.php
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedMethodCall from dynamic widget instantiation ($widgetClass).
- * - MixedArrayAccess on $GLOBALS['BE_FFL'] lookups.
- * - Proper fix: Typed WidgetClassRegistry service.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @psalm-suppress PropertyNotSetInConstructor

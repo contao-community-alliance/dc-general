@@ -52,12 +52,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * This class is the abstract base for override/edit all "overrideAll/editAll" commands.
  *
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedArgumentTypeCoercion from iterating over InputProviderInterface::getValue() results.
- *   Proper fix: Use typed accessors; getValue() should ideally return string|null for specific keys.
- * - MixedAssignment when reading session data (returns mixed).
- *   Proper fix: Use typed session accessor or add @var annotation.
- *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */

@@ -46,12 +46,6 @@ use Doctrine\DBAL\Schema\Table;
  *
  * Default implementation for a data provider using the Contao default database as backend.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment when iterating over model properties (values are mixed by design).
- * - MixedReturnTypeCoercion for fetchAll() returning mixed collection.
- * - MixedAssignment: $data[$this->idProperty] = $model->getId() — mixed key.
- * - Proper fix: Type the property value store; add typed id accessor.
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)     - We have to keep them as we implement the interfaces.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) - There is no elegant way to reduce this class more without
  *                                                     reducing the interface.

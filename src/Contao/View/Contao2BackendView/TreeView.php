@@ -70,12 +70,6 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  *
  * Implementation for tree displaying.
  *
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedMethodCall from ModelInterface::getMeta() returning mixed.
- *   Proper fix: Add typed getMeta<T>() or use assert() + cast at each call site.
- * - MixedArgument when passing getMeta() results (e.g. CHILD_COLLECTIONS, TREE_VIEW_LEVEL) to typed methods.
- * - UndefinedClass/MissingDependency from missing devstack symlinks (not code issues).
- *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *

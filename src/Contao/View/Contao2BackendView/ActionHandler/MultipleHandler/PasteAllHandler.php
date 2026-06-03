@@ -46,10 +46,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * @return void
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from session data and model meta values (getMeta returns mixed).
- * - Proper fix: Typed session accessors; typed meta data accessors.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

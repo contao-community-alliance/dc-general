@@ -59,10 +59,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * This class handles the rendering of parented list view "showAll" actions.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedArgument from command parameters (array values are mixed).
- * - Proper fix: Type the command parameter values.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *

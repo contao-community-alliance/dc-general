@@ -87,12 +87,6 @@ use function trigger_error;
 /**
  * This class is the abstract base for parent list and plain list "showAll" commands.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedArgument from getMeta() (returns mixed by design).
- * - MixedAssignment from PropertyNameIterator/formatter results.
- * - MixedArgumentTypeCoercion: array-key from foreach passed as string.
- *   Proper fix: Explicit (string) cast on foreach keys.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */

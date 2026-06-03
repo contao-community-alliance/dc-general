@@ -46,10 +46,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * The class handle the "overrideAll" commands.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from session and model property values.
- * - Proper fix: Typed session and property accessors.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

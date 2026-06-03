@@ -62,11 +62,6 @@ use function is_string;
  *
  * WARNING: This class is unusable since Contao 5.0 as various deprecated functionality has been removed in contao/core.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedArrayAccess on $GLOBALS['TL_DCA'] lookups (inherently untyped in Contao).
- * - MixedAssignment from InputProviderInterface::getValue() (returns mixed).
- * - Proper fix: Typed DCA accessor service; typed input accessors.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

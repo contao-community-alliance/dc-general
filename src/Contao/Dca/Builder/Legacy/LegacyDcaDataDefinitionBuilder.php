@@ -523,7 +523,6 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 if (!is_array($filter) || !isset($filter[0], $filter[1])) {
                     continue;
                 }
-                // FIXME: @psalm-suppress MixedArgument - DCA filter[1] (value) is intentionally mixed
                 $builder->andPropertyEquals((string) $filter[0], $filter[1]);
             }
 

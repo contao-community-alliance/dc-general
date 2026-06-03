@@ -51,11 +51,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * Back end tree picker for usage in generaltree.php.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedArrayAccess from $GLOBALS['TL_DCA'] lookups.
- * - MixedArgument from dynamic class/widget access.
- * - Proper fix: Typed DCA and widget registry services.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @deprecated Do not use - here for legacy reasons only.

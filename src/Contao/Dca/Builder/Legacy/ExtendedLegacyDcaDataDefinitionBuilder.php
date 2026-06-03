@@ -54,10 +54,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Build the container config from legacy DCA syntax.
  *
- * FIXME: Multiple psalm MixedAssignment/MixedArgument/MixedArrayAccess errors due to getFromDca() returning mixed.
- * Proper fix: Introduce typed accessor methods in DcaReadingDataDefinitionBuilder.
- * FIXME: MixedMethodCall on dynamic class instantiation (new $class()) — consider typed factory methods.
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *

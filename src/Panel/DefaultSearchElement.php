@@ -32,11 +32,6 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 /**
  * Default implementation of a search panel element.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedArrayAssignment to session data array (mixed by design).
- * - MixedReturnTypeCoercion for getPropertyNames() returning mixed array.
- * - Proper fix: Type the session storage schema; use typed panel element interface.
  * @api
  */
 class DefaultSearchElement extends AbstractElement implements SearchElementInterface

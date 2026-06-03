@@ -54,10 +54,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * Class CopyModelController handles copy action on a model.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from session data (returns mixed).
- * - Proper fix: Typed session accessor.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

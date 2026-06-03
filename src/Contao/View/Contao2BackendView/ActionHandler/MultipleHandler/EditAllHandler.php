@@ -47,10 +47,6 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 /**
  * The class handle the "editAll" commands.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedArgument from getInvalidPropertyErrors() return value (mixed array values).
- * - Proper fix: Type the error value passed to markPropertyValueAsInvalid().
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

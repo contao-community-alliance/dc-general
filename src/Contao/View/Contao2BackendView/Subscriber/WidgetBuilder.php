@@ -63,14 +63,6 @@ use function strtr;
 /**
  * Widget Builder build Contao backend widgets.
  *
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedReturnStatement from $GLOBALS['BE_FFL'] widget class lookup.
- *   Proper fix: Introduce a typed WidgetClassRegistry service.
- * - MixedMethodCall on dynamically instantiated widget classes (new $widgetClass(...)).
- *   Proper fix: Use a typed factory, or add assert($widget instanceof Widget).
- * - MixedArgument from PropertyInterface::getExtra() returning untyped array.
- *   Proper fix: Type the extra data with specific interfaces or typed value objects.
- *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CyclomaticComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

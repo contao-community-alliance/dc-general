@@ -59,11 +59,6 @@ use function sprintf;
 /**
  * Class ClipboardController.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from ModelInterface::getMeta() and session data (returns mixed).
- * - MixedArgument when passing getMeta() results to typed methods.
- * - Proper fix: Typed session accessors and typed meta data accessors.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

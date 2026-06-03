@@ -59,10 +59,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * This class is the base class for the different backend view mode sub-classes.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from session data and model meta values.
- * - Proper fix: Typed session accessors; typed model meta accessors.
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)

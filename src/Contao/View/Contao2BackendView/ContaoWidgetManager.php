@@ -57,11 +57,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * This class is responsible for creating widgets and processing data through them.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from $GLOBALS access (BE_FFL, TL_DCA).
- * - MixedMethodCall on dynamically instantiated widget classes.
- * - Proper fix: Typed WidgetClassRegistry; use assert() after instantiation.
  * @SuppressWarnings(PHPMD.LongClassName)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)

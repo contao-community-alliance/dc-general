@@ -69,13 +69,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *
  * It also handles the persisting of the model.
  *
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedArgument from InputProviderInterface::getValue()/getParameter() returning mixed.
- *   Proper fix: Use typed input accessor or cast explicitly at each call site.
- * - MixedAssignment from iterating over property collections (PropertyValueBag, etc.)
- * - MixedArgumentTypeCoercion when passing array-key values to methods expecting string.
- *   Proper fix: Ensure foreach variables are explicitly typed (e.g. (string) $key).
- *
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)

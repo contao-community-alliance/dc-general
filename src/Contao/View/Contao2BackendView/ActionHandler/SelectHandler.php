@@ -73,11 +73,6 @@ use function unserialize;
  *
  * This class handles multiple actions.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from session data (returns mixed).
- * - MixedAssignment when iterating over model property names.
- * - Proper fix: Typed session accessor; cast array-key to string.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *

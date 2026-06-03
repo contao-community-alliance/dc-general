@@ -114,17 +114,6 @@ use function vsprintf;
  * @property string $searchField
  * @property string $foreignTable
  *
- * FIXME: Multiple psalm type issues in this class:
- * - MixedAssignment from ModelInterface::getMeta() which returns mixed by design.
- *   Proper fix: Add typed getMeta<T>() generic or use explicit casts with type assertions.
- * - MixedArgument when passing getMeta() results to typed methods.
- *   Proper fix: Assert/cast at each call site.
- * - MixedMethodCall on $model::CONSTANT (class constants on mixed typed model).
- *   Proper fix: Add proper interface constants with type hints.
- * - MixedAssignment/$GLOBALS access (e.g. session, TL_DCA arrays).
- *   Proper fix: Use typed session accessors.
- * - UndefinedClass/MissingDependency errors are from missing devstack symlinks (not code issues).
- *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.TooManyFields)
  * @SuppressWarnings(PHPMD.TooManyMethods)

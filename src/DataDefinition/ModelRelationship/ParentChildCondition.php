@@ -31,11 +31,6 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 /**
  * Default implementation of a parent child relationship.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment/MixedArrayAccess from filter array elements (inherently untyped).
- * - MixedReturnTypeCoercion for methods returning list<string> from mixed arrays.
- * - Proper fix: Type the filter rule arrays with proper interfaces or value objects.
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *
  * @api

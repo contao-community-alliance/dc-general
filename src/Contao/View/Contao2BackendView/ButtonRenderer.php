@@ -74,11 +74,6 @@ use function trim;
 /**
  * This class is a helper for rendering the operation buttons in the views.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from ModelInterface::getMeta() (returns mixed).
- * - MixedArgument when passing mixed typed values to typed methods.
- * - Proper fix: Typed meta accessors per meta key.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *

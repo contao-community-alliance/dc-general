@@ -42,10 +42,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Handles the group header formatting.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from $GLOBALS access and DCA arrays.
- * - Proper fix: Typed DCA accessor service.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api

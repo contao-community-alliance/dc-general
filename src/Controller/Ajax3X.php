@@ -59,12 +59,6 @@ use function urldecode;
  * Class GeneralAjax - General purpose Ajax handler for "executePostActions" in Contao 3.X as we can not use the default
  * Contao handling.
  *
-
- * FIXME: Multiple psalm type issues:
- * - MixedAssignment from InputProviderInterface::getValue() (returns mixed).
- * - MixedReturnTypeCoercion from string conversion of mixed DCA values.
- * - MixedArgument when passing dynamic widget ($widget) results to Response.
- * - Proper fix: Cast getValue() results to expected types at each call site.
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
  * @api
