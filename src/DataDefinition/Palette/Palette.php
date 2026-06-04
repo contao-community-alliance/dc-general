@@ -284,7 +284,7 @@ class Palette implements PaletteInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public function getLegends(): array
+    public function getLegends()
     {
         return \array_values($this->legends);
     }

@@ -168,7 +168,7 @@ interface PaletteInterface
      *
      * @return list<LegendInterface>
      */
-    public function getLegends(): array;
+    public function getLegends();
 
     /**
      * Set the condition bound to this palette.

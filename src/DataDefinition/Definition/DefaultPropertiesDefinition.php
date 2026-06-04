@@ -44,7 +44,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public function getProperties(): array
+    public function getProperties()
     {
         return $this->properties;
     }
@@ -53,7 +53,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public function getPropertyNames(): array
+    public function getPropertyNames()
     {
         return \array_keys($this->properties);
     }
@@ -65,7 +65,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      *                                           name has already been registered.
      */
     #[\Override]
-    public function addProperty($property): static
+    public function addProperty($property)
     {
         if (!($property instanceof PropertyInterface)) {
             throw new DcGeneralInvalidArgumentException('Passed value is not an instance of PropertyInterface.');
@@ -88,7 +88,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      * @throws DcGeneralInvalidArgumentException When an a property with the given name has not been registered.
      */
     #[\Override]
-    public function removeProperty($property): static
+    public function removeProperty($property)
     {
         $name = ($property instanceof PropertyInterface) ? $property->getName() : $property;
 
@@ -105,7 +105,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public function hasProperty($name): bool
+    public function hasProperty($name)
     {
         return isset($this->properties[$name]);
     }
@@ -116,7 +116,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      * @throws DcGeneralInvalidArgumentException When a property with the given name has not been registered.
      */
     #[\Override]
-    public function getProperty($name): PropertyInterface
+    public function getProperty($name)
     {
         if (!$this->hasProperty($name)) {
             throw new DcGeneralInvalidArgumentException('Property ' . $name . ' is not registered.');
@@ -129,7 +129,7 @@ class DefaultPropertiesDefinition implements PropertiesDefinitionInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public function getIterator(): \ArrayIterator
+    public function getIterator(): \Traversable
     {
         return new \ArrayIterator($this->properties);
     }

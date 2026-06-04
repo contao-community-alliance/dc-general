@@ -97,7 +97,7 @@ class PaletteCollection implements PaletteCollectionInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public function getPalettes(): array
+    public function getPalettes()
     {
         return \array_values($this->palettes);
     }

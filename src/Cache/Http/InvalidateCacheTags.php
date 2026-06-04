@@ -173,7 +173,7 @@ class InvalidateCacheTags implements InvalidateCacheTagsInterface
      */
     private function cleanUpTags(array $tags): array
     {
-        /** @var string[] $cleaned */
+        /** @var list<string> $cleaned */
         $cleaned = \array_values(\array_filter(\array_unique($tags)));
 
         return $cleaned;
