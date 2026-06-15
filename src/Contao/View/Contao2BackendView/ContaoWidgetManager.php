@@ -452,6 +452,7 @@ class ContaoWidgetManager
         $content = (new ContaoBackendViewTemplate('dcbe_general_field'))
             ->set('strName', $property)
             ->set('strClass', $widget->tl_class)
+            ->set('isColorPicker', (bool) ($propInfo->getExtra()['colorpicker'] ?? false))
             ->set('widget', $isHideInput ? null : $widget->parse())
             ->set('hasErrors', $isHideInput ? null : $widget->hasErrors())
             ->set('strDatepicker', $isHideInput ? null : $this->getDatePicker($propInfo->getExtra(), $widget))
