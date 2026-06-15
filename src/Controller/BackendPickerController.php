@@ -10,6 +10,7 @@ use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\DcGeneral\Picker\IdTranscodingPickerProviderInterface;
 use ContaoCommunityAlliance\Translator\SymfonyTranslatorBridge;
 use Contao\Backend;
+use Contao\BackendUser;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
 use Contao\StringUtil;
@@ -77,8 +78,14 @@ final readonly class BackendPickerController
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
-            // Contao 5.7's be_main.html.twig requires the isDebug flag (used without a default).
+            // Contao 5.7's be_main.html.twig expects several backend variables without a default.
+            // The picker is shown in a popup, so render the main content only (this skips the
+            // header/menu chrome and the variables it would require).
             ->set('isDebug', (bool) System::getContainer()->getParameter('kernel.debug'))
+            ->set('renderMainOnly', true)
+            ->set('backendWidth', BackendUser::getInstance()->backendWidth)
+            ->set('host', Backend::getDecodedHostname())
+            ->set('headline', '')
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
             ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
