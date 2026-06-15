@@ -13,6 +13,7 @@ use Contao\Backend;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
 use Contao\StringUtil;
+use Contao\System;
 use Contao\Validator;
 use Contao\Widget;
 use InvalidArgumentException;
@@ -76,6 +77,8 @@ final readonly class BackendPickerController
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
+            // Contao 5.7's be_main.html.twig requires the isDebug flag (used without a default).
+            ->set('isDebug', (bool) System::getContainer()->getParameter('kernel.debug'))
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
             ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
