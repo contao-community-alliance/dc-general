@@ -14,11 +14,34 @@ $fieldsetStates = System::getContainer()->get('request_stack')->getSession()->ge
 
 // Add CSS
 $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/generalDriver.css';
+
+// Show the language switcher in a right-hand content-filter column (like the list view), but only
+// when the data is translatable - otherwise the grid would create an empty right column.
+$hasLanguageSwitcher = $this->language && !empty($this->languages);
 ?>
 <div data-controller="contao--jump-targets">
     <div class="jump-targets">
         <div class="inner" data-contao--jump-targets-target="navigation"></div>
     </div>
+
+    <?php if ($hasLanguageSwitcher): ?>
+        <div class="tl_show_all">
+            <div class="content-filter">
+                <?php
+                $this->insert(
+                    'dcbe_general_language_selector',
+                    [
+                        'language'         => $this->language,
+                        'languages'        => $this->languages,
+                        'fallbackLanguage' => $this->fallbackLanguage,
+                        'request'          => $request,
+                        'submit'           => $this->languageSubmit,
+                        'REQUEST_TOKEN'    => $requestToken,
+                    ]
+                ) ?>
+            </div>
+            <div class="content-inner">
+    <?php endif; ?>
 
     <?php if($this->versions): ?>
         <div class="tl_version_panel">
@@ -40,19 +63,6 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
             </form>
         </div>
     <?php endif; ?>
-
-    <?php
-    $this->insert(
-        'dcbe_general_language_selector',
-        [
-            'language'         => $this->language,
-            'languages'        => $this->languages,
-            'fallbackLanguage' => $this->fallbackLanguage,
-            'request'          => $request,
-            'submit'           => $this->languageSubmit,
-            'REQUEST_TOKEN'    => $requestToken,
-        ]
-    ) ?>
 
     <?= $this->getBackButton() ?>
 
@@ -115,6 +125,10 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
             </div>
         </div>
     </form>
+    <?php if ($hasLanguageSwitcher): ?>
+            </div><!-- /.content-inner -->
+        </div><!-- /.tl_show_all -->
+    <?php endif; ?>
 </div>
 <script>
     window.addEvent('domready', function() {

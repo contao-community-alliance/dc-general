@@ -73,30 +73,16 @@
   }
 
   .tl_language_panel {
-    float        : right;
-    clear        : right;
-    width        : var(--filter-width, 240px);
-    max-width    : 100%;
-    margin       : 0 0 10px 10px;
-    padding      : 14px 16px;
-    background   : var(--content-bg);
-    border       : 1px solid var(--content-border);
-    border-radius: var(--border-radius-lg);
+    padding    : 6px 0 7px 0;
   }
 
   .tl_language_panel fieldset {
-    border: 0;
-    padding: 0;
+    border-bottom: 1px solid var(--content-border);
+    padding-bottom: 16px;
   }
 
-  .tl_language_panel .tl_panel,
   .tl_language_panel .tl_formbody {
     padding-bottom: 0;
-  }
-
-  /* Clears the floated language panel so the edit form starts below it. */
-  .clear-content-filter {
-    clear: both;
   }
 
   .tl_language_panel .tl_img_submit {
