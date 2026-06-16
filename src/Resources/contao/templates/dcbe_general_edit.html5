@@ -20,10 +20,6 @@ $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/
 $hasLanguageSwitcher = $this->language && !empty($this->languages);
 ?>
 <div data-controller="contao--jump-targets">
-    <div class="jump-targets">
-        <div class="inner" data-contao--jump-targets-target="navigation"></div>
-    </div>
-
     <?php if ($hasLanguageSwitcher): ?>
         <div class="tl_show_all">
             <div class="content-filter">
@@ -42,6 +38,10 @@ $hasLanguageSwitcher = $this->language && !empty($this->languages);
             </div>
             <div class="content-inner">
     <?php endif; ?>
+
+    <div class="jump-targets">
+        <div class="inner" data-contao--jump-targets-target="navigation"></div>
+    </div>
 
     <?php if($this->versions): ?>
         <div class="tl_version_panel">
