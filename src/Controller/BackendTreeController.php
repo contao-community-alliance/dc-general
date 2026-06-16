@@ -72,6 +72,7 @@ class BackendTreeController
         private CcaTranslator $ccaTranslator,
         private EventDispatcherInterface $eventDispatcher,
         private PickerBuilderInterface $pickerBuilder,
+        private bool $debug = false,
     ) {
     }
 
@@ -156,6 +157,7 @@ class BackendTreeController
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
+            ->set('isDebug', $this->debug)
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
             ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
