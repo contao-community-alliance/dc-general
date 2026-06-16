@@ -203,3 +203,17 @@
     display : block
   }
 }
+
+/* Off-canvas filter panel (below 1280px): keep the close button on top and clickable.
+   Unlike Contao core, the dc-general content-filter starts with the language switcher whose
+   submit button would otherwise sit underneath the absolutely positioned close button. */
+@media (max-width: 1279.98px) {
+  .content-filter > .close {
+    z-index    : 6;
+    background : var(--content-bg);
+  }
+
+  .content-filter > .close + form {
+    margin-top : 24px;
+  }
+}
