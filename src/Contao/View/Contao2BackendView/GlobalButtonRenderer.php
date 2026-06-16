@@ -23,6 +23,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\StringUtil;
+use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
@@ -33,11 +34,14 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\CommandInte
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Contracts\Translation\TranslatorInterface as SymfonyTranslatorInterface;
 
 /**
  * This class is an helper for rendering the global operation buttons in the views.
  *
  * @api
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class GlobalButtonRenderer
 {
@@ -108,7 +112,49 @@ class GlobalButtonRenderer
         $buttonsEvent->setButtons($buttons);
         $this->dispatcher->dispatch($buttonsEvent, GetGlobalButtonsEvent::NAME);
 
-        return '<div id="tl_buttons">' . \implode('', $buttonsEvent->getButtons()) . '</div>';
+        return '<div id="tl_buttons">'
+            . \implode('', $buttonsEvent->getButtons())
+            . $this->renderFilterToggle($backendView)
+            . '</div>';
+    }
+
+    /**
+     * Render the toggle button that reveals the off-canvas filter panel on narrow viewports.
+     *
+     * The button is hidden by default and revealed below 1280px by Contao's flexible theme
+     * (`li:has(>.header_filter_toggle)`); it drives the `.content-filter` element via the
+     * contao--toggle-sender/contao--toggle-receiver Stimulus controllers.
+     *
+     * @param Contao2BackendViewDefinitionInterface $backendView The backend view definition.
+     *
+     * @return string
+     */
+    private function renderFilterToggle(Contao2BackendViewDefinitionInterface $backendView): string
+    {
+        // Only show the toggle when there actually is a filter/search panel.
+        if (0 === $backendView->getPanelLayout()->getRows()->getRowCount()) {
+            return '';
+        }
+
+        $translator = System::getContainer()->get('translator');
+        assert($translator instanceof SymfonyTranslatorInterface);
+
+        $label     = $translator->trans('DCA.toggleFilter.0', [], 'contao_default');
+        $titleShow = $translator->trans('DCA.toggleFilter.1', [], 'contao_default');
+        $titleHide = $translator->trans('DCA.toggleFilter.2', [], 'contao_default');
+
+        return \sprintf(
+            '<li style="display:none"><button type="button" class="header_filter_toggle" title="%s"'
+            . ' data-controller="contao--toggle-sender"'
+            . ' data-contao--toggle-sender-contao--toggle-receiver-outlet="#tl_content_filter"'
+            . ' data-contao--toggle-sender-active-title-value="%s"'
+            . ' data-contao--toggle-sender-inactive-title-value="%s"'
+            . ' data-action="contao--toggle-sender#toggle:prevent">%s</button></li>',
+            StringUtil::specialchars($titleShow),
+            StringUtil::specialchars($titleHide),
+            StringUtil::specialchars($titleShow),
+            $label
+        );
     }
 
     /**

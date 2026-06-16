@@ -63,6 +63,7 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface as SymfonyTranslatorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
@@ -734,7 +735,7 @@ class TreeView extends BaseView
         return strtr(
             <<<EOF
             <div class="tl_show_all">
-                <div class="content-filter">
+                {filterOpen}
                 {language}
                 {panel}
                 </div>
@@ -746,6 +747,7 @@ class TreeView extends BaseView
             </div>
             EOF,
             [
+                '{filterOpen}' => $this->contentFilterOpen(),
                 '{language}'  => $this->languageSwitcher($environment),
                 '{panel}'     => $this->panel($ignoredPanels),
                 '{buttons}'   => $this->generateHeaderButtons(),
@@ -753,6 +755,31 @@ class TreeView extends BaseView
                 '{body}'      => $this->viewTree($collection)
             ]
         );
+    }
+
+    /**
+     * Build the opening markup of the right-hand content-filter column.
+     *
+     * The element is positioned as an off-canvas panel below 1280px by Contao's flexible theme and
+     * driven via the contao--toggle-receiver Stimulus controller (paired with the header_filter_toggle
+     * button rendered into #tl_buttons).
+     *
+     * @return string
+     */
+    private function contentFilterOpen(): string
+    {
+        $translator = System::getContainer()->get('translator');
+        assert($translator instanceof SymfonyTranslatorInterface);
+        $close = StringUtil::specialchars($translator->trans('DCA.toggleFilter.2', [], 'contao_default'));
+
+        return '<div id="tl_content_filter" class="content-filter"'
+            . ' data-controller="contao--toggle-receiver"'
+            . ' data-contao--toggle-receiver-active-class="active"'
+            . ' data-contao--toggle-receiver-contao--toggle-sender-outlet=".header_filter_toggle"'
+            . ' data-action="click@document->contao--toggle-receiver#documentClick'
+            . ' keydown.esc->contao--toggle-receiver#close">'
+            . '<button type="button" class="close" title="' . $close . '"'
+            . ' aria-controls="tl_content_filter" data-action="contao--toggle-receiver#close">×</button>';
     }
 
     /**
