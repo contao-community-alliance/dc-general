@@ -718,7 +718,6 @@ class TreeView extends BaseView
         $this->handleNodeStateChanges();
 
         $collection = $this->loadCollection();
-        $content    = [];
 
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
@@ -732,13 +731,28 @@ class TreeView extends BaseView
             SortElementInterface::class
         ];
 
-        $content['language']  = $this->languageSwitcher($environment);
-        $content['panel']     = $this->panel($ignoredPanels);
-        $content['buttons']   = $this->generateHeaderButtons();
-        $content['clipboard'] = $viewEvent->getResponse();
-        $content['body']      = $this->viewTree($collection);
-
-        return \implode("\n", $content);
+        return strtr(
+            <<<EOF
+            <div class="tl_show_all">
+                <div class="content-filter">
+                {language}
+                {panel}
+                </div>
+                <div class="content-inner">
+                {buttons}
+                {clipboard}
+                {body}
+                </div>
+            </div>
+            EOF,
+            [
+                '{language}'  => $this->languageSwitcher($environment),
+                '{panel}'     => $this->panel($ignoredPanels),
+                '{buttons}'   => $this->generateHeaderButtons(),
+                '{clipboard}' => $viewEvent->getResponse(),
+                '{body}'      => $this->viewTree($collection)
+            ]
+        );
     }
 
     /**
