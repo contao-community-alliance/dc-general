@@ -19,6 +19,7 @@ composer.lock
 .sass-cache
 build/
 .phpunit.result.cache
+.phpunit.cache/
 
 # PHPCQ and related tools
 .php_cs.cache
