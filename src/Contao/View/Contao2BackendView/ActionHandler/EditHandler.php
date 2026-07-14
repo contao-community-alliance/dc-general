@@ -116,7 +116,16 @@ class EditHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $modelId      = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
+        // On a "new" entry the edit action may be dispatched without a usable model id (e.g. via a
+        // "New" button). ModelId::fromSerialized() would throw "Unparsable encoded id value" on the
+        // empty value, so handle this like the create action and render the edit mask for a fresh,
+        // empty model.
+        $idParameter = $inputProvider->getParameter('id');
+        if (null === $idParameter || '' === $idParameter) {
+            return $this->createEmptyModel($environment);
+        }
+
+        $modelId      = ModelId::fromSerialized((string) $idParameter);
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
@@ -134,6 +143,52 @@ class EditHandler
         $clone = clone $model;
         $clone->setId($model->getId());
 
+        if ('select' !== $inputProvider->getParameter('act')) {
+            $this->handleGlobalCommands($environment);
+        }
+
+        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb(), $this->editInformation))
+            ->execute();
+    }
+
+    /**
+     * Render the edit mask for a fresh, empty model.
+     *
+     * Used when the edit action is triggered without a model id (e.g. via a "New" button), which
+     * is semantically the same as creating a new record.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string|false
+     */
+    private function createEmptyModel(EnvironmentInterface $environment)
+    {
+        $view = $environment->getView();
+        if (!$view instanceof BaseView) {
+            return false;
+        }
+
+        $dataProvider = $environment->getDataProvider();
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        $model = $dataProvider->getEmptyModel();
+        $clone = $dataProvider->getEmptyModel();
+
+        // If some of the fields have a default value, set it.
+        foreach ($dataDefinition->getPropertiesDefinition()->getProperties() as $property) {
+            $propName = $property->getName();
+            if ((null === $property->getDefaultValue()) || !$dataProvider->fieldExists($propName)) {
+                continue;
+            }
+            $clone->setProperty($propName, $property->getDefaultValue());
+            $model->setProperty($propName, $property->getDefaultValue());
+        }
+
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
         if ('select' !== $inputProvider->getParameter('act')) {
             $this->handleGlobalCommands($environment);
         }

@@ -48,6 +48,17 @@ $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDef
         </script>
     <?php endif; ?>
     <?php if ($this->hasOrder): ?>
-        <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->id ?>", "ctrl_<?= $this->id ?>")</script>
+        <script>
+            // Write the drag & drop order into the dedicated order field (e.g. <name>__sort) when it
+            // is rendered. Inside a MultiColumnWizard row no separate order field exists, so fall back
+            // to the main control there (this is what c4929e70 "Fix sorting files in MCW" did globally,
+            // which broke the standard case). Detecting the field at runtime makes both cases work.
+            (function () {
+                var orderField = document.getElementById("ctrl_<?= $this->orderId ?>")
+                    ? "ctrl_<?= $this->orderId ?>"
+                    : "ctrl_<?= $this->id ?>";
+                Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", orderField, "ctrl_<?= $this->id ?>");
+            })();
+        </script>
     <?php endif; ?>
 </div>

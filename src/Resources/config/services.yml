@@ -97,3 +97,4 @@ services:
             - '@cca.translator.contao_translator'
             - '@event_dispatcher'
             - '@contao.picker.builder'
+            - '%kernel.debug%'

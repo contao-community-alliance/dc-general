@@ -62,7 +62,7 @@ class TreeNodeStates
      *
      * The states must be created via the getStates() method.
      *
-     * @param array $states The state array.
+     * @param array|null $states The state array (null is treated as an empty state).
      *
      * @return TreeNodeStates
      *
@@ -70,7 +70,9 @@ class TreeNodeStates
      */
     public function setStates($states)
     {
-        $this->states = $states;
+        // The state may be restored from session storage where it is null when nothing has been
+        // stored yet. Per the documented semantics an absent state means "no states".
+        $this->states = $states ?? [];
 
         return $this;
     }
@@ -93,13 +95,13 @@ class TreeNodeStates
     /**
      * Set the list of implicit open nodes.
      *
-     * @param array $implicitOpen The state array.
+     * @param array|null $implicitOpen The state array (null is treated as an empty list).
      *
      * @return TreeNodeStates
      */
     public function setImplicitOpen($implicitOpen)
     {
-        $this->implicitOpen = $implicitOpen;
+        $this->implicitOpen = $implicitOpen ?? [];
 
         return $this;
     }

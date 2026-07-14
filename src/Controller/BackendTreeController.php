@@ -34,6 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Factory\DcGeneralFactory;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use Contao\Backend;
+use Contao\BackendUser;
 use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
@@ -72,6 +73,7 @@ class BackendTreeController
         private CcaTranslator $ccaTranslator,
         private EventDispatcherInterface $eventDispatcher,
         private PickerBuilderInterface $pickerBuilder,
+        private bool $debug = false,
     ) {
     }
 
@@ -156,9 +158,16 @@ class BackendTreeController
         $template = new ContaoBackendViewTemplate('be_main');
         $template
             ->set('isPopup', true)
+            // The popup only renders the main column; skip the backend chrome (header, menu, aside)
+            // so be_main does not require their template variables.
+            ->set('renderMainOnly', true)
+            ->set('isDebug', $this->debug)
             ->set('main', $treeSelector->generatePopup())
             ->set('theme', Backend::getTheme())
             ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
+            ->set('host', Backend::getDecodedHostname())
+            ->set('backendWidth', BackendUser::getInstance()->backendWidth)
+            ->set('headline', '')
             ->set(
                 'title',
                 StringUtil::specialchars(

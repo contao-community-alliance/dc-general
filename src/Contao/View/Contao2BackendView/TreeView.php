@@ -63,6 +63,7 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface as SymfonyTranslatorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
@@ -720,7 +721,6 @@ class TreeView extends BaseView
         $this->handleNodeStateChanges();
 
         $collection = $this->loadCollection();
-        $content    = [];
 
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
@@ -734,13 +734,54 @@ class TreeView extends BaseView
             SortElementInterface::class
         ];
 
-        $content['language']  = $this->languageSwitcher($environment);
-        $content['panel']     = $this->panel($ignoredPanels);
-        $content['buttons']   = $this->generateHeaderButtons();
-        $content['clipboard'] = $viewEvent->getResponse();
-        $content['body']      = $this->viewTree($collection);
+        return strtr(
+            <<<EOF
+            <div class="tl_show_all">
+                {filterOpen}
+                {language}
+                {panel}
+                </div>
+                <div class="content-inner">
+                {buttons}
+                {clipboard}
+                {body}
+                </div>
+            </div>
+            EOF,
+            [
+                '{filterOpen}' => $this->contentFilterOpen(),
+                '{language}'  => $this->languageSwitcher($environment),
+                '{panel}'     => $this->panel($ignoredPanels),
+                '{buttons}'   => $this->generateHeaderButtons(),
+                '{clipboard}' => $viewEvent->getResponse(),
+                '{body}'      => $this->viewTree($collection)
+            ]
+        );
+    }
 
-        return \implode("\n", $content);
+    /**
+     * Build the opening markup of the right-hand content-filter column.
+     *
+     * The element is positioned as an off-canvas panel below 1280px by Contao's flexible theme and
+     * driven via the contao--toggle-receiver Stimulus controller (paired with the header_filter_toggle
+     * button rendered into #tl_buttons).
+     *
+     * @return string
+     */
+    private function contentFilterOpen(): string
+    {
+        $translator = System::getContainer()->get('translator');
+        assert($translator instanceof SymfonyTranslatorInterface);
+        $close = StringUtil::specialchars($translator->trans('DCA.toggleFilter.2', [], 'contao_default'));
+
+        return '<div id="tl_content_filter" class="content-filter"'
+            . ' data-controller="contao--toggle-receiver"'
+            . ' data-contao--toggle-receiver-active-class="active"'
+            . ' data-contao--toggle-receiver-contao--toggle-sender-outlet=".header_filter_toggle"'
+            . ' data-action="click@document->contao--toggle-receiver#documentClick'
+            . ' keydown.esc->contao--toggle-receiver#close">'
+            . '<button type="button" class="close" title="' . $close . '"'
+            . ' aria-controls="tl_content_filter" data-action="contao--toggle-receiver#close">×</button>';
     }
 
     /**

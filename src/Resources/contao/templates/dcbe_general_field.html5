@@ -5,7 +5,7 @@ use Contao\System;
 $translator = System::getContainer()->get('translator');
 assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface);
 ?>
-<div id="widget_<?= $this->strName; ?>" class="widget <?= $this->strClass ?>">
+<div id="widget_<?= $this->strName; ?>" class="widget <?= $this->strClass ?>"<?= $this->isColorPicker ? ' data-controller="contao--color-picker" data-contao--color-picker-theme-value="monolith"' : '' ?>>
   <?php if (!$this->disabled): ?>
     <input type="hidden" value="<?= $this->strName; ?>" name="FORM_INPUTS[]" />
   <?php endif; ?>
