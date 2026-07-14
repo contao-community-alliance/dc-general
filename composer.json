@@ -62,7 +62,7 @@
   },
   "require-dev": {
     "contao/manager-plugin": "^2.8",
-    "menatwork/contao-multicolumnwizard-bundle": "^3.6.15",
+    "menatwork/contao-multicolumnwizard-bundle": "^3.7",
     "phpcq/runner-bootstrap": "^1.0@dev"
   },
   "autoload": {
