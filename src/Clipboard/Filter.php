@@ -666,7 +666,7 @@ EXPR;
     /**
      * Or parent is not in.
      *
-     * @param ModelIdInterface[] $parentModelIds The parent ids.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -681,7 +681,7 @@ EXPR;
      * Add parent is not in.
      *
      * @param string          $conjunction    AND or OR.
-     * @param ModelIdInterface[] $parentModelIds The parent ids.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
