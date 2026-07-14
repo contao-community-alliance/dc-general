@@ -120,12 +120,12 @@ class EditHandler
         // "New" button). ModelId::fromSerialized() would throw "Unparsable encoded id value" on the
         // empty value, so handle this like the create action and render the edit mask for a fresh,
         // empty model.
-        $idParameter = $inputProvider->getParameter('id');
-        if (null === $idParameter || '' === $idParameter) {
+        $idParameter = (string) $inputProvider->getParameter('id');
+        if ('' === $idParameter) {
             return $this->createEmptyModel($environment);
         }
 
-        $modelId      = ModelId::fromSerialized((string) $idParameter);
+        $modelId      = ModelId::fromSerialized($idParameter);
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
