@@ -167,7 +167,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * internally it is cast to array.
      *
      * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param mixed                    $callbacks  The callbacks to be handled (from DCA, any type).
+     * @param list<callable>|callable  $callbacks  The callbacks to be handled (from DCA, any type).
      * @param string                   $eventName  The event to be registered to.
      * @param array                    $arguments  The arguments to pass to the constructor.
      * @param class-string             $listener   The listener class to use.
@@ -254,7 +254,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ] as $name => $callback
             ) {
                 if (isset($propInfo[$name])) {
-                    $this->parseCallback($dispatcher, $propInfo[$name], $callback['event'], $args, $callback['class']);
+                    /** @var mixed $callbacks */
+                    $callbacks = $propInfo[$name];
+                    $this->assertCallback($callbacks);
+                    $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
                 }
             }
         }
@@ -334,7 +337,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ]
             ] as $name => $callback
         ) {
-            if ($callbacks = $this->getArrayFromDca($name)) {
+            $callbacks = $this->getArrayFromDca($name);
+            $this->assertCallback($callbacks);
+            if ($callbacks) {
                 if (isset($callback['event']) && isset($callback['class'])) {
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
 
@@ -356,10 +361,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach ($this->getArrayFromDca('list/global_operations') as $name => $operation) {
-            if (is_array($operation) && isset($operation['button_callback'])) {
+            if (!\is_array($operation)) {
+                continue;
+            }
+            /** @var mixed $buttonCallback */
+            $buttonCallback = $operation['button_callback'] ?? null;
+            if (null !== $buttonCallback) {
+                $this->assertCallback($buttonCallback);
                 $this->parseCallback(
                     $dispatcher,
-                    [$operation['button_callback']],
+                    $buttonCallback,
                     GetGlobalButtonEvent::NAME,
                     [$container->getName(), $name],
                     ContainerGlobalButtonCallbackListener::class
@@ -368,10 +379,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach ($this->getArrayFromDca('list/operations') as $name => $operation) {
-            if (is_array($operation) && isset($operation['button_callback'])) {
+            if (!\is_array($operation)) {
+                continue;
+            }
+            /** @var mixed $buttonCallback */
+            $buttonCallback = $operation['button_callback'] ?? null;
+            if (null !== $buttonCallback) {
+                $this->assertCallback($buttonCallback);
                 $this->parseCallback(
                     $dispatcher,
-                    [$operation['button_callback']],
+                    $buttonCallback,
                     GetOperationButtonEvent::NAME,
                     [$container->getName(), $name],
                     ModelOperationButtonCallbackListener::class
@@ -479,7 +496,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @param string $path The DCA path (slash-separated).
      *
-     * @return array<array-key, mixed>
+     * @return array<array-key, mixed>|list<mixed>
      */
     private function getArrayFromDca(string $path): array
     {
@@ -1755,5 +1772,22 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         if ($property instanceof EmptyValueAwarePropertyInterface) {
             $property->setEmptyValue(Widget::getEmptyValueByFieldType($sqlType));
         }
+    }
+
+    /** @psalm-assert callable|list<callable> $callbacks */
+    private function assertCallback(mixed $callbacks): void
+    {
+        if (is_callable($callbacks)) {
+            return;
+        }
+        if (is_array($callbacks)) {
+            foreach ($callbacks as $callback) {
+                if (!is_callable($callback)) {
+                    throw new \InvalidArgumentException('Invalid callback passed: ' . var_export($callback, true));
+                }
+            }
+            return;
+        }
+        throw new \InvalidArgumentException('Invalid callback passed: ' . var_export($callbacks, true));
     }
 }

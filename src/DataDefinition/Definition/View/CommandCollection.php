@@ -63,15 +63,9 @@ class CommandCollection implements CommandCollectionInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
-     */
     #[\Override]
     public function addCommands(array $commands, ?CommandInterface $before = null)
     {
-        /** @var CommandInterface[] $commands */
         foreach ($commands as $command) {
             $this->addCommand($command, $before);
         }
@@ -79,9 +73,6 @@ class CommandCollection implements CommandCollectionInterface
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     #[\Override]
     public function removeCommands(array $commands)
     {
