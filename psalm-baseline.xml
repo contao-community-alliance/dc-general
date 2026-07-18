@@ -1,28 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="6.16.1@f1f5de594dc76faf8784e02d3dc4716c91c6f6ac">
-  <file src="src/Clipboard/Clipboard.php">
-    <MixedArgument>
-      <code><![CDATA[$data]]></code>
-    </MixedArgument>
-    <MixedArrayOffset>
-      <code><![CDATA[$this->itemsByModelId[$modelId->getSerialized()]]]></code>
-      <code><![CDATA[$this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()]]]></code>
-    </MixedArrayOffset>
-    <MixedAssignment>
-      <code><![CDATA[$data]]></code>
-      <code><![CDATA[$item]]></code>
-      <code><![CDATA[$modelId]]></code>
-      <code><![CDATA[$this->items]]></code>
-    </MixedAssignment>
-    <MixedMethodCall>
-      <code><![CDATA[getClipboardId]]></code>
-      <code><![CDATA[getModelId]]></code>
-      <code><![CDATA[getSerialized]]></code>
-    </MixedMethodCall>
-    <MixedPropertyTypeCoercion>
-      <code><![CDATA[$this->itemsByModelId]]></code>
-    </MixedPropertyTypeCoercion>
-  </file>
   <file src="src/Clipboard/Filter.php">
     <MixedAssignment>
       <code><![CDATA[$action]]></code>
@@ -121,27 +98,6 @@
       <code><![CDATA[$rootNodes]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Contao/SessionStorage.php">
-    <MixedArgument>
-      <code><![CDATA[$databaseAttributes]]></code>
-      <code><![CDATA[$databaseAttributes]]></code>
-      <code><![CDATA[$databaseAttributes]]></code>
-      <code><![CDATA[$this->databaseKeys[$scope] ?? []]]></code>
-    </MixedArgument>
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$index]]></code>
-      <code><![CDATA[$index]]></code>
-    </MixedArgumentTypeCoercion>
-    <MixedArrayAssignment>
-      <code><![CDATA[$this->databaseKeys[$index][]]]></code>
-      <code><![CDATA[$this->databaseKeys['DC_GENERAL_' . \strtoupper($index)][]]]></code>
-    </MixedArrayAssignment>
-    <MixedAssignment>
-      <code><![CDATA[$databaseAttributes]]></code>
-      <code><![CDATA[$databaseKey]]></code>
-      <code><![CDATA[$databaseKeyItems]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Contao/Subscriber/FormatModelLabelSubscriber.php">
     <MixedAssignment>
       <code><![CDATA[$sortingValue]]></code>
@@ -231,21 +187,10 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/BaseView.php">
-    <MixedArgument>
-      <code><![CDATA[$input->getParameter('table')]]></code>
-      <code><![CDATA[$inputProvider->getValue('name')]]></code>
-      <code><![CDATA[$model ?? null]]></code>
-    </MixedArgument>
     <MixedArrayAssignment>
       <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb']]]></code>
       <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalDriver']]]></code>
     </MixedArrayAssignment>
-    <MixedAssignment>
-      <code><![CDATA[$modelId]]></code>
-      <code><![CDATA[$response]]></code>
-      <code><![CDATA[$response]]></code>
-      <code><![CDATA[$response]]></code>
-    </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ButtonRenderer.php">
     <MixedAssignment>
@@ -314,16 +259,7 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Subscriber/GetGroupHeaderSubscriber.php">
-    <MixedArrayAccess>
-      <code><![CDATA[$evaluation['reference'][$value]]]></code>
-    </MixedArrayAccess>
-    <MixedArrayOffset>
-      <code><![CDATA[$evaluation['reference'][$value]]]></code>
-      <code><![CDATA[$options[$value]]]></code>
-    </MixedArrayOffset>
     <MixedAssignment>
-      <code><![CDATA[$remoteNew]]></code>
-      <code><![CDATA[$remoteNew]]></code>
       <code><![CDATA[$remoteNew]]></code>
       <code><![CDATA[$remoteNew]]></code>
       <code><![CDATA[$value]]></code>
@@ -337,29 +273,13 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Subscriber/WidgetBuilder.php">
-    <MixedArgument>
-      <code><![CDATA[$className]]></code>
-    </MixedArgument>
-    <MixedArrayAccess>
-      <code><![CDATA[$GLOBALS['BE_FFL'][$property->getWidgetType()]]]></code>
-    </MixedArrayAccess>
-    <MixedArrayOffset>
-      <code><![CDATA[$references[$refName]]]></code>
-      <code><![CDATA[$references[$refName]]]></code>
-    </MixedArrayOffset>
     <MixedAssignment>
-      <code><![CDATA[$refName]]></code>
-      <code><![CDATA[$references[$refName]]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
     <MixedMethodCall>
-      <code><![CDATA[generate]]></code>
       <code><![CDATA[new $class($prepareAttributes, new DcCompat($environment, $model, $property->getName()))]]></code>
     </MixedMethodCall>
-    <MixedReturnStatement>
-      <code><![CDATA[static::$widgetMapping[$property->getWidgetType()]]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/TreePicker.php">
     <MixedAssignment>
@@ -571,39 +491,8 @@
     </MixedAssignment>
   </file>
   <file src="src/Data/TableRowsAsRecordsDataProvider.php">
-    <MixedArgument>
-      <code><![CDATA[$sqlData]]></code>
-      <code><![CDATA[$sqlData]]></code>
-    </MixedArgument>
-    <MixedArrayAccess>
-      <code><![CDATA[$row['id']]]></code>
-      <code><![CDATA[$sqlData['id']]]></code>
-    </MixedArrayAccess>
-    <MixedArrayAssignment>
-      <code><![CDATA[$sqlData[$this->strGroupCol]]]></code>
-    </MixedArrayAssignment>
     <MixedAssignment>
-      <code><![CDATA[$data]]></code>
-      <code><![CDATA[$row]]></code>
-      <code><![CDATA[$sqlData]]></code>
       <code><![CDATA[$sqlData[$this->strGroupCol]]]></code>
-      <code><![CDATA[$this->strGroupCol]]></code>
-      <code><![CDATA[$this->strSortCol]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/DataDefinition/ModelRelationship/AbstractCondition.php">
-    <MixedArgument>
-      <code><![CDATA[$arrFilter['children']]]></code>
-      <code><![CDATA[$arrFilter['children']]]></code>
-      <code><![CDATA[$arrFilter['property']]]></code>
-      <code><![CDATA[$arrFilter['values']]]></code>
-      <code><![CDATA[$child]]></code>
-      <code><![CDATA[$child]]></code>
-      <code><![CDATA[$condition['property']]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$child]]></code>
-      <code><![CDATA[$child]]></code>
     </MixedAssignment>
   </file>
   <file src="src/DataDefinition/ModelRelationship/FilterBuilder.php">
@@ -614,12 +503,7 @@
     </MixedArgumentTypeCoercion>
   </file>
   <file src="src/DataDefinition/ModelRelationship/FilterBuilder/BaseComparingFilterBuilder.php">
-    <MixedArgument>
-      <code><![CDATA[$property]]></code>
-    </MixedArgument>
     <MixedAssignment>
-      <code><![CDATA[$property]]></code>
-      <code><![CDATA[$property]]></code>
       <code><![CDATA[$result['remote']]]></code>
       <code><![CDATA[$result['remote_value']]]></code>
       <code><![CDATA[$result['value']]]></code>

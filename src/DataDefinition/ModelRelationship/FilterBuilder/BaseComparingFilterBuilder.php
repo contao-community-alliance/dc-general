@@ -110,10 +110,10 @@ class BaseComparingFilterBuilder extends BaseFilterBuilder
             } else {
                 $value = $array['remote_value'];
             }
-            $property = $array['local'];
+            $property = (string) $array['local'];
         } else {
             $value    = $array['value'];
-            $property = $array['property'];
+            $property = (string) $array['property'];
         }
 
         if (!(isset($value, $property))) {

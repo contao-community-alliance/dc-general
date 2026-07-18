@@ -41,6 +41,7 @@ abstract class AbstractCondition
      */
     protected static function checkAndFilter($model, $filter)
     {
+        /** @var array $child */
         foreach ($filter as $child) {
             // AND => first false means false.
             if (!self::checkCondition($model, $child)) {
@@ -60,6 +61,7 @@ abstract class AbstractCondition
      */
     protected static function checkOrFilter($model, $filter)
     {
+        /** @var array $child */
         foreach ($filter as $child) {
             // OR => first true means true.
             if (self::checkCondition($model, $child)) {
@@ -79,7 +81,7 @@ abstract class AbstractCondition
      */
     protected static function getConditionValue($condition, $parent)
     {
-        return ($condition['remote_value'] ?? $parent->getProperty($condition['property']));
+        return ($condition['remote_value'] ?? $parent->getProperty((string) $condition['property']));
     }
 
     /**
@@ -96,10 +98,10 @@ abstract class AbstractCondition
     {
         switch ($arrFilter['operation']) {
             case 'AND':
-                return self::checkAndFilter($objParentModel, $arrFilter['children']);
+                return self::checkAndFilter($objParentModel, (array) $arrFilter['children']);
 
             case 'OR':
-                return self::checkOrFilter($objParentModel, $arrFilter['children']);
+                return self::checkOrFilter($objParentModel, (array) $arrFilter['children']);
 
             case '=':
                 return (self::getConditionValue($arrFilter, $objParentModel) == $arrFilter['value']);
@@ -111,7 +113,7 @@ abstract class AbstractCondition
                 return (self::getConditionValue($arrFilter, $objParentModel) < $arrFilter['value']);
 
             case 'IN':
-                return \in_array($objParentModel->getProperty($arrFilter['property']), $arrFilter['values']);
+                return \in_array($objParentModel->getProperty((string) $arrFilter['property']), (array) $arrFilter['values']);
 
             case 'LIKE':
                 throw new DcGeneralRuntimeException('LIKE unsupported as of now.');

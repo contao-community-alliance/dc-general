@@ -66,10 +66,12 @@ class Clipboard implements ClipboardInterface
             return $this;
         }
 
-        $data = $session->get('CLIPBOARD');
+        $data = (string) $session->get('CLIPBOARD');
 
         if ($data) {
-            $this->items = unserialize(base64_decode($data), ['allowed_classes' => true]);
+            /** @var array<string, ItemInterface> $items */
+            $items = unserialize(base64_decode($data), ['allowed_classes' => true]);
+            $this->items = $items;
             foreach ($this->items as $item) {
                 if ($modelId = $item->getModelId()) {
                     $this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()] = $item;

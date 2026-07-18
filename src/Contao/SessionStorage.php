@@ -50,7 +50,7 @@ class SessionStorage implements SessionStorageInterface
     /**
      * The database keys for store session data in the database.
      *
-     * @var array
+     * @var array<string, list<string>>
      */
     private array $databaseKeys = [];
 
@@ -64,8 +64,9 @@ class SessionStorage implements SessionStorageInterface
     /**
      * Create a new instance.
      *
-     * @param SessionInterface $session      The symfony session.
-     * @param array            $databaseKeys The database keys for store session data in the database.
+     * @param SessionInterface                         $session      The symfony session.
+     * @param array<array-key, string|list<string>>    $databaseKeys The database keys for store session data in the
+     *                                                                database.
      */
     public function __construct(
         SessionInterface $session,
@@ -78,14 +79,15 @@ class SessionStorage implements SessionStorageInterface
         }
 
         foreach ($databaseKeys as $index => $databaseKeyItems) {
+            $scopeIndex = (string) $index;
             foreach ((array) $databaseKeyItems as $databaseKey) {
-                if (('common' === $index) || (\str_starts_with($index, 'DC_GENERAL_'))) {
-                    $this->databaseKeys[$index][] = $databaseKey;
+                if (('common' === $scopeIndex) || (\str_starts_with($scopeIndex, 'DC_GENERAL_'))) {
+                    $this->databaseKeys[$scopeIndex][] = $databaseKey;
 
                     continue;
                 }
 
-                $this->databaseKeys['DC_GENERAL_' . \strtoupper($index)][] = $databaseKey;
+                $this->databaseKeys['DC_GENERAL_' . \strtoupper($scopeIndex)][] = $databaseKey;
             }
         }
     }

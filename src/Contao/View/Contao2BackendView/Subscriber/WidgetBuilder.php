@@ -50,6 +50,7 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
@@ -95,7 +96,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * Mapping list of widget types where the DC General has it own widgets.
      *
-     * @var array
+     * @var array<string, class-string>
      *
      * @psalm-suppress DeprecatedClass - we know. :D
      */
@@ -177,7 +178,8 @@ class WidgetBuilder implements EnvironmentAwareInterface
             return static::$widgetMapping[$property->getWidgetType()];
         }
 
-        $className = $GLOBALS['BE_FFL'][$property->getWidgetType()] ?? '';
+        $backendFormFields = (array) ($GLOBALS['BE_FFL'] ?? []);
+        $className         = (string) ($backendFormFields[$property->getWidgetType()] ?? '');
         if (!class_exists($className)) {
             throw new DcGeneralRuntimeException(
                 sprintf('Failed to get widget class for property "%s".', $property->getName())
@@ -432,6 +434,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             assert($definition instanceof ContainerInterface);
 
             $generator = System::getContainer()->get('router');
+            assert($generator instanceof RouterInterface);
             return strtr(
                 ' <a href="{url}" title="{title}" ' .
                 'onclick="Backend.openModalIframe({\'title\':\'{windowTitle}\',\'url\':this.href});' .
@@ -612,7 +615,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
 
         if (isset($propExtra['reference'])) {
             $references = [];
-            foreach ($propExtra['reference'] as $refName => $refLabelKey) {
+            foreach ((array) $propExtra['reference'] as $refName => $refLabelKey) {
                 if (!is_string($refLabelKey)) {
                     $references[$refName] = $refName;
                     continue;

@@ -145,11 +145,15 @@ class GetGroupHeaderSubscriber
 
         $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
 
+        $valueKey = (\is_string($value) || \is_int($value)) ? $value : null;
         if (isset($evaluation['reference'])) {
-            $remoteNew = $evaluation['reference'][$value] ?? null;
+            /** @var array<array-key, string|list<string>> $reference */
+            $reference = (array) $evaluation['reference'];
+            $remoteNew = (null !== $valueKey) ? ($reference[$valueKey] ?? null) : null;
         } elseif (ArrayUtil::isAssoc($property->getOptions())) {
-            $options   = $property->getOptions();
-            $remoteNew = $options[$value] ?? null;
+            /** @var array<array-key, string> $options */
+            $options   = (array) $property->getOptions();
+            $remoteNew = (null !== $valueKey) ? ($options[$valueKey] ?? null) : null;
         } else {
             $remoteNew = $value;
         }

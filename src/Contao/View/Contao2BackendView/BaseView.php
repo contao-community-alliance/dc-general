@@ -157,21 +157,21 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if ('showAll' === $name) {
-            $response = \call_user_func_array(
+            $response = (string) \call_user_func_array(
                 [$this, $name],
                 \array_values(\array_merge([$action], $action->getArguments()))
             );
-            $event->setResponse((string) $response);
+            $event->setResponse($response);
 
             return;
         }
 
         if ('select' === $name) {
-            $response = \call_user_func_array(
+            $response = (string) \call_user_func_array(
                 [$this, $name],
                 \array_merge([$action], $action->getArguments())
             );
-            $event->setResponse((string) $response);
+            $event->setResponse($response);
 
             return;
         }
@@ -180,11 +180,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        $response = \call_user_func_array(
+        $response = (string) \call_user_func_array(
             [$this, $name],
             \array_merge([$action], $action->getArguments())
         );
-        $event->setResponse((string) $response);
+        $event->setResponse($response);
     }
 
     /**
@@ -450,10 +450,11 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
+        $model = null;
         if (true === ($input->hasParameter('id'))) {
             // Redefine the parameter id if this isn´t model id conform.
             if (false === \strpos((string) $input->getParameter('id'), '::')) {
-                $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
+                $modelId = new ModelId((string) $input->getParameter('table'), (string) $input->getParameter('id'));
                 $input->setParameter('id', $modelId->getSerialized());
             }
             $modelId      = ModelId::fromSerialized((string) $input->getParameter('id'));
@@ -672,7 +673,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        $originalProperty = $this->findOriginalPropertyByModelId($inputProvider->getValue('name'));
+        $originalProperty = $this->findOriginalPropertyByModelId((string) $inputProvider->getValue('name'));
         if (null === $originalProperty) {
             return;
         }
@@ -729,8 +730,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         /** @var array{models: list<string>} $session */
 
         $originalPropertyName = null;
+        /** @var string $modelId */
         foreach ($session['models'] as $modelId) {
-            $propertyNamePrefix = \str_replace('::', '____', ((string) $modelId)) . '_';
+            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
             if (!str_starts_with($propertyName, $propertyNamePrefix)) {
                 continue;
             }
