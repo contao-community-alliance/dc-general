@@ -577,7 +577,6 @@
       <code><![CDATA[$selectedValue]]></code>
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
-      <code><![CDATA[$value]]></code>
       <code><![CDATA[$values[$definitionName][$this->getPropertyName()]]]></code>
     </MixedAssignment>
   </file>

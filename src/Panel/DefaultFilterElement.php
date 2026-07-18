@@ -57,7 +57,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * All valid filter options of the property.
      *
-     * @var array
+     * @var array<string, string>
      */
     private $arrFilterOptions = [];
 
@@ -231,9 +231,9 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $selectedValue = $this->getValue();
         foreach ($this->arrFilterOptions as $key => $value) {
             $options[] = [
-                'value'      => (string) $key,
+                'value'      => $key,
                 'content'    => $value,
-                'attributes' => ((string) $key === $selectedValue) ? ' selected' : ''
+                'attributes' => ($key === $selectedValue) ? ' selected' : ''
             ];
         }
 
