@@ -138,7 +138,7 @@ class Ajax3X extends Ajax
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $field  = $input->getValue('field');
+        $field  = (string) $input->getValue('field');
         $name   = (string) $input->getValue('name');
         $level  = (int) $input->getValue('level');
         $rootId = (string) $input->getValue('id');
@@ -151,7 +151,7 @@ class Ajax3X extends Ajax
             $ajaxName = (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
         }
 
-        $nodes          = $session->get($ajaxKey);
+        $nodes          = (array) $session->get($ajaxKey);
         $nodes[$ajaxId] = (int) $input->getValue('state');
         $session->set($ajaxKey, $nodes);
 
@@ -163,11 +163,13 @@ class Ajax3X extends Ajax
 
         /**
          * @psalm-suppress UndefinedDocblockClass
+         * @psalm-suppress MixedArrayAccess The Contao superglobal $GLOBALS['BE_FFL'] is untyped.
+         * @psalm-suppress MixedMethodCall  The widget class from $GLOBALS['BE_FFL'] is instantiated dynamically.
          * @var PageSelector $widget
          */
         $widget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
         /** @psalm-suppress UndefinedClass */
-        $widget->value = $this->getTreeValue('page', $input->getValue('value'));
+        $widget->value = $this->getTreeValue('page', (string) $input->getValue('value'));
 
         /**
          * @psalm-suppress InvalidArgument - rather pass it "as is", we do not trust Contao annotations.
@@ -198,27 +200,29 @@ class Ajax3X extends Ajax
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $folder = $input->getValue('folder');
-        $field  = $input->getValue('field');
+        $folder = (string) $input->getValue('folder');
+        $field  = (string) $input->getValue('field');
         $level  = (int) $input->getValue('level');
 
         $arrData             = [];
-        $arrData['strTable'] = $input->getParameter('table');
+        $arrData['strTable'] = (string) $input->getParameter('table');
         $arrData['id']       = $field;
         $arrData['name']     = $field;
         $arrData             = array_merge(
-            $definition->getPropertiesDefinition()->getProperty((string) $field)->getExtra(),
+            $definition->getPropertiesDefinition()->getProperty($field)->getExtra(),
             $arrData
         );
 
         /**
          * @psalm-suppress UndefinedClass
+         * @psalm-suppress MixedArrayAccess The Contao superglobal $GLOBALS['BE_FFL'] is untyped.
+         * @psalm-suppress MixedMethodCall  The widget class from $GLOBALS['BE_FFL'] is instantiated dynamically.
          * @var FileSelector $widget
          */
         $widget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
 
         /** @psalm-suppress UndefinedClass */
-        $widget->value = $this->getTreeValue($field, $input->getValue('value'));
+        $widget->value = $this->getTreeValue($field, (string) $input->getValue('value'));
         // Load a particular node.
         if ('' !== $folder) {
             /** @psalm-suppress UndefinedDocblockClass */
@@ -247,18 +251,19 @@ class Ajax3X extends Ajax
         if ('' === $value) {
             return [];
         }
+        /** @var list<string> $value */
         $value = StringUtil::trimsplit("\t", $value);
 
         // Automatically add resources to the DBAFS.
         if ('file' === $type) {
             foreach ($value as $k => $v) {
-                $uuid = Dbafs::addResource(urldecode((string) $v))->uuid;
+                $uuid = Dbafs::addResource(urldecode($v))->uuid;
                 assert(is_string($uuid));
                 $value[$k] = StringUtil::binToUuid($uuid);
             }
         }
 
-        return array_values(array_map('strval', $value));
+        return array_map('strval', $value);
     }
 
     /**
@@ -321,8 +326,9 @@ class Ajax3X extends Ajax
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
-        $serializedId = ($input->hasParameter('id') && $input->getParameter('id')) ? $input->getParameter('id') : null;
-        $value        = $input->hasValue('value') ? $input->getValue('value', true) : '';
+        $serializedId =
+            ($input->hasParameter('id') && $input->getParameter('id')) ? (string) $input->getParameter('id') : null;
+        $value        = $input->hasValue('value') ? (string) $input->getValue('value', true) : '';
 
         $fieldName = $this->getFieldName();
         if (null === $fieldName) {
@@ -378,9 +384,11 @@ class Ajax3X extends Ajax
         $session = $environment->getSessionStorage();
         assert($session instanceof SessionStorageInterface);
 
-        $states = $session->get('LEGENDS');
+        /** @var array<string, array<string, bool>> $states */
+        $states = (array) $session->get('LEGENDS');
 
-        $states[$input->getValue('table')][$input->getValue('legend')] = (bool) $input->getValue('state');
+        $states[(string) $input->getValue('table')][(string) $input->getValue('legend')]
+            = (bool) $input->getValue('state');
         $session->set('LEGENDS', $states);
 
         throw new ResponseException(new Response(''));
@@ -423,15 +431,16 @@ class Ajax3X extends Ajax
         if (!is_array($session) || !isset($session['models'])) {
             return null;
         }
-        /** @var array{models: list<string>} $session */
+        /** @var list<string> $models */
+        $models = $session['models'];
 
         $originalPropertyName = null;
-        foreach ($session['models'] as $modelId) {
+        foreach ($models as $modelId) {
             if (null !== $originalPropertyName) {
                 break;
             }
 
-            $propertyNamePrefix = str_replace('::', '____', ((string) $modelId)) . '_';
+            $propertyNamePrefix = str_replace('::', '____', $modelId) . '_';
             if (!str_starts_with($fieldName, $propertyNamePrefix)) {
                 continue;
             }
@@ -473,7 +482,7 @@ class Ajax3X extends Ajax
         $model = $dataProvider->getEmptyModel();
         $model->setProperty($widget->name, $widget->value);
 
-        $widget = (new ContaoWidgetManager($environment, $model))->getWidget($inputProvider->getValue('name'));
+        $widget = (new ContaoWidgetManager($environment, $model))->getWidget((string) $inputProvider->getValue('name'));
         assert($widget instanceof Widget);
 
         echo $widget->parse();

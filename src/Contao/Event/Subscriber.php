@@ -434,8 +434,8 @@ class Subscriber implements EventSubscriberInterface
         foreach ($value as $kk => $vv) {
             if (\is_array($vv)) {
                 $vals       = \array_values($vv);
-                $value[$kk] = (string) $vals[0]
-                    . (null !== ($val = $vals[1] ?? null) ? ' (' . (string) $val . ')' : '');
+                $value[$kk] = (string) ($vals[0] ?? '')
+                    . (isset($vals[1]) ? ' (' . (string) $vals[1] . ')' : '');
             }
         }
 
@@ -470,7 +470,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered(
-            self::parseDateTime($dispatcher, self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
+            self::parseDateTime($dispatcher, (string) self::getConfig()->get($extra['rgxp'] . 'Format'), $value)
         );
     }
 
@@ -498,7 +498,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         // Date and time format.
-        $event->setRendered(self::parseDateTime($dispatcher, self::getConfig()->get('timeFormat'), $value));
+        $event->setRendered(self::parseDateTime($dispatcher, (string) self::getConfig()->get('timeFormat'), $value));
     }
 
     /**
@@ -549,7 +549,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered(
-            self::parseDateTime($dispatcher, self::getConfig()->get('datimFormat') ?? '', $value->getTimestamp())
+            self::parseDateTime($dispatcher, (string) (self::getConfig()->get('datimFormat') ?? ''), $value->getTimestamp())
         );
     }
 
@@ -567,21 +567,24 @@ class Subscriber implements EventSubscriberInterface
         array $extra,
         string $value
     ): void {
+        /** @var array<array-key, string|list<string>> $reference */
+        $reference = (array) ($extra['reference'] ?? null);
         if (
             !isset($extra['reference'])
-            || !\array_key_exists($value, (array)$extra['reference'])
+            || !\array_key_exists($value, $reference)
             || (null !== $event->getRendered())
         ) {
             return;
         }
 
-        if (\is_array($extra['reference'][$value])) {
-            $event->setRendered($extra['reference'][$value][0]);
+        $referenced = $reference[$value];
+        if (\is_array($referenced)) {
+            $event->setRendered($referenced[0] ?? '');
 
             return;
         }
 
-        $event->setRendered($extra['reference'][$value]);
+        $event->setRendered($referenced);
     }
 
     /**
@@ -631,12 +634,12 @@ class Subscriber implements EventSubscriberInterface
         }
 
         // Cannot be an array key.
-        if (!is_scalar($value)) {
+        if (!\is_string($value) && !\is_int($value)) {
             return;
         }
 
         if (ArrayUtil::isAssoc($options) && isset($options[$value])) {
-            $event->setRendered($options[$value]);
+            $event->setRendered((string) $options[$value]);
         }
     }
 }

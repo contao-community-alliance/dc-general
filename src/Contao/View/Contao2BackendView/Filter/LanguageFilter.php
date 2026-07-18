@@ -127,6 +127,7 @@ class LanguageFilter implements EventSubscriberInterface
         $controller = $environment->getController();
         assert($controller instanceof ControllerInterface);
 
+        /** @var array<string, string> $languages */
         $languages = $controller->getSupportedLanguages($modelId);
 
         if (!$languages) {
@@ -158,9 +159,9 @@ class LanguageFilter implements EventSubscriberInterface
         $session = (array) $sessionStorage->get('dc_general');
 
         // Try to get the language from session.
-        $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
+        $currentLanguage = (string) ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
 
-        if (!\array_key_exists((string) $currentLanguage, $languages)) {
+        if (!\array_key_exists($currentLanguage, $languages)) {
             $fallbackLanguage = $dataProvider->getFallbackLanguage($modelId);
             assert($fallbackLanguage instanceof LanguageInformationInterface);
 
@@ -190,8 +191,8 @@ class LanguageFilter implements EventSubscriberInterface
 
         if ($inputProvider->hasParameter('language')) {
             $newLanguage = $inputProvider->getParameter('language');
-            $this->selectLanguage($newLanguage, $languages, $environment);
-            $newUrl = UrlBuilder::fromUrl(Environment::get('request'))->unsetQueryParameter('language')->getUrl();
+            $this->selectLanguage(\is_string($newLanguage) ? $newLanguage : null, $languages, $environment);
+            $newUrl = UrlBuilder::fromUrl((string) Environment::get('request'))->unsetQueryParameter('language')->getUrl();
 
             $dispatcher = $environment->getEventDispatcher();
             assert($dispatcher instanceof EventDispatcherInterface);

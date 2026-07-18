@@ -226,7 +226,8 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     /**
      * Handle legend how are open if errors available.
      *
-     * @param array $fieldSets The field sets.
+     * @param list<array{label: string, model: ModelInterface, legend: string, class: string, palette: string}> $fieldSets
+     *     The field sets.
      *
      * @return array
      *
@@ -246,7 +247,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
-            $fieldSets[$index]['class'] = (string) ($fieldSets[$index]['class'] ?? '') . ' collapsed';
+            $fieldSets[$index]['class'] = $fieldSets[$index]['class'] . ' collapsed';
         }
 
         return $fieldSets;
@@ -386,15 +387,15 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         $propertyValueBag = new PropertyValueBag();
 
         foreach (\array_keys($selectProperties) as $visiblePropertyName) {
-            $visiblePropertyValue = $editModel->getProperty((string) $visiblePropertyName);
+            $visiblePropertyValue = $editModel->getProperty($visiblePropertyName);
 
-            $propertyValueBag->setPropertyValue((string) $visiblePropertyName, $visiblePropertyValue);
+            $propertyValueBag->setPropertyValue($visiblePropertyName, $visiblePropertyValue);
 
             $visibleModel->setProperty(
-                (string) $visiblePropertyName,
+                $visiblePropertyName,
                 $widgetManager->encodeValue(
-                    (string) $visiblePropertyName,
-                    $widgetManager->decodeValue((string) $visiblePropertyName, $visiblePropertyValue),
+                    $visiblePropertyName,
+                    $widgetManager->decodeValue($visiblePropertyName, $visiblePropertyValue),
                     $propertyValueBag
                 )
             );

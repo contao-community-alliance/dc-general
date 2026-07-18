@@ -208,7 +208,7 @@ class TreeView extends BaseView
                 }
                 $states->setAllOpen($states->isAllOpen());
             } else {
-                $this->toggleModel($providerName, $modelId);
+                $this->toggleModel((string) $providerName, $modelId);
             }
 
             ViewHelpers::redirectCleanHome($environment, ['ptg', 'provider']);
@@ -460,7 +460,9 @@ class TreeView extends BaseView
                 $template = $this->getTemplate('dcbe_general_treeview_child');
                 $subHtml  = '';
 
-                foreach ($model->getMeta(ModelInterface::CHILD_COLLECTIONS) ?? [] as $childCollection) {
+                /** @var iterable<CollectionInterface> $childCollections */
+                $childCollections = $model->getMeta(ModelInterface::CHILD_COLLECTIONS) ?? [];
+                foreach ($childCollections as $childCollection) {
                     $subHtml .= $this->generateTreeView($childCollection, $treeClass);
                 }
 
@@ -912,13 +914,13 @@ class TreeView extends BaseView
             return [];
         }
 
-        $selectAction = $inputProvider->getParameter('select');
+        $selectAction = (string) $inputProvider->getParameter('select');
         if (!$selectAction) {
             return [];
         }
 
-        $session = $sessionStorage->get($sessionName);
-        if (!\array_key_exists($selectAction, (array) $session)) {
+        $session = (array) $sessionStorage->get($sessionName);
+        if (!\array_key_exists($selectAction, $session)) {
             return [];
         }
 

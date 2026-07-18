@@ -83,6 +83,9 @@ use function trigger_error;
  *
  * It holds various methods for data manipulation and retrieval that is non view related.
  *
+ * @psalm-type TClipboardAction = array{model: ModelInterface|null, item: ItemInterface}
+ * @psalm-type TDeepCopyEntry = array{origin: ModelInterface, model: ModelInterface}
+ *
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
@@ -627,7 +630,7 @@ class DefaultController implements ControllerInterface
      * @param ModelIdInterface      $source        The source id.
      * @param ModelIdInterface|null $parentModelId The parent id.
      *
-     * @return array
+     * @return list<TClipboardAction>
      *
      * @throws InvalidArgumentException When the model id is invalid.
      */
@@ -677,7 +680,7 @@ class DefaultController implements ControllerInterface
      * @param FilterInterface|null  $filter        The clipboard filter.
      * @param ModelIdInterface|null $parentModelId The parent id.
      *
-     * @return array
+     * @return list<TClipboardAction>
      */
     private function fetchModelsFromClipboard(?FilterInterface $filter = null, ?ModelIdInterface $parentModelId = null)
     {
@@ -728,11 +731,11 @@ class DefaultController implements ControllerInterface
     /**
      * Effectively do the actions.
      *
-     * @param array                 $actions       The action's collection.
-     * @param ModelIdInterface|null $after         The previous model id.
-     * @param ModelIdInterface|null $into          The hierarchical parent model id.
-     * @param ModelIdInterface|null $parentModelId The parent model id.
-     * @param array                 $items         Write-back clipboard items.
+     * @param list<TClipboardAction> $actions       The action's collection.
+     * @param ModelIdInterface|null  $after         The previous model id.
+     * @param ModelIdInterface|null  $into          The hierarchical parent model id.
+     * @param ModelIdInterface|null  $parentModelId The parent model id.
+     * @param array                  $items         Write-back clipboard items.
      *
      * @return CollectionInterface
      */
@@ -775,9 +778,9 @@ class DefaultController implements ControllerInterface
      *
      * This will create or clone the model in the action.
      *
-     * @param array               $action       The action, containing a model and an item.
-     * @param array               $deepCopyList A list of models that need deep copy.
-     * @param ModelInterface|null $parentModel  The parent model.
+     * @param TClipboardAction       $action       The action, containing a model and an item.
+     * @param list<TDeepCopyEntry>   $deepCopyList A list of models that need deep copy.
+     * @param ModelInterface|null    $parentModel  The parent model.
      *
      * @return void
      *
@@ -854,8 +857,8 @@ class DefaultController implements ControllerInterface
     /**
      * Ensure all models have the same grouping.
      *
-     * @param array                 $actions The action's collection.
-     * @param ModelIdInterface|null $after   The previous model id.
+     * @param list<TClipboardAction> $actions The action's collection.
+     * @param ModelIdInterface|null  $after   The previous model id.
      *
      * @return void
      */
@@ -865,15 +868,15 @@ class DefaultController implements ControllerInterface
         $groupingMode = ViewHelpers::getGroupingMode($environment);
         if (null !== $groupingMode && null !== $after && $after->getId()) {
             // when pasting after another item, inherit the grouping field
-            $groupingField = $groupingMode['property'];
+            $groupingField = (string) $groupingMode['property'];
             $previous      = $this->modelCollector->getModel($after);
             assert($previous instanceof ModelInterface);
 
-            $groupingValue = $previous->getProperty((string) $groupingField);
+            $groupingValue = $previous->getProperty($groupingField);
 
             foreach ($actions as $action) {
-                /** @var ModelInterface $model */
                 $model = $action['model'];
+                assert($model instanceof ModelInterface);
                 $model->setProperty($groupingField, $groupingValue);
             }
         }
@@ -882,11 +885,11 @@ class DefaultController implements ControllerInterface
     /**
      * Apply sorting and persist all models.
      *
-     * @param array                 $actions       The actions collection.
-     * @param ModelIdInterface|null $after         The previous model id.
-     * @param ModelIdInterface|null $into          The hierarchical parent model id.
-     * @param ModelIdInterface|null $parentModelId The parent model id.
-     * @param array                 $items         Write-back clipboard items.
+     * @param list<TClipboardAction> $actions       The actions collection.
+     * @param ModelIdInterface|null  $after         The previous model id.
+     * @param ModelIdInterface|null  $into          The hierarchical parent model id.
+     * @param ModelIdInterface|null  $parentModelId The parent model id.
+     * @param array                  $items         Write-back clipboard items.
      *
      * @return DefaultCollection
      *
@@ -1033,8 +1036,8 @@ class DefaultController implements ControllerInterface
     /**
      * Create the model collection from the internal models in the action collection.
      *
-     * @param array $actions The actions collection.
-     * @param array $items   Write-back clipboard items.
+     * @param list<TClipboardAction> $actions The actions collection.
+     * @param array                  $items   Write-back clipboard items.
      *
      * @return DefaultCollection
      */
@@ -1042,7 +1045,9 @@ class DefaultController implements ControllerInterface
     {
         $models = new DefaultCollection();
         foreach ($actions as $action) {
-            $models->push($action['model']);
+            $model = $action['model'];
+            assert($model instanceof ModelInterface);
+            $models->push($model);
             $items[] = $action['item'];
         }
 
@@ -1090,7 +1095,7 @@ class DefaultController implements ControllerInterface
     /**
      * Do deep copy.
      *
-     * @param array $deepCopyList The deep copy list.
+     * @param list<TDeepCopyEntry> $deepCopyList The deep copy list.
      *
      * @return void
      *

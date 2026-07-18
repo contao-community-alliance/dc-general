@@ -438,6 +438,7 @@ abstract class AbstractPropertyVisibilityHandler
 
         $palette = $palettesDefinition->findPalette($model);
 
+        /** @var array<string, \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface> $invisibleProperties */
         $invisibleProperties = [];
         foreach ($palette->getLegends() as $legend) {
             if (!$legend->hasProperty($property->getName())) {
@@ -463,6 +464,7 @@ abstract class AbstractPropertyVisibilityHandler
             return null;
         }
 
+        /** @var array<string, PropertyInterface> $invisibleProperties */
         $information = [];
         foreach ($invisibleProperties as $propertyName => $informationProperty) {
             $labelParentProperty = !$informationProperty->getLabel() ? $propertyName : $informationProperty->getLabel();
@@ -501,6 +503,7 @@ abstract class AbstractPropertyVisibilityHandler
     ) {
         $translator = $this->getTranslator($environment);
 
+        /** @var array<string, \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface> $properties */
         $properties = $this->matchInvisibleSubProperties($model, $property, $propertyValueBag, $environment);
         if (empty($properties)) {
             return null;
@@ -556,7 +559,7 @@ abstract class AbstractPropertyVisibilityHandler
                 continue;
             }
 
-            $paletteName = $session['intersectValues'][$paletteProperty->getName()];
+            $paletteName = (string) ((array) $session['intersectValues'])[$paletteProperty->getName()];
             if (!$palettesDefinition->hasPaletteByName($paletteName)) {
                 continue;
             }
@@ -596,13 +599,13 @@ abstract class AbstractPropertyVisibilityHandler
             }
 
             if (
-                isset($invisibleProperties[$condition->getPropertyName()])
+                isset($invisibleProperties[(string) $condition->getPropertyName()])
                 || !$propertiesDefinition->hasProperty((string) $condition->getPropertyName() . '.dummy')
             ) {
                 continue;
             }
 
-            $invisibleProperties[$condition->getPropertyName()]
+            $invisibleProperties[(string) $condition->getPropertyName()]
                 = $propertiesDefinition->getProperty((string) $condition->getPropertyName() . '.dummy');
         }
     }
@@ -744,7 +747,7 @@ abstract class AbstractPropertyVisibilityHandler
         $defaultPalette      = null;
         $legendPropertyNames = $this->getLegendPropertyNames($intersectModel, $environment, $defaultPalette);
 
-        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = (string) (method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id');
         foreach ((array) $session['intersectValues'] as $intersectProperty => $intersectValue) {
             if (
                 ($idProperty === $intersectProperty)
@@ -871,11 +874,11 @@ abstract class AbstractPropertyVisibilityHandler
 
         $parentField = null;
         foreach ($childCondition->getSetters() as $setter) {
-            if (!array_key_exists('to_field', (array) $setter)) {
+            if (!is_array($setter) || !array_key_exists('to_field', $setter)) {
                 continue;
             }
 
-            $parentField = $setter['to_field'];
+            $parentField = (string) $setter['to_field'];
             break;
         }
 
@@ -935,7 +938,7 @@ abstract class AbstractPropertyVisibilityHandler
      * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return array
+     * @return array<string, PropertyInterface>
      */
     #[ReturnTypeWillChange]
     abstract protected function getPropertiesFromSession(Action $action, EnvironmentInterface $environment);

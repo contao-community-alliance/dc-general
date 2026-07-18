@@ -106,6 +106,10 @@ class FileSelect
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @psalm-suppress MixedArrayAccess     Contao superglobals ($GLOBALS['TL_LANG'|'TL_DCA'|'TL_CONFIG']) are untyped.
+     * @psalm-suppress MixedArrayAssignment Contao superglobals are untyped.
+     * @psalm-suppress MixedArgument        Values read from Contao superglobals/input are untyped.
      */
     public function run()
     {
@@ -249,6 +253,9 @@ class FileSelect
      * @return FileSelector
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     *
+     * @psalm-suppress MixedArrayAccess Contao superglobal $GLOBALS['TL_DCA'|'BE_FFL'] is untyped.
+     * @psalm-suppress MixedMethodCall  The file selector class from $GLOBALS['BE_FFL'] is instantiated dynamically.
      */
     private function prepareFileSelector(ModelIdInterface $modelId, Ajax $ajax = null)
     {
@@ -261,7 +268,7 @@ class FileSelect
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $propertyName = $inputProvider->getParameter('field');
+        $propertyName = (string) $inputProvider->getParameter('field');
         $information  = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
 
         if (!isset($information['eval'])) {
@@ -275,7 +282,7 @@ class FileSelect
         assert($definition instanceof ContainerInterface);
 
         // Merge with the information from the data container.
-        $property = $definition->getPropertiesDefinition()->getProperty((string) $propertyName);
+        $property = $definition->getPropertiesDefinition()->getProperty($propertyName);
         $extra    = $property->getExtra();
 
         $information['eval'] = \array_merge($extra, (array) $information['eval']);
@@ -322,6 +329,10 @@ class FileSelect
      * @return array
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     *
+     * @psalm-suppress MixedArrayAccess     Contao superglobal $GLOBALS['TL_DCA'] is untyped.
+     * @psalm-suppress MixedAssignment      DCA load_callback values are untyped.
+     * @psalm-suppress MixedReturnStatement DCA load_callback return values are untyped.
      */
     private function prepareValuesForFileSelector($propertyName, ModelIdInterface $modelId, DcCompat $combat)
     {

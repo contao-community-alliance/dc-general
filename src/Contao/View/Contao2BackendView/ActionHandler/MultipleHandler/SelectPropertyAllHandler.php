@@ -323,7 +323,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $dataDefinition = $environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
 
-        $session = $sessionStorage->get(
+        $session = (array) $sessionStorage->get(
             $dataDefinition->getName() . '.' . (string) $inputProvider->getParameter('mode')
         );
 
@@ -475,13 +475,13 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $continueName = $inputProvider->getParameter('mode');
+        $continueName = (string) $inputProvider->getParameter('mode');
 
         return [
             'continue' => \sprintf(
                 '<input type="submit" name="%s" id="%s" class="tl_submit" accesskey="%s" value="%s" onclick="%s">',
-                (string) $continueName,
-                (string) $continueName,
+                $continueName,
+                $continueName,
                 'c',
                 StringUtil::specialchars($this->translate('continue', 'dc-general')),
                 $onClick

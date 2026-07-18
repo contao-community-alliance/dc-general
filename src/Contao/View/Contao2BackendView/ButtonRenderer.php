@@ -337,10 +337,10 @@ class ButtonRenderer
         array $childIds
     ): string {
         $extra      = (array) $command->getExtra();
-        if ('' !== ($attributes = $extra['attributes'] ?? '')) {
+        if ('' !== ($attributes = (string) ($extra['attributes'] ?? ''))) {
             // BC compatibility with legacy strings containing 'Edit item %s'
             if (false === str_contains($attributes, '%id%')) {
-                $attributes = sprintf($attributes, $model->getID());
+                $attributes = sprintf($attributes, (string) $model->getID());
             }
             $attributes = strtr($attributes, ['%id%' => $model->getId()]);
         }
@@ -435,13 +435,16 @@ class ButtonRenderer
      */
     private function getChildIds(ModelInterface $model): array
     {
-        if (null === ($childCollections = $model->getMeta(ModelInterface::CHILD_COLLECTIONS))) {
+        /** @var mixed $childCollections */
+        $childCollections = $model->getMeta(ModelInterface::CHILD_COLLECTIONS);
+        if (null === $childCollections) {
             return [];
         }
 
         $ids = [ModelId::fromModel($model)->getSerialized()];
 
         $childIds = [];
+        /** @var list<CollectionInterface> $childCollections */
         foreach ($childCollections as $collection) {
             foreach ($collection as $child) {
                 $childIds[] = $this->getChildIds($child);
@@ -457,7 +460,7 @@ class ButtonRenderer
      * @param CommandInterface $command           The command.
      * @param string           $serializedModelId The model id to use.
      *
-     * @return string[]
+     * @return array<array-key, mixed>
      */
     private function calculateParameters(CommandInterface $command, string $serializedModelId): array
     {
@@ -641,6 +644,7 @@ class ButtonRenderer
 
     protected function translateButtonLabel(string $buttonName, string $definitionName, array $parameter = []): string
     {
+        /** @var array<array-key, float|int|string> $parameter */
         // New way via symfony translator.
         if (
             $buttonName . '.label' !== ($header =
@@ -657,6 +661,7 @@ class ButtonRenderer
         string $definitionName,
         array $parameter = []
     ): string {
+        /** @var array<array-key, float|int|string> $parameter */
         // New way via symfony translator.
         if (
             $buttonName . '.description'
@@ -768,8 +773,8 @@ class ButtonRenderer
     {
         $parameters = $this->calculateParameters($command, ModelId::fromModel($model)->getSerialized());
         $href       = '';
-        foreach ($parameters as $key => $value) {
-            $href .= sprintf('&%s=%s', $key, $value);
+        foreach (\array_keys($parameters) as $key) {
+            $href .= sprintf('&%s=%s', $key, (string) $parameters[$key]);
         }
 
         return $this->addToUrl($href);

@@ -76,7 +76,6 @@ class CommandCollection implements CommandCollectionInterface
     #[\Override]
     public function removeCommands(array $commands)
     {
-        /** @var CommandInterface[] $commands */
         foreach ($commands as $command) {
             $this->removeCommand($command);
         }

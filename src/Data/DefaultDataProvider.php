@@ -302,9 +302,9 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $modelId = null;
         if (\is_numeric($item) || \is_string($item)) {
-            $modelId = $item;
+            $modelId = (string) $item;
         } elseif (\is_object($item) && $item instanceof ModelInterface && null !== $item->getId()) {
-            $modelId = $item->getId();
+            $modelId = (string) $item->getId();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
         }
@@ -314,12 +314,12 @@ class DefaultDataProvider implements DataProviderInterface
             \sprintf(
                 'DELETE FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                (string) $modelId
+                $modelId
             ),
             \sprintf(
                 'SELECT * FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                (string) $modelId
+                $modelId
             ),
             $this->source
         );
@@ -591,15 +591,18 @@ class DefaultDataProvider implements DataProviderInterface
     private function filterPrefixer(array &$filter)
     {
         foreach ($filter as &$child) {
+            if (!\is_array($child)) {
+                continue;
+            }
             if (
-                \array_key_exists('property', (array) $child)
+                \array_key_exists('property', $child)
                 && (false === \strpos((string) $child['property'], $this->source . '.'))
-                && $this->fieldExists($child['property'])
+                && $this->fieldExists((string) $child['property'])
             ) {
                 $child['property'] = $this->source . '.' . (string) $child['property'];
             }
 
-            if (\array_key_exists('children', (array) $child)) {
+            if (\array_key_exists('children', $child) && \is_array($child['children'])) {
                 $this->filterPrefixer($child['children']);
             }
         }
@@ -629,12 +632,13 @@ class DefaultDataProvider implements DataProviderInterface
      * @param ModelInterface $model     The model to convert into an property array.
      * @param int            $timestamp Optional the timestamp.
      *
-     * @return array
+     * @return array<string, mixed>
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     private function convertModelToDataPropertyArray(ModelInterface $model, int $timestamp)
     {
+        /** @var array<string, mixed> $data */
         $data = [];
         foreach ($model as $key => $value) {
             if (($key === $this->idProperty) || !$this->fieldExists($key)) {
@@ -868,9 +872,9 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->setParameter('fromTable', $this->source);
 
         $statement = $queryBuilder->executeQuery();
-        $count     = $statement->fetchOne();
+        $count     = (int) $statement->fetchOne();
 
-        $mixNewVersion = ((int) $count + 1);
+        $mixNewVersion = ($count + 1);
         $mixData       = $model->getPropertiesAsArray();
 
         $mixData[$this->idProperty] = $model->getId();

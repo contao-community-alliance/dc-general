@@ -597,7 +597,7 @@ abstract class AbstractListShowAllHandler
             $cssClasses = [(0 === (++$eoCount) % 2) ? 'even' : 'odd'];
 
             (null !== $model->getMeta(ModelInterface::CSS_ROW_CLASS)) ?
-                $cssClasses[] = $model->getMeta(ModelInterface::CSS_ROW_CLASS) : null;
+                $cssClasses[] = (string) $model->getMeta(ModelInterface::CSS_ROW_CLASS) : null;
 
             $modelId = ModelId::fromModel($model);
 
@@ -636,10 +636,10 @@ abstract class AbstractListShowAllHandler
     ): void {
         if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
             $remoteNew = $this->renderGroupHeader(
-                $grouping['property'],
+                (string) $grouping['property'],
                 $model,
-                $grouping['mode'],
-                $grouping['length'],
+                (string) $grouping['mode'],
+                (int) $grouping['length'],
                 $environment
             );
 
@@ -927,13 +927,13 @@ abstract class AbstractListShowAllHandler
             return [];
         }
 
-        $selectAction = $inputProvider->getParameter('select');
+        $selectAction = (string) $inputProvider->getParameter('select');
         if (!$selectAction) {
             return [];
         }
 
-        $session = $sessionStorage->get($sessionName);
-        if (!array_key_exists($selectAction, (array) $session)) {
+        $session = (array) $sessionStorage->get($sessionName);
+        if (!array_key_exists($selectAction, $session)) {
             return [];
         }
 
