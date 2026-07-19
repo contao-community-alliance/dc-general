@@ -202,7 +202,7 @@ class ClipboardController implements EventSubscriberInterface
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
-        if ($clipboardId = $input->getParameter('clipboard-item')) {
+        if ($clipboardId = (string) $input->getParameter('clipboard-item')) {
             $clipboard->removeByClipboardId($clipboardId);
         } else {
             $clipboard->clear();
@@ -220,9 +220,10 @@ class ClipboardController implements EventSubscriberInterface
 
         $url = new UrlBuilder($addToUrlEvent->getUrl());
         parse_str($url->getQueryString() ?? '', $parameters);
+        /** @var array<string, string|array<array-key, mixed>> $parameters */
         foreach ($parameters as $name => $value) {
             if ('' === $value) {
-                $url->unsetQueryParameter((string) $name);
+                $url->unsetQueryParameter($name);
             }
         }
 
@@ -272,9 +273,9 @@ class ClipboardController implements EventSubscriberInterface
         assert($clipboard instanceof ClipboardInterface);
 
 
-        $parentIdRaw = $input->getParameter('pid');
+        $parentIdRaw = (string) $input->getParameter('pid');
         if ($parentIdRaw) {
-            $parentId = ModelId::fromSerialized((string) $parentIdRaw);
+            $parentId = ModelId::fromSerialized($parentIdRaw);
         } else {
             $parentId = null;
         }
@@ -299,8 +300,8 @@ class ClipboardController implements EventSubscriberInterface
             // Remove other create items, there can only be one create item in the clipboard or many others.
             $clipboard->clear();
         } else {
-            $modelIdRaw = $input->getParameter('source');
-            $modelId    = ModelId::fromSerialized((string) $modelIdRaw);
+            $modelIdRaw = (string) $input->getParameter('source');
+            $modelId    = ModelId::fromSerialized($modelIdRaw);
 
             // If edit several don´t remove items from the clipboard.
             $this->removeItemsFromClipboard($event);
@@ -415,7 +416,7 @@ class ClipboardController implements EventSubscriberInterface
                 $label = $formatModelLabel->getLabel();
                 $label = array_shift($label);
                 assert(is_array($label));
-                $label = $label['content'] ?? '';
+                $label = (string) ($label['content'] ?? '');
             } else {
                 $model = $dataProvider->getEmptyModel();
 
@@ -428,13 +429,13 @@ class ClipboardController implements EventSubscriberInterface
             $options[$item->getClipboardId()] = ['item'  => $item, 'model' => $model, 'label' => $label];
         }
 
-        $inputAction   = $input->getParameter('act');
-        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . (string) $inputAction);
+        $inputAction   = (string) $input->getParameter('act');
+        $addToUrlEvent = new AddToUrlEvent('act=clear-clipboard&original-act=' . $inputAction);
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearUrl = $addToUrlEvent->getUrl();
 
         $addToUrlEvent = new AddToUrlEvent(
-            'clipboard-item=%id%&act=clear-clipboard&original-act=' . (string) $inputAction
+            'clipboard-item=%id%&act=clear-clipboard&original-act=' . $inputAction
         );
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearItemUrl = $addToUrlEvent->getUrl();

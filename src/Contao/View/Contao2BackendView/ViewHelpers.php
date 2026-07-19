@@ -262,7 +262,7 @@ class ViewHelpers
         $request   = self::getRequest();
         $routeName = $request->attributes->get('_route');
         if ($routeName !== 'contao_backend') {
-            self::determineNewStyleRedirect($routeName, $request, $environment, []);
+            self::determineNewStyleRedirect((string) $routeName, $request, $environment, []);
         }
         self::determineLegacyRedirect($environment, $input);
     }
@@ -276,7 +276,7 @@ class ViewHelpers
         $request   = self::getRequest();
         $routeName = $request->attributes->get('_route');
         if ($routeName !== 'contao_backend') {
-            self::determineNewStyleRedirect($routeName, $request, $environment, $cleanNames);
+            self::determineNewStyleRedirect((string) $routeName, $request, $environment, $cleanNames);
         }
         self::determineLegacyRedirect($environment, $input);
     }
@@ -295,7 +295,9 @@ class ViewHelpers
             unset($parameters[$key]);
         }
         if ($routeName === $request->attributes->get('_route')) {
-            foreach ($request->attributes->get('_route_params') ?? [] as $key => $value) {
+            /** @var array<string, scalar> $routeParams */
+            $routeParams = $request->attributes->get('_route_params') ?? [];
+            foreach ($routeParams as $key => $value) {
                 if ('_' === $key[0] || \in_array($key, $cleanNames, true)) {
                     continue;
                 }

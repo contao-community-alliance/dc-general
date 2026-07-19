@@ -1128,7 +1128,7 @@ class EditMask
     /**
      * Obtain the legend states.
      *
-     * @return array
+     * @return array<string, bool>
      */
     private function getLegendStates()
     {
@@ -1140,10 +1140,11 @@ class EditMask
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $legendStates = $sessionStorage->get('LEGENDS') ?: [];
+        /** @var array<string, array<string, bool>> $legendStates */
+        $legendStates = (array) ($sessionStorage->get('LEGENDS') ?: []);
 
-        if (\array_key_exists($definition->getName(), (array) $legendStates)) {
-            return (array) $legendStates[$definition->getName()];
+        if (\array_key_exists($definition->getName(), $legendStates)) {
+            return $legendStates[$definition->getName()];
         }
 
         return [];

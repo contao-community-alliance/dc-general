@@ -27,23 +27,6 @@
       <code><![CDATA[$callback[0]]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Contao/Callback/ModelLabelCallbackListener.php">
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$updateArguments]]></code>
-    </MixedArgumentTypeCoercion>
-    <MixedArrayOffset>
-      <code><![CDATA[$arguments[$propertyName]]]></code>
-      <code><![CDATA[$updateArguments[$propertyName]]]></code>
-      <code><![CDATA[$updateArguments[$propertyName]]]></code>
-    </MixedArrayOffset>
-    <MixedArrayTypeCoercion>
-      <code><![CDATA[$arguments[$index]]]></code>
-    </MixedArrayTypeCoercion>
-    <MixedAssignment>
-      <code><![CDATA[$propertyName]]></code>
-      <code><![CDATA[$propertyName]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Contao/Callback/ModelOperationButtonCallbackListener.php">
     <MixedAssignment>
       <code><![CDATA[$value]]></code>
@@ -205,29 +188,13 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Controller/ClipboardController.php">
-    <MixedArgument>
-      <code><![CDATA[$clipboardId]]></code>
-    </MixedArgument>
     <MixedAssignment>
-      <code><![CDATA[$clipboardId]]></code>
-      <code><![CDATA[$inputAction]]></code>
       <code><![CDATA[$label]]></code>
-      <code><![CDATA[$label]]></code>
-      <code><![CDATA[$modelIdRaw]]></code>
-      <code><![CDATA[$parentIdRaw]]></code>
-      <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/EditMask.php">
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$legendStates]]></code>
-    </MixedArgumentTypeCoercion>
-    <MixedArrayAccess>
-      <code><![CDATA[$legendStates[$definition->getName()]]]></code>
-    </MixedArrayAccess>
     <MixedAssignment>
       <code><![CDATA[$currentVersion]]></code>
-      <code><![CDATA[$legendStates]]></code>
       <code><![CDATA[$modelId]]></code>
       <code><![CDATA[$propertyValue]]></code>
       <code><![CDATA[$value]]></code>
@@ -326,23 +293,6 @@
       <code><![CDATA[$objSubModel]]></code>
       <code><![CDATA[$openElements]]></code>
       <code><![CDATA[$providerName]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Contao/View/Contao2BackendView/ViewHelpers.php">
-    <MixedArgument>
-      <code><![CDATA[$routeName]]></code>
-      <code><![CDATA[$routeName]]></code>
-    </MixedArgument>
-    <MixedArrayAccess>
-      <code><![CDATA[$key[0]]]></code>
-    </MixedArrayAccess>
-    <MixedArrayOffset>
-      <code><![CDATA[$parameters[$key]]]></code>
-    </MixedArrayOffset>
-    <MixedAssignment>
-      <code><![CDATA[$key]]></code>
-      <code><![CDATA[$parameters[$key]]]></code>
-      <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/Widget/FileTreeOrder.php">

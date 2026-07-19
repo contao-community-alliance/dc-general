@@ -106,12 +106,12 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
     /**
      * Set the value in the event.
      *
-     * @param ModelToLabelEvent   $event     The event being emitted.
-     * @param string|list<string> $arguments The label arguments.
+     * @param ModelToLabelEvent          $event     The event being emitted.
+     * @param array<array-key, string>   $arguments The label arguments.
      *
      * @return void
      */
-    private function updateTableMode(ModelToLabelEvent $event, array|string $arguments): void
+    private function updateTableMode(ModelToLabelEvent $event, array $arguments): void
     {
         if (empty($arguments)) {
             return;
@@ -120,6 +120,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
         $updateArguments = $event->getArgs();
 
         // Step 1 update arguments by index as propertyName
+        /** @var string $propertyName */
         foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
             if (!isset($arguments[$propertyName])) {
                 continue;
@@ -129,6 +130,7 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
         }
 
         // Step 2 update arguments by index as integer
+        /** @var string $propertyName */
         foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
             if (!isset($arguments[$index])) {
                 continue;
