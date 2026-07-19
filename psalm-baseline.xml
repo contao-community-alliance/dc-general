@@ -336,16 +336,6 @@
       <code><![CDATA[$sorting]]></code>
     </MixedPropertyTypeCoercion>
   </file>
-  <file src="src/Controller/TreeNodeStates.php">
-    <MixedArrayAssignment>
-      <code><![CDATA[$this->states[$providerName][$modelId]]]></code>
-    </MixedArrayAssignment>
-    <MixedArrayOffset>
-      <code><![CDATA[$this->implicitOpen[$providerName][$modelId]]]></code>
-      <code><![CDATA[$this->states[$providerName][$modelId]]]></code>
-      <code><![CDATA[$this->states[$providerName][$modelId]]]></code>
-    </MixedArrayOffset>
-  </file>
   <file src="src/DC/General.php">
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback']]]></code>

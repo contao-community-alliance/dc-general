@@ -174,8 +174,14 @@ class TreeNodeStates
             return true;
         }
 
-        return (isset($this->states[$providerName][$modelId]) && $this->states[$providerName][$modelId])
-            || (isset($this->implicitOpen[$providerName][$modelId]) && $this->implicitOpen[$providerName][$modelId]);
+        /** @var array<array-key, bool> $providerStates */
+        $providerStates = $this->states[$providerName] ?? [];
+        /** @var array<array-key, bool> $providerImplicit */
+        $providerImplicit = $this->implicitOpen[$providerName] ?? [];
+        $modelKey         = (string) $modelId;
+
+        return (isset($providerStates[$modelKey]) && $providerStates[$modelKey])
+            || (isset($providerImplicit[$modelKey]) && $providerImplicit[$modelKey]);
     }
 
     /**
@@ -206,11 +212,10 @@ class TreeNodeStates
      */
     public function setModelState($providerName, $modelId, $state)
     {
-        if (!isset($this->states[$providerName])) {
-            $this->states[$providerName] = [];
-        }
-
-        $this->states[$providerName][$modelId] = $state;
+        /** @var array<array-key, bool> $providerStates */
+        $providerStates                  = $this->states[$providerName] ?? [];
+        $providerStates[(string) $modelId] = $state;
+        $this->states[$providerName]     = $providerStates;
 
         return $this;
     }
