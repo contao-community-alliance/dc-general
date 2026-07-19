@@ -411,13 +411,6 @@
       <code><![CDATA[$sqlData[$this->strGroupCol]]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/DataDefinition/ModelRelationship/FilterBuilder.php">
-    <MixedArgumentTypeCoercion>
-      <code><![CDATA[$filter]]></code>
-      <code><![CDATA[$filter]]></code>
-      <code><![CDATA[$filter]]></code>
-    </MixedArgumentTypeCoercion>
-  </file>
   <file src="src/DataDefinition/ModelRelationship/FilterBuilder/BaseComparingFilterBuilder.php">
     <MixedAssignment>
       <code><![CDATA[$result['remote']]]></code>

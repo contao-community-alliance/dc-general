@@ -84,8 +84,10 @@ class FilterBuilder
     {
         switch ($filter['operation']) {
             case 'AND':
+                /** @var array{children: list<array>} $filter */
                 return AndFilterBuilder::fromArray($filter, $builder);
             case 'OR':
+                /** @var array{children: list<array>} $filter */
                 return OrFilterBuilder::fromArray($filter, $builder);
             case '=':
                 return PropertyEqualsFilterBuilder::fromArray($filter);
@@ -94,6 +96,7 @@ class FilterBuilder
             case '<':
                 return PropertyLessThanFilterBuilder::fromArray($filter);
             case 'IN':
+                /** @var array{value: mixed, property: string} $filter */
                 return PropertyValueInFilterBuilder::fromArray($filter);
             case 'LIKE':
                 return PropertyValueLikeFilterBuilder::fromArray($filter);
