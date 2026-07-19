@@ -285,7 +285,7 @@ class SortingManager
                     if (\in_array($this->marker->getId(), $ids, true)) {
                         continue;
                     }
-                    $this->position = $this->marker->getProperty($this->getSortingProperty());
+                    $this->position = (int) $this->marker->getProperty($this->getSortingProperty());
                 }
             } while ($this->marker && $this->marker->getId() !== $previousModel->getId());
 
@@ -312,7 +312,7 @@ class SortingManager
         assert($results instanceof CollectionInterface);
 
         $delta = (
-            ($marker->getProperty($this->getSortingProperty()) - $this->position) / $results->length()
+            ((int) $marker->getProperty($this->getSortingProperty()) - $this->position) / $results->length()
         );
 
         // If delta too narrow, we need to make room.

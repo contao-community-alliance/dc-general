@@ -323,13 +323,8 @@
   </file>
   <file src="src/Controller/SortingManager.php">
     <MixedAssignment>
-      <code><![CDATA[$delta]]></code>
       <code><![CDATA[$ids[]]]></code>
-      <code><![CDATA[$this->position]]></code>
     </MixedAssignment>
-    <MixedOperand>
-      <code><![CDATA[$marker->getProperty($this->getSortingProperty())]]></code>
-    </MixedOperand>
   </file>
   <file src="src/Controller/TreeCollector.php">
     <MixedPropertyTypeCoercion>
