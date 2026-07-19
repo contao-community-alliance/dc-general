@@ -24,6 +24,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
@@ -137,6 +138,7 @@ class PasteHandler
 
         $controller->applyClipboardActions($source, $after, $into, $parentModelId, null, $items);
 
+        /** @var list<ItemInterface> $items */
         foreach ($items as $item) {
             $clipboard->remove($item);
         }

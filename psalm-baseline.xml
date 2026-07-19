@@ -134,11 +134,7 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/PasteHandler.php">
-    <MixedArgument>
-      <code><![CDATA[$item]]></code>
-    </MixedArgument>
     <MixedAssignment>
-      <code><![CDATA[$item]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
