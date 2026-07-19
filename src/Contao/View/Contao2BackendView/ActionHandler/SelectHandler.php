@@ -849,7 +849,9 @@ class SelectHandler
             return 1 === count(array_unique($values)) ? $values[0] : null;
         }
 
-        return 1 === count(array_unique($values)) ? unserialize((string) $values[0], ['allowed_classes' => true]) : null;
+        return 1 === count(array_unique($values))
+            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            : null;
     }
 
     /**

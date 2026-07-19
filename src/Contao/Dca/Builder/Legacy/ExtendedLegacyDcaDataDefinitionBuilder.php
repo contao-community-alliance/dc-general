@@ -481,7 +481,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
                 /** @var array<array-key, mixed> $inverse */
                 $inverse = (array) ($childCondition['inverse'] ?? []);
             } else {
-                $setter  = \array_merge_recursive((array) ($childCondition['setOn'] ?? []), $relationship->getSetters());
+                $setter  = \array_merge_recursive(
+                    (array) ($childCondition['setOn'] ?? []),
+                    $relationship->getSetters()
+                );
                 $inverse = \array_merge_recursive(
                     (array) ($childCondition['inverse'] ?? []),
                     $relationship->getInverseFilterArray()

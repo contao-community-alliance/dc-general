@@ -143,20 +143,8 @@ class GetGroupHeaderSubscriber
             return $this->formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model);
         }
 
-        $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
-
-        $valueKey = (\is_string($value) || \is_int($value)) ? $value : null;
-        if (isset($evaluation['reference'])) {
-            /** @var array<array-key, string|list<string>> $reference */
-            $reference = (array) $evaluation['reference'];
-            $remoteNew = (null !== $valueKey) ? ($reference[$valueKey] ?? null) : null;
-        } elseif (ArrayUtil::isAssoc($property->getOptions())) {
-            /** @var array<array-key, string> $options */
-            $options   = (array) $property->getOptions();
-            $remoteNew = (null !== $valueKey) ? ($options[$valueKey] ?? null) : null;
-        } else {
-            $remoteNew = $value;
-        }
+        $value     = ViewHelpers::getReadableFieldValue($environment, $property, $model);
+        $remoteNew = $this->resolveReadableValue($property, $evaluation, $value);
 
         if (\is_array($remoteNew)) {
             $remoteNew = $remoteNew[0];
@@ -167,6 +155,34 @@ class GetGroupHeaderSubscriber
         }
 
         return (string) $remoteNew;
+    }
+
+    /**
+     * Resolve the readable value from a reference or option list for the group header.
+     *
+     * @param PropertyInterface $property   The property.
+     * @param array             $evaluation The property extra evaluation data.
+     * @param mixed             $value      The readable field value.
+     *
+     * @return mixed
+     */
+    private function resolveReadableValue(PropertyInterface $property, array $evaluation, mixed $value)
+    {
+        $valueKey = (\is_string($value) || \is_int($value)) ? $value : null;
+
+        if (isset($evaluation['reference'])) {
+            /** @var array<array-key, string|list<string>> $reference */
+            $reference = (array) $evaluation['reference'];
+            return (null !== $valueKey) ? ($reference[$valueKey] ?? null) : null;
+        }
+
+        if (ArrayUtil::isAssoc($property->getOptions())) {
+            /** @var array<array-key, string> $options */
+            $options = (array) $property->getOptions();
+            return (null !== $valueKey) ? ($options[$valueKey] ?? null) : null;
+        }
+
+        return $value;
     }
 
     /**

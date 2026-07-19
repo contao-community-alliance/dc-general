@@ -192,7 +192,9 @@ class LanguageFilter implements EventSubscriberInterface
         if ($inputProvider->hasParameter('language')) {
             $newLanguage = $inputProvider->getParameter('language');
             $this->selectLanguage(\is_string($newLanguage) ? $newLanguage : null, $languages, $environment);
-            $newUrl = UrlBuilder::fromUrl((string) Environment::get('request'))->unsetQueryParameter('language')->getUrl();
+            $newUrl = UrlBuilder::fromUrl((string) Environment::get('request'))
+                ->unsetQueryParameter('language')
+                ->getUrl();
 
             $dispatcher = $environment->getEventDispatcher();
             assert($dispatcher instanceof EventDispatcherInterface);

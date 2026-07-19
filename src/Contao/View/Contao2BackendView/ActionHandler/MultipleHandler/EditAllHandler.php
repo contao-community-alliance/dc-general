@@ -226,7 +226,13 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     /**
      * Handle legend how are open if errors available.
      *
-     * @param list<array{label: string, model: ModelInterface, legend: string, class: string, palette: string}> $fieldSets
+     * @param list<array{
+     *     label: string,
+     *     model: ModelInterface,
+     *     legend: string,
+     *     class: string,
+     *     palette: string
+     * }> $fieldSets
      *     The field sets.
      *
      * @return array

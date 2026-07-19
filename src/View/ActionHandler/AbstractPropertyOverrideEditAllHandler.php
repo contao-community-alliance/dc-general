@@ -598,7 +598,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                 $sessionValues = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
 
                 $propertyValueBag->setPropertyValue((string) $propertyName, $sessionValues[$propertyName]);
-                $propertyValueBag->markPropertyValueAsInvalid((string) $propertyName, $modelError[(string) $propertyName]);
+                $propertyValueBag->markPropertyValueAsInvalid(
+                    (string) $propertyName,
+                    $modelError[(string) $propertyName]
+                );
 
                 continue;
             }

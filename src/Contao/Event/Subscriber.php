@@ -549,7 +549,11 @@ class Subscriber implements EventSubscriberInterface
         }
 
         $event->setRendered(
-            self::parseDateTime($dispatcher, (string) (self::getConfig()->get('datimFormat') ?? ''), $value->getTimestamp())
+            self::parseDateTime(
+                $dispatcher,
+                (string) (self::getConfig()->get('datimFormat') ?? ''),
+                $value->getTimestamp()
+            )
         );
     }
 

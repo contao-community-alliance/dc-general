@@ -145,10 +145,14 @@
       <code><![CDATA[$values[$modelProperty][]]]></code>
     </MixedAssignment>
     <MixedReturnStatement>
+      <code><![CDATA[1 === count(array_unique($values))
+            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            : null]]></code>
+      <code><![CDATA[1 === count(array_unique($values))
+            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            : null]]></code>
       <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>
       <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>
-      <code><![CDATA[1 === count(array_unique($values)) ? unserialize((string) $values[0], ['allowed_classes' => true]) : null]]></code>
-      <code><![CDATA[1 === count(array_unique($values)) ? unserialize((string) $values[0], ['allowed_classes' => true]) : null]]></code>
     </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/ShowHandler.php">
