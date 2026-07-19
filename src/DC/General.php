@@ -180,8 +180,10 @@ class General extends DataContainer implements DataContainerInterface
             isset($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
             && \is_array($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'])
         ) {
-            foreach ($GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'] as $callback) {
-                $tableName = Callbacks::call($callback, $tableName, $this) ?: $tableName;
+            /** @var list<array|callable> $callbacks */
+            $callbacks = $GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback'];
+            foreach ($callbacks as $callback) {
+                $tableName = (string) (Callbacks::call($callback, $tableName, $this) ?: $tableName);
             }
         }
 

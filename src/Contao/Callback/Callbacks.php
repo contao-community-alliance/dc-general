@@ -174,7 +174,7 @@ class Callbacks
     /**
      * Evaluate the callback from the service container.
      *
-     * @param array $callback The callback.
+     * @param array{0: string, 1: string, ...<array-key, mixed>} $callback The callback.
      *
      * @return array
      *
@@ -186,7 +186,7 @@ class Callbacks
 
         if (
             $container->has($callback[0])
-            && ((false !== strpos((string) $callback[0], '\\')) || !class_exists((string) $callback[0]))
+            && ((false !== strpos($callback[0], '\\')) || !class_exists($callback[0]))
         ) {
             $callback[0] = $container->get($callback[0]);
 
@@ -203,7 +203,7 @@ class Callbacks
                     'The "%s" service or alias has been removed or inlined when the container was compiled. ' .
                     'You should either make it public, ' .
                     'or stop using the container directly and use dependency injection instead.',
-                    (string) $callback[0]
+                    $callback[0]
                 )
             );
         }

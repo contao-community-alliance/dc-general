@@ -12,17 +12,9 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/Callback/Callbacks.php">
-    <MixedArgument>
-      <code><![CDATA[$callback[0]]]></code>
-      <code><![CDATA[$callback[0]]]></code>
-      <code><![CDATA[$callback[0]]]></code>
-    </MixedArgument>
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$callback]]></code>
     </MixedArgumentTypeCoercion>
-    <MixedArrayOffset>
-      <code><![CDATA[$container->getRemovedIds()[$callback[0]]]]></code>
-    </MixedArrayOffset>
     <MixedAssignment>
       <code><![CDATA[$callback[0]]]></code>
     </MixedAssignment>
@@ -355,20 +347,9 @@
     </MixedArrayOffset>
   </file>
   <file src="src/DC/General.php">
-    <MixedArgument>
-      <code><![CDATA[$callback]]></code>
-    </MixedArgument>
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback']]]></code>
     </MixedArrayAccess>
-    <MixedAssignment>
-      <code><![CDATA[$callback]]></code>
-      <code><![CDATA[$tableName]]></code>
-    </MixedAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$tableName]]></code>
-      <code><![CDATA[$tableName]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Data/DefaultCollection.php">
     <MixedAssignment>
