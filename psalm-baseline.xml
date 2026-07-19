@@ -300,10 +300,6 @@
     <MixedArgument>
       <code><![CDATA[$varInput]]></code>
     </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$childCollection]]></code>
-      <code><![CDATA[$subModel]]></code>
-    </MixedAssignment>
   </file>
   <file src="src/Controller/Ajax.php">
     <MixedAssignment>
