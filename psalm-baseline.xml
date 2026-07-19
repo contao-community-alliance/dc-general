@@ -506,15 +506,6 @@
       <code><![CDATA[$amount]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Panel/DefaultSearchElement.php">
-    <MixedArrayAssignment>
-      <code><![CDATA[$values[$definitionName]['field']]]></code>
-      <code><![CDATA[$values[$definitionName]['value']]]></code>
-    </MixedArrayAssignment>
-    <MixedReturnStatement>
-      <code><![CDATA[$this->mixValue]]></code>
-    </MixedReturnStatement>
-  </file>
   <file src="src/View/ActionHandler/AbstractPropertyOverrideEditAllHandler.php">
     <MixedAssignment>
       <code><![CDATA[$editProperties[$modelId]]]></code>

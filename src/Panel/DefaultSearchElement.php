@@ -100,12 +100,11 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
         }
 
         if (!empty($searchValue)) {
-            if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
-                $values[$definitionName] = [];
-            }
-
-            $values[$definitionName]['field'] = $propertyName;
-            $values[$definitionName]['value'] = $searchValue;
+            /** @var array<string, string> $scoped */
+            $scoped                  = (array) ($values[$definitionName] ?? []);
+            $scoped['field']         = $propertyName;
+            $scoped['value']         = $searchValue;
+            $values[$definitionName] = $scoped;
         } else {
             unset($values[$definitionName]);
         }
@@ -255,6 +254,6 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     #[\Override]
     public function getValue()
     {
-        return $this->mixValue;
+        return (string) $this->mixValue;
     }
 }
