@@ -1498,7 +1498,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     break;
 
                 case 'sql':
-                    $this->determineEmptyValueFromSql($property, (string) $value);
+                    $this->determineEmptyValueFromSql($property, $value);
                     break;
 
                 default:
@@ -1811,12 +1811,16 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Try to determine the empty type from SQL type.
      *
      * @param PropertyInterface $property The property to store the value into.
-     * @param string            $sqlType  The SQL type.
+     * @param mixed             $sqlType  The SQL type (legacy string or Contao 5 DBAL array).
      *
      * @return void
      */
     private function determineEmptyValueFromSql(PropertyInterface $property, $sqlType)
     {
+        if (!\is_string($sqlType) && !\is_array($sqlType)) {
+            return;
+        }
+
         if ($property instanceof EmptyValueAwarePropertyInterface) {
             $property->setEmptyValue(Widget::getEmptyValueByFieldType($sqlType));
         }
