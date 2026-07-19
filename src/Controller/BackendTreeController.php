@@ -397,8 +397,9 @@ class BackendTreeController
         $information['eval'] = array_merge($property->getExtra(), (array) $information['eval']);
 
         $dcCompat = new DcCompat($itemContainer->getEnvironment());
+        $backendFormFields = (array) ($GLOBALS['BE_FFL'] ?? []);
         /** @var class-string<TreePicker> $class */
-        $class = $GLOBALS['BE_FFL']['DcGeneralTreePicker'];
+        $class = $backendFormFields['DcGeneralTreePicker'];
         /** @psalm-suppress UnsafeInstantiation - No other way to instantiate. */
         $treeSelector = new $class(
             Widget::getAttributesFromDca(

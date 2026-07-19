@@ -307,11 +307,6 @@
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Controller/BackendTreeController.php">
-    <MixedArrayAccess>
-      <code><![CDATA[$GLOBALS['BE_FFL']['DcGeneralTreePicker']]]></code>
-    </MixedArrayAccess>
-  </file>
   <file src="src/Controller/DefaultController.php">
     <MixedAssignment>
       <code><![CDATA[$groupingValue]]></code>
