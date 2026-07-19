@@ -367,7 +367,7 @@ class DefaultDataProviderDBalUtils
             $queryBuilder->setParameter($parameterName, $value);
         }
 
-        return $queryBuilder
+        return (string) $queryBuilder
             ->expr()
             ->{$expressionMethod}(
                 $operation['property'],
@@ -409,7 +409,7 @@ class DefaultDataProviderDBalUtils
         $expressionMethod =
             \lcfirst((string) \preg_replace('/\s+/', '', \ucwords(\strtolower($operation['operation']))));
 
-        return $queryBuilder
+        return (string) $queryBuilder
             ->expr()
             ->{$expressionMethod}(
                 $operation['property']

@@ -313,11 +313,6 @@
       <code><![CDATA[$ids[]]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Controller/TreeCollector.php">
-    <MixedPropertyTypeCoercion>
-      <code><![CDATA[$sorting]]></code>
-    </MixedPropertyTypeCoercion>
-  </file>
   <file src="src/DC/General.php">
     <MixedArrayAccess>
       <code><![CDATA[$GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback']]]></code>
@@ -346,21 +341,6 @@
       <code><![CDATA[$value]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
-  </file>
-  <file src="src/Data/DefaultDataProviderDBalUtils.php">
-    <MixedReturnStatement>
-      <code><![CDATA[$queryBuilder
-            ->expr()
-            ->{$expressionMethod}(
-                $operation['property']
-            )]]></code>
-      <code><![CDATA[$queryBuilder
-            ->expr()
-            ->{$expressionMethod}(
-                $operation['property'],
-                $values
-            )]]></code>
-    </MixedReturnStatement>
   </file>
   <file src="src/Data/DefaultDataProviderSqlUtils.php">
     <MixedAssignment>

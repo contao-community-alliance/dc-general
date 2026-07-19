@@ -86,7 +86,7 @@ class TreeCollector implements EnvironmentAwareInterface
      *
      * @param EnvironmentInterface    $environment The environment.
      * @param PanelContainerInterface $panel       The panel.
-     * @param array                   $sorting     The sorting information.
+     * @param array<string, string>   $sorting     The sorting information.
      * @param TreeNodeStates          $states      The tree node states to use.
      */
     public function __construct(

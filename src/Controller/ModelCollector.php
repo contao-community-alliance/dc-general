@@ -396,7 +396,7 @@ class ModelCollector
                     $filters[] = [
                         'operation' => '=',
                         'property'  => $propertyName,
-                        'value'     => $model->getProperty((string) $propertyName)
+                        'value'     => $model->getProperty($propertyName)
                     ];
                 }
 
