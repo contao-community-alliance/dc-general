@@ -28,7 +28,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\NotCreatableException;
 use ContaoCommunityAlliance\DcGeneral\Exception\NotDeletableException;
 
 spl_autoload_register(
-    static function ($class) {
+    static function (string $class) {
+        /** @var array<string, class-string> $classes */
         static $classes = [
             // phpcs:disable Generic.Files.LineLength.TooLong
             '\ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Exception\DefinitionException'          => DefinitionException::class,
@@ -42,7 +43,7 @@ spl_autoload_register(
         if (isset($classes[$class])) {
             // phpcs:disable Silencing errors is discouraged
             @trigger_error(
-                'Class "' . $class . '" has been renamed to "' . (string) $classes[$class] . '"',
+                'Class "' . $class . '" has been renamed to "' . $classes[$class] . '"',
                 E_USER_DEPRECATED
             );
             // phpcs:enable

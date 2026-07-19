@@ -522,15 +522,4 @@
       <code><![CDATA[$intersectValue]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/deprecated-autoload.php">
-    <MixedArgument>
-      <code><![CDATA[$classes[$class]]]></code>
-      <code><![CDATA[$classes[$class]]]></code>
-    </MixedArgument>
-    <MixedArrayAccess>
-      <code><![CDATA[$classes[$class]]]></code>
-      <code><![CDATA[$classes[$class]]]></code>
-      <code><![CDATA[$classes[$class]]]></code>
-    </MixedArrayAccess>
-  </file>
 </files>
