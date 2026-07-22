@@ -129,7 +129,7 @@ class DefaultModel extends AbstractModel
     {
         if (null === $this->mixID) {
             $this->setIdRaw($mixId);
-            $this->setMeta(static::IS_CHANGED, true);
+            $this->setMeta(ModelInterface::IS_CHANGED, true);
         }
     }
 
@@ -174,7 +174,7 @@ class DefaultModel extends AbstractModel
     public function setProperty($strPropertyName, $varValue)
     {
         if ($varValue !== $this->getProperty($strPropertyName)) {
-            $this->setMeta(static::IS_CHANGED, true);
+            $this->setMeta(ModelInterface::IS_CHANGED, true);
             $this->setPropertyRaw($strPropertyName, $varValue);
         }
     }
@@ -194,7 +194,7 @@ class DefaultModel extends AbstractModel
         }
 
         foreach ($properties as $propertyName => $value) {
-            $this->setProperty($propertyName, $value);
+            $this->setProperty((string) $propertyName, $value);
         }
     }
 

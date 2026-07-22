@@ -186,12 +186,18 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             return;
         }
 
-        if (null !== ($class = $this->getFromDca('dca_config/controller'))) {
-            $definition->setControllerClass($class);
+        /** @var mixed $controllerClass */
+        $controllerClass = $this->getFromDca('dca_config/controller');
+        if (null !== $controllerClass) {
+            /** @var class-string $controllerClass */
+            $definition->setControllerClass($controllerClass);
         }
 
-        if (null !== ($class = $this->getFromDca('dca_config/view'))) {
-            $definition->setViewClass($class);
+        /** @var mixed $viewClass */
+        $viewClass = $this->getFromDca('dca_config/view');
+        if (null !== $viewClass) {
+            /** @var class-string $viewClass */
+            $definition->setViewClass($viewClass);
         }
     }
 
@@ -227,7 +233,10 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         ?string $name
     ) {
         if (isset($information['factory'])) {
-            $providerInformation = (new \ReflectionClass($information['factory']))->newInstance()->build($information);
+            /** @var class-string $factoryClass */
+            $factoryClass = $information['factory'];
+            /** @var DataProviderInformationInterface|null $providerInformation */
+            $providerInformation = (new \ReflectionClass($factoryClass))->newInstance()->build($information);
         } else {
             // Determine the name.
             if (null !== $name && !$this->isSpecialName($name)) {
@@ -235,7 +244,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             } elseif ('default' === $name) {
                 $providerName = $container->getName();
             } elseif (isset($information['source'])) {
-                $providerName = $information['source'];
+                $providerName = (string) $information['source'];
             } else {
                 $providerName = $container->getName();
             }
@@ -254,14 +263,16 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
             }
             if (null === $providerInformation->getTableName()) {
                 if (isset($information['source'])) {
-                    $providerInformation->setTableName($information['source']);
+                    $providerInformation->setTableName((string) $information['source']);
                 } else {
                     $providerInformation->setTableName($providerName);
                 }
             }
 
             if (isset($information['class'])) {
-                $providerInformation->setClassName($information['class']);
+                /** @var class-string $className */
+                $className = $information['class'];
+                $providerInformation->setClassName($className);
             }
         }
 
@@ -294,11 +305,14 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         }
 
         foreach ($dataProvidersDca as $dataProviderDcaName => $dataProviderDca) {
+            if (!\is_array($dataProviderDca)) {
+                continue;
+            }
             $providerInformation = $this->parseSingleDataProvider(
                 $container,
                 $config,
                 $dataProviderDca,
-                $dataProviderDcaName
+                (string) $dataProviderDcaName
             );
 
             if ($providerInformation instanceof ContaoDataProviderInformation) {
@@ -382,46 +396,52 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
         ContainerInterface $container,
         ModelRelationshipDefinitionInterface $definition
     ) {
-        if (null !== ($rootCondition = $this->getFromDca('dca_config/rootEntries'))) {
-            $rootProvider = $container->getBasicDefinition()->getRootDataProvider();
-
-            if (null === $rootProvider) {
-                throw new DcGeneralRuntimeException(
-                    'Root data provider name not specified in DCA but rootEntries section specified.'
-                );
-            }
-
-            if (!$container->getDataProviderDefinition()->hasInformation($rootProvider)) {
-                throw new DcGeneralRuntimeException('Unknown root data provider but rootEntries section specified.');
-            }
-
-            if (isset($rootCondition[$rootProvider])) {
-                $rootCondition = $rootCondition[$rootProvider];
-                $mySetter      = $rootCondition['setOn'];
-
-                if (null === ($relationship = $definition->getRootCondition())) {
-                    $relationship = new RootCondition();
-                    $setter       = $mySetter;
-                    $builder      = FilterBuilder::fromArrayForRoot()->getFilter();
-                } else {
-                    /** @var RootConditionInterface $relationship */
-                    if ($relationship->getSetters()) {
-                        $setter = \array_merge_recursive($mySetter, $relationship->getSetters());
-                    } else {
-                        $setter = $mySetter;
-                    }
-                    $builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
-                }
-
-                $builder->append(FilterBuilder::fromArrayForRoot((array) $rootCondition['filter']));
-
-                $relationship
-                    ->setSourceName($rootProvider)
-                    ->setFilterArray($builder->getAllAsArray())
-                    ->setSetters($setter);
-                $definition->setRootCondition($relationship);
-            }
+        /** @var mixed $rootConditionDca */
+        $rootConditionDca = $this->getFromDca('dca_config/rootEntries');
+        if (!\is_array($rootConditionDca)) {
+            return;
         }
+
+        $rootProvider = $container->getBasicDefinition()->getRootDataProvider();
+
+        if (null === $rootProvider) {
+            throw new DcGeneralRuntimeException(
+                'Root data provider name not specified in DCA but rootEntries section specified.'
+            );
+        }
+
+        if (!$container->getDataProviderDefinition()->hasInformation($rootProvider)) {
+            throw new DcGeneralRuntimeException('Unknown root data provider but rootEntries section specified.');
+        }
+
+        if (!isset($rootConditionDca[$rootProvider]) || !\is_array($rootConditionDca[$rootProvider])) {
+            return;
+        }
+        $rootConditionEntry = $rootConditionDca[$rootProvider];
+        /** @var array<array-key, mixed> $mySetter */
+        $mySetter = (array) ($rootConditionEntry['setOn'] ?? []);
+
+        if (null === ($relationship = $definition->getRootCondition())) {
+            $relationship = new RootCondition();
+            $setter       = $mySetter;
+            $builder      = FilterBuilder::fromArrayForRoot()->getFilter();
+        } else {
+            /** @var RootConditionInterface $relationship */
+            if ($relationship->getSetters()) {
+                $setter = \array_merge_recursive($mySetter, $relationship->getSetters());
+            } else {
+                $setter = $mySetter;
+            }
+            $builder = FilterBuilder::fromArrayForRoot($relationship->getFilterArray())->getFilter();
+        }
+
+        $builder->append(FilterBuilder::fromArrayForRoot((array) ($rootConditionEntry['filter'] ?? [])));
+
+        $relationship
+            ->setSourceName($rootProvider)
+            ->setFilterArray($builder->getAllAsArray())
+            ->setSetters($setter);
+        $definition->setRootCondition($relationship);
     }
 
     /**
@@ -436,38 +456,52 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
     protected function parseParentChildConditions(
         ModelRelationshipDefinitionInterface $definition
     ) {
-        if (null !== ($childConditions = $this->getFromDca('dca_config/childCondition'))) {
-            foreach ((array) $childConditions as $childCondition) {
-                /** @var ParentChildConditionInterface $relationship */
-                $relationship = $definition->getChildCondition($childCondition['from'], $childCondition['to']);
-                if (!$relationship instanceof ParentChildConditionInterface) {
-                    $relationship = new ParentChildCondition();
-                    $relationship
-                        ->setSourceName($childCondition['from'])
-                        ->setDestinationName($childCondition['to']);
-                    $definition->addChildCondition($relationship);
-                    $setter  = $childCondition['setOn'];
-                    $inverse = $childCondition['inverse'] ?? [];
-                } else {
-                    $setter  = \array_merge_recursive((array) $childCondition['setOn'], $relationship->getSetters());
-                    $inverse = \array_merge_recursive(
-                        $childCondition['inverse'] ?? [],
-                        $relationship->getInverseFilterArray()
-                    );
-                }
-
-                $relationship
-                    ->setFilterArray(
-                        FilterBuilder::fromArray($relationship->getFilterArray())
-                            ->getFilter()
-                            ->append(
-                                FilterBuilder::fromArray((array) $childCondition['filter'])
-                            )
-                            ->getAllAsArray()
-                    )
-                    ->setSetters($setter)
-                    ->setInverseFilterArray($inverse);
+        /** @var mixed $childConditions */
+        $childConditions = $this->getFromDca('dca_config/childCondition');
+        if (null === $childConditions) {
+            return;
+        }
+        foreach ((array) $childConditions as $childCondition) {
+            if (!\is_array($childCondition)) {
+                continue;
             }
+            /** @var ParentChildConditionInterface $relationship */
+            $relationship = $definition->getChildCondition(
+                (string) $childCondition['from'],
+                (string) $childCondition['to']
+            );
+            if (!$relationship instanceof ParentChildConditionInterface) {
+                $relationship = new ParentChildCondition();
+                $relationship
+                    ->setSourceName((string) $childCondition['from'])
+                    ->setDestinationName((string) $childCondition['to']);
+                $definition->addChildCondition($relationship);
+                /** @var array<array-key, mixed> $setter */
+                $setter  = (array) ($childCondition['setOn'] ?? []);
+                /** @var array<array-key, mixed> $inverse */
+                $inverse = (array) ($childCondition['inverse'] ?? []);
+            } else {
+                $setter  = \array_merge_recursive(
+                    (array) ($childCondition['setOn'] ?? []),
+                    $relationship->getSetters()
+                );
+                $inverse = \array_merge_recursive(
+                    (array) ($childCondition['inverse'] ?? []),
+                    $relationship->getInverseFilterArray()
+                );
+            }
+
+            $relationship
+                ->setFilterArray(
+                    FilterBuilder::fromArray($relationship->getFilterArray())
+                        ->getFilter()
+                        ->append(
+                            FilterBuilder::fromArray((array) ($childCondition['filter'] ?? []))
+                        )
+                        ->getAllAsArray()
+                )
+                ->setSetters($setter)
+                ->setInverseFilterArray($inverse);
         }
     }
 
@@ -550,31 +584,36 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function parseListLabel(ListingConfigInterface $listing)
     {
-        if (null === ($formats = $this->getFromDca('dca_config/child_list'))) {
+        /** @var mixed $formats */
+        $formats = $this->getFromDca('dca_config/child_list');
+        if (!\is_array($formats)) {
             return;
         }
 
         foreach ($formats as $providerName => $format) {
+            if (!\is_array($format)) {
+                continue;
+            }
             $formatter  = new DefaultModelFormatterConfig();
             $configured = false;
 
             if (isset($format['fields'])) {
-                $formatter->setPropertyNames($format['fields']);
+                $formatter->setPropertyNames((array) $format['fields']);
                 $configured = true;
             }
 
             if (isset($format['format'])) {
-                $formatter->setFormat($format['format']);
+                $formatter->setFormat((string) $format['format']);
                 $configured = true;
             }
 
             if (isset($format['maxCharacters'])) {
-                $formatter->setMaxLength($format['maxCharacters']);
+                $formatter->setMaxLength((int) $format['maxCharacters']);
                 $configured = true;
             }
 
             if ($configured) {
-                $listing->setLabelFormatter($providerName, $formatter);
+                $listing->setLabelFormatter((string) $providerName, $formatter);
             }
         }
     }
@@ -590,16 +629,22 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
      */
     protected function parseDynamicParentTableProperty(ContainerInterface $container)
     {
+        /** @var mixed $propertyName */
+        $propertyName = $this->getFromDca('dca_config/parent_table_property');
+        /** @var mixed $sourceProvider */
+        $sourceProvider = $this->getFromDca('config/ptable');
+        /** @var mixed $dynamicParentTable */
+        $dynamicParentTable = $this->getFromDca('config/dynamicPtable');
         if (
-            (null === ($propertyName = $this->getFromDca('dca_config/parent_table_property')))
-            || (null === ($sourceProvider = $this->getFromDca('config/ptable')))
-            || (null === ($dynamicParentTable = $this->getFromDca('config/dynamicPtable')))
+            (null === $propertyName)
+            || (null === $sourceProvider)
+            || (null === $dynamicParentTable)
         ) {
             return;
         }
 
         $relationship   = $container->getModelRelationshipDefinition();
-        $childCondition = $relationship->getChildCondition($sourceProvider, $container->getName());
+        $childCondition = $relationship->getChildCondition((string) $sourceProvider, $container->getName());
         if (null === $childCondition) {
             throw new DcGeneralInvalidArgumentException(
                 'Invalid configuration. Child condition must be defined!'
@@ -621,7 +666,7 @@ class ExtendedLegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBui
 
         $backendView = $container->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
         assert($backendView instanceof Contao2BackendViewDefinitionInterface);
-        $backendView->getListingConfig()->setParentTablePropertyName($propertyName);
-        $container->getBasicDefinition()->setDynamicParentTable($dynamicParentTable);
+        $backendView->getListingConfig()->setParentTablePropertyName((string) $propertyName);
+        $container->getBasicDefinition()->setDynamicParentTable((bool) $dynamicParentTable);
     }
 }

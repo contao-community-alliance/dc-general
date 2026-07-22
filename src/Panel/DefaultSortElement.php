@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -96,11 +96,11 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         $values = [];
         if ($this->getSessionStorage()->has('sorting')) {
-            $values = $this->getSessionStorage()->get('sorting');
+            $values = (array) $this->getSessionStorage()->get('sorting');
         }
 
         if (\array_key_exists($definition->getName(), $values)) {
-            return $values[$definition->getName()];
+            return (string) $values[$definition->getName()];
         }
 
         return '';
@@ -123,7 +123,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
         $values = [];
 
         if ($this->getSessionStorage()->has('sorting')) {
-            $values = $this->getSessionStorage()->get('sorting');
+            $values = (array) $this->getSessionStorage()->get('sorting');
         }
 
         if ($propertyName) {
@@ -173,7 +173,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
 
         if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue('tl_sort') && $this->getPanel()->getContainer()->updateValues()) {
-                $value = $input->getValue('tl_sort');
+                $value = (string) $input->getValue('tl_sort');
 
                 $this->setPersistent($value);
             }

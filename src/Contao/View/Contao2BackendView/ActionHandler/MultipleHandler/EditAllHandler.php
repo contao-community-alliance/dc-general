@@ -115,7 +115,10 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             \array_merge(
                 [
                     'subHeadline' =>
-                        $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
+                        $translator->translate(
+                            (string) $inputProvider->getParameter('mode') . 'Selected',
+                            'dc-general'
+                        ) . ': ' .
                         $translator->translate('editAll.label', 'dc-general'),
                     'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
                     'table'       => $definition->getName(),
@@ -223,7 +226,14 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     /**
      * Handle legend how are open if errors available.
      *
-     * @param array $fieldSets The field sets.
+     * @param list<array{
+     *     label: string,
+     *     model: ModelInterface,
+     *     legend: string,
+     *     class: string,
+     *     palette: string
+     * }> $fieldSets
+     *     The field sets.
      *
      * @return array
      *
@@ -243,7 +253,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
-            $fieldSets[$index]['class'] .= ' collapsed';
+            $fieldSets[$index]['class'] = $fieldSets[$index]['class'] . ' collapsed';
         }
 
         return $fieldSets;
@@ -320,7 +330,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
                 }
                 $editErrors = $propertyValuesBag->getInvalidPropertyErrors();
                 foreach ($editErrors as $propName => $errors) {
-                    $rawValues->markPropertyValueAsInvalid($propName, $errors);
+                    $rawValues->markPropertyValueAsInvalid((string) $propName, $errors);
                 }
 
                 $this->markEditErrors($editProperty, $selectProperty, $rawValues);

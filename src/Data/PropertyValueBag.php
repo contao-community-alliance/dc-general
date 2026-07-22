@@ -58,7 +58,7 @@ class PropertyValueBag implements PropertyValueBagInterface
     {
         if (\is_iterable($properties)) {
             foreach ($properties as $property => $value) {
-                $this->setPropertyValue($property, $value);
+                $this->setPropertyValue((string) $property, $value);
             }
         } elseif (null !== $properties) {
             throw new DcGeneralInvalidArgumentException(

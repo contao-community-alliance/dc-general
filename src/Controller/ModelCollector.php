@@ -420,7 +420,7 @@ class ModelCollector
      * @param ModelInterface $model        The model to assemble children from.
      * @param string         $providerName The name of the data provider to fetch children from.
      *
-     * @return array
+     * @return list<string>
      */
     public function collectChildrenOf(ModelInterface $model, $providerName = '')
     {
@@ -467,7 +467,7 @@ class ModelCollector
         }
 
         // FIXME: why do we include the parent here?
-        $ids = ($model->getProviderName() === $providerName) ? [$model->getId()] : [];
+        $ids = ($model->getProviderName() === $providerName) ? [(string) $model->getId()] : [];
 
         // Check all data providers for children of the given element.
         $childIds = [];
@@ -487,7 +487,7 @@ class ModelCollector
                 /** @var ModelInterface $child */
 
                 if (!$recursive && $child->getProviderName() === $providerName) {
-                    $ids[] = $child->getId();
+                    $ids[] = (string) $child->getId();
                 }
 
                 if (false === $recursive) {
@@ -499,7 +499,7 @@ class ModelCollector
             }
         }
 
-        return \array_values(\array_merge($ids, ...$childIds));
+        return \array_merge($ids, ...$childIds);
     }
 
     /**

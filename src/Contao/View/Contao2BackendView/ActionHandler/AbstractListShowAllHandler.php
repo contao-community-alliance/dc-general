@@ -440,7 +440,7 @@ abstract class AbstractListShowAllHandler
         $event = new FormatModelLabelEvent($environment, $model);
         $dispatcher->dispatch($event, DcGeneralEvents::FORMAT_MODEL_LABEL);
 
-        $model->setMeta($model::LABEL_VALUE, $event->getLabel());
+        $model->setMeta(ModelInterface::LABEL_VALUE, $event->getLabel());
     }
 
     /**
@@ -483,7 +483,7 @@ abstract class AbstractListShowAllHandler
         $showColumn = $this->getViewSection($definition)->getListingConfig()->getShowColumns();
 
         // Fixup form action for edit multiple selection screens.
-        $action = '/' . StringUtil::ampersand(Environment::get('request'));
+        $action = '/' . StringUtil::ampersand((string) Environment::get('request'));
         if (
 //            ('tl_select' === $provider->getValue('FORM_SUBMIT'))
 //            && (null !== $provider->getValue('edit'))
@@ -592,12 +592,12 @@ abstract class AbstractListShowAllHandler
             $this->addGroupHeader($environment, $grouping, $model, $groupClass, $eoCount, $remoteCur);
 
             if (null !== $listing->getItemCssClass()) {
-                $model->setMeta($model::CSS_CLASS, $listing->getItemCssClass());
+                $model->setMeta(ModelInterface::CSS_CLASS, $listing->getItemCssClass());
             }
             $cssClasses = [(0 === (++$eoCount) % 2) ? 'even' : 'odd'];
 
-            (null !== $model->getMeta($model::CSS_ROW_CLASS)) ?
-                $cssClasses[] = $model->getMeta($model::CSS_ROW_CLASS) : null;
+            (null !== $model->getMeta(ModelInterface::CSS_ROW_CLASS)) ?
+                $cssClasses[] = (string) $model->getMeta(ModelInterface::CSS_ROW_CLASS) : null;
 
             $modelId = ModelId::fromModel($model);
 
@@ -608,7 +608,7 @@ abstract class AbstractListShowAllHandler
                 $cssClasses[] = 'tl_folder_clipped';
             }
 
-            $model->setMeta($model::CSS_ROW_CLASS, implode(' ', $cssClasses));
+            $model->setMeta(ModelInterface::CSS_ROW_CLASS, implode(' ', $cssClasses));
 
             $this->renderModel($model, $environment);
         }
@@ -636,15 +636,15 @@ abstract class AbstractListShowAllHandler
     ): void {
         if ($grouping && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode']) {
             $remoteNew = $this->renderGroupHeader(
-                $grouping['property'],
+                (string) $grouping['property'],
                 $model,
-                $grouping['mode'],
-                $grouping['length'],
+                (string) $grouping['mode'],
+                (int) $grouping['length'],
                 $environment
             );
 
             $model->setMeta(
-                $model::GROUP_VALUE,
+                ModelInterface::GROUP_VALUE,
                 [
                     'class' => $groupClass,
                     'value' => $remoteNew
@@ -693,7 +693,8 @@ abstract class AbstractListShowAllHandler
         $columns    = $this->getSortingColumns($sorting);
         foreach ($formatter->getPropertyNames() as $field) {
             $tableHead[] = [
-                'class'   => 'tl_folder_tlist col_' . $field . (in_array($field, $columns) ? ' ordered_by' : ''),
+                'class'   => 'tl_folder_tlist col_' . (string) $field
+                    . (in_array($field, $columns) ? ' ordered_by' : ''),
                 'content' => $this->translateButtonLabel($field, $definition->getName())
             ];
         }
@@ -921,22 +922,22 @@ abstract class AbstractListShowAllHandler
         $definition = $environment->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
-        $sessionName = $definition->getName() . '.' . $inputProvider->getParameter('mode');
+        $sessionName = $definition->getName() . '.' . (string) $inputProvider->getParameter('mode');
         if (!$sessionStorage->has($sessionName)) {
             return [];
         }
 
-        $selectAction = $inputProvider->getParameter('select');
+        $selectAction = (string) $inputProvider->getParameter('select');
         if (!$selectAction) {
             return [];
         }
 
-        $session = $sessionStorage->get($sessionName);
+        $session = (array) $sessionStorage->get($sessionName);
         if (!array_key_exists($selectAction, $session)) {
             return [];
         }
 
-        return $session[$selectAction];
+        return (array) $session[$selectAction];
     }
 
     /**

@@ -49,7 +49,7 @@ class FileTreeOrder extends AbstractWidget
     #[\Override]
     protected function validator($varInput)
     {
-        return \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
+        return \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', (string) $varInput)));
     }
 
     /**

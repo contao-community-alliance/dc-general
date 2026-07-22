@@ -6,6 +6,9 @@ namespace ContaoCommunityAlliance\DcGeneral\BackendHelp;
 
 final readonly class BackendHelpProvider implements BackendHelpProviderInterface
 {
+    /**
+     * @param array<string, array<string, string>> $helpText
+     */
     public function __construct(
         private array $helpText,
     ) {

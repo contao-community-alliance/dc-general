@@ -149,7 +149,7 @@ class ShowHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId      = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
@@ -169,7 +169,7 @@ class ShowHandler
             new LogEvent(
                 sprintf(
                     'Could not find ID %s in %s. DC_General show()',
-                    $modelId->getId(),
+                    (string) $modelId->getId(),
                     $definition->getName()
                 ),
                 __CLASS__ . '::' . __FUNCTION__,
@@ -296,7 +296,7 @@ class ShowHandler
         $headline = $translator->translate(
             'showRecord',
             $model->getProviderName(),
-            ['%id%' => 'ID ' . $model->getId()]
+            ['%id%' => 'ID ' . (string) $model->getId()]
         );
 
         if ('showRecord' !== $headline) {
@@ -306,7 +306,7 @@ class ShowHandler
         return $translator->translate(
             'showRecord',
             'dc-general',
-            ['%id%' => 'ID ' . $model->getId()]
+            ['%id%' => 'ID ' . (string) $model->getId()]
         );
     }
 
@@ -333,7 +333,7 @@ class ShowHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $modelId      = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId      = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
         $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
 
         $translator = $environment->getTranslator();

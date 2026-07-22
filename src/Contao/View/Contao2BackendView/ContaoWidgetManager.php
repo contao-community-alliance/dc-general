@@ -199,13 +199,16 @@ class ContaoWidgetManager
      */
     public function loadRichTextEditor($buffer, Widget $widget)
     {
-        /** @psalm-suppress UndefinedMagicPropertyFetch */
+        /**
+         * @psalm-suppress UndefinedMagicPropertyFetch
+         * @var mixed $rte
+         */
         $rte = $widget->rte;
         if (null === $rte) {
             return $buffer;
         }
         // Contao DCA allows "ace|sql" syntax to pass the highlight type via pipe.
-        [$rteBase, $rteHighlight] = \explode('|', $rte, 2) + [null, null];
+        [$rteBase, $rteHighlight] = \explode('|', (string) $rte, 2) + [null, null];
         $rteHighlight = $rteHighlight ?? '';
 
         if (!str_starts_with($rteBase, 'tiny') && !str_starts_with($rteBase, 'ace')) {
@@ -216,6 +219,7 @@ class ContaoWidgetManager
         $backendAdapter = $this->framework->getAdapter(Backend::class);
         $fileBrowserTypes = [];
         $pickerBuilder = System::getContainer()->get('contao.picker.builder');
+        assert($pickerBuilder instanceof \Contao\CoreBundle\Picker\PickerBuilderInterface);
         foreach (['file' => 'image', 'link' => 'file'] as $context => $fileBrowserType) {
             if ($pickerBuilder->supportsContext($context)) {
                 $fileBrowserTypes[] = $fileBrowserType;
@@ -276,7 +280,8 @@ class ContaoWidgetManager
         }
 
         $modelId = ModelId::fromModel($this->model);
-        $fields  = $sessionStorage->get($modelId->getDataProviderName() . '.edit')['properties'];
+        $editSession = (array) $sessionStorage->get($modelId->getDataProviderName() . '.edit');
+        $fields      = (array) ($editSession['properties'] ?? []);
 
         $fieldId = new ModelId('property.' . $modelId->getDataProviderName(), $propertyName);
         if (!\in_array($fieldId->getSerialized(), $fields)) {
@@ -361,7 +366,8 @@ class ContaoWidgetManager
      */
     protected function buildDatePicker($objWidget)
     {
-        $strFormat = $GLOBALS['TL_CONFIG'][$objWidget->rgxp . 'Format'];
+        /** @psalm-suppress MixedArrayAccess The Contao superglobal $GLOBALS['TL_CONFIG'] is untyped. */
+        $strFormat = (string) $GLOBALS['TL_CONFIG'][(string) $objWidget->rgxp . 'Format'];
 
         switch ($objWidget->rgxp) {
             case 'datim':
@@ -379,7 +385,7 @@ class ContaoWidgetManager
         return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
             draggable:false,
             toggle:$$("#toggle_' . $objWidget->id . '"),
-            format:"' . Date::formatToJs($strFormat) . '",
+            format:"' . (string) Date::formatToJs($strFormat) . '",
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
             useFadeInOut:!Browser.ie,
@@ -446,7 +452,9 @@ class ContaoWidgetManager
         /** @psalm-suppress UndefinedMagicPropertyFetch */
         $isHideInput = (bool) $widget->hideInput;
 
-        $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widget->value, $widget->name) : null;
+        /** @var string|array<array-key, mixed> $widgetValue */
+        $widgetValue  = $widget->value;
+        $hiddenFields = ($isHideInput) ? $this->buildHiddenFields($widgetValue, $widget->name) : null;
 
         /** @psalm-suppress UndefinedMagicPropertyFetch */
         $content = (new ContaoBackendViewTemplate('dcbe_general_field'))
@@ -488,6 +496,9 @@ class ContaoWidgetManager
 
         $values = [[]];
         foreach ($value as $key => $item) {
+            if (!\is_string($item) && !\is_array($item)) {
+                continue;
+            }
             $values[] = $this->buildHiddenFields($item, $propertyName . '[' . $key . ']');
         }
 
@@ -528,7 +539,9 @@ class ContaoWidgetManager
             $widget->validate();
 
             if ($widget->hasErrors()) {
-                foreach ($widget->getErrors() as $error) {
+                /** @var list<string> $widgetErrors */
+                $widgetErrors = $widget->getErrors();
+                foreach ($widgetErrors as $error) {
                     $propertyValues->markPropertyValueAsInvalid($property, $error);
                 }
             } elseif ($widget->submitInput()) {
@@ -539,7 +552,9 @@ class ContaoWidgetManager
                     );
                 } catch (\Exception $exception) {
                     $widget->addError($exception->getMessage());
-                    foreach ($widget->getErrors() as $error) {
+                    /** @var list<string> $widgetErrors */
+                    $widgetErrors = $widget->getErrors();
+                    foreach ($widgetErrors as $error) {
                         $propertyValues->markPropertyValueAsInvalid($property, $error);
                     }
                 }
@@ -558,6 +573,7 @@ class ContaoWidgetManager
      */
     public function processErrors(PropertyValueBag $propertyValues): void
     {
+        /** @var array<string, list<string>> $propertyErrors */
         $propertyErrors = $propertyValues->getInvalidPropertyErrors();
 
         if (!$propertyErrors) {
@@ -574,7 +590,7 @@ class ContaoWidgetManager
             foreach ($errors as $error) {
                 $event = new ResolveWidgetErrorMessageEvent($this->getEnvironment(), $error);
                 $dispatcher->dispatch($event, ResolveWidgetErrorMessageEvent::NAME);
-                $widget->addError($event->getError());
+                $widget->addError((string) $event->getError());
             }
         }
     }
@@ -602,7 +618,10 @@ class ContaoWidgetManager
 
         $reflectionPropClass = new \ReflectionProperty(\get_class($widget), 'strClass');
         $reflectionPropClass->setAccessible(true);
-        $reflectionPropClass->setValue($widget, \str_replace('error', '', $reflectionPropClass->getValue($widget)));
+        $reflectionPropClass->setValue(
+            $widget,
+            \str_replace('error', '', (string) $reflectionPropClass->getValue($widget))
+        );
     }
 
     /**

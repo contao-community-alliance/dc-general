@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -57,7 +57,7 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     /**
      * All valid filter options of the property.
      *
-     * @var array
+     * @var array<string, string>
      */
     private $arrFilterOptions = [];
 
@@ -70,14 +70,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
     {
         $values = [];
         if ($this->getSessionStorage()->has('filter')) {
-            $values = $this->getSessionStorage()->get('filter');
+            $values = (array) $this->getSessionStorage()->get('filter');
         }
 
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
         if (\array_key_exists($definition->getName(), $values)) {
-            $values = $values[$definition->getName()];
+            $values = (array) $values[$definition->getName()];
 
             if (\array_key_exists($this->getPropertyName(), $values)) {
                 return $values[$this->getPropertyName()];
@@ -104,14 +104,14 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $values = [];
 
         if ($this->getSessionStorage()->has('filter')) {
-            $values = $this->getSessionStorage()->get('filter');
+            $values = (array) $this->getSessionStorage()->get('filter');
         }
 
         if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
             $values[$definition->getName()] = [];
         }
 
-        if ((null !== $values) && ($value !== 'tl_' . $this->getPropertyName())) {
+        if ($value !== 'tl_' . $this->getPropertyName()) {
             $values[$definitionName][$this->getPropertyName()] = $value;
         } else {
             unset($values[$definitionName][$this->getPropertyName()]);
@@ -231,9 +231,9 @@ class DefaultFilterElement extends AbstractElement implements FilterElementInter
         $selectedValue = $this->getValue();
         foreach ($this->arrFilterOptions as $key => $value) {
             $options[] = [
-                'value'      => (string) $key,
+                'value'      => $key,
                 'content'    => $value,
-                'attributes' => ((string) $key === $selectedValue) ? ' selected' : ''
+                'attributes' => ($key === $selectedValue) ? ' selected' : ''
             ];
         }
 

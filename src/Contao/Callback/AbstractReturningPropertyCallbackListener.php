@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2024 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2024 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -75,14 +75,15 @@ abstract class AbstractReturningPropertyCallbackListener extends AbstractReturni
     private function getProperty(Event $event): string
     {
         if (method_exists($event, 'getPropertyName')) {
-            return $event->getPropertyName();
+            return (string) $event->getPropertyName();
         }
         if (method_exists($event, 'getProperty')) {
-            if ($event->getProperty() instanceof PropertyInterface) {
-                return $event->getProperty()->getName();
-            } else {
-                return (string) $event->getProperty();
+            $property = $event->getProperty();
+            if ($property instanceof PropertyInterface) {
+                return $property->getName();
             }
+
+            return (string) $property;
         }
 
         throw new InvalidArgumentException('Neither Method getPropertyName() nor method getProperty() found');

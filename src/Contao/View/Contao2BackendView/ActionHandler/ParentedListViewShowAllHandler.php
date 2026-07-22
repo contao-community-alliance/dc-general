@@ -97,7 +97,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
                 'content' => $event->getHtml()
             ]
         ];
-        $model->setMeta($model::LABEL_VALUE, $information);
+        $model->setMeta(ModelInterface::LABEL_VALUE, $information);
 
         parent::renderModel($model, $environment);
     }
@@ -147,7 +147,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $pidDetails = ModelId::fromSerialized($inputProvider->getParameter('pid'));
+        $pidDetails = ModelId::fromSerialized((string) $inputProvider->getParameter('pid'));
 
         if (!($provider = $environment->getDataProvider($pidDetails->getDataProviderName()))) {
             throw new DcGeneralRuntimeException(
@@ -193,7 +193,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             $value = StringUtil::deserialize($parentModel->getProperty($field));
 
             if ('tstamp' === $field) {
-                $value = date(Config::get('datimFormat'), $value);
+                $value = date((string) Config::get('datimFormat'), (int) $value);
             } else {
                 $value = $this->renderParentProperty($environment, $properties->getProperty($field), $value);
             }
@@ -275,11 +275,15 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             : $value;
 
         $options = $property->getOptions();
-        if (\is_array($options) && (($evaluation['isAssociative'] ?? false) || ArrayUtil::isAssoc($options))) {
+        if (
+            \is_array($options)
+            && (\is_string($value) || \is_int($value))
+            && (($evaluation['isAssociative'] ?? false) || ArrayUtil::isAssoc($options))
+        ) {
             $value = $options[$value];
         }
 
-        return $value ?? '';
+        return (string) ($value ?? '');
     }
 
     /**
@@ -339,7 +343,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $isRendered = true;
 
-        $event = new ParseDateEvent($value, Config::get($evaluation['rgxp'] . 'Format'));
+        $event = new ParseDateEvent((int) $value, (string) Config::get((string) $evaluation['rgxp'] . 'Format'));
 
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
@@ -359,7 +363,11 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
      */
     private function renderReference($value, $reference, &$isRendered)
     {
-        if ((true === $isRendered) || !isset($reference[$value])) {
+        if (
+            (true === $isRendered)
+            || !(\is_string($value) || \is_int($value))
+            || !isset($reference[$value])
+        ) {
             return $value;
         }
 
@@ -482,7 +490,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
 
         $href = '';
         foreach ($parameters as $key => $value) {
-            $href .= \sprintf('&%s=%s', $key, $value ?? '');
+            $href .= \sprintf('&%s=%s', $key, (string) ($value ?? ''));
         }
         /** @var AddToUrlEvent $urlAfter */
         $urlAfter = $dispatcher->dispatch(new AddToUrlEvent($href), ContaoEvents::BACKEND_ADD_TO_URL);

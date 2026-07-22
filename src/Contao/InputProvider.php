@@ -128,6 +128,6 @@ class InputProvider implements InputProviderInterface
     #[\Override]
     public function getRequestUrl()
     {
-        return Environment::get('request');
+        return (string) Environment::get('request');
     }
 }

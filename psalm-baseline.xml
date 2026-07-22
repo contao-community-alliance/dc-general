@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="6.16.1@f1f5de594dc76faf8784e02d3dc4716c91c6f6ac">
+  <file src="src/Clipboard/Filter.php">
+    <MixedAssignment>
+      <code><![CDATA[$action]]></code>
+      <code><![CDATA[$action]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/Callback/AbstractReturningPropertyCallbackListener.php">
+    <MixedAssignment>
+      <code><![CDATA[$property]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/Callback/Callbacks.php">
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$callback]]></code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment>
+      <code><![CDATA[$callback[0]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/Callback/ModelOperationButtonCallbackListener.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/Dca/Builder/Legacy/DcaReadingDataDefinitionBuilder.php">
+    <MixedAssignment>
+      <code><![CDATA[$dca]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/Dca/Builder/Legacy/ExtendedLegacyDcaDataDefinitionBuilder.php">
+    <MixedMethodCall>
+      <code><![CDATA[build]]></code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/Contao/Dca/Builder/Legacy/LegacyDcaDataDefinitionBuilder.php">
+    <MixedAssignment>
+      <code><![CDATA[$extra[$name]]]></code>
+      <code><![CDATA[$parameters[(string) $name]]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[new $listener($callback, $arguments)]]></code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/Contao/Event/Subscriber.php">
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$value]]></code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment>
+      <code><![CDATA[$contaoTwig]]></code>
+      <code><![CDATA[$environment]]></code>
+      <code><![CDATA[$error]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$vv]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[addExtension]]></code>
+      <code><![CDATA[getEnvironment]]></code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/Contao/Picker/PagePickerProvider.php">
+    <MixedAssignment>
+      <code><![CDATA[$rootNodes]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/Picker/TreePickerProvider.php">
+    <MixedAssignment>
+      <code><![CDATA[$attributes['fieldType']]]></code>
+      <code><![CDATA[$fieldType]]></code>
+      <code><![CDATA[$rootNodes]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/Subscriber/FormatModelLabelSubscriber.php">
+    <MixedAssignment>
+      <code><![CDATA[$sortingValue]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/AbstractListShowAllHandler.php">
+    <MixedArgument>
+      <code><![CDATA[$field]]></code>
+    </MixedArgument>
+    <MixedArrayAssignment>
+      <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb']]]></code>
+    </MixedArrayAssignment>
+    <MixedAssignment>
+      <code><![CDATA[$field]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/EditHandler.php">
+    <MixedAssignment>
+      <code><![CDATA[$modelVersion]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/EditAllHandler.php">
+    <MixedArgument>
+      <code><![CDATA[$editErrors[$selectProperty->getName()]]]></code>
+      <code><![CDATA[$errors]]></code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$fields]]></code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment>
+      <code><![CDATA[$errors]]></code>
+      <code><![CDATA[$formInputs]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$visiblePropertyValue]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/OverrideAllHandler.php">
+    <MixedAssignment>
+      <code><![CDATA[$modelValue]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/SelectPropertyAllHandler.php">
+    <MixedArrayAssignment>
+      <code><![CDATA[$GLOBALS['TL_MOOTOOLS']['cca.dc-general.fileTree-' . \md5($mooScript)]]]></code>
+    </MixedArrayAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/ParentedListViewShowAllHandler.php">
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$value]]></code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment>
+      <code><![CDATA[$parameters['do']]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/PasteHandler.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/SelectHandler.php">
+    <MixedAssignment>
+      <code><![CDATA[$modelIds[]]]></code>
+      <code><![CDATA[$modelValue]]></code>
+      <code><![CDATA[$values[$modelProperty][]]]></code>
+    </MixedAssignment>
+    <MixedReturnStatement>
+      <code><![CDATA[1 === count(array_unique($values))
+            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            : null]]></code>
+      <code><![CDATA[1 === count(array_unique($values))
+            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            : null]]></code>
+      <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>
+      <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ActionHandler/ShowHandler.php">
+    <MixedAssignment>
+      <code><![CDATA[$values['system'][$propertyName]]]></code>
+      <code><![CDATA[$values['visible'][$palettePropertyName]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/BaseView.php">
+    <MixedArrayAssignment>
+      <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb']]]></code>
+      <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalDriver']]]></code>
+    </MixedArrayAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ButtonRenderer.php">
+    <MixedAssignment>
+      <code><![CDATA[$parameters['pid']]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/ContaoWidgetManager.php">
+    <MixedAssignment>
+      <code><![CDATA[$propertyValue]]></code>
+      <code><![CDATA[$propertyValue]]></code>
+      <code><![CDATA[$propertyValue]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/Controller/ClipboardController.php">
+    <MixedAssignment>
+      <code><![CDATA[$label]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/EditMask.php">
+    <MixedAssignment>
+      <code><![CDATA[$currentVersion]]></code>
+      <code><![CDATA[$modelId]]></code>
+      <code><![CDATA[$propertyValue]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/Filter/LanguageFilter.php">
+    <MixedArgument>
+      <code><![CDATA[$inputProvider->getValue('language')]]></code>
+    </MixedArgument>
+    <MixedArrayAccess>
+      <code><![CDATA[$session['ml_support']]]></code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment>
+      <code><![CDATA[$session['ml_support']]]></code>
+      <code><![CDATA[$session['ml_support'][$definition->getName()]]]></code>
+      <code><![CDATA[$session['ml_support'][$providerName]]]></code>
+    </MixedArrayAssignment>
+    <MixedAssignment>
+      <code><![CDATA[$newLanguage]]></code>
+      <code><![CDATA[$session]]></code>
+    </MixedAssignment>
+    <MixedReturnStatement>
+      <code><![CDATA[ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getId()]]></code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/GlobalButtonRenderer.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/Subscriber/GetGroupHeaderSubscriber.php">
+    <MixedAssignment>
+      <code><![CDATA[$remoteNew]]></code>
+      <code><![CDATA[$remoteNew]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/Subscriber/MultipleHandlerSubscriber.php">
+    <MixedAssignment>
+      <code><![CDATA[$isChanged]]></code>
+      <code><![CDATA[$model]]></code>
+      <code><![CDATA[$sessionModel]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/Subscriber/WidgetBuilder.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[new $class($prepareAttributes, new DcCompat($environment, $model, $property->getName()))]]></code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/TreePicker.php">
+    <MixedAssignment>
+      <code><![CDATA[$pid]]></code>
+      <code><![CDATA[$v]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/TreeSelect.php">
+    <MixedArgument>
+      <code><![CDATA[$GLOBALS['TL_LANG']['MSC']['treepicker']]]></code>
+      <code><![CDATA[$information['eval']]]></code>
+      <code><![CDATA[$inputProvider->getValue('action')]]></code>
+      <code><![CDATA[$inputTable]]></code>
+      <code><![CDATA[$inputTable ? $sessionStorage->get('CURRENT_ID') : $inputId]]></code>
+    </MixedArgument>
+    <MixedArrayAccess>
+      <code><![CDATA[$GLOBALS['TL_DCA'][$inputTable]]]></code>
+      <code><![CDATA[$GLOBALS['TL_DCA'][$inputTable]['fields']]]></code>
+      <code><![CDATA[$GLOBALS['TL_DCA'][$inputTable]['fields'][$inputField]]]></code>
+      <code><![CDATA[$GLOBALS['TL_LANG']['MSC']]]></code>
+      <code><![CDATA[$GLOBALS['TL_LANG']['MSC']['treepicker']]]></code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment>
+      <code><![CDATA[$GLOBALS['TL_CONFIG']['debugMode']]]></code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset>
+      <code><![CDATA[$GLOBALS['TL_DCA'][$inputTable]]]></code>
+      <code><![CDATA[$GLOBALS['TL_DCA'][$inputTable]['fields'][$inputField]]]></code>
+    </MixedArrayOffset>
+    <MixedAssignment>
+      <code><![CDATA[$inputField]]></code>
+      <code><![CDATA[$inputId]]></code>
+      <code><![CDATA[$inputTable]]></code>
+    </MixedAssignment>
+    <MixedMethodCall>
+      <code><![CDATA[executePostActions]]></code>
+    </MixedMethodCall>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/TreeView.php">
+    <MixedAssignment>
+      <code><![CDATA[$collection]]></code>
+      <code><![CDATA[$modelId]]></code>
+      <code><![CDATA[$objSubModel]]></code>
+      <code><![CDATA[$openElements]]></code>
+      <code><![CDATA[$providerName]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/Widget/FileTreeOrder.php">
+    <MixedArgument>
+      <code><![CDATA[$files]]></code>
+    </MixedArgument>
+    <MixedAssignment>
+      <code><![CDATA[$binUuid]]></code>
+      <code><![CDATA[$files[]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Contao/View/Contao2BackendView/Widget/PageTree.php">
+    <MixedArgument>
+      <code><![CDATA[$varInput]]></code>
+    </MixedArgument>
+  </file>
+  <file src="src/Controller/Ajax.php">
+    <MixedAssignment>
+      <code><![CDATA[$action]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Controller/DefaultController.php">
+    <MixedAssignment>
+      <code><![CDATA[$groupingValue]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Controller/SortingManager.php">
+    <MixedAssignment>
+      <code><![CDATA[$ids[]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DC/General.php">
+    <MixedArrayAccess>
+      <code><![CDATA[$GLOBALS['TL_DCA'][$tableName]['config']['tablename_callback']]]></code>
+    </MixedArrayAccess>
+  </file>
+  <file src="src/Data/DefaultCollection.php">
+    <MixedAssignment>
+      <code><![CDATA[$ids[]]]></code>
+    </MixedAssignment>
+    <MixedPropertyTypeCoercion>
+      <code><![CDATA[$this->arrCollection]]></code>
+    </MixedPropertyTypeCoercion>
+  </file>
+  <file src="src/Data/DefaultDataProvider.php">
+    <MixedAssignment>
+      <code><![CDATA[$config['connection']]]></code>
+      <code><![CDATA[$config['connection']]]></code>
+      <code><![CDATA[$data[$this->idProperty]]]></code>
+      <code><![CDATA[$data[$this->source . '.' . $key]]]></code>
+      <code><![CDATA[$mixData[$this->idProperty]]]></code>
+      <code><![CDATA[$modelId]]></code>
+      <code><![CDATA[$updateValues['version']]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Data/DefaultDataProviderSqlUtils.php">
+    <MixedAssignment>
+      <code><![CDATA[$child]]></code>
+      <code><![CDATA[$params[]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Data/DefaultModel.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+    <MixedReturnStatement>
+      <code><![CDATA[$this->mixID]]></code>
+    </MixedReturnStatement>
+  </file>
+  <file src="src/Data/ModelId.php">
+    <MixedAssignment>
+      <code><![CDATA[$chunks[1]]]></code>
+      <code><![CDATA[$decodedJson]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Data/ModelManipulator.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Data/PropertyValueBag.php">
+    <MixedAssignment>
+      <code><![CDATA[$property]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Data/TableRowsAsRecordsDataProvider.php">
+    <MixedAssignment>
+      <code><![CDATA[$sqlData[$this->strGroupCol]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/ModelRelationship/FilterBuilder/BaseComparingFilterBuilder.php">
+    <MixedAssignment>
+      <code><![CDATA[$result['remote']]]></code>
+      <code><![CDATA[$result['remote_value']]]></code>
+      <code><![CDATA[$result['value']]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/ModelRelationship/FilterBuilder/PropertyValueInFilterBuilder.php">
+    <MixedAssignment>
+      <code><![CDATA[$values]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/ModelRelationship/ParentChildCondition.php">
+    <MixedAssignment>
+      <code><![CDATA[$applied['remote_value']]]></code>
+      <code><![CDATA[$applied['value']]]></code>
+      <code><![CDATA[$applied['value']]]></code>
+      <code><![CDATA[$applied['value']]]></code>
+      <code><![CDATA[$applied['value']]]></code>
+      <code><![CDATA[$applied['value']]]></code>
+      <code><![CDATA[$applied['value']]]></code>
+      <code><![CDATA[$applied['value']]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/Palette/Condition/Palette/PropertyFalseCondition.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/Palette/Condition/Palette/PropertyTrueCondition.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/Palette/Condition/Palette/PropertyValueCondition.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/Palette/Condition/Property/PropertyFalseCondition.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/Palette/Condition/Property/PropertyTrueCondition.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/DataDefinition/Palette/Condition/Property/PropertyValueCondition.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Panel/DefaultFilterElement.php">
+    <MixedArrayAccess>
+      <code><![CDATA[$values[$definitionName][$this->getPropertyName()]]]></code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment>
+      <code><![CDATA[$values[$definitionName][$this->getPropertyName()]]]></code>
+    </MixedArrayAssignment>
+    <MixedAssignment>
+      <code><![CDATA[$persistent]]></code>
+      <code><![CDATA[$selectedValue]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$values[$definitionName][$this->getPropertyName()]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Panel/DefaultLimitElement.php">
+    <MixedAssignment>
+      <code><![CDATA[$amount]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/View/ActionHandler/AbstractPropertyOverrideEditAllHandler.php">
+    <MixedAssignment>
+      <code><![CDATA[$editProperties[$modelId]]]></code>
+      <code><![CDATA[$inputValues[$valueName]]]></code>
+      <code><![CDATA[$modelEditProperties]]></code>
+      <code><![CDATA[$modelIds[]]]></code>
+      <code><![CDATA[$propertyValue]]></code>
+      <code><![CDATA[$selectPropertyNames[]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/View/ActionHandler/AbstractPropertyVisibilityHandler.php">
+    <MixedAssignment>
+      <code><![CDATA[$idValue]]></code>
+      <code><![CDATA[$intersectValue]]></code>
+    </MixedAssignment>
+  </file>
+</files>

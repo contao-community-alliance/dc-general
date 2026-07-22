@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2025 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@
  * @author     Martin Treml <github@r2pi.net>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2025 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -157,7 +157,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if ('showAll' === $name) {
-            $response = \call_user_func_array(
+            $response = (string) \call_user_func_array(
                 [$this, $name],
                 \array_values(\array_merge([$action], $action->getArguments()))
             );
@@ -167,7 +167,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         }
 
         if ('select' === $name) {
-            $response = \call_user_func_array(
+            $response = (string) \call_user_func_array(
                 [$this, $name],
                 \array_merge([$action], $action->getArguments())
             );
@@ -180,7 +180,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        $response = \call_user_func_array(
+        $response = (string) \call_user_func_array(
             [$this, $name],
             \array_merge([$action], $action->getArguments())
         );
@@ -450,13 +450,14 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
+        $model = null;
         if (true === ($input->hasParameter('id'))) {
             // Redefine the parameter id if this isn´t model id conform.
-            if (false === \strpos($input->getParameter('id'), '::')) {
-                $modelId = new ModelId($input->getParameter('table'), $input->getParameter('id'));
+            if (false === \strpos((string) $input->getParameter('id'), '::')) {
+                $modelId = new ModelId((string) $input->getParameter('table'), (string) $input->getParameter('id'));
                 $input->setParameter('id', $modelId->getSerialized());
             }
-            $modelId      = ModelId::fromSerialized($input->getParameter('id'));
+            $modelId      = ModelId::fromSerialized((string) $input->getParameter('id'));
             $dataProvider = $environment->getDataProvider($modelId->getDataProviderName());
             assert($dataProvider instanceof DataProviderInterface);
 
@@ -672,7 +673,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
             return;
         }
 
-        $originalProperty = $this->findOriginalPropertyByModelId($inputProvider->getValue('name'));
+        $originalProperty = $this->findOriginalPropertyByModelId((string) $inputProvider->getValue('name'));
         if (null === $originalProperty) {
             return;
         }
@@ -720,7 +721,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $selectAction = $inputProvider->getParameter('select');
+        $selectAction = (string) $inputProvider->getParameter('select');
 
         $session = $sessionStorage->get($definition->getName() . '.' . $selectAction);
         if (!is_array($session) || !isset($session['models'])) {
@@ -729,8 +730,9 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
         /** @var array{models: list<string>} $session */
 
         $originalPropertyName = null;
+        /** @var string $modelId */
         foreach ($session['models'] as $modelId) {
-            $propertyNamePrefix = \str_replace('::', '____', ((string) $modelId)) . '_';
+            $propertyNamePrefix = \str_replace('::', '____', $modelId) . '_';
             if (!str_starts_with($propertyName, $propertyNamePrefix)) {
                 continue;
             }

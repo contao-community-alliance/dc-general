@@ -174,7 +174,7 @@ class Callbacks
     /**
      * Evaluate the callback from the service container.
      *
-     * @param array $callback The callback.
+     * @param array{0: string, 1: string, ...<array-key, mixed>} $callback The callback.
      *
      * @return array
      *

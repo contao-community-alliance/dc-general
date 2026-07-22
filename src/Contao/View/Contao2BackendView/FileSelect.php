@@ -106,6 +106,10 @@ class FileSelect
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @psalm-suppress MixedArrayAccess     Contao superglobals ($GLOBALS['TL_LANG'|'TL_DCA'|'TL_CONFIG']) are untyped.
+     * @psalm-suppress MixedArrayAssignment Contao superglobals are untyped.
+     * @psalm-suppress MixedArgument        Values read from Contao superglobals/input are untyped.
      */
     public function run()
     {
@@ -117,7 +121,7 @@ class FileSelect
 
         $ajax = $this->runAjaxRequest();
 
-        $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+        $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
 
         $this->setupItemContainer($modelId);
 
@@ -165,7 +169,7 @@ class FileSelect
         $template->addSearch = $fileSelector->searchField;
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->search = $GLOBALS['TL_LANG']['MSC']['search'];
-        $template->action = StringUtil::ampersand(Environment::get('request'));
+        $template->action = StringUtil::ampersand((string) Environment::get('request'));
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
         $template->value = $sessionStorage->get('file_selector_search');
         /** @psalm-suppress UndefinedMagicPropertyAssignment */
@@ -200,8 +204,11 @@ class FileSelect
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
             $template->switch = $GLOBALS['TL_LANG']['MSC']['pagePicker'];
             /** @psalm-suppress UndefinedMagicPropertyAssignment */
-            $template->switchHref =
-                \str_replace('contao/file.php', 'contao/page.php', StringUtil::ampersand(Environment::get('request')));
+            $template->switchHref = \str_replace(
+                'contao/file.php',
+                'contao/page.php',
+                StringUtil::ampersand((string) Environment::get('request'))
+            );
         }
 
         // Prevent debug output at all cost.
@@ -246,6 +253,9 @@ class FileSelect
      * @return FileSelector
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     *
+     * @psalm-suppress MixedArrayAccess Contao superglobal $GLOBALS['TL_DCA'|'BE_FFL'] is untyped.
+     * @psalm-suppress MixedMethodCall  The file selector class from $GLOBALS['BE_FFL'] is instantiated dynamically.
      */
     private function prepareFileSelector(ModelIdInterface $modelId, Ajax $ajax = null)
     {
@@ -258,7 +268,7 @@ class FileSelect
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $propertyName = $inputProvider->getParameter('field');
+        $propertyName = (string) $inputProvider->getParameter('field');
         $information  = (array) $GLOBALS['TL_DCA'][$modelId->getDataProviderName()]['fields'][$propertyName];
 
         if (!isset($information['eval'])) {
@@ -319,6 +329,10 @@ class FileSelect
      * @return array
      *
      * @SuppressWarnings(PHPMD.Superglobals)
+     *
+     * @psalm-suppress MixedArrayAccess     Contao superglobal $GLOBALS['TL_DCA'] is untyped.
+     * @psalm-suppress MixedAssignment      DCA load_callback values are untyped.
+     * @psalm-suppress MixedReturnStatement DCA load_callback return values are untyped.
      */
     private function prepareValuesForFileSelector($propertyName, ModelIdInterface $modelId, DcCompat $combat)
     {
@@ -332,7 +346,7 @@ class FileSelect
         assert($inputProvider instanceof InputProviderInterface);
 
         $fileSelectorValues = [];
-        foreach (\array_filter(\explode(',', $inputProvider->getParameter('value'))) as $k => $v) {
+        foreach (\array_filter(\explode(',', (string) $inputProvider->getParameter('value'))) as $k => $v) {
             // Can be a UUID or a path
             if (Validator::isStringUuid($v)) {
                 $fileSelectorValues[$k] = StringUtil::uuidToBin($v);

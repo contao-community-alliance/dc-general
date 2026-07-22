@@ -120,8 +120,8 @@ class EditHandler
         // "New" button). ModelId::fromSerialized() would throw "Unparsable encoded id value" on the
         // empty value, so handle this like the create action and render the edit mask for a fresh,
         // empty model.
-        $idParameter = $inputProvider->getParameter('id');
-        if (null === $idParameter || '' === $idParameter) {
+        $idParameter = (string) $inputProvider->getParameter('id');
+        if ('' === $idParameter) {
             return $this->createEmptyModel($environment);
         }
 
@@ -223,7 +223,7 @@ class EditHandler
                 '<div style="text-align:center; font-weight:bold; padding:40px;">
                     You have no permission for edit model %s.
                 </div>',
-                ModelId::fromSerialized($inputProvider->getParameter('id'))->getSerialized()
+                ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getSerialized()
             )
         );
 
@@ -272,8 +272,8 @@ class EditHandler
         if (null === ($model = $dataProvider->getVersion($modelId->getId(), $modelVersion))) {
             $message = \sprintf(
                 'Could not load version %s of record ID %s from %s',
-                $modelVersion,
-                $modelId->getId(),
+                (string) $modelVersion,
+                (string) $modelId->getId(),
                 $modelId->getDataProviderName()
             );
 

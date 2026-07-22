@@ -253,7 +253,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                         '%property%' => $translator->translate($property->getLabel(), $modelName)
                             ?: $property->getName(),
                         '%mode%'     => $translator->translate(
-                            $inputProvider->getParameter('mode') . 'Selected',
+                            (string) $inputProvider->getParameter('mode') . 'Selected',
                             'dc-general'
                         )
                     ]
@@ -323,9 +323,11 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $dataDefinition = $environment->getDataDefinition();
         assert($dataDefinition instanceof ContainerInterface);
 
-        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $inputProvider->getParameter('mode'));
+        $session = (array) $sessionStorage->get(
+            $dataDefinition->getName() . '.' . (string) $inputProvider->getParameter('mode')
+        );
 
-        return \array_key_exists($property->getName(), $session['intersectProperties']);
+        return \array_key_exists($property->getName(), (array) $session['intersectProperties']);
     }
 
     /**
@@ -359,8 +361,8 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             \sprintf(
                 $script,
                 'properties_' . $property->getName(),
-                'properties_' . $extra['orderField'],
-                'properties_' . $extra['orderField']
+                'properties_' . (string) $extra['orderField'],
+                'properties_' . (string) $extra['orderField']
             );
 
         $GLOBALS['TL_MOOTOOLS']['cca.dc-general.fileTree-' . \md5($mooScript)] = $mooScript;
@@ -380,7 +382,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             return;
         }
 
-        $model->setMeta($model::CSS_ROW_CLASS, 'invisible');
+        $model->setMeta(ModelInterface::CSS_ROW_CLASS, 'invisible');
     }
 
     /**
@@ -409,7 +411,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
                 'subHeadline',
                 \sprintf(
                     '%s: %s',
-                    $this->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general'),
+                    $this->translate((string) $inputProvider->getParameter('mode') . 'Selected', 'dc-general'),
                     $this->translate('edit_all_select_properties', 'dc-general')
                 )
             )
@@ -420,21 +422,21 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
 
         if (
             (null !== $template->get('action'))
-            && (false !== \strpos($template->get('action'), 'select=properties'))
+            && (false !== \strpos((string) $template->get('action'), 'select=properties'))
         ) {
             $template->set(
                 'action',
                 \str_replace(
                     'select=properties',
-                    'select=' . ($inputProvider->getParameter('mode') ?? 'edit'),
-                    $template->get('action')
+                    'select=' . (string) ($inputProvider->getParameter('mode') ?? 'edit'),
+                    (string) $template->get('action')
                 )
             );
         }
 
         if (\count($this->messages) > 0) {
             foreach (\array_keys($this->messages) as $messageType) {
-                $template->set($messageType, $this->messages[$messageType]);
+                $template->set((string) $messageType, $this->messages[$messageType]);
             }
         }
     }
@@ -473,7 +475,7 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $continueName = $inputProvider->getParameter('mode');
+        $continueName = (string) $inputProvider->getParameter('mode');
 
         return [
             'continue' => \sprintf(

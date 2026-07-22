@@ -73,6 +73,14 @@ use function unserialize;
  *
  * This class handles multiple actions.
  *
+ * @psalm-type TSelectSession = array{
+ *     models?: list<string>,
+ *     properties?: list<string>,
+ *     editProperties?: list<string>,
+ *     intersectProperties?: array<array-key, mixed>,
+ *     intersectValues?: array<array-key, mixed>
+ * }
+ *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *
@@ -137,8 +145,9 @@ class SelectHandler
             ucfirst($this->getSubmitAction($environment, $this->regardSelectMode($environment)))
         );
 
-        if (null !== ($response = $this->{$actionMethod}($environment, $action))) {
-            return $response;
+        $response = $this->{$actionMethod}($environment, $action);
+        if (null !== $response) {
+            return (string) $response;
         }
 
         return null;
@@ -162,7 +171,7 @@ class SelectHandler
             && $inputProvider->hasParameter('select')
             && !$inputProvider->hasValue('properties')
         ) {
-            return 'select' . ucfirst($inputProvider->getParameter('select'));
+            return 'select' . ucfirst((string) $inputProvider->getParameter('select'));
         }
 
         if (null !== ($action = $this->determineAction($environment))) {
@@ -170,11 +179,11 @@ class SelectHandler
         }
 
         if ($regardSelectMode) {
-            return $inputProvider->getParameter('mode') ?: '';
+            return (string) ($inputProvider->getParameter('mode') ?: '');
         }
 
         return $inputProvider->getParameter('select') ?
-            'select' . ucfirst($inputProvider->getParameter('select')) : '';
+            'select' . ucfirst((string) $inputProvider->getParameter('select')) : '';
     }
 
     /**
@@ -539,7 +548,7 @@ class SelectHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        return $inputProvider->getParameter('select');
+        return (string) $inputProvider->getParameter('select');
     }
 
     /**
@@ -628,6 +637,7 @@ class SelectHandler
         $dataProvider = $environment->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);
 
+        /** @var TSelectSession $session */
         $session        =
             $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
@@ -639,7 +649,7 @@ class SelectHandler
             return $dataProvider->getEmptyCollection();
         }
 
-        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = (string) (method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id');
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 [
@@ -671,6 +681,7 @@ class SelectHandler
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
+        /** @var TSelectSession $session */
         $session =
             $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
@@ -694,9 +705,11 @@ class SelectHandler
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
+        /** @var TSelectSession $session */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
-        if (!$session['intersectProperties'] || !count($session['intersectProperties'])) {
+        /** @psalm-suppress RiskyTruthyFalsyComparison */
+        if (empty($session['intersectProperties'])) {
             return;
         }
 
@@ -736,7 +749,7 @@ class SelectHandler
         // We always have to keep the id in the array.
         $dataProvider = $environment->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);
-        $idProperty = method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = (string) (method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id');
         $properties[$idProperty] = $collection->count();
 
         return array_filter(
@@ -763,11 +776,12 @@ class SelectHandler
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
+        /** @var TSelectSession $session */
         $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true));
 
         $values = [];
         foreach ($collection->getIterator() as $model) {
-            $modelValues = array_intersect_key($model->getPropertiesAsArray(), $session['intersectProperties']);
+            $modelValues = array_intersect_key($model->getPropertiesAsArray(), $session['intersectProperties'] ?? []);
             foreach ($modelValues as $modelProperty => $modelValue) {
                 $values[$modelProperty][] = $modelValue;
             }
@@ -791,7 +805,7 @@ class SelectHandler
      * @param PaletteInterface $palette The palette.
      * @param ModelInterface   $model   The model.
      *
-     * @return array
+     * @return array<array-key, string>
      */
     private function getVisibleAndEditAbleProperties(PaletteInterface $palette, ModelInterface $model)
     {
@@ -835,7 +849,9 @@ class SelectHandler
             return 1 === count(array_unique($values)) ? $values[0] : null;
         }
 
-        return 1 === count(array_unique($values)) ? unserialize($values[0], ['allowed_classes' => true]) : null;
+        return 1 === count(array_unique($values))
+            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            : null;
     }
 
     /**
@@ -866,6 +882,7 @@ class SelectHandler
         $session = ['models' => [], 'intersectProperties' => [], 'intersectValues' => []];
         $sessionKey = $dataDefinition->getName() . '.' . $this->getSubmitAction($environment, true);
         if ($sessionStorage->has($sessionKey)) {
+            /** @var TSelectSession $session */
             $session = $sessionStorage->get($sessionKey);
         }
 

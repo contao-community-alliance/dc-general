@@ -127,6 +127,7 @@ class LanguageFilter implements EventSubscriberInterface
         $controller = $environment->getController();
         assert($controller instanceof ControllerInterface);
 
+        /** @var array<string, string> $languages */
         $languages = $controller->getSupportedLanguages($modelId);
 
         if (!$languages) {
@@ -158,7 +159,7 @@ class LanguageFilter implements EventSubscriberInterface
         $session = (array) $sessionStorage->get('dc_general');
 
         // Try to get the language from session.
-        $currentLanguage = ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
+        $currentLanguage = (string) ($session['ml_support'][$providerName] ?? $GLOBALS['TL_LANGUAGE']);
 
         if (!\array_key_exists($currentLanguage, $languages)) {
             $fallbackLanguage = $dataProvider->getFallbackLanguage($modelId);
@@ -190,8 +191,10 @@ class LanguageFilter implements EventSubscriberInterface
 
         if ($inputProvider->hasParameter('language')) {
             $newLanguage = $inputProvider->getParameter('language');
-            $this->selectLanguage($newLanguage, $languages, $environment);
-            $newUrl = UrlBuilder::fromUrl(Environment::get('request'))->unsetQueryParameter('language')->getUrl();
+            $this->selectLanguage(\is_string($newLanguage) ? $newLanguage : null, $languages, $environment);
+            $newUrl = UrlBuilder::fromUrl((string) Environment::get('request'))
+                ->unsetQueryParameter('language')
+                ->getUrl();
 
             $dispatcher = $environment->getEventDispatcher();
             assert($dispatcher instanceof EventDispatcherInterface);
@@ -216,7 +219,7 @@ class LanguageFilter implements EventSubscriberInterface
     private function modelIdFromInput(InputProviderInterface $inputProvider)
     {
         if ($inputProvider->hasParameter('id') && $inputProvider->getParameter('id')) {
-            return ModelId::fromSerialized($inputProvider->getParameter('id'))->getId();
+            return ModelId::fromSerialized((string) $inputProvider->getParameter('id'))->getId();
         }
 
         return null;

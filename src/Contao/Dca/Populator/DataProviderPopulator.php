@@ -89,7 +89,7 @@ class DataProviderPopulator extends AbstractEventDrivenEnvironmentPopulator
                     );
                 }
 
-                $initializationData = $information->getInitializationData();
+                $initializationData = (array) $information->getInitializationData();
                 \ksort($initializationData);
                 $cacheKey = \md5(\json_encode($initializationData, JSON_THROW_ON_ERROR) . $information->getClassName());
                 if (!isset($this->instances[$cacheKey])) {

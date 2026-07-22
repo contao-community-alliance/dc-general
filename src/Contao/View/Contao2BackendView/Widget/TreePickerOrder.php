@@ -54,7 +54,7 @@ class TreePickerOrder extends AbstractWidget
     #[\Override]
     protected function validator($varInput)
     {
-        return \array_filter(\explode(',', $varInput));
+        return \array_filter(\explode(',', (string) $varInput));
     }
 
     /**
@@ -68,6 +68,9 @@ class TreePickerOrder extends AbstractWidget
             $this->varValue = [];
         }
 
-        return \implode(',', $this->varValue);
+        /** @var list<string> $value */
+        $value = (array) $this->varValue;
+
+        return \implode(',', $value);
     }
 }

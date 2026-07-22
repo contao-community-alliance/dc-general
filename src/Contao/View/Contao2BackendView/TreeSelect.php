@@ -152,7 +152,7 @@ class TreeSelect
 
         $property = $definition
             ->getPropertiesDefinition()
-            ->getProperty($inputField);
+            ->getProperty((string) $inputField);
         $extra    = $property->getExtra();
 
         $information['eval'] = \array_merge($extra, $information['eval']);
@@ -164,7 +164,7 @@ class TreeSelect
 
         $model = $dataProvider->getEmptyModel();
         if ($inputProvider->getParameter('id')) {
-            $modelId = ModelId::fromSerialized($inputProvider->getParameter('id'));
+            $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('id'));
             $model   = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
             assert($model instanceof ModelInterface);
         }
@@ -176,7 +176,7 @@ class TreeSelect
 
         /** @var \ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker $treeSelector */
         $treeSelector        = $widgetBuilder->buildWidget($property, $model);
-        $treeSelector->value = \array_filter(\explode(',', $inputProvider->getParameter('value')));
+        $treeSelector->value = \array_filter(\explode(',', (string) $inputProvider->getParameter('value')));
 
         // AJAX request.
         if (isset($ajax)) {
@@ -201,8 +201,10 @@ class TreeSelect
          * @psalm-suppress UndefinedMagicPropertyFetch
          */
         if ($treeSelector->managerHref) {
-            $template
-                ->set('managerHref', 'contao?' . StringUtil::ampersand($treeSelector->managerHref) . '&amp;popup=1');
+            $template->set(
+                'managerHref',
+                'contao?' . StringUtil::ampersand((string) $treeSelector->managerHref) . '&amp;popup=1'
+            );
         }
 
         // Prevent debug output at all cost.

@@ -163,26 +163,27 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     /**
      * Register the callback handlers for the given legacy callbacks.
      *
+     * The callbacks parameter accepts mixed because DCA callback values are inherently untyped;
+     * internally it is cast to array.
+     *
      * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param list<callable>|callable  $callbacks  The callbacks to be handled.
+     * @param list<callable>|callable  $callbacks  The callbacks to be handled (from DCA, any type).
      * @param string                   $eventName  The event to be registered to.
      * @param array                    $arguments  The arguments to pass to the constructor.
      * @param class-string             $listener   The listener class to use.
      *
      * @return void
-     *
-     * @psalm-suppress DocblockTypeContradiction - only redundant when strict types active.
-     * @psalm-suppress RedundantConditionGivenDocblockType - only redundant when strict types active.
-     * @psalm-suppress RedundantCastGivenDocblockType - only redundant when strict types active.
      */
-    protected function parseCallback($dispatcher, $callbacks, $eventName, $arguments, $listener)
+    protected function parseCallback($dispatcher, $callbacks, $eventName, $arguments, string $listener)
     {
         // If only one callback given, ensure the loop below handles it correctly.
         if (is_array($callbacks) && (2 === count($callbacks)) && !is_array($callbacks[0] ?? [])) {
             $callbacks = [$callbacks];
         }
 
-        foreach ((array) $callbacks as $callback) {
+        /** @var list<callable> $normalizedCallbacks */
+        $normalizedCallbacks = (array) $callbacks;
+        foreach ($normalizedCallbacks as $callback) {
             if ($this->isCallbackBlacklisted($callback, $listener)) {
                 continue;
             }
@@ -207,6 +208,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         return ((ContainerOnLoadCallbackListener::class === $listener)
                 && is_array($callback)
                 && ('checkPermission' === $callback[1])
+                && is_string($callback[0])
                 && (str_starts_with($callback[0], 'tl_')));
     }
 
@@ -221,6 +223,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function parsePropertyCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
+            if (!is_array($propInfo)) {
+                continue;
+            }
             $args = [$container->getName(), $propName];
             foreach (
                 [
@@ -251,7 +256,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ] as $name => $callback
             ) {
                 if (isset($propInfo[$name])) {
-                    $this->parseCallback($dispatcher, $propInfo[$name], $callback['event'], $args, $callback['class']);
+                    /** @var mixed $callbacks */
+                    $callbacks = $propInfo[$name];
+                    $this->assertCallback($callbacks);
+                    $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
                 }
             }
         }
@@ -267,6 +275,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function parseCallbacks(ContainerInterface $container, EventDispatcherInterface $dispatcher)
     {
@@ -330,7 +339,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 ]
             ] as $name => $callback
         ) {
-            if ($callbacks = $this->getFromDca($name)) {
+            $callbacks = $this->getArrayFromDca($name);
+            $this->assertCallback($callbacks);
+            if ($callbacks) {
                 if (isset($callback['event']) && isset($callback['class'])) {
                     $this->parseCallback($dispatcher, $callbacks, $callback['event'], $args, $callback['class']);
 
@@ -351,11 +362,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        foreach ((array) $this->getFromDca('list/global_operations') as $name => $operation) {
-            if (isset($operation['button_callback'])) {
+        foreach ($this->getArrayFromDca('list/global_operations') as $name => $operation) {
+            if (!\is_array($operation)) {
+                continue;
+            }
+            /** @var mixed $buttonCallback */
+            $buttonCallback = $operation['button_callback'] ?? null;
+            if (null !== $buttonCallback) {
+                $this->assertCallback($buttonCallback);
                 $this->parseCallback(
                     $dispatcher,
-                    [$operation['button_callback']],
+                    $buttonCallback,
                     GetGlobalButtonEvent::NAME,
                     [$container->getName(), $name],
                     ContainerGlobalButtonCallbackListener::class
@@ -363,11 +380,17 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
         }
 
-        foreach ((array) $this->getFromDca('list/operations') as $name => $operation) {
-            if (isset($operation['button_callback'])) {
+        foreach ($this->getArrayFromDca('list/operations') as $name => $operationDca) {
+            if (!\is_array($operationDca)) {
+                continue;
+            }
+            /** @var mixed $buttonCallback */
+            $buttonCallback = $operationDca['button_callback'] ?? null;
+            if (null !== $buttonCallback) {
+                $this->assertCallback($buttonCallback);
                 $this->parseCallback(
                     $dispatcher,
-                    [$operation['button_callback']],
+                    $buttonCallback,
                     GetOperationButtonEvent::NAME,
                     [$container->getName(), $name],
                     ModelOperationButtonCallbackListener::class
@@ -425,35 +448,65 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseBasicFlags(BasicDefinitionInterface $config)
     {
-        if (null !== ($switchToEdit = $this->getFromDca('config/switchToEdit'))) {
-            $config->setSwitchToEditEnabled((bool) $switchToEdit);
+        if (null !== ($switchToEdit = $this->getBoolFromDca('config/switchToEdit'))) {
+            $config->setSwitchToEditEnabled($switchToEdit);
         }
 
-        if (null !== ($value = $this->getFromDca('config/forceEdit'))) {
-            $config->setEditOnlyMode((bool) $value);
+        if (null !== ($value = $this->getBoolFromDca('config/forceEdit'))) {
+            $config->setEditOnlyMode($value);
         }
 
-        if (null !== ($value = $this->getFromDca('config/closed'))) {
+        if (null !== ($value = $this->getBoolFromDca('config/closed'))) {
             $config
                 ->setEditable(!$value)
                 ->setCreatable(!$value);
         }
 
-        if (null !== ($value = $this->getFromDca('config/notEditable'))) {
+        if (null !== ($value = $this->getBoolFromDca('config/notEditable'))) {
             $config->setEditable(!$value);
         }
 
-        if (null !== ($value = $this->getFromDca('config/notDeletable'))) {
+        if (null !== ($value = $this->getBoolFromDca('config/notDeletable'))) {
             $config->setDeletable(!$value);
         }
 
-        if (null !== ($value = $this->getFromDca('config/notCreatable'))) {
-            $config->setCreatable(!(bool) $value);
+        if (null !== ($value = $this->getBoolFromDca('config/notCreatable'))) {
+            $config->setCreatable(!$value);
         }
 
-        if (null !== ($value = $this->getFromDca('config/dynamicPtable'))) {
-            $config->setDynamicParentTable((bool) $value);
+        if (null !== ($value = $this->getBoolFromDca('config/dynamicPtable'))) {
+            $config->setDynamicParentTable($value);
         }
+    }
+
+    /**
+     * Retrieve a boolean value from the DCA, returning null if the key is not set.
+     *
+     * @param string $path The DCA path (slash-separated).
+     *
+     * @return bool|null
+     */
+    private function getBoolFromDca(string $path): ?bool
+    {
+        /** @var mixed $value */
+        $value = $this->getFromDca($path);
+
+        return null === $value ? null : (bool) $value;
+    }
+
+    /**
+     * Retrieve an array value from the DCA, returning an empty array if the key is not set or not an array.
+     *
+     * @param string $path The DCA path (slash-separated).
+     *
+     * @return array<array-key, mixed>|list<mixed>
+     */
+    private function getArrayFromDca(string $path): array
+    {
+        /** @var mixed $value */
+        $value = $this->getFromDca($path);
+
+        return is_array($value) ? $value : [];
     }
 
     /**
@@ -476,9 +529,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $this->parseBasicMode($config);
         $this->parseBasicFlags($config);
 
+        /** @var mixed $filters */
+        $filters = $this->getFromDca('list/sorting/filter');
         if (
-            (null !== ($filters = $this->getFromDca('list/sorting/filter')))
-            && is_array($filters)
+            is_array($filters)
             && !empty($filters)
         ) {
             if ($config->hasAdditionalFilter()) {
@@ -488,7 +542,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             }
 
             foreach ($filters as $filter) {
-                $builder->andPropertyEquals($filter[0], $filter[1]);
+                if (!is_array($filter) || !isset($filter[0], $filter[1])) {
+                    continue;
+                }
+                $builder->andPropertyEquals((string) $filter[0], $filter[1]);
             }
 
             $config->setAdditionalFilter((string) $config->getDataProvider(), $builder->getAllAsArray());
@@ -522,7 +579,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $container->getBasicDefinition()->setRootDataProvider($container->getName());
         }
 
-        if (null !== ($parentTable = $this->getFromDca('config/ptable'))) {
+        /** @var mixed $parentTable */
+        $parentTable = $this->getFromDca('config/ptable');
+        if (is_string($parentTable)) {
             // Check config if it already exists, if not, add it.
             if (!$config->hasInformation($parentTable)) {
                 $providerInformation = new ContaoDataProviderInformation();
@@ -608,7 +667,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseRootEntries(ContainerInterface $container)
     {
-        if (is_array($root = $this->getFromDca('list/sorting/root'))) {
+        /** @var mixed $root */
+        $root = $this->getFromDca('list/sorting/root');
+        if (is_array($root)) {
             $entries = $container->getBasicDefinition()->getRootEntries() ?? [];
 
             $container->getBasicDefinition()->setRootEntries(array_merge($entries, $root));
@@ -784,14 +845,22 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function parseListing(ContainerInterface $container, Contao2BackendViewDefinitionInterface $view)
     {
         $listing = $view->getListingConfig();
-        $listDca = $this->getFromDca('list');
+        $listDca = $this->getArrayFromDca('list');
 
-        if ((null === $listing->getRootLabel()) && (null !== ($label = $this->getFromDca('config/label')))) {
-            $listing->setRootLabel($label);
+        if (null === $listing->getRootLabel()) {
+            /** @var mixed $label */
+            $label = $this->getFromDca('config/label');
+            if (null !== $label) {
+                $listing->setRootLabel((string) $label);
+            }
         }
 
-        if ((null === $listing->getRootIcon()) && (null !== ($icon = $this->getFromDca('config/icon')))) {
-            $listing->setRootIcon($icon);
+        if (null === $listing->getRootIcon()) {
+            /** @var mixed $icon */
+            $icon = $this->getFromDca('config/icon');
+            if (null !== $icon) {
+                $listing->setRootIcon((string) $icon);
+            }
         }
 
         // Cancel if no list configuration found.
@@ -818,7 +887,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $definitions = $view->getListingConfig()->getGroupAndSortingDefinition();
 
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-            $this->parsePropertySortingAndGrouping($propName, $propInfo, $definitions, $parsedProperties);
+            if (!is_array($propInfo)) {
+                continue;
+            }
+            $this->parsePropertySortingAndGrouping((string) $propName, $propInfo, $definitions, $parsedProperties);
         }
     }
 
@@ -842,7 +914,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $information = $definition->add();
         $information->setProperty($propName);
         if (isset($propInfo['length'])) {
-            $information->setGroupingLength($propInfo['length']);
+            $information->setGroupingLength((int) $propInfo['length']);
         }
 
         // Special case for field named "sorting" in Contao.
@@ -855,8 +927,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $definitions->markDefault($definition);
         }
 
+        /** @var mixed $flag */
         $flag = empty($propInfo['flag']) ? $this->getFromDca('list/sorting/flag') : $propInfo['flag'];
-        $this->evalFlag($information, $flag);
+        $this->evalFlag($information, (int) $flag);
     }
 
     /**
@@ -878,7 +951,9 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function parseListSorting(ListingConfigInterface $listing, array $listDca)
     {
         $parsedProperties = [];
-        $sortingDca       = ($listDca['sorting'] ?? []);
+        /** @var mixed $sortingDcaRaw */
+        $sortingDcaRaw    = $listDca['sorting'] ?? null;
+        $sortingDca       = is_array($sortingDcaRaw) ? $sortingDcaRaw : [];
 
         /** @psalm-suppress RiskyTruthyFalsyComparison */
         if ($headerFields = ($sortingDca['headerFields'] ?? [])) {
@@ -888,18 +963,21 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         if (isset($sortingDca['icon'])) {
-            $listing->setRootIcon($sortingDca['icon']);
+            $listing->setRootIcon((string) $sortingDca['icon']);
         }
 
         if (isset($sortingDca['child_record_class'])) {
-            $listing->setItemCssClass($sortingDca['child_record_class']);
+            $listing->setItemCssClass((string) $sortingDca['child_record_class']);
         }
 
         if (empty($sortingDca['fields'])) {
             return $parsedProperties;
         }
 
-        $fieldsDca = $this->getFromDca('fields');
+        /** @var list<string> $sortingFields */
+        $sortingFields = (array) $sortingDca['fields'];
+
+        $fieldsDca = $this->getArrayFromDca('fields');
 
         $definitions = $listing->getGroupAndSortingDefinition();
 
@@ -910,11 +988,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $definition = $definitions->getDefault();
         }
 
-        foreach ($sortingDca['fields'] as $field) {
+        foreach ($sortingFields as $field) {
             $groupAndSorting = $definition->add();
 
             if (isset($sortingDca['flag'])) {
-                $this->evalFlag($groupAndSorting, $sortingDca['flag']);
+                $this->evalFlag($groupAndSorting, (int) $sortingDca['flag']);
             }
 
             if (preg_match('~^(\w+)(?: (.+))?$~', $field, $matches)) {
@@ -932,16 +1010,19 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 throw new DcGeneralRuntimeException('Custom SQL in sorting fields are currently unsupported');
             }
 
-            if (isset($fieldsDca[$groupAndSorting->getProperty()])) {
-                if (isset($fieldsDca[$groupAndSorting->getProperty()]['flag'])) {
-                    $flag = $fieldsDca[$groupAndSorting->getProperty()]['flag'];
+            $property = $groupAndSorting->getProperty();
+            if (isset($fieldsDca[$property])) {
+                /** @var mixed $fieldDca */
+                $fieldDca = $fieldsDca[$property];
+                if (is_array($fieldDca) && isset($fieldDca['flag'])) {
+                    $flag = (int) $fieldDca['flag'];
                     $this->evalFlagGrouping($groupAndSorting, $flag);
                     $this->evalFlagGroupingLength($groupAndSorting, $flag);
                 }
 
-                if (1 === count($sortingDca['fields'])) {
-                    $definition->setName($groupAndSorting->getProperty());
-                    $parsedProperties[] = $groupAndSorting->getProperty();
+                if (1 === count($sortingFields)) {
+                    $definition->setName($property);
+                    $parsedProperties[] = $property;
                 }
             }
 
@@ -964,22 +1045,24 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parseListLabel(ContainerInterface $container, ListingConfigInterface $listing, array $listDca)
     {
-        $labelDca   = ($listDca['label'] ?? []);
+        /** @var mixed $labelDcaRaw */
+        $labelDcaRaw = $listDca['label'] ?? null;
+        $labelDca    = is_array($labelDcaRaw) ? $labelDcaRaw : [];
         $formatter  = new DefaultModelFormatterConfig();
         $configured = false;
 
         if (isset($labelDca['fields'])) {
-            $formatter->setPropertyNames($labelDca['fields']);
+            $formatter->setPropertyNames((array) $labelDca['fields']);
             $configured = true;
         }
 
         if (isset($labelDca['format'])) {
-            $formatter->setFormat($labelDca['format']);
+            $formatter->setFormat((string) $labelDca['format']);
             $configured = true;
         }
 
         if (isset($labelDca['maxCharacters'])) {
-            $formatter->setMaxLength($labelDca['maxCharacters']);
+            $formatter->setMaxLength((int) $labelDca['maxCharacters']);
             $configured = true;
         }
 
@@ -988,7 +1071,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         if (isset($labelDca['showColumns'])) {
-            $listing->setShowColumns($labelDca['showColumns']);
+            $listing->setShowColumns((bool) $labelDca['showColumns']);
         }
     }
 
@@ -1001,13 +1084,14 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      */
     protected function parsePanelFilter(PanelRowInterface $row)
     {
-        foreach ($this->getFromDca('fields') as $property => $value) {
-            if (isset($value['filter'])) {
-                $element = new DefaultFilterElementInformation();
-                $element->setPropertyName($property);
-                if (!$row->hasElement($element->getName())) {
-                    $row->addElement($element);
-                }
+        foreach ($this->getArrayFromDca('fields') as $property => $value) {
+            if (!is_array($value) || !isset($value['filter'])) {
+                continue;
+            }
+            $element = new DefaultFilterElementInformation();
+            $element->setPropertyName((string) $property);
+            if (!$row->hasElement($element->getName())) {
+                $row->addElement($element);
             }
         }
     }
@@ -1041,9 +1125,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $element = new DefaultSearchElementInformation();
         }
         assert($element instanceof SearchElementInformationInterface);
-        foreach ($this->getFromDca('fields') as $property => $value) {
+        foreach ($this->getArrayFromDca('fields') as $property => $value) {
+            if (!is_array($value)) {
+                continue;
+            }
             if (isset($value['search'])) {
-                $element->addProperty($property);
+                $element->addProperty((string) $property);
             }
         }
         if ($element->getPropertyNames() && !$row->hasElement('search')) {
@@ -1188,7 +1275,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach (array_keys($operationsDca) as $operationName) {
-            $command = $this->createCommand($operationName, $operationsDca[$operationName]);
+            $command = $this->createCommand((string) $operationName, (array) $operationsDca[$operationName]);
             $collection->addCommand($command);
         }
     }
@@ -1215,7 +1302,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 continue;
             }
             assert(is_array($operationDca));
-            $command = $this->createCommand($operationName, $operationDca);
+            $command = $this->createCommand((string) $operationName, $operationDca);
             $collection->addCommand($command);
         }
     }
@@ -1232,6 +1319,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     protected function parsePalettes(ContainerInterface $container)
     {
         $palettesDefinitionArray    = $this->getFromDca('palettes');
+        /** @var mixed $subPalettesDefinitionArray */
         $subPalettesDefinitionArray = $this->getFromDca('subpalettes');
 
         // Skip while there is no legacy palette definition.
@@ -1252,10 +1340,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
         assert($palettesDefinition instanceof PalettesDefinitionInterface);
 
+        /** @var array{__selector__?: list<string>, default: string} $legacyPalettes */
+        $legacyPalettes = $palettesDefinitionArray;
+        /** @var array<string, string> $legacySubPalettes */
+        $legacySubPalettes = $subPalettesDefinitionArray;
+
         $palettesParser = new LegacyPalettesParser();
         $palettesParser->parse(
-            $palettesDefinitionArray,
-            $subPalettesDefinitionArray,
+            $legacyPalettes,
+            $legacySubPalettes,
             $palettesDefinition
         );
     }
@@ -1274,12 +1367,12 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $extra = $property->getExtra();
             if (
                 !isset($extra['orderField'])
-                || !$container->getPropertiesDefinition()->hasProperty($extra['orderField'])
+                || !$container->getPropertiesDefinition()->hasProperty((string) $extra['orderField'])
             ) {
                 continue;
             }
 
-            $orderProperty = $container->getPropertiesDefinition()->getProperty($extra['orderField']);
+            $orderProperty = $container->getPropertiesDefinition()->getProperty((string) $extra['orderField']);
             if (false === (bool) $orderProperty->getWidgetType()) {
                 continue;
             }
@@ -1352,7 +1445,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 case 'description':
                     if (!$property->getDescription()) {
-                        $property->setDescription($value);
+                        $property->setDescription((string) $value);
                     }
                     break;
 
@@ -1375,15 +1468,15 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                     break;
 
                 case 'inputType':
-                    $property->setWidgetType($value);
+                    $property->setWidgetType((string) $value);
                     break;
 
                 case 'options':
-                    $property->setOptions($value);
+                    $property->setOptions((array) $value);
                     break;
 
                 case 'explanation':
-                    $property->setExplanation($value);
+                    $property->setExplanation((string) $value);
                     break;
 
                 case 'eval':
@@ -1438,7 +1531,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             ->setExtra(
                 array_merge(
                     [
-                        'sourceName' => explode('.', $propInfo['foreignKey'])[0],
+                        'sourceName' => explode('.', (string) $propInfo['foreignKey'])[0],
                         'idProperty' => 'id'
                     ],
                     $property->getExtra()
@@ -1485,10 +1578,10 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         foreach ((array) $this->getFromDca('fields') as $propName => $propInfo) {
-            if ($definition->hasProperty($propName)) {
-                $property = $definition->getProperty($propName);
+            if ($definition->hasProperty((string) $propName)) {
+                $property = $definition->getProperty((string) $propName);
             } else {
-                $property = new DefaultProperty($propName);
+                $property = new DefaultProperty((string) $propName);
                 $definition->addProperty($property);
             }
 
@@ -1502,13 +1595,13 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
             $extra = $property->getExtra();
             if (
                 isset($extra['orderField'])
-                && array_key_exists($extra['orderField'], (array) $this->getFromDca('fields'))
+                && array_key_exists((string) $extra['orderField'], (array) $this->getFromDca('fields'))
             ) {
-                if (!$definition->hasProperty($extra['orderField'])) {
-                    $definition->addProperty(new DefaultProperty($extra['orderField']));
+                if (!$definition->hasProperty((string) $extra['orderField'])) {
+                    $definition->addProperty(new DefaultProperty((string) $extra['orderField']));
                 }
 
-                $orderProperty = $definition->getProperty($extra['orderField']);
+                $orderProperty = $definition->getProperty((string) $extra['orderField']);
                 $this->parseOrderProperty($property, $orderProperty);
             }
         }
@@ -1539,7 +1632,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 $command = new ToggleCommand();
 
                 if (isset($commandDca['toggleProperty'])) {
-                    $command->setToggleProperty($commandDca['toggleProperty']);
+                    $command->setToggleProperty((string) $commandDca['toggleProperty']);
                     unset($commandDca['toggleProperty']);
                 } else {
                     // Implicit fallback to "published" as in Contao core.
@@ -1547,7 +1640,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                 }
 
                 if (isset($commandDca['toggleInverse'])) {
-                    $command->setInverse($commandDca['toggleInverse']);
+                    $command->setInverse((bool) $commandDca['toggleInverse']);
                     unset($commandDca['toggleInverse']);
                 }
 
@@ -1566,6 +1659,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * @return CommandInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     protected function createCommand($commandName, array $commandDca)
     {
@@ -1576,7 +1670,8 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         $parameters = $command->getParameters();
 
         if (isset($commandDca['href'])) {
-            parse_str($commandDca['href'], $queryParameters);
+            parse_str((string) $commandDca['href'], $queryParameters);
+            /** @var array<string, string|array<array-key, string>> $queryParameters */
             foreach ($queryParameters as $name => $value) {
                 $parameters[$name] = $value;
             }
@@ -1584,13 +1679,18 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         if (isset($commandDca['parameters'])) {
-            foreach ($commandDca['parameters'] as $name => $value) {
-                $parameters[$name] = $value;
+            if (is_array($commandDca['parameters'])) {
+                /** @var array<array-key, mixed> $commandParameters */
+                $commandParameters = $commandDca['parameters'];
+                foreach ($commandParameters as $name => $value) {
+                    $parameters[(string) $name] = $value;
+                }
             }
             unset($commandDca['parameters']);
         }
 
         if (isset($commandDca['label'])) {
+            /** @var mixed $lang */
             $lang = $commandDca['label'];
 
             if (is_array($lang)) {
@@ -1599,7 +1699,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
 
                 $command->setDescription($description);
             } else {
-                $label = $lang;
+                $label = (string) $lang;
             }
 
             $command->setLabel($label);
@@ -1608,7 +1708,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
 
         if (isset($commandDca['description'])) {
-            $command->setDescription($commandDca['description']);
+            $command->setDescription((string) $commandDca['description']);
 
             unset($commandDca['description']);
         }
@@ -1711,14 +1811,35 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * Try to determine the empty type from SQL type.
      *
      * @param PropertyInterface $property The property to store the value into.
-     * @param string            $sqlType  The SQL type.
+     * @param mixed             $sqlType  The SQL type (legacy string or Contao 5 DBAL array).
      *
      * @return void
      */
     private function determineEmptyValueFromSql(PropertyInterface $property, $sqlType)
     {
+        if (!\is_string($sqlType) && !\is_array($sqlType)) {
+            return;
+        }
+
         if ($property instanceof EmptyValueAwarePropertyInterface) {
             $property->setEmptyValue(Widget::getEmptyValueByFieldType($sqlType));
         }
+    }
+
+    /** @psalm-assert callable|list<callable> $callbacks */
+    private function assertCallback(mixed $callbacks): void
+    {
+        if (is_callable($callbacks)) {
+            return;
+        }
+        if (is_array($callbacks)) {
+            foreach ($callbacks as $callback) {
+                if (!is_callable($callback)) {
+                    throw new \InvalidArgumentException('Invalid callback passed: ' . var_export($callback, true));
+                }
+            }
+            return;
+        }
+        throw new \InvalidArgumentException('Invalid callback passed: ' . var_export($callbacks, true));
     }
 }

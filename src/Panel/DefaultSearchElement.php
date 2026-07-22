@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,7 +16,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -39,7 +39,7 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     /**
      * The properties to be allowed to be searched on.
      *
-     * @var array
+     * @var list<string>
      */
     private array $arrProperties = [];
 
@@ -69,11 +69,11 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         $values = [];
         if ($this->getSessionStorage()->has('search')) {
-            $values = $this->getSessionStorage()->get('search');
+            $values = (array) $this->getSessionStorage()->get('search');
         }
 
         if (\array_key_exists($definition->getName(), $values)) {
-            return $values[$definition->getName()];
+            return (array) $values[$definition->getName()];
         }
 
         return [];
@@ -96,16 +96,15 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         $values = [];
         if ($this->getSessionStorage()->has('search')) {
-            $values = $this->getSessionStorage()->get('search');
+            $values = (array) $this->getSessionStorage()->get('search');
         }
 
         if (!empty($searchValue)) {
-            if (isset($values[$definitionName]) && !\is_array($values[$definitionName])) {
-                $values[$definitionName] = [];
-            }
-
-            $values[$definitionName]['field'] = $propertyName;
-            $values[$definitionName]['value'] = $searchValue;
+            /** @var array<string, string> $scoped */
+            $scoped                  = (array) ($values[$definitionName] ?? []);
+            $scoped['field']         = $propertyName;
+            $scoped['value']         = $searchValue;
+            $values[$definitionName] = $scoped;
         } else {
             unset($values[$definitionName]);
         }
@@ -128,15 +127,15 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
 
         if ('1' !== $input->getValue('filter_reset')) {
             if ($input->hasValue('tl_field') && $this->getPanel()->getContainer()->updateValues()) {
-                $field = $input->getValue('tl_field');
-                $value = $input->getValue('tl_value');
+                $field = (string) $input->getValue('tl_field');
+                $value = (string) $input->getValue('tl_value');
 
                 $this->setPersistent($field, $value);
             } elseif ($session->has('search')) {
                 $persistent = $this->getPersistent();
                 if ($persistent) {
-                    $field = $persistent['field'];
-                    $value = $persistent['value'];
+                    $field = (string) $persistent['field'];
+                    $value = (string) $persistent['value'];
                 }
             }
 
@@ -255,6 +254,6 @@ class DefaultSearchElement extends AbstractElement implements SearchElementInter
     #[\Override]
     public function getValue()
     {
-        return $this->mixValue;
+        return (string) $this->mixValue;
     }
 }

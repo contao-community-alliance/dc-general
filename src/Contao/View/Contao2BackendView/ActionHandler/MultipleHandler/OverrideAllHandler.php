@@ -107,12 +107,16 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $renderInformation = new \ArrayObject();
 
         $propertyValueBag = new PropertyValueBag();
-        foreach ($this->getOverrideProperties($action, $environment) as $property) {
+        /** @var iterable<\ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface> $overrideProperties */
+        $overrideProperties = $this->getOverrideProperties($action, $environment);
+        foreach ($overrideProperties as $property) {
             $propertyValueBag->setPropertyValue($property->getName(), $property->getDefaultValue());
         }
 
         if (false !== $inputProvider->hasValue('FORM_INPUTS')) {
-            foreach ($inputProvider->getValue('FORM_INPUTS') as $formInput) {
+            /** @var list<string> $formInputs */
+            $formInputs = (array) $inputProvider->getValue('FORM_INPUTS');
+            foreach ($formInputs as $formInput) {
                 $propertyValueBag->setPropertyValue($formInput, $inputProvider->getValue($formInput));
             }
         }
@@ -133,7 +137,10 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
             $action,
             [
                 'subHeadline' =>
-                    $translator->translate($inputProvider->getParameter('mode') . 'Selected', 'dc-general') . ': ' .
+                    $translator->translate(
+                        (string) $inputProvider->getParameter('mode') . 'Selected',
+                        'dc-general'
+                    ) . ': ' .
                     $translator->translate('editAll.label', 'dc-general'),
                 'fieldsets'   => $renderInformation->offsetGet('fieldsets'),
                 'table'       => $definition->getName(),
@@ -251,6 +258,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function getOverrideProperties(Action $action, EnvironmentInterface $environment)
     {
+        /** @var array<string, \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface> $selectProperties */
         $selectProperties = $this->getPropertiesFromSession($action, $environment);
 
         $properties = [];
@@ -294,6 +302,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
                 continue;
             }
 
+            /** @var \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface $property */
             $property = $properties[$propertyName];
 
             $this->setDefaultValue($model, $propertyValues, $propertyName, $environment);

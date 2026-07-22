@@ -67,7 +67,7 @@ class NoOpDataProvider implements DataProviderInterface
     public function getEmptyModel()
     {
         $model = new DefaultModel();
-        $model->setProviderName(($this->arrBaseConfig['name'] ?? $this->arrBaseConfig['source']));
+        $model->setProviderName((string) ($this->arrBaseConfig['name'] ?? $this->arrBaseConfig['source']));
         return $model;
     }
 

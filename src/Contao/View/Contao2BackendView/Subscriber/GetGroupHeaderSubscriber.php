@@ -136,23 +136,15 @@ class GetGroupHeaderSubscriber
         $evaluation = $property->getExtra();
 
         if (isset($evaluation['multiple']) && !$evaluation['multiple'] && ('checkbox' === $property->getWidgetType())) {
-            return $this->formatCheckboxOptionLabel($model->getProperty($property->getName()));
+            return $this->formatCheckboxOptionLabel((string) $model->getProperty($property->getName()));
         }
 
         if (GroupAndSortingInformationInterface::GROUP_NONE !== $groupingMode) {
             return $this->formatByGroupingMode($groupingMode, $groupingLength, $environment, $property, $model);
         }
 
-        $value = ViewHelpers::getReadableFieldValue($environment, $property, $model);
-
-        if (isset($evaluation['reference'])) {
-            $remoteNew = $evaluation['reference'][$value] ?? null;
-        } elseif (ArrayUtil::isAssoc($property->getOptions())) {
-            $options   = $property->getOptions();
-            $remoteNew = $options[$value] ?? null;
-        } else {
-            $remoteNew = $value;
-        }
+        $value     = ViewHelpers::getReadableFieldValue($environment, $property, $model);
+        $remoteNew = $this->resolveReadableValue($property, $evaluation, $value);
 
         if (\is_array($remoteNew)) {
             $remoteNew = $remoteNew[0];
@@ -162,7 +154,38 @@ class GetGroupHeaderSubscriber
             $remoteNew = '-';
         }
 
-        return $remoteNew;
+        return (string) $remoteNew;
+    }
+
+    /**
+     * Resolve the readable value from a reference or option list for the group header.
+     *
+     * @param PropertyInterface $property   The property.
+     * @param array             $evaluation The property extra evaluation data.
+     * @param string|int|mixed  $value      The readable field value.
+     *
+     * @return list<string>|string|mixed
+     */
+    private function resolveReadableValue(PropertyInterface $property, array $evaluation, mixed $value)
+    {
+        $valueKey = (\is_string($value) || \is_int($value)) ? $value : null;
+        if (null === $valueKey) {
+            return $value;
+        }
+
+        /** @var array<array-key, string|list<string>>|null $reference */
+        $reference = $evaluation['reference'] ?? null;
+        if (\is_array($reference)) {
+            return $reference[$valueKey] ?? $value;
+        }
+
+        $options = $property->getOptions();
+        if (ArrayUtil::isAssoc($options)) {
+            /** @var array<string, string> $options */
+            return $options[$valueKey] ?? $value;
+        }
+
+        return $value;
     }
 
     /**
@@ -198,7 +221,7 @@ class GetGroupHeaderSubscriber
         switch ($groupingMode) {
             case GroupAndSortingInformationInterface::GROUP_CHAR:
                 return $this->formatByCharGrouping(
-                    ViewHelpers::getReadableFieldValue($environment, $property, $model),
+                    (string) ViewHelpers::getReadableFieldValue($environment, $property, $model),
                     $groupingLength
                 );
 
@@ -215,7 +238,7 @@ class GetGroupHeaderSubscriber
                 return $this->formatByYearGrouping((int) $model->getProperty($property->getName()));
 
             default:
-                return ViewHelpers::getReadableFieldValue($environment, $property, $model);
+                return (string) ViewHelpers::getReadableFieldValue($environment, $property, $model);
         }
     }
 
@@ -251,7 +274,7 @@ class GetGroupHeaderSubscriber
             return '-';
         }
 
-        $event = new ParseDateEvent($value, Config::get('dateFormat'));
+        $event = new ParseDateEvent($value, (string) Config::get('dateFormat'));
         $this->dispatcher->dispatch($event, ContaoEvents::DATE_PARSE);
 
         return $event->getResult();

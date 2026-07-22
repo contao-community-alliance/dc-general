@@ -44,7 +44,7 @@ class Filter implements FilterInterface
     /**
      * The expression parts.
      *
-     * @var array
+     * @var list<string>
      */
     private array $expression = [];
 
@@ -548,7 +548,7 @@ EXPR;
     /**
      * And parent is in.
      *
-     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -562,7 +562,7 @@ EXPR;
     /**
      * Or parent is in.
      *
-     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -576,8 +576,8 @@ EXPR;
     /**
      * Add parent is in.
      *
-     * @param string          $conjunction    AND or OR.
-     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
+     * @param string                 $conjunction    AND or OR.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -652,7 +652,7 @@ EXPR;
     /**
      * And parent is not in.
      *
-     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -666,7 +666,7 @@ EXPR;
     /**
      * Or parent is not in.
      *
-     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -681,7 +681,7 @@ EXPR;
      * Add parent is not in.
      *
      * @param string          $conjunction    AND or OR.
-     * @param array|ModelIdInterface[] $parentModelIds The parent ids.
+     * @param list<ModelIdInterface> $parentModelIds The parent ids.
      *
      * @return static
      */
@@ -984,7 +984,7 @@ EXPR;
 
         $variables = $this->variables;
         // phpcs:disable
-        return eval($this->compiled);
+        return (bool) eval($this->compiled);
         // phpcs:enable
     }
 

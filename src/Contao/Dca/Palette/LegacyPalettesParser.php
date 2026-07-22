@@ -235,8 +235,8 @@ class LegacyPalettesParser
     /**
      * Parse the palette selector and create the corresponding condition.
      *
-     * @param string $paletteSelector    Create the condition for the selector.
-     * @param array  $selectorFieldNames The property names to be used as selectors.
+     * @param string       $paletteSelector    Create the condition for the selector.
+     * @param list<string> $selectorFieldNames The property names to be used as selectors.
      *
      * @return null|PaletteConditionInterface
      */

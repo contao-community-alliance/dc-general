@@ -44,7 +44,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * Action handler for paste all action.
  *
- * @return void
+ * @psalm-type TPasteItem = array{item: ItemInterface, pasteAfter: mixed, pasteMode: string}
+ * @psalm-type TPasteCollection = array<string, TPasteItem>
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  *
@@ -127,7 +128,10 @@ class PasteAllHandler
             $this->callAction($environment, 'paste');
 
             $clipboardItem = $collectionItem['item'];
-            $clipboard->removeById($clipboardItem->getModelId());
+            $modelId       = $clipboardItem->getModelId();
+            if (null !== $modelId) {
+                $clipboard->removeById($modelId);
+            }
         }
         $clipboard->saveTo($environment);
 
@@ -141,7 +145,7 @@ class PasteAllHandler
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return array
+     * @return list<ItemInterface>
      */
     protected function getClipboardItems(EnvironmentInterface $environment)
     {
@@ -176,7 +180,7 @@ class PasteAllHandler
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return array
+     * @return TPasteCollection
      */
     protected function getCollection(EnvironmentInterface $environment)
     {
@@ -197,31 +201,36 @@ class PasteAllHandler
      *
      * @param EnvironmentInterface $environment The environment.
      *
-     * @return array
+     * @return TPasteCollection
      */
     protected function getFlatCollection(EnvironmentInterface $environment)
     {
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $previousItem = null;
-        $collection   = [];
+        $previousModelId = null;
+        $collection      = [];
         foreach ($this->getClipboardItems($environment) as $clipboardItem) {
             if ('create' === $clipboardItem->getAction()) {
                 continue;
             }
+            $modelId = $clipboardItem->getModelId();
+            if (null === $modelId) {
+                continue;
+            }
+            /** @var mixed $pasteAfter */
             $pasteAfter =
-                null !== $previousItem
-                ? $previousItem->getModelId()->getSerialized()
+                null !== $previousModelId
+                ? $previousModelId->getSerialized()
                 : $inputProvider->getParameter('after');
 
-            $collection[$clipboardItem->getModelId()->getSerialized()] = [
+            $collection[$modelId->getSerialized()] = [
                 'item'       => $clipboardItem,
                 'pasteAfter' => $pasteAfter,
                 'pasteMode'  => 'after'
             ];
 
-            $previousItem = $clipboardItem;
+            $previousModelId = $modelId;
         }
 
         return $collection;
@@ -230,10 +239,10 @@ class PasteAllHandler
     /**
      * Get hierarchy collection.
      *
-     * @param array                $clipboardItems The clipboard items.
+     * @param list<ItemInterface>  $clipboardItems The clipboard items.
      * @param EnvironmentInterface $environment    The environment.
      *
-     * @return array
+     * @return TPasteCollection
      *
      * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      */
@@ -260,17 +269,18 @@ class PasteAllHandler
 
         $originalPasteMode = $inputProvider->hasParameter('after') ? 'after' : 'into';
 
-        $previousItem = null;
+        $previousModelId = null;
         foreach ($clipboardItems as $clipboardItem) {
             $modelId = $clipboardItem->getModelId();
             if (!$modelId || \array_key_exists($modelId->getSerialized(), $collection)) {
                 continue;
             }
 
-            $pasteMode  = null !== $previousItem ? 'after' : $originalPasteMode;
+            $pasteMode  = null !== $previousModelId ? 'after' : $originalPasteMode;
+            /** @var mixed $pasteAfter */
             $pasteAfter =
-                null !== $previousItem
-                    ? $previousItem->getModelId()->getSerialized()
+                null !== $previousModelId
+                    ? $previousModelId->getSerialized()
                     : $inputProvider->getParameter($pasteMode);
 
             $collection[$modelId->getSerialized()] = [
@@ -279,7 +289,7 @@ class PasteAllHandler
                 'pasteMode'  => $pasteMode
             ];
 
-            $previousItem = $clipboardItem;
+            $previousModelId = $modelId;
 
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
             assert($model instanceof ModelInterface);
@@ -302,10 +312,10 @@ class PasteAllHandler
     /**
      * Get the sub items from the clipboard.
      *
-     * @param array               $clipboardItems The clipboard items.
+     * @param list<ItemInterface> $clipboardItems The clipboard items.
      * @param CollectionInterface $collection     The collection.
      *
-     * @return array
+     * @return list<ItemInterface>
      */
     protected function getSubClipboardItems(array $clipboardItems, CollectionInterface $collection)
     {
@@ -313,7 +323,8 @@ class PasteAllHandler
 
         $modelIds = $collection->getModelIds();
         foreach ($clipboardItems as $clipboardItem) {
-            if (!\in_array($clipboardItem->getModelId()->getId(), $modelIds)) {
+            $modelId = $clipboardItem->getModelId();
+            if (null === $modelId || !\in_array($modelId->getId(), $modelIds)) {
                 continue;
             }
 
@@ -327,11 +338,11 @@ class PasteAllHandler
      * Set the sub items to the collection.
      *
      * @param ItemInterface        $previousItem      The previous item.
-     * @param array                $subClipboardItems The sub clipboard items.
-     * @param array                $collection        The collection.
+     * @param list<ItemInterface>  $subClipboardItems The sub clipboard items.
+     * @param TPasteCollection     $collection        The collection.
      * @param EnvironmentInterface $environment       The environment.
      *
-     * @return array
+     * @return TPasteCollection
      *
      * @throws DcGeneralInvalidArgumentException Invalid configuration. Child condition must be defined.
      * @throws DcGeneralInvalidArgumentException Invalid model. Must be saved first.
@@ -367,21 +378,26 @@ class PasteAllHandler
             );
         }
 
-        $intoItem = null;
+        $intoModelId = null;
         foreach ($subClipboardItems as $subClipboardItem) {
             $modelId = $subClipboardItem->getModelId();
+            if (null === $modelId) {
+                continue;
+            }
 
             $pasteAfter =
-                null !== $intoItem
-                    ? $intoItem->getModelId()->getSerialized()
+                null !== $intoModelId
+                    ? $intoModelId->getSerialized()
                     : $previousModelId->getSerialized();
 
-            $intoItem = $subClipboardItem;
+            $intoModelId = $modelId;
 
+            // Note: the original `$intoItem ? 'after' : 'into'` always evaluated to 'after'
+            // because $intoItem was assigned immediately before the check.
             $collection[$modelId->getSerialized()] = [
                 'item'       => $subClipboardItem,
                 'pasteAfter' => $pasteAfter,
-                'pasteMode'  => $intoItem ? 'after' : 'into'
+                'pasteMode'  => 'after'
             ];
 
             $model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId()));
@@ -426,7 +442,7 @@ class PasteAllHandler
     /**
      * Set the parameter for paste.
      *
-     * @param array                $collectionItem The collection item.
+     * @param TPasteItem           $collectionItem The collection item.
      * @param EnvironmentInterface $environment    The environment.
      *
      * @return void
@@ -436,12 +452,14 @@ class PasteAllHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $clipboardItem = $collectionItem['item'];
+        $clipboardItem    = $collectionItem['item'];
+        $clipboardModelId = $clipboardItem->getModelId();
+        assert($clipboardModelId instanceof ModelIdInterface);
 
         $inputProvider->unsetParameter('after');
         $inputProvider->unsetParameter('into');
         $inputProvider->unsetParameter('source');
-        $inputProvider->setParameter('source', $clipboardItem->getModelId()->getSerialized());
+        $inputProvider->setParameter('source', $clipboardModelId->getSerialized());
 
         if (!$this->originalModel) {
             $inputProvider->setParameter($collectionItem['pasteMode'], $collectionItem['pasteAfter']);
@@ -449,7 +467,7 @@ class PasteAllHandler
             return;
         }
 
-        $pasteAfterId = ModelId::fromSerialized($collectionItem['pasteAfter']);
+        $pasteAfterId = ModelId::fromSerialized((string) $collectionItem['pasteAfter']);
         if ($pasteAfterId->getId() !== $this->originalModel->getID()) {
             $inputProvider->setParameter($collectionItem['pasteMode'], $collectionItem['pasteAfter']);
 

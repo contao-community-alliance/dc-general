@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     David Molineus <david.molineus@netzmacht.de>
  * @author     Ingolf Steinhardt <info@e-spin.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -54,7 +54,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     /**
      * The values to use when enforcing a root condition.
      *
-     * @var array
+     * @var list<array<string, mixed>>
      */
     protected array $setOn = [];
 
@@ -106,6 +106,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     #[\Override]
     public function setSetters($value)
     {
+        /** @var list<array<string, mixed>> $value */
         $this->setOn = $value;
 
         return $this;
@@ -197,11 +198,11 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         ];
 
         if (isset($filter['local'])) {
-            $applied['property'] = $filter['local'];
+            $applied['property'] = (string) $filter['local'];
         }
 
         if (isset($filter['remote'])) {
-            $applied['value'] = $model->getProperty($filter['remote']);
+            $applied['value'] = $model->getProperty((string) $filter['remote']);
         }
 
         if (isset($filter['remote_value'])) {
@@ -212,8 +213,11 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             $applied['value'] = $filter['value'];
         }
 
-        if (isset($filter['children'])) {
+        if (isset($filter['children']) && \is_array($filter['children'])) {
             foreach ($filter['children'] as $child) {
+                if (!\is_array($child)) {
+                    continue;
+                }
                 $applied['children'][] = $this->parseFilter($child, $model);
             }
         }
@@ -230,7 +234,9 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     public function getFilter($parent)
     {
         $result = [];
-        foreach ($this->getFilterArray() as $child) {
+        /** @var list<array<string, mixed>> $filterArray */
+        $filterArray = $this->getFilterArray();
+        foreach ($filterArray as $child) {
             $result[] = $this->parseFilter($child, $parent);
         }
 
@@ -262,6 +268,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     {
         $this->guardProviderNames($objChild, $objParent);
 
+        /** @var list<array<string, mixed>> $setters */
         $setters = $this->getSetters();
 
         if (empty($setters)) {
@@ -286,12 +293,15 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             }
 
             if (isset($setter['from_field'])) {
-                $objChild->setProperty($setter['to_field'], $objParent->getProperty($setter['from_field']));
+                $objChild->setProperty(
+                    (string) $setter['to_field'],
+                    $objParent->getProperty((string) $setter['from_field'])
+                );
 
                 continue;
             }
 
-            $objChild->setProperty($setter['to_field'], $setter['value']);
+            $objChild->setProperty((string) $setter['to_field'], $setter['value']);
         }
     }
 
@@ -306,6 +316,7 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         $this->guardProviderNames($sourceModel);
         $this->guardProviderNames($destinationModel);
 
+        /** @var list<array<string, mixed>> $setters */
         $setters = $this->getSetters();
 
         if (empty($setters)) {
@@ -330,12 +341,15 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
             }
 
             if (isset($setter['from_field'])) {
-                $destinationModel->setProperty($setter['to_field'], $sourceModel->getProperty($setter['to_field']));
+                $destinationModel->setProperty(
+                    (string) $setter['to_field'],
+                    $sourceModel->getProperty((string) $setter['to_field'])
+                );
 
                 continue;
             }
 
-            $destinationModel->setProperty($setter['to_field'], $setter['value']);
+            $destinationModel->setProperty((string) $setter['to_field'], $setter['value']);
         }
     }
 
@@ -348,17 +362,19 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         $this->guardProviderNames($child);
 
         $result = [];
-        foreach ($this->getInverseFilterArray() as $arrRule) {
+        /** @var list<array<string, mixed>> $inverseFilterArray */
+        $inverseFilterArray = $this->getInverseFilterArray();
+        foreach ($inverseFilterArray as $arrRule) {
             $applied = [
                 'operation' => $arrRule['operation'],
             ];
 
             if (isset($arrRule['remote'])) {
-                $applied['property'] = $arrRule['remote'];
+                $applied['property'] = (string) $arrRule['remote'];
             }
 
             if (isset($arrRule['local'])) {
-                $applied['value'] = $child->getProperty($arrRule['local']);
+                $applied['value'] = $child->getProperty((string) $arrRule['local']);
             }
 
             if (isset($arrRule['value'])) {
@@ -392,8 +408,13 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         if (\in_array($rule['operation'], ['AND', 'OR'])) {
             $children = [];
 
-            foreach ($rule['children'] as $childRule) {
-                $children[] = $this->prepareRule($childRule, $child);
+            if (\is_array($rule['children'] ?? null)) {
+                foreach ($rule['children'] as $childRule) {
+                    if (!\is_array($childRule)) {
+                        continue;
+                    }
+                    $children[] = $this->prepareRule($childRule, $child);
+                }
             }
 
             $applied['children'] = $children;
@@ -403,14 +424,14 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
 
         // Local is child property name.
         if (isset($rule['local'])) {
-            $applied['value'] = $child->getProperty($rule['local']);
+            $applied['value'] = $child->getProperty((string) $rule['local']);
         } elseif (isset($rule['value'])) {
             $applied['value'] = $rule['value'];
         }
 
         // Remote is parent property name.
         if (isset($rule['remote'])) {
-            $applied['property'] = $rule['remote'];
+            $applied['property'] = (string) $rule['remote'];
         } elseif (isset($rule['remote_value'])) {
             $applied['remote_value'] = $rule['remote_value'];
         }
@@ -454,7 +475,10 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
     {
         if (\in_array($rule['operation'], ['AND', 'OR'])) {
             $properties = [[]];
-            foreach ($rule['children'] ?? [] as $childRule) {
+            foreach ((array) ($rule['children'] ?? []) as $childRule) {
+                if (!\is_array($childRule)) {
+                    continue;
+                }
                 $properties[] = $this->extractNeededProperties($childRule);
             }
 
@@ -464,13 +488,13 @@ class ParentChildCondition extends AbstractCondition implements ParentChildCondi
         // Local is child property name.
         if (isset($rule['local'])) {
             /** @var array{local: string} $rule */
-            return [$rule['local']];
+            return [(string) $rule['local']];
         }
 
         // Remote is parent property name.
         if (isset($rule['property'])) {
             /** @var array{property: string} $rule */
-            return [$rule['property']];
+            return [(string) $rule['property']];
         }
 
         throw new \RuntimeException('Unexpected filter rule ' . \var_export($rule, true));

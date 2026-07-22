@@ -212,7 +212,7 @@ class CopyHandler
 
         if (!$model) {
             throw new DcGeneralRuntimeException(
-                'Model not found with ID ' . $modelId->getId()
+                'Model not found with ID ' . (string) $modelId->getId()
             );
         }
 
@@ -261,7 +261,7 @@ class CopyHandler
         }
 
         $request   = $this->requestStack->getCurrentRequest();
-        $routeName = $request?->attributes->get('_route');
+        $routeName = (string) $request?->attributes->get('_route');
         // Build a clean url to remove the copy related arguments instead of using the AddToUrlEvent.
         $urlBuilder = new UrlBuilder();
         if ($routeName !== 'contao_backend') {
@@ -270,18 +270,18 @@ class CopyHandler
                 'act'       => 'edit',
                 'id'        => $copiedModelId->getSerialized(),
             ];
-            if (null !== ($pid = $inputProvider->getParameter('pid'))) {
+            if ('' !== ($pid = (string) $inputProvider->getParameter('pid'))) {
                 $params['pid'] = $pid;
             }
             $url = $this->urlGenerator->generate($routeName, $params);
         } else {
             $urlBuilder
                 ->setPath('contao')
-                ->setQueryParameter('do', $inputProvider->getParameter('do'))
+                ->setQueryParameter('do', (string) $inputProvider->getParameter('do'))
                 ->setQueryParameter('table', $copiedModelId->getDataProviderName())
                 ->setQueryParameter('act', 'edit')
                 ->setQueryParameter('id', $copiedModelId->getSerialized());
-            if (null !== ($pid = $inputProvider->getParameter('pid'))) {
+            if ('' !== ($pid = (string) $inputProvider->getParameter('pid'))) {
                 $urlBuilder->setQueryParameter('pid', $pid);
             }
             $url = $urlBuilder->getUrl();
@@ -304,7 +304,7 @@ class CopyHandler
             return false;
         }
 
-        $modelId = ModelId::fromSerialized($inputProvider->getParameter('source'));
+        $modelId = ModelId::fromSerialized((string) $inputProvider->getParameter('source'));
 
         if (null === ($definition = $environment->getDataDefinition())) {
             return false;
@@ -366,7 +366,7 @@ class CopyHandler
             '<div style="text-align:center; font-weight:bold; padding:40px;">
                 You have no permission for copy model %s.
             </div>',
-            ModelId::fromSerialized($inputProvider->getParameter('source'))->getSerialized()
+            ModelId::fromSerialized((string) $inputProvider->getParameter('source'))->getSerialized()
         );
     }
 }

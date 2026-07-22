@@ -69,10 +69,10 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
         if (!$config['group_column']) {
             throw new DcGeneralException(__CLASS__ . ' needs a grouping column.', 1);
         }
-        $this->strGroupCol = $config['group_column'];
+        $this->strGroupCol = (string) $config['group_column'];
 
         if ($config['sort_column']) {
-            $this->strSortCol = $config['sort_column'];
+            $this->strSortCol = (string) $config['sort_column'];
         }
     }
 
@@ -275,6 +275,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     #[\Override]
     public function save(ModelInterface $item, $timestamp = 0, $recursive = false)
     {
+        /** @var array<array-key, array<string, mixed>> $data */
         $data = $item->getProperty('rows');
         if (!($data && $item->getId())) {
             throw new DcGeneralException('invalid input data in model.', 1);

@@ -151,7 +151,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         foreach (\array_keys($modelError) as $modelId) {
             $error[] = \sprintf(
                 '<strong><a href="%s#pal_%s">%s</a></strong>',
-                Environment::get('request'),
+                (string) Environment::get('request'),
                 \str_replace('::', '____', $modelId),
                 $modelId
             );
@@ -167,7 +167,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             }
         }
 
-        $renderInformation->offsetSet('error', \array_merge($renderInformation->offsetGet('error'), $error));
+        $renderInformation->offsetSet('error', \array_merge((array) $renderInformation->offsetGet('error'), $error));
     }
 
     /**
@@ -218,7 +218,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     private function resetPropertyValueErrors(PropertyValueBagInterface $propertyValueBag)
     {
         foreach (\array_keys($propertyValueBag->getInvalidPropertyErrors()) as $errorProperty) {
-            $propertyValueBag->resetPropertyValueErrors($errorProperty);
+            $propertyValueBag->resetPropertyValueErrors((string) $errorProperty);
         }
     }
 
@@ -258,6 +258,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                     $editInformation,
                     $environment
                 ) {
+                    /** @var array<string, array<string, list<string>>> $modelError */
                     $modelError = (array) $renderInformation->offsetGet('modelError');
 
                     $inputField = \sprintf(
@@ -268,9 +269,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
                     $modelError[ModelId::fromModel($model)->getSerialized()][$errorPropertyName][] = \sprintf(
                         '<a href="%s#%s">No saved model[%s]. %s</a>',
-                        Environment::get('request'),
+                        (string) Environment::get('request'),
                         $inputField,
-                        $model->getId(),
+                        (string) $model->getId(),
                         $error
                     );
 
@@ -444,7 +445,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                     $inputProvider->setValue($valueName, \array_keys($editProperties));
 
                     foreach (\array_keys($editProperties) as $editPropertyName) {
-                        $inputProvider->setValue($editPropertyName, $editProperties[$editPropertyName]);
+                        $inputProvider->setValue((string) $editPropertyName, $editProperties[$editPropertyName]);
                     }
 
                     break;
@@ -485,11 +486,14 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         unset($_POST);
         foreach (\array_keys($inputValues) as $postName) {
-            $inputProvider->setValue($postName, $inputValues[$postName]);
+            $inputProvider->setValue((string) $postName, $inputValues[$postName]);
         }
 
         foreach (\array_keys($editProperties) as $editedPropertyName) {
-            $propertyValueBag->setPropertyValue($editedPropertyName, $model->getProperty($editedPropertyName));
+            $propertyValueBag->setPropertyValue(
+                (string) $editedPropertyName,
+                $model->getProperty((string) $editedPropertyName)
+            );
         }
     }
 
@@ -580,26 +584,29 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $propertyValueBag = new PropertyValueBag();
 
         foreach ($model->getPropertiesAsArray() as $propertyName => $propertyValue) {
-            if (!$propertiesDefinition->hasProperty($propertyName)) {
+            if (!$propertiesDefinition->hasProperty((string) $propertyName)) {
                 continue;
             }
 
-            $property = $propertiesDefinition->getProperty($propertyName);
+            $property = $propertiesDefinition->getProperty((string) $propertyName);
             if (!$property->getWidgetType()) {
                 continue;
             }
 
             $modelError = $editInformation->getModelError($model);
-            if ($modelError && isset($modelError[$propertyName])) {
+            if ($modelError && isset($modelError[(string) $propertyName])) {
                 $sessionValues = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
 
-                $propertyValueBag->setPropertyValue($propertyName, $sessionValues[$propertyName]);
-                $propertyValueBag->markPropertyValueAsInvalid($propertyName, $modelError[$propertyName]);
+                $propertyValueBag->setPropertyValue((string) $propertyName, $sessionValues[$propertyName]);
+                $propertyValueBag->markPropertyValueAsInvalid(
+                    (string) $propertyName,
+                    $modelError[(string) $propertyName]
+                );
 
                 continue;
             }
 
-            $propertyValueBag->setPropertyValue($propertyName, $propertyValue);
+            $propertyValueBag->setPropertyValue((string) $propertyName, $propertyValue);
         }
 
         return $propertyValueBag;
@@ -632,11 +639,13 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $editProperties = [];
 
         $modelIds = [];
-        foreach (($session['models'] ?? []) as $modelId) {
+        /** @var list<string> $sessionModels */
+        $sessionModels = (array) ($session['models'] ?? []);
+        foreach ($sessionModels as $modelId) {
             $modelIds[] = ModelId::fromSerialized($modelId)->getId();
 
             if ($addEditProperties) {
-                $transformed         = \str_replace('::', '____', (string) $modelId) . '_';
+                $transformed         = \str_replace('::', '____', $modelId) . '_';
                 $modelEditProperties = $inputProvider->getValue($transformed, true);
                 $inputProvider->unsetValue($transformed);
 
@@ -648,7 +657,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return $dataProvider->getEmptyCollection();
         }
 
-        $idProperty = \method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id';
+        $idProperty = (string) (\method_exists($dataProvider, 'getIdProperty') ? $dataProvider->getIdProperty() : 'id');
         $collection = $dataProvider->fetchAll(
             $dataProvider->getEmptyConfig()->setFilter(
                 [['operation' => 'IN', 'property' => $idProperty, 'values' => $modelIds]]
@@ -677,9 +686,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         ModelIdInterface $modelId,
         EnvironmentInterface $environment
     ) {
-        $session = $this->getSession($action, $environment);
+        $session        = $this->getSession($action, $environment);
+        $editProperties = (array) ($session['editProperties'] ?? []);
 
-        return $session['editProperties'][$modelId->getSerialized()] ?? [];
+        return (array) ($editProperties[$modelId->getSerialized()] ?? []);
     }
 
     /**
@@ -704,6 +714,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             return null;
         }
 
+        /** @psalm-suppress MixedArrayAssignment - $GLOBALS['TL_CSS'] is an untyped Contao superglobal. */
         $GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb'] = '/bundles/ccadcgeneral/css/generalBreadcrumb.css';
 
         $template = new ContaoBackendViewTemplate('dcbe_general_breadcrumb');
@@ -738,6 +749,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $dataProvider = $environment->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);
 
+        /** @var array<array-key, \ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface> $properties */
         $properties   = $this->getPropertiesFromSession($action, $environment);
 
         while ($collection->count() > 0) {
@@ -760,7 +772,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
                     continue;
                 }
 
-                $revertModel->setProperty($property->getName(), $model->getProperty($property->getName()));
+                $revertModel->setProperty(
+                    $property->getName(),
+                    $model->getProperty($property->getName())
+                );
             }
 
             $dataProvider->save($revertModel);
@@ -802,7 +817,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     {
         $arguments = $action->getArguments();
 
-        return $arguments['mode'];
+        return (string) $arguments['mode'];
     }
 
     /**
@@ -815,9 +830,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $session = $sessionStorage->get($dataDefinition->getName() . '.' . $this->getMode($action));
-
-        return (array) $session;
+        return (array) $sessionStorage->get($dataDefinition->getName() . '.' . $this->getMode($action));
     }
 
     /**
@@ -831,7 +844,9 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $session = $this->getSession($action, $environment);
 
         $selectPropertyNames = [];
-        foreach (($session['properties'] ?? []) as $modelId) {
+        /** @var list<string> $sessionProperties */
+        $sessionProperties = (array) ($session['properties'] ?? []);
+        foreach ($sessionProperties as $modelId) {
             $selectPropertyNames[] = ModelId::fromSerialized($modelId)->getId();
         }
 

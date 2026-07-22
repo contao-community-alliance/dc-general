@@ -259,7 +259,7 @@ class BackendTreeController
 
         [$value, , $picker] = $this->getTemplateData($request, true);
 
-        $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
+        $modelId = ModelId::fromSerialized((string) $picker->getConfig()->getExtra('modelId'));
 
         $factory = new DcGeneralFactory();
         $general = $factory
@@ -293,7 +293,7 @@ class BackendTreeController
             $value = $values;
         }
 
-        $propertyName   = $picker->getConfig()->getExtra('propertyName');
+        $propertyName   = (string) $picker->getConfig()->getExtra('propertyName');
         $propertyValues = new PropertyValueBag();
         $propertyValues->setPropertyValue($propertyName, $value);
 
@@ -339,8 +339,11 @@ class BackendTreeController
 
         $sessionBag->set($treeSelector->getSearchSessionKey(), $value);
 
+        /** @var list<string>|string $sessionValue */
+        $sessionValue = $sessionBag->get($treeSelector->getSearchSessionKey());
+
         return [
-            $sessionBag->get($treeSelector->getSearchSessionKey()),
+            $sessionValue,
             $treeSelector,
             $picker
         ];
@@ -359,13 +362,13 @@ class BackendTreeController
      */
     private function prepareTreeSelector(PickerInterface $picker)
     {
-        $modelId = ModelId::fromSerialized($picker->getConfig()->getExtra('modelId'));
+        $modelId = ModelId::fromSerialized((string) $picker->getConfig()->getExtra('modelId'));
 
         if (Validator::isInsecurePath($table = $modelId->getDataProviderName())) {
             throw new InvalidArgumentException('The table name contains invalid characters');
         }
 
-        if (Validator::isInsecurePath($field = $picker->getConfig()->getExtra('propertyName'))) {
+        if (Validator::isInsecurePath($field = (string) $picker->getConfig()->getExtra('propertyName'))) {
             throw new InvalidArgumentException('The field name contains invalid characters');
         }
 
@@ -385,17 +388,18 @@ class BackendTreeController
         // Merge with the information from the data container.
         $property = $definition
             ->getPropertiesDefinition()
-            ->getProperty($picker->getConfig()->getExtra('propertyName'));
+            ->getProperty((string) $picker->getConfig()->getExtra('propertyName'));
 
         $information = (array) ($GLOBALS['TL_DCA'][$table]['fields'][$field] ?? []);
         if (!isset($information['eval'])) {
             $information['eval'] = [];
         }
-        $information['eval'] = array_merge($property->getExtra(), $information['eval']);
+        $information['eval'] = array_merge($property->getExtra(), (array) $information['eval']);
 
         $dcCompat = new DcCompat($itemContainer->getEnvironment());
+        $backendFormFields = (array) ($GLOBALS['BE_FFL'] ?? []);
         /** @var class-string<TreePicker> $class */
-        $class = $GLOBALS['BE_FFL']['DcGeneralTreePicker'];
+        $class = $backendFormFields['DcGeneralTreePicker'];
         /** @psalm-suppress UnsafeInstantiation - No other way to instantiate. */
         $treeSelector = new $class(
             Widget::getAttributesFromDca(

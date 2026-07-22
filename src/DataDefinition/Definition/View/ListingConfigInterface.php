@@ -31,7 +31,7 @@ interface ListingConfigInterface
     /**
      * Get the default sorting fields which are used if the user does not define a sorting.
      *
-     * @return array
+     * @return array<string, string>
      *
      * @deprecated
      */

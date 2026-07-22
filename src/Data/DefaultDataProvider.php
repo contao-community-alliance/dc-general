@@ -232,16 +232,16 @@ class DefaultDataProvider implements DataProviderInterface
             }
         }
 
-        $this->source = $config['source'];
+        $this->source = (string) $config['source'];
 
         if (isset($config['timeStampProperty'])) {
-            $this->setTimeStampProperty($config['timeStampProperty']);
+            $this->setTimeStampProperty((string) $config['timeStampProperty']);
         } elseif ($this->fieldExists('tstamp')) {
             $this->setTimeStampProperty('tstamp');
         }
 
         if (isset($config['idProperty'])) {
-            $this->setIdProperty($config['idProperty']);
+            $this->setIdProperty((string) $config['idProperty']);
         }
     }
 
@@ -302,9 +302,9 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $modelId = null;
         if (\is_numeric($item) || \is_string($item)) {
-            $modelId = $item;
+            $modelId = (string) $item;
         } elseif (\is_object($item) && $item instanceof ModelInterface && null !== $item->getId()) {
-            $modelId = $item->getId();
+            $modelId = (string) $item->getId();
         } else {
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
         }
@@ -344,7 +344,7 @@ class DefaultDataProvider implements DataProviderInterface
                 $model->setIdRaw($value);
             }
 
-            $model->setPropertyRaw($key, StringUtil::deserialize($value));
+            $model->setPropertyRaw((string) $key, StringUtil::deserialize($value));
         }
 
         return $model;
@@ -418,7 +418,10 @@ class DefaultDataProvider implements DataProviderInterface
         }
 
         if ($config->getIdOnly()) {
-            return $statement->fetchFirstColumn();
+            /** @var list<string> $ids */
+            $ids = $statement->fetchFirstColumn();
+
+            return $ids;
         }
 
         $result = $statement->fetchAllAssociative();
@@ -464,7 +467,7 @@ class DefaultDataProvider implements DataProviderInterface
 
         $collection = new DefaultFilterOptionCollection();
         foreach ($values as $value) {
-            $collection->add($value[$filterProperty], $value[$filterProperty]);
+            $collection->add((string) $value[$filterProperty], (string) $value[$filterProperty]);
         }
 
         return $collection;
@@ -588,15 +591,18 @@ class DefaultDataProvider implements DataProviderInterface
     private function filterPrefixer(array &$filter)
     {
         foreach ($filter as &$child) {
+            if (!\is_array($child)) {
+                continue;
+            }
             if (
                 \array_key_exists('property', $child)
-                && (false === \strpos($child['property'], $this->source . '.'))
-                && $this->fieldExists($child['property'])
+                && (false === \strpos((string) $child['property'], $this->source . '.'))
+                && $this->fieldExists((string) $child['property'])
             ) {
-                $child['property'] = $this->source . '.' . $child['property'];
+                $child['property'] = $this->source . '.' . (string) $child['property'];
             }
 
-            if (\array_key_exists('children', $child)) {
+            if (\array_key_exists('children', $child) && \is_array($child['children'])) {
                 $this->filterPrefixer($child['children']);
             }
         }
@@ -626,12 +632,13 @@ class DefaultDataProvider implements DataProviderInterface
      * @param ModelInterface $model     The model to convert into an property array.
      * @param int            $timestamp Optional the timestamp.
      *
-     * @return array
+     * @return array<string, mixed>
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      */
     private function convertModelToDataPropertyArray(ModelInterface $model, int $timestamp)
     {
+        /** @var array<string, mixed> $data */
         $data = [];
         foreach ($model as $key => $value) {
             if (($key === $this->idProperty) || !$this->fieldExists($key)) {
@@ -781,7 +788,7 @@ class DefaultDataProvider implements DataProviderInterface
                 continue;
             }
 
-            $model->setProperty($key, $value);
+            $model->setProperty((string) $key, $value);
         }
 
         return $model;
@@ -865,9 +872,9 @@ class DefaultDataProvider implements DataProviderInterface
         $queryBuilder->setParameter('fromTable', $this->source);
 
         $statement = $queryBuilder->executeQuery();
-        $count     = $statement->fetchOne();
+        $count     = (int) $statement->fetchOne();
 
-        $mixNewVersion = ((int) $count + 1);
+        $mixNewVersion = ($count + 1);
         $mixData       = $model->getPropertiesAsArray();
 
         $mixData[$this->idProperty] = $model->getId();

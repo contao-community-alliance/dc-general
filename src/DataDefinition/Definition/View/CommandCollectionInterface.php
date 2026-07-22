@@ -22,6 +22,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View;
 
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+
 /**
  * Interface CommandCollectionInterface.
  *
@@ -39,7 +41,7 @@ interface CommandCollectionInterface
     /**
      * Set the commands of this collection.
      *
-     * @param CommandInterface[]|array $commands The commands that shall be contained within the collection.
+     * @param list<CommandInterface> $commands The commands that shall be contained within the collection.
      *
      * @return CommandCollectionInterface
      */
@@ -48,17 +50,19 @@ interface CommandCollectionInterface
     /**
      * Add commands to this collection.
      *
-     * @param CommandInterface[]|array $commands The commands that shall be added to the collection.
-     * @param CommandInterface|null    $before   The command before the passed commands shall be inserted (optional).
+     * @param list<CommandInterface> $commands The commands that shall be added to the collection.
+     * @param CommandInterface|null  $before   The command before the passed commands shall be inserted (optional).
      *
      * @return CommandCollectionInterface
+     *
+     * @throws DcGeneralInvalidArgumentException When the command passed as $before can not be found.
      */
     public function addCommands(array $commands, ?CommandInterface $before = null);
 
     /**
      * Remove commands from this collection.
      *
-     * @param CommandInterface[]|array $commands The commands that shall be removed from the collection.
+     * @param list<CommandInterface> $commands The commands that shall be removed from the collection.
      *
      * @return CommandCollectionInterface
      */

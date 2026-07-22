@@ -205,7 +205,7 @@ class EditMask
         $inputProvider = $this->getEnvironment()->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        return $inputProvider->getParameter('popup');
+        return (bool) $inputProvider->getParameter('popup');
     }
 
     /**
@@ -831,7 +831,7 @@ class EditMask
             assert(\is_string($manualSortingProperty));
 
             if ($inputProvider->hasParameter('after')) {
-                $after = ModelId::fromSerialized($inputProvider->getParameter('after'));
+                $after = ModelId::fromSerialized((string) $inputProvider->getParameter('after'));
 
                 $previousDataProvider = $environment->getDataProvider($after->getDataProviderName());
                 assert($previousDataProvider instanceof DataProviderInterface);
@@ -846,7 +846,7 @@ class EditMask
                     $controller->pasteTop($models, $manualSortingProperty);
                 }
             } elseif ($inputProvider->hasParameter('into')) {
-                $into = ModelId::fromSerialized($inputProvider->getParameter('into'));
+                $into = ModelId::fromSerialized((string) $inputProvider->getParameter('into'));
 
                 $parentDataProvider = $environment->getDataProvider($into->getDataProviderName());
                 assert($parentDataProvider instanceof DataProviderInterface);
@@ -1128,7 +1128,7 @@ class EditMask
     /**
      * Obtain the legend states.
      *
-     * @return array
+     * @return array<string, bool>
      */
     private function getLegendStates()
     {
@@ -1140,7 +1140,8 @@ class EditMask
         $sessionStorage = $environment->getSessionStorage();
         assert($sessionStorage instanceof SessionStorageInterface);
 
-        $legendStates = $sessionStorage->get('LEGENDS') ?: [];
+        /** @var array<string, array<string, bool>> $legendStates */
+        $legendStates = (array) ($sessionStorage->get('LEGENDS') ?: []);
 
         if (\array_key_exists($definition->getName(), $legendStates)) {
             return $legendStates[$definition->getName()];

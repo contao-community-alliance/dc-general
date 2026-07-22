@@ -180,6 +180,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
     public function offsetSet($offset, $value): void
     {
         assert(\is_string($offset));
+        assert($value instanceof DataProviderInformationInterface);
         $this->setInformation($offset, $value);
     }
 
@@ -214,6 +215,7 @@ class DefaultDataProviderDefinition implements DataProviderDefinitionInterface
      */
     public function __set($name, $value)
     {
+        assert($value instanceof DataProviderInformationInterface);
         $this->setInformation($name, $value);
     }
 

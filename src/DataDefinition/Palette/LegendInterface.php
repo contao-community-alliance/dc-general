@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Tristan Lins <tristan.lins@bit3.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -22,7 +23,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette;
 
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
@@ -89,7 +89,7 @@ interface LegendInterface
     /**
      * Set the properties of this legend.
      *
-     * @param array|PropertyInterface[] $properties The properties.
+     * @param list<PropertyInterface> $properties The properties.
      *
      * @return LegendInterface
      */
@@ -98,9 +98,9 @@ interface LegendInterface
     /**
      * Add all properties to this legend.
      *
-     * @param array|PropertyInterface[] $properties The properties.
-     * @param PropertyInterface|null    $before     The property before the passed properties shall be inserted
-     *                                              (optional).
+     * @param list<PropertyInterface> $properties The properties.
+     * @param PropertyInterface|null  $before     The property before the passed properties shall be inserted
+     *                                            (optional).
      *
      * @return LegendInterface
      */
@@ -135,7 +135,7 @@ interface LegendInterface
      *                                              If no model and no input data is given, all properties will be
      *                                              returned, including subpalette properties.
      *
-     * @return PropertyInterface[]
+     * @return list<PropertyInterface>
      */
     public function getProperties(?ModelInterface $model = null, ?PropertyValueBagInterface $input = null);
 

@@ -71,8 +71,8 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
         $loader = $resolver->resolve(__DIR__ . '/../Resources/config/routing.yml');
         assert($loader instanceof LoaderInterface);
 
-        /** @var RouteCollection|null $collection */
         $collection = $loader->load(__DIR__ . '/../Resources/config/routing.yml');
+        assert($collection instanceof RouteCollection);
 
         return $collection;
     }

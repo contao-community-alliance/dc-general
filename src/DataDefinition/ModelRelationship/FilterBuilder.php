@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2019 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Stefan Heimes <stefan_heimes@hotmail.com>
  * @author     Sven Baumann <baumann.sv@gmail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -83,8 +84,10 @@ class FilterBuilder
     {
         switch ($filter['operation']) {
             case 'AND':
+                /** @var array{children: list<array>} $filter */
                 return AndFilterBuilder::fromArray($filter, $builder);
             case 'OR':
+                /** @var array{children: list<array>} $filter */
                 return OrFilterBuilder::fromArray($filter, $builder);
             case '=':
                 return PropertyEqualsFilterBuilder::fromArray($filter);
@@ -93,6 +96,7 @@ class FilterBuilder
             case '<':
                 return PropertyLessThanFilterBuilder::fromArray($filter);
             case 'IN':
+                /** @var array{value: mixed, property: string} $filter */
                 return PropertyValueInFilterBuilder::fromArray($filter);
             case 'LIKE':
                 return PropertyValueLikeFilterBuilder::fromArray($filter);
@@ -100,7 +104,7 @@ class FilterBuilder
         }
 
         throw new DcGeneralInvalidArgumentException(
-            'Invalid operation ' . $filter['operation'] . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
+            'Invalid operation ' . (string) $filter['operation'] . ' it must be one of: AND, OR, =, >, <, IN, LIKE'
         );
     }
 
@@ -193,7 +197,7 @@ class FilterBuilder
     {
         $array = $this->filters->get();
 
-        return $array['children'];
+        return (array) $array['children'];
     }
 
     /**

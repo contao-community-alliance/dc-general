@@ -145,7 +145,10 @@ class FileTree extends AbstractWidget
         parent::__construct($attributes, $dataContainer);
 
         $this->allowedDownload =
-            ($attributes['allowedDownload'] ?? StringUtil::trimsplit(',', \strtolower(Config::get('allowedDownload'))));
+            (array) (
+                $attributes['allowedDownload']
+                ?? StringUtil::trimsplit(',', \strtolower((string) Config::get('allowedDownload')))
+            );
 
         $this->setUp();
     }
@@ -163,19 +166,19 @@ class FileTree extends AbstractWidget
     {
         switch ($strKey) {
             case 'subTemplate':
-                $this->subTemplate = $varValue;
+                $this->subTemplate = (string) $varValue;
                 break;
 
             case 'thumbnailHeight':
-                $this->thumbnailHeight = $varValue;
+                $this->thumbnailHeight = (int) $varValue;
                 break;
 
             case 'thumbnailWidth':
-                $this->thumbnailWidth = $varValue;
+                $this->thumbnailWidth = (int) $varValue;
                 break;
 
             case 'placeholderImage':
-                $this->placeholderImage = $varValue;
+                $this->placeholderImage = (string) $varValue;
                 break;
 
             default:
@@ -265,6 +268,7 @@ class FileTree extends AbstractWidget
         $model = $this->dataContainer->getModel();
         assert($model instanceof ModelInterface);
 
+        /** @var mixed $value */
         $value = $model->getProperty($this->orderField);
 
         // support serialized values.
@@ -301,7 +305,7 @@ class FileTree extends AbstractWidget
             return '';
         }
 
-        $varInput = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', $varInput)));
+        $varInput = \array_map('\Contao\StringUtil::uuidToBin', \array_filter(\explode(',', (string) $varInput)));
 
         return $this->multiple ? $varInput : $varInput[0];
     }
@@ -309,7 +313,7 @@ class FileTree extends AbstractWidget
     /**
      * Render the file list.
      *
-     * @param array                       $icons         The generated icons.
+     * @param array<string, array{image: string, uuid: string}|string> $icons The generated icons.
      * @param Collection<FilesModel>|null $collection    The file's collection.
      * @param bool                        $followSubDirs If true sub-folders get rendered.
      *
@@ -464,9 +468,9 @@ class FileTree extends AbstractWidget
     /**
      * Apply the sorting to the icons.
      *
-     * @param array $icons The file icons.
+     * @param array<string, array{image: string, uuid: string}|string> $icons The file icons.
      *
-     * @return array
+     * @return array<string, array{image: string, uuid: string}|string>
      */
     private function applySorting($icons)
     {
@@ -531,6 +535,7 @@ class FileTree extends AbstractWidget
     public function generate()
     {
         $values = [];
+        /** @var array<string, array{image: string, uuid: string}|string> $icons */
         $icons  = [];
 
         if (!empty($this->varValue)) {
@@ -587,6 +592,10 @@ class FileTree extends AbstractWidget
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
      * @SuppressWarnings(PHPMD.ExitExpression)
+     *
+     * @psalm-suppress MixedArrayAccess The Contao superglobals $GLOBALS['TL_DCA'|'BE_FFL'] are untyped.
+     * @psalm-suppress MixedAssignment  The file selector class/instance/content is resolved dynamically.
+     * @psalm-suppress MixedMethodCall  The file selector (removed in Contao 5) is used dynamically.
      */
     public function updateAjax($ajaxAction, DataContainer $dataContainer)
     {
@@ -606,7 +615,7 @@ class FileTree extends AbstractWidget
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $propertyName = $inputProvider->getValue('name');
+        $propertyName = (string) $inputProvider->getValue('name');
         $information  = (array) $GLOBALS['TL_DCA'][$dataContainer->getName()]['fields'][$propertyName];
 
         // Merge with the information from the data container.
@@ -617,8 +626,6 @@ class FileTree extends AbstractWidget
 
         $combat = new DcCompat($environment, null, $propertyName);
 
-        /** @var class-string<FileSelector> $widgetClass */
-        /** @psalm-suppress DeprecatedClass - we know we are deprecated ourselves. :D */
         $widgetClass = $GLOBALS['BE_FFL']['fileSelector'];
 
         /** @psalm-suppress UnsafeInstantiation - no better way to instantiate :( */
@@ -644,6 +651,6 @@ class FileTree extends AbstractWidget
             $content = $widget->generate();
         }
 
-        throw new ResponseException(new Response($content));
+        throw new ResponseException(new Response((string) $content));
     }
 }

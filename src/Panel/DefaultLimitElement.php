@@ -3,7 +3,7 @@
 /**
  * This file is part of contao-community-alliance/dc-general.
  *
- * (c) 2013-2023 Contao Community Alliance.
+ * (c) 2013-2026 Contao Community Alliance.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@
  * @author     Ingolf Steinhardt <info@e-spin.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Cliff Parnitzky <github@cliff-parnitzky.de>
- * @copyright  2013-2023 Contao Community Alliance.
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -113,14 +113,14 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
     {
         $values = [];
         if ($this->getSessionStorage()->has('limit')) {
-            $values = $this->getSessionStorage()->get('limit');
+            $values = (array) $this->getSessionStorage()->get('limit');
         }
 
         $definition = $this->getEnvironment()->getDataDefinition();
         assert($definition instanceof ContainerInterface);
 
         if (\array_key_exists($definition->getName(), $values)) {
-            return $values[$definition->getName()];
+            return (array) $values[$definition->getName()];
         }
 
         return [];
@@ -144,7 +144,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         $values = [];
 
         if ($this->getSessionStorage()->has('limit')) {
-            $values = $this->getSessionStorage()->get('limit');
+            $values = (array) $this->getSessionStorage()->get('limit');
         }
 
         if (!$offset && !$amount) {
@@ -209,14 +209,14 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         assert($panel instanceof PanelInterface);
 
         if ($input->hasValue('tl_limit') && $panel->getContainer()->updateValues()) {
-            $limit = $input->getValue('tl_limit');
+            $limit = (string) $input->getValue('tl_limit');
             if ('all' === $limit) {
                 $offset = 0;
                 $amount = $this->getAmountForFilterOptionAll();
                 $this->setPersistent($offset, $amount);
                 return;
             }
-            [$offset, $amount] = \explode(',', $input->getValue('tl_limit')) + [0, 0];
+            [$offset, $amount] = \explode(',', $limit) + [0, 0];
             $offset = (int) $offset;
             $amount = (int) $amount;
             $this->setPersistent($offset, $amount);
@@ -224,8 +224,8 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
 
         $persistent = $this->getPersistent();
         if ($persistent) {
-            $offset = $persistent['offset'];
-            $amount = $persistent['amount'];
+            $offset = (int) $persistent['offset'];
+            $amount = (int) $persistent['amount'];
 
             // Hotfix the offset - we also might want to store it persistent.
             // Another way would be to always stick on the "last" page when we hit the upper limit.
