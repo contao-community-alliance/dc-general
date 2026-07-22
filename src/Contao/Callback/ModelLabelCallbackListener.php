@@ -119,24 +119,16 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 
         $updateArguments = $event->getArgs();
 
-        // Step 1 update arguments by index as propertyName
         /** @var string $propertyName */
         foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
-            if (!isset($arguments[$propertyName])) {
-                continue;
+            // Step 1 update arguments by index as propertyName
+            if (isset($arguments[$propertyName])) {
+                $updateArguments[$propertyName] = $arguments[$propertyName];
             }
-
-            $updateArguments[$propertyName] = $arguments[$propertyName];
-        }
-
-        // Step 2 update arguments by index as integer
-        /** @var string $propertyName */
-        foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
-            if (!isset($arguments[$index])) {
-                continue;
+            // Step 2 update arguments by index as integer
+            if (isset($arguments[$index])) {
+                $updateArguments[$propertyName] = $arguments[$index];
             }
-
-            $updateArguments[$propertyName] = $arguments[$index];
         }
 
         $event->setArgs($updateArguments);

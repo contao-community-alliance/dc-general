@@ -162,24 +162,27 @@ class GetGroupHeaderSubscriber
      *
      * @param PropertyInterface $property   The property.
      * @param array             $evaluation The property extra evaluation data.
-     * @param mixed             $value      The readable field value.
+     * @param string|int|mixed  $value      The readable field value.
      *
-     * @return mixed
+     * @return list<string>|string|mixed
      */
     private function resolveReadableValue(PropertyInterface $property, array $evaluation, mixed $value)
     {
         $valueKey = (\is_string($value) || \is_int($value)) ? $value : null;
-
-        if (isset($evaluation['reference'])) {
-            /** @var array<array-key, string|list<string>> $reference */
-            $reference = (array) $evaluation['reference'];
-            return (null !== $valueKey) ? ($reference[$valueKey] ?? null) : null;
+        if (null === $valueKey) {
+            return $value;
         }
 
-        if (ArrayUtil::isAssoc($property->getOptions())) {
-            /** @var array<array-key, string> $options */
-            $options = (array) $property->getOptions();
-            return (null !== $valueKey) ? ($options[$valueKey] ?? null) : null;
+        /** @var array<array-key, string|list<string>>|null $reference */
+        $reference = $evaluation['reference'] ?? null;
+        if (\is_array($reference)) {
+            return $reference[$valueKey] ?? $value;
+        }
+
+        $options = $property->getOptions();
+        if (ArrayUtil::isAssoc($options)) {
+            /** @var array<string, string> $options */
+            return $options[$valueKey] ?? $value;
         }
 
         return $value;
