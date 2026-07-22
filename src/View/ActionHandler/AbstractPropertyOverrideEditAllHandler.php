@@ -25,11 +25,11 @@ use Contao\Environment;
 use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
@@ -87,10 +87,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $sessionStorage->remove($definition->getName() . '.' . $this->getMode($action));
 
-        $urlEvent = new GetReferrerEvent(false, $definition->getName());
-
-        $eventDispatcher->dispatch($urlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
-        $eventDispatcher->dispatch(new RedirectEvent($urlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
+        $eventDispatcher->dispatch(
+            new RedirectEvent(ViewHelpers::getBackUrl($environment)),
+            ContaoEvents::CONTROLLER_REDIRECT
+        );
     }
 
     /**

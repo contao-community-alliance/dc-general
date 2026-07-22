@@ -347,7 +347,8 @@ class ShowHandler
         $template = (new ContaoBackendViewTemplate('dcbe_general_show'))
             ->set('headline', $this->getHeadline($translator, $model))
             ->set('arrFields', $data['values'])
-            ->set('arrLabels', $data['labels']);
+            ->set('arrLabels', $data['labels'])
+            ->set('backHref', ViewHelpers::getBackUrl($environment));
 
         $controller = $environment->getController();
         assert($controller instanceof ControllerInterface);

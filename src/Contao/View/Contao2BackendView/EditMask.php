@@ -28,7 +28,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditMaskSubHeadlineEvent;
@@ -729,9 +728,10 @@ class EditMask
         } elseif ($inputProvider->hasValue('saveNclose')) {
             $this->clearBackendStates();
 
-            $newUrlEvent = new GetReferrerEvent();
-            $dispatcher->dispatch($newUrlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
-            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
+            $dispatcher->dispatch(
+                new RedirectEvent(ViewHelpers::getBackUrl($environment)),
+                ContaoEvents::CONTROLLER_REDIRECT
+            );
         } elseif ($inputProvider->hasValue('saveNcreate')) {
             $this->clearBackendStates();
             $after = ModelId::fromModel($model);
@@ -745,14 +745,13 @@ class EditMask
         } elseif ($inputProvider->hasValue('saveNback')) {
             $this->clearBackendStates();
 
-            $definition = $environment->getDataDefinition();
-            assert($definition instanceof ContainerInterface);
-
-            $parentProviderName = $definition->getBasicDefinition()->getParentDataProvider();
-            $newUrlEvent        = new GetReferrerEvent(false, $parentProviderName);
-
-            $dispatcher->dispatch($newUrlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
-            $dispatcher->dispatch(new RedirectEvent($newUrlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
+            // Note: for nested (parent/child) definitions this currently targets the list
+            // the record belongs to. Parent-list traversal is handled once a nested test
+            // case is available - see docs/referer-handling-contao-5.7.md.
+            $dispatcher->dispatch(
+                new RedirectEvent(ViewHelpers::getBackUrl($environment)),
+                ContaoEvents::CONTROLLER_REDIRECT
+            );
         }
     }
 
