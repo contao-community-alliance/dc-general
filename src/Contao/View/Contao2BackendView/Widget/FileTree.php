@@ -24,13 +24,10 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget;
 
 use Contao\Config;
-use Contao\CoreBundle\Exception\ResponseException;
 use Contao\CoreBundle\Image\ImageFactoryInterface;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
-use Contao\DataContainer;
 use Contao\Environment;
 use Contao\File;
-use Contao\FileSelector;
 use Contao\FilesModel;
 use Contao\Image;
 use Contao\Image\ResizeConfiguration;
@@ -40,10 +37,7 @@ use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * File tree widget being compatible with the dc general.
@@ -577,80 +571,5 @@ class FileTree extends AbstractWidget
             ->parse();
 
         return !Environment::get('isAjaxRequest') ? '<div>' . $content . '</div>' : $content;
-    }
-
-    /**
-     * Update the value via ajax and redraw the widget.
-     *
-     * @param string        $ajaxAction    Not used in here.
-     * @param DataContainer $dataContainer The data container to use.
-     *
-     * @return string
-     *
-     * @throws ResponseException Throws a response exception.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     * @SuppressWarnings(PHPMD.ExitExpression)
-     *
-     * @psalm-suppress MixedArrayAccess The Contao superglobals $GLOBALS['TL_DCA'|'BE_FFL'] are untyped.
-     * @psalm-suppress MixedAssignment  The file selector class/instance/content is resolved dynamically.
-     * @psalm-suppress MixedMethodCall  The file selector (removed in Contao 5) is used dynamically.
-     */
-    public function updateAjax($ajaxAction, DataContainer $dataContainer)
-    {
-        if ('loadFiletree' !== $ajaxAction) {
-            return '';
-        }
-
-        assert($dataContainer instanceof DcCompat);
-        $this->dataContainer = $dataContainer;
-        $this->setUp();
-
-        $environment = $this->dataContainer->getEnvironment();
-
-        $dataDefinition = $environment->getDataDefinition();
-        assert($dataDefinition instanceof ContainerInterface);
-
-        $inputProvider = $environment->getInputProvider();
-        assert($inputProvider instanceof InputProviderInterface);
-
-        $propertyName = (string) $inputProvider->getValue('name');
-        $information  = (array) $GLOBALS['TL_DCA'][$dataContainer->getName()]['fields'][$propertyName];
-
-        // Merge with the information from the data container.
-        $information['eval'] = \array_merge(
-            $dataDefinition->getPropertiesDefinition()->getProperty($propertyName)->getExtra(),
-            (array) $information['eval']
-        );
-
-        $combat = new DcCompat($environment, null, $propertyName);
-
-        $widgetClass = $GLOBALS['BE_FFL']['fileSelector'];
-
-        /** @psalm-suppress UnsafeInstantiation - no better way to instantiate :( */
-        $widget = new $widgetClass(
-            $widgetClass::getAttributesFromDca(
-                $information,
-                $combat->field,
-                null,
-                $propertyName,
-                $dataDefinition->getName(),
-                $combat
-            )
-        );
-
-        // Load a particular node
-        if ('' !== $inputProvider->getValue('folder', true)) {
-            $content = $widget->generateAjax(
-                $inputProvider->getValue('folder', true),
-                $inputProvider->getValue('field'),
-                (int) $inputProvider->getValue('level')
-            );
-        } else {
-            $content = $widget->generate();
-        }
-
-        throw new ResponseException(new Response((string) $content));
     }
 }

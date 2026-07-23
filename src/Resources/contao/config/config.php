@@ -24,7 +24,6 @@
  */
 
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreePicker;
-use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Widget\FileTree;
 use Contao\System;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -45,7 +44,6 @@ $GLOBALS['BE_FFL']['DcGeneralTreePicker'] = TreePicker::class;
 $GLOBALS['TL_HOOKS']['executePostActions'] = \array_merge(
     (array) ($GLOBALS['TL_HOOKS']['executePostActions'] ?? []),
     [
-        [TreePicker::class, 'updateAjax'],
-        [FileTree::class, 'updateAjax']
+        [TreePicker::class, 'updateAjax']
     ]
 );
