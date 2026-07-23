@@ -1,16 +1,23 @@
 # Umsetzungskonzept: Referer-Handling im dc-general (Contao 5.7)
 
-> Status: **alle Schritte 1–5 erledigt.** Static Analysis (Psalm + phpcs PSR12) und
-> End-to-End-Klicktest (Playwright) grün.
+> Status: **abgeschlossen.** Umbau in dc-general umgesetzt, verifiziert (Psalm + phpcs
+> PSR12, 319 phpunit-Tests, Playwright-E2E) und über alle betroffenen MetaModels-Pakete
+> nachgezogen (Anhang D).
 >
 > - [x] 1 – Backend-Test des 5.7-Ist-Verhaltens (Anhang A)
 > - [x] 2 – `ViewHelpers::getBackUrl()` eingeführt, `redirectHome/redirectCleanHome` darauf umgestellt
-> - [x] 3 – Call-Sites umgestellt: EditMask (saveNclose/saveNback), AbstractPropertyOverrideEditAllHandler, BackButtonListener, SelectHandler, ShowHandler + Show-Template
-> - [x] 4 – `StoreRefererListener` + Service entfernt; `_dcg_referer_update` aus metamodels/core routing.yml entfernt (verifiziert: Service weg, Route-Defaults bereinigt)
-> - [x] 5 – Psalm (`--no-cache`) + phpcs PSR12 sauber; Playwright-Klicktest grün (Anhang B)
+> - [x] 3 – Call-Sites umgestellt: EditMask, AbstractPropertyOverrideEditAllHandler, BackButtonListener, SelectHandler, ShowHandler + Show-Template
+> - [x] 4 – `StoreRefererListener` + Service entfernt; `_dcg_referer_update` aus metamodels/core routing.yml entfernt
+> - [x] 5 – Static Analysis + Playwright-Klicktest grün (Anhang B)
+> - [x] 6 – `saveNback`-Button entfernt (Core-Analogie, Anhang C)
+> - [x] 7 – Paketübergreifende Nachziehung: core add-all, attribute_levenshtein, filter_loupe, notelist (Anhang D)
 >
-> Entscheidung: `GetReferrerEvent` **ersatzlos** aus dem DCG-Navigationspfad genommen
-> (Event bleibt in events-contao-bindings bestehen, wird von DCG nur nicht mehr genutzt).
+> **Grundsatzentscheidungen:**
+> - `GetReferrerEvent` **ersatzlos** aus dem DCG-Navigationspfad genommen (Event bleibt in
+>   events-contao-bindings bestehen, wird von DCG nur nicht mehr genutzt).
+> - `getBackUrl()` finale Signatur: `getBackUrl(EnvironmentInterface $environment, array $cleanNames = []): string`
+>   (kein `$targetProvider` — die ursprünglich dafür vorgesehene saveNback-Parent-Logik
+>   entfiel, weil `saveNback` ganz entfernt wurde).
 
 ## 1. Ausgangslage / Ursache
 
@@ -41,23 +48,23 @@ Neue, wiederverwendbare Methode in `ViewHelpers`, die die URL **zurückgibt** st
 redirecten:
 
 ```php
-public static function getBackUrl(
-    EnvironmentInterface $environment,
-    array $cleanNames = [],
-    ?string $targetProvider = null   // für saveNback = Parent-Provider
-): string
+public static function getBackUrl(EnvironmentInterface $environment, array $cleanNames = []): string
 ```
 
-Kapselt **beide** Zweige aus der heutigen `determineNewStyleRedirect`/
-`determineLegacyRedirect`-Logik:
+Kapselt **beide** Zweige aus der früheren `determineNewStyleRedirect`/
+`determineLegacyRedirect`-Logik (die dabei durch `buildNewStyleUrl`/`buildLegacyUrl`
+ersetzt wurden):
 
 - **New-Style** (eigene MM-Route, `_route !== 'contao_backend'`):
   `router->generate(routeName, params)` mit bereinigten Parametern.
 - **Legacy** (`contao_backend`): `contao?do=…&table=…[&pid=…]`.
 
-Parameter-Bereinigung fürs Listen-Ziel: `act` **und** `id` entfernen, `cleanNames`
-entfernen, `pid` behalten (= Kind-Liste). Für `saveNback`/`$targetProvider` eine Ebene
-hochgehen (Ziel-`table` = Parent-Provider, `pid` entsprechend reduzieren).
+Parameter-Bereinigung fürs Listen-Ziel: `act`, `id` **und** `rt` entfernen, `cleanNames`
+entfernen, `pid` behalten (= Kind-Liste).
+
+> Hinweis: In der ursprünglichen Planung war ein dritter Parameter `$targetProvider`
+> für die saveNback-Parent-Ebene vorgesehen. Da `saveNback` letztlich ganz entfernt wurde
+> (Anhang C), entfiel dieser Parameter — die finale Signatur hat nur `$cleanNames`.
 
 `redirectHome()/redirectCleanHome()` werden dünne Wrapper:
 
@@ -70,10 +77,10 @@ self::dispatchRedirect($environment, new RedirectEvent(self::getBackUrl($environ
 | # | Ort | Heute | Neu |
 |---|-----|-------|-----|
 | 1 | `EditMask::doPersist` `saveNclose` | `GetReferrerEvent` → `RedirectEvent` | `RedirectEvent(getBackUrl($env))` |
-| 2 | `EditMask::doPersist` `saveNback` | `GetReferrerEvent(false, $parentProvider)` | `RedirectEvent(getBackUrl($env, [], $parentProvider))` |
+| 2 | `EditMask::doPersist` `saveNback` | `GetReferrerEvent(false, $parentProvider)` | **entfernt** — `saveNback`-Button ganz gestrichen (Anhang C) |
 | 3 | `AbstractPropertyOverrideEditAllHandler:90` | `GetReferrerEvent(false, $definition->getName())` → Redirect | `RedirectEvent(getBackUrl($env))` |
 | 4 | `BackButtonListener::getReferrerUrl` (`@api`, Listen-Back-Button) | `GetReferrerEvent(true, parent/self)` | `$event->setHref(getBackUrl($env))` |
-| 5 | `SelectHandler::getReferrerUrl` (private, Button-Href) | `GetReferrerEvent(...)` | `getBackUrl($env)` |
+| 5 | `SelectHandler::getReferrerUrl` (private, Button-Href) | `GetReferrerEvent(...)` | `getBackUrl($env, ['select'])` |
 
 Zusätzlich **Template**: `dcbe_general_show.html5:25` nutzt `$this->getReferer(true)`
 (Contao-`BackendTemplate`-Methode → `System::getReferer()`). → In `ShowHandler` neue
@@ -95,22 +102,23 @@ Template `$this->backHref` verwenden.
   **events-contao-bindings** und funktionieren weiter (jetzt via DcaUrlAnalyzer).
   Bleiben öffentliche API — dc-general nutzt sie nur intern nicht mehr für die eigene
   Navigation.
-- **Offen:** `GetReferrerEvent` als optionalen Override-Hook in `getBackUrl`
-  voranstellen — oder ersatzlos aus dem DCG-Navigationspfad nehmen? *(noch zu entscheiden)*
+- **Entschieden:** `GetReferrerEvent` wird **ersatzlos** aus dem DCG-Navigationspfad
+  genommen (kein Override-Hook). Das Event lieferte nur die jetzt kaputten session-/
+  analyzer-basierten URLs; ein Hook mit falschem Default wäre mehr Bürde als Nutzen.
 - `BackButtonListener` bleibt `@api`-Klasse mit gleicher Signatur, nur interne
   URL-Quelle ändert sich.
 
-## 7. Offene Punkte / zu testen
+## 7. Vormals offene Punkte — Auflösung
 
-1. **5.7-Verhalten ist ungetestet** → Backend-Durchlauf im
-   `metamodels-devstack-5x-backend-1`-Container: Verhält sich `System::getReferer()`
-   unter DCG falsch/leer? Referenz-URLs zum Abgleich sammeln. **(Schritt 1, läuft)**
-2. **`id`-Bereinigung**: heutiges `determineNewStyleRedirect` entfernt nur `act`,
-   behält `id`; Legacy-Zweig droppt `id`. `getBackUrl` muss `id` konsistent entfernen
-   — Nichtregression für bestehende `redirectHome`-Nutzer (Delete/Paste/Select) prüfen.
-3. **saveNback-Ebenenlogik**: Parent-Provider → Ziel-`table`/`pid`, auch bei
-   mehrstufigen Parent/Child-Beziehungen.
-4. **`popup`-/`picker`-Modus** und **Ampersand-Encoding** im URL-Builder abbilden.
+1. ~~5.7-Verhalten ungetestet~~ → **verifiziert** (Anhang A): `System::getReferer()`/
+   `DcaUrlAnalyzer` liefern für MM-Datenansichten leere/falsche URLs.
+2. ~~`id`-Bereinigung~~ → **umgesetzt**: `buildNewStyleUrl` strippt `act`, `id`, `rt`;
+   Nichtregression für Delete/Paste/Select im Playwright-Klicktest bestätigt (Anhang B).
+3. ~~saveNback-Ebenenlogik (Parent-Provider)~~ → **entfällt**: `saveNback` wurde ganz
+   entfernt (Anhang C).
+4. ~~`popup`-/`picker`-Modus + Ampersand-Encoding~~ → in der Praxis unkritisch: die
+   erzeugten Listen-URLs sind einfache Ein-Parameter-Routen (kein `&`). Der Select-Modus
+   wird über `cleanNames` (`['select']`) sauber abgedeckt (Anhang B).
 
 ## 8. Reihenfolge
 
@@ -236,3 +244,38 @@ dc-general folgt dem und entfernt `saveNback` ebenfalls:
 - Verwaiste Übersetzungs-Units `saveNback` aus `dc-general.en.xlf`/`.de.xlf` entfernt.
 
 Verifikation: Psalm „No errors", phpcs PSR12 clean, 319 phpunit-Tests grün.
+
+## Anhang D: Paketübergreifende Nachziehung (alle MetaModels-Pakete)
+
+Dieselbe Ursache (`System::getReferer()` / session-Referer / `saveNback`) betraf noch
+weitere Pakete. Ein Audit aller MetaModels-Pakete ergab genau die unten gelisteten
+Treffer; alle übrigen (~45: `attribute_*` außer levenshtein, `filter_*` außer loupe,
+`contao-frontend-editing`, `cowegis-layer`, `dropzone_file_upload`, `translator-bridge`,
+… sowie `dc-general-contao-frontend`) sind **nicht betroffen**.
+
+**Muster für Nicht-DCG-Kontexte (Symfony-Controller):** Dort steht kein dc-general-
+`Environment` zur Verfügung, `ViewHelpers::getBackUrl()` greift also nicht. Die Back-URL
+wird stattdessen deterministisch aus **Route + Parent-Bezug** gebaut:
+`router->generate('metamodels.configuration', ['tableName' => <settingsTabelle>]) . '?pid=<parentProvider>::<parentId>'`.
+
+| Paket | Fundstelle | Fix |
+|-------|-----------|-----|
+| **metamodels/core** | `AbstractAddAllController::getReferer()` (`System::getReferer()`) → Back-Link/`saveNclose`-Redirect landeten auf `/contao` | Deterministische URL aus Settings-Tabelle + Parent-`pid`; `getParentProviderName()` (dcasetting→`tl_metamodel_dca`, rendersetting→`tl_metamodel_rendersettings`); verwaiste System-Adapter-DI entfernt. Live: beide add-all-Varianten HTTP 200, korrekte Back-Links. |
+| **metamodels/core** | `_dcg_referer_update` an 4 Routen (`routing.yml`) | entfernt (nur vom gelöschten `StoreRefererListener` gelesen). |
+| **metamodels/core** | ~33 verwaiste `saveNback`-`trans-unit` (per-Tabelle-xlf, de/en/fr) | entfernt. |
+| **attribute_levenshtein** | `RegenerateSearchIndexListener` (`GetReferrerEvent`) — Reindex-Back-Button | auf `ViewHelpers::getBackUrl($event->getEnvironment())` (hat DCG-Environment); ungenutzte `EventDispatcher`-DI entfernt. |
+| **filter_loupe** | `ReindexController` (`System::getReferer()`) → Reindex-Redirect auf `/contao` | Back-URL zur Filtersetting-Liste `?pid=tl_metamodel_filter::<fid>` (`fid` per DB-Lookup); `Connection` + `router` injiziert. Ziel-URL HTTP 200 verifiziert, Container-DI kompiliert. |
+| **notelist** | 2 verwaiste `saveNback`-`trans-unit` (de/en) | entfernt. |
+
+### Commit-/Branch-Übersicht
+
+| Repo | Branch | Remote |
+|------|--------|--------|
+| contao-community-alliance/dc-general | `hotfix/fix_delete_store_referer` | GitHub |
+| metamodels/core | `hotfix/fix_store_referer` | GitHub (`origin-github`) |
+| metamodels/attribute_levenshtein | `hotfix/fix_store_referer` | GitLab |
+| metamodels/filter_loupe | `feature/2.5.0` | GitLab |
+| metamodels/notelist | `feature/2.5.0` | git.cyberspectrum.de |
+
+Alle Commits ohne `Co-Authored-By`, Autor *Ingolf Steinhardt*; je Repo nur die
+gewollten Dateien.
