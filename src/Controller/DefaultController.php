@@ -1314,6 +1314,13 @@ class DefaultController implements ControllerInterface
     #[\Override]
     public function isRootModel(ModelInterface $model)
     {
+        // phpcs:disable
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::isRoot().',
+            E_USER_DEPRECATED
+        );
+        // phpcs:enable
+
         return $this->relationshipManager->isRoot($model);
     }
 
@@ -1327,6 +1334,13 @@ class DefaultController implements ControllerInterface
     #[\Override]
     public function setRootModel(ModelInterface $model)
     {
+        // phpcs:disable
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setRoot().',
+            E_USER_DEPRECATED
+        );
+        // phpcs:enable
+
         $this->relationshipManager->setRoot($model);
 
         return $this;
@@ -1342,6 +1356,13 @@ class DefaultController implements ControllerInterface
     #[\Override]
     public function setParent(ModelInterface $childModel, ModelInterface $parentModel)
     {
+        // phpcs:disable
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setParent().',
+            E_USER_DEPRECATED
+        );
+        // phpcs:enable
+
         $this->relationshipManager->setParent($childModel, $parentModel);
 
         return $this;
@@ -1357,6 +1378,13 @@ class DefaultController implements ControllerInterface
     #[\Override]
     public function setSameParent(ModelInterface $receivingModel, ModelInterface $sourceModel, $parentTable)
     {
+        // phpcs:disable
+        @trigger_error(
+            'Use \ContaoCommunityAlliance\DcGeneral\Controller\RelationshipManager::setSameParent().',
+            E_USER_DEPRECATED
+        );
+        // phpcs:enable
+
         if ($this->relationshipManager->isRoot($sourceModel)) {
             $this->relationshipManager->setRoot($receivingModel);
 
