@@ -161,8 +161,9 @@ class DefaultConfig implements ConfigInterface
     {
         // phpcs:disable
         @\trigger_error(
-            'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.',
-            E_USER_NOTICE
+            'The method getIds in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0. '
+            . 'Use filters instead.',
+            E_USER_DEPRECATED
         );
         // phpcs:enable
 
@@ -184,10 +185,10 @@ class DefaultConfig implements ConfigInterface
     {
         // phpcs:disable
         @\trigger_error(
-            'The method setids in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.
+            'The method setIds in the DefaultConfig is deprecated since 2.1 and will be removed in 3.0.
             Use set filter
             $dataConfig->setFilter([[\'operation\' => \'IN\', \'property\' => \'id\', \'values\' => [4,3,2,1]]]).',
-            E_USER_NOTICE
+            E_USER_DEPRECATED
         );
         // phpcs:enable
 
