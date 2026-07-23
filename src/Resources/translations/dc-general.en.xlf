@@ -252,11 +252,6 @@
         <source>Save and edit</source>
       </segment>
     </unit>
-    <unit id="saveNback" name="saveNback">
-      <segment>
-        <source>Save and go back</source>
-      </segment>
-    </unit>
     <unit id="saveNcreate" name="saveNcreate">
       <segment>
         <source>Save and new</source>

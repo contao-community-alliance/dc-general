@@ -24,8 +24,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
 use ArrayObject;
-use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
@@ -202,7 +200,6 @@ class SelectHandler
             if (
                 $inputProvider->hasValue($action)
                 || $inputProvider->hasValue($action . '_save')
-                || $inputProvider->hasValue($action . '_saveNback')
             ) {
                 $inputProvider->setParameter('mode', $action);
 
@@ -235,7 +232,7 @@ class SelectHandler
                 $regardSelectMode = true;
                 return true;
             },
-            ['edit_save', 'edit_saveNback', 'override_save', 'override_saveNback', 'delete', 'copy', 'cut']
+            ['edit_save', 'override_save', 'delete', 'copy', 'cut']
         );
 
         if (
@@ -560,23 +557,8 @@ class SelectHandler
      */
     private function getReferrerUrl(EnvironmentInterface $environment)
     {
-        $definition = $environment->getDataDefinition();
-        assert($definition instanceof ContainerInterface);
-
-        $parentDefinition = $environment->getParentDataDefinition();
-        $event = new GetReferrerEvent(
-            true,
-            (null !== $parentDefinition)
-                ? $parentDefinition->getName()
-                : $definition->getName()
-        );
-
-        $dispatcher = $environment->getEventDispatcher();
-        assert($dispatcher instanceof EventDispatcherInterface);
-
-        $dispatcher->dispatch($event, ContaoEvents::SYSTEM_GET_REFERRER);
-
-        return $event->getReferrerUrl();
+        // Leaving the select mode must return to the plain list, so drop the select flag.
+        return ViewHelpers::getBackUrl($environment, ['select']);
     }
 
     /**

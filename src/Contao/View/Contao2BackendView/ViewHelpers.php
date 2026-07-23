@@ -256,40 +256,48 @@ class ViewHelpers
      */
     public static function redirectHome(EnvironmentInterface $environment): never
     {
-        $input = $environment->getInputProvider();
-        assert($input instanceof InputProviderInterface);
-
-        $request   = self::getRequest();
-        $routeName = $request->attributes->get('_route');
-        if ($routeName !== 'contao_backend') {
-            self::determineNewStyleRedirect((string) $routeName, $request, $environment, []);
-        }
-        self::determineLegacyRedirect($environment, $input);
+        self::dispatchRedirect($environment, new RedirectEvent(self::getBackUrl($environment)));
     }
 
     /** @param list<string> $cleanNames */
     public static function redirectCleanHome(EnvironmentInterface $environment, array $cleanNames): never
     {
+        self::dispatchRedirect($environment, new RedirectEvent(self::getBackUrl($environment, $cleanNames)));
+    }
+
+    /**
+     * Build the "back to the list" URL for the current view without redirecting.
+     *
+     * This deterministically reconstructs the parent list URL from the current request
+     * (route + route parameters + query, minus the record/action specific parameters).
+     * It replaces the former reliance on the session based referer, which Contao 5.7 no
+     * longer maintains.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     * @param list<string>         $cleanNames  Additional parameters to strip from the URL.
+     *
+     * @return string
+     */
+    public static function getBackUrl(EnvironmentInterface $environment, array $cleanNames = []): string
+    {
+        $request   = self::getRequest();
+        $routeName = $request->attributes->get('_route');
+        if (null !== $routeName && 'contao_backend' !== $routeName) {
+            return self::buildNewStyleUrl((string) $routeName, $request, $cleanNames);
+        }
+
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
-        $request   = self::getRequest();
-        $routeName = $request->attributes->get('_route');
-        if ($routeName !== 'contao_backend') {
-            self::determineNewStyleRedirect((string) $routeName, $request, $environment, $cleanNames);
-        }
-        self::determineLegacyRedirect($environment, $input);
+        return self::buildLegacyUrl($input);
     }
 
     /** @param list<string> $cleanNames */
-    private static function determineNewStyleRedirect(
-        string $routeName,
-        Request $request,
-        EnvironmentInterface $environment,
-        array $cleanNames
-    ): never {
+    private static function buildNewStyleUrl(string $routeName, Request $request, array $cleanNames): string
+    {
         $routeGenerator = System::getContainer()->get('router');
         assert($routeGenerator instanceof UrlGeneratorInterface);
+
         $parameters = $request->query->all();
         foreach ($cleanNames as $key) {
             unset($parameters[$key]);
@@ -304,40 +312,34 @@ class ViewHelpers
                 $parameters[$key] = $value;
             }
         }
-        unset($parameters['act']);
-        $routeBase = $routeGenerator->generate($routeName, $parameters);
 
-        self::dispatchRedirect($environment, new RedirectEvent($routeBase));
+        // Strip the parameters that only make sense for the current record and action, so
+        // that we land on the plain list view (rt is the request token, id the record id).
+        unset($parameters['act'], $parameters['id'], $parameters['rt']);
+
+        return $routeGenerator->generate($routeName, $parameters);
     }
 
-    private static function determineLegacyRedirect(
-        EnvironmentInterface $environment,
-        InputProviderInterface $input,
-    ): never {
+    private static function buildLegacyUrl(InputProviderInterface $input): string
+    {
         if ($input->hasParameter('table')) {
             if ($input->hasParameter('pid')) {
-                $event = new RedirectEvent(
-                    sprintf(
-                        'contao?do=%s&table=%s&pid=%s',
-                        (string) $input->getParameter('do'),
-                        (string) $input->getParameter('table'),
-                        (string) $input->getParameter('pid')
-                    )
-                );
-                self::dispatchRedirect($environment, $event);
-            }
-            $event = new RedirectEvent(
-                sprintf(
-                    'contao?do=%s&table=%s',
+                return sprintf(
+                    'contao?do=%s&table=%s&pid=%s',
                     (string) $input->getParameter('do'),
-                    (string) $input->getParameter('table')
-                )
-            );
-            self::dispatchRedirect($environment, $event);
-        }
-        $event = new RedirectEvent(sprintf('contao?do=%s', (string) $input->getParameter('do')));
+                    (string) $input->getParameter('table'),
+                    (string) $input->getParameter('pid')
+                );
+            }
 
-        self::dispatchRedirect($environment, $event);
+            return sprintf(
+                'contao?do=%s&table=%s',
+                (string) $input->getParameter('do'),
+                (string) $input->getParameter('table')
+            );
+        }
+
+        return sprintf('contao?do=%s', (string) $input->getParameter('do'));
     }
 
     private static function getRequest(): Request

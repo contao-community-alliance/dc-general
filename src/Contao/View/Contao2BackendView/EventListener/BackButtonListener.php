@@ -21,14 +21,11 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
-use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGlobalButtonEvent;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This handles the back button event in list views.
@@ -89,23 +86,7 @@ class BackButtonListener
      */
     private function getReferrerUrl(EnvironmentInterface $environment)
     {
-        $definition = $environment->getDataDefinition();
-        assert($definition instanceof ContainerInterface);
-
-        $dispatcher = $environment->getEventDispatcher();
-        assert($dispatcher instanceof EventDispatcherInterface);
-
-        $parent = $environment->getParentDataDefinition();
-        $event  = new GetReferrerEvent(
-            true,
-            (null !== $parent)
-                ? $parent->getName()
-                : $definition->getName()
-        );
-
-        $dispatcher->dispatch($event, ContaoEvents::SYSTEM_GET_REFERRER);
-
-        $url = $event->getReferrerUrl();
+        $url = ViewHelpers::getBackUrl($environment);
 
         return \str_starts_with($url, '/') ? $url : '/' . $url;
     }

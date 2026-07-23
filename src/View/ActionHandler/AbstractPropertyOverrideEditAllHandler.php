@@ -25,11 +25,11 @@ use Contao\Environment;
 use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
-use ContaoCommunityAlliance\Contao\Bindings\Events\System\GetReferrerEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BaseView;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ContaoBackendViewTemplate;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBreadcrumbEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\EditInformationInterface;
@@ -62,8 +62,8 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     /**
      * Handle submit triggered button.
      *
-     * If the button save and back triggered.
-     * Clear the data from session and redirect to list view.
+     * If the save button is triggered (final submit, not an intermediate auto submit),
+     * clear the data from session and redirect to the list view.
      *
      * @param Action               $action      The action.
      * @param EnvironmentInterface $environment The environment.
@@ -79,7 +79,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         if (
             ('auto' === $inputProvider->getValue('SUBMIT_TYPE'))
-            || !$inputProvider->hasValue($this->getMode($action) . '_saveNback')
+            || !$inputProvider->hasValue($this->getMode($action) . '_save')
         ) {
             return;
         }
@@ -87,10 +87,10 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $sessionStorage->remove($definition->getName() . '.' . $this->getMode($action));
 
-        $urlEvent = new GetReferrerEvent(false, $definition->getName());
-
-        $eventDispatcher->dispatch($urlEvent, ContaoEvents::SYSTEM_GET_REFERRER);
-        $eventDispatcher->dispatch(new RedirectEvent($urlEvent->getReferrerUrl()), ContaoEvents::CONTROLLER_REDIRECT);
+        $eventDispatcher->dispatch(
+            new RedirectEvent(ViewHelpers::getBackUrl($environment)),
+            ContaoEvents::CONTROLLER_REDIRECT
+        );
     }
 
     /**
@@ -519,15 +519,6 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
             $mode,
             $mode,
             $translator->translate('save', 'dc-general')
-        );
-
-        $buttons['save'] .= '&nbsp;';
-
-        $buttons['save'] .= \sprintf(
-            '<input type="submit" name="%s_saveNback" id="%s_saveNback" class="tl_submit" accesskey="c" value="%s" />',
-            $mode,
-            $mode,
-            $translator->translate('saveNback', 'dc-general')
         );
 
         $submitButtonTemplate = new ContaoBackendViewTemplate('dc_general_submit_button');
