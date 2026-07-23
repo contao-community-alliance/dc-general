@@ -88,7 +88,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $sessionStorage->remove($definition->getName() . '.' . $this->getMode($action));
 
         $eventDispatcher->dispatch(
-            new RedirectEvent(ViewHelpers::getBackUrl($environment)),
+            new RedirectEvent(ViewHelpers::getBackUrl($environment, ['select', 'mode'])),
             ContaoEvents::CONTROLLER_REDIRECT
         );
     }
