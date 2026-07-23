@@ -402,7 +402,11 @@ class DefaultController implements ControllerInterface
             /** @var LanguageInformationInterface $value */
             $locale = $value->getLocale();
 
-            $languages[$locale] = $labels[$locale];
+            // A model may support a locale that is not in the enabled Contao locales (e.g. "en_DE").
+            // Fall back to the ICU display name and finally to the raw locale to avoid an undefined key.
+            $languages[$locale] = $labels[$locale]
+                ?? $intlLocales->getDisplayNames([$locale])[$locale]
+                ?? $locale;
         }
 
         return $languages;
