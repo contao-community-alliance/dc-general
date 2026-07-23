@@ -305,12 +305,6 @@
         <target>Speichern und bearbeiten</target>
       </segment>
     </unit>
-    <unit id="saveNback" name="saveNback">
-      <segment>
-        <source>Save and go back</source>
-        <target>Speichern und zurück</target>
-      </segment>
-    </unit>
     <unit id="saveNcreate" name="saveNcreate">
       <segment>
         <source>Save and new</source>

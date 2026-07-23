@@ -34,7 +34,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEd
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEditModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
@@ -472,27 +471,6 @@ class EditMask
                 ]
             );
             $buttons['saveNedit'] = $buttonTemplate->parse();
-        } elseif (
-            !$this->isPopup()
-            && (
-                (BasicDefinitionInterface::MODE_PARENTEDLIST === $basicDefinition->getMode())
-                || '' !== $basicDefinition->getParentDataProvider()
-                || $basicDefinition->isSwitchToEditEnabled()
-            )
-        ) {
-            $buttonTemplate->setData(
-                [
-                    'label'      => $this->getButtonLabel('saveNback'),
-                    'attributes' => [
-                        'type'      => 'submit',
-                        'name'      => 'saveNback',
-                        'id'        => 'saveNback',
-                        'class'     => 'tl_submit',
-                        'accesskey' => 'g'
-                    ]
-                ]
-            );
-            $buttons['saveNback'] = $buttonTemplate->parse();
         }
 
         $event = new GetEditModeButtonsEvent($this->getEnvironment());
@@ -742,16 +720,6 @@ class EditMask
             // We have to remove the empty id parameter - see MetaModels/core#1309
             $url = \str_replace(['id=&amp;', 'id=&'], '', $newUrlEvent->getUrl());
             $dispatcher->dispatch(new RedirectEvent($url), ContaoEvents::CONTROLLER_REDIRECT);
-        } elseif ($inputProvider->hasValue('saveNback')) {
-            $this->clearBackendStates();
-
-            // Note: for nested (parent/child) definitions this currently targets the list
-            // the record belongs to. Parent-list traversal is handled once a nested test
-            // case is available - see docs/referer-handling-contao-5.7.md.
-            $dispatcher->dispatch(
-                new RedirectEvent(ViewHelpers::getBackUrl($environment)),
-                ContaoEvents::CONTROLLER_REDIRECT
-            );
         }
     }
 

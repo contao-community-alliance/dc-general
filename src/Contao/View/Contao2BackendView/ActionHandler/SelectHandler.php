@@ -200,7 +200,6 @@ class SelectHandler
             if (
                 $inputProvider->hasValue($action)
                 || $inputProvider->hasValue($action . '_save')
-                || $inputProvider->hasValue($action . '_saveNback')
             ) {
                 $inputProvider->setParameter('mode', $action);
 
@@ -233,7 +232,7 @@ class SelectHandler
                 $regardSelectMode = true;
                 return true;
             },
-            ['edit_save', 'edit_saveNback', 'override_save', 'override_saveNback', 'delete', 'copy', 'cut']
+            ['edit_save', 'override_save', 'delete', 'copy', 'cut']
         );
 
         if (

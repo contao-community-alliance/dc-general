@@ -189,9 +189,8 @@ und ließe `id`/`rt` stehen. `getBackUrl` muss `id` **und** `rt` mit strippen.
 `metamodels.metamodel`-Route** (nicht nur an den `add_all`-Routen). Cleanup-Scope in
 metamodels/core entsprechend größer.
 
-**Noch offen:** Kind-/Parent-Listen-Route (saveNback, mehrstufig) — Routen-/`pid`-Struktur
-bei verschachtelten MM noch am Live-Backend zu bestätigen. `mm_employees` ist flach:
-`saveNback` = `saveNclose` (beide → Liste).
+**Erledigt (Nachtrag):** Der ehemals offene Punkt „Kind-/Parent-Listen-Route für
+saveNback" entfällt — `saveNback` wurde entfernt (siehe Anhang C).
 
 ## Anhang B: End-to-End-Verifikation (Playwright, eingeloggtes Backend)
 
@@ -214,3 +213,26 @@ mit — analog zum früheren `redirectCleanHome(['select'])`.
 
 Static Analysis: Psalm (`--no-cache`) „No errors", phpcs PSR12 ohne Beanstandung auf
 allen geänderten Dateien.
+
+## Anhang C: Entfernung des „Speichern und zurück" (saveNback)
+
+Contao Core hat den Button **„Speichern und zurück" (`saveNback`) in 5.7.0 entfernt**
+(bisektiert über die getaggten Releases: in `DC_Table` bis 5.4 inline, ab 5.5 im neuen
+`ButtonsBuilder`, dort in 5.6 noch enthalten, in 5.7.0 nicht mehr). Mit der neuen
+Navigation ist „Schließen" ausreichend; das separate „Zurück" war außer im
+verschachtelten Fall redundant.
+
+dc-general folgt dem und entfernt `saveNback` ebenfalls:
+
+- **Single-Edit (`EditMask`):** Button-Definition + `doPersist`-Zweig entfernt
+  (`saveNclose` deckt das Verhalten ab). Verwaister `BasicDefinitionInterface`-Import
+  entfernt.
+- **Multi-Edit (`AbstractPropertyOverrideEditAllHandler`):** `_saveNback`-Button
+  entfernt. `handleSubmit()` triggert jetzt auf `_save` statt `_saveNback` → der
+  verbleibende „Speichern"-Button wendet an **und** kehrt zur Liste zurück (kein
+  Funktionsverlust).
+- **`SelectHandler`:** `_saveNback`-Referenzen in `getSelectAction()` und
+  `regardSelectMode()` entfernt.
+- Verwaiste Übersetzungs-Units `saveNback` aus `dc-general.en.xlf`/`.de.xlf` entfernt.
+
+Verifikation: Psalm „No errors", phpcs PSR12 clean, 319 phpunit-Tests grün.
