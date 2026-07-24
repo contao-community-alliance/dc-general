@@ -422,8 +422,24 @@ class ButtonRenderer
             $buttonEvent->getHref() ?? '',
             StringUtil::specialchars($buttonEvent->getTitle()),
             ltrim($buttonEvent->getAttributes()),
-            $this->renderImageAsHtml($icon, $buttonEvent->getLabel())
+            $this->renderImageAsHtml($icon, $this->getButtonImageAlt($buttonEvent))
         );
+    }
+
+    /**
+     * Determine the "alt"/tooltip text for a command button image.
+     *
+     * The Contao tooltip controller reads the image "alt" (selector "a img[alt]"), so we use the full
+     * title/description and fall back to the label when a command has no description (e.g. the
+     * MetaModels child-table operations) - otherwise the tooltip would be empty.
+     *
+     * @param GetOperationButtonEvent $buttonEvent The button event.
+     *
+     * @return string
+     */
+    private function getButtonImageAlt(GetOperationButtonEvent $buttonEvent): string
+    {
+        return $buttonEvent->getTitle() ?: $buttonEvent->getLabel();
     }
 
     /**
