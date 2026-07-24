@@ -669,7 +669,17 @@ class ButtonRenderer
             return $header;
         }
 
-        return $this->translator->translate($buttonName . '.0', $definitionName, $parameter);
+        // Legacy fallback to the old array based translation (element 0).
+        // @deprecated Remove in 3.0 - migrate to the symfony translator with named parameters.
+        if (
+            $buttonName . '.0' !== ($header =
+                $this->translator->translate($buttonName . '.0', $definitionName, $parameter))
+        ) {
+            return $header;
+        }
+
+        // The label is already a plain (translated) string and not a translation key.
+        return $buttonName;
     }
 
     protected function translateButtonDescription(
