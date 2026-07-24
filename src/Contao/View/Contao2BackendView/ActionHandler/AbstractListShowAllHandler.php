@@ -405,7 +405,16 @@ abstract class AbstractListShowAllHandler
             return $header;
         }
 
-        return $this->translate($buttonName . '.0', $definitionName, $parameter);
+        // Legacy fallback to the old array based translation (element 0).
+        // @deprecated Remove in 3.0 - migrate to the symfony translator with named parameters.
+        if (
+            $buttonName . '.0' !== ($header = $this->translate($buttonName . '.0', $definitionName, $parameter))
+        ) {
+            return $header;
+        }
+
+        // The label is already a plain (translated) string and not a translation key.
+        return $buttonName;
     }
 
     protected function translateButtonDescription(
@@ -421,7 +430,16 @@ abstract class AbstractListShowAllHandler
             return $header;
         }
 
-        return $this->translate($buttonName . '.1', $definitionName, $parameter);
+        // Legacy fallback to the old array based translation (element 1).
+        // @deprecated Remove in 3.0 - migrate to the symfony translator with named parameters.
+        if (
+            $buttonName . '.1' !== ($header = $this->translate($buttonName . '.1', $definitionName, $parameter))
+        ) {
+            return $header;
+        }
+
+        // The description is already a plain (translated) string and not a translation key.
+        return $buttonName;
     }
 
     /**
