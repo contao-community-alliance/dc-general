@@ -1687,7 +1687,7 @@ class TreePicker extends Widget
         }
 
         $toggleScript = sprintf(
-            'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, ' .
+            'return BackendGeneral.loadSubTree(this, ' .
             '{\'toggler\':\'%s\', \'id\':\'%s\', \'providerName\':\'%s\', \'level\':\'%s\', \'url\':\'%s\'});',
             $toggleID,
             (string) $model->getId(),

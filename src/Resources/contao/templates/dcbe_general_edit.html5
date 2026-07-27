@@ -83,18 +83,8 @@ $hasLanguageSwitcher = $this->language && !empty($this->languages);
         <input type="hidden" name="FORM_SUBMIT" value="<?= StringUtil::specialchars($this->table) ?>" />
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>" />
         <?php if($this->error): ?>
-            <div class="error_wrapper<?php if(5 < \count($this->error)): ?> limit_height h128<?php endif; ?>">
+            <div class="error_wrapper<?php if(5 < \count($this->error)): ?> limit_height h128<?php endif; ?>" data-contao--scroll-offset-target="widgetError">
               <p class="tl_error"><?= \implode('<br />', $this->error) ?></p>
-              <script>
-                window.addEvent('domready', function() {
-                    var firstErrorElement = $('<?= $this->table ?>').getElement('label.error');
-                    if (firstErrorElement) {
-                      Backend.vScrollTo((firstErrorElement.getPosition().y - 20));
-                    } else {
-                      Backend.vScrollTo(($('<?= $this->table ?>').getElement('.error_wrapper p.tl_error').getPosition().y - 20));
-                    }
-                });
-              </script>
             </div>
         <?php endif; ?>
 
@@ -130,16 +120,9 @@ $hasLanguageSwitcher = $this->language && !empty($this->languages);
         </div><!-- /.tl_show_all -->
     <?php endif; ?>
 </div>
-<script>
-    window.addEvent('domready', function() {
-        var e = $$("#" + <?= \json_encode($this->table) ?> + ' input[type="text"]')[0];
-        e && e.focus();
-<?php if($this->noReload): ?>
-        var firstErrorElement = $('<?= $this->table ?>').getElement('label.error');
-        if (firstErrorElement) {
-          Backend.vScrollTo((firstErrorElement.getPosition().y - 20));
-        }
-<?php endif; ?>
-    });
-</script>
+<?php /*
+ * Autofocus of the first text field and scrolling to the first widget error are handled by Contaos
+ * "contao--scroll-offset" controller: the text widgets carry the "autoFocus" target themselves and the
+ * fields in error carry the "widgetError" target (see dcbe_general_field).
+ */ ?>
 

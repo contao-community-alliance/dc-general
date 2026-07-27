@@ -36,7 +36,7 @@ class CreateModelCommand extends Command
         parent::__construct();
         $this->extra['class']      = 'header_new';
         $this->extra['accesskey']  = 'n';
-        $this->extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
+        $this->extra['attributes'] = 'data-action="contao--scroll-offset#store"';
         $this
             ->setName('button_new')
             ->setLabel('new.label')

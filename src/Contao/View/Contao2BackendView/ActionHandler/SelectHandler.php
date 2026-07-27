@@ -521,7 +521,7 @@ class SelectHandler
             'href'       => $this->getReferrerUrl($environment),
             'class'      => 'header_icon header_stop',
             'accessKey'  => 'x',
-            'attributes' => 'onclick="Backend.getScrollOffset();"'
+            'attributes' => 'data-action="contao--scroll-offset#store"'
         ];
 
         $closeCommand

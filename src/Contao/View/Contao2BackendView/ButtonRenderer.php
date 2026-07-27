@@ -350,7 +350,8 @@ class ButtonRenderer
             $iconDisabled = (string) ($extra['icon_disabled'] ?? 'invisible.svg');
 
             $attributes .= sprintf(
-                ' onclick="Backend.getScrollOffset(); return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
+                ' data-action="contao--scroll-offset#store"'
+                . ' onclick="return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
                 Controller::addStaticUrlTo(System::urlEncode($icon)),
                 Controller::addStaticUrlTo(System::urlEncode($iconDisabled))
             );
@@ -536,7 +537,7 @@ class ButtonRenderer
         );
 
         return sprintf(
-            '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+            '<a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
             StringUtil::specialchars($label),
             $this->renderImageAsHtml('new.svg', $label)
@@ -570,7 +571,7 @@ class ButtonRenderer
         $title = $this->translateButtonDescription('pasteinto', $definitionName, ['%id%' => $model->getId()]);
 
         return sprintf(
-            ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+            ' <a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             $event->getHrefInto() ?? '',
             StringUtil::specialchars($title),
             $this->renderImageAsHtml('pasteinto.svg', $label, 'class="blink"')
@@ -602,7 +603,7 @@ class ButtonRenderer
         $title = $this->translateButtonDescription('pasteafter', $definitionName, ['%id%' => $model->getId()]);
 
         return sprintf(
-            ' <a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+            ' <a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             $event->getHrefAfter() ?? '',
             StringUtil::specialchars($title),
             $this->renderImageAsHtml('pasteafter.svg', $label, 'class="blink"')

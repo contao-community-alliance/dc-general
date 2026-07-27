@@ -350,22 +350,35 @@ class SelectPropertyAllHandler extends AbstractListShowAllHandler
             return;
         }
 
-        $script = '<script type="text/javascript">
-                        $("%s").addEvent("change", function(ev) {
-                            Backend.toggleCheckboxes(ev.target, "%s");
-                            GeneralLogger.info("The file order property is checked " + $("%s").checked)
-                        });
-                    </script>';
+        // Selecting the file tree property also selects the companion order property. The script is emitted at the
+        // end of the body, so the elements exist when it runs.
+        $script = <<<'SCRIPT'
+            <script>
+                (function () {
+                    var source = document.getElementById(%s);
+                    if (!source) {
+                        return;
+                    }
+                    source.addEventListener('change', function () {
+                        document.querySelectorAll('input[type="checkbox"][id^="' + %s + '"]').forEach(
+                            function (checkbox) {
+                                checkbox.checked = source.checked;
+                            }
+                        );
+                    });
+                })();
+            </script>
+            SCRIPT;
 
-        $mooScript =
+        $selectScript =
             \sprintf(
                 $script,
-                'properties_' . $property->getName(),
-                'properties_' . (string) $extra['orderField'],
-                'properties_' . (string) $extra['orderField']
+                \json_encode('properties_' . $property->getName(), JSON_THROW_ON_ERROR),
+                \json_encode('properties_' . (string) $extra['orderField'], JSON_THROW_ON_ERROR)
             );
 
-        $GLOBALS['TL_MOOTOOLS']['cca.dc-general.fileTree-' . \md5($mooScript)] = $mooScript;
+        /** @psalm-suppress MixedArrayAssignment - $GLOBALS['TL_MOOTOOLS'] is an untyped Contao superglobal. */
+        $GLOBALS['TL_MOOTOOLS']['cca.dc-general.fileTree-' . \md5($selectScript)] = $selectScript;
     }
 
     /**

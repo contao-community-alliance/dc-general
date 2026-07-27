@@ -382,13 +382,15 @@ class ContaoWidgetManager
                 $time = '';
         }
 
-        return 'new Picker.Date($$("#ctrl_' . $objWidget->id . '"), {
+        // Picker.Date is still MooTools based in Contao 5.7 and has no vanilla counterpart, but the element
+        // lookup does not need MooTools - see docs/mootools-removal.md.
+        return 'new Picker.Date(document.getElementById("ctrl_' . $objWidget->id . '"), {
             draggable:false,
-            toggle:$$("#toggle_' . $objWidget->id . '"),
+            toggle:document.getElementById("toggle_' . $objWidget->id . '"),
             format:"' . (string) Date::formatToJs($strFormat) . '",
             positionOffset:{x:-197,y:-182}' . $time . ',
             pickerClass:"datepicker_bootstrap",
-            useFadeInOut:!Browser.ie,
+            useFadeInOut:true,
             startDay:' . $this->translator->trans('weekOffset', [], 'dc-general') . ',
             titleFormat:"' . $this->translator->trans('titleFormat', [], 'dc-general') . '"
         });';

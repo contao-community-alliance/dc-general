@@ -37,22 +37,26 @@ if ($this->hasOrderField) {
     </div>
     <?php if (!$this->readonly): ?>
         <script>
-            $("ft_<?= $this->name ?>").addEvent("click", function(e) {
-                e.preventDefault();
+            document.getElementById("ft_<?= $this->name ?>").addEventListener("click", function (event) {
+                event.preventDefault();
                 Backend.openModalSelector({
                     "id": "tl_listing",
-                    "title": "<?= StringUtil::specialchars(\str_replace("'", "\\''", \implode(' ', (array) $this->label))) ?>",
+                    "title": <?= \json_encode(\implode(' ', (array) $this->label), JSON_THROW_ON_ERROR) ?>,
                     "url": this.href + document.getElementById("ctrl_<?= $this->id ?>").value,
-                    "callback": function(table, value) {
-                        new Request.Contao({
-                            evalScripts: false,
-                            onSuccess: function(txt, json) {
-                                var content = document.createElement('div');
-                                content.innerHTML = json.content;
-                                $("ctrl_<?= $this->id ?>").getParent("div").set("html", content.querySelector('div').innerHTML);
-                                json.javascript && Browser.exec(json.javascript);
-                            }
-                        }).post({"action":"reloadFiletree", "name":"<?= $this->id ?>", "value":value.join("\t"), "REQUEST_TOKEN":"<?= $requestToken ?>"});
+                    "callback": function (table, value) {
+                        DcGeneral.post(window.location.href, {
+                            "action": "reloadFiletree",
+                            "name": "<?= $this->id ?>",
+                            "value": value.join("\t"),
+                            "REQUEST_TOKEN": "<?= $requestToken ?>"
+                        }).then(function (response) {
+                            var fresh = document.createElement("div");
+                            fresh.innerHTML = response.content;
+                            DcGeneral.setHtml(
+                                document.getElementById("ctrl_<?= $this->id ?>").closest("div"),
+                                fresh.querySelector("div").innerHTML
+                            );
+                        });
                     }
                 });
             });

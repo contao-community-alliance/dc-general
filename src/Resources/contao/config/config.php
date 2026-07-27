@@ -38,6 +38,7 @@ if ($isBackend) {
     $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.generalDriver_src']  = '/bundles/ccadcgeneral/js/generalDriver_src.js';
     $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral']     = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
     $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.sortableOrderField'] = '/bundles/ccadcgeneral/js/sortableOrderField.js';
+    $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.dcGeneralAjax']      = '/bundles/ccadcgeneral/js/dcGeneralAjax.js';
 }
 
 $GLOBALS['BE_FFL']['DcGeneralTreePicker'] = TreePicker::class;

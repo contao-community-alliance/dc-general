@@ -410,7 +410,7 @@ class TreeView extends BaseView
         ];
 
         $toggleScript = \sprintf(
-            'Backend.getScrollOffset(); return BackendGeneral.loadSubTree(this, %s);',
+            'return BackendGeneral.loadSubTree(this, %s);',
             \htmlspecialchars((string) \json_encode($toggleData, JSON_FORCE_OBJECT))
         );
 
@@ -537,7 +537,7 @@ class TreeView extends BaseView
             ' <a href="%s" title="%s" %s>%s</a>',
             $event->getHref(),
             StringUtil::specialchars($label),
-            'onclick="Backend.getScrollOffset()"',
+            'data-action="contao--scroll-offset#store"',
             $imageEvent->getHtml() ?? ''
         );
     }

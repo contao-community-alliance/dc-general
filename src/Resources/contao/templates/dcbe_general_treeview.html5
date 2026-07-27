@@ -20,13 +20,13 @@ $GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">
 <?php endif; ?>
 
-<div class="tl_listing_container tree_view table_<?= $this->tableName ?>" id="tl_listing">
+<div class="tl_listing_container tree_view table_<?= $this->tableName ?>" id="tl_listing" data-controller="contao--check-all">
     <?php if(\strlen($this->breadcrumb)) echo $this->breadcrumb; ?>
 
     <?php if ($this->select): ?>
         <div class="tl_select_trigger">
             <label for="tl_select_trigger" class="tl_select_label"><?= $this->translate('selectAll', 'dc-general') ?></label>
-            <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
+            <input type="checkbox" id="tl_select_trigger" class="tl_tree_checkbox" data-action="contao--check-all#toggleAll">
         </div>
     <?php endif; ?>
 

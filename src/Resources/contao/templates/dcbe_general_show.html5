@@ -22,7 +22,7 @@ assert($translator instanceof TranslatorInterface);
 ?>
 
 <div id="tl_buttons">
-    <a href="<?= $this->backHref ?>" class="header_back dcg" title="<?= $this->backBT ?>" accesskey="b" onclick="Backend.getScrollOffset();">
+    <a href="<?= $this->backHref ?>" class="header_back dcg" title="<?= $this->backBT ?>" accesskey="b" data-action="contao--scroll-offset#store">
         <?= $translator->trans(id: 'backBT', domain: 'dc-general') ?>
     </a>
 </div>

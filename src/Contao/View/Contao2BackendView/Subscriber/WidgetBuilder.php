@@ -302,7 +302,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $dispatcher->dispatch($expandEvent, ContaoEvents::IMAGE_GET_HTML);
 
         return sprintf(
-            ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a> %s%s',
+            ' <a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a> %s%s',
             StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($ccaTranslator->translate('importTable.1', $defName)),
             $importTableEvent->getHtml() ?? '',
@@ -343,7 +343,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
         $dispatcher->dispatch($importListEvent, ContaoEvents::IMAGE_GET_HTML);
 
         return sprintf(
-            ' <a href="%s" title="%s" onclick="Backend.getScrollOffset();">%s</a>',
+            ' <a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             StringUtil::ampersand($urlEvent->getUrl()),
             StringUtil::specialchars($ccaTranslator->translate('importList.1', $defName)),
             $importListEvent->getHtml() ?? ''

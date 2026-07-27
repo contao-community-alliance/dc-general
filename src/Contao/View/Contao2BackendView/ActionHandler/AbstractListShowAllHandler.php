@@ -859,7 +859,7 @@ abstract class AbstractListShowAllHandler
         );
 
         return sprintf(
-            '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+            '<a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             $urlEvent->getUrl(),
             $this->translateButtonLabel('pastenew', $definition->getName()),
             $imageEvent->getHtml() ?? ''

@@ -36,7 +36,7 @@ class BackCommand extends Command
         parent::__construct();
         $this->extra['class']      = 'header_back dcg';
         $this->extra['accesskey']  = 'b';
-        $this->extra['attributes'] = 'onclick="Backend.getScrollOffset();"';
+        $this->extra['attributes'] = 'data-action="contao--scroll-offset#store"';
         $this
             ->setName('back_button')
             ->setLabel('backBT')

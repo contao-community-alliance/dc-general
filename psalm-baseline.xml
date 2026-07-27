@@ -114,11 +114,6 @@
       <code><![CDATA[$modelValue]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Contao/View/Contao2BackendView/ActionHandler/MultipleHandler/SelectPropertyAllHandler.php">
-    <MixedArrayAssignment>
-      <code><![CDATA[$GLOBALS['TL_MOOTOOLS']['cca.dc-general.fileTree-' . \md5($mooScript)]]]></code>
-    </MixedArrayAssignment>
-  </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/ParentedListViewShowAllHandler.php">
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$value]]></code>

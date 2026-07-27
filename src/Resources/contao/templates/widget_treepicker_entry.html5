@@ -13,6 +13,7 @@ $model = $this->objModel; ?>
                 class="folding"
                 href="<?= $this->toggleUrl ?>"
                 title="<?= $this->toggleTitle ?>"
+                data-action="contao--scroll-offset#store"
                 onclick="<?= $this->toggleScript ?>">
                 <img src="/system/themes/<?= $this->theme ?>/icons/<?= ($model->getMeta($model::SHOW_CHILDREN)) ? 'folMinus.svg' : 'folPlus.svg' ?>"
                      width="18"
@@ -33,7 +34,8 @@ $model = $this->objModel; ?>
                     class="tl_tree_radio"
                     value="<?= StringUtil::specialchars($this->idValue) ?>"
                     <?= $this->active ?>
-                    onfocus="Backend.getScrollOffset();" />
+                    data-contao--check-all-target="input"
+                    data-action="focus->contao--scroll-offset#store contao--check-all#toggleInput" />
             <?php elseif ($this->fieldType === 'checkbox'): ?>
                 <input
                     type="checkbox"
@@ -42,7 +44,8 @@ $model = $this->objModel; ?>
                     class="tl_tree_checkbox"
                     value="<?= StringUtil::specialchars($this->idValue) ?>"
                     <?= $this->active ?>
-                    onfocus="Backend.getScrollOffset();" />
+                    data-contao--check-all-target="input"
+                    data-action="focus->contao--scroll-offset#store contao--check-all#toggleInput" />
             <?php endif; ?>
         <?php /* endif; */ ?>
     </div>

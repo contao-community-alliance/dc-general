@@ -28,7 +28,7 @@ assert($translator instanceof TranslatorInterface);
         <input type="hidden" name="FORM_SUBMIT" value="tl_select">
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">
         <?php endif; ?>
-        <div class="tl_listing_container <?php $this->block('view-class'); ?><?php $this->endblock() ?> table_<?= $this->tableName ?>">
+        <div class="tl_listing_container <?php $this->block('view-class'); ?><?php $this->endblock() ?> table_<?= $this->tableName ?>" data-controller="contao--check-all">
             <?= $this->breadcrumb ?>
             <?php if ($this->select) : ?>
                 <?php if ($this->subHeadline) : ?>
@@ -36,7 +36,7 @@ assert($translator instanceof TranslatorInterface);
                 <?php endif; ?>
                 <div class="tl_select_trigger">
                     <label for="tl_select_trigger" class="tl_select_label"><?= $translator->trans(id: 'selectAll', domain: 'dc-general') ?></label>
-                    <input type="checkbox" id="tl_select_trigger" onclick="Backend.toggleCheckboxes(this)" class="tl_tree_checkbox">
+                    <input type="checkbox" id="tl_select_trigger" class="tl_tree_checkbox" data-action="contao--check-all#toggleAll">
                 </div>
             <?php endif; ?>
             <?php $this->block('parent-header'); ?>
@@ -112,7 +112,7 @@ assert($translator instanceof TranslatorInterface);
                                 <?php endforeach; ?>
                                 <?php if ($this->select) : ?>
                                     <td class="tl_file_list tl_right_nowrap">
-                                        <input type="checkbox" name="<?= $this->selectCheckBoxName ?>" id="<?= $this->selectCheckBoxIdPrefix ?><?= $model->getId() ?>" class="tl_tree_checkbox" value="<?= ModelId::fromModel($model)->getSerialized() ?>"<?php if (\in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?> checked<?php endif; ?>>
+                                        <input type="checkbox" name="<?= $this->selectCheckBoxName ?>" id="<?= $this->selectCheckBoxIdPrefix ?><?= $model->getId() ?>" class="tl_tree_checkbox" value="<?= ModelId::fromModel($model)->getSerialized() ?>"<?php if (\in_array(ModelId::fromModel($model)->getSerialized(), $this->selectContainer)): ?> checked<?php endif; ?> data-contao--check-all-target="input" data-action="focus->contao--scroll-offset#store contao--check-all#toggleInput">
                                     </td>
                                 <?php else : ?>
                                     <td class="tl_file_list tl_right_nowrap">

@@ -496,7 +496,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $urlAfter = $dispatcher->dispatch(new AddToUrlEvent($href), ContaoEvents::BACKEND_ADD_TO_URL);
 
         return \sprintf(
-            '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+            '<a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             $urlAfter->getUrl(),
             StringUtil::specialchars(
                 $this->translateButtonDescription(
@@ -569,7 +569,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         );
 
         return \sprintf(
-            '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+            '<a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             $urlEvent->getUrl(),
             StringUtil::specialchars($this->translateButtonLabel('pastenew', $parentDefinition->getName())),
             $imageEvent->getHtml() ?? ''
@@ -657,7 +657,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
             );
 
             return \sprintf(
-                '<a href="%s" title="%s" onclick="Backend.getScrollOffset()">%s</a>',
+                '<a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
                 $urlEvent->getUrl(),
                 StringUtil::specialchars($this->translateButtonLabel('pasteafter', $definition->getName())),
                 $imageEvent->getHtml() ?? ''
