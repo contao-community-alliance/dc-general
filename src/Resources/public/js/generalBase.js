@@ -155,9 +155,11 @@ function GeneralTableDnD()
       insertAfter = prevElement.getAttribute('data-model-id');
     }
 
-    // Build url.
+    // Build url. "window.location.search" already carries the leading "?", so appending another one
+    // ended up inside the value of the last parameter ("table=tl_x?") and the server bailed out with
+    // "Invalid language file name".
     var href = window.location.href.replace(/\?.*$/, '');
-    var req = window.location.search + '?';
+    var req = window.location.search || '?';
     req += '&act=paste';
     req += '&source=' + id;
     req += '&after=' + insertAfter;
