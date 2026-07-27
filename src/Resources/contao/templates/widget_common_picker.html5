@@ -6,6 +6,9 @@ use Contao\StringUtil;
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 
 $itemsTitle = '';
+
+// Id of the hidden input holding the sort order. The tree picker renders its own one, hence it may override this.
+$orderFieldId = isset($this->orderFieldId) ? $this->orderFieldId : ('ctrl_' . $this->orderId);
 ?>
 <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= \implode(',', \array_keys($this->values)) ?>">
 
@@ -19,7 +22,7 @@ $itemsTitle = '';
         </p>
     <?php endif; ?>
 
-    <ul id="sort_<?= $this->id ?>"<?php if ($this->hasOrder): ?> class="sortable"<?php endif; ?>>
+    <ul id="sort_<?= $this->id ?>"<?php if ($this->hasOrder): ?> class="sortable" data-controller="contao--sortable" data-cca-order-field="<?= $orderFieldId ?>"<?php endif; ?>>
         <?php foreach ($this->values as $k=>$v): ?>
             <li data-id="<?= $k ?>"<?= $itemsTitle ?>><?= $v ?></li>
         <?php endforeach; ?>
@@ -72,7 +75,5 @@ $itemsTitle = '';
 <?php $this->endblock(); ?>
 
 <?php $this->block('multi-source-script'); ?>
-<?php if ($this->hasOrder): ?>
-    <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
-<?php endif; ?>
+<?php /* Sorting is handled by the "contao--sortable" Stimulus controller, the order field by sortableOrderField.js. */ ?>
 <?php $this->endblock(); ?>

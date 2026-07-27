@@ -45,6 +45,7 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
  * @property string      $strField    The field name.
  * @property bool        $mandatory   If true the field is required.
  * @property bool        $multiple    If true multiple values are allowed.
+ * @property bool        $isSortable  If true the selection can be sorted by drag and drop.
  * @property bool        $isGallery   If true the image gallery is rendered.
  * @property bool        $isDownloads If true only allowed download files are listed.
  * @property string      $fieldType   Either 'radio' or 'checkbox'.
@@ -452,11 +453,33 @@ class FileTree extends AbstractWidget
 
         $info = StringUtil::specialchars(\strip_tags($info));
         if (strncmp($image, 'data:', 5) === 0) {
-            return '<img src="' . $file->dataUri . '" width="' . $file->width . '" height="' . $file->height
-                   . '" alt="" class="gimage removable" title="' . $info . '">';
+            $buffer = '<img src="' . $file->dataUri . '" width="' . $file->width . '" height="' . $file->height
+                      . '" alt="" class="gimage removable" title="' . $info . '">';
+        } else {
+            $buffer = Image::getHtml($image, '', 'class="gimage removable" title="' . $info . '"');
         }
 
-        return Image::getHtml($image, '', 'class="gimage removable" title="' . $info . '"');
+        return $buffer . $this->generateRemoveButton();
+    }
+
+    /**
+     * Generate the button removing an item from the selection.
+     *
+     * The button is handled by the Contao "input-map" Stimulus controller which updates the value field.
+     *
+     * @return string
+     */
+    private function generateRemoveButton()
+    {
+        if ($this->readonly) {
+            return '';
+        }
+
+        return \sprintf(
+            '<button type="button" class="tl_red" data-action="contao--input-map#removeElement"'
+            . ' data-contao--input-map-closest-param="li">%s</button>',
+            Image::getHtml('close')
+        );
     }
 
     /**
@@ -556,12 +579,17 @@ class FileTree extends AbstractWidget
         $translator = $this->getEnvironment()->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
+        // Contao dropped the "orderField" widget option with version 5.0 - the order is part of the value now and is
+        // flagged via "eval.isSortable". The legacy order field is still supported for data definitions using it.
+        $hasOrderField = ('' !== $this->orderField) && \is_array($this->orderFieldValue);
+
         $content = (new ContaoBackendViewTemplate($this->subTemplate))
             ->setTranslator($translator)
             ->set('name', $this->strName)
             ->set('id', $this->strId)
             ->set('value', \implode(',', $values))
-            ->set('hasOrder', $this->orderField !== '' && \is_array($this->orderFieldValue))
+            ->set('hasOrder', $hasOrderField || $this->isSortable)
+            ->set('hasOrderField', $hasOrderField)
             ->set('icons', $icons)
             ->set('isGallery', $this->isGallery)
             ->set('orderId', $this->orderId)

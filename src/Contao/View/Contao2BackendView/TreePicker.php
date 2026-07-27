@@ -1017,6 +1017,8 @@ class TreePicker extends Widget
         $template
             ->set('hasOrder', true)
             ->set('orderId', $this->orderField)
+            // The tree picker renders the hidden order input itself, see the "widget_treepicker" template.
+            ->set('orderFieldId', 'ctrl_order_' . $this->orderField)
             ->set('orderName', $this->orderName)
             ->set('orderValue', implode(',', $orderValueList))
             ->set('changeSelection', $translator->translate('changeSelection', 'dc-general'))

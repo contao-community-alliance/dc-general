@@ -4,16 +4,27 @@ use Contao\StringUtil;
 use Contao\System;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+
+// Sorting and removing are handled by the Contao Stimulus controllers, which maintain the value field. A legacy
+// "orderField" needs the additional order field to be mirrored, which is done by sortableOrderField.js.
+$listAttributes = '';
+if ($this->hasOrder) {
+    $listAttributes .= ' data-controller="contao--sortable"'
+                       . ' data-action="contao--sortable:update->contao--input-map#update"';
+}
+if ($this->hasOrderField) {
+    $listAttributes .= ' data-cca-order-field="ctrl_' . $this->orderId . '"';
+}
 ?>
-<div>
-    <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>">
+<div data-controller="contao--input-map" data-contao--input-map-attribute-value="data-id">
+    <input type="hidden" name="<?= $this->name ?>" id="ctrl_<?= $this->id ?>" value="<?= $this->value ?>" data-contao--input-map-target="input">
     <div class="selector_container">
         <?php if ($this->hasOrder && \count($this->icons) > 1): ?>
             <p class="sort_hint"><?= $this->translate('dragItemsHint', 'dc-general') ?></p>
         <?php endif; ?>
-        <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>">
+        <ul id="sort_<?= $this->id ?>" class="<?= \trim(($this->hasOrder ? 'sortable ' : '') . ($this->isGallery ? 'sgallery' : '')) ?>"<?= $listAttributes ?>>
             <?php foreach ($this->icons as $icon): ?>
-            <li data-id="<?= StringUtil::binToUuid($icon['uuid']); ?>">
+            <li data-contao--input-map-target="source" data-id="<?= StringUtil::binToUuid($icon['uuid']); ?>">
                 <?= $icon['image'] ?>
             </li>
             <?php endforeach; ?>
@@ -45,20 +56,6 @@ $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDef
                     }
                 });
             });
-        </script>
-    <?php endif; ?>
-    <?php if ($this->hasOrder): ?>
-        <script>
-            // Write the drag & drop order into the dedicated order field (e.g. <name>__sort) when it
-            // is rendered. Inside a MultiColumnWizard row no separate order field exists, so fall back
-            // to the main control there (this is what c4929e70 "Fix sorting files in MCW" did globally,
-            // which broke the standard case). Detecting the field at runtime makes both cases work.
-            (function () {
-                var orderField = document.getElementById("ctrl_<?= $this->orderId ?>")
-                    ? "ctrl_<?= $this->orderId ?>"
-                    : "ctrl_<?= $this->id ?>";
-                Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", orderField, "ctrl_<?= $this->id ?>");
-            })();
         </script>
     <?php endif; ?>
 </div>

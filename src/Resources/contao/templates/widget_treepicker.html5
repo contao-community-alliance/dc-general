@@ -3,7 +3,6 @@
 <?php if ($this->hasOrder): ?>
     <?php $this->block('multi-source-script'); ?>
     <input type="hidden" name="<?= $this->orderName ?>" id="ctrl_order_<?= $this->orderId ?>" value="<?= \implode(',', \array_keys($this->values)) ?>">
-    <script>Backend.makeMultiSrcSortable("sort_<?= $this->id ?>", "ctrl_order_<?= $this->orderId ?>", "ctrl_<?= $this->id ?>")</script>
     <?php $this->endblock(); ?>
 <?php endif; ?>
 
