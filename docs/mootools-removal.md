@@ -14,8 +14,9 @@
 > - [x] 7 – tote Build-Artefakte `generalDriver.js` / `.js.map` entfernt
 > - [x] 8 – eine Ajax-Schicht, einheitliche Dateinamen (Abschnitt 4)
 > - [x] 9 – tote `setLegendState`-Kette entfernt (Abschnitt 4.4)
-> - [ ] 10 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
-> - [ ] 11 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
+> - [x] 10 – zwei in Contao 5 entfernte `Backend`-APIs ersetzt (Abschnitt 4.5)
+> - [ ] 11 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
+> - [ ] 12 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
 >
 > **jQuery:** im dc-general nicht vorhanden — es gab und gibt keine Fundstelle.
 
@@ -195,6 +196,36 @@ Entfernt wurden daher JS-Funktion, Dispatch-Eintrag, die abstrakte Deklaration i
 ändert sich nichts** — die Legenden richteten sich schon vorher ausschließlich nach der
 Palette-Definition.
 
+### 4.5 Zwei Contao-APIs, die es nicht mehr gibt
+
+Beim Audit fielen zwei Aufrufe in `WidgetBuilder` auf, die **nicht** nur veraltet waren,
+sondern beim Klick geworfen haben — die Funktionen fehlen im core-bundle vollständig:
+
+* `Backend.toggleWrap()` (Zeilenumbruch-Schalter an Textareas ohne RTE) wurde ersatzlos
+  gestrichen; übrig ist allein die CSS-Klasse `.toggleWrap` im Theme, und Contao rendert
+  selbst keinen solchen Button mehr. Da der dc-general ihn weiterhin anbietet, liegt das
+  Verhalten jetzt in `BackendGeneral.toggleWrap()` — vanilla, also ohne neue Altlast.
+* `Backend.openWindow()` des Hilfe-Assistenten ist ebenfalls weg. Contao öffnet seine
+  eigene Hilfe über `Backend.openModalIframe()` (siehe `DataContainer::generateHelp()`).
+  Genau das tat der `helptext`-Zweig wenige Zeilen darüber längst; der `helpwizard`-Zweig
+  folgt ihm nun und baut die URL über die Route `contao_backend_help`, statt `/contao/help`
+  fest zu verdrahten.
+
+### 4.6 Dark-Mode-Icon des Sichtbarkeits-Schalters
+
+`toggleVisibility` tauschte nur das helle Icon; das dunkle behielt bis zum Neuladen den
+alten Zustand. Der Dateiname der Dark-Variante wurde aus dem **aktiven** Farbschema
+abgeleitet:
+
+```js
+const postfixDark = colorScheme === 'dark' ? '--dark' : '';
+```
+
+Beide Varianten stehen aber immer im Markup, das Schema entscheidet nur, welche CSS
+anzeigt. Im Light-Modus war der Postfix leer, also wurde `invisible.svg` in
+`invisible--dark.svg` gesucht — kein Treffer, das Bild blieb stehen. Das Suffix ist jetzt
+fest `--dark`. Nebenbei entfiel ein `console.log()`, das bei jedem Klick feuerte.
+
 ## 5. Was bewusst bleibt
 
 Diese Contao-APIs haben in 5.7 **keinen** vanilla- oder Stimulus-Ersatz. Sie sind kein
@@ -267,15 +298,55 @@ abgeglichen (Controller-Name, Methodenname, Target-Name).
   Contao-eigene (`Theme.stopClickPropagation()`, `Theme.setupSplitButtonToggle()`) — die
   Bezeichner kommen ausschließlich im `core-bundle` vor.
 
+* Baumansicht (`mm_trans_hierarchie` und die zweistufige Variantenhierarchie
+  `mm_test_variants`): Auf- und Zuklappen in beide Richtungen, Kindknoten werden
+  nachgeladen, und der Faltzustand übersteht den Reload — letzteres belegt, dass die auf
+  `DcGeneral.post()` umgestellten Fire-and-Forget-Posts serverseitig ankommen.
+* Sichtbarkeits-Schalter in der Render-Settings-Liste: beide Icon-Varianten wechseln
+  synchron, der Zustand übersteht den Reload (siehe 4.6).
+* `BackendGeneral.toggleWrap()`: `soft → off → soft`, Rückgabe `false`, unbekannte id
+  wirft nicht.
+
 **Noch offen** — beim nächsten Durchgang klicken:
 
-* Baumansicht: Auf-/Zuklappen, Sichtbarkeits-Toggle (beides noch `Request.Contao`)
 * Eingabemaske: Speichern mit Feldfehler (springt die Seite zum Fehler?), Autofokus,
   Farbwähler
 * Baum-Picker im Popup: „Alle auswählen", Übernehmen
 * „Alle bearbeiten"/„Alle überschreiben": Auswahl eines `fileTree`-Feldes zieht das
   zugehörige Order-Feld mit
+* Sichtbarkeits-Schalter in der **Baum-** und der **Parent-Ansicht** — `toggleVisibility`
+  verzweigt dort anders, und in beiden Baumansichten gibt es keinen solchen Button. Vor
+  dem Umbau nach 6.1 fehlt für genau diese Zweige die Absicherung.
+* Der `helpwizard`-Zweig aus 4.5 — kein DCA in den Paketen setzt `eval.helpwizard`, der
+  Zweig greift nur bei Fremd-DCAs und war deshalb nicht auslösbar.
 
-> Achtung beim Testen: klappt man ein Palette-Fieldset zu, merkt sich Contao das
-> serverseitig. Ein verstecktes Widget hat dann keine Bounding-Box, und ein Folgelauf
-> scheitert scheinbar grundlos an Drag&Drop.
+Zwei Fallen, die beim Testen Zeit gekostet haben:
+
+> Klappt man ein Palette-Fieldset zu, merkt sich Contao das serverseitig. Ein verstecktes
+> Widget hat dann keine Bounding-Box, und ein Folgelauf scheitert scheinbar grundlos an
+> Drag&Drop.
+
+> Der Icon-Tausch von `toggleVisibility` passiert erst im `onSuccess` des Requests. Wer
+> mit einer festen Wartezeit statt auf die Antwort prüft, bekommt sporadische Fehlschläge.
+
+## 8. Zustand der Nachbarpakete
+
+Der Audit lief über die Paketgrenze hinaus, weil die Buttons der MetaModels-Tabellen aus
+deren DCAs stammen.
+
+**MetaModels core** ist frei von den deprecated APIs. Erledigt wurden dort: die 27
+`onclick`-Attribute der statischen DCAs, die **zur Laufzeit gebauten** Kommandos in
+`CommandBuilder` (Kopieren/Verschieben/Löschen aller Item-Tabellen — diese Fundstellen
+tauchen in keiner DCA-Datei auf), die Bearbeiten-Operation in `LoadDataContainer`, der
+„Alle auswählen"-Schalter in `add-all.html.twig` sowie die `domready`-Initialisierung von
+`be_ace_mm.html5`.
+
+Offen sind noch `metamodels/notelist` (2 Stellen) und `metamodels/attribute_levenshtein`
+(1 Stelle im Zurück-Button).
+
+**Zur Template-Auflösung** (relevant für den Twig-Umbau): `ContaoWidgetManager` lädt die
+RTE-Templates über `new BackendTemplate('be_' . $rteBase)`, also die Legacy-Engine.
+Trotzdem funktioniert `rte = ace`, obwohl Contao dafür nur noch `be_ace.html.twig`
+mitbringt — die Template-Hierarchie von Contao 5 löst Twig auch hier auf. Ebenso
+berücksichtigt `TemplateList::getTemplatesForBaseFrom()` die Endung `.html.twig` bereits.
+Einer Twig-Fassung der MetaModels-RTE-Templates steht damit nichts im Weg.
