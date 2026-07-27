@@ -720,7 +720,7 @@ class TreePicker extends Widget
     public function generate()
     {
         /** @psalm-suppress MixedArrayAssignment - $GLOBALS['TL_JAVASCRIPT'] is an untyped Contao superglobal. */
-        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
+        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.generalBase'] = '/bundles/ccadcgeneral/js/generalBase.js';
 
         $environment = $this->getEnvironment();
 
@@ -1036,7 +1036,7 @@ class TreePicker extends Widget
     public function generatePopup()
     {
         /** @psalm-suppress MixedArrayAssignment - $GLOBALS['TL_JAVASCRIPT'] is an untyped Contao superglobal. */
-        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral'] = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
+        $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.generalBase'] = '/bundles/ccadcgeneral/js/generalBase.js';
 
         $environment = $this->getEnvironment();
 

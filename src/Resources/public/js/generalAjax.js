@@ -1,14 +1,33 @@
 /**
- * Vanilla replacement for the MooTools "Request.Contao" calls of the picker widgets.
+ * The ajax layer of the dc-general back end scripts.
  *
- * MooTools is on its way out of the Contao back end, so the widget templates of dc-general do their ajax
- * handling with "fetch". The two helpers below cover what "Request.Contao" did for us: normalising the
- * response and swapping widget markup.
+ * MooTools is on its way out of the Contao back end, so everything the dc-general sends goes through the
+ * helpers below, which are built on "fetch". They cover what the MooTools "Request.Contao" did for us:
+ * normalising the response and swapping widget markup.
  */
 (function () {
     'use strict';
 
     window.DcGeneral = window.DcGeneral || {};
+
+    /**
+     * Send a fire and forget request to a back end route.
+     *
+     * Used where the server only has to record a state change and the answer is of no interest.
+     *
+     * @param {string} url The URL to request.
+     *
+     * @returns {Promise<Response>}
+     */
+    window.DcGeneral.get = function (url) {
+        return fetch(url, {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+    };
 
     /**
      * Post form data to a back end route and resolve with the normalised response.

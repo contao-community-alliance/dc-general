@@ -42,13 +42,13 @@ var BackendGeneral =
           image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
           $(el).store('tip:title', Contao.lang.collapse);
           $(el).addClass('foldable--open');
-          new Request.Contao({url: data.url, field: el}).post(data);
+          DcGeneral.post(data.url, data);
         } else {
           item.setStyle('display', 'none');
           image.src = image.src.replace('folMinus.svg', 'folPlus.svg');
           $(el).store('tip:title', Contao.lang.expand);
           $(el).removeClass('foldable--open');
-          new Request.Contao({url: data.url, field: el}).post(data);
+          DcGeneral.post(data.url, data);
         }
         return false;
       }
@@ -252,9 +252,10 @@ var BackendGeneral =
       el.blur();
       var fs = $('pal_' + legend);
 
+      // The MooTools request defaulted to the current URL when none was given.
       if (fs.hasClass('collapsed')) {
         fs.removeClass('collapsed');
-        new Request.Contao().post({
+        DcGeneral.post(window.location.href, {
           'action': 'setLegendState',
           'legend': legend,
           'table': table,
@@ -263,7 +264,7 @@ var BackendGeneral =
         });
       } else {
         fs.addClass('collapsed');
-        new Request.Contao().post({
+        DcGeneral.post(window.location.href, {
           'action': 'setLegendState',
           'legend': legend,
           'table': table,

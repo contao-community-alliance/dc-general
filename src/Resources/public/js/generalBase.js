@@ -164,7 +164,7 @@ function GeneralTableDnD()
     req += '&isAjax=1';
 
     // var href = GeneralEnvironment.getDom().getContaoBase();
-    GeneralEnvironment.getAjax().sendGet(href + req, false, null);
+    DcGeneral.get(href + req);
   };
 
   /** Get the position of an element by going up the DOM tree and adding up all the offsets */
@@ -342,7 +342,8 @@ var GeneralTreePicker =
         var element = $('ctrl_'+opt.id);
         element.value = val.join("\t");
 
-        // TODO: rewrite using GeneralEnvironment.getAjax().sendPost();
+        // TODO: rewrite using DcGeneral.post(). Needs the MooTools DOM code of the callback below
+        // TODO: and the AjaxRequest progress box to be ported first.
         new Request.Contao({
           field: element,
           evalScripts: false,
@@ -424,82 +425,6 @@ var GeneralLogger =
   }
 };
 
-
-/**
- * AJAX class
- *
- * This class provides functions for sending ajax requests as post and get.
- *
- * @constructor
- */
-var GeneralAjaxCaller =
-{
-  logger: null,
-  setLogger: function (objLogger)
-  {
-    this.logger = objLogger;
-  },
-  sendPost: function (strAdress, arrData, blnasync, callback)
-  {
-    var xmlhttp;
-
-    // Code for IE7+, Firefox, Chrome, Opera, Safari
-    if (window.XMLHttpRequest)
-    {
-      xmlhttp = new XMLHttpRequest();
-    }
-    // Ups we can not send a request add a log.
-    else
-    {
-      this.logger.log('Can not find the XMLHttpRequest object. Can not send a request.');
-      return;
-    }
-
-    // Check if async.
-    if (!!!blnasync == true)
-    {
-      xmlhttp.onreadystatechange = callback;
-    }
-
-    // Open.
-    xmlhttp.open("POST", strAdress, !!!blnasync);
-
-    // Add the data to the request.
-    for (var key in arrData)
-    {
-      xmlhttp.setRequestHeader(key, arrData[key]);
-    }
-
-    // CALL.
-    xmlhttp.send();
-  },
-  sendGet: function (strAdress, blnasync, callback)
-  {
-    var xmlhttp;
-
-    // Code for IE7+, Firefox, Chrome, Opera, Safari
-    if (window.XMLHttpRequest)
-    {
-      xmlhttp = new XMLHttpRequest();
-    }
-    // Ups we can not send a request add a log.
-    else
-    {
-      this.logger.log('Can not find the XMLHttpRequest object. Can not send a request.');
-      return;
-    }
-
-    // Check if async.
-    if (!!!blnasync == true)
-    {
-      xmlhttp.onreadystatechange = callback;
-    }
-
-    // Open and send.
-    xmlhttp.open("GET", strAdress, !!!blnasync);
-    xmlhttp.send();
-  }
-};
 
 /**
  * General class with dom mainpulation.
@@ -584,7 +509,6 @@ var GeneralEnvironment =
 {
   // Vars.
   instanceLogger: null,
-  instanceAjax: null,
   instanceDom: null,
 
   // Functions logger.
@@ -595,16 +519,6 @@ var GeneralEnvironment =
   getLogger: function ()
   {
     return this.instanceLogger;
-  },
-
-  // Functions ajax.
-  setAjax: function (obj)
-  {
-    this.instanceAjax = obj;
-  },
-  getAjax: function ()
-  {
-    return this.instanceAjax;
   },
 
   // Functions dom.
@@ -620,6 +534,4 @@ var GeneralEnvironment =
 
 // Init the env.
 GeneralEnvironment.setLogger(GeneralLogger);
-GeneralEnvironment.setAjax(GeneralAjaxCaller);
-GeneralEnvironment.getAjax().setLogger(GeneralEnvironment.getLogger());
 GeneralEnvironment.setDom(GeneralDom);

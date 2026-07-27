@@ -35,10 +35,11 @@ $isBackend = (bool) System::getContainer()
     );
 
 if ($isBackend) {
-    $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.generalDriver_src']  = '/bundles/ccadcgeneral/js/generalDriver_src.js';
-    $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.vanillaGeneral']     = '/bundles/ccadcgeneral/js/vanillaGeneral.js';
+    // The ajax helpers are the shared base of the scripts below, so they have to be loaded first.
+    $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.generalAjax']        = '/bundles/ccadcgeneral/js/generalAjax.js';
+    $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.generalDriver']      = '/bundles/ccadcgeneral/js/generalDriver.js';
+    $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.generalBase']        = '/bundles/ccadcgeneral/js/generalBase.js';
     $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.sortableOrderField'] = '/bundles/ccadcgeneral/js/sortableOrderField.js';
-    $GLOBALS['TL_JAVASCRIPT']['cca.dc-general.dcGeneralAjax']      = '/bundles/ccadcgeneral/js/dcGeneralAjax.js';
 }
 
 $GLOBALS['BE_FFL']['DcGeneralTreePicker'] = TreePicker::class;
