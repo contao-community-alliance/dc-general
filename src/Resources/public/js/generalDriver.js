@@ -119,20 +119,19 @@ var BackendGeneral =
         icon_disabled = 'invisible.svg';
       }
 
-      // Support dark mode at Contao 5.
-      const colorScheme = document.documentElement.dataset.colorScheme;
-      const postfixDark = colorScheme === 'dark' ? '--dark' : '';
-
       // Get images - we have optional two icons:
       // the first is for dark mode and second for light mode.
       const imageList  = el.getElementsByTagName('img');
       const darkImage  = (imageList.length > 1) ? imageList[0] : null;
       const lightImage = imageList[imageList.length - 1]
 
-      // Generate images for dark mode.
+      // Generate images for dark mode. Both variants are always in the markup, the color scheme
+      // only decides which one CSS shows - so the suffix must not depend on the active scheme.
+      // Deriving it from "document.documentElement.dataset.colorScheme" left the dark icon
+      // untouched in light mode, because "invisible.svg" does not occur in "invisible--dark.svg".
       const suffixDarkImage = (icon) => {
         let posDot = icon.lastIndexOf('.');
-        return icon.slice(0, posDot) + postfixDark + '.' + icon.slice(posDot + 1);
+        return icon.slice(0, posDot) + '--dark.' + icon.slice(posDot + 1);
       };
 
       const iconLight = icon;
@@ -145,7 +144,6 @@ var BackendGeneral =
         div = el.getParent('div'),
         next,
         listIcon;
-      console.log('Last image:' + lightImage.src + ' | publish: ' + publish);
 
       new Request.Contao({
         'url': $(el).href,
