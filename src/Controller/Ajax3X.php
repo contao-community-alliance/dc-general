@@ -366,35 +366,6 @@ class Ajax3X extends Ajax
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @throws ResponseException Throws a response exception.
-     *
-     * @return never
-     */
-    #[\Override]
-    protected function setLegendState()
-    {
-        $environment = $this->getEnvironment();
-        assert($environment instanceof EnvironmentInterface);
-
-        $input = $environment->getInputProvider();
-        assert($input instanceof InputProviderInterface);
-
-        $session = $environment->getSessionStorage();
-        assert($session instanceof SessionStorageInterface);
-
-        /** @var array<string, array<string, bool>> $states */
-        $states = (array) $session->get('LEGENDS');
-
-        $states[(string) $input->getValue('table')][(string) $input->getValue('legend')]
-            = (bool) $input->getValue('state');
-        $session->set('LEGENDS', $states);
-
-        throw new ResponseException(new Response(''));
-    }
-
-    /**
      * Get the field name.
      *
      * @return null|string

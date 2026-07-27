@@ -35,7 +35,6 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetEd
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\PropertiesDefinitionInterface;
-use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\LegendInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\PaletteInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DefaultEditInformation;
@@ -54,7 +53,6 @@ use ContaoCommunityAlliance\DcGeneral\Event\ValidateModelEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Contao\BackendUser;
 use Contao\CoreBundle\Intl\Locales;
@@ -526,7 +524,6 @@ class EditMask
 
         $propertyDefinitions = $definition->getPropertiesDefinition();
         $isAutoSubmit        = ('auto' === $inputProvider->getValue('SUBMIT_TYPE'));
-        $legendStates        = $this->getLegendStates();
 
         $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
         assert($editInformation instanceof EditInformationInterface);
@@ -572,7 +569,7 @@ class EditMask
                 continue;
             }
 
-            $legendVisible = $this->isLegendVisible($legend, $legendStates);
+            $legendVisible = $legend->isInitialVisible();
 
             foreach ($properties as $property) {
                 $this->ensurePropertyExists($property->getName(), $propertyDefinitions);
@@ -1075,47 +1072,6 @@ class EditMask
         $_SESSION['TL_CONFIRM'] = [];
     }
 
-    /**
-     * Determine if the passed legend is visible or collapsed.
-     *
-     * @param LegendInterface $legend       The legend.
-     * @param bool[]          $legendStates The states from the session.
-     *
-     * @return bool
-     */
-    private function isLegendVisible($legend, $legendStates)
-    {
-        if (\array_key_exists($legend->getName(), $legendStates)) {
-            return $legendStates[$legend->getName()];
-        }
-
-        return $legend->isInitialVisible();
-    }
-
-    /**
-     * Obtain the legend states.
-     *
-     * @return array<string, bool>
-     */
-    private function getLegendStates()
-    {
-        $environment = $this->getEnvironment();
-
-        $definition = $environment->getDataDefinition();
-        assert($definition instanceof ContainerInterface);
-
-        $sessionStorage = $environment->getSessionStorage();
-        assert($sessionStorage instanceof SessionStorageInterface);
-
-        /** @var array<string, array<string, bool>> $legendStates */
-        $legendStates = (array) ($sessionStorage->get('LEGENDS') ?: []);
-
-        if (\array_key_exists($definition->getName(), $legendStates)) {
-            return $legendStates[$definition->getName()];
-        }
-
-        return [];
-    }
 
     /**
      * Determine the class to use for a legend.

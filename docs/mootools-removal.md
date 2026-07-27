@@ -13,8 +13,9 @@
 > - [x] 6 – Inline-MooTools in den Picker-Templates → `fetch` (`generalAjax.js`)
 > - [x] 7 – tote Build-Artefakte `generalDriver.js` / `.js.map` entfernt
 > - [x] 8 – eine Ajax-Schicht, einheitliche Dateinamen (Abschnitt 4)
-> - [ ] 9 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
-> - [ ] 10 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
+> - [x] 9 – tote `setLegendState`-Kette entfernt (Abschnitt 4.4)
+> - [ ] 10 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
+> - [ ] 11 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
 >
 > **jQuery:** im dc-general nicht vorhanden — es gab und gibt keine Fundstelle.
 
@@ -142,8 +143,10 @@ statt sie als Body zu senden. Genutzt wurde nur `sendGet()`; dafür gibt es jetz
 `DcGeneral.get()`. Die Accessoren `getAjax()`/`setAjax()` von `GeneralEnvironment` sind
 damit ebenfalls weg, `getLogger()`/`getDom()` bleiben.
 
-In `generalDriver.js` nutzen die vier Fire-and-Forget-Posts jetzt `DcGeneral.post()`.
-`Request.Contao` sinkt damit von **7 auf 3** Stellen.
+In `generalDriver.js` nutzen die Fire-and-Forget-Posts jetzt `DcGeneral.post()`.
+`Request.Contao` sinkt damit von **7 auf 3** Stellen (zwei in `loadSubTree` und
+`toggleVisibility`, eine im Modal-Callback von `generalBase.js`). Zwei der umgestellten
+Posts sind mit Abschnitt 4.4 gleich ganz entfallen.
 
 `generalAjax.js` wird in `config.php` als **erstes** registriert, da die anderen Skripte
 darauf aufbauen.
@@ -170,6 +173,27 @@ baute die URL aus `window.location.search` **plus** `'?'` — das Suchfragment b
 Zeichen aber schon mit, das zweite landete im Wert des letzten Parameters. Der Fehler ist
 älter als die Umstellung; das synchrone XHR erzeugte dieselbe URL, nur wurde die Antwort
 nie ausgewertet. Behoben, die Sortierung übersteht jetzt den Reload.
+
+### 4.4 `setLegendState` komplett entfallen
+
+Die Funktion sollte den Auf-/Zuklapp-Zustand der Palette-Legenden über die Session
+merken. Die Kette war an **jeder** Stelle unterbrochen:
+
+* `BackendGeneral.setLegendState` hatte keinen Aufrufer — kein Template und kein PHP
+  erzeugte je ein `onclick` darauf.
+* Der Server-Handler `Ajax3X::setLegendState()` war nur über `action=setLegendState`
+  erreichbar. Das sendet niemand; Contao 5.7 klappt Fieldsets über seinen eigenen
+  `toggle-fieldset`-Controller mit `action=toggleFieldset` auf und zu und legt das
+  Ergebnis unter `fieldset_states` ab — einen Schlüssel, den der dc-general nicht liest.
+* Damit wurde der Session-Schlüssel `LEGENDS` nie geschrieben, und
+  `EditMask::getLegendStates()` lieferte immer ein leeres Array. `isLegendVisible()` fiel
+  folglich **immer** auf `$legend->isInitialVisible()` zurück.
+
+Entfernt wurden daher JS-Funktion, Dispatch-Eintrag, die abstrakte Deklaration in
+`Ajax`, die Implementierung in `Ajax3X`, der Leser `getLegendStates()` samt
+`isLegendVisible()` und der Session-Schlüssel aus `config.yml`. **An der Darstellung
+ändert sich nichts** — die Legenden richteten sich schon vorher ausschließlich nach der
+Palette-Definition.
 
 ## 5. Was bewusst bleibt
 
@@ -203,7 +227,6 @@ funktionsweise:
 | `toggleVisibility` | 24 | **heikelster Teil**: verschachtelte DOM-Traversierung für Baum-, Listen- und Parent-Ansicht plus Icon-Namens-Arithmetik. Nur mit Klicktest in allen drei Ansichten umzubauen |
 | `confirmDelete` | 12 | reiner DOM-Aufbau, unkritisch |
 | `displayMessage` / `hideMessage` | 13 | reiner DOM-Aufbau, `window.getScroll()` → `window.scrollY` |
-| `setLegendState` | 6 | **toter Code** — kein Template und kein PHP erzeugt ein `onclick` darauf, nur `Ajax.php`/`Ajax3X.php` kennen die Aktion serverseitig noch. Die Ajax-Aufrufe darin sind zwar umgestellt, auslösbar ist die Funktion nicht. Vor dem Umbau prüfen, ob sie einfach entfallen kann |
 | `autoSubmit` | 3 | fast schon vanilla |
 | `confirmSelectOverrideEditAll` | 1 | `$$(collection).each` → `Array.from(...).some(...)` |
 

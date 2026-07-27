@@ -240,43 +240,6 @@ var BackendGeneral =
     },
 
     /**
-     * Set the visibility of a legend.
-     *
-     * @param {object} el     The DOM element
-     * @param {string} legend The ID of the legend element
-     * @param {string} table  The table name
-     *
-     * @returns {boolean}
-     */
-    setLegendState: function (el, legend, table) {
-      el.blur();
-      var fs = $('pal_' + legend);
-
-      // The MooTools request defaulted to the current URL when none was given.
-      if (fs.hasClass('collapsed')) {
-        fs.removeClass('collapsed');
-        DcGeneral.post(window.location.href, {
-          'action': 'setLegendState',
-          'legend': legend,
-          'table': table,
-          'state': 1,
-          'REQUEST_TOKEN': Contao.request_token
-        });
-      } else {
-        fs.addClass('collapsed');
-        DcGeneral.post(window.location.href, {
-          'action': 'setLegendState',
-          'legend': legend,
-          'table': table,
-          'state': 0,
-          'REQUEST_TOKEN': Contao.request_token
-        });
-      }
-
-      return false;
-    },
-
-    /**
      * Display the message
      *
      * @param {string} message      The message text

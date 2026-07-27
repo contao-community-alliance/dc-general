@@ -199,15 +199,6 @@ abstract class Ajax implements EnvironmentAwareInterface
     abstract protected function reloadFiletree();
 
     /**
-     * Toggle a legend.
-     *
-     * This method exits the script.
-     *
-     * @return void
-     */
-    abstract protected function setLegendState();
-
-    /**
      * Handle the post actions from DcGeneral.
      *
      * @param DataContainerInterface $container The data container.
@@ -259,8 +250,7 @@ abstract class Ajax implements EnvironmentAwareInterface
                     'loadFiletree',
                     // Reload the page/file picker.
                     'reloadPagetree',
-                    'reloadFiletree',
-                    'setLegendState'
+                    'reloadFiletree'
                 ]
             )
         ) {

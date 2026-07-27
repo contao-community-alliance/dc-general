@@ -11,7 +11,6 @@ parameters:
     # The keys can you extend with the dependency injection in the build process from the symfony container.
     cca.dc-general.session.database_keys:
         common:
-            - LEGENDS
             - CLIPBOARD
             - tree
             - sorting
