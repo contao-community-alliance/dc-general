@@ -334,15 +334,41 @@ Zwei Fallen, die beim Testen Zeit gekostet haben:
 Der Audit lief über die Paketgrenze hinaus, weil die Buttons der MetaModels-Tabellen aus
 deren DCAs stammen.
 
-**MetaModels core** ist frei von den deprecated APIs. Erledigt wurden dort: die 27
-`onclick`-Attribute der statischen DCAs, die **zur Laufzeit gebauten** Kommandos in
-`CommandBuilder` (Kopieren/Verschieben/Löschen aller Item-Tabellen — diese Fundstellen
-tauchen in keiner DCA-Datei auf), die Bearbeiten-Operation in `LoadDataContainer`, der
-„Alle auswählen"-Schalter in `add-all.html.twig` sowie die `domready`-Initialisierung von
-`be_ace_mm.html5`.
+Inzwischen sind **alle 31 MetaModels-Pakete** geprüft. Sie sind frei von den in Contao 5.7
+deprecated APIs; was bleibt, steht unten unter „bewusst behalten".
 
-Offen sind noch `metamodels/notelist` (2 Stellen) und `metamodels/attribute_levenshtein`
-(1 Stelle im Zurück-Button).
+| Paket | erledigt |
+| --- | --- |
+| `core` | die 27 `onclick`-Attribute der statischen DCAs, die **zur Laufzeit gebauten** Kommandos in `CommandBuilder` (Kopieren/Verschieben/Löschen aller Item-Tabellen — diese Fundstellen tauchen in keiner DCA-Datei auf), die Bearbeiten-Operation in `LoadDataContainer`, der „Alle auswählen"-Schalter in `add-all.html.twig`, die `domready`-Initialisierung von `be_ace_mm.html5` |
+| `notelist` | 2 `onclick`-Attribute in `tl_metamodel_notelist.php` |
+| `attribute_levenshtein` | Zurück-Button des Suchindex-Neuaufbaus |
+| `attribute_contentarticle` | Widget-Skript komplett: `$()`, `addEvent()`, `Request.Contao`, `Browser.exec()` |
+| `attribute_translatedcontentarticle` | dito, unterscheidet sich nur im `lang`-Parameter |
+
+> **Achtung beim Suchen:** ein Muster `window.addEvent` trifft auch
+> `window.addEventListener`. `attribute_rating` sah dadurch betroffen aus, ist aber sauber.
+> Ebenso findet ein Grep nach Dateinamen keine Templates, die über Konventionen gewählt
+> werden — `be_ace_mm.html5` wird nirgends namentlich referenziert und ist trotzdem in
+> Benutzung (siehe unten).
+
+**Die Contentarticle-Widgets** sind denselben Weg gegangen wie die Picker des dc-general:
+`addEventListener()` statt `addEvent()`, `DcGeneral.post()`/`setHtml()` statt
+`Request.Contao`. Für `Browser.exec()` braucht es keinen Nachfolger, weil `setHtml()` die
+Skripte des neuen Markups selbst ausführt. `dc-general` ist in beiden Paketen harte
+Abhängigkeit, die Helfer stehen also bereit.
+
+**Ein MooTools-Aufruf bleibt dort bewusst stehen:** `window.addEvent('sm_hide', …)`.
+SimpleModal feuert das Ereignis über `window.fireEvent()`
+(`assets/simplemodal/js/simplemodal.js`), also über MooTools' eigenes Eventsystem — ein
+`addEventListener` empfängt es nie. Und `Backend.openModalIframe()` nimmt keinen Callback,
+anders als das `openModalSelector()`, mit dem der dc-general davonkam. Einen anderen Haken,
+um das Schließen des Modals zu bemerken, bietet Contao 5.7 nicht.
+
+**Wo die Änderungen liegen:** die des `core` stehen auf einem eigenen Branch
+`hotfix/mootools-removal`, getrennt von der parallel laufenden Twig-Arbeit auf
+`hotfix/fix_twig_support`. Wer den zweiten auscheckt, hat die MooTools-Fixes **nicht** dabei
+— vor einem Release müssen beide zusammengeführt werden. Die vier übrigen Pakete tragen
+ihre Änderung jeweils auf ihrem laufenden Branch.
 
 **Zur Template-Auflösung** (relevant für den Twig-Umbau): `ContaoWidgetManager` lädt die
 RTE-Templates über `new BackendTemplate('be_' . $rteBase)`, also die Legacy-Engine.
