@@ -1826,20 +1826,40 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
     }
 
-    /** @psalm-assert callable|list<callable> $callbacks */
+    /** @psalm-assert callable|array|list<callable|array> $callbacks */
     private function assertCallback(mixed $callbacks): void
     {
-        if (is_callable($callbacks)) {
+        if ($this->isCallbackLike($callbacks)) {
             return;
         }
         if (is_array($callbacks)) {
+            /** @var mixed $callback */
             foreach ($callbacks as $callback) {
-                if (!is_callable($callback)) {
+                if (!$this->isCallbackLike($callback)) {
                     throw new \InvalidArgumentException('Invalid callback passed: ' . var_export($callback, true));
                 }
             }
             return;
         }
         throw new \InvalidArgumentException('Invalid callback passed: ' . var_export($callbacks, true));
+    }
+
+    /**
+     * Test if the passed value has the shape of a callback that {@see parseCallback()} is able to handle.
+     *
+     * Beside real PHP callables this also covers the legacy Contao notation `['tl_page', 'adjustDca']` which
+     * references a non static method and therefore is not callable until the class has been instantiated
+     * (which the callback listeners do at invocation time via `System::importStatic()`).
+     */
+    private function isCallbackLike(mixed $callback): bool
+    {
+        if (is_callable($callback)) {
+            return true;
+        }
+
+        return is_array($callback)
+               && (2 === count($callback))
+               && (is_string($callback[0] ?? null) || is_object($callback[0] ?? null))
+               && is_string($callback[1] ?? null);
     }
 }
