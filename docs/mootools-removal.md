@@ -1,18 +1,20 @@
 # Ausbau von MooTools im dc-general
 
-> Status: **Stufe 1 abgeschlossen, Stufe 2 offen.** Alle in Contao 5.7 als *deprecated*
+> Status: **Stufe 1 abgeschlossen, Stufe 2 begonnen.** Alle in Contao 5.7 als *deprecated*
 > markierten Backend-JS-Aufrufe sind aus dem dc-general verschwunden, ebenso das
-> Inline-MooTools in den Templates. Die beiden großen JS-Dateien stehen noch aus.
+> Inline-MooTools in den Templates. Die Ajax-Schicht ist vereinheitlicht; der
+> MooTools-DOM-Code der beiden großen JS-Dateien steht noch aus.
 >
 > - [x] 1 – Bestandsaufnahme (Abschnitt 2)
 > - [x] 2 – `Backend.getScrollOffset()` (23 Stellen) → `contao--scroll-offset#store`
 > - [x] 3 – `Backend.toggleCheckboxes()` (4 Stellen) → `contao--check-all`
 > - [x] 4 – `Backend.vScrollTo()` (3 Stellen) → `contao--scroll-offset`-Targets
 > - [x] 5 – `Backend.makeMultiSrcSortable()` (3 Stellen) → `contao--sortable` + `contao--input-map`
-> - [x] 6 – Inline-MooTools in den Picker-Templates → `fetch` (`dcGeneralAjax.js`)
+> - [x] 6 – Inline-MooTools in den Picker-Templates → `fetch` (`generalAjax.js`)
 > - [x] 7 – tote Build-Artefakte `generalDriver.js` / `.js.map` entfernt
-> - [ ] 8 – `generalDriver_src.js` auf Vanilla umbauen (Abschnitt 5)
-> - [ ] 9 – `vanillaGeneral.js` auf Vanilla umbauen (Abschnitt 5)
+> - [x] 8 – eine Ajax-Schicht, einheitliche Dateinamen (Abschnitt 4)
+> - [ ] 9 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
+> - [ ] 10 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
 >
 > **jQuery:** im dc-general nicht vorhanden — es gab und gibt keine Fundstelle.
 
@@ -43,6 +45,9 @@ Wichtig für die Planung: Contao 5.7 ist im Backend **selbst noch nicht MooTools
 | `generalDriver_src.js` | eigene JS-Datei | 55 Stellen |
 | `vanillaGeneral.js` | eigene JS-Datei (trotz Namens) | 8 Stellen |
 | `generalDriver.js` + `.js.map` | minifizierte Artefakte, **nirgends registriert** | tot |
+
+Die Dateinamen dieser Tabelle sind der historische Stand; seit Abschnitt 4 heißen sie
+`generalDriver.js`, `generalBase.js` und `generalAjax.js`.
 
 ## 3. Umgesetzt in Stufe 1
 
@@ -96,7 +101,8 @@ nachgeführt.
 
 ### 3.5 Ajax der Picker-Templates
 
-`Request.Contao` → `fetch`, gekapselt in **`src/Resources/public/js/dcGeneralAjax.js`**:
+`Request.Contao` → `fetch`, gekapselt in **`src/Resources/public/js/generalAjax.js`**
+(damals noch `dcGeneralAjax.js`, siehe Abschnitt 4.2):
 
 * `DcGeneral.post(url, data)` — POST als `x-www-form-urlencoded` mit
   `X-Requested-With: XMLHttpRequest`, normalisiert die Antwort auf `{content, javascript}`
@@ -122,7 +128,50 @@ Block mit `Backend.toggleCheckboxes`. Jetzt vanilla (`addEventListener` +
 historisch, das Array ist in Contao 5.7 schlicht die Ablage für Inline-JS am Body-Ende
 und nicht deprecated.
 
-## 4. Was bewusst bleibt
+## 4. Umgesetzt in Stufe 2: eine Ajax-Schicht, einheitliche Dateinamen
+
+### 4.1 Drei Ajax-Wege wurden einer
+
+Das Bundle sprach auf drei Arten mit dem Server: das MooTools-`Request.Contao`, der
+selbstgebaute `GeneralAjaxCaller` und die mit Stufe 1 eingeführten `DcGeneral`-Helfer.
+Alles, was nicht am MooTools-DOM hängt, läuft jetzt über die letzteren.
+
+`GeneralAjaxCaller` ist entfallen (76 Zeilen). Sein `sendPost()` hatte **keinen einzigen
+Aufrufer** und war obendrein defekt — es übergab die Nutzdaten an `setRequestHeader()`,
+statt sie als Body zu senden. Genutzt wurde nur `sendGet()`; dafür gibt es jetzt
+`DcGeneral.get()`. Die Accessoren `getAjax()`/`setAjax()` von `GeneralEnvironment` sind
+damit ebenfalls weg, `getLogger()`/`getDom()` bleiben.
+
+In `generalDriver.js` nutzen die vier Fire-and-Forget-Posts jetzt `DcGeneral.post()`.
+`Request.Contao` sinkt damit von **7 auf 3** Stellen.
+
+`generalAjax.js` wird in `config.php` als **erstes** registriert, da die anderen Skripte
+darauf aufbauen.
+
+### 4.2 Dateinamen
+
+| vorher | nachher |
+| --- | --- |
+| `dcGeneralAjax.js` | `generalAjax.js` |
+| `vanillaGeneral.js` | `generalBase.js` (die Datei war nie vanilla) |
+| `generalDriver_src.js` | `generalDriver.js` |
+
+Das `_src`-Suffix ergab nur mit dem prepros-Build Sinn, und der war längst auseinander-
+gelaufen: das gebaute `generalDriver.js` war veraltet und wurde entfernt, seitdem wurde
+die Quelldatei unter Quell-Namen ausgeliefert. Wie bei den Stylesheets verzichten wir auf
+Minifizierung — die Dateien sind klein. Die verwaiste `generalDriver.css.map` und das
+letzte SCSS-Partial sind mit entfallen.
+
+### 4.3 Nebenbefund: Drag-&-Drop-Sortieren war defekt
+
+Beim Prüfen des umgestellten Pfades antwortete der Server mit HTTP 500
+(`Invalid language file name "tl_metamodel_dcasetting?"`). `GeneralTableDnD.onDrop()`
+baute die URL aus `window.location.search` **plus** `'?'` — das Suchfragment bringt das
+Zeichen aber schon mit, das zweite landete im Wert des letzten Parameters. Der Fehler ist
+älter als die Umstellung; das synchrone XHR erzeugte dieselbe URL, nur wurde die Antwort
+nie ausgewertet. Behoben, die Sortierung übersteht jetzt den Reload.
+
+## 5. Was bewusst bleibt
 
 Diese Contao-APIs haben in 5.7 **keinen** vanilla- oder Stimulus-Ersatz. Sie sind kein
 Versäumnis, sondern die Grenze der Umstellung:
@@ -130,26 +179,31 @@ Versäumnis, sondern die Grenze der Umstellung:
 | API | genutzt in | Anmerkung |
 | --- | --- | --- |
 | `Backend.openModalSelector()` | `widget_filetree`, `widget_common_picker`, `dc_general_wizard_common_picker` | nicht deprecated; Contaos eigener `contao--modal-selector`-Controller ruft sie intern selbst auf |
-| `AjaxRequest.displayBox()` / `hideBox()` | `vanillaGeneral.js` | Ladeanzeige, kein Ersatz |
+| `AjaxRequest.displayBox()` / `hideBox()` | `generalBase.js` | Ladeanzeige, kein Ersatz |
 | `new Picker.Date()` | `ContaoWidgetManager::buildDatePicker()` | Datepicker; Element-Lookup wurde bereits auf `document.getElementById()` umgestellt, der Konstruktor bleibt |
 | `SimpleModal` | indirekt über `openModalSelector` | — |
 
 Sobald Contao hier nachzieht, gehört das erneut geprüft.
 
-## 5. Offen — Stufe 2
+## 6. Offen — Rest von Stufe 2
 
-### 5.1 `generalDriver_src.js` (55 Stellen)
+Was hier steht, ist der **MooTools-DOM-Code**. Die Ajax-Schicht ist mit Abschnitt 4
+erledigt; die verbliebenen drei `Request.Contao` hängen an `AjaxRequest.displayBox()` und
+an `onSuccess`-Callbacks voller MooTools-DOM-Aufrufe, lassen sich also erst zusammen mit
+dem umgebenden Code umbauen.
+
+### 6.1 `generalDriver.js`
 
 Die globale API `BackendGeneral`, aus PHP über `onclick`-Attribute aufgerufen. Umbau
 funktionsweise:
 
 | Funktion | Stellen | Bemerkung |
 | --- | --- | --- |
-| `loadSubTree` | 25 | `Request.Contao` → `fetch`; `new Element(…).inject()` → `createElement`/`after()`; `.store('tip:title', …)` hat kein direktes Gegenstück mehr (Contao nutzt `contao--tooltips`) |
+| `loadSubTree` | 25 | die beiden Zustands-Posts laufen bereits über `DcGeneral.post()`; offen bleiben der ladende Zweig (`Request.Contao` mit `onSuccess`), `new Element(…).inject()` → `createElement`/`after()` und `.store('tip:title', …)`, das kein direktes Gegenstück mehr hat (Contao nutzt `contao--tooltips`) |
 | `toggleVisibility` | 24 | **heikelster Teil**: verschachtelte DOM-Traversierung für Baum-, Listen- und Parent-Ansicht plus Icon-Namens-Arithmetik. Nur mit Klicktest in allen drei Ansichten umzubauen |
 | `confirmDelete` | 12 | reiner DOM-Aufbau, unkritisch |
 | `displayMessage` / `hideMessage` | 13 | reiner DOM-Aufbau, `window.getScroll()` → `window.scrollY` |
-| `setLegendState` | 6 | `Request.Contao` → `fetch` |
+| `setLegendState` | 6 | **toter Code** — kein Template und kein PHP erzeugt ein `onclick` darauf, nur `Ajax.php`/`Ajax3X.php` kennen die Aktion serverseitig noch. Die Ajax-Aufrufe darin sind zwar umgestellt, auslösbar ist die Funktion nicht. Vor dem Umbau prüfen, ob sie einfach entfallen kann |
 | `autoSubmit` | 3 | fast schon vanilla |
 | `confirmSelectOverrideEditAll` | 1 | `$$(collection).each` → `Array.from(...).some(...)` |
 
@@ -158,33 +212,47 @@ Listener hängen noch am MooTools-Window-Event, der neue `contao--check-all`-Con
 dagegen an `document.addEventListener('ajax_change', …)`. Übergangsweise müssen **beide**
 gefeuert werden.
 
-### 5.2 `vanillaGeneral.js` (8 Stellen)
+### 6.2 `generalBase.js`
 
-Trotz des Namens nicht vanilla. Alle Treffer liegen in **einer** Stelle — dem
-Modal-Callback um Zeile 336–354 (`Request.Contao`, `AjaxRequest.displayBox/hideBox`,
-`Browser.exec`, `$()`, `.getParent().set('html')`, `window.fireEvent`). Der Rest der
-Datei (Tabellen-Drag&Drop nach isocra, `GeneralLogger`, `GeneralEnvironment`) ist bereits
-vanilla.
+Alle verbliebenen Treffer liegen in **einer** Stelle — dem Modal-Callback von
+`GeneralTreePicker` (`Request.Contao`, `AjaxRequest.displayBox/hideBox`, `Browser.exec`,
+`$()`, `.getParent().set('html')`, `window.fireEvent`). Der Rest der Datei
+(Tabellen-Drag&Drop nach isocra, `GeneralLogger`, `GeneralEnvironment`) ist vanilla.
 
-Der Umbau ist klein: `DcGeneral.post()` / `DcGeneral.setHtml()` aus `dcGeneralAjax.js`
-decken den Fall bereits ab, `displayBox`/`hideBox` bleiben (Abschnitt 4).
+Der Umbau ist klein: `DcGeneral.post()` / `DcGeneral.setHtml()` decken den Fall ab,
+`displayBox`/`hideBox` bleiben (Abschnitt 5).
 
-## 6. Prüfstand
+## 7. Prüfstand
 
 Statisch verifiziert: Psalm (0 Fehler auf den geänderten Dateien), phpcs PSR12,
 `php -l` auf allen Templates, `node --check` auf den JS-Dateien. Zusätzlich wurden alle
 emittierten Stimulus-Bezeichner gegen `vendor/contao/core-bundle/assets/controllers/`
 abgeglichen (Controller-Name, Methodenname, Target-Name).
 
-**Nicht automatisiert abgedeckt** — beim nächsten Backend-Durchgang klicken:
+**Im Backend durchgespielt** (Playwright gegen den Devstack, angemeldete Session):
 
-* Listenansicht: „Alle auswählen", Shift-Bereichsauswahl, Sortier-Drag&Drop
-* Baumansicht: Auf-/Zuklappen, „Alle auswählen", Sichtbarkeits-Toggle
+* Listenansicht: „Alle auswählen" hakt alle an und wieder ab, `contao--check-all` am
+  Container, keine `scroll-offset`-Altlast im Markup
+* Eingabemaske: `generalAjax.js` eingebunden, `DcGeneral.post/get/setHtml` verfügbar,
+  `GeneralAjaxCaller` und `GeneralEnvironment.getAjax()` verschwunden
+* Datei-Widget: `contao--sortable` und `contao--input-map` verdrahtet, Drag&Drop ändert
+  die Reihenfolge, der Hidden-Wert entspricht danach der DOM-Reihenfolge, der Button am
+  Vorschaubild entfernt Eintrag **und** Wert
+* Datepicker öffnet
+* Sortier-Drag&Drop in der Listenansicht: Reihenfolge übersteht den Reload (siehe 4.3)
+* Konsole: keine `is deprecated`-Warnung zu einer der ersetzten APIs. Es bleiben drei
+  Contao-eigene (`Theme.stopClickPropagation()`, `Theme.setupSplitButtonToggle()`) — die
+  Bezeichner kommen ausschließlich im `core-bundle` vor.
+
+**Noch offen** — beim nächsten Durchgang klicken:
+
+* Baumansicht: Auf-/Zuklappen, Sichtbarkeits-Toggle (beides noch `Request.Contao`)
 * Eingabemaske: Speichern mit Feldfehler (springt die Seite zum Fehler?), Autofokus,
-  Datepicker, Farbwähler
-* Datei-Picker: Auswahl ändern, danach sortieren und einzeln entfernen — insbesondere
-  **nach** dem Ajax-Reload (das ging vorher nicht)
+  Farbwähler
 * Baum-Picker im Popup: „Alle auswählen", Übernehmen
 * „Alle bearbeiten"/„Alle überschreiben": Auswahl eines `fileTree`-Feldes zieht das
   zugehörige Order-Feld mit
-* Konsole auf `is deprecated`-Warnungen prüfen
+
+> Achtung beim Testen: klappt man ein Palette-Fieldset zu, merkt sich Contao das
+> serverseitig. Ein verstecktes Widget hat dann keine Bounding-Box, und ein Folgelauf
+> scheitert scheinbar grundlos an Drag&Drop.
