@@ -238,6 +238,27 @@ var BackendGeneral =
     },
 
     /**
+     * Toggle the line wrap of a textarea.
+     *
+     * Contao dropped Backend.toggleWrap() with version 5 without a replacement - only the
+     * "toggleWrap" css class is left over. The dc-general still offers the button, so the
+     * behaviour lives here now.
+     *
+     * @param {string} id The id of the textarea.
+     *
+     * @returns {boolean}
+     */
+    toggleWrap: function (id) {
+      const textarea = document.getElementById(id);
+
+      if (textarea) {
+        textarea.wrap = ('off' === textarea.wrap) ? 'soft' : 'off';
+      }
+
+      return false;
+    },
+
+    /**
      * Display the message
      *
      * @param {string} message      The message text

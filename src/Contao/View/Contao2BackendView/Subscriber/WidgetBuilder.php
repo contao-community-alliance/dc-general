@@ -370,7 +370,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
                 'wrap.svg',
                 $ccaTranslator->translate('wordWrap', 'dc-general'),
                 sprintf(
-                    'title="%s" class="toggleWrap" onclick="Backend.toggleWrap(\'ctrl_%s\');"',
+                    'title="%s" class="toggleWrap" onclick="return BackendGeneral.toggleWrap(\'ctrl_%s\');"',
                     StringUtil::specialchars($ccaTranslator->translate('wordWrap', 'dc-general')),
                     $propInfo->getName()
                 )
@@ -471,14 +471,31 @@ class WidgetBuilder implements EnvironmentAwareInterface
             $definition = $environment->getDataDefinition();
             assert($definition instanceof ContainerInterface);
 
-            return sprintf(
-                ' <a href="/contao/help?table=%s&amp;field=%s" ' .
-                'title="%s" ' .
-                'onclick="Backend.openWindow(this, 600, 500); return false;">%s</a>',
-                $definition->getName(),
-                $propInfo->getName(),
-                StringUtil::specialchars($ccaTranslator->translate('helpWizard', 'dc-general')),
-                $event->getHtml() ?? ''
+            $generator = System::getContainer()->get('router');
+            assert($generator instanceof RouterInterface);
+
+            // Contao dropped Backend.openWindow() with version 5; the core opens its own help
+            // wizard through Backend.openModalIframe() - see Contao's DataContainer::generateHelp().
+            // The url is built from the route instead of being hard coded, so a different back end
+            // path keeps working.
+            return strtr(
+                ' <a href="{url}" title="{title}" ' .
+                'onclick="Backend.openModalIframe({\'title\':\'{windowTitle}\',\'url\':this.href});' .
+                'return false">{icon}</a>',
+                [
+                    '{url}'         => $generator->generate(
+                        'contao_backend_help',
+                        [
+                            'table' => $definition->getName(),
+                            'field' => $propInfo->getName(),
+                        ]
+                    ),
+                    '{title}'       => StringUtil::specialchars($ccaTranslator->translate('helpWizard', 'dc-general')),
+                    '{windowTitle}' => StringUtil::specialchars(
+                        $ccaTranslator->translate($propInfo->getName() . '.label', $definition->getName())
+                    ),
+                    '{icon}'        => $event->getHtml() ?? ''
+                ]
             );
         }
 
