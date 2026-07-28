@@ -22,6 +22,40 @@
  * @filesource
  */
 
+/**
+ * Walk the siblings in the given direction and return the first one matching the selector.
+ *
+ * MooTools' getPrevious()/getNext() skipped non matching siblings; "previousElementSibling" does not,
+ * so the search is done here.
+ *
+ * @param {Element} element   The element to start from.
+ * @param {string}  selector  The selector to match.
+ * @param {string}  direction "previousElementSibling" or "nextElementSibling".
+ *
+ * @returns {Element|null}
+ */
+function siblingMatching(element, selector, direction) {
+  for (var sibling = element[direction]; sibling; sibling = sibling[direction]) {
+    if (sibling.matches(selector)) {
+      return sibling;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Return the first direct child matching the selector - the counterpart of MooTools' getFirst().
+ *
+ * @param {Element} element  The parent element.
+ * @param {string}  selector The selector to match.
+ *
+ * @returns {Element|null}
+ */
+function firstChildMatching(element, selector) {
+  return element ? element.querySelector(':scope > ' + selector) : null;
+}
+
 var BackendGeneral =
   {
     loadSubTree: function (el, data) {
@@ -29,71 +63,60 @@ var BackendGeneral =
 
       var id    = data.toggler,
           level = data.level,
-          mode  = data.mode,
-          item  = $(id),
-          image = $(el).getFirst('img');
+          item  = document.getElementById(id),
+          image = el.querySelector('img');
 
       data.action        = 'DcGeneralLoadSubTree';
       data.REQUEST_TOKEN = Contao.request_token;
 
+      // The sub tree is already loaded - only fold it and persist the state.
       if (item) {
-        if (item.getStyle('display') == 'none') {
-          item.setStyle('display', 'inline');
+        if ('none' === window.getComputedStyle(item).display) {
+          item.style.display = 'inline';
           image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
-          $(el).store('tip:title', Contao.lang.collapse);
-          $(el).addClass('foldable--open');
-          DcGeneral.post(data.url, data);
+          el.title = Contao.lang.collapse;
+          el.classList.add('foldable--open');
         } else {
-          item.setStyle('display', 'none');
+          item.style.display = 'none';
           image.src = image.src.replace('folMinus.svg', 'folPlus.svg');
-          $(el).store('tip:title', Contao.lang.expand);
-          $(el).removeClass('foldable--open');
-          DcGeneral.post(data.url, data);
+          el.title = Contao.lang.expand;
+          el.classList.remove('foldable--open');
         }
+        DcGeneral.post(data.url, data);
+
         return false;
       }
 
-      new Request.Contao({
-        url: data.url,
-        field: el,
-        evalScripts: true,
-        onRequest: AjaxRequest.displayBox(Contao.lang.loading + ' …'),
-        onSuccess: function (txt, json) {
-          var li = new Element('li', {
-            'id': id,
-            'class': 'parent',
-            'styles': {
-              'display': 'inline'
-            }
-          });
+      AjaxRequest.displayBox(Contao.lang.loading + ' …');
+      DcGeneral.post(data.url, data).then(function (response) {
+        var li = document.createElement('li');
+        li.id = id;
+        li.className = 'parent';
+        li.style.display = 'inline';
 
-          var ul = new Element('ul', {
-            'class': 'level_' + level,
-            'html': txt
-          }).inject(li, 'bottom');
+        var ul = document.createElement('ul');
+        ul.className = 'level_' + level;
+        li.appendChild(ul);
+        // setHtml() runs the scripts of the answer, which "evalScripts: true" did before.
+        DcGeneral.setHtml(ul, response.content);
 
-          if (mode == 5) {
-            li.inject($(el).getParent('li'), 'after');
-          } else {
-            var parent = $(el).getParent('li');
-            li.inject(parent, 'after');
-          }
+        // Both branches of the former "mode" check did the same thing.
+        el.closest('li').after(li);
 
-          // Update the referer ID
-          li.getElements('a').each(function (el) {
-            el.href = el.href.replace(/&ref=[a-f0-9]+/, '&ref=' + Contao.referer_id);
-          });
+        // Update the referer ID
+        li.querySelectorAll('a').forEach(function (link) {
+          link.href = link.href.replace(/&ref=[a-f0-9]+/, '&ref=' + Contao.referer_id);
+        });
 
-          $(el).store('tip:title', Contao.lang.collapse);
-          image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
-          $(el).addClass('foldable--open');
-          window.fireEvent('structure');
-          AjaxRequest.hideBox();
+        el.title = Contao.lang.collapse;
+        image.src = image.src.replace('folPlus.svg', 'folMinus.svg');
+        el.classList.add('foldable--open');
+        window.dispatchEvent(new CustomEvent('structure'));
+        AjaxRequest.hideBox();
 
-          // HOOK
-          window.fireEvent('ajax_change');
-        }
-      }).post(data);
+        // HOOK - Contao still fires this one through MooTools itself, see its toggle-nodes controller.
+        window.fireEvent('ajax_change');
+      });
 
       return false;
     },
@@ -141,41 +164,45 @@ var BackendGeneral =
 
       let img = null,
         publish = (lightImage.src.indexOf(iconLight_disabled) !== -1),
-        div = el.getParent('div'),
+        div = el.closest('div'),
         next,
         listIcon;
 
-      new Request.Contao({
-        'url': $(el).href,
-        'followRedirects': false,
-        'onSuccess': function () {
+      AjaxRequest.displayBox(Contao.lang.loading + ' …');
+      DcGeneral.get(el.href + (el.href.indexOf('?') === -1 ? '?' : '&') + 'state=' + (publish ? 1 : 0))
+        .then(function () {
+          AjaxRequest.hideBox();
 
           // Find the icon depending on the view (tree view, list view, parent view)
-          if (div.hasClass('tl_right')) {
-            img = div.getPrevious('div').getElement('div.tl_pagetree_content').getElement('img');
-          } else if (div.hasClass('tl_listing_container')) {
-            img = el.getParent('td').getPrevious('td').getFirst('div.list_icon');
+          if (div.classList.contains('tl_right')) {
+            img = siblingMatching(div, 'div', 'previousElementSibling')
+              ?.querySelector('div.tl_pagetree_content')?.querySelector('img') ?? null;
+          } else if (div.classList.contains('tl_listing_container')) {
+            const previousCell = siblingMatching(el.closest('td'), 'td', 'previousElementSibling');
+            img = firstChildMatching(previousCell, 'div.list_icon');
             if (img == null) { // Comments
-              img = el.getParent('td').getPrevious('td').getElement('div.cte_type');
+              img = previousCell?.querySelector('div.cte_type') ?? null;
             }
             if (img == null) { // showColumns
-              img = el.getParent('tr').getFirst('td').getElement('div.list_icon_new');
+              img = firstChildMatching(el.closest('tr'), 'td')?.querySelector('div.list_icon_new') ?? null;
             }
-          } else if ((next = div.getNext('div')) && next.hasClass('cte_type')) {
+          } else if ((next = siblingMatching(div, 'div', 'nextElementSibling')) && next.classList.contains('cte_type')) {
             img = next;
           }
 
           // Provide change the list icon for example by newsletter recipients.
-          if ((img === null)
-            && (listIcon = el.getParent().getParent().getElements('div.list_icon').getFirst().getParent())) {
-            img = listIcon[0];
+          if (
+            (img === null)
+            && (listIcon = el.parentElement?.parentElement?.querySelector('div.list_icon')?.parentElement)
+          ) {
+            img = listIcon;
           }
 
           // Change the icon
           if (img != null) {
             // Tree view
             if (img.nodeName.toLowerCase() === 'img') {
-              if (img.getParent('ul.tl_listing').hasClass('tl_tree_xtnd')) {
+              if (img.closest('ul.tl_listing')?.classList.contains('tl_tree_xtnd')) {
                 if (publish) {
                   img.src = img.src.replace(/_1\.(gif|png|jpe?g|svg)/, '.$1');
                 } else {
@@ -183,38 +210,40 @@ var BackendGeneral =
                 }
               } else {
                 if (img.src.match(/folPlus|folMinus/)) {
-                  if (img.getParent('a').getNext('a')) {
-                    img = img.getParent('a').getNext('a').getFirst('img');
+                  const nextLink = siblingMatching(img.closest('a'), 'a', 'nextElementSibling');
+                  if (nextLink) {
+                    img = firstChildMatching(nextLink, 'img');
                   } else {
-                    img = new Element('img'); // no icons used (see #2286)
+                    img = document.createElement('img'); // no icons used (see #2286)
                   }
                 }
                 var index;
                 if (publish) {
                   index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g|svg)/, '$1');
-                  img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g|svg)/, ((index.toInt() === 1) ? '' : '_' + (index.toInt() - 1)) + '.$1');
+                  img.src = img.src.replace(/_[0-9]\.(gif|png|jpe?g|svg)/, ((parseInt(index, 10) === 1) ? '' : '_' + (parseInt(index, 10) - 1)) + '.$1');
                 } else {
                   index = img.src.replace(/.*_([0-9])\.(gif|png|jpe?g|svg)/, '$1');
-                  img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g|svg)/, ((index === img.src) ? '_1' : '_' + (index.toInt() + 1)) + '.$2');
+                  img.src = img.src.replace(/(_[0-9])?\.(gif|png|jpe?g|svg)/, ((index === img.src) ? '_1' : '_' + (parseInt(index, 10) + 1)) + '.$2');
                 }
               }
             }
             // Parent view
-            else if (img.hasClass('cte_type')) {
+            else if (img.classList.contains('cte_type')) {
               if (publish) {
-                img.addClass('published');
-                img.removeClass('unpublished');
+                img.classList.add('published');
+                img.classList.remove('unpublished');
               } else {
-                img.addClass('unpublished');
-                img.removeClass('published');
+                img.classList.add('unpublished');
+                img.classList.remove('published');
               }
             }
             // List view
             else {
+              const background = window.getComputedStyle(img).backgroundImage;
               if (publish) {
-                img.setStyle('background-image', img.getStyle('background-image').replace(/_\.(gif|png|jpe?g)/, '.$1'));
+                img.style.backgroundImage = background.replace(/_\.(gif|png|jpe?g)/, '.$1');
               } else {
-                img.setStyle('background-image', img.getStyle('background-image').replace(/\.(gif|png|jpe?g)/, '_.$1'));
+                img.style.backgroundImage = background.replace(/\.(gif|png|jpe?g)/, '_.$1');
               }
             }
           }
@@ -231,8 +260,7 @@ var BackendGeneral =
               darkImage.src = darkImage.src.replace(iconDark, iconDark_disabled);
             }
           }
-        }
-      }).get({'state': (publish ? 1 : 0)});
+        });
 
       return false;
     },
@@ -268,43 +296,35 @@ var BackendGeneral =
      * @returns {void}
      */
     displayMessage: function (message, loading, messageClass) {
-      var box = $('general_messageBox'),
-        overlay = $('general_messageOverlay'),
-        scroll = window.getScroll();
+      var box = document.getElementById('general_messageBox'),
+        overlay = document.getElementById('general_messageOverlay'),
+        scrollY = window.scrollY;
 
-      if (overlay === null) {
-        overlay = new Element('div', {
-          'id': 'general_messageOverlay'
-        }).inject($(document.body), 'bottom');
+      if (null === overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'general_messageOverlay';
+        document.body.appendChild(overlay);
       }
 
-      overlay.set({
-        'styles': {
-          'display': 'block',
-          'top': scroll.y + 'px'
-        }
-      });
+      overlay.style.display = 'block';
+      overlay.style.top = scrollY + 'px';
 
-      if (box === null) {
-        box = new Element('div', {
-          'id': 'general_messageBox'
-        }).inject($(document.body), 'bottom');
+      if (null === box) {
+        box = document.createElement('div');
+        box.id = 'general_messageBox';
+        document.body.appendChild(box);
       }
 
-      box.set({
-        'html': message,
-        'styles': {
-          'display': 'block',
-          'top': (scroll.y + 100) + 'px'
-        }
-      });
+      box.innerHTML = message;
+      box.style.display = 'block';
+      box.style.top = (scrollY + 100) + 'px';
 
       if (messageClass) {
-        box.addClass(messageClass);
+        box.classList.add(messageClass);
       }
 
       if (loading) {
-        box.addClass('loading');
+        box.classList.add('loading');
       }
     },
 
@@ -314,19 +334,18 @@ var BackendGeneral =
      * @returns {void}
      */
     hideMessage: function () {
-      var box = $('general_messageBox'),
-        overlay = $('general_messageOverlay');
+      var box = document.getElementById('general_messageBox'),
+        overlay = document.getElementById('general_messageOverlay');
 
       if (overlay) {
-        overlay.setStyle('display', 'none');
+        overlay.style.display = 'none';
+        overlay.remove();
       }
 
       if (box) {
-        box.setStyle('display', 'none');
+        box.style.display = 'none';
+        box.remove();
       }
-
-      overlay.remove();
-      box.remove();
     },
 
     /**
@@ -344,14 +363,13 @@ var BackendGeneral =
       var form = submit.form;
       var collection = form.elements[selection];
 
-      var isSelected = false;
-      $$(collection).each(function (element) {
-        if (isSelected || !element.checked) {
-          return true;
+      // "collection" is a single element when only one checkbox carries the name, a RadioNodeList otherwise.
+      var isSelected = Array.prototype.some.call(
+        (collection && undefined !== collection.length) ? collection : [collection].filter(Boolean),
+        function (element) {
+          return element.checked;
         }
-
-        isSelected = true;
-      });
+      );
 
       if (isSelected) {
         if (submit.name === 'delete') {
@@ -406,42 +424,42 @@ var BackendGeneral =
      * @returns {boolean}
      */
     confirmDelete: function (submit, message, confirmOk, confirmAbort) {
-      var confirmContainer = new Element('div');
+      var confirmContainer = document.createElement('div');
 
-      var confirmMessage = new Element('h2', {
-        'html': message,
-        'class': 'tl_info'
-      }).inject(confirmContainer, 'bottom');
-      var confirmSpace = new Element('p').inject(confirmContainer, 'bottom');
+      var confirmMessage = document.createElement('h2');
+      confirmMessage.className = 'tl_info';
+      confirmMessage.innerHTML = message;
+      confirmContainer.appendChild(confirmMessage);
+      confirmContainer.appendChild(document.createElement('p'));
 
-      var submitContainer = new Element('div', {
-        'class': 'tl_submit_container'
-      }).inject(confirmContainer, 'bottom');
+      var submitContainer = document.createElement('div');
+      submitContainer.className = 'tl_submit_container';
+      confirmContainer.appendChild(submitContainer);
 
-      var confirmButtonOk = new Element('input', {
-        'id': submit.name + 'Ok',
-        'name': submit.name + 'Ok',
-        'value': confirmOk,
-        'type': 'submit',
-        'class': 'tl_submit'
-      }).inject(submitContainer, 'bottom');
+      var makeButton = function (suffix, value) {
+        var button = document.createElement('input');
+        button.id = submit.name + suffix;
+        button.name = submit.name + suffix;
+        button.value = value;
+        button.type = 'submit';
+        button.className = 'tl_submit';
+        submitContainer.appendChild(button);
 
-      var confirmButtonAbort = new Element('input', {
-        'id': submit.name + 'Abort',
-        'name': submit.name + 'Abort',
-        'value': confirmAbort,
-        'type': 'submit',
-        'class': 'tl_submit'
-      }).inject(submitContainer, 'bottom');
+        return button;
+      };
 
-      this.displayMessage(confirmContainer.get('html'), false, 'box-small');
+      var confirmButtonOk = makeButton('Ok', confirmOk);
+      var confirmButtonAbort = makeButton('Abort', confirmAbort);
 
-      $(confirmButtonOk.id).addEvent('click', function () {
+      // The markup is handed over as html, so the buttons have to be looked up again afterwards.
+      this.displayMessage(confirmContainer.innerHTML, false, 'box-small');
+
+      document.getElementById(confirmButtonOk.id).addEventListener('click', function () {
         submit.onclick = '';
         submit.click();
       });
 
-      $(confirmButtonAbort.id).addEvent('click', function () {
+      document.getElementById(confirmButtonAbort.id).addEventListener('click', function () {
         BackendGeneral.hideMessage();
       });
 
@@ -450,13 +468,13 @@ var BackendGeneral =
 
     autoSubmit: function (tableName) {
       window.dispatchEvent(new Event('store-scroll-offset'));
-      var element = new Element('input', {
-        type: 'hidden',
-        name: 'SUBMIT_TYPE',
-        value: 'auto'
-      }),
-      form = $(tableName) || tableName;
-      element.inject(form, 'bottom');
+      var element = document.createElement('input');
+      element.type = 'hidden';
+      element.name = 'SUBMIT_TYPE';
+      element.value = 'auto';
+
+      var form = ('string' === typeof tableName ? document.getElementById(tableName) : null) || tableName;
+      form.appendChild(element);
       form.noValidate = !0;
       form.mustRedirect = false;
       form.requestSubmit();

@@ -1,9 +1,10 @@
 # Ausbau von MooTools im dc-general
 
-> Status: **Stufe 1 abgeschlossen, Stufe 2 begonnen.** Alle in Contao 5.7 als *deprecated*
-> markierten Backend-JS-Aufrufe sind aus dem dc-general verschwunden, ebenso das
-> Inline-MooTools in den Templates. Die Ajax-Schicht ist vereinheitlicht; der
-> MooTools-DOM-Code der beiden großen JS-Dateien steht noch aus.
+> Status: **Stufe 1 und 2 abgeschlossen.** Der eigene Code des dc-general ist vanilla —
+> deprecated Backend-APIs, Inline-MooTools in den Templates und der MooTools-DOM-Code der
+> beiden großen JS-Dateien sind verschwunden. Es bleiben nur die Contao-Einstiegspunkte
+> ohne Ersatz (Abschnitt 5) und der `ajax_change`-Hook, den Contao selbst aus vanilla Code
+> feuert.
 >
 > - [x] 1 – Bestandsaufnahme (Abschnitt 2)
 > - [x] 2 – `Backend.getScrollOffset()` (23 Stellen) → `contao--scroll-offset#store`
@@ -15,8 +16,8 @@
 > - [x] 8 – eine Ajax-Schicht, einheitliche Dateinamen (Abschnitt 4)
 > - [x] 9 – tote `setLegendState`-Kette entfernt (Abschnitt 4.4)
 > - [x] 10 – zwei in Contao 5 entfernte `Backend`-APIs ersetzt (Abschnitt 4.5)
-> - [ ] 11 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
-> - [ ] 12 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
+> - [x] 11 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
+> - [x] 12 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
 >
 > **jQuery:** im dc-general nicht vorhanden — es gab und gibt keine Fundstelle.
 
@@ -240,41 +241,48 @@ Versäumnis, sondern die Grenze der Umstellung:
 
 Sobald Contao hier nachzieht, gehört das erneut geprüft.
 
-## 6. Offen — Rest von Stufe 2
+## 6. Umgesetzt in Stufe 2: der MooTools-DOM-Code
 
-Was hier steht, ist der **MooTools-DOM-Code**. Die Ajax-Schicht ist mit Abschnitt 4
-erledigt; die verbliebenen drei `Request.Contao` hängen an `AjaxRequest.displayBox()` und
-an `onSuccess`-Callbacks voller MooTools-DOM-Aufrufe, lassen sich also erst zusammen mit
-dem umgebenden Code umbauen.
+`generalDriver.js` (91 Aufrufe) und `generalBase.js` (8) sind vanilla. Was an die Stelle
+der MooTools-Bequemlichkeiten getreten ist:
 
-### 6.1 `generalDriver.js`
+| MooTools | vanilla |
+| --- | --- |
+| `$(id)` | `document.getElementById(id)` |
+| `new Element('li', {...}).inject(x, 'bottom')` | `document.createElement()` + `appendChild()`/`after()` |
+| `.getParent('li')` | `.closest('li')` |
+| `.getPrevious('td')` / `.getNext('div')` | `siblingMatching()` — siehe unten |
+| `.getFirst('div.list_icon')` | `firstChildMatching()` — `:scope > selector` |
+| `.getElement()` / `.getElements()` | `querySelector()` / `querySelectorAll()` |
+| `.hasClass()` / `.addClass()` / `.removeClass()` | `classList` |
+| `.setStyle()` / `.getStyle()` | `.style.x` / `getComputedStyle()` |
+| `$$(collection).each()` | `Array.prototype.some.call()` |
+| `.toInt()` | `parseInt(x, 10)` |
+| `window.getSize().y` / `window.getScroll()` | `window.innerHeight` / `window.scrollY` |
+| `Browser.exec()` | `DcGeneral.runScript()` (neu in `generalAjax.js`) |
+| `Request.Contao` | `DcGeneral.post()` / `DcGeneral.get()` |
+| `window.fireEvent('structure')` | `window.dispatchEvent(new CustomEvent('structure'))` |
 
-Die globale API `BackendGeneral`, aus PHP über `onclick`-Attribute aufgerufen. Umbau
-funktionsweise:
+Zwei Helfer ersetzen, was vanilla fehlt: `siblingMatching()` läuft die Geschwister in eine
+Richtung ab und liefert das erste passende — `previousElementSibling` überspringt im
+Gegensatz zu MooTools nicht das, was nicht passt. `firstChildMatching()` bildet
+`getFirst(selector)` über `:scope >` ab.
 
-| Funktion | Stellen | Bemerkung |
-| --- | --- | --- |
-| `loadSubTree` | 25 | die beiden Zustands-Posts laufen bereits über `DcGeneral.post()`; offen bleiben der ladende Zweig (`Request.Contao` mit `onSuccess`), `new Element(…).inject()` → `createElement`/`after()` und `.store('tip:title', …)`, das kein direktes Gegenstück mehr hat (Contao nutzt `contao--tooltips`) |
-| `toggleVisibility` | 24 | **heikelster Teil**: verschachtelte DOM-Traversierung für Baum-, Listen- und Parent-Ansicht plus Icon-Namens-Arithmetik. Nur mit Klicktest in allen drei Ansichten umzubauen |
-| `confirmDelete` | 12 | reiner DOM-Aufbau, unkritisch |
-| `displayMessage` / `hideMessage` | 13 | reiner DOM-Aufbau, `window.getScroll()` → `window.scrollY` |
-| `autoSubmit` | 3 | fast schon vanilla |
-| `confirmSelectOverrideEditAll` | 1 | `$$(collection).each` → `Array.from(...).some(...)` |
+**`.store('tip:title', …)` ist ersatzlos entfallen.** Das war die Ablage der alten
+MooTools-Tooltips; Contao 5.7 liest den Tooltip aus dem `title`-Attribut
+(`contao--tooltips`), also wird jetzt `el.title` gesetzt.
 
-Zusätzlich zu klären: `window.fireEvent('ajax_change')` bzw. `'structure'`. Contao-Core-
-Listener hängen noch am MooTools-Window-Event, der neue `contao--check-all`-Controller
-dagegen an `document.addEventListener('ajax_change', …)`. Übergangsweise müssen **beide**
-gefeuert werden.
+**`window.fireEvent('ajax_change')` bleibt.** Contao feuert diesen Hook in seinem eigenen
+`toggle-nodes`-Controller ebenfalls über MooTools (mit dem Kommentar „HOOK (see #6752)"),
+und in `core.js` hängen MooTools-Listener daran. Ihn vanilla zu ersetzen würde die
+Integration brechen.
 
-### 6.2 `generalBase.js`
+Zwei Altlasten sind dabei aufgefallen und mitkorrigiert:
 
-Alle verbliebenen Treffer liegen in **einer** Stelle — dem Modal-Callback von
-`GeneralTreePicker` (`Request.Contao`, `AjaxRequest.displayBox/hideBox`, `Browser.exec`,
-`$()`, `.getParent().set('html')`, `window.fireEvent`). Der Rest der Datei
-(Tabellen-Drag&Drop nach isocra, `GeneralLogger`, `GeneralEnvironment`) ist vanilla.
-
-Der Umbau ist klein: `DcGeneral.post()` / `DcGeneral.setHtml()` decken den Fall ab,
-`displayBox`/`hideBox` bleiben (Abschnitt 5).
+* `hideMessage()` rief `remove()` **außerhalb** der Null-Prüfungen auf und warf damit, wenn
+  keine Box offen war. Jetzt steht es innerhalb.
+* In `loadSubTree()` taten beide Zweige der `mode`-Abfrage dasselbe; sie sind
+  zusammengefasst, die Variable entfällt.
 
 ## 7. Prüfstand
 
@@ -306,6 +314,12 @@ abgeglichen (Controller-Name, Methodenname, Target-Name).
   synchron, der Zustand übersteht den Reload (siehe 4.6).
 * `BackendGeneral.toggleWrap()`: `soft → off → soft`, Rückgabe `false`, unbekannte id
   wirft nicht.
+* Nach dem Vanilla-Umbau der beiden JS-Dateien erneut durchgespielt: Listenansicht,
+  Auswahlmodus, Datei-Widget, Datepicker, beide Baumansichten (auf-/zuklappen samt
+  Persistenz — das ist `loadSubTree` in beiden Zweigen), Sichtbarkeits-Schalter mit
+  Dark/Light-Icons, Sortier-Drag&Drop. Dazu `displayMessage`/`hideMessage` direkt
+  aufgerufen: Box und Overlay werden angelegt, befüllt, wieder entfernt, und ein zweiter
+  `hideMessage()` wirft nicht mehr.
 
 **Noch offen** — beim nächsten Durchgang klicken:
 

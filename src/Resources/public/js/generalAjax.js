@@ -76,6 +76,27 @@
     };
 
     /**
+     * Run a piece of javascript that came in as its own field of the response.
+     *
+     * Contao answers some routes with {content: …, javascript: …}; the latter never passes through
+     * setHtml() and has to be executed on its own. This is what the MooTools "Browser.exec()" did.
+     *
+     * @param {string} code The javascript to run.
+     *
+     * @returns {void}
+     */
+    window.DcGeneral.runScript = function (code) {
+        if (!code) {
+            return;
+        }
+
+        var script = document.createElement('script');
+        script.textContent = code;
+        document.body.appendChild(script);
+        script.remove();
+    };
+
+    /**
      * Replace the content of an element and run the scripts the new markup brings along.
      *
      * Scripts inserted via innerHTML are inert, so they are recreated. Stimulus controllers in the new

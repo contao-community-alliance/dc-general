@@ -300,7 +300,7 @@ var GeneralTreePicker =
    */
   openModal: function(options) {
     var opt = options || {},
-      max = (window.getSize().y-180).toInt(),
+      max = window.innerHeight - 180,
       self = this;
     if (!opt.height || opt.height > max) opt.height = max;
     var M = new SimpleModal({
@@ -308,8 +308,8 @@ var GeneralTreePicker =
       'btn_ok': Contao.lang.close,
       'draggable': false,
       'overlayOpacity': .5,
-      'onShow': function() { document.body.setStyle('overflow', 'hidden'); },
-      'onHide': function() { document.body.setStyle('overflow', 'auto'); }
+      'onShow': function() { document.body.style.overflow = 'hidden'; },
+      'onHide': function() { document.body.style.overflow = 'auto'; }
     });
     M.addButton(Contao.lang.close, 'btn', function() {
       this.hide();
@@ -335,28 +335,31 @@ var GeneralTreePicker =
 
       for (var i=0; i<inp.length; i++) {
         if (!inp[i].checked || inp[i].id.match(/^check_all_/)) continue;
-        if (!inp[i].id.match(/^reset_/)) val.push(inp[i].get('value'));
+        if (!inp[i].id.match(/^reset_/)) val.push(inp[i].value);
       }
       if (opt.tag) {
-        $(opt.tag).value = val.join(',');
-        opt.self.set('href', opt.self.get('href').replace(/&value=[^&]*/, '&value='+val.join(',')));
+        document.getElementById(opt.tag).value = val.join(',');
+        opt.self.setAttribute(
+          'href',
+          opt.self.getAttribute('href').replace(/&value=[^&]*/, '&value='+val.join(','))
+        );
       } else {
-        var element = $('ctrl_'+opt.id);
+        var element = document.getElementById('ctrl_'+opt.id);
         element.value = val.join("\t");
 
-        // TODO: rewrite using DcGeneral.post(). Needs the MooTools DOM code of the callback below
-        // TODO: and the AjaxRequest progress box to be ported first.
-        new Request.Contao({
-          field: element,
-          evalScripts: false,
-          onRequest: AjaxRequest.displayBox(Contao.lang.loading + ' …'),
-          onSuccess: function(txt, json) {
-            $('ctrl_'+opt.id).getParent('div').set('html', json.content);
-            json.javascript && Browser.exec(json.javascript);
-            AjaxRequest.hideBox();
-            window.fireEvent('ajax_change');
-          }
-        }).post({'action':'reloadGeneralTreePicker', 'name':opt.id, 'value':element.value, 'REQUEST_TOKEN':Contao.request_token});
+        AjaxRequest.displayBox(Contao.lang.loading + ' …');
+        DcGeneral.post(window.location.href, {
+          'action': 'reloadGeneralTreePicker',
+          'name': opt.id,
+          'value': element.value,
+          'REQUEST_TOKEN': Contao.request_token
+        }).then(function (response) {
+          DcGeneral.setHtml(document.getElementById('ctrl_'+opt.id).closest('div'), response.content);
+          DcGeneral.runScript(response.javascript);
+          AjaxRequest.hideBox();
+          // HOOK - Contao still fires this one through MooTools itself, see its toggle-nodes controller.
+          window.fireEvent('ajax_change');
+        });
       }
       this.hide();
     });
