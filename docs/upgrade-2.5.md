@@ -15,6 +15,13 @@ custom data providers). Back navigation — the "back" buttons and the
 "save and close" redirects — is now built **deterministically from the current
 request** via the new `ViewHelpers::getBackUrl()`.
 
+The url is derived from the request, so the target follows from the parameters rather than
+from where one came: `act`, `id` and `rt` are stripped, and **without an action `table` and
+`pid` go as well**. Coming from an edit mask the back link therefore leads to the list those
+two describe, while on that list itself it leads one level up to the parent list. The old
+session referer knew the actual history and needed no such distinction — anyone relying on
+`getBackUrl()` in own code should be aware of the difference.
+
 ## Back-end javascript reworked (MooTools removal)
 
 The scripts no longer use the MooTools library; see `docs/mootools-removal.md` for the
