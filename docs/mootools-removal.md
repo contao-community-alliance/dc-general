@@ -293,6 +293,7 @@ Auftrag versteht, einen veralteten Helfer anzuwerfen:
 | --- | --- | --- |
 | `click2edit` am `<tr>`/`<li>` | `dcbe_general_common_list`, `dcbe_general_treeview_entry` | `data-controller="contao--deeplink"` + Ziele `primary`/`secondary` |
 | `id="sbtog"` am Umschalter | `dc_general_submit_button` | `contao--toggle-sender` / `contao--toggle-receiver` |
+| `picker_selector` am `<ul>` | `widget_treepicker_popup` | ersatzlos entfallen |
 
 Beide Klassen waren reine Hinweise für BC-Shims. Contaos `deeplink-controller` sucht
 `.click2edit`, **entfernt die Klasse** und hängt `contao--deeplink` samt Zielen aus `a.edit`
@@ -300,11 +301,12 @@ und `a.children` an — das Markup erzeugen wir jetzt direkt, `ButtonRenderer` m
 Ziele. Der Split-Button folgt `backend/data_container/buttons.html.twig` aus dem Core;
 `sbtog` nutzt Contao selbst gar nicht mehr, wir waren der einzige Verwender.
 
-`picker_selector` in `widget_treepicker_popup` ist **noch offen**. Die Klasse hat in Contao
-keine andere Verwendung — kein CSS, kein weiteres JS — und bewirkt allein, dass
-`stopClickPropagation()` Klicks auf Links und Checkboxen darin nicht nach oben durchreicht.
-Der Ersatz wäre ein eigener Listener im Popup; vorher muss geklärt werden, welcher
-Zeilen-Klick dort überhaupt greift, sonst tauscht man eine Warnung gegen ein kaputtes Popup.
+**`picker_selector` ist ersatzlos entfallen.** Die Klasse hat in Contao keine andere
+Verwendung — kein CSS, kein weiteres JS — und bewirkt allein, dass `stopClickPropagation()`
+Klicks auf Links und Checkboxen am Hochblubbern hindert. Im Popup gibt es aber nichts, wohin
+sie blubbern könnten: der `contao--check-all`-Controller hängt nur `keydown`/`keyup` ans
+Dokument, `toggleInput`/`toggleAll` sitzen per `data-action` an den Eingaben selbst, und im
+Container steht überhaupt kein `<a>`. Ein Ersatz-Listener war also nicht nötig.
 
 ## 7. Prüfstand
 
@@ -324,9 +326,10 @@ abgeglichen (Controller-Name, Methodenname, Target-Name).
   Vorschaubild entfernt Eintrag **und** Wert
 * Datepicker öffnet
 * Sortier-Drag&Drop in der Listenansicht: Reihenfolge übersteht den Reload (siehe 4.3)
-* Konsole in Listenansicht, Baumansicht und Eingabemaske: **keine** `is deprecated`-Warnung
-  mehr. Im **Baum-Picker-Popup** meldet `Theme.stopClickPropagation()` weiterhin — dort
-  steckt noch `picker_selector`, siehe 6.1.
+* Konsole: **keine** `is deprecated`-Warnung mehr — geprüft in Listenansicht, Baumansicht,
+  Eingabemaske und im Baum-Picker-Popup.
+* Baum-Picker-Popup nach dem Entfernen von `picker_selector`: Checkbox schaltet um und
+  zurück, „Alle auswählen" hakt alle an (6/6) und wieder ab.
 
   > Hier stand zwischenzeitlich, die verbliebenen Warnungen zu
   > `Theme.stopClickPropagation()` und `Theme.setupSplitButtonToggle()` seien Contao-eigen,
