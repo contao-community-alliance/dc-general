@@ -15,18 +15,22 @@
      *
      * Used where the server only has to record a state change and the answer is of no interest.
      *
-     * @param {string} url The URL to request.
+     * Pass {redirect: 'manual'} for routes answering with a redirect that must not be walked - "fetch"
+     * follows redirects by default, which would pull in a whole page for nothing.
+     *
+     * @param {string} url     The URL to request.
+     * @param {object} options Additional options for "fetch".
      *
      * @returns {Promise<Response>}
      */
-    window.DcGeneral.get = function (url) {
-        return fetch(url, {
+    window.DcGeneral.get = function (url, options) {
+        return fetch(url, Object.assign({
             method: 'GET',
             credentials: 'same-origin',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
-        });
+        }, options || {}));
     };
 
     /**

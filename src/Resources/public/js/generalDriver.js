@@ -168,11 +168,13 @@ var BackendGeneral =
         next,
         listIcon;
 
-      AjaxRequest.displayBox(Contao.lang.loading + ' …');
-      DcGeneral.get(el.href + (el.href.indexOf('?') === -1 ? '?' : '&') + 'state=' + (publish ? 1 : 0))
+      // No progress box here - toggling has to feel instant, like it does in the Contao core. The route
+      // answers with a redirect that is of no interest, so it is not followed.
+      DcGeneral.get(
+        el.href + (el.href.indexOf('?') === -1 ? '?' : '&') + 'state=' + (publish ? 1 : 0),
+        {redirect: 'manual'}
+      )
         .then(function () {
-          AjaxRequest.hideBox();
-
           // Find the icon depending on the view (tree view, list view, parent view)
           if (div.classList.contains('tl_right')) {
             img = siblingMatching(div, 'div', 'previousElementSibling')
