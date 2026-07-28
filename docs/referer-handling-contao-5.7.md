@@ -11,6 +11,7 @@
 > - [x] 5 – Static Analysis + Playwright-Klicktest grün (Anhang B)
 > - [x] 6 – `saveNback`-Button entfernt (Core-Analogie, Anhang C)
 > - [x] 7 – Paketübergreifende Nachziehung: core add-all, attribute_levenshtein, filter_loupe, notelist (Anhang D)
+> - [x] 8 – Nachtrag: „Zurück" verlässt jetzt auch die Kindliste (7.5, Abschnitt 3)
 >
 > **Grundsatzentscheidungen:**
 > - `GetReferrerEvent` **ersatzlos** aus dem DCG-Navigationspfad genommen (Event bleibt in
@@ -59,8 +60,22 @@ ersetzt wurden):
   `router->generate(routeName, params)` mit bereinigten Parametern.
 - **Legacy** (`contao_backend`): `contao?do=…&table=…[&pid=…]`.
 
-Parameter-Bereinigung fürs Listen-Ziel: `act`, `id` **und** `rt` entfernen, `cleanNames`
-entfernen, `pid` behalten (= Kind-Liste).
+Parameter-Bereinigung fürs Listen-Ziel: `act`, `id` **und** `rt` entfernen sowie alles aus
+`cleanNames`.
+
+**Nachgeschärft (siehe 7.5):** Ob `table` und `pid` überleben, hängt davon ab, ob der
+aktuelle Request eine Aktion trägt:
+
+```php
+if (null === $request->query->get('act') && !$request->attributes->has('act')) {
+    $cleanNames = \array_merge($cleanNames, ['table', 'pid']);
+}
+```
+
+Mit Aktion (`edit`, `show`, `select` …) müssen beide bleiben — „zurück" führt genau auf
+die Liste, die sie beschreiben. Ohne Aktion steht man bereits **auf** dieser Liste, „zurück"
+heißt dann eine Ebene höher. Beide Zweige respektieren das: `buildNewStyleUrl` filtert die
+Query, `buildLegacyUrl` prüft `table`/`pid` je gegen `cleanNames`, bevor es sie anhängt.
 
 > Hinweis: In der ursprünglichen Planung war ein dritter Parameter `$targetProvider`
 > für die saveNback-Parent-Ebene vorgesehen. Da `saveNback` letztlich ganz entfernt wurde
@@ -119,6 +134,14 @@ Template `$this->backHref` verwenden.
 4. ~~`popup`-/`picker`-Modus + Ampersand-Encoding~~ → in der Praxis unkritisch: die
    erzeugten Listen-URLs sind einfache Ein-Parameter-Routen (kein `&`). Der Select-Modus
    wird über `cleanNames` (`['select']`) sauber abgedeckt (Anhang B).
+5. **Nachtrag: Kindlisten waren eine Sackgasse.** Vom Nutzer gemeldet, nachdem der Umbau
+   als abgeschlossen galt: Steht man auf der Liste der Kindelemente, führte „Zurück" auf
+   dieselbe Liste zurück statt zur Elternliste — `table` und `pid` blieben ja erhalten.
+   Der Fall war in Anhang B nicht abgedeckt, weil dort mit `mm_employees` ein **flaches**
+   Modell getestet wurde; eine Kindliste kam schlicht nicht vor. Behoben durch die
+   `act`-Fallunterscheidung aus Abschnitt 3. Die Konsequenz gehört in die Upgrade-Notiz:
+   das Ziel folgt jetzt aus den Parametern, nicht aus der Historie — der alte
+   Session-Referer kannte den tatsächlichen Weg und brauchte diese Unterscheidung nicht.
 
 ## 8. Reihenfolge
 
@@ -210,10 +233,16 @@ dem Umbau:
 | EDIT „Zurück" (`header_back dcg`) | `/contao/metamodel/mm_employees` | ✅ |
 | SHOW „Zurück" (`header_back dcg`) | `/contao/metamodel/mm_employees` | ✅ |
 | „Speichern und schließen" (saveNclose) | Redirect → `/contao/metamodel/mm_employees` | ✅ |
-| „Speichern und zurück" (saveNback) | Redirect → `/contao/metamodel/mm_employees` | ✅ |
+| „Speichern und zurück" (saveNback) | Redirect → `/contao/metamodel/mm_employees` | (historisch) |
 | Select-Modus „Beenden" | `/contao/metamodel/mm_employees` | ✅ |
 
-Alle Ziele sauber, ohne stale `id`/`rt`.
+Alle Ziele sauber, ohne stale `id`/`rt`. Die `saveNback`-Zeile ist der Stand **vor**
+Anhang C — den Button gibt es nicht mehr, die Zeile bleibt nur als Beleg, dass er vor
+seiner Entfernung korrekt zielte.
+
+> **Lücke dieses Testlaufs:** `mm_employees` ist flach. Damit deckte die Matrix keine
+> Kindliste ab — genau dort war „Zurück" noch eine Sackgasse (7.5). Wer diese Matrix
+> erweitert, nimmt ein Modell mit Elternbezug dazu, nicht nur ein zweites flaches.
 
 **Fund + Fix während des Tests:** Der Select-Modus-„Beenden"-Button behielt zunächst
 `?select=models`. `SelectHandler::getReferrerUrl()` gibt jetzt `getBackUrl($env, ['select'])`
@@ -279,3 +308,7 @@ wird stattdessen deterministisch aus **Route + Parent-Bezug** gebaut:
 
 Alle Commits ohne `Co-Authored-By`, Autor *Ingolf Steinhardt*; je Repo nur die
 gewollten Dateien.
+
+Die Tabelle hält fest, **wo** gearbeitet wurde. Im dc-general ist der Branch inzwischen
+über PR #702 und #703 in `release/2.5.0` aufgegangen und lokal wie remote gelöscht; der
+Nachtrag aus 7.5 (`c95e0dc1`) entstand direkt auf `release/2.5.0`.
