@@ -284,6 +284,28 @@ Zwei Altlasten sind dabei aufgefallen und mitkorrigiert:
 * In `loadSubTree()` taten beide Zweige der `mode`-Abfrage dasselbe; sie sind
   zusammengefasst, die Variable entfällt.
 
+### 6.1 Marker-Klassen für deprecated Helfer
+
+Zwei Warnungen kamen nicht aus unserem JavaScript, sondern aus **Markup**, das Contao als
+Auftrag versteht, einen veralteten Helfer anzuwerfen:
+
+| Marker | wo | ersetzt durch |
+| --- | --- | --- |
+| `click2edit` am `<tr>`/`<li>` | `dcbe_general_common_list`, `dcbe_general_treeview_entry` | `data-controller="contao--deeplink"` + Ziele `primary`/`secondary` |
+| `id="sbtog"` am Umschalter | `dc_general_submit_button` | `contao--toggle-sender` / `contao--toggle-receiver` |
+
+Beide Klassen waren reine Hinweise für BC-Shims. Contaos `deeplink-controller` sucht
+`.click2edit`, **entfernt die Klasse** und hängt `contao--deeplink` samt Zielen aus `a.edit`
+und `a.children` an — das Markup erzeugen wir jetzt direkt, `ButtonRenderer` markiert die
+Ziele. Der Split-Button folgt `backend/data_container/buttons.html.twig` aus dem Core;
+`sbtog` nutzt Contao selbst gar nicht mehr, wir waren der einzige Verwender.
+
+`picker_selector` in `widget_treepicker_popup` ist **noch offen**. Die Klasse hat in Contao
+keine andere Verwendung — kein CSS, kein weiteres JS — und bewirkt allein, dass
+`stopClickPropagation()` Klicks auf Links und Checkboxen darin nicht nach oben durchreicht.
+Der Ersatz wäre ein eigener Listener im Popup; vorher muss geklärt werden, welcher
+Zeilen-Klick dort überhaupt greift, sonst tauscht man eine Warnung gegen ein kaputtes Popup.
+
 ## 7. Prüfstand
 
 Statisch verifiziert: Psalm (0 Fehler auf den geänderten Dateien), phpcs PSR12,
@@ -302,9 +324,22 @@ abgeglichen (Controller-Name, Methodenname, Target-Name).
   Vorschaubild entfernt Eintrag **und** Wert
 * Datepicker öffnet
 * Sortier-Drag&Drop in der Listenansicht: Reihenfolge übersteht den Reload (siehe 4.3)
-* Konsole: keine `is deprecated`-Warnung zu einer der ersetzten APIs. Es bleiben drei
-  Contao-eigene (`Theme.stopClickPropagation()`, `Theme.setupSplitButtonToggle()`) — die
-  Bezeichner kommen ausschließlich im `core-bundle` vor.
+* Konsole in Listenansicht, Baumansicht und Eingabemaske: **keine** `is deprecated`-Warnung
+  mehr. Im **Baum-Picker-Popup** meldet `Theme.stopClickPropagation()` weiterhin — dort
+  steckt noch `picker_selector`, siehe 6.1.
+
+  > Hier stand zwischenzeitlich, die verbliebenen Warnungen zu
+  > `Theme.stopClickPropagation()` und `Theme.setupSplitButtonToggle()` seien Contao-eigen,
+  > weil die Bezeichner nur im `core-bundle` vorkommen. **Das war ein Fehlschluss.** Contao
+  > ruft die beiden Helfer zwar selbst auf, sie warnen aber nur, wenn die Seite das Markup
+  > mitbringt, nach dem sie suchen — und das kam aus diesem Paket:
+  >
+  > ```js
+  > if (window.console && $$('.picker_selector,.click2edit').length) { console.warn(…); }
+  > ```
+  >
+  > Wer eine Deprecation prüft, muss also die **Bedingung** lesen, unter der sie feuert,
+  > nicht nur den Ort des `console.warn`. Siehe Abschnitt 6.1.
 
 * Baumansicht (`mm_trans_hierarchie` und die zweistufige Variantenhierarchie
   `mm_test_variants`): Auf- und Zuklappen in beide Richtungen, Kindknoten werden
