@@ -104,13 +104,24 @@ and js **are** the source.
   registration. It entered the legacy `Contao\FileSelector` path, and that class no longer
   exists in Contao 5, so the method fataled if invoked. The widget itself already uses the
   modern Contao picker (`PickerBuilderInterface::getUrl('file')`).
-  **This did not retire the legacy path as such:** `Ajax3X::loadFiletree()`,
-  `reloadFiletree()` and their page tree counterparts still instantiate
-  `$GLOBALS['BE_FFL']['fileSelector']` / `['pageSelector']`, which Contao 5.7 does not
-  register either, and `Ajax::executePostActions()` still dispatches to them. Nothing in
-  the dc-general asks for those actions any more, so they are unreachable from our own
-  markup — but a consumer still sending them gets a fatal, not a deprecation. Removing
-  them is a 3.0 task (`docs/3.0-cleanup-tasks.md`).
+- **The `loadFiletree` and `loadPagetree` ajax actions** removed: the two implementations
+  in `Ajax3X`, the abstract declarations in `Ajax` and both entries in the dispatch list of
+  `Ajax::executePostActions()`. They instantiated `$GLOBALS['BE_FFL']['fileSelector']` and
+  `['pageSelector']`, and Contao 5.7 registers neither — the widget classes are gone, so
+  either action ended in a fatal rather than a deprecation. Measured against the devstack:
+  both answered **HTTP 500** with a 740 kB error page before, both answer **HTTP 204** with
+  an empty body now, because the request falls through to Contao's own ajax handler, which
+  does not know the action either. Nothing had been requesting them in the first place.
+
+  Subclasses are affected in one direction only: an implementation of the two former
+  abstract methods keeps working (it is simply no longer called), while an override
+  carrying `#[\Override]` has to drop the attribute.
+
+  **`reloadFiletree` and `reloadPagetree` stay.** They look like part of the same legacy
+  block but are not: both delegate to `Ajax3X::reloadTree()`, which builds its widget
+  through the `ContaoWidgetManager` and never touches `$GLOBALS['BE_FFL']`. The bundle's
+  own `widget_filetree` template requests `reloadFiletree`, and the MultiColumnWizard
+  rewrites both onto its `*_mcw` variants.
 
 ## Fixed along the way
 

@@ -167,20 +167,6 @@ abstract class Ajax implements EnvironmentAwareInterface
     }
 
     /**
-     * Load the page tree.
-     *
-     * @return mixed
-     */
-    abstract protected function loadPagetree();
-
-    /**
-     * Load the file tree.
-     *
-     * @return mixed
-     */
-    abstract protected function loadFiletree();
-
-    /**
      * Reload a page tree.
      *
      * This method exits the script.
@@ -244,10 +230,6 @@ abstract class Ajax implements EnvironmentAwareInterface
                     'loadStructure',
                     // Load nodes of the file manager tree.
                     'loadFileManager',
-                    // Load nodes of the page tree.
-                    'loadPagetree',
-                    // Load nodes of the file tree.
-                    'loadFiletree',
                     // Reload the page/file picker.
                     'reloadPagetree',
                     'reloadFiletree'

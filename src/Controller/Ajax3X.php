@@ -27,8 +27,6 @@ namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\Dbafs;
-use Contao\FileSelector;
-use Contao\PageSelector;
 use Contao\StringUtil;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -45,10 +43,8 @@ use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-use function array_merge;
 use function implode;
 use function is_string;
-use function preg_replace;
 use function str_replace;
 use function str_starts_with;
 use function strlen;
@@ -113,126 +109,6 @@ class Ajax3X extends Ajax
         $model->setProperty($fieldName, $propertyValues->getPropertyValue($fieldName));
 
         return $widgetManager->getWidget($fieldName);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws ResponseException Throws a response exception.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    #[\Override]
-    protected function loadPagetree()
-    {
-        $environment = $this->getEnvironment();
-        assert($environment instanceof EnvironmentInterface);
-
-        $input = $environment->getInputProvider();
-        assert($input instanceof InputProviderInterface);
-
-        $session = $environment->getSessionStorage();
-        assert($session instanceof SessionStorageInterface);
-
-        $definition = $environment->getDataDefinition();
-        assert($definition instanceof ContainerInterface);
-
-        $field  = (string) $input->getValue('field');
-        $name   = (string) $input->getValue('name');
-        $level  = (int) $input->getValue('level');
-        $rootId = (string) $input->getValue('id');
-
-        $ajaxId   = (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $rootId);
-        $ajaxKey  = str_replace('_' . $ajaxId, '', $rootId);
-        $ajaxName = '';
-        if ('editAll' === $input->getValue('act')) {
-            $ajaxKey  = (string) preg_replace('/(.*)_[0-9a-zA-Z]+$/', '$1', $ajaxKey);
-            $ajaxName = (string) preg_replace('/.*_([0-9a-zA-Z]+)$/', '$1', $name);
-        }
-
-        $nodes          = (array) $session->get($ajaxKey);
-        $nodes[$ajaxId] = (int) $input->getValue('state');
-        $session->set($ajaxKey, $nodes);
-
-        $arrData = [
-            'strTable' => $definition->getName(),
-            'id'       => $ajaxName ?: $rootId,
-            'name'     => $name,
-        ];
-
-        /**
-         * @psalm-suppress UndefinedDocblockClass
-         * @psalm-suppress MixedArrayAccess The Contao superglobal $GLOBALS['BE_FFL'] is untyped.
-         * @psalm-suppress MixedMethodCall  The widget class from $GLOBALS['BE_FFL'] is instantiated dynamically.
-         * @var PageSelector $widget
-         */
-        $widget        = new $GLOBALS['BE_FFL']['pageSelector']($arrData, $this->getDataContainer());
-        /** @psalm-suppress UndefinedClass */
-        $widget->value = $this->getTreeValue('page', (string) $input->getValue('value'));
-
-        /**
-         * @psalm-suppress InvalidArgument - rather pass it "as is", we do not trust Contao annotations.
-         * @psalm-suppress UndefinedDocblockClass
-         */
-        $response = new Response((string) $widget->generateAjax($ajaxId, $field, $level));
-
-        throw new ResponseException($response);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @throws ResponseException Throws a response exception.
-     *
-     * @SuppressWarnings(PHPMD.Superglobals)
-     * @SuppressWarnings(PHPMD.CamelCaseVariableName)
-     */
-    #[\Override]
-    protected function loadFiletree()
-    {
-        $environment = $this->getEnvironment();
-        assert($environment instanceof EnvironmentInterface);
-
-        $input = $environment->getInputProvider();
-        assert($input instanceof InputProviderInterface);
-
-        $definition = $environment->getDataDefinition();
-        assert($definition instanceof ContainerInterface);
-
-        $folder = (string) $input->getValue('folder');
-        $field  = (string) $input->getValue('field');
-        $level  = (int) $input->getValue('level');
-
-        $arrData             = [];
-        $arrData['strTable'] = (string) $input->getParameter('table');
-        $arrData['id']       = $field;
-        $arrData['name']     = $field;
-        $arrData             = array_merge(
-            $definition->getPropertiesDefinition()->getProperty($field)->getExtra(),
-            $arrData
-        );
-
-        /**
-         * @psalm-suppress UndefinedClass
-         * @psalm-suppress MixedArrayAccess The Contao superglobal $GLOBALS['BE_FFL'] is untyped.
-         * @psalm-suppress MixedMethodCall  The widget class from $GLOBALS['BE_FFL'] is instantiated dynamically.
-         * @var FileSelector $widget
-         */
-        $widget = new $GLOBALS['BE_FFL']['fileSelector']($arrData, $this->getDataContainer());
-
-        /** @psalm-suppress UndefinedClass */
-        $widget->value = $this->getTreeValue($field, (string) $input->getValue('value'));
-        // Load a particular node.
-        if ('' !== $folder) {
-            /** @psalm-suppress UndefinedDocblockClass */
-            $response = new Response((string) $widget->generateAjax($folder, $field, $level));
-        } else {
-            /** @psalm-suppress UndefinedDocblockClass */
-            $response = new Response((string) $widget->generate());
-        }
-
-        throw new ResponseException($response);
     }
 
     /**
