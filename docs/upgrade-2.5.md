@@ -41,7 +41,8 @@ The `_src` suffix is gone for good - there is no build step, the shipped file is
 **New javascript API** in `generalAjax.js`, replacing the MooTools `Request.Contao`:
 
 - `DcGeneral.post(url, data)` - returns a promise resolving to `{content, javascript}`
-- `DcGeneral.get(url)` - fire and forget
+- `DcGeneral.get(url, options)` - returns the `fetch` promise; `options` is merged into the
+  request, so a caller that must not follow the answer passes `{redirect: 'manual'}`
 - `DcGeneral.setHtml(element, html)` - swaps markup **and** runs the scripts it brings along
 - `DcGeneral.runScript(code)` - what `Browser.exec()` did
 
@@ -54,6 +55,34 @@ The `_src` suffix is gone for good - there is no build step, the shipped file is
 
 **Added:** `BackendGeneral.toggleWrap(id)`, because Contao 5 dropped `Backend.toggleWrap()`
 without a replacement while the dc-general still offers the button.
+
+**The markup of eleven templates changed.** This is the part that reaches beyond the
+bundle: anyone overriding a dc-general template, or styling and scripting against its
+output, works against a different contract now.
+
+| gone from the markup | replaced by |
+| --- | --- |
+| `onclick="Backend.getScrollOffset()"`, `onfocus="…"` | `data-action="contao--scroll-offset#store"` (`focus->…` on inputs) |
+| `onclick="Backend.toggleCheckboxes(this)"` | `data-controller="contao--check-all"` on the container, `#toggleAll` on the trigger, `#toggleInput` plus `data-contao--check-all-target="input"` on the rows |
+| `class="click2edit"` on the row | `data-controller="contao--deeplink"` plus `data-contao--deeplink-target` (`primary` / `secondary`) on the operation links |
+| `id="sbtog"` on the split button | `contao--toggle-sender` / `contao--toggle-receiver`, mirroring Contao's `backend/data_container/buttons.html.twig` |
+| `class="picker_selector"` on the picker list | nothing — see `docs/mootools-removal.md` 6.1 for why no replacement was needed |
+| the two `window.addEvent('domready', …)` blocks of `dcbe_general_edit` | `data-contao--scroll-offset-target="widgetError"`; the autofocus is Contao's own now |
+
+Affected: `dcbe_general_common_list`, `dcbe_general_treeview`, `dcbe_general_treeview_entry`,
+`dcbe_general_edit`, `dcbe_general_field`, `dcbe_general_show`, `dc_general_submit_button`,
+`widget_filetree`, `widget_common_picker`, `widget_treepicker_entry`,
+`widget_treepicker_popup`.
+
+Custom CSS is only at risk for `#sbtog`, which was a real id in the document. `click2edit`
+was never stable to style against — Contao's own controller strips the class while wiring
+it up — and `picker_selector` carried no rules anywhere in Contao.
+
+**Assets removed:** the two source maps (`js/generalDriver.js.map`,
+`css/generalDriver.css.map`), the empty `sass/_languagePanel.scss` — a nought byte leftover,
+the `.tl_language_panel` rules always lived in `generalDriver.css` — and `images/drag.gif`,
+which had no user left. There is no build step and no sass source any more: the shipped css
+and js **are** the source.
 
 ## Removed (breaking)
 
@@ -71,10 +100,17 @@ without a replacement while the dc-general still offers the button.
   Contao 5.7 core no longer reads.
 - **`TreeSelect`** and **`FileSelect`** classes removed — unusable since
   Contao 5.0 (they relied on `BackendUser::authenticate()`, removed in Contao 5.0).
-- **`FileTree::updateAjax()`** (the legacy `loadFiletree` / `Contao\FileSelector`
-  path) removed. `Contao\FileSelector` no longer exists in Contao 5, so the path
-  fataled if invoked. The widget already uses the modern Contao picker
-  (`PickerBuilderInterface::getUrl('file')`).
+- **`FileTree::updateAjax()`** removed together with its `executePostActions` hook
+  registration. It entered the legacy `Contao\FileSelector` path, and that class no longer
+  exists in Contao 5, so the method fataled if invoked. The widget itself already uses the
+  modern Contao picker (`PickerBuilderInterface::getUrl('file')`).
+  **This did not retire the legacy path as such:** `Ajax3X::loadFiletree()`,
+  `reloadFiletree()` and their page tree counterparts still instantiate
+  `$GLOBALS['BE_FFL']['fileSelector']` / `['pageSelector']`, which Contao 5.7 does not
+  register either, and `Ajax::executePostActions()` still dispatches to them. Nothing in
+  the dc-general asks for those actions any more, so they are unreachable from our own
+  markup — but a consumer still sending them gets a fatal, not a deprecation. Removing
+  them is a 3.0 task (`docs/3.0-cleanup-tasks.md`).
 
 ## Fixed along the way
 
