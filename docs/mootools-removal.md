@@ -2,9 +2,9 @@
 
 > Status: **Stufe 1 und 2 abgeschlossen.** Der eigene Code des dc-general ist vanilla —
 > deprecated Backend-APIs, Inline-MooTools in den Templates und der MooTools-DOM-Code der
-> beiden großen JS-Dateien sind verschwunden. Es bleiben nur die Contao-Einstiegspunkte
-> ohne Ersatz (Abschnitt 5) und der `ajax_change`-Hook, den Contao selbst aus vanilla Code
-> feuert.
+> beiden großen JS-Dateien sind verschwunden, und kein Markup fordert Contao mehr zu einem
+> deprecated Helfer auf. Es bleiben allein die Contao-Einstiegspunkte, für die es keinen
+> Ersatz gibt — sie stehen vollständig in Abschnitt 5.
 >
 > - [x] 1 – Bestandsaufnahme (Abschnitt 2)
 > - [x] 2 – `Backend.getScrollOffset()` (23 Stellen) → `contao--scroll-offset#store`
@@ -18,6 +18,7 @@
 > - [x] 10 – zwei in Contao 5 entfernte `Backend`-APIs ersetzt (Abschnitt 4.5)
 > - [x] 11 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
 > - [x] 12 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
+> - [x] 13 – Marker-Klassen für deprecated Helfer aus dem Markup (Abschnitt 6.1)
 >
 > **jQuery:** im dc-general nicht vorhanden — es gab und gibt keine Fundstelle.
 
@@ -235,7 +236,8 @@ Versäumnis, sondern die Grenze der Umstellung:
 | API | genutzt in | Anmerkung |
 | --- | --- | --- |
 | `Backend.openModalSelector()` | `widget_filetree`, `widget_common_picker`, `dc_general_wizard_common_picker` | nicht deprecated; Contaos eigener `contao--modal-selector`-Controller ruft sie intern selbst auf |
-| `AjaxRequest.displayBox()` / `hideBox()` | `generalBase.js` | Ladeanzeige, kein Ersatz |
+| `AjaxRequest.displayBox()` / `hideBox()` | `generalDriver.js` (`loadSubTree`), `generalBase.js` (Modal-Callback) | Ladeanzeige, kein Ersatz — **nur an diesen beiden Stellen**, siehe 6.2 |
+| `window.fireEvent('ajax_change')` | `generalDriver.js`, `generalBase.js` | dokumentierter Contao-Hook; in `core.js` hängen MooTools-Listener daran, die ein `dispatchEvent` nie erreicht |
 | `new Picker.Date()` | `ContaoWidgetManager::buildDatePicker()` | Datepicker; Element-Lookup wurde bereits auf `document.getElementById()` umgestellt, der Konstruktor bleibt |
 | `SimpleModal` | indirekt über `openModalSelector` | — |
 
@@ -286,7 +288,7 @@ Zwei Altlasten sind dabei aufgefallen und mitkorrigiert:
 
 ### 6.1 Marker-Klassen für deprecated Helfer
 
-Zwei Warnungen kamen nicht aus unserem JavaScript, sondern aus **Markup**, das Contao als
+Drei Warnungen kamen nicht aus unserem JavaScript, sondern aus **Markup**, das Contao als
 Auftrag versteht, einen veralteten Helfer anzuwerfen:
 
 | Marker | wo | ersetzt durch |
@@ -295,7 +297,7 @@ Auftrag versteht, einen veralteten Helfer anzuwerfen:
 | `id="sbtog"` am Umschalter | `dc_general_submit_button` | `contao--toggle-sender` / `contao--toggle-receiver` |
 | `picker_selector` am `<ul>` | `widget_treepicker_popup` | ersatzlos entfallen |
 
-Beide Klassen waren reine Hinweise für BC-Shims. Contaos `deeplink-controller` sucht
+Alle drei Marker waren reine Hinweise für BC-Shims. Contaos `deeplink-controller` sucht
 `.click2edit`, **entfernt die Klasse** und hängt `contao--deeplink` samt Zielen aus `a.edit`
 und `a.children` an — das Markup erzeugen wir jetzt direkt, `ButtonRenderer` markiert die
 Ziele. Der Split-Button folgt `backend/data_container/buttons.html.twig` aus dem Core;
@@ -307,6 +309,32 @@ Klicks auf Links und Checkboxen am Hochblubbern hindert. Im Popup gibt es aber n
 sie blubbern könnten: der `contao--check-all`-Controller hängt nur `keydown`/`keyup` ans
 Dokument, `toggleInput`/`toggleAll` sitzen per `data-action` an den Eingaben selbst, und im
 Container steht überhaupt kein `<a>`. Ein Ersatz-Listener war also nicht nötig.
+
+### 6.2 Was der Umbau selbst kaputt gemacht hat
+
+Drei Regressionen sind erst im Betrieb aufgefallen, nicht im Prüfstand. Sie stehen hier,
+weil jede von ihnen eine Lehre über die Übersetzung MooTools → vanilla enthält:
+
+* **Der Sichtbarkeits-Schalter blockierte die Seite.** Beim Umbau ist
+  `AjaxRequest.displayBox()` in `toggleVisibility()` gewandert — die Ladeanzeige gab es
+  dort nie, nur in `loadSubTree()`. Jeder Klick legte damit ein Overlay „Daten werden
+  geladen…" über die Liste. Wieder entfernt; die Ladeanzeige bleibt allein am Aufklappen
+  des Baums, wo das Warten sichtbar sein soll.
+* **Der Schalter holte die ganze Folgeseite.** `Request.Contao` lief mit
+  `followRedirects: false`; `fetch()` folgt Weiterleitungen dagegen von sich aus. Die
+  Antwort auf das Umschalten ist eine Weiterleitung, also lud der Browser bei jedem Klick
+  im Hintergrund die komplette Listenansicht nach — daher war das Umschalten spürbar
+  langsamer als im Core. Der Aufruf nutzt jetzt `{redirect: 'manual'}`.
+* **Kleine Vorschaubilder blieben leer.** Der Entfernen-Button des `contao--input-map`
+  liegt absolut positioniert über der Vorschau und verdeckte sie bei Icon-Größen
+  vollständig — das Bild war geladen und dekodiert, nur unsichtbar. `generalDriver.css`
+  setzt den Listeneintrag jetzt auf `flex` und den Button auf `position: static`, damit er
+  neben statt über dem Bild sitzt.
+
+> **Lehre für beide ersten Punkte:** eine MooTools-Option ohne vanilla-Entsprechung
+> verschwindet beim Portieren lautlos. `followRedirects`, `evalScripts`, `urlEncoded` haben
+> in `fetch()` andere Vorgaben als in `Request.Contao` — beim Umschreiben gehört jede
+> Option einzeln übersetzt, nicht nur die URL und der Callback.
 
 ## 7. Prüfstand
 
@@ -363,12 +391,14 @@ abgeglichen (Controller-Name, Methodenname, Target-Name).
 
 * Eingabemaske: Speichern mit Feldfehler (springt die Seite zum Fehler?), Autofokus,
   Farbwähler
-* Baum-Picker im Popup: „Alle auswählen", Übernehmen
+* Baum-Picker im Popup: Übernehmen in das aufrufende Feld („Alle auswählen" und das
+  einzelne Ankreuzen sind beim Entfernen von `picker_selector` geprüft worden, siehe 6.1)
 * „Alle bearbeiten"/„Alle überschreiben": Auswahl eines `fileTree`-Feldes zieht das
   zugehörige Order-Feld mit
 * Sichtbarkeits-Schalter in der **Baum-** und der **Parent-Ansicht** — `toggleVisibility`
-  verzweigt dort anders, und in beiden Baumansichten gibt es keinen solchen Button. Vor
-  dem Umbau nach 6.1 fehlt für genau diese Zweige die Absicherung.
+  verzweigt dort anders, und in keiner der beiden Ansichten der Testdaten gibt es einen
+  solchen Button. Für genau diese Zweige fehlt die Absicherung; sollte der Schalter auf
+  Contaos Link-Modell umgestellt werden (Abschnitt 9), entfallen sie ohnehin.
 * Der `helpwizard`-Zweig aus 4.5 — kein DCA in den Paketen setzt `eval.helpwizard`, der
   Zweig greift nur bei Fremd-DCAs und war deshalb nicht auslösbar.
 
@@ -428,3 +458,34 @@ Trotzdem funktioniert `rte = ace`, obwohl Contao dafür nur noch `be_ace.html.tw
 mitbringt — die Template-Hierarchie von Contao 5 löst Twig auch hier auf. Ebenso
 berücksichtigt `TemplateList::getTemplatesForBaseFrom()` die Endung `.html.twig` bereits.
 Einer Twig-Fassung der MetaModels-RTE-Templates steht damit nichts im Weg.
+
+## 9. Offene Entscheidung: das Modell des Sichtbarkeits-Schalters
+
+Der Schalter ist die letzte Stelle, an der der dc-general grundsätzlich anders arbeitet als
+der Core — und daran hängt ein Anzeigefehler, der sich im jetzigen Modell nicht sauber
+beheben lässt.
+
+**Der Befund.** In der Baumansicht einer Variantenhierarchie erben die Varianten Werte vom
+nicht-varianten Datensatz, unter anderem `published`. Schaltet man den Elternsatz um,
+ändert sich der Zustand der Varianten fachlich mit — ihre Icons bleiben aber stehen, bis
+die Seite neu geladen wird. Das ist folgerichtig: `toggleVisibility()` tauscht nach der
+Antwort genau **eine** Bildquelle aus, nämlich die des angeklickten Eintrags. Von der
+Vererbung weiß der Client nichts, und er kann es auch nicht wissen, ohne die Regeln des
+Servers nachzubauen.
+
+**Contaos Modell.** Dort ist der Schalter ein gewöhnlicher Link. Turbo Drive fängt ihn ab,
+holt die Antwort und tauscht den `<body>`; der Server rendert dabei jede Zeile neu, und
+abgeleitete Zustände stimmen ohne Zutun des Clients. Ein Umstieg würde
+
+* diesen Fehler strukturell erledigen statt ihn zu umgehen,
+* `toggleVisibility()` samt Icon-Tausch, Dark-Mode-Sonderfall (4.6) und den beiden in 6.2
+  beschriebenen Fallen ersatzlos entfallen lassen,
+* den Schalter dem Verhalten des Cores angleichen, das Redakteure ohnehin kennen.
+
+Dagegen steht, dass jeder Klick eine vollständige Liste rendert statt eines
+Statuswechsels — bei großen Listen und teuren Renderern der dc-general ist das nicht
+umsonst zu haben, und die Baum- und Parent-Ansicht müssten mitgezogen werden.
+
+**Stand:** zur Entscheidung im Team. Bis dahin bleibt das jetzige Verhalten; der
+Anzeigefehler betrifft ausschließlich die geerbten Icons der Varianten, der gespeicherte
+Zustand ist in allen Fällen korrekt.
