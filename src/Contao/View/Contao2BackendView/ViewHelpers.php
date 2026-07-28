@@ -282,6 +282,14 @@ class ViewHelpers
     {
         $request   = self::getRequest();
         $routeName = $request->attributes->get('_route');
+
+        // Without an action we are already standing on the list that "table" and "pid" describe - going
+        // back then means one level up, to the parent list. With an action (edit, show, select …) those
+        // parameters have to survive, because back leads to exactly that list.
+        if (null === $request->query->get('act') && !$request->attributes->has('act')) {
+            $cleanNames = \array_merge($cleanNames, ['table', 'pid']);
+        }
+
         if (null !== $routeName && 'contao_backend' !== $routeName) {
             return self::buildNewStyleUrl((string) $routeName, $request, $cleanNames);
         }
@@ -289,7 +297,7 @@ class ViewHelpers
         $input = $environment->getInputProvider();
         assert($input instanceof InputProviderInterface);
 
-        return self::buildLegacyUrl($input);
+        return self::buildLegacyUrl($input, $cleanNames);
     }
 
     /** @param list<string> $cleanNames */
@@ -320,10 +328,11 @@ class ViewHelpers
         return $routeGenerator->generate($routeName, $parameters);
     }
 
-    private static function buildLegacyUrl(InputProviderInterface $input): string
+    /** @param list<string> $cleanNames */
+    private static function buildLegacyUrl(InputProviderInterface $input, array $cleanNames = []): string
     {
-        if ($input->hasParameter('table')) {
-            if ($input->hasParameter('pid')) {
+        if ($input->hasParameter('table') && !\in_array('table', $cleanNames, true)) {
+            if ($input->hasParameter('pid') && !\in_array('pid', $cleanNames, true)) {
                 return sprintf(
                     'contao?do=%s&table=%s&pid=%s',
                     (string) $input->getParameter('do'),
