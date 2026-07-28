@@ -28,6 +28,15 @@ With the use of the DC_General there are many advantages, e.g.
 * more control through events
 
 
+Requirements
+============
+
+The 2.5 series requires **Contao ^5.7** and **PHP ^8.4**. Upgrading from 2.4 involves
+breaking changes — the back end scripts no longer use MooTools and the back navigation
+was rebuilt for Contao 5.7. See [docs/upgrade-2.5.md](docs/upgrade-2.5.md) before you
+update, especially if you override templates or load the shipped javascript yourself.
+
+
 How to use
 ==========
 
