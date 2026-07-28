@@ -128,6 +128,12 @@ use function trigger_error;
 /**
  * Build the container config from legacy DCA syntax.
  *
+ * Beside real PHP callables the DCA also carries the classic Contao notation
+ * ['tl_page', 'adjustDca'], which references a non static method and is therefore not callable until the
+ * class has been instantiated - the callback listeners do that at invocation time via System::importStatic().
+ *
+ * @psalm-type TDcaCallback = callable|array{0: object|class-string, 1: string}
+ *
  * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  * @SuppressWarnings(PHPMD.TooManyMethods)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -166,11 +172,11 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
      * The callbacks parameter accepts mixed because DCA callback values are inherently untyped;
      * internally it is cast to array.
      *
-     * @param EventDispatcherInterface $dispatcher The event dispatcher.
-     * @param list<callable>|callable  $callbacks  The callbacks to be handled (from DCA, any type).
-     * @param string                   $eventName  The event to be registered to.
-     * @param array                    $arguments  The arguments to pass to the constructor.
-     * @param class-string             $listener   The listener class to use.
+     * @param EventDispatcherInterface        $dispatcher The event dispatcher.
+     * @param TDcaCallback|list<TDcaCallback> $callbacks  The callbacks to be handled (from DCA, any type).
+     * @param string                          $eventName  The event to be registered to.
+     * @param array                           $arguments  The arguments to pass to the constructor.
+     * @param class-string                    $listener   The listener class to use.
      *
      * @return void
      */
@@ -1826,7 +1832,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
         }
     }
 
-    /** @psalm-assert callable|array|list<callable|array> $callbacks */
+    /** @psalm-assert TDcaCallback|list<TDcaCallback> $callbacks */
     private function assertCallback(mixed $callbacks): void
     {
         if ($this->isCallbackLike($callbacks)) {
@@ -1847,9 +1853,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
     /**
      * Test if the passed value has the shape of a callback that {@see parseCallback()} is able to handle.
      *
-     * Beside real PHP callables this also covers the legacy Contao notation `['tl_page', 'adjustDca']` which
-     * references a non static method and therefore is not callable until the class has been instantiated
-     * (which the callback listeners do at invocation time via `System::importStatic()`).
+     * @psalm-assert-if-true TDcaCallback $callback
      */
     private function isCallbackLike(mixed $callback): bool
     {
