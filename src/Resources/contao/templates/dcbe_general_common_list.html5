@@ -104,7 +104,7 @@ assert($translator instanceof TranslatorInterface);
                             </tr>
                         <?php endif; ?>
                         <?php foreach ($collection as $model) : /** @var ModelInterface $model */ ?>
-                            <tr id="table_row_<?= $model->getId() ?>" class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?> hover-row<?php if ($this->select) : ?> toggle_select<?php endif; ?> click2edit" data-model-id="<?= ModelId::fromModel($model)->getSerialized() ?>">
+                            <tr id="table_row_<?= $model->getId() ?>" class="<?= $model->getMeta($model::CSS_ROW_CLASS) ?> hover-row<?php if ($this->select) : ?> toggle_select<?php endif; ?>" data-controller="contao--deeplink" data-model-id="<?= ModelId::fromModel($model)->getSerialized() ?>">
                                 <?php foreach ($model->getMeta($model::LABEL_VALUE) as $label) : ?>
                                     <td class="<?= $label['class'] ?>"<?php if (!empty($label['colspan'])): ?> colspan="<?= $label['colspan'] ?>"<?php endif; ?>>
                                         <?= $label['content'] ?>

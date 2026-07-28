@@ -328,6 +328,64 @@ class ButtonRenderer
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
+    /**
+     * Build the target attribute of the "contao--deeplink" controller for a command.
+     *
+     * The controller opens a record on ctrl click or on a double tap. Contao derives its targets from a
+     * legacy "click2edit" class otherwise and warns about the deprecated helper behind it.
+     *
+     * @param CommandInterface $command The command to render.
+     *
+     * @return string The attribute including a leading space, or an empty string.
+     */
+    /**
+     * Build the attributes that turn a command into a visibility toggle.
+     *
+     * @param array<array-key, mixed> $extra The extra information of the command.
+     * @param string                  $icon  The icon of the active state.
+     *
+     * @return string
+     */
+    private function buildToggleAttributes(array $extra, string $icon): string
+    {
+        return sprintf(
+            ' data-action="contao--scroll-offset#store"'
+            . ' onclick="return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
+            Controller::addStaticUrlTo(System::urlEncode($icon)),
+            Controller::addStaticUrlTo(System::urlEncode((string) ($extra['icon_disabled'] ?? 'invisible.svg')))
+        );
+    }
+
+    /**
+     * Return the icon a toggle command has to show for the passed model.
+     *
+     * @param ToggleCommandInterface  $command The command to render.
+     * @param ModelInterface          $model   The model the command belongs to.
+     * @param array<array-key, mixed> $extra   The extra information of the command.
+     * @param string                  $icon    The icon of the active state.
+     *
+     * @return string
+     */
+    private function getToggleIcon(
+        ToggleCommandInterface $command,
+        ModelInterface $model,
+        array $extra,
+        string $icon
+    ): string {
+        if ($this->isTogglerInActiveState($command, $model)) {
+            return $icon;
+        }
+
+        return (string) ($extra['icon_disabled'] ?? 'invisible.svg');
+    }
+
+    private function buildDeepLinkTarget(CommandInterface $command): string
+    {
+        $target = ['edit' => 'primary', 'children' => 'secondary'][$command->getName()] ?? null;
+
+        return null === $target ? '' : ' data-contao--deeplink-target="' . $target . '"';
+    }
+
     private function buildCommand(
         CommandInterface $command,
         ModelInterface $model,
@@ -346,19 +404,11 @@ class ButtonRenderer
         }
         $icon = (string) $extra['icon'];
 
+        $attributes .= $this->buildDeepLinkTarget($command);
+
         if ($command instanceof ToggleCommandInterface) {
-            $iconDisabled = (string) ($extra['icon_disabled'] ?? 'invisible.svg');
-
-            $attributes .= sprintf(
-                ' data-action="contao--scroll-offset#store"'
-                . ' onclick="return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
-                Controller::addStaticUrlTo(System::urlEncode($icon)),
-                Controller::addStaticUrlTo(System::urlEncode($iconDisabled))
-            );
-
-            if (!$this->isTogglerInActiveState($command, $model)) {
-                $icon = $iconDisabled;
-            }
+            $attributes .= $this->buildToggleAttributes($extra, $icon);
+            $icon         = $this->getToggleIcon($command, $model, $extra, $icon);
         }
 
         $definitionName = $this->environment->getDataDefinition()?->getName();

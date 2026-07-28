@@ -7,7 +7,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 /** @var ModelInterface $model */
 $model = $this->objModel;
 ?>
-<li class="<?= ($model->getMeta(DCGE::TREE_VIEW_LEVEL) === 0) ? 'tl_folder' : 'tl_file' ?> hover-div<?php if ($this->select) : ?> toggle_select<?php endif; ?> click2edit">
+<li class="<?= ($model->getMeta(DCGE::TREE_VIEW_LEVEL) === 0) ? 'tl_folder' : 'tl_file' ?> hover-div<?php if ($this->select) : ?> toggle_select<?php endif; ?>" data-controller="contao--deeplink">
     <div class="tl_left" style="padding-left:<?= $model->getMeta(DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
         <?php if ($model->getMeta($model::HAS_CHILDREN) === true): ?>
             <a class="foldable <?= ($model->getMeta($model::SHOW_CHILDREN)) ? ' foldable--open' : '' ?>" href="<?= $this->toggleUrl ?>" title="<?= $this->toggleTitle ?>" data-action="contao--scroll-offset#store" onclick="<?= $this->toggleScript ?>">
