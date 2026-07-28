@@ -217,3 +217,18 @@
     margin-top : 24px;
   }
 }
+
+/* Contao pins the remove button of "contao--input-map" to the top right corner of its item, which is
+   right for a gallery thumbnail. The file tree also renders plain lists of small icons though, and
+   there a 16x16 button covers a 16x16 preview completely - the image was there, but invisible.
+   Outside a gallery the button therefore sits next to the preview instead of on top of it. */
+.selector_container ul:not(.sgallery) > li {
+  display     : flex;
+  align-items : center;
+  gap         : 6px;
+}
+
+.selector_container ul:not(.sgallery) > li > [data-action~="contao--input-map#removeElement"] {
+  position   : static;
+  flex-shrink: 0;
+}
