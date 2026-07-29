@@ -51,6 +51,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSor
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\CollectionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\EditOnlyDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\MultiLanguageDataProviderInterface;
@@ -222,7 +223,9 @@ abstract class AbstractListShowAllHandler
         assert($definition instanceof ContainerInterface);
 
         // Edit only mode, forward to edit action.
-        if ($definition->getBasicDefinition()->isEditOnlyMode()) {
+        if ($definition->getBasicDefinition()->isEditOnlyMode() || $this->isEditOnlyProvider($environment)) {
+            $this->ensureEditOnlyModelId($environment);
+
             return $this->callAction($environment, 'edit', $action->getArguments());
         }
 
@@ -525,6 +528,61 @@ abstract class AbstractListShowAllHandler
             ->set('selectCheckBoxName', 'models[]')
             ->set('selectCheckBoxIdPrefix', 'models_')
             ->set('selectContainer', $this->getSelectContainer($environment));
+    }
+
+    /**
+     * Tell whether the data provider of this definition only serves the edit mode.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return bool
+     */
+    private function isEditOnlyProvider(EnvironmentInterface $environment): bool
+    {
+        return $environment->hasDataProvider()
+            && $environment->getDataProvider() instanceof EditOnlyDataProviderInterface;
+    }
+
+    /**
+     * Put the model id of an edit only table into the input provider when only the parent is known.
+     *
+     * The list url of such a table carries "pid" but no "id" - forwarding to the edit action without
+     * one opens an empty mask, which looks like the record was lost. The provider knows which record
+     * aggregates the rows of that parent.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return void
+     */
+    private function ensureEditOnlyModelId(EnvironmentInterface $environment): void
+    {
+        $input = $environment->getInputProvider();
+        assert($input instanceof InputProviderInterface);
+
+        if ($input->hasParameter('id') || !$input->hasParameter('pid')) {
+            return;
+        }
+
+        if (!$environment->hasDataProvider()) {
+            return;
+        }
+
+        $provider = $environment->getDataProvider();
+        if (!$provider instanceof EditOnlyDataProviderInterface) {
+            return;
+        }
+
+        $definition = $environment->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $parentId = (string) ModelId::fromSerialized((string) $input->getParameter('pid'))->getId();
+        $input->setParameter(
+            'id',
+            ModelId::fromValues(
+                $definition->getBasicDefinition()->getDataProvider() ?? $definition->getName(),
+                $provider->getIdForParent($parentId)
+            )->getSerialized()
+        );
     }
 
     /**

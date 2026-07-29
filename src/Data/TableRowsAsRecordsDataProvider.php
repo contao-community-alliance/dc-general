@@ -36,7 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralException;
  *
  * @api
  */
-class TableRowsAsRecordsDataProvider extends DefaultDataProvider
+class TableRowsAsRecordsDataProvider extends DefaultDataProvider implements EditOnlyDataProviderInterface
 {
     /**
      * Grouping column to use to tie rows together.
@@ -94,6 +94,18 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider
     public function getSortingColumnProperty()
     {
         return $this->strSortCol;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The rows are aggregated by the group column, which holds the parent id - so the record the
+     * edit mask works on is identified by the parent itself.
+     */
+    #[\Override]
+    public function getIdForParent(string $parentId): string
+    {
+        return $parentId;
     }
 
     /**

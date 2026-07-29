@@ -30,6 +30,7 @@ use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\Data\EditOnlyDataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\PropertyInterface;
@@ -55,6 +56,10 @@ use function strtoupper;
  * Helper class that provides static methods used in views.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
+ * The class complexity is a property of this collection of static helpers as a whole, not of a
+ * single method in it - splitting it would move the sum around without making anything clearer.
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  *
  * @api
  */
@@ -317,8 +322,11 @@ class ViewHelpers
     {
         $definition = $environment->getDataDefinition();
 
-        return $definition instanceof ContainerInterface
-            && $definition->getBasicDefinition()->isEditOnlyMode();
+        // The provider is the more reliable source: the dca flag is easy to forget, while a provider
+        // that cannot list knows so.
+        return ($definition instanceof ContainerInterface && $definition->getBasicDefinition()->isEditOnlyMode())
+            || ($environment->hasDataProvider()
+                && $environment->getDataProvider() instanceof EditOnlyDataProviderInterface);
     }
 
     /** @param list<string> $cleanNames */
