@@ -22,6 +22,24 @@ two describe, while on that list itself it leads one level up to the parent list
 session referer knew the actual history and needed no such distinction — anyone relying on
 `getBackUrl()` in own code should be aware of the difference.
 
+**Check your tables that have no list view.** A table whose data provider only serves the
+edit mode — `TableRowsAsRecordsDataProvider` is the one shipped here, it aggregates all rows
+of a parent into a single record and throws on `fetchAll()` — must say so through
+`config/forceEdit` in its DCA. The flag is not new, but with the session referer it rarely
+mattered; now the back url is built from the request and would otherwise point at a list
+that cannot be rendered. With the flag set, two things fall into place: the list handler
+forwards to the edit action instead of fetching a collection, and the back url leaves
+`table` and `pid` behind so that closing lands one level up.
+
+The symptom without it is an exception on "save and close", not a warning:
+
+```
+TableRowsAsRecordsDataProvider::fetchAll not available,
+as the data provider is intended for edit mode only.
+```
+
+`tl_metamodel_dca_combine` in MetaModels was affected and carries the flag now.
+
 ## Back-end javascript reworked (MooTools removal)
 
 The scripts no longer use the MooTools library; see `docs/mootools-removal.md` for the
