@@ -61,9 +61,30 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      *
      * @param RequestScopeDeterminator $scopeDeterminator
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
+    /** @var EditInformationInterface|null */
+    private ?EditInformationInterface $editInformation;
+
+    /** @var Locales|null */
+    private ?Locales $locales;
+
+    /**
+     * Create a new instance.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
+     * @param EditInformationInterface|null $editInformation  The edit information.
+     * @param Locales|null                  $locales          The locales.
+     *
+     * The added arguments are optional to keep the signature backwards compatible.
+     * When they are not passed, they are taken from the container.
+     */
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        ?EditInformationInterface $editInformation = null,
+        ?Locales $locales = null
+    ) {
         $this->scopeDeterminator = $scopeDeterminator;
+        $this->editInformation  = $editInformation;
+        $this->locales          = $locales;
     }
 
     /**
@@ -145,8 +166,11 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
             ($dataProvider instanceof MultiLanguageDataProviderInterface)
             && (null !== $dataProvider->getLanguages(null))
         ) {
-            $locales = System::getContainer()->get('contao.intl.locales');
-            assert($locales instanceof Locales);
+            $locales = $this->locales;
+            if (null === $locales) {
+                $locales = System::getContainer()->get('contao.intl.locales');
+                assert($locales instanceof Locales);
+            }
             $languages = $locales->getLocales(null, true);
 
             return [
@@ -241,8 +265,11 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function handleLegendCollapsed(array $fieldSets)
     {
-        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-        assert($editInformation instanceof EditInformationInterface);
+        $editInformation = $this->editInformation;
+        if (null === $editInformation) {
+            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+            assert($editInformation instanceof EditInformationInterface);
+        }
 
         if (!$editInformation->hasAnyModelError()) {
             return $fieldSets;
@@ -481,8 +508,11 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         PropertyValueBagInterface $propertyValuesBag,
         EnvironmentInterface $environment
     ) {
-        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-        assert($editInformation instanceof EditInformationInterface);
+        $editInformation = $this->editInformation;
+        if (null === $editInformation) {
+            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+            assert($editInformation instanceof EditInformationInterface);
+        }
 
         $sessionValues = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
 

@@ -47,6 +47,26 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     public const int PRIORITY = -100;
 
     /**
+     * The session storage factory.
+     *
+     * @var SessionStorageFactory|null
+     */
+    private ?SessionStorageFactory $sessionFactory;
+
+    /**
+     * Create a new instance.
+     *
+     * @param SessionStorageFactory|null $sessionFactory The session storage factory.
+     *
+     * The argument is optional to keep the signature backwards compatible, this class is marked
+     * as api. When it is not passed, the factory is taken from the container.
+     */
+    public function __construct(?SessionStorageFactory $sessionFactory = null)
+    {
+        $this->sessionFactory = $sessionFactory;
+    }
+
+    /**
      * Create a controller instance in the environment if none has been defined yet.
      *
      * @param EnvironmentInterface $environment The environment to populate.
@@ -75,8 +95,11 @@ class HardCodedPopulator extends AbstractEventDrivenEnvironmentPopulator
     public function populate(EnvironmentInterface $environment)
     {
         if (!$environment->getSessionStorage()) {
-            $sessionFactory = System::getContainer()->get('cca.dc-general.session_factory');
-            assert($sessionFactory instanceof SessionStorageFactory);
+            $sessionFactory = $this->sessionFactory;
+            if (null === $sessionFactory) {
+                $sessionFactory = System::getContainer()->get('cca.dc-general.session_factory');
+                assert($sessionFactory instanceof SessionStorageFactory);
+            }
 
             $definition = $environment->getDataDefinition();
             assert($definition instanceof ContainerInterface);

@@ -14,7 +14,6 @@ use Contao\BackendUser;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
 use Contao\StringUtil;
-use Contao\System;
 use Contao\Validator;
 use Contao\Widget;
 use InvalidArgumentException;
@@ -46,6 +45,7 @@ final readonly class BackendPickerController
         private EventDispatcherInterface $dispatcher,
         private PickerBuilderInterface $pickerBuilder,
         private RendererInterface $menuRenderer,
+        private bool $isDebug = false,
     ) {
     }
 
@@ -81,7 +81,7 @@ final readonly class BackendPickerController
             // Contao 5.7's be_main.html.twig expects several backend variables without a default.
             // The picker is shown in a popup, so render the main content only (this skips the
             // header/menu chrome and the variables it would require).
-            ->set('isDebug', (bool) System::getContainer()->getParameter('kernel.debug'))
+            ->set('isDebug', $this->isDebug)
             ->set('renderMainOnly', true)
             ->set('backendWidth', BackendUser::getInstance()->backendWidth)
             ->set('host', Backend::getDecodedHostname())

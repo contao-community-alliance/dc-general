@@ -19,6 +19,8 @@ services:
     cca.dc-general.general_listener.hard_coded_populator:
         class: ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator\HardCodedPopulator
         public: true
+        arguments:
+            - '@cca.dc-general.session_factory'
         tags:
             -   name: kernel.event_listener
                 event: dc-general.factory.populate-environment

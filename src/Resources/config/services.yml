@@ -85,6 +85,7 @@ services:
           $dispatcher: '@event_dispatcher'
           $pickerBuilder: '@contao.picker.builder'
           $menuRenderer: '@contao.menu.renderer'
+          $isDebug: '%kernel.debug%'
         tags:
             - controller.service_arguments
 

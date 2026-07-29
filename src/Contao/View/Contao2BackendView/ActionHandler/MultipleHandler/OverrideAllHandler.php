@@ -60,9 +60,24 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator)
-    {
+    /** @var EditInformationInterface|null */
+    private ?EditInformationInterface $editInformation;
+
+    /**
+     * Create a new instance.
+     *
+     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
+     * @param EditInformationInterface|null $editInformation  The edit information.
+     *
+     * The added arguments are optional to keep the signature backwards compatible.
+     * When they are not passed, they are taken from the container.
+     */
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        ?EditInformationInterface $editInformation = null
+    ) {
         $this->scopeDeterminator = $scopeDeterminator;
+        $this->editInformation  = $editInformation;
     }
 
     /**
@@ -101,8 +116,11 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $translator = $environment->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-        assert($editInformation instanceof EditInformationInterface);
+        $editInformation = $this->editInformation;
+        if (null === $editInformation) {
+            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+            assert($editInformation instanceof EditInformationInterface);
+        }
 
         $renderInformation = new \ArrayObject();
 
