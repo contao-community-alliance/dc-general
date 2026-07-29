@@ -286,7 +286,13 @@ class ViewHelpers
         // Without an action we are already standing on the list that "table" and "pid" describe - going
         // back then means one level up, to the parent list. With an action (edit, show, select …) those
         // parameters have to survive, because back leads to exactly that list.
-        if (null === $request->query->get('act') && !$request->attributes->has('act')) {
+        //
+        // An edit only table has no list at all - its data provider may even refuse to fetch a
+        // collection - so back has to leave the table behind in that case as well, no matter the action.
+        if (
+            self::isEditOnly($environment)
+            || (null === $request->query->get('act') && !$request->attributes->has('act'))
+        ) {
             $cleanNames = \array_merge($cleanNames, ['table', 'pid']);
         }
 
@@ -298,6 +304,21 @@ class ViewHelpers
         assert($input instanceof InputProviderInterface);
 
         return self::buildLegacyUrl($input, $cleanNames);
+    }
+
+    /**
+     * Tell whether the data definition is in edit only mode.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return bool
+     */
+    private static function isEditOnly(EnvironmentInterface $environment): bool
+    {
+        $definition = $environment->getDataDefinition();
+
+        return $definition instanceof ContainerInterface
+            && $definition->getBasicDefinition()->isEditOnlyMode();
     }
 
     /** @param list<string> $cleanNames */
