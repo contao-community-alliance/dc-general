@@ -6,6 +6,7 @@ services:
             - "@cca.dc-general.environment"
             - "@translator"
             - "@cca.dc-general.scope-matcher"
+            - "@router"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.view.contao2backend.build-widget

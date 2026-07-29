@@ -25,7 +25,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Subscriber;
 
 use Contao\StringUtil;
-use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
@@ -77,7 +76,14 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @var RequestScopeDeterminator
      */
-    private static RequestScopeDeterminator $scopeDeterminator;
+    private RequestScopeDeterminator $scopeDeterminator;
+
+    /**
+     * The router.
+     *
+     * @var RouterInterface
+     */
+    private RouterInterface $router;
 
     /**
      * The environment.
@@ -111,21 +117,21 @@ class WidgetBuilder implements EnvironmentAwareInterface
     /**
      * Construct.
      *
-     * @param EnvironmentInterface          $environment       The environment.
-     * @param TranslatorInterface           $translator        The translator.
-     * @param RequestScopeDeterminator|null $scopeDeterminator The request mode determinator.
+     * @param EnvironmentInterface     $environment       The environment.
+     * @param TranslatorInterface      $translator        The translator.
+     * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
+     * @param RouterInterface          $router            The router.
      */
     public function __construct(
         EnvironmentInterface $environment,
         TranslatorInterface $translator,
-        ?RequestScopeDeterminator $scopeDeterminator = null
+        RequestScopeDeterminator $scopeDeterminator,
+        RouterInterface $router
     ) {
-        $this->environment = $environment;
-        $this->translator  = $translator;
-
-        if (null !== $scopeDeterminator) {
-            static::$scopeDeterminator = $scopeDeterminator;
-        }
+        $this->environment       = $environment;
+        $this->translator        = $translator;
+        $this->scopeDeterminator = $scopeDeterminator;
+        $this->router            = $router;
     }
 
     /**
@@ -135,17 +141,17 @@ class WidgetBuilder implements EnvironmentAwareInterface
      *
      * @return void
      */
-    public static function handleEvent(BuildWidgetEvent $event)
+    public function handleEvent(BuildWidgetEvent $event)
     {
-        if ($event->getWidget() || !static::$scopeDeterminator->currentScopeIsBackend()) {
+        if ($event->getWidget() || !$this->scopeDeterminator->currentScopeIsBackend()) {
             return;
         }
 
-        $translator = System::getContainer()->get('translator');
-        assert($translator instanceof TranslatorInterface);
+        // A fresh instance is needed because the environment differs per event, while this
+        // listener is a shared service. The collaborators are handed on rather than looked up.
+        $builder = new static($event->getEnvironment(), $this->translator, $this->scopeDeterminator, $this->router);
 
-        $widget =
-            (new static($event->getEnvironment(), $translator))->buildWidget($event->getProperty(), $event->getModel());
+        $widget = $builder->buildWidget($event->getProperty(), $event->getModel());
         assert($widget instanceof Widget);
 
         $event->setWidget($widget);
@@ -433,8 +439,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             $definition = $environment->getDataDefinition();
             assert($definition instanceof ContainerInterface);
 
-            $generator = System::getContainer()->get('router');
-            assert($generator instanceof RouterInterface);
+            $generator = $this->router;
             return strtr(
                 ' <a href="{url}" title="{title}" ' .
                 'onclick="Backend.openModalIframe({\'title\':\'{windowTitle}\',\'url\':this.href});' .
@@ -471,8 +476,7 @@ class WidgetBuilder implements EnvironmentAwareInterface
             $definition = $environment->getDataDefinition();
             assert($definition instanceof ContainerInterface);
 
-            $generator = System::getContainer()->get('router');
-            assert($generator instanceof RouterInterface);
+            $generator = $this->router;
 
             // Contao dropped Backend.openWindow() with version 5; the core opens its own help
             // wizard through Backend.openModalIframe() - see Contao's DataContainer::generateHelp().
@@ -520,13 +524,13 @@ class WidgetBuilder implements EnvironmentAwareInterface
         ModelInterface $model
     ) {
         if (
-            static::$scopeDeterminator->currentScopeIsUnknown()
-            || !static::$scopeDeterminator->currentScopeIsBackend()
+            $this->scopeDeterminator->currentScopeIsUnknown()
+            || !$this->scopeDeterminator->currentScopeIsBackend()
         ) {
             throw new DcGeneralRuntimeException(
                 sprintf(
                     'WidgetBuilder only supports the backend mode. Running in mode "%s".',
-                    static::$scopeDeterminator->currentScopeIsUnknown() ? 'unknown' : 'frontend'
+                    $this->scopeDeterminator->currentScopeIsUnknown() ? 'unknown' : 'frontend'
                 )
             );
         }
