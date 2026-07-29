@@ -123,6 +123,42 @@ and js **are** the source.
   own `widget_filetree` template requests `reloadFiletree`, and the MultiColumnWizard
   rewrites both onto its `*_mcw` variants.
 
+## Services take their dependencies through the constructor
+
+Five classes that are registered as services reached into the container at the point of
+use. They are injected now, so the container is no longer touched on any active path.
+
+**`WidgetBuilder` is the one that breaks.** Its listener method `handleEvent()` was
+`static`, which is why it had no collaborators at hand: it fetched the translator from the
+container and kept the scope determinator in a static property, assigned as a side effect
+of the constructor so that the per-event instances could reach it.
+
+| before | now |
+| --- | --- |
+| `public static function handleEvent(BuildWidgetEvent $event)` | `public function handleEvent(BuildWidgetEvent $event)` |
+| `__construct($environment, $translator, ?RequestScopeDeterminator $scope = null)` | `__construct($environment, $translator, RequestScopeDeterminator $scope, RouterInterface $router)` |
+| `private static $scopeDeterminator` | ordinary instance property |
+
+Calling `WidgetBuilder::handleEvent()` statically or constructing the class with two
+arguments no longer works. The class is annotated `final`, carries no `@api` marker and has
+no user outside this bundle, which is why the argument became required rather than optional
+— note that the `WidgetBuilder` in `metamodels/filter_by_related` is an unrelated class
+that happens to share the name.
+
+**The other four keep working unchanged.** `BackendPickerController` is `final readonly`
+and only ever built by the container, so `kernel.debug` became a plain constructor
+argument. `HardCodedPopulator`, `EditAllHandler` and `OverrideAllHandler` gained *optional*
+arguments — the session factory, the edit information, the locales — because all three are
+marked `@api` and consumers may construct them; for that case the container lookup remains
+as a fallback. Anyone wiring these services in own configuration should pass the new
+arguments, the shipped definitions already do.
+
+What is deliberately left alone: the container calls in `PagePickerProvider` and
+`BackendViewPopulator` are BC shims with their own `E_USER_DEPRECATED` announcing removal
+in 3.0, and roughly fifty further calls sit in classes that are not services at all —
+everything below `DC_General` is built with `new`, because Contao instantiates the data
+container driver by class name.
+
 ## Fixed along the way
 
 - **Drag and drop sorting** in list views answered with HTTP 500 and lost the new order.
