@@ -99,6 +99,20 @@ class ContaoWidgetManager
      * @param EnvironmentInterface $environment The environment in use.
      * @param ModelInterface       $model       The model for which widgets shall be generated.
      */
+    /**
+     * The model carrying the input values of the current run, see modelWithInput().
+     *
+     * @var ModelInterface|null
+     */
+    private ?ModelInterface $inputModel = null;
+
+    /**
+     * The key the cached input model was built for.
+     *
+     * @var string|null
+     */
+    private ?string $inputModelKey = null;
+
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
     {
         $this->environment = $environment;
@@ -323,26 +337,9 @@ class ContaoWidgetManager
             );
         }
 
-        $model = clone $this->model;
-        $model->setId($this->model->getId());
-
-        if ($inputValues) {
-            $controller = $environment->getController();
-            assert($controller instanceof ControllerInterface);
-
-            $values = new PropertyValueBag();
-            foreach ($inputValues->getIterator() as $propertyName => $propertyValue) {
-                try {
-                    $values->setPropertyValue(
-                        $propertyName,
-                        $this->encodeValue($propertyName, $propertyValue, $inputValues)
-                    );
-                } catch (\Exception $e) {
-                }
-            }
-
-            $controller->updateModelFromPropertyBag($model, $values);
-        }
+        $model = null === $inputValues
+            ? $this->cloneModel($this->model)
+            : $this->cloneModel($this->modelWithInput($inputValues));
 
         $event = new BuildWidgetEvent($environment, $model, $propertyDefinitions->getProperty($property));
 
@@ -352,6 +349,92 @@ class ContaoWidgetManager
         $dispatcher->dispatch($event, $event::NAME);
 
         return $event->getWidget();
+    }
+
+    /**
+     * Build the model that carries all passed input values - once per set of values.
+     *
+     * Every widget has to see the input of *all* fields, not just its own: display conditions and
+     * dependent selects are evaluated against the other properties. That is why the model is rebuilt
+     * from the whole bag rather than from a single value.
+     *
+     * Doing so per widget made the work quadratic. getWidget() is called once per property, and each
+     * call encoded every value and wrote it to a fresh clone - with n properties that is n² encode
+     * events and n² setProperty calls, and every setProperty converts the value again. Measured on a
+     * mask with 27 widgets: 1323 encode calls and 1349 setProperty calls for one save.
+     *
+     * The values are the same for all widgets of one run, so the model is built once and cached. The
+     * cache key covers the contents of the bag, so a changed value rebuilds it.
+     *
+     * @param PropertyValueBagInterface $inputValues The input values.
+     *
+     * @return ModelInterface
+     */
+    private function modelWithInput(PropertyValueBagInterface $inputValues): ModelInterface
+    {
+        $key = $this->inputCacheKey($inputValues);
+        if (null !== $key && null !== $this->inputModel && $key === $this->inputModelKey) {
+            return $this->inputModel;
+        }
+
+        $environment = $this->getEnvironment();
+        $controller  = $environment->getController();
+        assert($controller instanceof ControllerInterface);
+
+        $model = $this->cloneModel($this->model);
+
+        $values = new PropertyValueBag();
+        foreach ($inputValues->getIterator() as $propertyName => $propertyValue) {
+            try {
+                $values->setPropertyValue(
+                    $propertyName,
+                    $this->encodeValue($propertyName, $propertyValue, $inputValues)
+                );
+            } catch (\Exception $e) {
+                // A value that cannot be encoded is left out of the model, exactly as before this
+                // was extracted - the widget then falls back to the stored value.
+                continue;
+            }
+        }
+
+        $controller->updateModelFromPropertyBag($model, $values);
+
+        $this->inputModel    = $model;
+        $this->inputModelKey = $key;
+
+        return $model;
+    }
+
+    /**
+     * Clone a model and keep its id - DefaultModel::__clone() drops it on purpose.
+     *
+     * @param ModelInterface $model The model to copy.
+     *
+     * @return ModelInterface
+     */
+    private function cloneModel(ModelInterface $model): ModelInterface
+    {
+        $copy = clone $model;
+        $copy->setId($model->getId());
+
+        return $copy;
+    }
+
+    /**
+     * Build a cache key over the contents of the value bag, or null when they cannot be hashed.
+     *
+     * @param PropertyValueBagInterface $inputValues The input values.
+     *
+     * @return string|null
+     */
+    private function inputCacheKey(PropertyValueBagInterface $inputValues): ?string
+    {
+        try {
+            return \md5(\serialize($inputValues->getArrayCopy()));
+        } catch (\Throwable) {
+            // Not hashable - fall back to rebuilding, which is what happened before anyway.
+            return null;
+        }
     }
 
     /**
