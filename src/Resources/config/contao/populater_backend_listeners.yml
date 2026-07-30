@@ -4,6 +4,8 @@ services:
         public: true
         arguments:
             - "@cca.dc-general.scope-matcher"
+            - "@contao.csrf.token_manager"
+            - "%contao.csrf_token_name%"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.factory.populate-environment
