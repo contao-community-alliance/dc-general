@@ -4,8 +4,10 @@
 > `ContaoWidgetManager::getWidget()` ist beseitigt. Der zweite Schritt (die Konvertierungen je
 > `setProperty` in MetaModels) wurde **versucht und wieder verworfen**, siehe
 > [Verworfen: der Vergleich auf der Speicherform](#verworfen-der-vergleich-auf-der-speicherform).
-> Dabei kam der eigentliche Hebel zum Vorschein: die
-> [kaputte Änderungserkennung](#der-eigentliche-hebel-die-änderungserkennung).
+>
+> **Danach gemessen statt geraten** — und das Ergebnis stellt alles Weitere infrage:
+> [Unser Code macht 5,6 % der Laufzeit aus](#wo-die-zeit-wirklich-hingeht), der Rest ist
+> Entwicklungs-Infrastruktur. Wer hier weiterarbeitet, sollte **zuerst im prod-Modus messen**.
 
 ## Der Befund
 
@@ -84,10 +86,13 @@ Dass die Wandzeit „nur" um den Faktor 2 sinkt, während die Konvertierungen um
 fallen, heißt: Der Rest der Zeit steckt woanders — die 76 `getWidget`-Aufrufe für 27 Properties
 deuten auf mehrfache Durchläufe der Maske (Validierung, Neuaufbau, Rendern der Antwort).
 
-**Nebenbefund:** Xdebug war *nicht* die Ursache der Langsamkeit. Mit `xdebug.mode=debug` und
-`start_with_request=yes` lagen die Zeiten bei 22 s, ohne Xdebug bei 18–23 s — kein
-nennenswerter Unterschied. Die Vermutung, der fehlschlagende Debugger-Verbindungsaufbau koste
-spürbar, hat sich nicht bestätigt.
+> **Korrektur.** An dieser Stelle stand zunächst der Nebenbefund, Xdebug sei *nicht* die
+> Ursache der Langsamkeit — gemessen an 22 s mit gegen 18–23 s ohne. **Diese Messung war
+> ungültig.** Sie hat zweimal dieselbe Konfiguration verglichen: Das Ändern der
+> `xdebug.ini` allein wirkt nicht, php-fpm muss neu geladen werden, und der dafür verwendete
+> Befehl traf den falschen Prozess (siehe
+> [php-fpm neu laden](#php-fpm-neu-laden-sonst-misst-man-nichts)). Xdebug lief also in beiden
+> Läufen mit. Der korrekt gemessene Wert steht unten: **Faktor 2,6**.
 
 ## Verworfen: der Vergleich auf der Speicherform
 
@@ -154,16 +159,85 @@ nebenbei zu erledigen: Jede Korrektur muss belegen, dass sie echte Änderungen w
 erkennt. Reproduzieren lässt sich der Befund mit `.playwrite/verify-noop-save.js` plus einer
 temporären Ausgabe an der Stelle, an der `IS_CHANGED` gesetzt wird.
 
+## Wo die Zeit wirklich hingeht
+
+Statt weiter zu raten: ein Profillauf. Zuerst der Symfony-Profiler, der immer schon mitläuft
+und die wichtigste Frage in einem Blick beantwortet — **Datenbank oder Rechenzeit?**
+
+| Speichervorgang (Profiler-Token `4c7634`) | |
+|---|---:|
+| Gesamtzeit | 2.817 ms |
+| davon Datenbank | **332 ms (12 %)** |
+| Abfragen | 550 (103 verschiedene) |
+| Spitzenspeicher | 42 MiB |
+
+**Rechenzeit, nicht Datenbank.** Damit ist auch die Obergrenze für die oben beschriebene
+Änderungserkennung bekannt: Selbst wenn *jede* überflüssige Schreiboperation verschwände,
+wären höchstens 332 ms zu holen — nicht die Sekunden, die der Vorgang tatsächlich braucht.
+
+Dann Xdebug im Profilmodus (`xdebug.mode=profile`), ausgewertet nach **Eigenzeit** je
+Herkunft:
+
+| Herkunft | Eigenzeit | Anteil |
+|---|---:|---:|
+| Symfony (übrige) | 6.391 ms | 23,1 % |
+| Debug-EventDispatcher *(nur dev)* | 4.884 ms | 17,7 % |
+| Logging / Monolog | 4.611 ms | 16,7 % |
+| PHP-intern / Aufwärmen | 2.846 ms | 10,3 % |
+| PhpParser | 2.547 ms | 9,2 % |
+| Profiler / VarDumper *(nur dev)* | 2.078 ms | 7,5 % |
+| Contao-Core | 1.434 ms | 5,2 % |
+| Doctrine | 1.061 ms | 3,8 % |
+| **MetaModels** | **959 ms** | **3,5 %** |
+| **dc-general** | **570 ms** | **2,1 %** |
+
+**Unser Code macht 5,6 % aus.** Über 40 % sind Entwicklungs-Infrastruktur, die in Produktion
+gar nicht läuft. Auffällig sind **14.320 Log-Einträge pro Speichervorgang**; sie erklären auch
+einen großen Teil der Symfony-Zeile (`Request::getUri()` u. ä. wird 14.215-mal aufgerufen,
+einmal je Log-Eintrag durch den Request-Processor).
+
+Einschränkung: Xdebug instrumentiert jeden Funktionsaufruf und überzeichnet daher Code mit
+vielen kleinen Aufrufen — also gerade die Instrumentierung selbst. Ihr Anteil ist eher zu hoch
+angesetzt. Am Verhältnis ändert das nichts: Es ist zu deutlich, um am Ergebnis zu rütteln.
+
+### Xdebug kostet Faktor 2,6
+
+Verschränkt gemessen, vier Speichervorgänge je Einstellung, mit korrektem php-fpm-Reload
+dazwischen:
+
+| `xdebug.mode` | Median | Min | Max |
+|---|---:|---:|---:|
+| `off` | **4.188 ms** | 4.147 | 5.932 |
+| `debug` | **10.902 ms** | 10.093 | 11.358 |
+
+`start_with_request=yes` versucht bei *jeder* Anfrage eine Verbindung zum Debugger. Wer nicht
+gerade debuggt, sollte `xdebug.mode=off` setzen — das ist die mit Abstand größte Ersparnis in
+dieser Umgebung und kostet keine Zeile Code.
+
+### php-fpm neu laden, sonst misst man nichts
+
+Eine geänderte `xdebug.ini` wirkt **nur nach einem Reload von php-fpm** — die PHP-CLI liest
+sie sofort neu und täuscht Erfolg vor. Im Devstack ist php-fpm **PID 7**; PID 1 ist
+`entrypoint.sh`:
+
+```bash
+docker exec -u root <container> kill -USR2 7
+```
+
+Kontrolle immer über die Webseite, nie über die CLI: `/_profiler/phpinfo` zeigt, was der
+Webserver tatsächlich geladen hat.
+
 ## Was offen bleibt
 
-1. **Die Änderungserkennung je Attributtyp** — siehe oben. Der größte bekannte Hebel.
-2. **Die 76 `getWidget`-Aufrufe.** Zu klären, welche Durchläufe das sind und ob sich einer
+1. **Ein Profillauf im prod-Modus.** Alles oben ist im dev-Modus gemessen, wo über 40 % der
+   Zeit auf Werkzeuge entfallen, die in Produktion fehlen. Erst prod zeigt die echte
+   Verteilung der Anwendungslast — vorher ist jede weitere Optimierung Raten.
+2. **Die 14.320 Log-Einträge je Speichervorgang.** Auch in Produktion nicht umsonst, und die
+   Zahl allein ist ein Geruch.
+3. **Die Änderungserkennung je Attributtyp** — begrenzt durch die 332 ms Datenbankzeit.
+4. **Die 76 `getWidget`-Aufrufe.** Zu klären, welche Durchläufe das sind und ob sich einer
    davon einsparen lässt.
-3. **Der Sprachwechsel je Property** bei übersetzten Modellen — noch nicht gemessen. Ein
-   Benchmark an einem übersetzten Modell fehlt.
-4. **Wo die restlichen ~4 Sekunden stecken**, ist unbekannt. Die Konvertierungen sind es nach
-   Schritt 2 nachweislich nicht mehr. Der nächste Schritt wäre ein Profiler-Lauf statt weiterer
-   Vermutungen.
+5. **Der Sprachwechsel je Property** bei übersetzten Modellen — noch nicht gemessen.
 
 ## Messung wiederholen
 
