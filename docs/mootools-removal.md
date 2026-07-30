@@ -19,6 +19,7 @@
 > - [x] 11 – `generalDriver.js` auf Vanilla umbauen (Abschnitt 6)
 > - [x] 12 – `generalBase.js` auf Vanilla umbauen (Abschnitt 6)
 > - [x] 13 – Marker-Klassen für deprecated Helfer aus dem Markup (Abschnitt 6.1)
+> - [x] 14 – Sichtbarkeits-Schalter auf Contaos Link-Modell (Abschnitt 9)
 >
 > **jQuery:** im dc-general nicht vorhanden — es gab und gibt keine Fundstelle.
 
@@ -228,6 +229,9 @@ anzeigt. Im Light-Modus war der Postfix leer, also wurde `invisible.svg` in
 `invisible--dark.svg` gesucht — kein Treffer, das Bild blieb stehen. Das Suffix ist jetzt
 fest `--dark`. Nebenbei entfiel ein `console.log()`, das bei jedem Klick feuerte.
 
+> Historisch: Die Funktion, die hier korrigiert wurde, ist seit Abschnitt 9 entfallen — der
+> Schalter tauscht keine Icons mehr, der Server rendert die Liste neu.
+
 ## 5. Was bewusst bleibt
 
 Diese Contao-APIs haben in 5.7 **keinen** vanilla- oder Stimulus-Ersatz. Sie sind kein
@@ -320,6 +324,9 @@ weil jede von ihnen eine Lehre über die Übersetzung MooTools → vanilla enth�
   dort nie, nur in `loadSubTree()`. Jeder Klick legte damit ein Overlay „Daten werden
   geladen…" über die Liste. Wieder entfernt; die Ladeanzeige bleibt allein am Aufklappen
   des Baums, wo das Warten sichtbar sein soll.
+
+> Historisch: Die ersten beiden Punkte betrafen `toggleVisibility()`, die es seit
+> Abschnitt 9 nicht mehr gibt. Die Lehre zu den `fetch()`-Vorgaben gilt weiter.
 * **Der Schalter holte die ganze Folgeseite.** `Request.Contao` lief mit
   `followRedirects: false`; `fetch()` folgt Weiterleitungen dagegen von sich aus. Die
   Antwort auf das Umschalten ist eine Weiterleitung, also lud der Browser bei jedem Klick
@@ -395,12 +402,11 @@ abgeglichen (Controller-Name, Methodenname, Target-Name).
   einzelne Ankreuzen sind beim Entfernen von `picker_selector` geprüft worden, siehe 6.1)
 * „Alle bearbeiten"/„Alle überschreiben": Auswahl eines `fileTree`-Feldes zieht das
   zugehörige Order-Feld mit
-* Sichtbarkeits-Schalter in der **Baum-** und der **Parent-Ansicht** — `toggleVisibility`
-  verzweigt dort anders, und in keiner der beiden Ansichten der Testdaten gibt es einen
-  solchen Button. Für genau diese Zweige fehlt die Absicherung; sollte der Schalter auf
-  Contaos Link-Modell umgestellt werden (Abschnitt 9), entfallen sie ohnehin.
 * Der `helpwizard`-Zweig aus 4.5 — kein DCA in den Paketen setzt `eval.helpwizard`, der
   Zweig greift nur bei Fremd-DCAs und war deshalb nicht auslösbar.
+
+Die früher hier geführten Zweige von `toggleVisibility` in Baum- und Parent-Ansicht sind
+**entfallen, nicht geschlossen worden**: Die Funktion gibt es seit Abschnitt 9 nicht mehr.
 
 Zwei Fallen, die beim Testen Zeit gekostet haben:
 
@@ -408,8 +414,12 @@ Zwei Fallen, die beim Testen Zeit gekostet haben:
 > Widget hat dann keine Bounding-Box, und ein Folgelauf scheitert scheinbar grundlos an
 > Drag&Drop.
 
-> Der Icon-Tausch von `toggleVisibility` passiert erst im `onSuccess` des Requests. Wer
-> mit einer festen Wartezeit statt auf die Antwort prüft, bekommt sporadische Fehlschläge.
+> **Nie mit festen Wartezeiten prüfen.** Der Unterbaum-Request antwortet mit rund 9,5 kB,
+> die der Client anschließend einbaut; eine feste Wartezeit liest den Zustand des vorigen
+> Klicks. Das hat einen scheinbaren Turbo-Fehler beim Baum erzeugt, der keiner war. Auf
+> `waitForResponse` bzw. eine Bedingung im DOM umstellen. Unter Turbo ist ein Linkklick
+> ohnehin keine Browser-Navigation mehr, sondern `fetch` plus `pushState` — auf
+> `waitForNavigation` zu warten läuft dort in den Timeout.
 
 ## 8. Zustand der Nachbarpakete
 
@@ -459,33 +469,54 @@ mitbringt — die Template-Hierarchie von Contao 5 löst Twig auch hier auf. Ebe
 berücksichtigt `TemplateList::getTemplatesForBaseFrom()` die Endung `.html.twig` bereits.
 Einer Twig-Fassung der MetaModels-RTE-Templates steht damit nichts im Weg.
 
-## 9. Offene Entscheidung: das Modell des Sichtbarkeits-Schalters
+## 9. Umgesetzt: der Sichtbarkeits-Schalter folgt Contaos Modell
 
-Der Schalter ist die letzte Stelle, an der der dc-general grundsätzlich anders arbeitet als
-der Core — und daran hängt ein Anzeigefehler, der sich im jetzigen Modell nicht sauber
-beheben lässt.
+Der Schalter war die letzte Stelle, an der der dc-general grundsätzlich anders arbeitete als
+der Core — und daran hing ein Anzeigefehler, der sich im alten Modell nicht sauber beheben
+ließ.
 
 **Der Befund.** In der Baumansicht einer Variantenhierarchie erben die Varianten Werte vom
-nicht-varianten Datensatz, unter anderem `published`. Schaltet man den Elternsatz um,
-ändert sich der Zustand der Varianten fachlich mit — ihre Icons bleiben aber stehen, bis
-die Seite neu geladen wird. Das ist folgerichtig: `toggleVisibility()` tauscht nach der
+nicht-varianten Datensatz, unter anderem `published`. Schaltete man den Elternsatz um,
+änderte sich der Zustand der Varianten fachlich mit — ihre Icons blieben aber stehen, bis
+die Seite neu geladen wurde. Das war folgerichtig: `toggleVisibility()` tauschte nach der
 Antwort genau **eine** Bildquelle aus, nämlich die des angeklickten Eintrags. Von der
-Vererbung weiß der Client nichts, und er kann es auch nicht wissen, ohne die Regeln des
+Vererbung wusste der Client nichts, und er konnte es auch nicht wissen, ohne die Regeln des
 Servers nachzubauen.
 
-**Contaos Modell.** Dort ist der Schalter ein gewöhnlicher Link. Turbo Drive fängt ihn ab,
-holt die Antwort und tauscht den `<body>`; der Server rendert dabei jede Zeile neu, und
-abgeleitete Zustände stimmen ohne Zutun des Clients. Ein Umstieg würde
+**Umgesetzt in drei Schritten:**
 
-* diesen Fehler strukturell erledigen statt ihn zu umgehen,
-* `toggleVisibility()` samt Icon-Tausch, Dark-Mode-Sonderfall (4.6) und den beiden in 6.2
-  beschriebenen Fallen ersatzlos entfallen lassen,
-* den Schalter dem Verhalten des Cores angleichen, das Redakteure ohnehin kennen.
+1. **Server** (`ToggleHandler`) — `determineNewState()` kippt den gespeicherten Wert, wenn
+   kein `state`-Parameter kommt. Der Parameter behält Vorrang, PHP fällt unter die
+   BC-Zusage. Nach dem Speichern leitet der Handler auf die Liste weiter, die die
+   Toggle-Aktion selbst nicht rendert; das macht die URL zugleich idempotent.
+2. **Markup** (`ButtonRenderer::buildToggleAttributes()`) — der Link trägt nur noch
+   `data-action="contao--scroll-offset#store"`, kein `onclick` mehr.
+3. **JavaScript** — `toggleVisibility()` ist ersatzlos entfallen, mit ihr die
+   Icon-Namens-Arithmetik, der Dark-Mode-Sonderfall aus 4.6 und die Verzweigung nach
+   Listen-, Baum- und Parent-Ansicht. Zusammen mit den dadurch verwaisten Helfern
+   `siblingMatching()` und `firstChildMatching()` sind **180 Zeilen** aus
+   `generalDriver.js` verschwunden (491 → 311). JavaScript fällt nicht unter die
+   BC-Zusage, deshalb ohne Deprecation-Hülle.
 
-Dagegen steht, dass jeder Klick eine vollständige Liste rendert statt eines
-Statuswechsels — bei großen Listen und teuren Renderern der dc-general ist das nicht
-umsonst zu haben, und die Baum- und Parent-Ansicht müssten mitgezogen werden.
+**Nachgewiesen.** Der Varianten-Fall, der das Vorhaben ausgelöst hat, ist behoben: Nach dem
+Klick auf den Basis-Datensatz folgen alle drei erbenden Varianten **ohne Reload**, Zeilen
+anderer Gruppen bleiben unberührt (`verify-variant-toggle.js`, dreimal 5/5). Der Schalter
+selbst 6/6 ohne JS-Fehler.
 
-**Stand:** zur Entscheidung im Team. Bis dahin bleibt das jetzige Verhalten; der
-Anzeigefehler betrifft ausschließlich die geerbten Icons der Varianten, der gespeicherte
-Zustand ist in allen Fällen korrekt.
+**Zwei Funde, die der Umbau erst sichtbar machte:**
+
+* Das Inline-Skript für das Sortier-Drag-&-Drop in `dcbe_general_common_list` deklarierte
+  `const table` global. Es steht in einer Schleife, konnte also schon bei mehreren Gruppen
+  auf einer Seite kollidieren, und Turbo führt die Skripte eines ausgetauschten Body erneut
+  aus — jeder Toggle-Klick warf `Identifier 'table' has already been declared`. Jetzt in
+  einen Funktionsausdruck gekapselt.
+* Die Toggle-Aktion rendert selbst keine Liste. Beim Ajax-Aufruf war das gleichgültig, weil
+  die Antwort verworfen wurde; als Link zeigt der Browser sie. Daher die Weiterleitung.
+
+**Voraussetzung war Turbo.** Der Body-Austausch trägt das Modell, und Turbo war im
+MetaModels-Backend pauschal abgeschaltet. Siehe `docs/turbo.md`: aktiv für Navigation, die
+Formulare dieses Bundles bleiben ausgenommen.
+
+**Was das erledigt hat.** Die in Abschnitt 7 als offen geführten Zweige von
+`toggleVisibility` in Baum- und Parent-Ansicht gibt es nicht mehr — die Testlücke ist
+entfallen, statt geschlossen worden zu sein.

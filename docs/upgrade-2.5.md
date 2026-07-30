@@ -23,22 +23,28 @@ session referer knew the actual history and needed no such distinction — anyon
 `getBackUrl()` in own code should be aware of the difference.
 
 **Check your tables that have no list view.** A table whose data provider only serves the
-edit mode — `TableRowsAsRecordsDataProvider` is the one shipped here, it aggregates all rows
-of a parent into a single record and throws on `fetchAll()` — must say so through
-`config/forceEdit` in its DCA. The flag is not new, but with the session referer it rarely
-mattered; now the back url is built from the request and would otherwise point at a list
-that cannot be rendered. With the flag set, two things fall into place: the list handler
-forwards to the edit action instead of fetching a collection, and the back url leaves
-`table` and `pid` behind so that closing lands one level up.
+edit mode has no list to go back to - `TableRowsAsRecordsDataProvider` is the one shipped
+here: it aggregates all rows of a parent into a single record and throws on `fetchAll()`.
+With the session referer this rarely mattered, since it returned the page one came from. The
+back url is derived from the request now and would otherwise point at that missing list.
 
-The symptom without it is an exception on "save and close", not a warning:
+The symptom is an exception on "save and close", not a warning:
 
 ```
 TableRowsAsRecordsDataProvider::fetchAll not available,
 as the data provider is intended for edit mode only.
 ```
 
-`tl_metamodel_dca_combine` in MetaModels was affected and carries the flag now.
+**Own providers say so through `EditOnlyDataProviderInterface`.** Implementing it settles
+both consumers: the back url leaves `table` and `pid` behind so that closing lands one level
+up, and the list handler forwards to the edit action instead of fetching a collection. The
+interface also answers which record aggregates a given parent, which the forward needs - the
+list url of such a table carries only `pid`, and forwarding without an id opens an empty mask
+that looks exactly like lost data.
+
+The older `config/forceEdit` in the DCA keeps working and is honoured the same way. The
+interface is the more reliable source though: a flag is easy to forget, while a provider that
+cannot list knows it.
 
 ## Back-end javascript reworked (MooTools removal)
 
@@ -70,6 +76,25 @@ The `_src` suffix is gone for good - there is no build step, the shipped file is
   `sendPost()` had no caller and was broken anyway - it passed the payload to
   `setRequestHeader()` instead of sending it as the body. Use `DcGeneral.post()`.
 - `BackendGeneral.setLegendState()` - see below.
+- `BackendGeneral.toggleVisibility()`. The visibility toggle is a plain link now, the way
+  Contao renders its own toggle operation: the server flips the stored value and the list is
+  rendered anew. Nothing swaps an icon any more, so the function, its icon name arithmetic,
+  the dark mode special case and the branching over list, tree and parent view are gone -
+  180 lines out of `generalDriver.js`, together with the helpers `siblingMatching()` and
+  `firstChildMatching()` they left behind.
+
+  This fixes a defect that could not be solved in the old model: rows inheriting the value -
+  variants inherit `published` from their base record - kept showing the stale state until a
+  reload, because only the clicked icon was swapped. Reproducing the server's inheritance
+  rules in the browser was never realistic.
+
+  Server side the change is additive. `ToggleHandler` still honours a `state` parameter and
+  only flips the stored value when none is passed, so existing links keep working. It now
+  redirects to the list once the new state is stored - the toggle action renders none itself,
+  which was of no consequence while an ajax call threw the answer away.
+
+  **This needs Turbo Drive**, or every toggle turns into a visible page load. See
+  `docs/turbo.md`.
 
 **Added:** `BackendGeneral.toggleWrap(id)`, because Contao 5 dropped `Backend.toggleWrap()`
 without a replacement while the dc-general still offers the button.
