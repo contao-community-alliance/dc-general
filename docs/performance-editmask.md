@@ -5,9 +5,10 @@
 > `setProperty` in MetaModels) wurde **versucht und wieder verworfen**, siehe
 > [Verworfen: der Vergleich auf der Speicherform](#verworfen-der-vergleich-auf-der-speicherform).
 >
-> **Danach gemessen statt geraten** — und das Ergebnis stellt alles Weitere infrage:
-> [Unser Code macht 5,6 % der Laufzeit aus](#wo-die-zeit-wirklich-hingeht), der Rest ist
-> Entwicklungs-Infrastruktur. Wer hier weiterarbeitet, sollte **zuerst im prod-Modus messen**.
+> **Danach gemessen statt geraten.** Kernbefund:
+> [Derselbe Speichervorgang braucht in prod 746 ms statt 4.188 ms](#derselbe-vorgang-in-prod)
+> — Faktor 5,6. In Produktion gibt es kein Laufzeitproblem. Wer dennoch optimiert, muss **in
+> prod messen**: Im dev-Modus verdeckt die Werkzeugschicht alles andere.
 
 ## Der Befund
 
@@ -191,14 +192,74 @@ Herkunft:
 | **MetaModels** | **959 ms** | **3,5 %** |
 | **dc-general** | **570 ms** | **2,1 %** |
 
-**Unser Code macht 5,6 % aus.** Über 40 % sind Entwicklungs-Infrastruktur, die in Produktion
-gar nicht läuft. Auffällig sind **14.320 Log-Einträge pro Speichervorgang**; sie erklären auch
-einen großen Teil der Symfony-Zeile (`Request::getUri()` u. ä. wird 14.215-mal aufgerufen,
-einmal je Log-Eintrag durch den Request-Processor).
+Im dev-Modus macht unser Code **5,6 %** aus; über 40 % sind Entwicklungs-Infrastruktur, die in
+Produktion gar nicht läuft. Auffällig sind **14.320 Log-Einträge pro Speichervorgang**; sie
+erklären auch einen großen Teil der Symfony-Zeile (`Request::getUri()` u. ä. wird 14.215-mal
+aufgerufen, einmal je Log-Eintrag durch den Request-Processor).
+
+> **Diese Zahlen taugen nicht zur Priorisierung.** Sie beschreiben den dev-Modus, nicht das
+> Produkt. Der prod-Lauf im nächsten Abschnitt kommt zu einer ganz anderen Verteilung — dort
+> sind es **29 %** statt 5,6 %. Wer aus dem dev-Profil ableitet, woran er arbeiten sollte,
+> arbeitet am Profiler.
 
 Einschränkung: Xdebug instrumentiert jeden Funktionsaufruf und überzeichnet daher Code mit
 vielen kleinen Aufrufen — also gerade die Instrumentierung selbst. Ihr Anteil ist eher zu hoch
-angesetzt. Am Verhältnis ändert das nichts: Es ist zu deutlich, um am Ergebnis zu rütteln.
+angesetzt.
+
+## Derselbe Vorgang in prod
+
+`APP_ENV=prod`, Xdebug aus, sechs Läufe nach zwei Aufwärmläufen:
+
+| | Median | Min | Max |
+|---|---:|---:|---:|
+| dev | 4.188 ms | 4.147 | 5.932 |
+| **prod** | **746 ms** | 707 | 806 |
+
+**Faktor 5,6.** Ein Speichervorgang mit 27 Widgets dauert in Produktion drei Viertel einer
+Sekunde. Das ist kein Laufzeitproblem — das gesamte Thema war zu einem großen Teil eine
+Eigenschaft der Entwicklungsumgebung.
+
+Die Verteilung im prod-Profil sieht völlig anders aus als in dev:
+
+| Herkunft | dev | **prod** |
+|---|---:|---:|
+| Contao-Core | 5,2 % | **20,8 %** |
+| Symfony (übrige) | 23,1 % | 18,5 % |
+| **MetaModels** | 3,5 % | **15,9 %** |
+| PHP-intern / Aufwärmen | 10,3 % | 14,5 % |
+| **dc-general** | 2,1 % | **13,3 %** |
+| Doctrine | 3,8 % | 6,7 % |
+| Logging / Monolog | 16,7 % | **2,8 %** |
+| Debug-EventDispatcher | 17,7 % | **0 %** |
+| Profiler / VarDumper | 7,5 % | **0 %** |
+| PhpParser | 9,2 % | 0 % |
+
+Unser Code ist in prod **29 %** — der größte zusammenhängende Block. Von den 14.320
+Log-Einträgen bleiben 2,8 % Restkosten; das Logging war ein dev-Artefakt.
+
+### Konkrete Fundstellen in prod
+
+| Eigenzeit | Aufrufe | Stelle |
+|---:|---:|---|
+| 196 ms | 834 | `EventDispatcher->callListeners` (996 Dispatches gesamt) |
+| ~196 ms | 2.583 | Composer-Autoloader (`findFile`, `loadClass`, Closure) |
+| ~235 ms | 40 / 26.887 | Contao-Twig: `getInheritanceChains`, `getFirst`, `ThemeNamespace->match` |
+| ~112 ms | **~6.000** | `RequestScopeDeterminator` + `ScopeMatcher->isBackendRequest` |
+
+Die letzte Zeile ist **unsere** und die einzige, die klar nach einem Fehler aussieht:
+`RequestScopeDeterminator->currentScopeIsUnknown()` läuft **5.811-mal** und
+`getCurrentScope()` **6.287-mal** für einen einzigen Speichervorgang. Die Antwort ändert sich
+innerhalb einer Anfrage nicht — ein Zwischenspeichern je Request wäre naheliegend und
+risikoarm. Größenordnung: rund 3,5 % der Rechenzeit, also etwa 25 ms von 746 ms.
+
+Der Composer-Autoloader mit 2.583 Klassenladungen deutet darauf hin, dass im Devstack kein
+optimierter Classmap erzeugt wird (`composer dump-autoload -o`) — eine reine
+Bereitstellungsfrage, kein Code.
+
+> **Beim Umschalten auf prod:** Der prod-Container-Cache war veraltet und quittierte den ersten
+> Versuch mit einem 500 (`WidgetBuilder::__construct()`, zu wenige Argumente — Stand vor dem
+> DI-Umbau). `cache:clear --env=prod` genügt; `cache:warmup` allein baut einen vorhandenen
+> Container nicht neu.
 
 ### Xdebug kostet Faktor 2,6
 
@@ -229,15 +290,20 @@ Webserver tatsächlich geladen hat.
 
 ## Was offen bleibt
 
-1. **Ein Profillauf im prod-Modus.** Alles oben ist im dev-Modus gemessen, wo über 40 % der
-   Zeit auf Werkzeuge entfallen, die in Produktion fehlen. Erst prod zeigt die echte
-   Verteilung der Anwendungslast — vorher ist jede weitere Optimierung Raten.
-2. **Die 14.320 Log-Einträge je Speichervorgang.** Auch in Produktion nicht umsonst, und die
-   Zahl allein ist ein Geruch.
-3. **Die Änderungserkennung je Attributtyp** — begrenzt durch die 332 ms Datenbankzeit.
-4. **Die 76 `getWidget`-Aufrufe.** Zu klären, welche Durchläufe das sind und ob sich einer
-   davon einsparen lässt.
-5. **Der Sprachwechsel je Property** bei übersetzten Modellen — noch nicht gemessen.
+Vorweg: **In Produktion gibt es kein Laufzeitproblem** (746 ms). Alles Folgende ist Kür, kein
+Pflichtprogramm — und lohnt nur, wenn es zugleich den Code klarer macht.
+
+1. **`RequestScopeDeterminator` je Request zwischenspeichern.** ~6.000 Auswertungen derselben,
+   innerhalb einer Anfrage unveränderlichen Frage. Der einzige Fund, der klar nach einem
+   Fehler aussieht; rund 25 ms.
+2. **996 Event-Dispatches je Speichervorgang** — mit 196 ms der größte Einzelposten. Ob das zu
+   viel ist, ist eine Architekturfrage, keine Optimierungsfrage.
+3. **Optimierter Composer-Classmap im Devstack** (`dump-autoload -o`) — Bereitstellung, kein
+   Code, ~6 %.
+4. **Die Änderungserkennung je Attributtyp** — begrenzt durch die 332 ms Datenbankzeit im dev-
+   Profil, in prod entsprechend weniger. Nach dem prod-Ergebnis kaum noch lohnend.
+5. **Die 76 `getWidget`-Aufrufe** und **der Sprachwechsel je Property** bei übersetzten
+   Modellen — beides unverändert offen, beides nach diesen Zahlen nachrangig.
 
 ## Messung wiederholen
 
