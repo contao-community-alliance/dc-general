@@ -26,6 +26,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Actio
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
@@ -105,7 +106,7 @@ class ToggleHandler
      * @param ToggleCommandInterface $operation   The operation.
      * @param ModelIdInterface|null  $modelId     The model id.
      *
-     * @return void
+     * @return never This redirects to the list once the new state is stored.
      *
      * @SuppressWarnings(PHPMD.ExitExpression)
      * @SuppressWarnings(PHPMD.Superglobals)
@@ -167,6 +168,12 @@ class ToggleHandler
             /** @var MultiLanguageDataProviderInterface $dataProvider */
             $dataProvider->setCurrentLanguage((string) $language);
         }
+
+        // Back to the list, which the action itself does not render. That was of no consequence while
+        // the toggle was an ajax call whose answer got thrown away, but it is a plain link now: the
+        // browser shows what comes back. Redirecting also keeps the url idempotent - reloading the
+        // list does not toggle a second time.
+        ViewHelpers::redirectHome($environment);
     }
 
     /**

@@ -129,9 +129,15 @@ assert($translator instanceof TranslatorInterface);
                         </tbody>
                     <?php if ($this->sortable) : ?>
                         <script>
-                            const table = document.getElementById('table_<?= $this->tableName ?>');
-                            const SortableTableDnD = new GeneralTableDnD();
-                            SortableTableDnD.init(table);
+                            /*
+                             * Scoped on purpose. This block sits inside a loop, so it can appear more than
+                             * once per page, and Turbo re-executes the scripts of a swapped body - both make
+                             * a global "const table" throw "Identifier has already been declared".
+                             */
+                            (function () {
+                                const table = document.getElementById('table_<?= $this->tableName ?>');
+                                new GeneralTableDnD().init(table);
+                            })();
                         </script>
                     <?php endif; ?>
                     <?php endforeach; ?>

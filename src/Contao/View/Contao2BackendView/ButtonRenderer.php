@@ -24,10 +24,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use Contao\Controller;
 use Contao\Image;
 use Contao\StringUtil;
-use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
@@ -314,46 +312,18 @@ class ButtonRenderer
     }
 
     /**
-     * Render a command button.
-     *
-     * @param CommandInterface    $command             The command to render the button for.
-     * @param ModelInterface      $model               The model to which the command shall get applied.
-     * @param ModelInterface|null $previous            The previous model in the collection.
-     * @param ModelInterface|null $next                The next model in the collection.
-     * @param bool                $isCircularReference Determinator if there exists a circular reference between the
-     *                                                 model and the model(s) contained in the clipboard.
-     * @param string[]            $childIds            The ids of all child models.
-     *
-     * @return string
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     */
-    /**
-     * Build the target attribute of the "contao--deeplink" controller for a command.
-     *
-     * The controller opens a record on ctrl click or on a double tap. Contao derives its targets from a
-     * legacy "click2edit" class otherwise and warns about the deprecated helper behind it.
-     *
-     * @param CommandInterface $command The command to render.
-     *
-     * @return string The attribute including a leading space, or an empty string.
-     */
-    /**
      * Build the attributes that turn a command into a visibility toggle.
      *
-     * @param array<array-key, mixed> $extra The extra information of the command.
-     * @param string                  $icon  The icon of the active state.
+     * A plain link, the way Contao renders its own toggle operation. The server flips the stored
+     * value and the list is rendered anew, so no script has to keep an icon in sync - and values
+     * inherited by other rows, as variants inherit "published", are correct without anyone
+     * reproducing the inheritance rules in the browser.
      *
      * @return string
      */
-    private function buildToggleAttributes(array $extra, string $icon): string
+    private function buildToggleAttributes(): string
     {
-        return sprintf(
-            ' data-action="contao--scroll-offset#store"'
-            . ' onclick="return BackendGeneral.toggleVisibility(this, \'%s\', \'%s\');"',
-            Controller::addStaticUrlTo(System::urlEncode($icon)),
-            Controller::addStaticUrlTo(System::urlEncode((string) ($extra['icon_disabled'] ?? 'invisible.svg')))
-        );
+        return ' data-action="contao--scroll-offset#store"';
     }
 
     /**
@@ -379,6 +349,16 @@ class ButtonRenderer
         return (string) ($extra['icon_disabled'] ?? 'invisible.svg');
     }
 
+    /**
+     * Build the target attribute of the "contao--deeplink" controller for a command.
+     *
+     * The controller opens a record on ctrl click or on a double tap. Contao derives its targets from a
+     * legacy "click2edit" class otherwise and warns about the deprecated helper behind it.
+     *
+     * @param CommandInterface $command The command to render.
+     *
+     * @return string The attribute including a leading space, or an empty string.
+     */
     private function buildDeepLinkTarget(CommandInterface $command): string
     {
         $target = ['edit' => 'primary', 'children' => 'secondary'][$command->getName()] ?? null;
@@ -386,6 +366,21 @@ class ButtonRenderer
         return null === $target ? '' : ' data-contao--deeplink-target="' . $target . '"';
     }
 
+    /**
+     * Render a command button.
+     *
+     * @param CommandInterface    $command             The command to render the button for.
+     * @param ModelInterface      $model               The model to which the command shall get applied.
+     * @param ModelInterface|null $previous            The previous model in the collection.
+     * @param ModelInterface|null $next                The next model in the collection.
+     * @param bool                $isCircularReference Determinator if there exists a circular reference between the
+     *                                                 model and the model(s) contained in the clipboard.
+     * @param string[]            $childIds            The ids of all child models.
+     *
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     private function buildCommand(
         CommandInterface $command,
         ModelInterface $model,
@@ -407,7 +402,7 @@ class ButtonRenderer
         $attributes .= $this->buildDeepLinkTarget($command);
 
         if ($command instanceof ToggleCommandInterface) {
-            $attributes .= $this->buildToggleAttributes($extra, $icon);
+            $attributes .= $this->buildToggleAttributes();
             $icon         = $this->getToggleIcon($command, $model, $extra, $icon);
         }
 
