@@ -122,8 +122,6 @@ class ToggleHandler
         $inputProvider = $environment->getInputProvider();
         assert($inputProvider instanceof InputProviderInterface);
 
-        $newState = $this->determineNewState($inputProvider, $operation->isInverse());
-
         // Override the language for language aware toggling.
         if (
             ($operation instanceof TranslatedToggleCommandInterface)
@@ -142,6 +140,8 @@ class ToggleHandler
 
         $model = $dataProvider->fetch($config);
         assert($model instanceof ModelInterface);
+
+        $newState = $this->determineNewState($inputProvider, $operation, $model);
 
         $originalModel = clone $model;
         $originalModel->setId($model->getId());
@@ -259,21 +259,37 @@ class ToggleHandler
     }
 
     /**
-     * Determine the new state from the input data.
+     * Determine the new state of the toggle property.
+     *
+     * A "state" parameter in the request wins - that is how this bundle addressed the toggle so far,
+     * with the client computing the target state and passing it along. Without one the stored value
+     * is simply flipped, which is what a plain link carries: Contao's own toggle operation works that
+     * way and needs no javascript to keep an icon in sync.
+     *
+     * Flipping does not depend on isInverse(): that flag describes how the state is presented, while
+     * the value written here is the raw property either way.
      *
      * @param InputProviderInterface $inputProvider The input provider.
-     * @param bool                   $isInverse     Flag if the state shall be evaluated as inverse toggler.
+     * @param ToggleCommandInterface $operation     The operation being executed.
+     * @param ModelInterface         $model         The model carrying the current value.
      *
      * @return string
      */
-    private function determineNewState(InputProviderInterface $inputProvider, $isInverse)
-    {
-        $state = 1 === (int) $inputProvider->getParameter('state');
+    private function determineNewState(
+        InputProviderInterface $inputProvider,
+        ToggleCommandInterface $operation,
+        ModelInterface $model
+    ) {
+        if ($inputProvider->hasParameter('state')) {
+            $state = 1 === (int) $inputProvider->getParameter('state');
 
-        if ($isInverse) {
-            return $state ? '' : '1';
+            if ($operation->isInverse()) {
+                return $state ? '' : '1';
+            }
+
+            return $state ? '1' : '';
         }
 
-        return $state ? '1' : '';
+        return $model->getProperty($operation->getToggleProperty()) ? '' : '1';
     }
 }
