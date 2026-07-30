@@ -47,6 +47,44 @@ class RequestScopeDeterminator
     private RequestStack $requestStack;
 
     /**
+     * The request the remembered answers below belong to.
+     *
+     * Held weakly so that this shared service never keeps a request alive - which would matter in long running
+     * workers.
+     *
+     * @var \WeakReference<Request>|null
+     */
+    private ?\WeakReference $lastRequest = null;
+
+    /**
+     * The `_scope` attribute the remembered answers were determined from, empty string when unset.
+     *
+     * @var string
+     */
+    private string $lastScope = '';
+
+    /**
+     * Whether the remembered request is a Contao request, null while undetermined.
+     *
+     * @var bool|null
+     */
+    private ?bool $isContao = null;
+
+    /**
+     * Whether the remembered request is a frontend request, null while undetermined.
+     *
+     * @var bool|null
+     */
+    private ?bool $isFrontend = null;
+
+    /**
+     * Whether the remembered request is a backend request, null while undetermined.
+     *
+     * @var bool|null
+     */
+    private ?bool $isBackend = null;
+
+    /**
      * Create a new instance.
      *
      * @param ScopeMatcher $scopeMatcher The Contao request scope matcher.
@@ -67,7 +105,12 @@ class RequestScopeDeterminator
      */
     public function currentScopeIsUnknown()
     {
-        return (null === ($request = $this->getCurrentRequest())) || !$this->scopeMatcher->isContaoRequest($request);
+        if (null === ($request = $this->getCurrentRequest())) {
+            return true;
+        }
+        $this->rememberRequest($request);
+
+        return !($this->isContao ??= $this->scopeMatcher->isContaoRequest($request));
     }
 
     /**
@@ -79,7 +122,12 @@ class RequestScopeDeterminator
      */
     public function currentScopeIsFrontend()
     {
-        return (null !== ($request = $this->getCurrentRequest())) && $this->scopeMatcher->isFrontendRequest($request);
+        if (null === ($request = $this->getCurrentRequest())) {
+            return false;
+        }
+        $this->rememberRequest($request);
+
+        return $this->isFrontend ??= $this->scopeMatcher->isFrontendRequest($request);
     }
 
     /**
@@ -91,7 +139,12 @@ class RequestScopeDeterminator
      */
     public function currentScopeIsBackend()
     {
-        return (null === ($request = $this->getCurrentRequest())) || $this->scopeMatcher->isBackendRequest($request);
+        if (null === ($request = $this->getCurrentRequest())) {
+            return true;
+        }
+        $this->rememberRequest($request);
+
+        return $this->isBackend ??= $this->scopeMatcher->isBackendRequest($request);
     }
 
     /**
@@ -102,5 +155,32 @@ class RequestScopeDeterminator
     private function getCurrentRequest()
     {
         return $this->requestStack->getCurrentRequest();
+    }
+
+    /**
+     * Drop the remembered answers when they do not belong to the passed request any more.
+     *
+     * The scope of a request does not change while it is being handled, but this service is asked thousands of times
+     * per request - saving a single edit mask triggered roughly 6.000 lookups. The `_scope` attribute is part of the
+     * comparison because it is what the matcher bases its decision on: a request that gets its scope assigned after
+     * we were first asked - which happens when a listener runs before the router - must not be served a stale answer.
+     *
+     * @param Request $request The request the caller is asking about.
+     *
+     * @return void
+     */
+    private function rememberRequest(Request $request): void
+    {
+        $scope = $request->attributes->getString('_scope');
+
+        if ($request === $this->lastRequest?->get() && $scope === $this->lastScope) {
+            return;
+        }
+
+        $this->lastRequest = \WeakReference::create($request);
+        $this->lastScope   = $scope;
+        $this->isContao    = null;
+        $this->isFrontend  = null;
+        $this->isBackend   = null;
     }
 }

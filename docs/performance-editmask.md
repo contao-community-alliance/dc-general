@@ -293,9 +293,8 @@ Webserver tatsächlich geladen hat.
 Vorweg: **In Produktion gibt es kein Laufzeitproblem** (746 ms). Alles Folgende ist Kür, kein
 Pflichtprogramm — und lohnt nur, wenn es zugleich den Code klarer macht.
 
-1. **`RequestScopeDeterminator` je Request zwischenspeichern.** ~6.000 Auswertungen derselben,
-   innerhalb einer Anfrage unveränderlichen Frage. Der einzige Fund, der klar nach einem
-   Fehler aussieht; rund 25 ms.
+1. ~~**`RequestScopeDeterminator` je Request zwischenspeichern.**~~ **Umgesetzt**, siehe
+   [unten](#umgesetzt-der-requestscopedeterminator-merkt-sich-die-antwort).
 2. **996 Event-Dispatches je Speichervorgang** — mit 196 ms der größte Einzelposten. Ob das zu
    viel ist, ist eine Architekturfrage, keine Optimierungsfrage.
 3. **Optimierter Composer-Classmap im Devstack** (`dump-autoload -o`) — Bereitstellung, kein
@@ -334,3 +333,37 @@ Zwei Skripte prüfen die Korrektheit, die bei solchen Umbauten zuerst bricht:
 **Beim Messen beachten:** `verify-dnd.js` sortiert `tl_metamodel_dcasetting` per Drag & Drop
 um und verändert damit dauerhaft die Reihenfolge der Eingabemaske — nach einem Lauf steht die
 Legende woanders. Wer Messreihen fährt, sollte das Skript aus der Runde nehmen.
+
+## Umgesetzt: der RequestScopeDeterminator merkt sich die Antwort
+
+`RequestScopeDeterminator` fragte den Contao-`ScopeMatcher` bei **jedem** Aufruf neu — für
+einen einzigen Speichervorgang rund 6.000-mal dieselbe Frage. Die Antwort kann sich innerhalb
+einer Anfrage nicht ändern.
+
+Die Klasse merkt sich jetzt je Request, was der Matcher geantwortet hat. Drei Punkte waren
+dabei zu beachten:
+
+- **Die Signaturen bleiben unverändert.** `currentScopeIs*()` sind öffentlich und nicht final;
+  ein nachgerüsteter Rückgabetyp wäre ein BC-Bruch. Die Zwischenspeicherung steckt vollständig
+  in privaten Feldern.
+- **Der Request wird nur schwach gehalten** (`\WeakReference`). Dieser Dienst ist `shared`;
+  eine starke Referenz würde in langlaufenden Prozessen den letzten Request am Leben halten.
+- **Das `_scope`-Attribut gehört zum Vergleich.** Fragt jemand, *bevor* der Router den Scope
+  gesetzt hat, darf die dann gegebene Antwort später nicht weiterverwendet werden.
+
+Gemessen in prod, verschränkt, sechs Läufe je Variante:
+
+| | Aufrufe `ScopeMatcher::isBackendRequest` | Median |
+|---|---:|---:|
+| vorher | 6.137 | 786 ms |
+| nachher | **244** | 762 ms |
+
+**−96 % Matcher-Aufrufe.** Die 24 ms Wandzeit passen zur Schätzung aus dem Profil, liegen aber
+im Rauschen — der belastbare Beleg ist die Aufrufzahl.
+
+Die verbleibenden 244 Aufrufe stammen vom Wechsel zwischen Haupt- und Sub-Request: Der Cache
+hat einen Platz, bei Wechsel wird neu ermittelt. Das ist korrekt, nur nicht maximal sparsam;
+eine `\WeakMap` je Request käme auf nahezu null, für geschätzte 1 ms Gewinn.
+
+Abgedeckt durch `tests/Contao/RequestScopeDeterminatorTest.php` — insbesondere, dass ein
+anderer Request und ein nachträglich gesetzter Scope die gemerkte Antwort verwerfen.
