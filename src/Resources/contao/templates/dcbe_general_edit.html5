@@ -45,7 +45,7 @@ $hasLanguageSwitcher = $this->language && !empty($this->languages);
 
     <?php if($this->versions): ?>
         <div class="tl_version_panel">
-            <form action="<?= StringUtil::ampersand($request, true) ?>" id="tl_version" class="tl_form" method="post">
+            <form data-turbo="false" action="<?= StringUtil::ampersand($request, true) ?>" id="tl_version" class="tl_form" method="post">
                 <div class="tl_formbody">
                 <input type="hidden" name="FORM_SUBMIT" value="tl_version" />
                 <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>" />
@@ -74,7 +74,19 @@ $hasLanguageSwitcher = $this->language && !empty($this->languages);
     <h2 class="sub_headline"><?= $this->subHeadline ?><?= ($this->languageHeadline !== '') ? ' - ' . $this->languageHeadline . ($this->language === $this->fallbackLanguage ? ' <span class="lang-hint--fallback" title="' . StringUtil::specialchars($translator->trans('language_selector.fallback_title', [], 'dc-general')) . '">' . $translator->trans('language_selector.fallback', [], 'dc-general') . '</span>' : '') : '' ?></h2>
     <?= Message::generate() ?>
 
-<form class="tl_form tableextended" method="post"
+<?php
+/*
+ * The forms of this bundle opt out of Turbo Drive on purpose. Turbo only renders the answer to a
+ * form submission when it is a redirect; a 200 with html is discarded. DC_General relies on the
+ * opposite for its auto submit (SUBMIT_TYPE=auto): it answers with the mask re-rendered from the
+ * submitted values and deliberately does not save, so there is nothing to redirect to. Without
+ * this attribute display conditions silently stop reacting - the widget just stays.
+ *
+ * Links are unaffected, Turbo handles navigation as usual. Moving this to a turbo stream response
+ * would lift the restriction, see docs/turbo.md.
+ */
+?>
+<form data-turbo="false" class="tl_form tableextended" method="post"
   action="<?= StringUtil::ampersand($request, true) ?><?php if($this->mode): ?>&mode=<?= $this->mode ?><?php endif; ?>"
   id="<?= $this->table ?>"
   enctype="<?= $this->enctype ?>"

@@ -23,7 +23,7 @@ assert($translator instanceof TranslatorInterface);
 <?php $this->endblock(); ?>
 
 <?php if ($this->select) : ?>
-<form action="<?= $this->action ?>" id="tl_select" class="tl_form" method="post">
+<form data-turbo="false" action="<?= $this->action ?>" id="tl_select" class="tl_form" method="post">
     <div class="tl_formbody">
         <input type="hidden" name="FORM_SUBMIT" value="tl_select">
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">

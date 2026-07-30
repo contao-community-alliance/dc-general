@@ -11,7 +11,7 @@ assert($translator instanceof TranslatorInterface);
 
 $apply = $translator->trans(id: 'apply', domain: 'dc-general');
 ?>
-<form action="<?= $this->action ?>" class="tl_form" method="post">
+<form data-turbo="false" action="<?= $this->action ?>" class="tl_form" method="post">
     <div class="tl_formbody">
         <input type="hidden" name="FORM_SUBMIT" value="tl_language_switch">
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">

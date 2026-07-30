@@ -8,7 +8,7 @@ $fallbackLabel  = $translator->trans('language_selector.fallback', [], 'dc-gener
 $fallbackTitle  = $translator->trans('language_selector.fallback_title', [], 'dc-general');
 ?>
 <?php if ($this->language && !empty($this->languages)): ?>
-  <form action="<?= StringUtil::ampersand($this->request, true) ?>" id="language_switch" class="tl_form tl_language_panel" method="post">
+  <form data-turbo="false" action="<?= StringUtil::ampersand($this->request, true) ?>" id="language_switch" class="tl_form tl_language_panel" method="post">
     <div class="tl_formbody">
       <div class="tl_panel">
         <input type="hidden" name="FORM_SUBMIT" value="language_switch" />

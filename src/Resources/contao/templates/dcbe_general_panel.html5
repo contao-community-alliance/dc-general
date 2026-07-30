@@ -4,7 +4,7 @@ use Contao\System;
 
 $requestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
 ?>
-<form action="<?= $this->action ?>" class="tl_form dc_general_panel" method="post">
+<form data-turbo="false" action="<?= $this->action ?>" class="tl_form dc_general_panel" method="post">
     <div class="tl_formbody">
         <input type="hidden" name="FORM_SUBMIT" value="tl_filters">
         <input type="hidden" name="REQUEST_TOKEN" value="<?= $requestToken ?>">
