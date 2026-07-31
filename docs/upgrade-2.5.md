@@ -127,6 +127,36 @@ the `.tl_language_panel` rules always lived in `generalDriver.css` — and `imag
 which had no user left. There is no build step and no sass source any more: the shipped css
 and js **are** the source.
 
+## New: pagination below list and parent views
+
+Paginated listings now carry a bar below the table showing "Page x of y" and the page numbers,
+the way the Contao back end does. The block size selector in the panel is unchanged - the bar
+only adds a way to browse.
+
+Nothing to do on your side. Two things are worth knowing if you build on top of dc-general:
+
+- **`TotalAwareLimitElementInterface` is new.** A pagination needs to know how many records match
+  the current filter, and the limit element is the one place where that number already exists.
+  It is a separate interface rather than an addition to `LimitElementInterface` because that
+  would break every implementation out there; the two are to be merged in 3.0.
+  `DefaultLimitElement` implements it. A limit element that does not is simply skipped, the bar
+  is then left out.
+- **The url parameter `lp` is taken.** It carries the requested page and is turned into an offset
+  by the limit element, which stores it like any other panel state. Submitting the panel wins
+  over it, and the panel form action no longer carries it - a changed filter would otherwise
+  jump right back to the page the user came from.
+
+The calculation lives in `ListPagination`, plain arithmetic without dependencies. The window of
+offered pages slides with the current page, exactly as Contao's does - verified against 72
+combinations of total, page size, current page and window width. By default every page is
+offered, which is what a back end listing wants; the window width is available as a parameter.
+
+The pages are plain links, not form buttons. The panel state lives in the session, so a link
+carries everything needed, the selection form is left alone and Turbo handles the navigation.
+
+Overriding the look is done through `dcbe_general_pagination.html5`. The `tl_pagination` class it
+uses comes from the back end theme, so light and dark mode are handled.
+
 ## Removed (breaking)
 
 - **The `setLegendState` chain** - the javascript function, the ajax action, the abstract
