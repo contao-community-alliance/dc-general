@@ -28,6 +28,7 @@ use Contao\Config;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\DataProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewTemplateInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
@@ -100,7 +101,7 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         $dataProvider = $this->getEnvironment()->getDataProvider();
         assert($dataProvider instanceof DataProviderInterface);
 
-        $total = $dataProvider->fetchAll($otherConfig->setIdOnly(true));
+        $total = $dataProvider->fetchAll($this->buildTotalConfig($otherConfig));
 
         if (\is_array($total)) {
             $this->intTotal = $total ? \count($total) : 0;
@@ -109,6 +110,42 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         }
 
         $this->intTotal = $total->length();
+    }
+
+    /**
+     * Build the config the total is counted with.
+     *
+     * In a hierarchical view only the root nodes are limited: the children are rendered below their
+     * parent and must not count towards the pages, otherwise the amount of pages would depend on how
+     * many variants happen to hang below a base. The config is copied because the one handed in is
+     * kept for the lifetime of the element.
+     *
+     * @param ConfigInterface $otherConfig The config carrying the filters of the other panel elements.
+     *
+     * @return ConfigInterface
+     */
+    private function buildTotalConfig(ConfigInterface $otherConfig): ConfigInterface
+    {
+        $config = clone $otherConfig;
+        $config->setIdOnly(true);
+
+        $definition = $this->getEnvironment()->getDataDefinition();
+        assert($definition instanceof ContainerInterface);
+
+        $rootCondition =
+            BasicDefinitionInterface::MODE_HIERARCHICAL === $definition->getBasicDefinition()->getMode()
+                ? $definition->getModelRelationshipDefinition()->getRootCondition()
+                : null;
+
+        if (null === $rootCondition) {
+            return $config;
+        }
+
+        $base = $config->getFilter();
+
+        return $config->setFilter(
+            \is_array($base) ? \array_merge($base, $rootCondition->getFilterArray()) : $rootCondition->getFilterArray()
+        );
     }
 
     /**
@@ -258,28 +295,11 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         // A page picked from the pagination overrules the stored offset. Never when the panel was
         // submitted though: that carries an offset of its own, and a stale page parameter left in the
         // url would otherwise undo a filter change by jumping back to where the user came from.
-        if (!$panelSubmitted && (null !== ($page = $this->getRequestedPage()))) {
+        $page = (int) $input->getParameter(self::PAGE_PARAMETER);
+        if (!$panelSubmitted && $page > 0) {
             $offset = $this->offsetForPage($page, $amount);
             $this->setPersistent($offset, $amount);
         }
-    }
-
-    /**
-     * Retrieve the page requested via the url, if any.
-     *
-     * @return int|null
-     */
-    private function getRequestedPage(): ?int
-    {
-        $input = $this->getInputProvider();
-
-        if (!$input->hasParameter(self::PAGE_PARAMETER)) {
-            return null;
-        }
-
-        $page = (int) $input->getParameter(self::PAGE_PARAMETER);
-
-        return $page > 0 ? $page : null;
     }
 
     /**

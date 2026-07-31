@@ -55,7 +55,6 @@ use ContaoCommunityAlliance\DcGeneral\Event\ViewEvent;
 use ContaoCommunityAlliance\DcGeneral\EventListener\ModelRelationship\TreeEnforcingListener;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
-use ContaoCommunityAlliance\DcGeneral\Panel\LimitElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
@@ -730,9 +729,9 @@ class TreeView extends BaseView
         $viewEvent = new ViewEvent($environment, $action, DcGeneralViews::CLIPBOARD, []);
         $dispatcher->dispatch($viewEvent, DcGeneralEvents::VIEW);
 
-        // A list with ignored panels.
+        // A list with ignored panels. The limit element takes part now: it limits the root nodes,
+        // which is what the pagination below the tree browses through.
         $ignoredPanels = [
-            LimitElementInterface::class,
             SortElementInterface::class
         ];
 
@@ -747,6 +746,7 @@ class TreeView extends BaseView
                 {buttons}
                 {clipboard}
                 {body}
+                {pagination}
                 </div>
             </div>
             EOF,
@@ -756,9 +756,25 @@ class TreeView extends BaseView
                 '{panel}'     => $this->panel($ignoredPanels),
                 '{buttons}'   => $this->generateHeaderButtons(),
                 '{clipboard}' => $viewEvent->getResponse(),
-                '{body}'      => $this->viewTree($collection)
+                '{body}'      => $this->viewTree($collection),
+                '{pagination}' => $this->pagination($environment)
             ]
         );
+    }
+
+    /**
+     * Render the pagination below the tree.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     *
+     * @return string
+     */
+    private function pagination(EnvironmentInterface $environment): string
+    {
+        $translator = System::getContainer()->get('translator');
+        assert($translator instanceof SymfonyTranslatorInterface);
+
+        return (new PaginationRenderer($translator))->render($environment);
     }
 
     /**
