@@ -208,9 +208,13 @@ container driver by class name.
   The request url was assembled from `window.location.search` plus a `"?"`, but the search
   part already carries that character, so it ended up inside the value of the last
   parameter and the server tried to load a data container named `"tl_x?"`.
-- **The visibility toggle** swapped only the light icon; the dark one kept the previous
-  state until the page was reloaded. Both variants are always in the markup, so the file
-  name of the dark one must not be derived from the active color scheme.
+- **The visibility toggle** no longer swaps icons on the client at all. It used to replace
+  the image source of the clicked entry after the ajax call, which could only ever be right
+  for that one entry — in a variant hierarchy the inherited rows kept their old icon until
+  the page was reloaded, and the light and dark variant could drift apart. The toggle now
+  follows Contao's model: a plain link, a server side redirect and a re-rendered listing. See
+  section 9 of `docs/mootools-removal.md`. Anything that relied on `toggleVisibility()` or on
+  the toggle answering with ajax has to follow suit.
 - **Two `Backend` APIs that Contao 5 no longer ships** were still called and therefore
   threw rather than warned: `Backend.toggleWrap()` (now `BackendGeneral.toggleWrap()`) and
   `Backend.openWindow()` of the help wizard, which follows Contao and uses
@@ -223,6 +227,28 @@ container driver by class name.
   aborted with an `InvalidArgumentException`. That notation references a non static method
   and is not callable until the class has been instantiated, which the callback listeners do
   at invocation time. It is accepted again.
+
+## Performance
+
+Nothing to do on your side — no signature changed and no behaviour differs. Listed because
+the numbers are noticeable.
+
+- **The edit mask is built once per pass instead of once per property.**
+  `ContaoWidgetManager::getWidget()` rebuilt the whole model for every single widget, which
+  made the cost quadratic in the number of properties. On a mask with 27 widgets the
+  attribute conversions dropped from 1.785 to 221 calls per save.
+- **`RequestScopeDeterminator` remembers the scope per request.** It asked Contao's
+  `ScopeMatcher` on every call — roughly 6.000 times per save, for a question whose answer
+  cannot change within a request. Down to 244 calls.
+
+Measurements, method and the things that turned out **not** to be worth doing are in
+`docs/performance-editmask.md`. Two results from there are worth knowing when someone reports
+a slow back end:
+
+- A save takes **746 ms with `APP_ENV=prod`** and **4.188 ms in dev** — check the environment
+  before the code.
+- `xdebug.mode=debug` together with `start_with_request=yes` costs **factor 2,6** on its own,
+  because every request tries to reach a debugger.
 
 ## Deprecations
 

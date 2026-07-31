@@ -9,6 +9,12 @@
 > [Derselbe Speichervorgang braucht in prod 746 ms statt 4.188 ms](#derselbe-vorgang-in-prod)
 > — Faktor 5,6. In Produktion gibt es kein Laufzeitproblem. Wer dennoch optimiert, muss **in
 > prod messen**: Im dev-Modus verdeckt die Werkzeugschicht alles andere.
+>
+> Umgesetzt sind zwei Eingriffe: der einmalige Modellaufbau in `getWidget()` und das
+> [Merken der Scope-Ermittlung](#umgesetzt-der-requestscopedeterminator-merkt-sich-die-antwort).
+> Zusätzlich ist [die Skalierung geprüft](#skalierung-wächst-die-zeit-mit-der-datenmenge) —
+> im dc-general steckt kein Skalierungsproblem, der verbleibende Anstieg liegt in einer
+> MetaModels-Baustelle, die für 3.0 vorgesehen ist.
 
 ## Der Befund
 
@@ -135,9 +141,15 @@ Gemessen an einem Speichervorgang ohne jede Eingabeänderung:
 `tabletext` etwa war vorher unauffällig und wird nachher bei jedem Speichern neu geschrieben.
 Ein Umbau, der ohne messbaren Gewinn zusätzliche Schreibvorgänge erzeugt, ist keiner.
 
-## Der eigentliche Hebel: die Änderungserkennung
+## Nebenbefund: die Änderungserkennung meldet zu viel
 
-Die Gegenprobe hat etwas Wichtigeres zutage gefördert: **Auch ohne jede Änderung meldet ein
+> **Diese Überschrift lautete zunächst „Der eigentliche Hebel".** Das war voreilig — zu dem
+> Zeitpunkt lagen noch keine Profildaten vor. Die späteren Messungen zeigen, dass die gesamte
+> Datenbankzeit nur 332 ms von 2.817 ms ausmacht und in Produktion ohnehin kein
+> Laufzeitproblem besteht. Der Befund unten bleibt richtig, aber er ist **kein Hebel für die
+> Laufzeit** — er ist ein Sauberkeitsproblem mit begrenzter Wirkung.
+
+Die Gegenprobe hat etwas anderes zutage gefördert: **Auch ohne jede Änderung meldet ein
 Speichervorgang 442 „geänderte" Properties.** Die Erkennung ist schon im Ist-Zustand kaputt,
 und zwar systematisch:
 
@@ -152,8 +164,8 @@ und zwar systematisch:
 
 Jede dieser Zeilen bedeutet: Das Attribut wird bei **jedem** Speichern neu geschrieben, obwohl
 sich nichts geändert hat. Das kostet nicht eine Konvertierung, sondern einen kompletten
-Schreibweg samt Folgearbeit. Hier liegt der Gewinn — nicht im Einsparen einzelner
-`valueToWidget`-Aufrufe.
+Schreibweg samt Folgearbeit — begrenzt allerdings durch die insgesamt 332 ms Datenbankzeit,
+mehr ist dort nicht zu holen.
 
 Das ist Arbeit in `metamodels/core` (je Attributtyp), nicht im dc-general, und sie ist nicht
 nebenbei zu erledigen: Jede Korrektur muss belegen, dass sie echte Änderungen weiterhin
@@ -304,6 +316,10 @@ Pflichtprogramm — und lohnt nur, wenn es zugleich den Code klarer macht.
 5. **Die 76 `getWidget`-Aufrufe** und **der Sprachwechsel je Property** bei übersetzten
    Modellen — beides unverändert offen, beides nach diesen Zahlen nachrangig.
 
+Nicht mehr offen ist die Frage, ob die Maske mit der Datenmenge skaliert: Sie wurde
+[gemessen](#skalierung-wächst-die-zeit-mit-der-datenmenge) — im dc-general steckt kein
+Skalierungsproblem.
+
 ## Messung wiederholen
 
 `.playwrite/bench-save.js` misst die Wandzeit eines Speichervorgangs:
@@ -367,3 +383,88 @@ eine `\WeakMap` je Request käme auf nahezu null, für geschätzte 1 ms Gewinn.
 
 Abgedeckt durch `tests/Contao/RequestScopeDeterminatorTest.php` — insbesondere, dass ein
 anderer Request und ein nachträglich gesetzter Scope die gemerkte Antwort verwerfen.
+
+## Skalierung: wächst die Zeit mit der Datenmenge?
+
+Alle Messungen oben liefen an **13 Datensätzen** — das größte MetaModel des Devstacks. Ein
+Profil bei fester Größe zeigt die Verteilung, aber niemals das Wachstum; genau dort verstecken
+sich algorithmische Fehler. Deshalb dieselbe Maske noch einmal über wachsende Datenbestände,
+in prod und ohne Xdebug.
+
+### Listenansicht
+
+| Datensätze | Ladezeit | angezeigte Zeilen |
+|---:|---:|---:|
+| 13 | 663 ms | 13 |
+| 113 | 810 ms | 30 |
+| 1.013 | 1.560 ms | 30 |
+| 10.013 | **6.748 ms** | 30 |
+
+Die Paginierung steht auf 30 und funktioniert — die Arbeit läuft trotzdem über **alle**
+Datensätze, rund 0,6 ms je Zeile, die niemand zu sehen bekommt. Im SQL-Mitschnitt stehen
+Abfragen von **200.000 Zeichen Länge**:
+
+```sql
+SELECT t.country, COUNT(t.country) AS mm_count FROM mm_employees t
+WHERE t.id IN ('13','14','15', …)   -- alle 10.013 IDs einzeln als Parameter
+```
+
+### Eingabemaske und Speichern
+
+| Datensätze | Maske (GET) | Speichern (POST) |
+|---:|---:|---:|
+| 13 | 717 ms | 759 ms |
+| 1.013 | 1.070 ms | 1.536 ms |
+| 10.013 | 7.098 ms | **14.781 ms** |
+
+Das Bearbeiten **eines einzigen** Datensatzes wurde also langsamer, je mehr andere Datensätze
+es gibt. Ursache im Profil: 20.083 Twig-Renderings und 40.166 `parseValue`-Aufrufe. Das
+Testmodell enthält mit `holiday_replacement` ein Select-Attribut, das **auf die eigene Tabelle
+zeigt** — die Maske baut daraus ein Auswahlfeld mit allen 10.013 Einträgen und rendert jede
+Beschriftung einzeln durch Twig. Die Liste wird dabei **zweimal** je Anfrage aufgebaut.
+
+**Das ist kein realistischer Anwendungsfall.** Bei so vielen Optionen gehört dort ein Widget
+mit Ajax-Nachladen oder ein Popup-Picker hin, kein `<select>`. Für die Messung wurde das
+Attribut daher ausgeblendet:
+
+| Datensätze | Maske (GET) | Speichern (POST) |
+|---:|---:|---:|
+| 13 | 728 ms | 595 ms |
+| 1.013 | 815 ms | 986 ms |
+| 10.013 | 3.596 ms | 7.785 ms |
+
+Halbiert, aber die Kurve bleibt linear. Im Profil ist das Twig-Rendern verschwunden; übrig
+bleiben Abfragen mit **60.427 gebundenen Parametern**:
+
+| Aufrufe | inkl. Zeit | |
+|---:|---:|---|
+| 2 | 3.831 ms | `Driver->getFilterOptions` |
+| 21 | 3.493 ms | `BaseSimple->getFilterOptions` |
+| 1 | 2.936 ms | `Country->getFilterOptions` |
+
+### Ergebnis
+
+Der verbleibende Anstieg ist **dieselbe `getFilterOptions`-Maschinerie** wie in der
+Listenansicht: Jedes Attribut baut seine Optionsliste, indem es sämtliche Item-IDs als
+`IN`-Liste durchreicht — auch dann, wenn das Ziel nur sechs Einträge hat. Das ist in
+MetaModels bekannt und für **MetaModels 3.0** zum grundlegenden Umbau vorgesehen; es liegt
+nicht im dc-general.
+
+**Nach Abzug dieser beiden Punkte hat die Eingabemaske kein eigenständiges
+Skalierungsproblem.** Für den dc-general ergibt sich daraus keine offene Aufgabe.
+
+### Messreihe wiederholen
+
+```sql
+-- Testdaten anlegen (IDs ab 100000, damit das Entfernen eindeutig bleibt)
+SET SESSION max_recursive_iterations=200000;
+INSERT INTO mm_employees (id,pid,sorting,tstamp,name,firstname,alias)
+WITH RECURSIVE seq AS (SELECT 1 AS n UNION ALL SELECT n+1 FROM seq WHERE n < 10000)
+SELECT 100000+n,0,(100000+n)*128,UNIX_TIMESTAMP(),CONCAT('SCALE-',n),'Last',CONCAT('scale-',n) FROM seq;
+
+-- restlos entfernen
+DELETE FROM mm_employees WHERE id >= 100000;
+```
+
+Gemessen wird mit `.playwrite/bench-list.js` (Ladezeit einer Ansicht) und
+`.playwrite/bench-save.js` (Speichervorgang), je drei Läufe, Median.
