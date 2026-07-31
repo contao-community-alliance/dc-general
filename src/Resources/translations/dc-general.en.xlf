@@ -392,5 +392,35 @@
         <source>No records found.</source>
       </segment>
     </unit>
+    <unit id="pagination.page" name="pagination.page">
+      <segment>
+        <source>Page %current% of %total%</source>
+      </segment>
+    </unit>
+    <unit id="pagination.navigation" name="pagination.navigation">
+      <segment>
+        <source>Pagination</source>
+      </segment>
+    </unit>
+    <unit id="pagination.first" name="pagination.first">
+      <segment>
+        <source>Begin</source>
+      </segment>
+    </unit>
+    <unit id="pagination.previous" name="pagination.previous">
+      <segment>
+        <source>Back</source>
+      </segment>
+    </unit>
+    <unit id="pagination.next" name="pagination.next">
+      <segment>
+        <source>Forward</source>
+      </segment>
+    </unit>
+    <unit id="pagination.last" name="pagination.last">
+      <segment>
+        <source>End</source>
+      </segment>
+    </unit>
   </file>
 </xliff>

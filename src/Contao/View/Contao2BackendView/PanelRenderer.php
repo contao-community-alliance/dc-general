@@ -30,15 +30,20 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPa
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use ContaoCommunityAlliance\DcGeneral\Panel\DefaultLimitElement;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelElementInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelInterface;
+use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * This class renders a backend view panel including all elements.
  *
  * @api
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) Building the form action needs the url builder and
+ *                                                 the limit element on top of the rendering itself.
  */
 class PanelRenderer
 {
@@ -211,8 +216,15 @@ class PanelRenderer
 
             $dispatcher->dispatch($themeEvent, ContaoEvents::BACKEND_GET_THEME);
 
+            // The page of the pagination must not survive a panel submit: a changed filter or block
+            // size makes the old page meaningless, and a parameter left in the action would jump
+            // right back to it on the next request.
+            $action = UrlBuilder::fromUrl('/' . $inputProvider->getRequestUrl())
+                ->unsetQueryParameter(DefaultLimitElement::PAGE_PARAMETER)
+                ->getUrl();
+
             $template
-                ->set('action', StringUtil::ampersand('/' . $inputProvider->getRequestUrl(), true))
+                ->set('action', StringUtil::ampersand($action, true))
                 ->set('theme', $themeEvent->getTheme())
                 ->set('panel', $panels);
 

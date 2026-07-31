@@ -41,6 +41,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetBr
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetGroupHeaderEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetSelectModeButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\GlobalButtonRenderer;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\PaginationRenderer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\PanelRenderer;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ViewHelpers;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
@@ -270,6 +271,7 @@ abstract class AbstractListShowAllHandler
                 {buttons}
                 {clipboard}
                 {body}
+                {pagination}
                 </div>
             </div>
             EOF,
@@ -279,7 +281,8 @@ abstract class AbstractListShowAllHandler
                 '{panel}'     => $this->panel($environment, $ignoredPanels),
                 '{buttons}'   => $this->generateHeaderButtons($environment),
                 '{clipboard}' => $clipboard->getResponse(),
-                '{body}'      => $template->parse()
+                '{body}'      => $template->parse(),
+                '{pagination}' => (new PaginationRenderer($this->translator))->render($environment)
             ]
         );
     }

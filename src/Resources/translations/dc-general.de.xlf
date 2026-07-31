@@ -473,5 +473,41 @@
         <target>Keine Einträge gefunden.</target>
       </segment>
     </unit>
+    <unit id="pagination.page" name="pagination.page">
+      <segment>
+        <source>Page %current% of %total%</source>
+        <target>Seite %current% von %total%</target>
+      </segment>
+    </unit>
+    <unit id="pagination.navigation" name="pagination.navigation">
+      <segment>
+        <source>Pagination</source>
+        <target>Seitennummerierung</target>
+      </segment>
+    </unit>
+    <unit id="pagination.first" name="pagination.first">
+      <segment>
+        <source>Begin</source>
+        <target>Anfang</target>
+      </segment>
+    </unit>
+    <unit id="pagination.previous" name="pagination.previous">
+      <segment>
+        <source>Back</source>
+        <target>Zurück</target>
+      </segment>
+    </unit>
+    <unit id="pagination.next" name="pagination.next">
+      <segment>
+        <source>Forward</source>
+        <target>Vorwärts</target>
+      </segment>
+    </unit>
+    <unit id="pagination.last" name="pagination.last">
+      <segment>
+        <source>End</source>
+        <target>Ende</target>
+      </segment>
+    </unit>
   </file>
 </xliff>

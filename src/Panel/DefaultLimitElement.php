@@ -37,8 +37,15 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface;
  *
  * @api
  */
-class DefaultLimitElement extends AbstractElement implements LimitElementInterface
+class DefaultLimitElement extends AbstractElement implements LimitElementInterface, TotalAwareLimitElementInterface
 {
+    /**
+     * The url parameter a pagination uses to request a page.
+     *
+     * @var string
+     */
+    public const string PAGE_PARAMETER = 'lp';
+
     /**
      * The current offset.
      *
@@ -102,6 +109,18 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         }
 
         $this->intTotal = $total->length();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * The value is filled while the element determines its options. Asking before that happened
+     * yields zero rather than a stale number.
+     */
+    #[\Override]
+    public function getTotal(): int
+    {
+        return $this->intTotal;
     }
 
     /**
@@ -208,7 +227,9 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
         $panel = $this->getPanel();
         assert($panel instanceof PanelInterface);
 
-        if ($input->hasValue('tl_limit') && $panel->getContainer()->updateValues()) {
+        $panelSubmitted = $input->hasValue('tl_limit') && $panel->getContainer()->updateValues();
+
+        if ($panelSubmitted) {
             $limit = (string) $input->getValue('tl_limit');
             if ('all' === $limit) {
                 $offset = 0;
@@ -233,6 +254,51 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
                 $offset = 0;
             }
         }
+
+        // A page picked from the pagination overrules the stored offset. Never when the panel was
+        // submitted though: that carries an offset of its own, and a stale page parameter left in the
+        // url would otherwise undo a filter change by jumping back to where the user came from.
+        if (!$panelSubmitted && (null !== ($page = $this->getRequestedPage()))) {
+            $offset = $this->offsetForPage($page, $amount);
+            $this->setPersistent($offset, $amount);
+        }
+    }
+
+    /**
+     * Retrieve the page requested via the url, if any.
+     *
+     * @return int|null
+     */
+    private function getRequestedPage(): ?int
+    {
+        $input = $this->getInputProvider();
+
+        if (!$input->hasParameter(self::PAGE_PARAMETER)) {
+            return null;
+        }
+
+        $page = (int) $input->getParameter(self::PAGE_PARAMETER);
+
+        return $page > 0 ? $page : null;
+    }
+
+    /**
+     * Determine the offset a page starts at, clamped to the range the listing actually has.
+     *
+     * @param int $page   The page, one based.
+     * @param int $amount The amount of records per page.
+     *
+     * @return int
+     */
+    private function offsetForPage(int $page, int $amount): int
+    {
+        if ($amount < 1) {
+            return 0;
+        }
+
+        $lastPage = \max(1, (int) \ceil($this->intTotal / $amount));
+
+        return (\min($lastPage, $page) - 1) * $amount;
     }
 
     /**
