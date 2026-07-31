@@ -127,11 +127,22 @@ the `.tl_language_panel` rules always lived in `generalDriver.css` — and `imag
 which had no user left. There is no build step and no sass source any more: the shipped css
 and js **are** the source.
 
-## New: pagination below list and parent views
+## New: pagination below listings
 
 Paginated listings now carry a bar below the table showing "Page x of y" and the page numbers,
-the way the Contao back end does. The block size selector in the panel is unchanged - the bar
-only adds a way to browse.
+the way the Contao back end does. It applies to the list view, the parent view and the tree
+view.
+
+**The tree view changed twice.** It used to hide the limit element altogether and render every
+node; the selector is visible there now and the tree is limited like any other listing. What is
+counted are the **root nodes** only - with MetaModels the variant bases. Every base is rendered
+with its complete subtree, so "Page 1 of 3" means "base 1-3 of 7", not "row 1-3 of 20".
+Paginating over all nodes would cut parent-child relations in half. The expand state lives in
+the session and survives browsing.
+
+Should a limit element of your own be in play: the total is counted with the root condition
+applied whenever the definition is in `MODE_HIERARCHICAL`, otherwise the amount of pages would
+depend on how many children happen to hang below a node.
 
 Nothing to do on your side. Two things are worth knowing if you build on top of dc-general:
 
