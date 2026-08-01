@@ -47,14 +47,14 @@ if ($varValue !== $this->getProperty($strPropertyName)) {                       
 
 Jedes Widget muss die Eingaben **aller** Felder sehen, nicht nur die eigene:
 Anzeigebedingungen und abhängige Auswahlfelder werden gegen die übrigen Properties
-ausgewertet. Deshalb wird das Modell aus dem gesamten Wertebeutel aufgebaut und nicht aus
+ausgewertet. Deshalb wird das Modell aus dem gesamten Werte-Bag aufgebaut und nicht aus
 einem Einzelwert. Das ist richtig — falsch war nur, es **je Widget** zu tun.
 
 ## Die Änderung
 
 Die Werte sind für alle Widgets eines Durchlaufs dieselben. Das Modell wird daher **einmal**
 gebaut und zwischengespeichert (`modelWithInput()`); der Schlüssel deckt den Inhalt des
-Beutels ab, ein geänderter Wert baut neu.
+Bag ab, ein geänderter Wert baut neu.
 
 Jeder Aufrufer erhält weiterhin eine **eigene Instanz** — `cloneModel()` gibt einen Klon des
 zwischengespeicherten Modells zurück. Das ist gefahrlos, weil `MetaModels\DcGeneral\Data\Model::__clone()`
@@ -68,7 +68,7 @@ Modellzustand wie zuvor.
 ## Messung
 
 Speichern von `mm_employees::11` — 27 Widgets, unübersetztes Modell, Symfony-**dev**-Modus,
-Xdebug **aus**. Zähler über temporäre Instrumentierung an den Konvertierungsstellen, Wandzeit
+Xdebug **aus**. Zähler über temporäre Instrumentierung an den Konvertierungsstellen, "Wandzeit" (wall time)
 des POST über den Browser.
 
 | | vorher | nachher | Faktor |
