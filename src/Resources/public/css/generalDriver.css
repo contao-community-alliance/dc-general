@@ -232,3 +232,17 @@
   position   : static;
   flex-shrink: 0;
 }
+
+/* Contao 5.7 turned ".tl_content_right" into a flex container - up to 5.3 it was a plain block
+   with "text-align: right". Our markup separates the operation links by a space, and a flex
+   container drops those whitespace text nodes, so the icons ended up glued together. Contao's
+   own rule only sets "margin-left: 1px" on img and button, which does not help here: our image
+   sits *inside* the link, so the offset lands within the link instead of between them.
+
+   The value follows Contao: there ".tl_content_right" holds a single ".operations" menu whose
+   list uses "gap: 3px" (themes/flexible/styles/layout/list-view.pcss). We put the links into
+   the container directly and use the same spacing, so our views do not look different next to
+   Contao's own ones. */
+.tl_content_right {
+  gap : 3px;
+}
