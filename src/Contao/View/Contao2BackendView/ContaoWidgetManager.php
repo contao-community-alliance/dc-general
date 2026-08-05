@@ -722,7 +722,7 @@ class ContaoWidgetManager
     protected function widgetAddError(
         $property,
         Widget $widget,
-        PropertyValueBagInterface $inputValues = null,
+        ?PropertyValueBagInterface $inputValues = null,
         $ignoreErrors = false
     ) {
         if (

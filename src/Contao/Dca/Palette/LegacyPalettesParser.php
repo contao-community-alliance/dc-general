@@ -78,7 +78,7 @@ class LegacyPalettesParser
      *
      * @return PaletteCollectionInterface
      */
-    public function parse(array $palettes, array $subPalettes = [], PaletteCollectionInterface $collection = null)
+    public function parse(array $palettes, array $subPalettes = [], ?PaletteCollectionInterface $collection = null)
     {
         $selectorFieldNames = $palettes['__selector__'] ?? [];
         unset($palettes['__selector__']);
@@ -172,7 +172,7 @@ class LegacyPalettesParser
         $fields,
         array $subPaletteProperties = [],
         array $selectorFieldNames = [],
-        PaletteInterface $palette = null
+        ?PaletteInterface $palette = null
     ) {
         if (!$palette) {
             $palette = new Palette();

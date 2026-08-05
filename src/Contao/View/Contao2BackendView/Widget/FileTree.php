@@ -135,7 +135,7 @@ class FileTree extends AbstractWidget
      * @param array|null    $attributes    The custom attributes.
      * @param DcCompat|null $dataContainer The data container.
      */
-    public function __construct($attributes = null, DcCompat $dataContainer = null)
+    public function __construct($attributes = null, ?DcCompat $dataContainer = null)
     {
         parent::__construct($attributes, $dataContainer);
 
@@ -314,7 +314,7 @@ class FileTree extends AbstractWidget
      *
      * @return void
      */
-    private function renderList(array &$icons, Collection $collection = null, bool $followSubDirs = false)
+    private function renderList(array &$icons, ?Collection $collection = null, bool $followSubDirs = false)
     {
         if (!$collection) {
             return;

@@ -76,5 +76,5 @@ interface PanelInterface extends \IteratorAggregate, \Countable
      *
      * @return void
      */
-    public function initialize(ConfigInterface $config, PanelElementInterface $element = null);
+    public function initialize(ConfigInterface $config, ?PanelElementInterface $element = null);
 }

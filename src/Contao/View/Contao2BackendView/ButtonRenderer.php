@@ -207,8 +207,8 @@ class ButtonRenderer
      */
     private function renderButtonsFor(
         ModelInterface $model,
-        ModelInterface $previous = null,
-        ModelInterface $next = null
+        ?ModelInterface $previous = null,
+        ?ModelInterface $next = null
     ): void {
         $modelId = ModelId::fromModel($model)->getSerialized();
 

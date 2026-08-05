@@ -219,7 +219,7 @@ class TreePicker extends Widget
      * @param General|null $dataContainer The data container.
      *
      */
-    public function __construct($attributes = [], General $dataContainer = null)
+    public function __construct($attributes = [], ?General $dataContainer = null)
     {
         parent::__construct($attributes);
 
@@ -250,7 +250,7 @@ class TreePicker extends Widget
      *
      * @return void
      */
-    protected function setUp(General $dataContainer = null)
+    protected function setUp(?General $dataContainer = null)
     {
         if (null === $dataContainer) {
             /** @var General|null $dataContainer */
