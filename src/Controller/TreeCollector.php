@@ -82,6 +82,13 @@ class TreeCollector implements EnvironmentAwareInterface
     private TreeNodeStates $states;
 
     /**
+     * The sorting that is effectively in use, cached for the whole tree walk.
+     *
+     * @var array<string, string>|null
+     */
+    private ?array $effectiveSorting = null;
+
+    /**
      * Create a new instance.
      *
      * @param EnvironmentInterface    $environment The environment.
@@ -204,7 +211,7 @@ class TreeCollector implements EnvironmentAwareInterface
         $children = $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                ->setSorting(['sorting' => 'ASC'])
+                ->setSorting($this->getEffectiveSorting())
                 ->setFilter(
                     FilterBuilder::fromArray()
                         ->getFilter()
@@ -333,6 +340,33 @@ class TreeCollector implements EnvironmentAwareInterface
 
             $config->setFilter($filter);
         }
+    }
+
+    /**
+     * Retrieve the sorting that the children of a node have to follow.
+     *
+     * Up to now the children were fetched with a hard coded "sorting ASC" while the root
+     * level used the configured sorting. In a tree that is sorted by a property the parents
+     * were therefore ordered as configured and their children were not - see
+     * MetaModels/core#1395 for the variant lists this shows up in.
+     *
+     * Only the sorting is taken over from the root config. Handing the whole config or
+     * running the panel over the child config would also apply the limit element and thus
+     * put the pagination of the list onto the children of a single node.
+     *
+     * @return array<string, string>
+     */
+    private function getEffectiveSorting(): array
+    {
+        if (null === $this->effectiveSorting) {
+            $sorting = $this->calculateRootConfig()->getSorting();
+            // Without any sorting the previous behaviour is kept. For a manually sorted tree
+            // nothing changes either: manual sorting resolves to the property "sorting" with
+            // SORT_ASC and therefore yields exactly the value that was hard coded before.
+            $this->effectiveSorting = $sorting ?: ['sorting' => 'ASC'];
+        }
+
+        return $this->effectiveSorting;
     }
 
     /**
