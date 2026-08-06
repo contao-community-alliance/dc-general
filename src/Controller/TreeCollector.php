@@ -82,7 +82,9 @@ class TreeCollector implements EnvironmentAwareInterface
     private TreeNodeStates $states;
 
     /**
-     * The sorting that is effectively in use, cached for the whole tree walk.
+     * The sorting configured for the root level, cached for the whole tree walk.
+     *
+     * An empty array means none is configured - null means it has not been determined yet.
      *
      * @var array<string, string>|null
      */
@@ -211,7 +213,7 @@ class TreeCollector implements EnvironmentAwareInterface
         $children = $dataProvider->fetchAll(
             $dataProvider
                 ->getEmptyConfig()
-                ->setSorting($this->getEffectiveSorting())
+                ->setSorting($this->getEffectiveSorting($dataProvider))
                 ->setFilter(
                     FilterBuilder::fromArray()
                         ->getFilter()
@@ -354,19 +356,28 @@ class TreeCollector implements EnvironmentAwareInterface
      * running the panel over the child config would also apply the limit element and thus
      * put the pagination of the list onto the children of a single node.
      *
+     * @param DataProviderInterface $dataProvider The provider the children are fetched from.
+     *
      * @return array<string, string>
      */
-    private function getEffectiveSorting(): array
+    private function getEffectiveSorting(DataProviderInterface $dataProvider): array
     {
+        // The root sorting does not depend on the provider, so calculating it once is enough -
+        // calculateRootConfig() runs the panel, which must not happen per node.
         if (null === $this->effectiveSorting) {
-            $sorting = $this->calculateRootConfig()->getSorting();
-            // Without any sorting the previous behaviour is kept. For a manually sorted tree
-            // nothing changes either: manual sorting resolves to the property "sorting" with
-            // SORT_ASC and therefore yields exactly the value that was hard coded before.
-            $this->effectiveSorting = $sorting ?: ['sorting' => 'ASC'];
+            $this->effectiveSorting = $this->calculateRootConfig()->getSorting() ?: [];
         }
 
-        return $this->effectiveSorting;
+        if ([] !== $this->effectiveSorting) {
+            return $this->effectiveSorting;
+        }
+
+        // No sorting configured: keep fetching the children by "sorting ASC" as before, but only
+        // where that property exists. The hard coded name stems from Contao's tree tables and is
+        // not part of the data definition, so a provider over a table without that column would
+        // have to order by something it does not have. fieldExists() is part of
+        // DataProviderInterface, hence every provider can answer this.
+        return $dataProvider->fieldExists('sorting') ? ['sorting' => 'ASC'] : [];
     }
 
     /**
