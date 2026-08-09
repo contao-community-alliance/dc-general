@@ -443,13 +443,7 @@ class ButtonRenderer
 
         if ($buttonEvent->isDisabled()) {
             if (!($command instanceof ToggleCommandInterface)) {
-                $iconDisabledSuffix = '_1';
-
-                // Check whether icon is part of contao.
-                if ($icon !== Image::getPath($icon)) {
-                    $iconDisabledSuffix = '_';
-                }
-                $icon = substr_replace($icon, $iconDisabledSuffix, ((int) strrpos($icon, '.')) ?: strlen($icon), 0);
+                $icon = $this->disabledVariantOf($icon);
             }
 
             return $this->renderImageAsHtml(
@@ -567,6 +561,42 @@ class ButtonRenderer
         $parameters[($extra['idparam'] ?? '') ?: 'id'] = $serializedModelId;
 
         return $parameters;
+    }
+
+    /**
+     * Determine the file name of the disabled variant of an icon.
+     *
+     * Contao names the disabled variant of its own icons "<name>--disabled.svg" nowadays and only
+     * keeps the older "<name>_.svg" around for backwards compatibility, where it has been
+     * deprecated since Contao 5.2. Some icons exist under the new name only - "copychildren" for
+     * one - so the new name is tried first and the old one serves as the fallback. Icons that do
+     * not belong to Contao keep the "_1" suffix.
+     *
+     * Whether a Contao icon exists can be read off its resolved path: only for an existing file
+     * does Image::getPath() point into the theme "icons" directory, otherwise it falls back to
+     * "images".
+     *
+     * @param string $icon The icon of the enabled button.
+     *
+     * @return string
+     */
+    private function disabledVariantOf(string $icon): string
+    {
+        $insert = static function (string $name, string $suffix): string {
+            return substr_replace($name, $suffix, ((int) strrpos($name, '.')) ?: strlen($name), 0);
+        };
+
+        // Not a Contao icon - those bring their own convention.
+        if ($icon === Image::getPath($icon)) {
+            return $insert($icon, '_1');
+        }
+
+        $modern = $insert($icon, '--disabled');
+        if (str_contains(Image::getPath($modern), '/icons/')) {
+            return $modern;
+        }
+
+        return $insert($icon, '_');
     }
 
     /**
