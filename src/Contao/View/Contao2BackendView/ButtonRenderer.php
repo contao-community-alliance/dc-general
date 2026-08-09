@@ -34,6 +34,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ItemInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
+use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonsEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
 use ContaoCommunityAlliance\DcGeneral\Controller\ModelCollector;
@@ -260,9 +261,13 @@ class ButtonRenderer
             }
         }
 
+        $buttonsEvent = new GetOperationButtonsEvent($this->environment, $model);
+        $buttonsEvent->setButtons($buttons);
+        $this->eventDispatcher->dispatch($buttonsEvent, GetOperationButtonsEvent::NAME);
+
         $model->setMeta(
             ModelInterface::OPERATION_BUTTONS,
-            implode(' ', $buttons)
+            implode(' ', $buttonsEvent->getButtons())
         );
     }
 
@@ -582,7 +587,7 @@ class ButtonRenderer
         );
 
         return sprintf(
-            '<a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
+            '<a class="pasteNew" href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
             StringUtil::specialchars($label),
             $this->renderImageAsHtml('new.svg', $label)
