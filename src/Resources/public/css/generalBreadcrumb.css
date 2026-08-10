@@ -1,6 +1,11 @@
 @media projection, screen {
   #tl_breadcrumb {
-    padding-top : 4px
+    padding-top : 4px;
+
+    /* Contao fills the bar with --active-bg, which is a blue in the dark scheme. Coloured
+       icons in the breadcrumb drop to 2.4:1 on it, below the 3:1 wanted for graphics; on
+       the page background they reach 3.5:1. The border keeps the bar readable as one. */
+    background  : none
   }
 
   #tl_breadcrumb li:before {
