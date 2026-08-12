@@ -29,4 +29,10 @@
   .tl_file .tl_pagetree_content {
     margin-top : 1px
   }
+
+  /* A row that is switched off. Striking the name through states that where so far only the
+     toggle icon in the operations told it apart. */
+  .tl_pagetree_content.unpublished strong {
+    text-decoration : line-through
+  }
 }

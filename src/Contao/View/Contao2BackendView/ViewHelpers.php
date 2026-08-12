@@ -37,6 +37,7 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\Properties\Prope
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\GroupAndSortingInformationInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ListingConfigInterface;
+use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\View\ToggleCommandInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Panel\PanelContainerInterface;
@@ -250,6 +251,49 @@ class ViewHelpers
         }
 
         return $event->getValue();
+    }
+
+    /**
+     * Determine the publish state of a model for use as a CSS class.
+     *
+     * The state is taken from the toggle command of the view - the same source the toggle button
+     * in the operations draws from, so the two cannot drift apart. Definitions without such a
+     * command have no state to show and yield an empty string.
+     *
+     * Where several toggle commands exist the first one wins. Unlike the toggle button this does
+     * not follow a translated toggle command into the language it belongs to: that would cost an
+     * extra round trip to the data provider for every row, which a class on a row does not merit.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelInterface       $model       The model to examine.
+     *
+     * @return string Either "published", "unpublished" or an empty string.
+     */
+    public static function getPublishStateClass(
+        EnvironmentInterface $environment,
+        ModelInterface $model
+    ): string {
+        $definition = $environment->getDataDefinition();
+        if (!$definition instanceof ContainerInterface) {
+            return '';
+        }
+
+        $backendView = $definition->getDefinition(Contao2BackendViewDefinitionInterface::NAME);
+        if (!$backendView instanceof Contao2BackendViewDefinitionInterface) {
+            return '';
+        }
+
+        foreach ($backendView->getModelCommands()->getCommands() as $command) {
+            if (!$command instanceof ToggleCommandInterface) {
+                continue;
+            }
+
+            $enabled = (bool) $model->getProperty($command->getToggleProperty());
+
+            return ($command->isInverse() ? !$enabled : $enabled) ? 'published' : 'unpublished';
+        }
+
+        return '';
     }
 
     /**

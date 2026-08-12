@@ -79,7 +79,11 @@ class FormatModelLabelSubscriber
         $modelToLabelEvent = new ModelToLabelEvent($environment, $model);
         $modelToLabelEvent
             ->setArgs($this->prepareLabelArguments($propertyNames, $properties, $environment, $model))
-            ->setLabel($formatter->getFormat())
+            // Wrapped before the event goes out, so that anything a listener appends - a marker
+            // such as "[default]", say - stays outside the span and can be styled apart from the
+            // label itself. Listeners that replace the label wholesale bring their own markup and
+            // lose the wrapper, which is theirs to decide.
+            ->setLabel('<span class="label">' . $formatter->getFormat() . '</span>')
             ->setFormatter($formatter);
 
         if (null === ($dispatcher = $environment->getEventDispatcher())) {
@@ -98,7 +102,7 @@ class FormatModelLabelSubscriber
             [
                 [
                     'colspan' => null,
-                    'class'   => 'tl_file_list',
+                    'class'   => \trim('tl_file_list ' . ViewHelpers::getPublishStateClass($environment, $model)),
                     'content' => $this->renderSingleValue(
                         $modelToLabelEvent->getLabel(),
                         $modelToLabelEvent->getArgs(),

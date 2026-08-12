@@ -246,3 +246,10 @@
 .tl_content_right {
   gap : 3px;
 }
+
+/* A row that is switched off. The label carries its own span so that markers a listener appends
+   after it - "[default]", for instance - keep their own look instead of being struck through
+   along with the name. */
+.tl_file_list.unpublished .label {
+  text-decoration : line-through;
+}

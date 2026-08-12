@@ -423,6 +423,7 @@ class TreeView extends BaseView
             ->addToTemplate('toggleUrl', $toggleUrlEvent->getUrl(), $template)
             ->addToTemplate('toggleTitle', $toggleTitle, $template)
             ->addToTemplate('toggleScript', $toggleScript, $template)
+            ->addToTemplate('publishState', ViewHelpers::getPublishStateClass($environment, $model), $template)
             ->addToTemplate('selectContainer', $this->getSelectContainer(), $template);
 
         return $template->parse();
