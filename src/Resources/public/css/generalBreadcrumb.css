@@ -16,4 +16,23 @@
   #tl_breadcrumb li:first-child:before {
     display : none
   }
+
+  /* Links sideways, to the neighbouring views of the same record. They sit at the trailing end
+     and carry no separator - they are not part of the path the other entries describe. */
+  #tl_breadcrumb {
+    display     : flex;
+    align-items : center;
+    flex-wrap   : wrap
+  }
+
+  #tl_breadcrumb li.breadcrumb_shortcuts {
+    margin-inline-start : auto;
+    display             : flex;
+    align-items         : center;
+    gap                 : 3px
+  }
+
+  #tl_breadcrumb li.breadcrumb_shortcuts:before {
+    display : none
+  }
 }

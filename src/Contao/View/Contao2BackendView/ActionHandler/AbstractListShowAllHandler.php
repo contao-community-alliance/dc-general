@@ -955,6 +955,7 @@ abstract class AbstractListShowAllHandler
         return $this
             ->getTemplate('dcbe_general_breadcrumb')
             ->set('elements', $elements)
+            ->set('shortcuts', $event->getShortcuts())
             ->parse();
     }
 

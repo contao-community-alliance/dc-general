@@ -710,6 +710,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
 
         $template = new ContaoBackendViewTemplate('dcbe_general_breadcrumb');
         $template->set('elements', $elements);
+        $template->set('shortcuts', $event->getShortcuts());
 
         return $template->parse();
     }

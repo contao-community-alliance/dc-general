@@ -43,6 +43,17 @@ class GetBreadcrumbEvent extends AbstractEnvironmentAwareEvent
     protected array $elements = [];
 
     /**
+     * Links to sibling views, shown at the trailing end of the breadcrumb.
+     *
+     * Where the elements describe the way into the current view, these lead sideways out of it -
+     * to the neighbouring views of the same record. Kept apart from the elements so that a
+     * template can place and style them on their own.
+     *
+     * @var array
+     */
+    protected array $shortcuts = [];
+
+    /**
      * Set the breadcrumb elements to be displayed in the backend.
      *
      * @param array $elements The elements.
@@ -64,5 +75,29 @@ class GetBreadcrumbEvent extends AbstractEnvironmentAwareEvent
     public function getElements()
     {
         return $this->elements;
+    }
+
+    /**
+     * Set the shortcuts to be displayed at the trailing end of the breadcrumb.
+     *
+     * @param array $shortcuts The shortcuts.
+     *
+     * @return $this
+     */
+    public function setShortcuts($shortcuts)
+    {
+        $this->shortcuts = $shortcuts;
+
+        return $this;
+    }
+
+    /**
+     * Get the shortcuts to be displayed at the trailing end of the breadcrumb.
+     *
+     * @return array
+     */
+    public function getShortcuts()
+    {
+        return $this->shortcuts;
     }
 }

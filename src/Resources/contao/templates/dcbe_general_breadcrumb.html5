@@ -1,3 +1,4 @@
+<?php $shortcuts = $this->shortcuts ?: []; ?>
 <?php if (\count($this->elements) != 0): ?>
   <ul id="tl_breadcrumb">
     <?php $intCount = 0; foreach ($this->elements as $arrElement): ?>
@@ -6,5 +7,12 @@
         <a href="<?php echo $arrElement['url'] ?>" title="<?php echo $arrElement['text'] ?>"><?php echo $arrElement['text'] ?></a>
       </li>
     <?php endforeach; ?>
+    <?php if (\count($shortcuts) != 0): ?>
+      <li class="breadcrumb_shortcuts">
+        <?php foreach ($shortcuts as $arrShortcut): ?>
+          <a href="<?php echo $arrShortcut['url'] ?>" title="<?php echo $arrShortcut['text'] ?>"><img src="<?php echo $arrShortcut['icon'] ?>" alt="<?php echo $arrShortcut['text'] ?>" /></a>
+        <?php endforeach; ?>
+      </li>
+    <?php endif; ?>
   </ul>
 <?php endif; ?>
