@@ -16,7 +16,7 @@ assert($translator instanceof \Symfony\Contracts\Translation\TranslatorInterface
   <?php else: ?>
       <?= $this->widget ?>
       <?php if($this->strDatepicker): ?>
-        <img src="/assets/datepicker/images/icon.svg" width="20" height="20" id="toggle_<?= $this->strId ?>" style="vertical-align:-6px;">
+        <?= $this->datepickerIcon ?>
         <?php /* Run inline like Contao core does - the input exists at this point and a ready-event would not fire again on Turbo navigations. */ ?>
         <script><?= $this->strDatepicker; ?></script>
       <?php endif; ?>

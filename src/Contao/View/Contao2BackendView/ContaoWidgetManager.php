@@ -49,6 +49,8 @@ use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentExceptio
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -549,6 +551,7 @@ class ContaoWidgetManager
             ->set('widget', $isHideInput ? null : $widget->parse())
             ->set('hasErrors', $isHideInput ? null : $widget->hasErrors())
             ->set('strDatepicker', $isHideInput ? null : $this->getDatePicker($propInfo->getExtra(), $widget))
+            ->set('datepickerIcon', $this->renderDatePickerIcon($widget->id))
             // We used the var blnUpdate before.
             ->set('blnUpdate', false)
             ->set('strHelp', $isHideInput ? '' : $this->generateHelpText($property, $widget))
@@ -752,5 +755,31 @@ class ContaoWidgetManager
         }
 
         return '';
+    }
+
+    /**
+     * Render the icon that opens the date picker.
+     *
+     * Through the image event rather than assembled by hand: only there does Contao get to look
+     * for a "--dark" companion and take the size from the file, and only there does the tooltip
+     * find its target. Contao core renders the very same icon this way.
+     *
+     * @param string $widgetId The id of the widget the picker belongs to.
+     *
+     * @return string
+     */
+    private function renderDatePickerIcon(string $widgetId): string
+    {
+        $dispatcher = $this->getEnvironment()->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $event = new GenerateHtmlEvent(
+            'assets/datepicker/images/icon.svg',
+            $this->translator->trans('MSC.datepicker', [], 'contao_default'),
+            'id="toggle_' . $widgetId . '" style="cursor:pointer" data-contao--tooltips-target="tooltip"'
+        );
+        $dispatcher->dispatch($event, ContaoEvents::IMAGE_GET_HTML);
+
+        return $event->getHtml() ?? '';
     }
 }
