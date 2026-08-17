@@ -36,7 +36,11 @@ class BackCommand extends Command
         parent::__construct();
         $this->extra['class']      = 'header_back dcg';
         $this->extra['accesskey']  = 'b';
-        $this->extra['attributes'] = 'data-action="contao--scroll-offset#store"';
+        // Discard, not store, the way Contao renders its own back button. Contaos scroll offset
+        // holds a single value that the next page consumes and clears, so it fits a listing that
+        // renders anew - not a trip into a mask. Storing here would carry the position of the
+        // mask over to the listing and jump to a place that means nothing there.
+        $this->extra['attributes'] = 'data-action="contao--scroll-offset#discard"';
         $this
             ->setName('back_button')
             ->setLabel('backBT')
