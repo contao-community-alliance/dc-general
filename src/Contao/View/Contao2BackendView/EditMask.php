@@ -647,13 +647,15 @@ class EditMask
             return;
         }
 
-        // Compare version and current record.
+        // Compare version and current record. The stored one needs a name of its own - naming it
+        // "$model" would drop the record that is to be written and leave the comparison looking at
+        // one and the same object, which is true by definition and would keep every version away.
         $currentVersion = $dataProvider->getActiveVersion($modelId);
-        $model = $dataProvider->getVersion($modelId, $currentVersion);
-        assert($model instanceof ModelInterface);
+        $storedVersion  = $currentVersion ? $dataProvider->getVersion($modelId, $currentVersion) : null;
         if (
             !$currentVersion
-            || !$dataProvider->sameModels($model, $model)
+            || !$storedVersion instanceof ModelInterface
+            || !$dataProvider->sameModels($model, $storedVersion)
         ) {
             $user = BackendUser::getInstance();
 
