@@ -442,7 +442,13 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         /** @var CommandCollectionInterface $commands */
         $commands = $backendView->getModelCommands();
 
-        if (!$commands->hasCommandNamed('edit') || !$parentDefinition->getBasicDefinition()->isEditable()) {
+        // Contao gives a parent table two operations: "edit" opens the listing of its children,
+        // "editheader" edits the record itself. This button means the latter, so it asks for that
+        // one first. Definitions that never declared it keep working through "edit" - the case
+        // where a single operation carries both the name of the one and the purpose of the other.
+        $commandName = $commands->hasCommandNamed('editheader') ? 'editheader' : 'edit';
+
+        if (!$commands->hasCommandNamed($commandName) || !$parentDefinition->getBasicDefinition()->isEditable()) {
             return null;
         }
 
@@ -453,7 +459,7 @@ class ParentedListViewShowAllHandler extends AbstractListShowAllHandler
         $dispatcher = $environment->getEventDispatcher();
         assert($dispatcher instanceof EventDispatcherInterface);
 
-        $command    = $commands->getCommandNamed('edit');
+        $command    = $commands->getCommandNamed($commandName);
         $parameters = (array) $command->getParameters();
 
         // This should be set in command builder rather than here.
