@@ -45,6 +45,12 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
             $event->getModel()->getPropertiesAsArray(),
             $event->getLabel(),
             new DcCompat($event->getEnvironment(), $event->getModel()),
+            // Contao hands the prepared label fields over as a fourth argument, and its own
+            // callbacks declare them as required - "tl_member::addIcon()" is one of several.
+            // Without it, every table carrying such a callback was fatal here. Callbacks that
+            // declare only three parameters stay unaffected; PHP passes the surplus argument
+            // and they never look at it.
+            $event->getArgs(),
         ];
     }
 
@@ -53,17 +59,20 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
      */
     public function update($event, $value)
     {
-        $groupingInformation = ViewHelpers::getGroupingMode($event->getEnvironment());
-        if (
-            isset($groupingInformation['mode'])
-            && ($groupingInformation['mode'] === GroupAndSortingInformationInterface::GROUP_NONE)
-        ) {
-            if (!\is_array($value)) {
-                return;
-            }
+        if (\is_array($value)) {
             /** @var list<string> $value */
 
-            $this->updateTableMode($event, $value);
+            // An array means the callback handed the label fields back - regardless of how the
+            // list happens to be grouped. Tying this to the table mode dropped the return value
+            // everywhere else, which is why a Contao callback left the label empty.
+            $groupingInformation = ViewHelpers::getGroupingMode($event->getEnvironment());
+            $isTableMode         =
+                isset($groupingInformation['mode'])
+                && ($groupingInformation['mode'] === GroupAndSortingInformationInterface::GROUP_NONE);
+
+            $this->updateArguments($event, $value, $isTableMode);
+
+            return;
         }
 
         if (!\is_string($value)) {
@@ -100,14 +109,15 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
     }
 
     /**
-     * Set the value in the event.
+     * Take the label fields a callback returned over into the event.
      *
-     * @param ModelToLabelEvent   $event     The event being emitted.
-     * @param string|list<string> $arguments The label arguments.
+     * @param ModelToLabelEvent   $event       The event being emitted.
+     * @param string|list<string> $arguments   The label arguments.
+     * @param bool                $byPosition  Whether numeric keys may be matched by position.
      *
      * @return void
      */
-    private function updateTableMode(ModelToLabelEvent $event, array|string $arguments): void
+    private function updateArguments(ModelToLabelEvent $event, array|string $arguments, bool $byPosition): void
     {
         if (empty($arguments)) {
             return;
@@ -115,8 +125,8 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
 
         $updateArguments = $event->getArgs();
 
-        // Step 1 update arguments by index as propertyName
-        foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
+        // By name - this always means the same field on both sides.
+        foreach ($event->getFormatter()->getPropertyNames() as $propertyName) {
             if (!isset($arguments[$propertyName])) {
                 continue;
             }
@@ -124,7 +134,17 @@ class ModelLabelCallbackListener extends AbstractReturningCallbackListener
             $updateArguments[$propertyName] = $arguments[$propertyName];
         }
 
-        // Step 2 update arguments by index as integer
+        // By position - only where both sides describe the same list of columns, which is the
+        // table mode. Anywhere else the two have nothing to do with each other: a picker shows
+        // the one property it was configured with, while a Contao callback counts along its own
+        // "label/fields" - "tl_member" reserves the first of those for the icon and would push
+        // that markup into the picker's only column, replacing the value one is meant to pick.
+        if (!$byPosition) {
+            $event->setArgs($updateArguments);
+
+            return;
+        }
+
         foreach ($event->getFormatter()->getPropertyNames() as $index => $propertyName) {
             if (!isset($arguments[$index])) {
                 continue;
