@@ -302,6 +302,47 @@ class TreePicker extends Widget
             ->setTranslator($translator)
             ->setEventDispatcher($dispatcher)
             ->createDcGeneral();
+
+        $this->applySourceFilter();
+    }
+
+    /**
+     * Limit the pickable records to those the caller allows.
+     *
+     * The picker builds its own container for the source table and would otherwise offer
+     * everything in it - while a list beside it may well be showing a filtered selection.
+     * Whoever puts the picker on a field knows which records belong there, so the ids travel
+     * as the "sourceFilter" option and the caller does not need to know how a filter is
+     * spelled in here.
+     *
+     * @return void
+     */
+    private function applySourceFilter(): void
+    {
+        /** @psalm-suppress UndefinedThisPropertyFetch */
+        $ids = $this->sourceFilter;
+        if (!is_array($ids)) {
+            return;
+        }
+
+        $definition = $this->itemContainer->getEnvironment()->getDataDefinition();
+        if (!$definition instanceof ContainerInterface) {
+            return;
+        }
+
+        /** @psalm-suppress UndefinedThisPropertyFetch */
+        $idProperty = (string) ($this->idProperty ?: 'id');
+
+        // An empty list means "nothing matches", not "no filter at all" - the caller asked for
+        // one and it came out empty. Offering the whole table instead would be the opposite
+        // answer to the question.
+        $definition->getBasicDefinition()->setAdditionalFilter(
+            $this->sourceName,
+            FilterBuilder::fromArrayForRoot()
+                ->getFilter()
+                ->andPropertyValueIn($idProperty, array_values($ids))
+                ->getAllAsArray()
+        );
     }
 
     /**
