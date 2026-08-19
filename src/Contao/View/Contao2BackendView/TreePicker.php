@@ -1473,9 +1473,13 @@ class TreePicker extends Widget
      * Retrieve the formatter for the given model.
      *
      * @param ModelInterface $model    The model for which the formatter shall be retrieved.
-     * @param bool           $treeMode Flag if we are running in tree mode or not.
+     * @param bool           $treeMode Flag if we are running in tree mode or not. No longer read -
+     *                                 a configured label now counts in either mode - but kept so
+     *                                 that overriding methods keep their signature.
      *
      * @return ModelFormatterConfigInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function getFormatter(ModelInterface $model, $treeMode)
     {
@@ -1488,12 +1492,12 @@ class TreePicker extends Widget
 
         $listing = $backendView->getListingConfig();
 
-        if ($listing->hasLabelFormatter($model->getProviderName())) {
-            return $listing->getLabelFormatter($model->getProviderName());
-        }
-
-        // If not in tree mode and custom label has been defined, use it.
-        if (!$treeMode && $this->itemLabel) {
+        // A label the caller configured wins, in tree mode as well. Whoever puts the picker on a
+        // field knows which column names the record there - the listing config of the target
+        // table describes its own back end view instead, down to columns that are not fields at
+        // all: "tl_member" opens its list with an empty one reserved for the icon, and that is
+        // what ended up in the picker.
+        if ($this->itemLabel) {
             $label     = $this->itemLabel;
             $formatter = new DefaultModelFormatterConfig();
             $formatter->setPropertyNames($label['fields']);
@@ -1501,6 +1505,10 @@ class TreePicker extends Widget
             $formatter->setMaxLength($label['maxCharacters']);
 
             return $formatter;
+        }
+
+        if ($listing->hasLabelFormatter($model->getProviderName())) {
+            return $listing->getLabelFormatter($model->getProviderName());
         }
 
         // If no label has been defined, use some default.
