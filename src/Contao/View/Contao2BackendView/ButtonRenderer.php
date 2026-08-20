@@ -462,10 +462,9 @@ class ButtonRenderer
         }
 
         return sprintf(
-            ' <a class="%s" href="%s" title="%s" %s>%s</a>',
+            ' <a class="%s" href="%s" %s>%s</a>',
             $command->getName(),
             $buttonEvent->getHref() ?? '',
-            StringUtil::specialchars($buttonEvent->getTitle()),
             ltrim($buttonEvent->getAttributes()),
             $this->renderImageAsHtml($icon, $this->getButtonImageAlt($buttonEvent))
         );
@@ -476,7 +475,11 @@ class ButtonRenderer
      *
      * The Contao tooltip controller reads the image "alt" (selector "a img[alt]"), so we use the full
      * title/description and fall back to the label when a command has no description (e.g. the
-     * MetaModels child-table operations) - otherwise the tooltip would be empty.
+     * MetaModels child-table operations) - otherwise the tooltip would be empty. The anchor itself must
+     * stay without a "title" attribute: core's tooltip migration tags both an "a[title]" and an inner
+     * "img[alt]" independently, and since hovering the image (the visible target) resolves to the
+     * innermost match, a title left on the anchor is never cleared and shows the browser's native
+     * tooltip on top of Contao's styled one.
      *
      * @param GetOperationButtonEvent $buttonEvent The button event.
      *
@@ -617,9 +620,8 @@ class ButtonRenderer
         );
 
         return sprintf(
-            '<a class="pasteNew" href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
+            '<a class="pasteNew" href="%s" data-action="contao--scroll-offset#store">%s</a>',
             $this->addToUrl('act=create&amp;after=' . $modelId),
-            StringUtil::specialchars($label),
             $this->renderImageAsHtml('new.svg', $label)
         );
     }
@@ -651,10 +653,9 @@ class ButtonRenderer
         $title = $this->translateButtonDescription('pasteinto', $definitionName, ['%id%' => $model->getId()]);
 
         return sprintf(
-            ' <a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
+            ' <a href="%s" data-action="contao--scroll-offset#store">%s</a>',
             $event->getHrefInto() ?? '',
-            StringUtil::specialchars($title),
-            $this->renderImageAsHtml('pasteinto.svg', $label, 'class="blink"')
+            $this->renderImageAsHtml('pasteinto.svg', $title, 'class="blink"')
         );
     }
 
@@ -683,10 +684,9 @@ class ButtonRenderer
         $title = $this->translateButtonDescription('pasteafter', $definitionName, ['%id%' => $model->getId()]);
 
         return sprintf(
-            ' <a href="%s" title="%s" data-action="contao--scroll-offset#store">%s</a>',
+            ' <a href="%s" data-action="contao--scroll-offset#store">%s</a>',
             $event->getHrefAfter() ?? '',
-            StringUtil::specialchars($title),
-            $this->renderImageAsHtml('pasteafter.svg', $label, 'class="blink"')
+            $this->renderImageAsHtml('pasteafter.svg', $title, 'class="blink"')
         );
     }
 
