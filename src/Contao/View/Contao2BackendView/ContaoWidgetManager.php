@@ -115,6 +115,19 @@ class ContaoWidgetManager
      */
     private ?string $inputModelKey = null;
 
+    /**
+     * Messages from exceptions caught while encoding a submitted value, keyed by property name.
+     *
+     * processInput() and renderWidget() build a fresh Widget instance each, so an error added to
+     * the former is gone by the time the latter renders. cleanErrors() then also wipes whatever
+     * survived, once per auto submit. Without remembering the message here, a disturbance while
+     * encoding (a broken event listener, not a validation constraint) simply disappears instead
+     * of ever reaching the editor - see contao-community-alliance/dc-general#100.
+     *
+     * @var array<string, list<string>>
+     */
+    private array $fatalErrors = [];
+
     public function __construct(EnvironmentInterface $environment, ModelInterface $model)
     {
         $this->environment = $environment;
@@ -528,7 +541,7 @@ class ContaoWidgetManager
         /** @var Widget $widget */
         $widget = $this->getWidget($property, $inputValues);
 
-        $this->cleanErrors($widget, $ignoreErrors);
+        $this->cleanErrors($widget, $ignoreErrors, $property);
         $this->widgetAddError($property, $widget, $inputValues, $ignoreErrors);
 
         $definition = $this->getEnvironment()->getDataDefinition();
@@ -639,6 +652,10 @@ class ContaoWidgetManager
                         $this->encodeValue($property, $widget->value, $propertyValues)
                     );
                 } catch (\Exception $exception) {
+                    // Not the editor's doing - remember it so an auto submit render pass does not
+                    // wipe it away below, see cleanErrors().
+                    $this->fatalErrors[$property][] = $exception->getMessage();
+
                     $widget->addError($exception->getMessage());
                     /** @var list<string> $widgetErrors */
                     $widgetErrors = $widget->getErrors();
@@ -686,14 +703,16 @@ class ContaoWidgetManager
     /**
      * Clean errors for widget.
      *
-     * @param Widget $widget       The widget.
-     * @param bool   $ignoreErrors The flag for errors cleared.
+     * @param Widget      $widget       The widget.
+     * @param bool        $ignoreErrors The flag for errors cleared.
+     * @param string|null $property     The property the widget belongs to, to re-apply a fatal
+     *                                  error recorded by processInput() (optional).
      *
      * @return void
      *
      * @throws \ReflectionException
      */
-    protected function cleanErrors(Widget $widget, $ignoreErrors = false)
+    protected function cleanErrors(Widget $widget, $ignoreErrors = false, ?string $property = null)
     {
         if (!$ignoreErrors) {
             return;
@@ -710,6 +729,12 @@ class ContaoWidgetManager
             $widget,
             \str_replace('error', '', (string) $reflectionPropClass->getValue($widget))
         );
+
+        // A disturbance while encoding is not a constraint an editor can fix by re-entering the
+        // same value - unlike Widget::validate()'s errors, it must survive an auto submit.
+        foreach ((null !== $property ? $this->fatalErrors[$property] ?? [] : []) as $error) {
+            $widget->addError($error);
+        }
     }
 
     /**
