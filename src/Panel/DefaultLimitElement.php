@@ -285,9 +285,11 @@ class DefaultLimitElement extends AbstractElement implements LimitElementInterfa
             $offset = (int) $persistent['offset'];
             $amount = (int) $persistent['amount'];
 
-            // Hotfix the offset - we also might want to store it persistent.
-            // Another way would be to always stick on the "last" page when we hit the upper limit.
-            if ($offset > $this->intTotal) {
+            // A stored offset that no longer fits the current total - most commonly because a
+            // filter was changed or tightened since - would otherwise query a page that does not
+            // exist and render empty. ">=" rather than ">": an offset equal to the total is already
+            // one past the last valid row, the same as being beyond it.
+            if ($offset >= $this->intTotal) {
                 $offset = 0;
             }
         }
