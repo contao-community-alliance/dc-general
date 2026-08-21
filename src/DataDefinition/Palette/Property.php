@@ -26,6 +26,7 @@ use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBag;
 use ContaoCommunityAlliance\DcGeneral\Data\PropertyValueBagInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Palette\Condition\Property\PropertyConditionInterface;
+use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 
 /**
  * A property contained within a palette.
@@ -54,6 +55,15 @@ class Property implements PropertyInterface
      * @var PropertyConditionInterface|null
      */
     protected $editableCondition = null;
+
+    /**
+     * The property names currently being resolved for visibility, keyed by object id, in call
+     * order. Detects a visible-condition cycle (property A depends on B depends on A) before it
+     * exhausts the call stack - see contao-community-alliance/dc-general#528.
+     *
+     * @var array<int, string>
+     */
+    private static array $visibilityGuard = [];
 
     /**
      * Create a new instance.
@@ -97,7 +107,19 @@ class Property implements PropertyInterface
         if ($this->visibleCondition) {
             // We should have defined the interfaces back in 2013... :/
             assert($input === null || $input instanceof PropertyValueBag);
-            return $this->visibleCondition->match($model, $input, $this, $legend);
+
+            $key = spl_object_id($this);
+            if (isset(self::$visibilityGuard[$key])) {
+                $chain = implode('" -> "', [...array_values(self::$visibilityGuard), $this->name]);
+                throw new DcGeneralRuntimeException('Circular visible condition detected: "' . $chain . '"');
+            }
+
+            self::$visibilityGuard[$key] = $this->name;
+            try {
+                return $this->visibleCondition->match($model, $input, $this, $legend);
+            } finally {
+                unset(self::$visibilityGuard[$key]);
+            }
         }
 
         return true;
