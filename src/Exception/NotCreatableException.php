@@ -15,7 +15,8 @@
  * @author     Christian Schiffler <c.schiffler@cyberspectrum.de>
  * @author     Sven Baumann <baumann.sv@gmail.com>
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -23,16 +24,21 @@
 namespace ContaoCommunityAlliance\DcGeneral\Exception;
 
 /**
- * Class NotDeletableException.
+ * Class NotCreatableException.
  *
- * This exception is thrown if a data definition does not support delete actions.
+ * This exception is thrown if a data definition does not support create actions.
  */
-class NotCreatableException extends DefinitionException
+class NotCreatableException extends AbstractDefinitionAccessDeniedException
 {
-    /**
-     * The message template.
-     *
-     * @var string
-     */
-    protected $message = 'Not able to perform action for data definition "%s".';
+    #[\Override]
+    protected function translationKey(): string
+    {
+        return 'exception.not_creatable';
+    }
+
+    #[\Override]
+    protected function fallbackMessage(): string
+    {
+        return 'New records cannot be created here.';
+    }
 }

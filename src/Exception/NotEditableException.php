@@ -12,7 +12,8 @@
  *
  * @package    contao-community-alliance/dc-general
  * @author     Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright  2013-2019 Contao Community Alliance.
+ * @author     Ingolf Steinhardt <info@e-spin.de>
+ * @copyright  2013-2026 Contao Community Alliance.
  * @license    https://github.com/contao-community-alliance/dc-general/blob/master/LICENSE LGPL-3.0-or-later
  * @filesource
  */
@@ -26,12 +27,17 @@ namespace ContaoCommunityAlliance\DcGeneral\Exception;
  *
  * @api
  */
-class NotEditableException extends DefinitionException
+class NotEditableException extends AbstractDefinitionAccessDeniedException
 {
-    /**
-     * The message template.
-     *
-     * @var string
-     */
-    protected $message = 'Not able to perform edit action for data definition "%s".';
+    #[\Override]
+    protected function translationKey(): string
+    {
+        return 'exception.not_editable';
+    }
+
+    #[\Override]
+    protected function fallbackMessage(): string
+    {
+        return 'This record cannot be edited.';
+    }
 }

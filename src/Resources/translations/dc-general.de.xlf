@@ -509,5 +509,29 @@
         <target>Ende</target>
       </segment>
     </unit>
+    <unit id="exception.not_deletable" name="exception.not_deletable">
+      <segment>
+        <source>This record cannot be deleted.</source>
+        <target>Dieser Datensatz kann nicht gelöscht werden.</target>
+      </segment>
+    </unit>
+    <unit id="exception.not_creatable" name="exception.not_creatable">
+      <segment>
+        <source>New records cannot be created here.</source>
+        <target>Hier können keine neuen Datensätze angelegt werden.</target>
+      </segment>
+    </unit>
+    <unit id="exception.not_editable" name="exception.not_editable">
+      <segment>
+        <source>This record cannot be edited.</source>
+        <target>Dieser Datensatz kann nicht bearbeitet werden.</target>
+      </segment>
+    </unit>
+    <unit id="exception.edit_only_mode" name="exception.edit_only_mode">
+      <segment>
+        <source>This view only supports editing existing records.</source>
+        <target>Diese Ansicht unterstützt nur das Bearbeiten vorhandener Datensätze.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
