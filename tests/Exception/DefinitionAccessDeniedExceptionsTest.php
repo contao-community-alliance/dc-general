@@ -85,6 +85,9 @@ final class DefinitionAccessDeniedExceptionsTest extends TestCase
     /**
      * Without a Contao container (e.g. a plain unit test), the exception must not fatal - it
      * falls back to its hardcoded message.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $translationKey is part of the shared
+     *                                                 provider row, not needed by this case.
      */
     #[DataProvider('classesProvider')]
     public function testFallsBackToTheHardcodedMessageWithoutAContainer(
@@ -102,6 +105,9 @@ final class DefinitionAccessDeniedExceptionsTest extends TestCase
 
     /**
      * A container without a translator service behaves exactly like no container at all.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $translationKey is part of the shared
+     *                                                 provider row, not needed by this case.
      */
     #[DataProvider('classesProvider')]
     public function testFallsBackToTheHardcodedMessageWithoutATranslatorService(
@@ -121,6 +127,9 @@ final class DefinitionAccessDeniedExceptionsTest extends TestCase
     /**
      * With a translator available, the translated message is used and the definition name is
      * not appended - editors gain nothing from seeing a raw table name.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $fallbackMessage is part of the shared
+     *                                                 provider row, not needed by this case.
      */
     #[DataProvider('classesProvider')]
     public function testUsesTheTranslatedMessageWhenATranslatorIsAvailable(
@@ -172,6 +181,9 @@ final class DefinitionAccessDeniedExceptionsTest extends TestCase
      * The whole point of the change: Symfony's security firewall recognises this type and turns
      * it into a 403 (or a login redirect) instead of dc-general's exceptions bubbling up as an
      * uncaught 500.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $translationKey/$fallbackMessage are part of
+     *                                                 the shared provider row, not needed here.
      */
     #[DataProvider('classesProvider')]
     public function testIsASymfonySecurityAccessDeniedException(
