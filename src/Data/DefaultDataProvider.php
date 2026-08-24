@@ -360,7 +360,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->from($this->source);
-        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
+        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder, $this->connection);
 
         if (null !== $config->getId()) {
             $queryBuilder->where($this->source . '.id=:id');
@@ -398,7 +398,7 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder->from($this->source);
-        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
+        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder, $this->connection);
         DefaultDataProviderDBalUtils::addWhere($config, $queryBuilder);
         DefaultDataProviderDBalUtils::addSorting($config, $queryBuilder);
 
@@ -677,7 +677,8 @@ class DefaultDataProvider implements DataProviderInterface
 
         $this->connection->insert($this->source, $data);
 
-        $insertId = $this->connection->lastInsertId($this->source);
+        // The optional sequence/table-name argument was removed in DBAL 4.
+        $insertId = $this->connection->lastInsertId();
 
         if (('' !== $insertId) && !isset($data[$this->idProperty])) {
             // Retrieve id with query to set type.
@@ -741,6 +742,10 @@ class DefaultDataProvider implements DataProviderInterface
     public function fieldExists($columnName)
     {
         if (null === $this->schema) {
+            // DBAL 4 deprecates this in favour of introspectTableByUnquotedName()/
+            // introspectTableByQuotedName(), neither of which exists yet on DBAL 3 - there is no
+            // replacement that works across both.
+            /** @psalm-suppress DeprecatedMethod */
             $this->schema = $this->connection->createSchemaManager()->introspectTable($this->source);
         }
 
@@ -809,7 +814,7 @@ class DefaultDataProvider implements DataProviderInterface
     public function getVersions($mixID, $onlyActive = false)
     {
         $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder->select(['tstamp', 'version', 'username', 'active']);
+        $queryBuilder->select('tstamp', 'version', 'username', 'active');
         $queryBuilder->from('tl_version');
         $queryBuilder->andWhere($queryBuilder->expr()->eq('tl_version.fromTable', ':fromTable'));
         $queryBuilder->setParameter('fromTable', $this->source);

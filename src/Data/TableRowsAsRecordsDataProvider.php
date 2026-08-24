@@ -171,7 +171,7 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider implements Edit
         }
 
         $queryBuilder = $this->connection->createQueryBuilder();
-        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder);
+        DefaultDataProviderDBalUtils::addField($config, $this->idProperty, $queryBuilder, $this->connection);
         $queryBuilder->from($this->source);
         $queryBuilder->where($queryBuilder->expr()->eq($this->strGroupCol, ':' . $this->strGroupCol));
         $queryBuilder->setParameter($this->strGroupCol, $config->getId());
@@ -324,7 +324,10 @@ class TableRowsAsRecordsDataProvider extends DefaultDataProvider implements Edit
             $sqlData[$this->strGroupCol] = $item->getId();
 
             $this->connection->insert($this->source, $sqlData);
-            if (false === $lastInsertId = $this->connection->lastInsertId($this->source)) {
+            // The optional sequence/table-name argument was removed in DBAL 4; '' is what a driver
+            // without last-insert-id support returns instead of false there.
+            $lastInsertId = $this->connection->lastInsertId();
+            if ('' === (string) $lastInsertId) {
                 throw new \RuntimeException('Failed to insert');
             }
             $keep[] = (string) $lastInsertId;

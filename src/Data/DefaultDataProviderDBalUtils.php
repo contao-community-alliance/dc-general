@@ -22,6 +22,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Data;
 
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
+use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 /**
@@ -48,23 +49,47 @@ class DefaultDataProviderDBalUtils
      * @param ConfigInterface $config       The configuration to use.
      * @param string          $idProperty   The name of the id property.
      * @param QueryBuilder    $queryBuilder The query builder.
+     * @param Connection|null $connection   The database connection - required as of DBAL 4, where
+     *                                      QueryBuilder::getConnection() was removed entirely.
+     *                                      Optional only for backwards compatibility with existing
+     *                                      DBAL 3 callers that do not pass it yet.
      *
      * @return void
      */
-    public static function addField(ConfigInterface $config, $idProperty, QueryBuilder $queryBuilder)
-    {
+    public static function addField(
+        ConfigInterface $config,
+        $idProperty,
+        QueryBuilder $queryBuilder,
+        ?Connection $connection = null
+    ) {
         if ($config->getIdOnly()) {
             $queryBuilder->select($idProperty);
             return;
         }
 
         if (null !== $fieldList = $config->getFields()) {
-            /** @psalm-suppress DeprecatedMethod - bc layer */
-            $connection = $queryBuilder->getConnection();
-            $fields     = \implode(
+            if (null === $connection) {
+                if (!\method_exists($queryBuilder, 'getConnection')) {
+                    throw new DcGeneralRuntimeException(
+                        'DefaultDataProviderDBalUtils::addField() needs $connection explicitly on ' .
+                        'DBAL 4 - QueryBuilder::getConnection() has been removed.'
+                    );
+                }
+                // Only reached on DBAL 3, guarded above; kept for callers that have not started
+                // passing $connection yet.
+                /**
+                 * @psalm-suppress DeprecatedMethod, UndefinedMethod
+                 * @var Connection $connection
+                 */
+                $connection = $queryBuilder->getConnection();
+            }
+            $fields = \implode(
                 ', ',
                 \array_map(
                     function ($field) use ($connection) {
+                        // quoteSingleIdentifier(), the DBAL 4 successor, does not exist on DBAL 3 -
+                        // no cross-version replacement exists yet.
+                        /** @psalm-suppress DeprecatedMethod */
                         return $connection->quoteIdentifier($field);
                     },
                     $fieldList

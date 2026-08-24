@@ -69,6 +69,23 @@ final class DefaultDataProviderTest extends TestCase
     }
 
     /**
+     * getMockBuilder(AbstractSchemaManager::class)->onlyMethods(...)->getMock() fails to compile
+     * under DBAL 4 - AbstractSchemaManager grew several new `abstract protected` methods there and
+     * PHPUnit's generator does not stub them, so the generated double is left non-instantiable.
+     * getMockForAbstractClass() takes a different code path that does stub every abstract method.
+     */
+    private function mockSchemaManager(Table $schemaTable): AbstractSchemaManager&MockObject
+    {
+        $schemaManager = $this
+            ->getMockBuilder(AbstractSchemaManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $schemaManager->method('introspectTable')->willReturn($schemaTable);
+
+        return $schemaManager;
+    }
+
+    /**
      * Mock the default provider.
      */
     private function mockDefaultProvider(): DefaultDataProvider
@@ -80,12 +97,7 @@ final class DefaultDataProviderTest extends TestCase
             ->getMock();
         $schemaTable->method('hasColumn')->willReturn(false);
 
-        $schemaManager = $this
-            ->getMockBuilder(AbstractSchemaManager::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['introspectTable', '_getPortableTableColumnDefinition'])
-            ->getMock();
-        $schemaManager->method('introspectTable')->willReturn($schemaTable);
+        $schemaManager = $this->mockSchemaManager($schemaTable);
 
         $connection = $this->mockConnection();
         $connection->method('createSchemaManager')->willReturn($schemaManager);
@@ -127,12 +139,7 @@ final class DefaultDataProviderTest extends TestCase
             ->getMock();
         $schemaTable->method('hasColumn')->willReturn(false);
 
-        $schemaManager = $this
-            ->getMockBuilder(AbstractSchemaManager::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['introspectTable', '_getPortableTableColumnDefinition'])
-            ->getMock();
-        $schemaManager->method('introspectTable')->willReturn($schemaTable);
+        $schemaManager = $this->mockSchemaManager($schemaTable);
 
         $connection = $this->mockConnection();
         $connection->method('createSchemaManager')->willReturn($schemaManager);
@@ -187,12 +194,7 @@ final class DefaultDataProviderTest extends TestCase
             ->getMock();
         $schemaTable->method('hasColumn')->willReturn(false);
 
-        $schemaManager = $this
-            ->getMockBuilder(AbstractSchemaManager::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['introspectTable', '_getPortableTableColumnDefinition'])
-            ->getMock();
-        $schemaManager->method('introspectTable')->willReturn($schemaTable);
+        $schemaManager = $this->mockSchemaManager($schemaTable);
 
         $connection = $this->mockConnection();
         $connection->method('createSchemaManager')->willReturn($schemaManager);
