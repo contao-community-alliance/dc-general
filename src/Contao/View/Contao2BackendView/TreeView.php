@@ -590,7 +590,6 @@ class TreeView extends BaseView
     protected function viewTree($collection)
     {
         $definition      = $this->getDataDefinition();
-        $listing         = $this->getViewSection()->getListingConfig();
         $basicDefinition = $definition->getBasicDefinition();
 
         $environment = $this->getEnvironment();
@@ -607,19 +606,6 @@ class TreeView extends BaseView
 
             default:
                 $treeClass = 'tree';
-        }
-
-        // Label + Icon.
-        if (null === ($label = $listing->getRootLabel())) {
-            $labelText = 'DC General Tree BackendView Ultimate';
-        } else {
-            $labelText = $this->translate($label, $definition->getName());
-        }
-
-        if (null === $listing->getRootIcon()) {
-            $labelIcon = 'pagemounts.svg';
-        } else {
-            $labelIcon = $listing->getRootIcon() ?? '';
         }
 
         $filter = new Filter();
@@ -664,9 +650,6 @@ class TreeView extends BaseView
             $rootPasteInto = '';
         }
 
-        /** @var GenerateHtmlEvent $imageEvent */
-        $imageEvent = $dispatcher->dispatch(new GenerateHtmlEvent($labelIcon), ContaoEvents::IMAGE_GET_HTML);
-
         $toggleAll = $this->renderToggleAllLink($definition->getName());
 
         // Build template.
@@ -674,8 +657,6 @@ class TreeView extends BaseView
         $template
             ->set('treeClass', 'tl_' . $treeClass)
             ->set('tableName', $definition->getName())
-            ->set('strLabelIcon', $imageEvent->getHtml())
-            ->set('strLabelText', $labelText)
             ->set('strHTML', $this->generateTreeView($collection, $treeClass))
             ->set('strRootPasteinto', $rootPasteInto)
             ->set('toggleAllUrl', $toggleAll['url'])
