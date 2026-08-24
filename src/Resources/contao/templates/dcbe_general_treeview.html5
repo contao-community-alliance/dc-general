@@ -33,7 +33,12 @@ $GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
     <ul class="tl_listing <?= $this->treeClass ?>">
         <li class="tl_folder_top">
             <div class="tl_left"><?= $this->strLabelIcon ?> <label><?= $this->strLabelText ?></label></div>
-            <div class="tl_right"><?= \strlen($this->strRootPasteinto) ? $this->strRootPasteinto : '' ?></div>
+            <div class="tl_right">
+                <?php if (!$this->select && \strlen($this->toggleAllUrl ?? '')): ?>
+                    <a href="<?= $this->toggleAllUrl ?>" class="toggleAll" data-turbo="false"><?= $this->toggleAllLabel ?></a>
+                <?php endif; ?>
+                <?= \strlen($this->strRootPasteinto) ? $this->strRootPasteinto : '' ?>
+            </div>
             <div style="clear:both;"></div>
         </li>
         <?= $this->strHTML ?>

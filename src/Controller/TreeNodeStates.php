@@ -126,7 +126,7 @@ class TreeNodeStates
      */
     public function isAllOpen()
     {
-        return (bool) $this->states['all'];
+        return (bool) ($this->states['all'] ?? false);
     }
 
     /**
@@ -170,7 +170,7 @@ class TreeNodeStates
      */
     public function isModelOpen($providerName, $modelId, $ignoreAllState = false)
     {
-        if (!$ignoreAllState && isset($this->states['all']) && (1 === $this->states['all'])) {
+        if (!$ignoreAllState && $this->isAllOpen()) {
             return true;
         }
 

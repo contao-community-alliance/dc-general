@@ -237,6 +237,16 @@
         <source>Expand node</source>
       </segment>
     </unit>
+    <unit id="collapseAllNodes" name="collapseAllNodes">
+      <segment>
+        <source>Collapse all</source>
+      </segment>
+    </unit>
+    <unit id="expandAllNodes" name="expandAllNodes">
+      <segment>
+        <source>Expand all</source>
+      </segment>
+    </unit>
     <unit id="save" name="save">
       <segment>
         <source>Save</source>

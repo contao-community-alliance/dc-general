@@ -202,10 +202,13 @@ class TreeView extends BaseView
             $states = $this->getTreeNodeStates();
             // Check if the open/close all has been triggered or just a model.
             if ('all' === $modelId) {
-                if ($states->isAllOpen()) {
-                    $states->resetAll();
-                }
-                $states->setAllOpen($states->isAllOpen());
+                // Clear any per-node overrides accumulated while "all" was in its previous state
+                // and flip the flag - without this, the value read back below never changes and
+                // the toggle link would have no effect (see contao-community-alliance/dc-general#560).
+                $wasAllOpen = $states->isAllOpen();
+                $states->resetAll();
+                $states->setAllOpen(!$wasAllOpen);
+                $this->saveTreeNodeStates($states);
             } else {
                 $this->toggleModel((string) $providerName, $modelId);
             }
@@ -237,6 +240,39 @@ class TreeView extends BaseView
     protected function isModelOpen($model)
     {
         return $this->getTreeNodeStates()->isModelOpen($model->getProviderName(), $model->getID());
+    }
+
+    /**
+     * Build the url and label for the "expand all/collapse all" link of the tree root.
+     *
+     * The link toggles the same "all" flag that handleNodeStateChanges() already understands
+     * (see the `'all' === $modelId` branch there) - this only adds a way to trigger it from
+     * the view.
+     *
+     * @param string $providerName The data provider name of the tree's root level.
+     *
+     * @return array{url: string, label: string}
+     */
+    private function renderToggleAllLink($providerName)
+    {
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $toggleAllUrlEvent = new AddToUrlEvent('ptg=all&amp;provider=' . $providerName);
+        $dispatcher->dispatch($toggleAllUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
+
+        $allOpen = $this->getTreeNodeStates()->isAllOpen();
+
+        return [
+            'url'   => \html_entity_decode($toggleAllUrlEvent->getUrl()),
+            'label' => $translator->translate($allOpen ? 'collapseAllNodes' : 'expandAllNodes', 'dc-general')
+        ];
     }
 
     /**
@@ -631,6 +667,8 @@ class TreeView extends BaseView
         /** @var GenerateHtmlEvent $imageEvent */
         $imageEvent = $dispatcher->dispatch(new GenerateHtmlEvent($labelIcon), ContaoEvents::IMAGE_GET_HTML);
 
+        $toggleAll = $this->renderToggleAllLink($definition->getName());
+
         // Build template.
         $template = $this->getTemplate('dcbe_general_treeview');
         $template
@@ -640,6 +678,8 @@ class TreeView extends BaseView
             ->set('strLabelText', $labelText)
             ->set('strHTML', $this->generateTreeView($collection, $treeClass))
             ->set('strRootPasteinto', $rootPasteInto)
+            ->set('toggleAllUrl', $toggleAll['url'])
+            ->set('toggleAllLabel', $toggleAll['label'])
             ->set('select', $this->isSelectModeActive())
             ->set('selectButtons', $this->getSelectButtons())
             ->set('intMode', 6);

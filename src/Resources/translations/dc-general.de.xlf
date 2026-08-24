@@ -287,6 +287,18 @@
         <target>Bereich öffnen</target>
       </segment>
     </unit>
+    <unit id="collapseAllNodes" name="collapseAllNodes">
+      <segment>
+        <source>Collapse all</source>
+        <target>Alle schließen</target>
+      </segment>
+    </unit>
+    <unit id="expandAllNodes" name="expandAllNodes">
+      <segment>
+        <source>Expand all</source>
+        <target>Alle öffnen</target>
+      </segment>
+    </unit>
     <unit id="save" name="save">
       <segment>
         <source>Save</source>
