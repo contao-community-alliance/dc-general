@@ -648,15 +648,7 @@ class LegacyDcaDataDefinitionBuilder extends DcaReadingDataDefinitionBuilder
                         )
                     );
             }
-            $providerInformation->setVersioningEnabled(false);
-            if (true === (bool) $this->getFromDca('config/enableVersioning')) {
-                // phpcs:disable
-                @trigger_error(
-                    'Versioning is not supported yet and will get implemented in a future release.',
-                    E_USER_WARNING
-                );
-                // phpcs:enable
-            }
+            $providerInformation->setVersioningEnabled((bool) $this->getFromDca('config/enableVersioning'));
 
             if (null === $container->getBasicDefinition()->getDataProvider()) {
                 $container->getBasicDefinition()->setDataProvider($providerName);

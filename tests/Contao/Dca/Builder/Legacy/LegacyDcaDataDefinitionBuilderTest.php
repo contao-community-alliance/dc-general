@@ -144,4 +144,39 @@ final class LegacyDcaDataDefinitionBuilderTest extends TestCase
             self::assertFalse($listener->wantToExecute($event));
         }
     }
+
+    /**
+     * "enableVersioning" from the DCA must reach the provider information - see
+     * ".claude/dcg-versionierung.md" for the background: this builder used to hard-code it to false
+     * regardless of the DCA, unconditionally overriding the extended builder that runs first.
+     */
+    public function testEnableVersioningFromDcaIsHonoured(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $container  = new DefaultContainer('tl_test');
+        $event      = new BuildDataDefinitionEvent($container);
+        $builder    = $this->mockBuilderWithDca(
+            ['config' => ['enableVersioning' => true]],
+            $event::NAME,
+            $dispatcher
+        );
+
+        $builder->build($event->getContainer(), $event);
+
+        $providerInformation = $container->getDataProviderDefinition()->getInformation('tl_test');
+        self::assertTrue($providerInformation->isVersioningEnabled());
+    }
+
+    public function testVersioningStaysDisabledWithoutTheDcaFlag(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $container  = new DefaultContainer('tl_test');
+        $event      = new BuildDataDefinitionEvent($container);
+        $builder    = $this->mockBuilderWithDca(['config' => []], $event::NAME, $dispatcher);
+
+        $builder->build($event->getContainer(), $event);
+
+        $providerInformation = $container->getDataProviderDefinition()->getInformation('tl_test');
+        self::assertFalse($providerInformation->isVersioningEnabled());
+    }
 }

@@ -838,8 +838,8 @@ class DefaultDataProvider implements DataProviderInterface
         $collection = $this->getEmptyCollection();
 
         foreach ($versions as $versionValue) {
-            $model = $this->getEmptyModel();
-            $model->setId($mixID);
+            $model = new VersionModel();
+            $model->setProviderName($this->source);
 
             foreach ($versionValue as $key => $value) {
                 if ($key === $this->idProperty) {
@@ -848,6 +848,10 @@ class DefaultDataProvider implements DataProviderInterface
 
                 $model->setProperty($key, $value);
             }
+
+            // The template submits this as "version" to restore - the record ID stays with $mixID
+            // and is not what identifies a single entry in this list, the version number does.
+            $model->setIdRaw($versionValue['version']);
 
             $collection->push($model);
         }
@@ -913,8 +917,10 @@ class DefaultDataProvider implements DataProviderInterface
     {
         $updateValues = ['tl_version.pid' => $mixID, 'tl_version.fromTable' => $this->source];
 
-        // Set version inactive.
-        $this->connection->update('tl_version', ['tl_version.active' => ''], $updateValues);
+        // Set version inactive. "active" is a strict tinyint(1) - an empty string fails under
+        // strict SQL mode, never noticed before because enableVersioning never actually reached
+        // this code path (see the builder fix accompanying this change).
+        $this->connection->update('tl_version', ['tl_version.active' => 0], $updateValues);
 
         // Set version active.
         $updateValues['version'] = $mixVersion;

@@ -56,6 +56,7 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Contao\BackendUser;
 use Contao\CoreBundle\Intl\Locales;
+use Contao\Date;
 use Contao\Image;
 use Contao\System;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -1000,6 +1001,7 @@ class EditMask
                 'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
                     $model->getId()
                 ) : null,
+                'parseDate'   => static fn(string $format, int $timestamp): string => Date::parse($format, $timestamp),
                 'subHeadline' => $this->getSubHeadline(),
                 'table'       => $definition->getName(),
                 'enctype'     => 'multipart/form-data',
