@@ -50,7 +50,7 @@ class DynamicParentTableSubscriber implements EventSubscriberInterface
      * @return array<string, array{0: string, 1: int}> The event names to listen to.
      */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PrePersistModelEvent::NAME => ['handlePrePersistModelEvent', -200]

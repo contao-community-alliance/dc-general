@@ -105,7 +105,7 @@ class BaseView implements BackendViewInterface, EventSubscriberInterface
      * {@inheritDoc}
      */
     #[\Override]
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             DcGeneralEvents::ACTION => ['handleAction', -100]

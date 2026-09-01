@@ -58,14 +58,14 @@ services:
     ContaoCommunityAlliance\DcGeneral\Cache\Factory\DcGeneralFactoryCache:
         public: true
         # This pool holds DcGeneral instances for the duration of a request, and an ArrayAdapter
-        # serializes what it stores unless told otherwise. That is wrong for this purpose twice over:
-        # the whole object graph is serialized on every save and unserialized again on every read, so
-        # each caller ends up with its own copy instead of the shared instance the cache is meant to
-        # hand out - and the moment a closure enters the graph, storing fails outright.
+        # deep-clones what it stores unless told otherwise. That is wrong for this purpose: each
+        # caller ends up with its own copy instead of the shared instance the cache is meant to
+        # hand out. Symfony 8 renamed the old serialize-based "$storeSerialized" guard to
+        # "$deepClone" (a different mechanism, same intent) - keep it off for the same reason.
         # See https://github.com/contao-community-alliance/dc-general/issues/652.
         arguments:
             $defaultLifetime: 0
-            $storeSerialized: false
+            $deepClone: false
         deprecated:
             package: contao-community-alliance/dc-general
             version: 2.2
