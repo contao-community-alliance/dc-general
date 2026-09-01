@@ -23,7 +23,7 @@ namespace ContaoCommunityAlliance\DcGeneral\DataDefinition;
 /**
  * A generic data provider information.
  */
-class DataProviderInformation implements DataProviderInformationInterface
+class DataProviderInformation implements DataProviderInformationInterface, LoggingInformationInterface
 {
     /**
      * The name of the data provider information.
@@ -38,6 +38,16 @@ class DataProviderInformation implements DataProviderInformationInterface
      * @var bool
      */
     protected $versioningEnabled = false;
+
+    /**
+     * Flag determining if create/duplicate/delete are logged for this provider or not.
+     *
+     * Defaults to enabled - this mirrors what Contao logs for its own tables, an unconfigured
+     * provider should not silently lose that.
+     *
+     * @var bool
+     */
+    protected bool $loggingEnabled = true;
 
     /**
      * {@inheritdoc}
@@ -77,5 +87,25 @@ class DataProviderInformation implements DataProviderInformationInterface
     public function isVersioningEnabled()
     {
         return $this->versioningEnabled;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    #[\Override]
+    public function setLoggingEnabled(bool $loggingEnabled): self
+    {
+        $this->loggingEnabled = $loggingEnabled;
+
+        return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    #[\Override]
+    public function isLoggingEnabled(): bool
+    {
+        return $this->loggingEnabled;
     }
 }

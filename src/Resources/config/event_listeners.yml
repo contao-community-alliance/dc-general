@@ -15,6 +15,22 @@ services:
                 event: dc-general.model.enforce-relationship
                 method: process
 
+    cca.dc-general.general_listener.log_persisted_models:
+        class: ContaoCommunityAlliance\DcGeneral\EventListener\LogPersistedModelsListener
+        public: true
+        arguments:
+            - '@monolog.logger.contao.general'
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.model.post-persist
+                method: onPersist
+            -   name: kernel.event_listener
+                event: dc-general.model.post-duplicate
+                method: onDuplicate
+            -   name: kernel.event_listener
+                event: dc-general.model.post-delete
+                method: onDelete
+
     cca.dc-general.general_listener.select_mode_buttons:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\SelectModeButtonsListener
         public: true
