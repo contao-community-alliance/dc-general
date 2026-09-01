@@ -243,6 +243,21 @@ in 3.0, and roughly fifty further calls sit in classes that are not services at 
 everything below `DC_General` is built with `new`, because Contao instantiates the data
 container driver by class name.
 
+## `doNotSaveEmpty` is honoured now (behaviour change)
+
+`ModelManipulator::updateModelFromPropertyBag()` ignored the `doNotSaveEmpty` eval flag
+entirely - only its counterpart `alwaysSave` was evaluated, which is the worse half of the
+pair to get right: an empty value was not only written, it was also forced onto the model as
+changed. It now mirrors Contao's own `DC_Table::save()`: a property flagged `doNotSaveEmpty`
+keeps its stored value when an empty one arrives instead of being overwritten. An array is
+never "empty" in this sense, not even an empty one, matching Contao's own check.
+
+**This changes behaviour for existing DCAs, it is not just a fix.** A property carrying the
+flag used to lose its value the moment an empty one was submitted; after this release it
+keeps what was stored. Anyone who set `doNotSaveEmpty` and relied on the old, broken
+behaviour to clear the property should remove the flag instead - that is what it always
+claimed not to do (`contao-community-alliance/dc-general#385`).
+
 ## Fixed along the way
 
 - **Drag and drop sorting** in list views answered with HTTP 500 and lost the new order.

@@ -54,8 +54,9 @@ class ModelManipulator
 
                 $property = $properties->getProperty($propertyName);
                 $extra    = $property->getExtra();
+
                 // Don´t save value if isset property readonly.
-                if (empty($extra['readonly'])) {
+                if (empty($extra['readonly']) && !static::keepsStoredValue($extra, $value)) {
                     $model->setProperty($propertyName, static::sanitizeValue($property, $value));
                 }
 
@@ -76,6 +77,22 @@ class ModelManipulator
                 $values->markPropertyValueAsInvalid($propertyName, $exception->getMessage());
             }
         }
+    }
+
+    /**
+     * Determine if an incoming value must not overwrite the value already stored in the model.
+     *
+     * Mirrors Contao's own DC_Table::save(): a property flagged "doNotSaveEmpty" keeps its stored value when an
+     * empty one arrives. An array is never "empty" in this sense, even an empty one.
+     *
+     * @param array $extra The property's "extra" evaluation settings.
+     * @param mixed $value The incoming value.
+     *
+     * @return bool
+     */
+    private static function keepsStoredValue(array $extra, $value)
+    {
+        return !empty($extra['doNotSaveEmpty']) && !\is_array($value) && '' === (string) $value;
     }
 
     /**
