@@ -1,24 +1,24 @@
-{% set orderFieldId = orderFieldId|default('ctrl_' ~ orderId) %}
+{% set orderFieldId = orderFieldId|default('ctrl_' ~ orderId|default('')) %}
 <input type="hidden" name="{{ name }}" id="ctrl_{{ id }}" value="{{ values|keys|join(',') }}">
 
 {% block select_container %}
 <div class="selector_container">
-    {% if hasOrder and values|length %}
+    {% if hasOrder|default(false) and values|length %}
         <p class="sort_hint">
             {{ dragItemsHint|raw }}
         </p>
     {% endif %}
 
-    <ul id="sort_{{ id }}"{% if hasOrder %} class="sortable" data-controller="contao--sortable" data-cca-order-field="{{ orderFieldId }}"{% endif %}>
+    <ul id="sort_{{ id }}"{% if hasOrder|default(false) %} class="sortable" data-controller="contao--sortable" data-cca-order-field="{{ orderFieldId }}"{% endif %}>
         {% for k, v in values %}
-            <li data-id="{{ k }}"{% if hasOrder and values|length %} title="{{ dragItemsHint|raw }}"{% endif %}>{{ v|raw }}</li>
+            <li data-id="{{ k }}"{% if hasOrder|default(false) and values|length %} title="{{ dragItemsHint|raw }}"{% endif %}>{{ v|raw }}</li>
         {% endfor %}
     </ul>
 </div>
 {% endblock %}
 
 {% block modal_button %}
-{% if not readonly %}
+{% if not readonly|default(false) %}
     <p>
         <a id="ft_{{ name }}" href="{{ popupUrl }}" class="tl_submit">{{ changeSelection|raw }}</a>
     </p>
@@ -26,7 +26,7 @@
 {% endblock %}
 
 {% block modal_script %}
-{% if not readonly %}
+{% if not readonly|default(false) %}
 <script>
     document.getElementById("ft_{{ name }}").addEventListener("click", function (event) {
         event.preventDefault();

@@ -27,7 +27,7 @@
                 <select name="version" class="tl_select">
                 {% for objVersion in versions %}
                     <option value="{{ objVersion.id }}"{% if objVersion.current %} selected="selected"{% endif %}>
-                    {{ 'version'|trans({}, 'dc-general') }} {{ objVersion.version }} ({{ parseDate(datimFormat, objVersion.dateTime.timestamp) }})
+                    {{ 'version'|trans({}, 'dc-general') }} {{ objVersion.version }} ({{ parseDate.invoke(datimFormat, objVersion.dateTime.timestamp) }})
                     {% if objVersion.authorName %} &ndash; {{ objVersion.authorName }} ({{ objVersion.authorUsername }})
                     {% elseif objVersion.authorUsername %} &ndash; ({{ objVersion.authorUsername }})
                     {% endif %}

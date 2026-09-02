@@ -1,7 +1,7 @@
 {% extends '@Contao/widget_common_picker.html.twig' %}
 
 {% block multi_source_script %}
-{% if hasOrder %}
+{% if hasOrder|default(false) %}
     <input type="hidden" name="{{ orderName }}" id="ctrl_order_{{ orderId }}" value="{{ values|keys|join(',') }}">
 {% endif %}
 {% endblock %}
