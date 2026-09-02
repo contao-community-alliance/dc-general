@@ -64,7 +64,6 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\Picker\IdTranscoderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Contao\Backend;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerConfig;
@@ -187,7 +186,7 @@ class TreePicker extends Widget
      *
      * @var string
      */
-    protected $titleIcon = '/system/themes/flexible/icons/pagemounts.svg';
+    protected $titleIcon = 'pagemounts.svg';
 
     /**
      * The data container for the item source.
@@ -1756,7 +1755,6 @@ class TreePicker extends Widget
             ->setTranslator($translator)
             ->set('id', $this->strId)
             ->set('name', $this->strName)
-            ->set('theme', Backend::getTheme())
             ->set('fieldType', $this->fieldType)
             ->set('environment', $this->getEnvironment())
             ->set('objModel', $model)

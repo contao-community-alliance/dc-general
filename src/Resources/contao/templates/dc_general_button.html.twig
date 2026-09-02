@@ -1,0 +1,1 @@
+<button{% for attributeName, attributeValue in attributes %} {{ attributeName|raw }}="{{ attributeValue|raw }}"{% endfor %}>{{ label|raw }}</button>

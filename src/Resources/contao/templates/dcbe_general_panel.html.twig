@@ -1,0 +1,13 @@
+<form data-turbo="false" action="{{ action }}" class="tl_form dc_general_panel" method="post">
+    <div class="tl_formbody">
+        <input type="hidden" name="FORM_SUBMIT" value="tl_filters">
+        <input type="hidden" name="REQUEST_TOKEN" value="{{ contao.request_token }}">
+        {% for arrRow in panel %}
+            <div class="tl_panel">
+                {% for strPanel in arrRow %}
+                    {{ strPanel|raw }}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</form>

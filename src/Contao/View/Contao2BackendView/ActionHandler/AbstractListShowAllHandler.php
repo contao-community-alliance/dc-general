@@ -68,7 +68,6 @@ use ContaoCommunityAlliance\DcGeneral\Panel\SortElementInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ActionHandler\CallActionTrait;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
-use Contao\Backend;
 use Contao\Environment;
 use Contao\Message;
 use Contao\StringUtil;
@@ -240,11 +239,55 @@ abstract class AbstractListShowAllHandler
         $this->handleEditAllButton($collection, $environment);
         $this->renderCollection($environment, $collection, $grouping ?? []);
 
+        // Split the collection into its display groups here rather than in the Twig template: Twig
+        // has no clean way to accumulate an intermediate lookup structure while iterating a single
+        // pass, and every group needs a stable, HTML-id-safe key (StringUtil::standardize(), not
+        // reachable from Twig).
+        $grouped = null !== ($grouping['mode'] ?? null)
+            && GroupAndSortingInformationInterface::GROUP_NONE !== $grouping['mode'];
+        $groups  = [];
+        if ($collection->length() > 0) {
+            if ($grouped) {
+                foreach ($collection as $groupModel) {
+                    $groupMeta = $groupModel->getMeta($groupModel::GROUP_VALUE);
+                    $groupKey  = (string) $groupMeta['value'];
+                    if (!isset($groups[$groupKey])) {
+                        $groups[$groupKey] = [
+                            'id'     => StringUtil::standardize($groupKey),
+                            'class'  => $groupMeta['class'],
+                            'label'  => $groupMeta['value'],
+                            'models' => [],
+                        ];
+                    }
+                    $groups[$groupKey]['models'][] = [
+                        'model'        => $groupModel,
+                        'serializedId' => ModelId::fromModel($groupModel)->getSerialized(),
+                    ];
+                }
+            } else {
+                $groups[''] = [
+                    'id'     => StringUtil::standardize(''),
+                    'class'  => null,
+                    'label'  => null,
+                    'models' => \array_map(
+                        static fn ($groupModel) => [
+                            'model'        => $groupModel,
+                            'serializedId' => ModelId::fromModel($groupModel)->getSerialized(),
+                        ],
+                        \iterator_to_array($collection)
+                    ),
+                ];
+            }
+        }
+
         $template = $this->determineTemplate($grouping ?? []);
         $template
             ->set('collection', $collection)
-            ->set('mode', ($grouping['mode'] ?? null))
-            ->set('theme', Backend::getTheme());
+            ->set('grouped', $grouped)
+            ->set('groups', $groups)
+            // Twig cannot call Message::generate() itself (a stateful static call that flushes the
+            // global message queue), so it is rendered here and handed in as plain markup.
+            ->set('messages', Message::generate());
         $this->renderTemplate($template, $environment);
 
         $dispatcher = $environment->getEventDispatcher();

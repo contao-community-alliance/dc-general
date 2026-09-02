@@ -87,7 +87,6 @@ final readonly class BackendPickerController
             ->set('host', Backend::getDecodedHostname())
             ->set('headline', '')
             ->set('main', $treeSelector->generatePopup())
-            ->set('theme', Backend::getTheme())
             ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
             ->set(
                 'title',

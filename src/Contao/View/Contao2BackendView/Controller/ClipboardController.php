@@ -26,6 +26,7 @@ namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Contr
 
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\AddToUrlEvent;
+use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
@@ -440,10 +441,35 @@ class ClipboardController implements EventSubscriberInterface
         $eventDispatcher->dispatch($addToUrlEvent, ContaoEvents::BACKEND_ADD_TO_URL);
         $clearItemUrl = $addToUrlEvent->getUrl();
 
+        $clipboardIconEvent = new GenerateHtmlEvent('clipboard.svg');
+        $eventDispatcher->dispatch($clipboardIconEvent, ContaoEvents::IMAGE_GET_HTML);
+
+        // Pre-render one icon per distinct clipboard action (the template only displays them).
+        $icons = [];
+        foreach ($options as $row) {
+            $item = $row['item'];
+            assert($item instanceof ItemInterface);
+
+            if (isset($icons[$item->getAction()])) {
+                continue;
+            }
+
+            $icon = match ($item->getAction()) {
+                'create'   => 'new',
+                'deepcopy' => 'copychilds',
+                default    => $item->getAction(),
+            };
+
+            $iconEvent = new GenerateHtmlEvent($icon . '.svg');
+            $eventDispatcher->dispatch($iconEvent, ContaoEvents::IMAGE_GET_HTML);
+            $icons[$item->getAction()] = $iconEvent->getHtml();
+        }
+
         $template = new ContaoBackendViewTemplate('dcbe_general_clipboard');
         $template
-            ->set('environment', $environment)
             ->set('options', $options)
+            ->set('actionIcons', $icons)
+            ->set('clipboardIcon', $clipboardIconEvent->getHtml())
             ->set('clearUrl', $clearUrl)
             ->set('clearItemUrl', $clearItemUrl);
 

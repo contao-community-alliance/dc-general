@@ -1,5 +1,6 @@
 <?php
 
+use Contao\Image;
 use ContaoCommunityAlliance\DcGeneral\Data\DCGE;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
@@ -11,8 +12,8 @@ $model = $this->objModel;
     <div class="tl_left" style="padding-left:<?= $model->getMeta(DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
         <?php if ($model->getMeta($model::HAS_CHILDREN) === true): ?>
             <a class="foldable <?= ($model->getMeta($model::SHOW_CHILDREN)) ? ' foldable--open' : '' ?>" href="<?= $this->toggleUrl ?>" title="<?= $this->toggleTitle ?>" data-action="contao--scroll-offset#store" onclick="<?= $this->toggleScript ?>">
-              <img src="/system/themes/<?= $this->theme ?>/icons/chevron-right--dark.svg" width="18" height="18" alt="" class="color-scheme--dark" style="margin-right:-2px;" loading="lazy">
-              <img src="/system/themes/<?= $this->theme ?>/icons/chevron-right.svg" width="18" height="18" alt="" class="color-scheme--light" style="margin-right:-2px;" loading="lazy">
+              <img src="<?= Image::getUrl('chevron-right--dark.svg') ?>" width="18" height="18" alt="" class="color-scheme--dark" style="margin-right:-2px;" loading="lazy">
+              <img src="<?= Image::getUrl('chevron-right.svg') ?>" width="18" height="18" alt="" class="color-scheme--light" style="margin-right:-2px;" loading="lazy">
             </a>
         <?php endif; ?>
         <?php $arrLabels = $model->getMeta($model::LABEL_VALUE); ?>

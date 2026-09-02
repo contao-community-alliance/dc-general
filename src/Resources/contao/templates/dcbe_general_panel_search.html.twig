@@ -1,0 +1,10 @@
+<div class="tl_search tl_subpanel {{ rowClass|default('') }}">
+    <strong>{{ 'search'|trans({}, 'dc-general') }}:</strong>
+    <select name="tl_field" class="{{ class|default('') }}">
+        {% for arrOption in options %}
+            <option value="{{ arrOption.value }}"{{ arrOption.attributes|raw }}>{{ arrOption.content|raw }}</option>
+        {% endfor %}
+    </select>
+    <span> = </span>
+    <input type="search" name="tl_value" class="tl_text" value="{{ value }}">
+</div>

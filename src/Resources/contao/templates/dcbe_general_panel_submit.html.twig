@@ -1,0 +1,6 @@
+{% set apply = 'apply'|trans({}, 'dc-general') %}
+{% set reset = 'reset'|trans({}, 'dc-general') %}
+<div class="tl_submit_panel tl_subpanel {{ rowClass|default('') }}">
+    <button name="filter" id="filter" class="tl_img_submit filter_apply" title="{{ apply }}">{{ apply }}</button>
+    <button name="filter_reset" id="filter_reset" value="1" class="tl_img_submit filter_reset" title="{{ reset }}">{{ reset }}</button>
+</div>

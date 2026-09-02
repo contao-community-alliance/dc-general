@@ -1,5 +1,6 @@
 <?php /** @var \ContaoCommunityAlliance\DcGeneral\Data\ModelInterface $model */
 
+use Contao\Image;
 use Contao\StringUtil;
 
 $model = $this->objModel; ?>
@@ -10,15 +11,22 @@ $model = $this->objModel; ?>
         style="padding-left:<?= $model->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) * 20 ?>px;">
         <?php if ($model->getMeta($model::HAS_CHILDREN) == true): ?>
             <a
-                class="folding"
+                class="folding foldable<?= ($model->getMeta($model::SHOW_CHILDREN)) ? ' foldable--open' : '' ?>"
                 href="<?= $this->toggleUrl ?>"
                 title="<?= $this->toggleTitle ?>"
                 data-action="contao--scroll-offset#store"
                 onclick="<?= $this->toggleScript ?>">
-                <img src="/system/themes/<?= $this->theme ?>/icons/<?= ($model->getMeta($model::SHOW_CHILDREN)) ? 'folMinus.svg' : 'folPlus.svg' ?>"
+                <img src="<?= Image::getUrl('chevron-right--dark.svg') ?>"
                      width="18"
                      height="18"
                      alt=""
+                     class="color-scheme--dark"
+                     style="margin-right:-2px;">
+                <img src="<?= Image::getUrl('chevron-right.svg') ?>"
+                     width="18"
+                     height="18"
+                     alt=""
+                     class="color-scheme--light"
                      style="margin-right:-2px;">
             </a>
         <?php endif; ?>

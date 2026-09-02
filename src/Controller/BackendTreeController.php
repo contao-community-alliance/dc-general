@@ -163,7 +163,6 @@ class BackendTreeController
             ->set('renderMainOnly', true)
             ->set('isDebug', $this->debug)
             ->set('main', $treeSelector->generatePopup())
-            ->set('theme', Backend::getTheme())
             ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
             ->set('host', Backend::getDecodedHostname())
             ->set('backendWidth', BackendUser::getInstance()->backendWidth)
@@ -207,7 +206,6 @@ class BackendTreeController
         $template
             ->set('isPopup', true)
             ->set('main', $message)
-            ->set('theme', Backend::getTheme())
             ->set('language', $GLOBALS['TL_LANGUAGE'])
             ->set(
                 'title',

@@ -1,0 +1,128 @@
+{% block messages %}
+{{ messages|raw }}
+{% if info|default([])|length %}
+    <div class="tl_message">
+        <p class="tl_info">{{ info|join('<br />')|raw }}</p>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% if select|default(false) %}
+<form data-turbo="false" action="{{ action }}" id="tl_select" class="tl_form" method="post">
+    <div class="tl_formbody">
+        <input type="hidden" name="FORM_SUBMIT" value="tl_select">
+        <input type="hidden" name="REQUEST_TOKEN" value="{{ contao.request_token }}">
+{% endif %}
+        <div class="tl_listing_container {% block view_class %}{% endblock %} table_{{ tableName }}" data-controller="contao--check-all">
+            {{ breadcrumb|raw }}
+            {% if select|default(false) %}
+                {% if subHeadline|default %}
+                    <h2 class="sub_headline">{{ subHeadline|raw }}{{ languageHeadline|default('') != '' ? ' - ' ~ languageHeadline : '' }}</h2>
+                {% endif %}
+                <div class="tl_select_trigger">
+                    <label for="tl_select_trigger" class="tl_select_label">{{ 'selectAll'|trans({}, 'dc-general') }}</label>
+                    <input type="checkbox" id="tl_select_trigger" class="tl_tree_checkbox" data-action="contao--check-all#toggleAll">
+                </div>
+            {% endif %}
+            {% block parent_header %}
+            {% if header|default([])|length or headerButtons|default %}
+                <div class="tl_header hover-div">
+                  {% if headerButtons|default %}
+                    <div class="tl_content_right">
+                        {{ headerButtons|raw }}
+                    </div>
+                  {% endif %}
+                  {% if header|default([])|length %}
+                    <table class="tl_header_table">
+                        {% for key, value in header %}
+                            <tr>
+                                <td><span class="tl_label">{{ key }}</span></td>
+                                <td>{{ value|raw }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                  {% endif %}
+                </div>
+            {% endif %}
+            {% endblock %}
+            {% block before_body %}{% endblock %}
+            {% block empty %}
+            {% if collection.length < 1 %}
+                <p class="tl_empty">{{ 'noResult'|trans({}, 'dc-general') }}</p>
+            {% endif %}
+            {% endblock %}
+            {% block body %}
+            {% if collection.length > 0 %}
+                <table id="table_{{ tableName }}" class="tl_listing{{ showColumns|default(false) ? ' showColumns' : '' }}">
+                    {% if tableHead|default([])|length %}
+                        <thead>
+                        <tr>
+                            {% for arrTableHead in tableHead %}
+                                <th class="{{ arrTableHead.class }}">{{ arrTableHead.content|raw }}</th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                    {% endif %}
+                    {% for groupValue, group in groups %}
+                        <tbody id="body_{{ tableName }}_{{ group.id }}">
+                        {% if grouped %}
+                            <tr class="tl_folder_list">
+                                <td colspan="{{ (group.models[0].model.getMeta('%content%')|length) + 1 }}">
+                                    <div class="tl_content_header {{ group.class }}">{{ group.label|raw }}</div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% for entry in group.models %}
+                            {% set model = entry.model %}
+                            <tr id="table_row_{{ model.id }}" class="{{ model.getMeta('%rowClass%') }} hover-row{% if select|default(false) %} toggle_select{% endif %}" data-controller="contao--deeplink" data-model-id="{{ entry.serializedId }}">
+                                {% for label in model.getMeta('%content%') %}
+                                    <td class="{{ label.class }}"{% if label.colspan|default %} colspan="{{ label.colspan }}"{% endif %}>
+                                        {{ label.content|raw }}
+                                    </td>
+                                {% endfor %}
+                                {% if select|default(false) %}
+                                    <td class="tl_file_list tl_right_nowrap">
+                                        <input type="checkbox" name="{{ selectCheckBoxName }}" id="{{ selectCheckBoxIdPrefix }}{{ model.id }}" class="tl_tree_checkbox" value="{{ entry.serializedId }}"{% if entry.serializedId in selectContainer|default([]) %} checked{% endif %} data-contao--check-all-target="input" data-action="focus->contao--scroll-offset#store contao--check-all#toggleInput">
+                                    </td>
+                                {% else %}
+                                    <td class="tl_file_list tl_right_nowrap">
+                                        {{ model.getMeta('%buttons%')|raw }}
+                                        {% if sortable|default(false) %}
+                                            {{ backend_icon('drag.svg', '&udarr;', attrs().set('class', 'drag')) }}
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                                {% block row_body %}{% endblock %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    {% if sortable|default(false) %}
+                        <script>
+                            /*
+                             * Scoped on purpose. This block sits inside a loop, so it can appear more than
+                             * once per page, and Turbo re-executes the scripts of a swapped body - both make
+                             * a global "const table" throw "Identifier has already been declared".
+                             */
+                            (function () {
+                                const table = document.getElementById('table_{{ tableName }}');
+                                new GeneralTableDnD().init(table);
+                            })();
+                        </script>
+                    {% endif %}
+                    {% endfor %}
+                </table>
+                {% block after_body %}{% endblock %}
+                {% if select|default(false) %}
+                    <div class="tl_formbody_submit"{% if floatRightSelectButtons|default(false) %} style="text-align:right;"{% endif %}>
+                        <div class="tl_submit_container">
+                            {{ selectButtons|default([])|join(' ')|raw }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+            {% endblock %}
+        </div>
+{% if select|default(false) %}
+    </div>
+</form>
+{% endif %}

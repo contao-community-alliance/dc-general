@@ -274,7 +274,6 @@ class ContaoWidgetManager
          * @psalm-suppress TypeDoesNotContainNull
          */
         $template->readonly = (bool) ($widget->readonly ?? false);
-        $template->theme = $backendAdapter->getTheme();
         $template->enableAce = $GLOBALS['TL_CONFIG']['useCE'] ?? false;
         $template->aceType = $backendAdapter->getAceType($rteHighlight);
         $template->enableTinyMce = $GLOBALS['TL_CONFIG']['useRTE'] ?? false;

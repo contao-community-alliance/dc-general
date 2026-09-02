@@ -1,2 +1,0 @@
-<?php $this->extend('dcbe_general_common_list'); ?>
-<?php $this->block('view-class'); ?>list_view_sorted<?php $this->endblock(); ?>

@@ -67,9 +67,12 @@ class FileTreeOrder extends AbstractWidget
     /**
      * Get the value serialized as string.
      *
+     * Public (was protected): the Twig template calls it as Template.getSerializedValue() -
+     * Twig's method calls respect PHP visibility, unlike the old PHP-included template.
+     *
      * @return string
      */
-    protected function getSerializedValue()
+    public function getSerializedValue()
     {
         if (null === $this->varValue) {
             $this->varValue = [];

@@ -1,0 +1,63 @@
+{% set orderFieldId = orderFieldId|default('ctrl_' ~ orderId) %}
+<input type="hidden" name="{{ name }}" id="ctrl_{{ id }}" value="{{ values|keys|join(',') }}">
+
+{% block select_container %}
+<div class="selector_container">
+    {% if hasOrder and values|length %}
+        <p class="sort_hint">
+            {{ dragItemsHint|raw }}
+        </p>
+    {% endif %}
+
+    <ul id="sort_{{ id }}"{% if hasOrder %} class="sortable" data-controller="contao--sortable" data-cca-order-field="{{ orderFieldId }}"{% endif %}>
+        {% for k, v in values %}
+            <li data-id="{{ k }}"{% if hasOrder and values|length %} title="{{ dragItemsHint|raw }}"{% endif %}>{{ v|raw }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block modal_button %}
+{% if not readonly %}
+    <p>
+        <a id="ft_{{ name }}" href="{{ popupUrl }}" class="tl_submit">{{ changeSelection|raw }}</a>
+    </p>
+{% endif %}
+{% endblock %}
+
+{% block modal_script %}
+{% if not readonly %}
+<script>
+    document.getElementById("ft_{{ name }}").addEventListener("click", function (event) {
+        event.preventDefault();
+        Backend.openModalSelector({
+            "id": "tl_listing",
+            "title": {{ (label is iterable ? label|join(' ') : label)|json_encode|raw }},
+            "url": this.href + document.getElementById("ctrl_{{ id }}").value,
+            "callback": function (table, value) {
+                DcGeneral.post("{{ updateUrl }}" + location.search.replace('?', '&'), {
+                    {% block modal_script_post %}
+                    "action":"DcGeneralLoadSubTree",
+                    "name":"{{ id }}",
+                    "providerName":"{{ providerName }}",
+                    "value":value.join(","),
+                    "REQUEST_TOKEN":"{{ contao.request_token }}"
+                    {% endblock %}
+                }).then(function (response) {
+                    var fresh = document.createElement("div");
+                    fresh.innerHTML = response.content;
+                    DcGeneral.setHtml(
+                        document.getElementById("ctrl_{{ id }}").closest("div"),
+                        fresh.querySelector(".widget").innerHTML
+                    );
+                });
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
+
+{% block multi_source_script %}
+{# Sorting is handled by the "contao--sortable" Stimulus controller, the order field by sortableOrderField.js. #}
+{% endblock %}

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Controller;
 
-use Contao\Backend;
 use ContaoCommunityAlliance\DcGeneral\BackendHelp\BackendHelpProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -27,7 +26,6 @@ final readonly class BackendHelpController
             $twig->render(
                 '@CcaDcGeneral/backendhelp.html.twig',
                 [
-                    'theme'    => Backend::getTheme(),
                     'values'   => $backendHelpProvider->getHelpFor($table, $property),
                     'table'    => $table,
                     'property' => $property,

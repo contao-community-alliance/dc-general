@@ -1,0 +1,8 @@
+<fieldset class="tl_filter tl_subpanel {{ rowClass|default('') }}">
+    <label for="{{ id }}">{{ label|raw }}:</label>
+    <select name="{{ name }}" id="{{ id }}" class="{{ class|default('') }}">
+        {% for arrOption in options %}
+            <option value="{{ arrOption.value }}"{{ arrOption.attributes|raw }}>{{ arrOption.content|raw }}</option>
+        {% endfor %}
+    </select>
+</fieldset>

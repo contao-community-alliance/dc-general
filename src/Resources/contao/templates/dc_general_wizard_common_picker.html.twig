@@ -1,0 +1,21 @@
+{% block modal_button %}
+<a id="ft_{{ name }}" href="{{ popupUrl }}">{{ html|raw }}</a>
+{% endblock %}
+
+{% block modal_script %}
+<script>
+    document.getElementById("ft_{{ name }}").addEventListener("click", function (event) {
+        event.preventDefault();
+        Backend.openModalSelector({
+            "id": "tl_listing",
+            "title": {{ (label is iterable ? label|join(' ') : label)|json_encode|raw }},
+            "url": this.href + "&value=" + document.getElementById("ctrl_{{ id }}").value,
+            "callback": function (table, value) {
+                {% block modal_script_post %}
+                document.getElementById("ctrl_{{ id }}").value = value.join(",");
+                {% endblock %}
+            }
+        });
+    });
+</script>
+{% endblock %}

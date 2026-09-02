@@ -24,7 +24,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
-use Contao\Backend;
 use Contao\CoreBundle\Exception\ResponseException;
 use Contao\StringUtil;
 use Contao\System;
@@ -450,7 +449,6 @@ class TreeView extends BaseView
         );
 
         $this
-            ->addToTemplate('theme', Backend::getTheme(), $template)
             ->addToTemplate('environment', $this->getEnvironment(), $template)
             ->addToTemplate('objModel', $model, $template)
             ->addToTemplate('select', $this->isSelectModeActive(), $template)

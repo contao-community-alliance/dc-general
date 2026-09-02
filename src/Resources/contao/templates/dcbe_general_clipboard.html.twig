@@ -1,0 +1,19 @@
+{% if options|length %}
+    <div class="tl_listing_container" id="dcg_clipboard">
+        <ul>
+            {% for id, row in options %}
+                <li title="{{ 'removeClipboardItem'|trans({}, 'dc-general') }}">
+                    {{ actionIcons[row.item.action]|raw }}
+                    {{ row.label|raw }}
+                    <a href="{{ clearItemUrl|replace({'%id%': id}) }}">
+                        {{ clipboardIcon|raw }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ clearUrl }}" class="btn-clear"
+           title="{{ 'clearClipboard'|trans({}, 'dc-general') }}">
+            <img src="/bundles/ccadcgeneral/images/clear-clipboard.svg" width="24" height="24">
+        </a>
+    </div>
+{% endif %}

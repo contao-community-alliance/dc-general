@@ -1,8 +1,0 @@
-<fieldset class="tl_filter tl_subpanel <?= $this->rowClass; ?>">
-    <label for="<?= $this->id ?>"><?= $this->label ?>:</label>
-    <select name="<?= $this->name; ?>" id="<?= $this->id ?>" class="<?= $this->class ?>">
-        <?php foreach ($this->options as $arrOption): ?>
-            <option value="<?= \htmlspecialchars(\html_entity_decode($arrOption['value'])) ?>"<?= $arrOption['attributes'] ?>><?= $arrOption['content'] ?></option>
-        <?php endforeach; ?>
-    </select>
-</fieldset>

@@ -1,0 +1,8 @@
+<div class="tl_limit tl_subpanel {{ rowClass|default('') }}">
+    <strong>{{ 'showOnly'|trans({}, 'dc-general') }}:</strong>
+    <select name="tl_limit" class="tl_select{{ class|default('') }}" onchange="this.form.submit()">
+        {% for arrOption in options %}
+            <option value="{{ arrOption.value }}"{{ arrOption.attributes|raw }}>{{ arrOption.content|raw }}</option>
+        {% endfor %}
+    </select>
+</div>

@@ -24,8 +24,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\StringUtil;
-use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
-use ContaoCommunityAlliance\Contao\Bindings\Events\Backend\GetThemeEvent;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPanelElementTemplateEvent;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
@@ -208,13 +206,7 @@ class PanelRenderer
         }
 
         if (\count($panels)) {
-            $template   = new ContaoBackendViewTemplate('dcbe_general_panel');
-            $themeEvent = new GetThemeEvent();
-
-            $dispatcher = $environment->getEventDispatcher();
-            assert($dispatcher instanceof EventDispatcherInterface);
-
-            $dispatcher->dispatch($themeEvent, ContaoEvents::BACKEND_GET_THEME);
+            $template = new ContaoBackendViewTemplate('dcbe_general_panel');
 
             // The page of the pagination must not survive a panel submit: a changed filter or block
             // size makes the old page meaningless, and a parameter left in the action would jump
@@ -225,7 +217,6 @@ class PanelRenderer
 
             $template
                 ->set('action', StringUtil::ampersand($action, true))
-                ->set('theme', $themeEvent->getTheme())
                 ->set('panel', $panels);
 
             return $template->parse();
