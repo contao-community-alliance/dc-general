@@ -1083,6 +1083,9 @@ class TreePicker extends Widget
         $translator = $environment->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
+        // Twig cannot append to $GLOBALS itself.
+        $GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
+
         $template = new ContaoBackendViewTemplate('widget_treepicker_popup');
 
         $icon = new GenerateHtmlEvent($this->titleIcon);

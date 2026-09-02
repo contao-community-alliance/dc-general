@@ -272,7 +272,7 @@ class ShowHandler
             if (isset($values['visible'][$propertyName])) {
                 continue;
             }
-            $values['system'][$propertyName] = $model->getProperty($propertyName);
+            $values['system'][$propertyName] = $this->stringifySystemValue($model->getProperty($propertyName));
             $labels['system'][$propertyName] =
                 sprintf('%s [%s]', $this->getPropertyLabel($environment, $property), $propertyName);
         }
@@ -281,6 +281,31 @@ class ShowHandler
             'labels' => array_merge(...array_values($labels)),
             'values' => array_merge(...array_values($values))
         ];
+    }
+
+    /**
+     * Render a raw system-column property value (unlike the palette-driven "visible" properties, these
+     * never go through ViewHelpers::getReadableFieldValue()) as a display string for dcbe_general_show.
+     *
+     * Moved here from the template itself: Twig has no "is Stringable"/"instanceof" test built in, and
+     * the template must stay pure display logic.
+     *
+     * @param mixed $value The raw property value.
+     *
+     * @return string
+     */
+    private function stringifySystemValue($value): string
+    {
+        if (!\is_object($value) || \method_exists($value, '__toString')) {
+            return (string) $value;
+        }
+
+        if ($value instanceof \DateTime) {
+            return $value->format($GLOBALS['TL_CONFIG']['datimFormat']);
+        }
+
+        // TODO add hook for custom output
+        return 'Object ' . $value::class;
     }
 
     /**

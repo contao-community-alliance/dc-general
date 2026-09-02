@@ -51,6 +51,7 @@ services:
             - "@cca.translator.contao_translator"
             - "@contao.csrf.token_manager"
             - "%contao.csrf_token_name%"
+            - "@request_stack"
         tags:
             -   name: kernel.event_listener
                 event: dc-general.action

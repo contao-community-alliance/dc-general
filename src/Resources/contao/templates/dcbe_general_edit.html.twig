@@ -1,0 +1,113 @@
+{% set hasLanguageSwitcher = language|default(false) and languages|default([])|length %}
+<div data-controller="contao--jump-targets">
+    {% if hasLanguageSwitcher %}
+        <div class="tl_show_all">
+            <div class="content-filter">
+                {% include '@Contao/dcbe_general_language_selector.html.twig' with {
+                    language: language,
+                    languages: languages,
+                    fallbackLanguage: fallbackLanguage|default(null),
+                    request: request|default(''),
+                    submit: languageSubmit|default(''),
+                } only %}
+            </div>
+            <div class="content-inner">
+    {% endif %}
+
+    <div class="jump-targets">
+        <div class="inner" data-contao--jump-targets-target="navigation"></div>
+    </div>
+
+    {% if versions|default([])|length %}
+        <div class="tl_version_panel">
+            <form data-turbo="false" action="{{ request|default('') }}" id="tl_version" class="tl_form" method="post">
+                <div class="tl_formbody">
+                <input type="hidden" name="FORM_SUBMIT" value="tl_version" />
+                <input type="hidden" name="REQUEST_TOKEN" value="{{ contao.request_token }}" />
+                <select name="version" class="tl_select">
+                {% for objVersion in versions %}
+                    <option value="{{ objVersion.id }}"{% if objVersion.current %} selected="selected"{% endif %}>
+                    {{ 'version'|trans({}, 'dc-general') }} {{ objVersion.version }} ({{ parseDate(datimFormat, objVersion.dateTime.timestamp) }})
+                    {% if objVersion.authorName %} &ndash; {{ objVersion.authorName }} ({{ objVersion.authorUsername }})
+                    {% elseif objVersion.authorUsername %} &ndash; ({{ objVersion.authorUsername }})
+                    {% endif %}
+                    </option>
+                {% endfor %}
+                </select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="{{ 'restore'|trans({}, 'dc-general') }}" />
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
+    {{ Template.getBackButton()|raw }}
+
+    {% if breadcrumb|default('')|length %}
+        <div class="tl_listing_container">
+            {{ breadcrumb|raw }}
+        </div>
+    {% endif %}
+    <h2 class="sub_headline">{{ subHeadline|raw }}{% if languageHeadline|default('') != '' %} - {{ languageHeadline }}{% if language|default(null) == fallbackLanguage|default(null) %} <span class="lang-hint--fallback" title="{{ 'language_selector.fallback_title'|trans({}, 'dc-general') }}">{{ 'language_selector.fallback'|trans({}, 'dc-general') }}</span>{% endif %}{% endif %}</h2>
+    {{ messages|default('')|raw }}
+
+{#
+    The forms of this bundle opt out of Turbo Drive on purpose. Turbo only renders the answer to a
+    form submission when it is a redirect; a 200 with html is discarded. DC_General relies on the
+    opposite for its auto submit (SUBMIT_TYPE=auto): it answers with the mask re-rendered from the
+    submitted values and deliberately does not save, so there is nothing to redirect to. Without
+    this attribute display conditions silently stop reacting - the widget just stays.
+
+    Links are unaffected, Turbo handles navigation as usual. Moving this to a turbo stream response
+    would lift the restriction, see docs/turbo.md.
+#}
+<form data-turbo="false" class="tl_form tableextended" method="post"
+  action="{{ request|default('') }}{% if mode|default(false) %}&mode={{ mode }}{% endif %}"
+  id="{{ table }}"
+  enctype="{{ enctype }}"
+  {% if onsubmit|default(false) %} onsubmit="{{ onsubmit }}"{% endif %}>
+    <div class="tl_formbody_edit">
+        <input type="hidden" name="FORM_SUBMIT" value="{{ table }}" />
+        <input type="hidden" name="REQUEST_TOKEN" value="{{ contao.request_token }}" />
+        {% if error|default([])|length %}
+            <div class="error_wrapper{% if error|length > 5 %} limit_height h128{% endif %}" data-contao--scroll-offset-target="widgetError">
+              <p class="tl_error">{{ error|join('<br />')|raw }}</p>
+            </div>
+        {% endif %}
+
+        {% for arrFieldset in fieldsets %}
+            {% set fieldsetClass = arrFieldset.class|default('') %}
+            {% if arrFieldset.legend|default(null) %}
+                {% set paletteId = 'pal_' ~ arrFieldset.legend %}
+                {% set fieldsetState = (fieldsetStates|default({}))[table]|default({})[paletteId]|default(null) %}
+                {% if fieldsetState is not null %}
+                    {% set fieldsetClass = fieldsetClass|replace({' collapsed': ''}) %}
+                    {% if fieldsetState == 0 %}
+                        {% set fieldsetClass = fieldsetClass ~ ' collapsed' %}
+                    {% endif %}
+                {% endif %}
+                <fieldset id="{{ paletteId }}" class="{{ fieldsetClass }}" data-controller="contao--toggle-fieldset" data-contao--toggle-fieldset-id-value="pal_{{ arrFieldset.legend }}" data-contao--toggle-fieldset-table-value="{{ table }}" data-contao--toggle-fieldset-collapsed-class="collapsed" data-contao--jump-targets-target="section" data-contao--jump-targets-label-value="{{ arrFieldset.label }}" data-action="contao--jump-targets:scrollto->contao--toggle-fieldset#open">
+                    <legend><button type="button" data-action="contao--toggle-fieldset#toggle" aria-expanded="true">{{ arrFieldset.label|raw }}</button></legend>
+                    {{ arrFieldset.palette|raw }}
+                </fieldset>
+            {% else %}
+                <fieldset class="{{ fieldsetClass }} block nolegend">
+                    {{ arrFieldset.palette|raw }}
+                </fieldset>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="tl_formbody_submit">
+            <div class="tl_submit_container">
+                {{ editButtons|raw }}
+            </div>
+        </div>
+    </form>
+    {% if hasLanguageSwitcher %}
+            </div><!-- /.content-inner -->
+        </div><!-- /.tl_show_all -->
+    {% endif %}
+</div>
+{#
+    Autofocus of the first text field and scrolling to the first widget error are handled by Contaos
+    "contao--scroll-offset" controller: the text widgets carry the "autoFocus" target themselves and the
+    fields in error carry the "widgetError" target (see dcbe_general_field).
+#}

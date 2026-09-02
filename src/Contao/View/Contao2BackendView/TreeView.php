@@ -25,6 +25,7 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
 use Contao\CoreBundle\Exception\ResponseException;
+use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
@@ -60,6 +61,7 @@ use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use ContaoCommunityAlliance\UrlBuilder\UrlBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface as SymfonyTranslatorInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -91,15 +93,24 @@ class TreeView extends BaseView
     private string $tokenName;
 
     /**
+     * The request stack.
+     *
+     * @var RequestStack
+     */
+    private RequestStack $requestStack;
+
+    /**
      * TreeView constructor.
      *
      * @param CsrfTokenManagerInterface|null $tokenManager The token manager.
      * @param string|null                    $tokenName    The token name.
+     * @param RequestStack|null              $requestStack The request stack.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
         ?CsrfTokenManagerInterface $tokenManager = null,
-        ?string $tokenName = null
+        ?string $tokenName = null,
+        ?RequestStack $requestStack = null
     ) {
         parent::__construct($scopeDeterminator);
 
@@ -127,9 +138,22 @@ class TreeView extends BaseView
             );
             // phpcs:enable
         }
+        if (null === $requestStack) {
+            $requestStack = System::getContainer()->get('request_stack');
+            assert($requestStack instanceof RequestStack);
+
+            // phpcs:disable
+            @trigger_error(
+                'Not passing the request stack as 4th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // phpcs:enable
+        }
 
         $this->tokenManager = $tokenManager;
         $this->tokenName    = $tokenName;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -451,6 +475,7 @@ class TreeView extends BaseView
         $this
             ->addToTemplate('environment', $this->getEnvironment(), $template)
             ->addToTemplate('objModel', $model, $template)
+            ->addToTemplate('serializedId', ModelId::fromModel($model)->getSerialized(), $template)
             ->addToTemplate('select', $this->isSelectModeActive(), $template)
             ->addToTemplate('intMode', 6, $template)
             ->addToTemplate('strToggleID', $toggleID, $template)
@@ -650,9 +675,13 @@ class TreeView extends BaseView
 
         $toggleAll = $this->renderToggleAllLink($definition->getName());
 
+        // Twig cannot append to $GLOBALS or call the stateful Message::generate() itself.
+        $GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
+
         // Build template.
         $template = $this->getTemplate('dcbe_general_treeview');
         $template
+            ->set('messages', Message::generate())
             ->set('treeClass', 'tl_' . $treeClass)
             ->set('tableName', $definition->getName())
             ->set('strHTML', $this->generateTreeView($collection, $treeClass))
@@ -850,8 +879,8 @@ class TreeView extends BaseView
             ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
             ->set('fallbackLanguage', $dataProvider->getFallbackLanguage(null)?->getLocale())
+            ->set('request', $this->requestStack->getCurrentRequest()?->getUri())
             ->set('submit', $translator->translate('change-language', 'dc-general'))
-            ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }
 

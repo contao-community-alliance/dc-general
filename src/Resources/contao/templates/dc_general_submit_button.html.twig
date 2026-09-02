@@ -1,24 +1,22 @@
-<?php if(isset($this->save)): ?>
-    <?= $this->save ?>
-<?php endif; ?>
-<?php if(isset($this->buttonGroup) && 1 === count($this->buttonGroup)): ?>
-    <?= implode('', $this->buttonGroup)?>
-<?php endif; ?>
-<?php if(isset($this->buttonGroup) && 1 < count($this->buttonGroup)): ?>
-    <?php
-    /*
+{% if save is defined %}
+    {{ save|raw }}
+{% endif %}
+{% if buttonGroup is defined and buttonGroup|length == 1 %}
+    {{ buttonGroup|join('')|raw }}
+{% endif %}
+{% if buttonGroup is defined and buttonGroup|length > 1 %}
+    {#
      * The toggle is wired through Contao's "contao--toggle-sender"/"contao--toggle-receiver" controllers,
      * the same way the core does it in backend/data_container/buttons.html.twig. The former id "sbtog" made
      * Contao fall back to the deprecated Theme.setupSplitButtonToggle().
-     */
-    ?>
+    #}
     <div class="split-button">
-        <?= implode('', array_slice($this->buttonGroup, 0, 1)) ?>
+        {{ buttonGroup|slice(0, 1)|join('')|raw }}
         <button type="button" class="d-xl-none split-toggle" tabindex="-1"
                 data-controller="contao--toggle-sender"
                 data-contao--toggle-sender-contao--toggle-receiver-outlet=".tl_submit_container .split-container"
                 data-action="contao--toggle-sender#toggle:prevent">
-            <?= $this->toggleIcon ?>
+            {{ toggleIcon|raw }}
         </button>
         <ul class="split-container invisible"
             data-controller="contao--toggle-receiver"
@@ -26,11 +24,11 @@
             data-contao--toggle-receiver-inactive-class="invisible"
             data-contao--toggle-receiver-close-delay-param="300"
             data-action="focusin->contao--toggle-receiver#open focusout->contao--toggle-receiver#close click@document->contao--toggle-receiver#documentClick keydown.esc@document->contao--toggle-receiver#close">
-            <?php foreach (array_slice($this->buttonGroup, 1) as $button): ?>
+            {% for button in buttonGroup|slice(1) %}
                 <li>
-                    <?= $button ?>
+                    {{ button|raw }}
                 </li>
-            <?php endforeach; ?>
+            {% endfor %}
         </ul>
     </div>
-<?php endif; ?>
+{% endif %}

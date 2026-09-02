@@ -1,0 +1,51 @@
+{#
+    Sorting and removing are handled by the Contao Stimulus controllers, which maintain the value field. A legacy
+    "orderField" needs the additional order field to be mirrored, which is done by sortableOrderField.js.
+#}
+<div data-controller="contao--input-map" data-contao--input-map-attribute-value="data-id">
+    <input type="hidden" name="{{ name }}" id="ctrl_{{ id }}" value="{{ value }}" data-contao--input-map-target="input">
+    <div class="selector_container">
+        {% if hasOrder|default(false) and icons|default([])|length > 1 %}
+            <p class="sort_hint">{{ 'dragItemsHint'|trans({}, 'dc-general') }}</p>
+        {% endif %}
+        <ul id="sort_{{ id }}" class="{{ ((hasOrder|default(false) ? 'sortable ' : '') ~ (isGallery|default(false) ? 'sgallery' : ''))|trim }}"{% if hasOrder|default(false) %} data-controller="contao--sortable" data-action="contao--sortable:update->contao--input-map#update"{% endif %}{% if hasOrderField|default(false) %} data-cca-order-field="ctrl_{{ orderId }}"{% endif %}>
+            {% for icon in icons|default([]) %}
+            <li data-contao--input-map-target="source" data-id="{{ icon.uuid }}">
+                {{ icon.image|raw }}
+            </li>
+            {% endfor %}
+        </ul>
+        {% if not readonly|default(false) %}
+            <p>
+                <a id="ft_{{ name }}" href="{{ link }}" class="tl_submit">{{ 'changeSelection'|trans({}, 'dc-general') }}</a>
+            </p>
+        {% endif %}
+    </div>
+    {% if not readonly|default(false) %}
+        <script>
+            document.getElementById("ft_{{ name }}").addEventListener("click", function (event) {
+                event.preventDefault();
+                Backend.openModalSelector({
+                    "id": "tl_listing",
+                    "title": {{ (label is iterable ? label|join(' ') : label)|json_encode|raw }},
+                    "url": this.href + document.getElementById("ctrl_{{ id }}").value,
+                    "callback": function (table, value) {
+                        DcGeneral.post(window.location.href, {
+                            "action": "reloadFiletree",
+                            "name": "{{ id }}",
+                            "value": value.join("\t"),
+                            "REQUEST_TOKEN": "{{ contao.request_token }}"
+                        }).then(function (response) {
+                            var fresh = document.createElement("div");
+                            fresh.innerHTML = response.content;
+                            DcGeneral.setHtml(
+                                document.getElementById("ctrl_{{ id }}").closest("div"),
+                                fresh.querySelector("div").innerHTML
+                            );
+                        });
+                    }
+                });
+            });
+        </script>
+    {% endif %}
+</div>

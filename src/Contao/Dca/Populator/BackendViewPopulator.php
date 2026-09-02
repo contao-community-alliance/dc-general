@@ -36,6 +36,7 @@ use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\TreeView;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\Definition\BasicDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralInvalidArgumentException;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 /**
@@ -64,16 +65,25 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
     private string $tokenName;
 
     /**
+     * The request stack.
+     *
+     * @var RequestStack
+     */
+    private RequestStack $requestStack;
+
+    /**
      * BackendViewPopulator constructor.
      *
      * @param RequestScopeDeterminator       $scopeDeterminator The request mode determinator.
      * @param CsrfTokenManagerInterface|null $tokenManager      The token manager.
      * @param string|null                    $tokenName         The token name.
+     * @param RequestStack|null              $requestStack      The request stack.
      */
     public function __construct(
         RequestScopeDeterminator $scopeDeterminator,
         ?CsrfTokenManagerInterface $tokenManager = null,
-        ?string $tokenName = null
+        ?string $tokenName = null,
+        ?RequestStack $requestStack = null
     ) {
         if (null === $tokenManager) {
             $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
@@ -100,8 +110,22 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
             // phpcs:enable
         }
 
+        if (null === $requestStack) {
+            $requestStack = System::getContainer()->get('request_stack');
+            assert($requestStack instanceof RequestStack);
+
+            // phpcs:disable
+            @trigger_error(
+                'Not passing the request stack as 4th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // phpcs:enable
+        }
+
         $this->tokenManager = $tokenManager;
         $this->tokenName    = $tokenName;
+        $this->requestStack = $requestStack;
 
         $this->setScopeDeterminator($scopeDeterminator);
     }
@@ -138,7 +162,12 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
                 $view = new ParentView($this->getScopeDeterminator());
                 break;
             case BasicDefinitionInterface::MODE_HIERARCHICAL:
-                $view = new TreeView($this->getScopeDeterminator(), $this->tokenManager, $this->tokenName);
+                $view = new TreeView(
+                    $this->getScopeDeterminator(),
+                    $this->tokenManager,
+                    $this->tokenName,
+                    $this->requestStack
+                );
                 break;
             default:
                 $mode = $dataDefinition->getBasicDefinition()->getMode();

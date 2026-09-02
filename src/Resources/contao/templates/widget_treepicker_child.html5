@@ -1,5 +1,0 @@
-<li class="parent" id="<?= $this->strToggleID ?>">
-    <ul class="level_<?= $this->objParentModel->getMeta(\ContaoCommunityAlliance\DcGeneral\Data\DCGE::TREE_VIEW_LEVEL) ?>">
-        <?= $this->strHTML ?>
-    </ul>
-</li>

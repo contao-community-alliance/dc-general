@@ -73,6 +73,7 @@ use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -125,6 +126,13 @@ abstract class AbstractListShowAllHandler
     private string $tokenName;
 
     /**
+     * The request stack.
+     *
+     * @var RequestStack
+     */
+    private RequestStack $requestStack;
+
+    /**
      * AbstractHandler constructor.
      *
      * @param RequestScopeDeterminator       $scopeDeterminator The request mode determinator.
@@ -138,7 +146,8 @@ abstract class AbstractListShowAllHandler
         TranslatorInterface $translator,
         CcaTranslator $ccaTranslator,
         ?CsrfTokenManagerInterface $tokenManager = null,
-        ?string $tokenName = null
+        ?string $tokenName = null,
+        ?RequestStack $requestStack = null
     ) {
         $this->setScopeDeterminator($scopeDeterminator);
 
@@ -170,8 +179,22 @@ abstract class AbstractListShowAllHandler
             // phpcs:enable
         }
 
+        if (null === $requestStack) {
+            $requestStack = System::getContainer()->get('request_stack');
+            assert($requestStack instanceof RequestStack);
+
+            // phpcs:disable
+            @trigger_error(
+                'Not passing the request stack as 6th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // phpcs:enable
+        }
+
         $this->tokenManager = $tokenManager;
         $this->tokenName    = $tokenName;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -377,8 +400,8 @@ abstract class AbstractListShowAllHandler
             ->set('languages', $controller->getSupportedLanguages(null))
             ->set('language', $dataProvider->getCurrentLanguage())
             ->set('fallbackLanguage', $dataProvider->getFallbackLanguage(null)?->getLocale())
+            ->set('request', $this->requestStack->getCurrentRequest()?->getUri())
             ->set('submit', $this->translator->trans('change-language', [], 'dc-general'))
-            ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName))
             ->parse();
     }
 

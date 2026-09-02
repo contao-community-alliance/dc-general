@@ -1,0 +1,28 @@
+{% include '@Contao/dcbe_general_language_selector.html.twig' with {
+    language: currentLanguage,
+    languages: languages,
+    fallbackLanguage: fallbackLanguage|default(null),
+    request: app.request.uri,
+    submit: languageSubmit|default(''),
+} only %}
+
+<div id="tl_buttons">
+    <a href="{{ backHref }}" class="header_back dcg" title="{{ backBT|default('') }}" accesskey="b" data-action="contao--scroll-offset#store">
+        {{ 'backBT'|trans({}, 'dc-general') }}
+    </a>
+</div>
+
+<h2 class="sub_headline">{{ headline|raw }}</h2>
+
+<table class="tl_show">
+{% for key, value in arrFields %}
+    <tr>
+        <td{% if loop.index0 is divisible by(2) %} class="tl_bg"{% endif %}>
+            <span class="tl_label"> {{ arrLabels[key]|raw }} : </span>
+        </td>
+        <td{% if loop.index0 is divisible by(2) %} class="tl_bg"{% endif %}>
+            {{ value|raw }}
+        </td>
+    </tr>
+{% endfor %}
+</table>

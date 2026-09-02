@@ -40,7 +40,9 @@ use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\Event\ActionEvent;
 use ContaoCommunityAlliance\DcGeneral\Exception\DcGeneralRuntimeException;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
+use Contao\System;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class CreateHandler
@@ -61,15 +63,41 @@ class EditHandler
     private DefaultEditInformation $editInformation;
 
     /**
+     * The request stack.
+     *
+     * @var RequestStack
+     */
+    private RequestStack $requestStack;
+
+    /**
      * EditHandler constructor.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request mode determinator.
      * @param DefaultEditInformation   $editInformation   The default edit information.
+     * @param RequestStack|null        $requestStack      The request stack.
      */
-    public function __construct(RequestScopeDeterminator $scopeDeterminator, DefaultEditInformation $editInformation)
-    {
+    public function __construct(
+        RequestScopeDeterminator $scopeDeterminator,
+        DefaultEditInformation $editInformation,
+        ?RequestStack $requestStack = null
+    ) {
         $this->setScopeDeterminator($scopeDeterminator);
         $this->editInformation = $editInformation;
+
+        if (null === $requestStack) {
+            $requestStack = System::getContainer()->get('request_stack');
+            assert($requestStack instanceof RequestStack);
+
+            // phpcs:disable
+            @trigger_error(
+                'Not passing the request stack as 3th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // phpcs:enable
+        }
+
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -147,7 +175,16 @@ class EditHandler
             $this->handleGlobalCommands($environment);
         }
 
-        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb(), $this->editInformation))
+        return (new EditMask(
+            $view,
+            $model,
+            $clone,
+            null,
+            null,
+            $view->breadcrumb(),
+            $this->editInformation,
+            $this->requestStack
+        ))
             ->execute();
     }
 
@@ -193,7 +230,16 @@ class EditHandler
             $this->handleGlobalCommands($environment);
         }
 
-        return (new EditMask($view, $model, $clone, null, null, $view->breadcrumb(), $this->editInformation))
+        return (new EditMask(
+            $view,
+            $model,
+            $clone,
+            null,
+            null,
+            $view->breadcrumb(),
+            $this->editInformation,
+            $this->requestStack
+        ))
             ->execute();
     }
 

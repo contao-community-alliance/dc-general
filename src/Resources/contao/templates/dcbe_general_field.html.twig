@@ -1,0 +1,26 @@
+<div id="widget_{{ strName }}" class="widget {{ strClass|default('') }}"{% if hasErrors|default(false) %} data-contao--scroll-offset-target="widgetError"{% endif %}{% if isColorPicker|default(false) %} data-controller="contao--color-picker" data-contao--color-picker-theme-value="monolith"{% endif %}>
+  {% if not disabled|default(false) %}
+    <input type="hidden" value="{{ strName }}" name="FORM_INPUTS[]" />
+  {% endif %}
+  {% if isHideInput|default(false) is same as(true) %}
+      {% for hiddenFieldName, hiddenFieldValue in hiddenFields|default([]) %}
+        <input type="hidden" value="{{ hiddenFieldValue }}" name="{{ hiddenFieldName }}">
+      {% endfor %}
+  {% else %}
+      {{ widget|raw }}
+      {% if strDatepicker|default(false) %}
+        {{ datepickerIcon|raw }}
+        {# Run inline like Contao core does - the input exists at this point and a ready-event would not fire again on Turbo navigations. #}
+        <script>{{ strDatepicker|raw }}</script>
+      {% endif %}
+      {% if blnUpdate|default(false) %}
+          <h3 style="padding-top:7px"><label for="ctrl_{{ strName }}_update">{{ 'updateMode'|trans({}, 'dc-general') }}</label></h3>
+          <div id="ctrl_{{ strName }}_update" class="tl_radio_container">
+            <input type="radio" name="{{ strName }}_update" id="opt_{{ strName }}_update_1" class="tl_radio" value="add" data-action="focus->contao--scroll-offset#store" /> <label for="opt_{{ strName }}_update_1">{{ 'updateAdd'|trans({}, 'dc-general') }}</label><br />
+            <input type="radio" name="{{ strName }}_update" id="opt_{{ strName }}_update_2" class="tl_radio" value="remove" data-action="focus->contao--scroll-offset#store" /> <label for="opt_{{ strName }}_update_2">{{ 'updateRemove'|trans({}, 'dc-general') }}</label><br />
+            <input type="radio" name="{{ strName }}_update" id="opt_{{ strName }}_update_0" class="tl_radio" value="replace" checked="checked" data-action="focus->contao--scroll-offset#store" /> <label for="opt_{{ strName }}_update_0">{{ 'updateReplace'|trans({}, 'dc-general') }}</label>
+          </div>
+      {% endif %}
+      {% if not hasErrors|default(false) %}{{ strHelp|default('')|raw }}{% endif %}
+  {% endif %}
+</div>

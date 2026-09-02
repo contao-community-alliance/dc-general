@@ -1,0 +1,43 @@
+{% set model = objModel %}
+<li
+    class="{{ model.getMeta('dc_gen_tv_level') == 0 ? 'tl_folder' : 'tl_file' }} hover-div">
+    <div
+        class="tl_left"
+        style="padding-left:{{ model.getMeta('dc_gen_tv_level') * 20 }}px;">
+        {% if model.getMeta('dc_gen_tv_children') %}
+            <a
+                class="folding foldable{{ model.getMeta('dc_gen_tv_open') ? ' foldable--open' : '' }}"
+                href="{{ toggleUrl }}"
+                title="{{ toggleTitle }}"
+                data-action="contao--scroll-offset#store"
+                onclick="{{ toggleScript|raw }}">
+                {{ backend_icon('chevron-right--dark.svg', '', attrs().set('width', 18).set('height', 18).set('class', 'color-scheme--dark').set('style', 'margin-right:-2px;')) }}
+                {{ backend_icon('chevron-right.svg', '', attrs().set('width', 18).set('height', 18).set('class', 'color-scheme--light').set('style', 'margin-right:-2px;')) }}
+            </a>
+        {% endif %}
+        <div class="tl_pagetree_content" style="margin-left: 0">{{ model.getMeta('%content%')[0].content|raw }}</div>
+    </div>
+    <div class="tl_right">
+            {% if fieldType == 'radio' %}
+                <input type="radio"
+                    name="{{ name }}"
+                    id="ctrl_{{ id }}_{{ model.id }}"
+                    class="tl_tree_radio"
+                    value="{{ idValue }}"
+                    {{ active|default('')|raw }}
+                    data-contao--check-all-target="input"
+                    data-action="focus->contao--scroll-offset#store contao--check-all#toggleInput" />
+            {% elseif fieldType == 'checkbox' %}
+                <input
+                    type="checkbox"
+                    name="{{ name }}[]"
+                    id="ctrl_{{ id }}_{{ model.id }}"
+                    class="tl_tree_checkbox"
+                    value="{{ idValue }}"
+                    {{ active|default('')|raw }}
+                    data-contao--check-all-target="input"
+                    data-action="focus->contao--scroll-offset#store contao--check-all#toggleInput" />
+            {% endif %}
+    </div>
+    <div style="clear:both;"></div>
+</li>

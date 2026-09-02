@@ -1,0 +1,45 @@
+{{ strGlobalsButton|default('')|raw }}
+
+{{ messages|default('')|raw }}
+
+{% if select|default(false) %}
+<form data-turbo="false" action="{{ action }}" id="tl_select" class="tl_form" method="post">
+    <div class="tl_formbody">
+        <input type="hidden" name="FORM_SUBMIT" value="tl_select">
+        <input type="hidden" name="REQUEST_TOKEN" value="{{ contao.request_token }}">
+{% endif %}
+
+<div class="tl_listing_container tree_view table_{{ tableName }}" id="tl_listing" data-controller="contao--check-all">
+    {{ breadcrumb|default('')|raw }}
+
+    {% if select|default(false) %}
+        <div class="tl_select_trigger">
+            <label for="tl_select_trigger" class="tl_select_label">{{ Template.translate('selectAll', 'dc-general') }}</label>
+            <input type="checkbox" id="tl_select_trigger" class="tl_tree_checkbox" data-action="contao--check-all#toggleAll">
+        </div>
+    {% endif %}
+
+    <ul class="tl_listing {{ treeClass }}">
+        <li class="tl_folder_top">
+            <div class="tl_left"></div>
+            <div class="tl_right">
+                {% if not select|default(false) and toggleAllUrl|default('') != '' %}
+                    <a href="{{ toggleAllUrl }}" class="toggleAll" data-turbo="false">{{ toggleAllLabel|raw }}</a>
+                {% endif %}
+                {{ strRootPasteinto|default('')|raw }}
+            </div>
+            <div style="clear:both;"></div>
+        </li>
+        {{ strHTML|raw }}
+    </ul>
+</div>
+
+{% if select|default(false) %}
+        <div class="tl_formbody_submit" style="text-align:right;">
+            <div class="tl_submit_container">
+                {{ selectButtons|default([])|join(' ')|raw }}
+            </div>
+        </div>
+    </div>
+</form>
+{% endif %}

@@ -1,0 +1,38 @@
+{#
+    Pagination below a listing.
+
+    The class "tl_pagination" comes from the back end theme and carries the look; the markup below is
+    what those rules expect - a paragraph on the left and a list on the right.
+
+    The "-lp" modifier makes the bar sit flush under the listing: no bottom margin, no bottom border
+    and the lower corners rounded. It uses the theme variable for the radius, so it keeps following
+    the theme instead of freezing a value here.
+#}
+<nav class="tl_pagination tl_pagination-lp" role="navigation" aria-label="{{ labelNavigation }}">
+    <p>{{ label }}</p>
+    <ul>
+        {% for step in ['first', 'previous'] %}
+            {% if (steps|default({}))[step] is defined %}
+                <li class="{{ step }}">
+                    <a href="{{ (steps|default({}))[step].url }}" class="{{ step }}">{{ (steps|default({}))[step].label }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        {% for page in pages %}
+            <li>
+                {% if page.current %}
+                    <strong class="active" aria-current="page">{{ page.page }}</strong>
+                {% else %}
+                    <a href="{{ page.url }}" class="link">{{ page.page }}</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        {% for step in ['next', 'last'] %}
+            {% if (steps|default({}))[step] is defined %}
+                <li class="{{ step }}">
+                    <a href="{{ (steps|default({}))[step].url }}" class="{{ step }}">{{ (steps|default({}))[step].label }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</nav>

@@ -338,7 +338,9 @@ class FileTree extends AbstractWidget
             }
 
             if (false !== ($icon = $this->renderIcon($model, $this->isGallery, $this->isDownloads))) {
-                $icons[\md5($uuid)] = ['uuid' => $uuid, 'image' => $icon];
+                // The hex uuid, not the raw binary value: Twig cannot call StringUtil::binToUuid()
+                // itself, so the template just outputs this field verbatim into the data-id attribute.
+                $icons[\md5($uuid)] = ['uuid' => StringUtil::binToUuid($uuid), 'image' => $icon];
             }
         }
     }

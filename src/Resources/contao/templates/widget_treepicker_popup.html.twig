@@ -1,55 +1,46 @@
-<?php
-
-// Add tree view stylesheet
-$GLOBALS['TL_CSS'][] = '/bundles/ccadcgeneral/css/generalTreeView.css';
-
-?>
-
 <div class="tl_listing_container tree_view unselectable" id="tl_listing" data-controller="contao--check-all">
-<?php
-/*
+{#
  * The former "picker_selector" class is gone: it had no styling and no behaviour of its own in Contao, it
  * only made the deprecated Theme.stopClickPropagation() attach handlers that keep clicks on links and
  * checkboxes from bubbling up. Nothing in this popup listens on the container - the check boxes carry
  * "contao--check-all#toggleInput" themselves - so there was nothing to bubble up to.
- */
-?>
-<ul class="tl_listing treepicker_popup tree_view table_<?= $this->tableName ?><?= $this->class ?>" id="<?= $this->id ?>">
+#}
+<ul class="tl_listing treepicker_popup tree_view table_{{ tableName }}{{ class|default('') }}" id="{{ id }}">
     <li class="tl_folder_top">
         <div class="tl_left">
-            <?= $this->icon . $this->title ?>
+            {{ icon|raw }}{{ title|raw }}
         </div>
         <div class="tl_right">&nbsp;</div>
         <div style="clear:both;"></div>
     </li>
     <li
-        class="parent" id="<?= $this->id ?>_parent">
+        class="parent" id="{{ id }}_parent">
     <ul>
-        <?= $this->tree ?>
+        {{ tree|raw }}
         <li class="tl_folder">
             <div class="tl_left">&nbsp;</div>
             <div class="tl_right">
-                <?php if ($this->fieldType === 'radio'): ?>
+                {% if fieldType == 'radio' %}
                     <label
-                        for="ctrl_<?= $this->id ?>_0"
-                        class="tl_change_selected"><?= $this->resetSelected ?></label>
+                        for="ctrl_{{ id }}_0"
+                        class="tl_change_selected">{{ resetSelected|raw }}</label>
                     <input type="radio"
-                        name="<?= $this->name ?>"
-                        id="ctrl_<?= $this->id ?>_0"
+                        name="{{ name }}"
+                        id="ctrl_{{ id }}_0"
                         class="tl_tree_radio"
                         value=""
                         data-action="focus->contao--scroll-offset#store" />
-                <?php elseif ($this->fieldType === 'checkbox'): ?>
+                {% elseif fieldType == 'checkbox' %}
                     <label
-                        for="check_all_<?= $this->id ?>_0"
-                        class="tl_change_selected"><?= $this->selectAll ?></label>
+                        for="check_all_{{ id }}_0"
+                        class="tl_change_selected">{{ selectAll|raw }}</label>
                     <input
                         type="checkbox"
-                        id="check_all_<?= $this->id ?>_0"
+                        id="check_all_{{ id }}_0"
                         class="tl_checkbox"
                         value=""
                         data-action="contao--check-all#toggleAll" />
-                <?php endif; ?>
+                {% endif %}
             </div>
             <div style="clear:both;"></div>
         </li>

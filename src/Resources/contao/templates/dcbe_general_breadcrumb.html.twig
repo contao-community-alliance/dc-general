@@ -1,0 +1,18 @@
+{% set shortcuts = shortcuts|default([]) %}
+{% if elements|default([])|length != 0 %}
+  <ul id="tl_breadcrumb">
+    {% for arrElement in elements %}
+      <li>
+        {% if arrElement.icon|default('') != '' %}<img src="{{ arrElement.icon }}" />{% endif %}
+        <a href="{{ arrElement.url }}" title="{{ arrElement.text }}">{{ arrElement.text }}</a>
+      </li>
+    {% endfor %}
+    {% if shortcuts|length != 0 %}
+      <li class="breadcrumb_shortcuts">
+        {% for arrShortcut in shortcuts %}
+          <a href="{{ arrShortcut.url }}" title="{{ arrShortcut.text }}"><img src="{{ arrShortcut.icon }}" alt="{{ arrShortcut.text }}" /></a>
+        {% endfor %}
+      </li>
+    {% endif %}
+  </ul>
+{% endif %}

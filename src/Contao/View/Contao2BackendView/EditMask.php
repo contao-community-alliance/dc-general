@@ -58,8 +58,10 @@ use Contao\BackendUser;
 use Contao\CoreBundle\Intl\Locales;
 use Contao\Date;
 use Contao\Image;
+use Contao\Message;
 use Contao\System;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * This class manages the displaying of the edit/create mask containing the widgets.
@@ -126,6 +128,13 @@ class EditMask
     private EditInformationInterface $editInformation;
 
     /**
+     * The request stack.
+     *
+     * @var RequestStack
+     */
+    private RequestStack $requestStack;
+
+    /**
      * Create the edit mask.
      *
      * @param BackendViewInterface          $view            The view in use.
@@ -135,6 +144,7 @@ class EditMask
      * @param callable|null                 $postFunction    The function to call after saving an item.
      * @param string                        $breadcrumb      The rendered breadcrumb.
      * @param EditInformationInterface|null $editInformation The default edit information.
+     * @param RequestStack|null             $requestStack    The request stack.
      */
     public function __construct(
         $view,
@@ -143,7 +153,8 @@ class EditMask
         $preFunction,
         $postFunction,
         $breadcrumb,
-        ?EditInformationInterface $editInformation = null
+        ?EditInformationInterface $editInformation = null,
+        ?RequestStack $requestStack = null
     ) {
         if (null === $environment = $view->getEnvironment()) {
             throw new \InvalidArgumentException('View has no environment');
@@ -166,7 +177,21 @@ class EditMask
             assert($editInformation instanceof EditInformationInterface);
         }
 
+        if (null === $requestStack) {
+            $requestStack = System::getContainer()->get('request_stack');
+            assert($requestStack instanceof RequestStack);
+
+            // phpcs:disable
+            @trigger_error(
+                'Not passing the request stack as 8th argument to "' . __METHOD__ . '" is deprecated ' .
+                'and will cause an error in DCG 3.0',
+                E_USER_DEPRECATED
+            );
+            // phpcs:enable
+        }
+
         $this->editInformation = $editInformation;
+        $this->requestStack    = $requestStack;
     }
 
     /**
@@ -994,22 +1019,32 @@ class EditMask
             $errors = $editInformation->getFlatModelErrors($model);
         }
 
+        // Twig cannot append to $GLOBALS, read the session fieldset states, or call the stateful
+        // Message::generate() itself.
+        $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/generalDriver.css';
+        $currentRequest = $this->requestStack->getCurrentRequest();
+
         $viewTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
         $viewTemplate->setData(
             [
-                'fieldsets'   => $fieldSets,
-                'versions'    => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
+                'fieldsets'      => $fieldSets,
+                'versions'       => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
                     $model->getId()
                 ) : null,
-                'parseDate'   => static fn(string $format, int $timestamp): string => Date::parse($format, $timestamp),
-                'subHeadline' => $this->getSubHeadline(),
-                'table'       => $definition->getName(),
-                'enctype'     => 'multipart/form-data',
-                'error'       => $errors,
-                'editButtons' => $this->getEditButtons(),
-                'noReload'    => $editInformation->hasAnyModelError(),
-                'breadcrumb'  => $this->breadcrumb,
-                'model'       => $model
+                'parseDate'      => static fn(string $format, int $timestamp): string => Date::parse($format, $timestamp),
+                'subHeadline'    => $this->getSubHeadline(),
+                'table'          => $definition->getName(),
+                'enctype'        => 'multipart/form-data',
+                'error'          => $errors,
+                'editButtons'    => $this->getEditButtons(),
+                'noReload'       => $editInformation->hasAnyModelError(),
+                'breadcrumb'     => $this->breadcrumb,
+                'model'          => $model,
+                'messages'       => Message::generate(),
+                // Twig has no $GLOBALS access.
+                'datimFormat'    => $GLOBALS['TL_CONFIG']['datimFormat'],
+                'request'        => $currentRequest?->getUri(),
+                'fieldsetStates' => $currentRequest?->getSession()->getBag('contao_backend')->get('fieldset_states'),
             ]
         );
 
