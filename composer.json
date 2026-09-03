@@ -39,9 +39,9 @@
     "php": "^8.4",
     "ext-json": "*",
     "ext-pdo": "*",
-    "contao-community-alliance/events-contao-bindings": "^6.3",
-    "contao-community-alliance/translator": "^2.7",
-    "contao-community-alliance/url-builder": "^2.1",
+    "contao-community-alliance/events-contao-bindings": "^6.0@dev",
+    "contao-community-alliance/translator": "^2.7@dev",
+    "contao-community-alliance/url-builder": "^2.2@dev",
     "contao/core-bundle": "^6.0",
     "contao/image": "^1.2",
     "doctrine/cache": "^2.1",
@@ -68,7 +68,7 @@
   },
   "require-dev": {
     "contao/manager-plugin": "^2.8",
-    "menatwork/contao-multicolumnwizard-bundle": "^3.7",
+    "menatwork/contao-multicolumnwizard-bundle": "^3.8@dev",
     "phpcq/runner-bootstrap": "^1.0@dev"
   },
   "autoload": {
@@ -92,16 +92,11 @@
       "contao-components/installer": false,
       "contao/manager-plugin": false,
       "php-http/discovery": false
-    },
-    "audit": {
-      "ignore": [
-        "PKSA-dw7n-x7f5-zf63"
-      ]
     }
   },
   "extra": {
     "branch-alias": {
-      "dev-feature/contao6": "2.6.x-dev"
+      "dev-release/2.6.0": "2.6.x-dev"
     },
     "contao-manager-plugin": "ContaoCommunityAlliance\\DcGeneral\\ContaoManager\\Plugin"
   }
