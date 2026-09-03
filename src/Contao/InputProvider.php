@@ -33,6 +33,11 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
  * This class is the Contao binding of an input provider.
  *
  * @api
+ *
+ * @psalm-suppress DeprecatedMethod This class exists specifically to wrap Contao's static Input
+ *     class behind InputProviderInterface for DI - Contao 6 marked Input deprecated in favour of
+ *     the Request object, but never removed it (Contao\Widget still reads submitted values via it
+ *     internally), so this bridge remains necessary rather than legacy debt to clean up.
  */
 class InputProvider implements InputProviderInterface
 {

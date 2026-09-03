@@ -66,6 +66,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -483,7 +484,8 @@ final class SubscriberTest extends TestCase
         $treeConstructorArgs = fn(SubscriberTest $test) => [
             $test->mockScopeDeterminator(),
             $test->getMockBuilder(CsrfTokenManagerInterface::class)->getMock(),
-            'csrf-token-name'
+            'csrf-token-name',
+            new RequestStack()
         ];
 
         return [

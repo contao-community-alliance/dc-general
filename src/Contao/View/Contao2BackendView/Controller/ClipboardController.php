@@ -61,6 +61,9 @@ use function sprintf;
  * Class ClipboardController.
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity) Grew past the threshold when the Contao 6
+ *     migration moved template-embedded rendering logic here from the .html5 templates it
+ *     replaced.
  *
  * @api
  */
@@ -358,6 +361,10 @@ class ClipboardController implements EventSubscriberInterface
      * @param ViewEvent $event The view event.
      *
      * @return void
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength) Grew past the threshold when the Contao 6
+     *     migration moved template-embedded rendering logic here from the .html5 template it
+     *     replaced.
      */
     public function handleView(ViewEvent $event)
     {

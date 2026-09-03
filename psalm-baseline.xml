@@ -81,12 +81,19 @@
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/AbstractListShowAllHandler.php">
     <MixedArgument>
       <code><![CDATA[$field]]></code>
+      <code><![CDATA[$groupModel::GROUP_VALUE]]></code>
     </MixedArgument>
+    <MixedArrayAccess>
+      <code><![CDATA[$groupMeta['class']]]></code>
+      <code><![CDATA[$groupMeta['value']]]></code>
+      <code><![CDATA[$groupMeta['value']]]></code>
+    </MixedArrayAccess>
     <MixedArrayAssignment>
       <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalBreadcrumb']]]></code>
     </MixedArrayAssignment>
     <MixedAssignment>
       <code><![CDATA[$field]]></code>
+      <code><![CDATA[$groupMeta]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/EditHandler.php">
@@ -151,8 +158,13 @@
     </MixedReturnStatement>
   </file>
   <file src="src/Contao/View/Contao2BackendView/ActionHandler/ShowHandler.php">
+    <MixedArgument>
+      <code><![CDATA[$GLOBALS['TL_CONFIG']['datimFormat']]]></code>
+    </MixedArgument>
+    <MixedArrayAccess>
+      <code><![CDATA[$GLOBALS['TL_CONFIG']['datimFormat']]]></code>
+    </MixedArrayAccess>
     <MixedAssignment>
-      <code><![CDATA[$values['system'][$propertyName]]]></code>
       <code><![CDATA[$values['visible'][$palettePropertyName]]]></code>
     </MixedAssignment>
   </file>
@@ -180,6 +192,12 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/EditMask.php">
+    <MixedArrayAccess>
+      <code><![CDATA[$GLOBALS['TL_CONFIG']['datimFormat']]]></code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment>
+      <code><![CDATA[$GLOBALS['TL_CSS']['cca.dc-general.generalDriver']]]></code>
+    </MixedArrayAssignment>
     <MixedAssignment>
       <code><![CDATA[$currentVersion]]></code>
       <code><![CDATA[$modelId]]></code>
@@ -236,6 +254,9 @@
     </MixedMethodCall>
   </file>
   <file src="src/Contao/View/Contao2BackendView/TreePicker.php">
+    <MixedArrayAssignment>
+      <code><![CDATA[$GLOBALS['TL_CSS'][]]]></code>
+    </MixedArrayAssignment>
     <MixedAssignment>
       <code><![CDATA[$pid]]></code>
       <code><![CDATA[$v]]></code>
@@ -243,6 +264,9 @@
     </MixedAssignment>
   </file>
   <file src="src/Contao/View/Contao2BackendView/TreeView.php">
+    <MixedArrayAssignment>
+      <code><![CDATA[$GLOBALS['TL_CSS'][]]]></code>
+    </MixedArrayAssignment>
     <MixedAssignment>
       <code><![CDATA[$collection]]></code>
       <code><![CDATA[$modelId]]></code>

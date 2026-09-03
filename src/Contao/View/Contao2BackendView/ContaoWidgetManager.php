@@ -612,6 +612,12 @@ class ContaoWidgetManager
      *
      * @SuppressWarnings(PHPMD.Superglobals)
      * @SuppressWarnings(PHPMD.CamelCaseVariableName)
+     *
+     * @psalm-suppress DeprecatedMethod Contao\Widget::validate() (and its subclasses) still reads
+     *     submitted values via the static Contao\Input::post()/postHtml() internally - Contao 6
+     *     marked the Input class deprecated but never removed this dependency from its own legacy
+     *     Widget class, so resetting/priming its static cache remains the only way to hand a
+     *     temporary $_POST snapshot to unmodified Contao widgets.
      */
     public function processInput(PropertyValueBag $propertyValues): void
     {

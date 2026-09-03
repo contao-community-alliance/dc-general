@@ -34,6 +34,7 @@ use ContaoCommunityAlliance\Contao\Bindings\Events\Image\GenerateHtmlEvent;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
+use ContaoCommunityAlliance\DcGeneral\Contao\LegacyServiceFallbackTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetPasteRootButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Controller\ControllerInterface;
@@ -78,6 +79,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  */
 class TreeView extends BaseView
 {
+    use LegacyServiceFallbackTrait;
+
     /**
      * The token manager.
      *
@@ -114,46 +117,9 @@ class TreeView extends BaseView
     ) {
         parent::__construct($scopeDeterminator);
 
-        if (null === $tokenManager) {
-            $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
-            assert($tokenManager instanceof CsrfTokenManagerInterface);
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-        if (null === $tokenName) {
-            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
-            assert(\is_string($tokenName));
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-        if (null === $requestStack) {
-            $requestStack = System::getContainer()->get('request_stack');
-            assert($requestStack instanceof RequestStack);
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the request stack as 4th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-
-        $this->tokenManager = $tokenManager;
-        $this->tokenName    = $tokenName;
-        $this->requestStack = $requestStack;
+        $this->tokenManager = self::resolveCsrfTokenManager($tokenManager, __METHOD__);
+        $this->tokenName    = self::resolveCsrfTokenName($tokenName, __METHOD__);
+        $this->requestStack = self::resolveRequestStack($requestStack, __METHOD__);
     }
 
     /**
@@ -609,6 +575,7 @@ class TreeView extends BaseView
      * @return string
      *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     protected function viewTree($collection)
     {

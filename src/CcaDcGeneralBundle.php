@@ -29,6 +29,13 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  * This class holds everything together.
  *
  * @api
+ *
+ * @psalm-suppress DeprecatedInterface Bundle implements the deprecated BundleInterface under
+ *     Symfony 8, but Symfony\Component\DependencyInjection\Kernel\AbstractBundle is not a drop-in
+ *     replacement here: its getContainerExtension() does not do the classic reflection-based
+ *     lookup of a "<Namespace>\DependencyInjection\<Name>Extension" class that
+ *     CcaDcGeneralExtension relies on, so swapping the base class silently stops that extension
+ *     (and all its services) from ever loading.
  */
 class CcaDcGeneralBundle extends Bundle
 {

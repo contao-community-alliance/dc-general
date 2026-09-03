@@ -32,6 +32,7 @@ use ContaoCommunityAlliance\DcGeneral\Clipboard\ClipboardInterface;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\Filter;
 use ContaoCommunityAlliance\DcGeneral\Clipboard\FilterInterface;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\LegacyServiceFallbackTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
@@ -71,7 +72,6 @@ use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use Contao\Environment;
 use Contao\Message;
 use Contao\StringUtil;
-use Contao\System;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -91,11 +91,15 @@ use function trigger_error;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength) Grew past the threshold when the Contao 6
+ *     migration moved display-grouping logic here from the Twig template (Twig cannot accumulate
+ *     an intermediate lookup structure while iterating a single pass).
  */
 abstract class AbstractListShowAllHandler
 {
     use CallActionTrait;
     use RequestScopeDeterminatorAwareTrait;
+    use LegacyServiceFallbackTrait;
 
     /**
      * The translator.
@@ -154,47 +158,9 @@ abstract class AbstractListShowAllHandler
         $this->translator    = $translator;
         $this->ccaTranslator = $ccaTranslator;
 
-        if (null === $tokenManager) {
-            $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
-            assert($tokenManager instanceof CsrfTokenManagerInterface);
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the csrf token manager as 4th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-        if (null === $tokenName) {
-            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
-            assert(is_string($tokenName));
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the csrf token name as 5th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-
-        if (null === $requestStack) {
-            $requestStack = System::getContainer()->get('request_stack');
-            assert($requestStack instanceof RequestStack);
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the request stack as 6th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-
-        $this->tokenManager = $tokenManager;
-        $this->tokenName    = $tokenName;
-        $this->requestStack = $requestStack;
+        $this->tokenManager = self::resolveCsrfTokenManager($tokenManager, __METHOD__, '4th');
+        $this->tokenName    = self::resolveCsrfTokenName($tokenName, __METHOD__, '5th');
+        $this->requestStack = self::resolveRequestStack($requestStack, __METHOD__, '6th');
     }
 
     /**
@@ -239,6 +205,9 @@ abstract class AbstractListShowAllHandler
      * @param EnvironmentInterface $environment Current dc-general environment.
      *
      * @return string|null
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength) Grew past the threshold when the Contao 6
+     *     migration moved display-grouping logic here from the Twig template.
      */
     protected function process(Action $action, EnvironmentInterface $environment)
     {
@@ -252,7 +221,7 @@ abstract class AbstractListShowAllHandler
             return $this->callAction($environment, 'edit', $action->getArguments());
         }
 
-        $grouping = ViewHelpers::getGroupingMode($environment);
+        $grouping = ViewHelpers::getGroupingMode($environment) ?? [];
 
         Message::reset();
 
@@ -260,7 +229,7 @@ abstract class AbstractListShowAllHandler
         $collection = $this->loadCollection($environment);
         assert($collection instanceof CollectionInterface);
         $this->handleEditAllButton($collection, $environment);
-        $this->renderCollection($environment, $collection, $grouping ?? []);
+        $this->renderCollection($environment, $collection, $grouping);
 
         // Split the collection into its display groups here rather than in the Twig template: Twig
         // has no clean way to accumulate an intermediate lookup structure while iterating a single
@@ -303,7 +272,7 @@ abstract class AbstractListShowAllHandler
             }
         }
 
-        $template = $this->determineTemplate($grouping ?? []);
+        $template = $this->determineTemplate($grouping);
         $template
             ->set('collection', $collection)
             ->set('grouped', $grouped)

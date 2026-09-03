@@ -46,6 +46,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @package ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler
  *
  * @api
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The Contao 6 migration added the request stack
+ *     as a constructor-injected dependency (replacing a System::getContainer() lookup) - reducing
+ *     coupling further would mean going back to that static lookup.
  */
 class CreateHandler
 {

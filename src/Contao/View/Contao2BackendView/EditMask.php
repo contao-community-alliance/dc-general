@@ -62,6 +62,7 @@ use Contao\Message;
 use Contao\System;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBagInterface;
 
 /**
  * This class manages the displaying of the edit/create mask containing the widgets.
@@ -1022,7 +1023,12 @@ class EditMask
         // Twig cannot append to $GLOBALS, read the session fieldset states, or call the stateful
         // Message::generate() itself.
         $GLOBALS['TL_CSS']['cca.dc-general.generalDriver'] = '/bundles/ccadcgeneral/css/generalDriver.css';
-        $currentRequest = $this->requestStack->getCurrentRequest();
+        $currentRequest    = $this->requestStack->getCurrentRequest();
+        $fieldsetStatesBag = null;
+        if (null !== $currentRequest) {
+            $fieldsetStatesBag = $currentRequest->getSession()->getBag('contao_backend');
+            assert($fieldsetStatesBag instanceof AttributeBagInterface);
+        }
 
         $viewTemplate = new ContaoBackendViewTemplate('dcbe_general_edit');
         $viewTemplate->setData(
@@ -1031,7 +1037,8 @@ class EditMask
                 'versions'       => $dataProviderInformation->isVersioningEnabled() ? $dataProvider->getVersions(
                     $model->getId()
                 ) : null,
-                'parseDate'      => static fn(string $format, int $timestamp): string => Date::parse($format, $timestamp),
+                'parseDate'      => static fn(string $format, int $timestamp): string =>
+                    Date::parse($format, $timestamp),
                 'subHeadline'    => $this->getSubHeadline(),
                 'table'          => $definition->getName(),
                 'enctype'        => 'multipart/form-data',
@@ -1044,7 +1051,7 @@ class EditMask
                 // Twig has no $GLOBALS access.
                 'datimFormat'    => $GLOBALS['TL_CONFIG']['datimFormat'],
                 'request'        => $currentRequest?->getUri(),
-                'fieldsetStates' => $currentRequest?->getSession()->getBag('contao_backend')->get('fieldset_states'),
+                'fieldsetStates' => $fieldsetStatesBag?->get('fieldset_states'),
             ]
         );
 

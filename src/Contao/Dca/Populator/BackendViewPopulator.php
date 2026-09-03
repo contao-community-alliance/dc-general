@@ -23,8 +23,8 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\Dca\Populator;
 
-use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
+use ContaoCommunityAlliance\DcGeneral\Contao\LegacyServiceFallbackTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminator;
 use ContaoCommunityAlliance\DcGeneral\Contao\RequestScopeDeterminatorAwareTrait;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\BackendViewInterface;
@@ -45,10 +45,16 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
  * @psalm-suppress PropertyNotSetInConstructor - can not make setScopeDeterminator() final without major release.
  *
  * @api
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The Contao 6 migration added the csrf token
+ *     manager, token name and request stack as constructor-injected dependencies (replacing
+ *     System::getContainer() lookups) - reducing coupling further would mean going back to those
+ *     static lookups.
  */
 class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulator
 {
     use RequestScopeDeterminatorAwareTrait;
+    use LegacyServiceFallbackTrait;
 
     /**
      * The token manager.
@@ -85,47 +91,9 @@ class BackendViewPopulator extends AbstractEventDrivenBackendEnvironmentPopulato
         ?string $tokenName = null,
         ?RequestStack $requestStack = null
     ) {
-        if (null === $tokenManager) {
-            $tokenManager = System::getContainer()->get('contao.csrf.token_manager');
-            assert($tokenManager instanceof CsrfTokenManagerInterface);
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the csrf token manager as 2th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-        if (null === $tokenName) {
-            $tokenName = System::getContainer()->getParameter('contao.csrf_token_name');
-            assert(\is_string($tokenName));
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the csrf token name as 3th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-
-        if (null === $requestStack) {
-            $requestStack = System::getContainer()->get('request_stack');
-            assert($requestStack instanceof RequestStack);
-
-            // phpcs:disable
-            @trigger_error(
-                'Not passing the request stack as 4th argument to "' . __METHOD__ . '" is deprecated ' .
-                'and will cause an error in DCG 3.0',
-                E_USER_DEPRECATED
-            );
-            // phpcs:enable
-        }
-
-        $this->tokenManager = $tokenManager;
-        $this->tokenName    = $tokenName;
-        $this->requestStack = $requestStack;
+        $this->tokenManager = self::resolveCsrfTokenManager($tokenManager, __METHOD__);
+        $this->tokenName    = self::resolveCsrfTokenName($tokenName, __METHOD__);
+        $this->requestStack = self::resolveRequestStack($requestStack, __METHOD__);
 
         $this->setScopeDeterminator($scopeDeterminator);
     }
