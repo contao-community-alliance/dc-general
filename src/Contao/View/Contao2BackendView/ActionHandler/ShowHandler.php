@@ -47,7 +47,6 @@ use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\View\ViewInterface;
 use ContaoCommunityAlliance\Translator\TranslatorInterface as CcaTranslator;
 use ContaoCommunityAlliance\Translator\TranslatorInterface;
-use Contao\StringUtil;
 use LogicException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -361,7 +360,7 @@ class ShowHandler
                 ->set('languages', $controller->getSupportedLanguages($model->getId()))
                 ->set('currentLanguage', $dataProvider->getCurrentLanguage())
                 ->set('languageSubmit', $translator->translate('change-language', 'dc-general'))
-                ->set('backBT', StringUtil::specialchars($translator->translate('backBT', 'dc-general')))
+                ->set('backBT', $translator->translate('backBT', 'dc-general'))
                 ->set('REQUEST_TOKEN', $this->tokenManager->getToken($this->tokenName));
         } else {
             $template->set('languages', null);

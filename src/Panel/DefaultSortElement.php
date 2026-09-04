@@ -24,7 +24,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Panel;
 
-use Contao\StringUtil;
 use ContaoCommunityAlliance\DcGeneral\Contao\DataDefinition\Definition\Contao2BackendViewDefinitionInterface;
 use ContaoCommunityAlliance\DcGeneral\Data\ConfigInterface;
 use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
@@ -217,7 +216,7 @@ class DefaultSortElement extends AbstractElement implements SortElementInterface
             }
 
             $options[] = [
-                'value'      => StringUtil::specialchars($information->getName()),
+                'value'      => $information->getName(),
                 'attributes' => ($this->getSelected() === $information->getName()) ? ' selected' : '',
                 'content'    => $name
             ];

@@ -39,7 +39,6 @@ use Contao\Controller;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
-use Contao\StringUtil;
 use Contao\Validator;
 use Contao\Widget;
 use InvalidArgumentException;
@@ -169,12 +168,10 @@ class BackendTreeController
             ->set('headline', '')
             ->set(
                 'title',
-                StringUtil::specialchars(
-                    $this->translator->trans(
-                        'treePicker',
-                        ['%table%' => $treeSelector->foreignTable],
-                        'dc-general'
-                    )
+                $this->translator->trans(
+                    'treePicker',
+                    ['%table%' => $treeSelector->foreignTable],
+                    'dc-general'
                 )
             )
             ->set('charset', 'utf-8');
@@ -209,7 +206,7 @@ class BackendTreeController
             ->set('language', $GLOBALS['TL_LANGUAGE'])
             ->set(
                 'title',
-                StringUtil::specialchars($this->translator->trans('treepickerManager', [], 'dc-general'))
+                $this->translator->trans('treepickerManager', [], 'dc-general')
             )
             ->set('charset', 'utf-8');
 

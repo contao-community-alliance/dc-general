@@ -13,7 +13,6 @@ use Contao\Backend;
 use Contao\BackendUser;
 use Contao\CoreBundle\Picker\PickerBuilderInterface;
 use Contao\CoreBundle\Picker\PickerInterface;
-use Contao\StringUtil;
 use Contao\Validator;
 use Contao\Widget;
 use InvalidArgumentException;
@@ -90,12 +89,10 @@ final readonly class BackendPickerController
             ->set('language', $this->requestStack->getCurrentRequest()?->getLocale())
             ->set(
                 'title',
-                StringUtil::specialchars(
-                    $this->translator->trans(
-                        'treePicker',
-                        ['%table%' => (string) $picker->getConfig()->getExtra('sourceName')],
-                        'dc-general'
-                    )
+                $this->translator->trans(
+                    'treePicker',
+                    ['%table%' => (string) $picker->getConfig()->getExtra('sourceName')],
+                    'dc-general'
                 )
             )
             ->set('charset', 'utf-8');
