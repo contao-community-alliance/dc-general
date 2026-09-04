@@ -1,4 +1,12 @@
 services:
+    cca.dc-general.backend_listener.diff_button_listener:
+        class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\DiffButtonListener
+        public: true
+        tags:
+            -   name: kernel.event_listener
+                event: dc-general.view.contao2backend.get-operation-button
+                method: handle
+
     cca.dc-general.backend_listener.backend_button_listener:
         class: ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener\BackButtonListener
         public: true

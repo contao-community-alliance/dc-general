@@ -1,6 +1,8 @@
 <?php
 
 use ContaoCommunityAlliance\DcGeneral\Data\VersionModelInterface;
+use Contao\Backend;
+use Contao\Image;
 use Contao\Message;
 use Contao\StringUtil;
 use Contao\System;
@@ -59,6 +61,20 @@ $hasLanguageSwitcher = $this->language && !empty($this->languages);
                     </option>
                 <?php endforeach; ?>
                 </select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="<?= StringUtil::specialchars($translator->trans(id: 'restore', domain: 'dc-general')) ?>" />
+                <?php
+                // Contao's own version panel (Contao\Versions::renderDropdown()) adds this same
+                // diff-icon link next to the restore button, opening a modal iframe that compares
+                // two versions (act=showVersion&popup=1). This template builds the panel from
+                // scratch rather than calling that method, and had never included it.
+                $diffTitle = StringUtil::specialchars(
+                    str_replace(
+                        "'",
+                        "\\'",
+                        $translator->trans('MSC.recordOfTable', [$this->model->getId(), $this->table], 'contao_default')
+                    )
+                );
+                ?>
+                <a href="<?= Backend::addToUrl('versions=1&amp;popup=1') ?>" onclick="Backend.openModalIframe({'title':'<?= $diffTitle ?>','url':this.href});return false"><?= Image::getHtml('diff.svg', $translator->trans('MSC.showDifferences', [], 'contao_default')) ?></a>
                 </div>
             </form>
         </div>

@@ -22,6 +22,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler;
 
+use Contao\Versions;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\ReloadEvent;
 use ContaoCommunityAlliance\Contao\Bindings\Events\System\LogEvent;
@@ -134,6 +135,7 @@ class EditHandler
             return false;
         }
 
+        $this->checkCompareVersion($environment, $modelId);
         $this->checkRestoreVersion($environment, $modelId);
 
         if (!($model = $dataProvider->fetch($dataProvider->getEmptyConfig()->setId($modelId->getId())))) {
@@ -228,6 +230,42 @@ class EditHandler
         );
 
         return false;
+    }
+
+    /**
+     * Check whether the "compare two versions" popup (the diff-icon next to the version dropdown
+     * on the edit mask) was requested and, if so, render it.
+     *
+     * Mirrors the "if (Input::get('versions')) { $objVersions->compare(); }" branch in
+     * Contao\DC_Table::edit() - the diff view itself (Contao\Versions::compare()) works purely off
+     * the table name and record id against tl_version, with no DC_Table-specific coupling, so the
+     * same call works unchanged for a dc-general table. compare() throws a ResponseException to
+     * short-circuit the request with the popup content, which is why this method has nothing to
+     * return: it either does that or does nothing at all.
+     *
+     * @param EnvironmentInterface $environment The environment.
+     * @param ModelIdInterface     $modelId     The model id.
+     *
+     * @return void
+     */
+    private function checkCompareVersion(EnvironmentInterface $environment, ModelIdInterface $modelId)
+    {
+        $inputProvider = $environment->getInputProvider();
+        assert($inputProvider instanceof InputProviderInterface);
+
+        $dataDefinition = $environment->getDataDefinition();
+        assert($dataDefinition instanceof ContainerInterface);
+
+        if (
+            !$inputProvider->getParameter('versions')
+            || !$dataDefinition->getDataProviderDefinition()
+                ->getInformation($modelId->getDataProviderName())
+                ->isVersioningEnabled()
+        ) {
+            return;
+        }
+
+        (new Versions($modelId->getDataProviderName(), (int) $modelId->getId()))->compare();
     }
 
     /**
