@@ -545,5 +545,11 @@
         <target>Diese Ansicht unterstützt nur das Bearbeiten vorhandener Datensätze.</target>
       </segment>
     </unit>
+    <unit id="exception.invalid_file_resource" name="exception.invalid_file_resource">
+      <segment>
+        <source>The following file(s) no longer exist on disk: %resources%. Please synchronise the file system in the file manager.</source>
+        <target>Folgende Datei(en) sind im Dateisystem nicht mehr vorhanden: %resources%. Bitte im Dateimanager synchronisieren.</target>
+      </segment>
+    </unit>
   </file>
 </xliff>
