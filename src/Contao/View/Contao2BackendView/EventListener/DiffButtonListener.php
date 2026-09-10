@@ -20,7 +20,6 @@
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\EventListener;
 
 use Contao\StringUtil;
-use Contao\System;
 use ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\Event\GetOperationButtonEvent;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -38,6 +37,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  */
 class DiffButtonListener
 {
+    public function __construct(private readonly TranslatorInterface $translator)
+    {
+    }
+
     /**
      * Handle the event.
      *
@@ -56,14 +59,11 @@ class DiffButtonListener
             return;
         }
 
-        $translator = System::getContainer()->get('translator');
-        assert($translator instanceof TranslatorInterface);
-
         $title = StringUtil::specialchars(
             \str_replace(
                 "'",
                 "\\'",
-                $translator->trans(
+                $this->translator->trans(
                     'MSC.recordOfTable',
                     [$model->getId(), $model->getProviderName()],
                     'contao_default'

@@ -56,12 +56,22 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
     private CacheInterface $cache;
 
     /**
+     * The data definition container.
+     *
+     * @var DataDefinitionContainerInterface
+     */
+    private DataDefinitionContainerInterface $definitionContainer;
+
+    /**
      * The constructor.
      *
-     * @param CacheInterface|null $cache The cache.
+     * @param CacheInterface|null                    $cache               The cache.
+     * @param DataDefinitionContainerInterface|null $definitionContainer The data definition container.
      */
-    public function __construct(?CacheInterface $cache = null)
-    {
+    public function __construct(
+        ?CacheInterface $cache = null,
+        ?DataDefinitionContainerInterface $definitionContainer = null
+    ) {
         if (null === $cache) {
             // phpcs:disable
             @\trigger_error(
@@ -75,6 +85,18 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             assert($cache instanceof CacheInterface);
         }
         $this->cache = $cache;
+
+        if (null === $definitionContainer) {
+            // phpcs:disable
+            @\trigger_error(
+                'You should pass an instance of ' . DataDefinitionContainerInterface::class . ' .',
+                E_USER_DEPRECATED
+            );
+            // phpcs:enable
+            $definitionContainer = System::getContainer()->get('cca.dc-general.data-definition-container');
+            assert($definitionContainer instanceof DataDefinitionContainerInterface);
+        }
+        $this->definitionContainer = $definitionContainer;
     }
 
     /**
@@ -433,9 +455,7 @@ class DcGeneralFactory implements DcGeneralFactoryInterface
             throw new DcGeneralRuntimeException('Required container name is missing');
         }
 
-        /** @var DataDefinitionContainerInterface $definitions */
-        $definitions = System::getContainer()->get('cca.dc-general.data-definition-container');
-        assert($definitions instanceof DataDefinitionContainerInterface);
+        $definitions = $this->definitionContainer;
 
         if ($definitions->hasDefinition($this->containerName)) {
             return clone $definitions->getDefinition($this->containerName);

@@ -21,7 +21,6 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView\ActionHandler\MultipleHandler;
 
-use Contao\System;
 use Contao\Widget;
 use ContaoCommunityAlliance\DcGeneral\Action;
 use ContaoCommunityAlliance\DcGeneral\Contao\Compatibility\DcCompat;
@@ -56,14 +55,6 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
     use CallActionTrait;
 
     /**
-     * OverrideAllHandler constructor.
-     *
-     * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
-     */
-    /** @var EditInformationInterface|null */
-    private ?EditInformationInterface $editInformation;
-
-    /**
      * Create a new instance.
      *
      * @param RequestScopeDeterminator $scopeDeterminator The request scope determinator.
@@ -77,7 +68,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         ?EditInformationInterface $editInformation = null
     ) {
         $this->scopeDeterminator = $scopeDeterminator;
-        $this->editInformation  = $editInformation;
+        $this->setEditInformation($editInformation);
     }
 
     /**
@@ -116,11 +107,7 @@ class OverrideAllHandler extends AbstractPropertyOverrideEditAllHandler
         $translator = $environment->getTranslator();
         assert($translator instanceof TranslatorInterface);
 
-        $editInformation = $this->editInformation;
-        if (null === $editInformation) {
-            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-            assert($editInformation instanceof EditInformationInterface);
-        }
+        $editInformation = $this->getEditInformation();
 
         $renderInformation = new \ArrayObject();
 
