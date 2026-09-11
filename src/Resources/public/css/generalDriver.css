@@ -218,21 +218,6 @@
   }
 }
 
-/* Contao pins the remove button of "contao--input-map" to the top right corner of its item, which is
-   right for a gallery thumbnail. The file tree also renders plain lists of small icons though, and
-   there a 16x16 button covers a 16x16 preview completely - the image was there, but invisible.
-   Outside a gallery the button therefore sits next to the preview instead of on top of it. */
-.selector_container ul:not(.sgallery) > li {
-  display     : flex;
-  align-items : center;
-  gap         : 6px;
-}
-
-.selector_container ul:not(.sgallery) > li > [data-action~="contao--input-map#removeElement"] {
-  position   : static;
-  flex-shrink: 0;
-}
-
 /* Contao 5.7 turned ".tl_content_right" into a flex container - up to 5.3 it was a plain block
    with "text-align: right". Our markup separates the operation links by a space, and a flex
    container drops those whitespace text nodes, so the icons ended up glued together. Contao's
