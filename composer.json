@@ -101,7 +101,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-release/2.5.0": "2.5.x-dev"
+      "dev-master": "2.5.x-dev"
     },
     "contao-manager-plugin": "ContaoCommunityAlliance\\DcGeneral\\ContaoManager\\Plugin"
   }
