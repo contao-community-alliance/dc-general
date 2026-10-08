@@ -680,6 +680,7 @@ class EditMask
      */
     private function reloadSavedModel(DataProviderInterface $dataProvider, ModelInterface $model): ModelInterface
     {
+        /** @var string|int|null $modelId */
         $modelId = $model->getId();
         if (null === $modelId) {
             return $model;
