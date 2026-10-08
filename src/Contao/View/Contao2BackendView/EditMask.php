@@ -648,6 +648,8 @@ class EditMask
             return;
         }
 
+        $savedModel = $this->reloadSavedModel($dataProvider, $model);
+
         // Compare version and current record. The stored one needs a name of its own - naming it
         // "$model" would drop the record that is to be written and leave the comparison looking at
         // one and the same object, which is true by definition and would keep every version away.
@@ -656,15 +658,37 @@ class EditMask
         if (
             !$currentVersion
             || !$storedVersion instanceof ModelInterface
-            || !$dataProvider->sameModels($model, $storedVersion)
+            || !$dataProvider->sameModels($savedModel, $storedVersion)
         ) {
             $user = BackendUser::getInstance();
 
             $username = $user->username;
             assert(\is_string($username));
 
-            $dataProvider->saveVersion($model, $username);
+            $dataProvider->saveVersion($savedModel, $username);
         }
+    }
+
+    /**
+     * Load the saved record anew - derived values (aliases, combined values, ...) are computed while saving and are
+     * not part of the model that has been edited, so a version taken from that one would be outdated right away.
+     *
+     * @param DataProviderInterface $dataProvider The data provider.
+     * @param ModelInterface        $model        The model that has been saved.
+     *
+     * @return ModelInterface The reloaded model, the given one if it can not be found.
+     */
+    private function reloadSavedModel(DataProviderInterface $dataProvider, ModelInterface $model): ModelInterface
+    {
+        $modelId = $model->getId();
+        if (null === $modelId) {
+            return $model;
+        }
+
+        $config = $dataProvider->getEmptyConfig();
+        $config->setId($modelId);
+
+        return $dataProvider->fetch($config) ?? $model;
     }
 
     /**
