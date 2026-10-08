@@ -636,15 +636,11 @@ class EditMask
     {
         $modelId     = $model->getId();
         $environment = $this->getEnvironment();
-        $definition  = $this->getDataDefinition();
 
         $dataProvider = $environment->getDataProvider($model->getProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
-        $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
-
-        if (!$dataProviderInformation->isVersioningEnabled()) {
+        if (!$this->isVersioningEnabled($model)) {
             return;
         }
 
@@ -660,13 +656,84 @@ class EditMask
             || !$storedVersion instanceof ModelInterface
             || !$dataProvider->sameModels($savedModel, $storedVersion)
         ) {
-            $user = BackendUser::getInstance();
-
-            $username = $user->username;
-            assert(\is_string($username));
-
-            $dataProvider->saveVersion($savedModel, $username);
+            $dataProvider->saveVersion($savedModel, $this->getUsername());
         }
+    }
+
+    /**
+     * Keep the state a record had before its first version as version 1, like Contao does when a record is opened.
+     *
+     * Otherwise the first save yields a single version only and the comparison of versions has nothing to compare.
+     *
+     * @param ModelInterface $model The model that is about to be saved.
+     *
+     * @return void
+     */
+    private function storeInitialVersion(ModelInterface $model): void
+    {
+        /** @var string|int|null $modelId */
+        $modelId = $model->getId();
+        if (null === $modelId || !$this->isVersioningEnabled($model)) {
+            return;
+        }
+
+        $dataProvider = $this->getEnvironment()->getDataProvider($model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $this->saveInitialVersion($dataProvider, $modelId, $this->getUsername());
+    }
+
+    /**
+     * Save the stored record as version, unless it has versions already.
+     *
+     * @param DataProviderInterface $dataProvider The data provider.
+     * @param string|int            $modelId      The id of the record.
+     * @param string                $username     The name of the user to store with the version.
+     *
+     * @return void
+     */
+    private function saveInitialVersion(
+        DataProviderInterface $dataProvider,
+        string|int $modelId,
+        string $username
+    ): void {
+        if ($dataProvider->getActiveVersion($modelId)) {
+            return;
+        }
+
+        $config = $dataProvider->getEmptyConfig();
+        $config->setId($modelId);
+        if (null !== ($persisted = $dataProvider->fetch($config))) {
+            $dataProvider->saveVersion($persisted, $username);
+        }
+    }
+
+    /**
+     * Check if the data provider of the model has versioning enabled.
+     *
+     * @param ModelInterface $model The model.
+     *
+     * @return bool
+     */
+    private function isVersioningEnabled(ModelInterface $model): bool
+    {
+        return $this->getDataDefinition()
+            ->getDataProviderDefinition()
+            ->getInformation($model->getProviderName())
+            ->isVersioningEnabled();
+    }
+
+    /**
+     * Retrieve the name of the backend user which stores the versions.
+     *
+     * @return string
+     */
+    private function getUsername(): string
+    {
+        $username = BackendUser::getInstance()->username;
+        assert(\is_string($username));
+
+        return $username;
     }
 
     /**
@@ -864,6 +931,8 @@ class EditMask
             if (!$this->allValuesUnique()) {
                 return false;
             }
+
+            $this->storeInitialVersion($this->model);
 
             // Save the model.
             $dataProvider->save($this->model, $this->editInformation->uniformTime());
