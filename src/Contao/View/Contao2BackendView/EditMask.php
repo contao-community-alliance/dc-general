@@ -636,17 +636,15 @@ class EditMask
     {
         $modelId     = $model->getId();
         $environment = $this->getEnvironment();
-        $definition  = $this->getDataDefinition();
 
         $dataProvider = $environment->getDataProvider($model->getProviderName());
         assert($dataProvider instanceof DataProviderInterface);
 
-        $dataProviderDefinition  = $definition->getDataProviderDefinition();
-        $dataProviderInformation = $dataProviderDefinition->getInformation($model->getProviderName());
-
-        if (!$dataProviderInformation->isVersioningEnabled()) {
+        if (!$this->isVersioningEnabled($model)) {
             return;
         }
+
+        $savedModel = $this->reloadSavedModel($dataProvider, $model);
 
         // Compare version and current record. The stored one needs a name of its own - naming it
         // "$model" would drop the record that is to be written and leave the comparison looking at
@@ -656,15 +654,109 @@ class EditMask
         if (
             !$currentVersion
             || !$storedVersion instanceof ModelInterface
-            || !$dataProvider->sameModels($model, $storedVersion)
+            || !$dataProvider->sameModels($savedModel, $storedVersion)
         ) {
-            $user = BackendUser::getInstance();
-
-            $username = $user->username;
-            assert(\is_string($username));
-
-            $dataProvider->saveVersion($model, $username);
+            $dataProvider->saveVersion($savedModel, $this->getUsername());
         }
+    }
+
+    /**
+     * Keep the state a record had before its first version as version 1, like Contao does when a record is opened.
+     *
+     * Otherwise the first save yields a single version only and the comparison of versions has nothing to compare.
+     *
+     * @param ModelInterface $model The model that is about to be saved.
+     *
+     * @return void
+     */
+    private function storeInitialVersion(ModelInterface $model): void
+    {
+        /** @var string|int|null $modelId */
+        $modelId = $model->getId();
+        if (null === $modelId || !$this->isVersioningEnabled($model)) {
+            return;
+        }
+
+        $dataProvider = $this->getEnvironment()->getDataProvider($model->getProviderName());
+        assert($dataProvider instanceof DataProviderInterface);
+
+        $this->saveInitialVersion($dataProvider, $modelId, $this->getUsername());
+    }
+
+    /**
+     * Save the stored record as version, unless it has versions already.
+     *
+     * @param DataProviderInterface $dataProvider The data provider.
+     * @param string|int            $modelId      The id of the record.
+     * @param string                $username     The name of the user to store with the version.
+     *
+     * @return void
+     */
+    private function saveInitialVersion(
+        DataProviderInterface $dataProvider,
+        string|int $modelId,
+        string $username
+    ): void {
+        if ($dataProvider->getActiveVersion($modelId)) {
+            return;
+        }
+
+        $config = $dataProvider->getEmptyConfig();
+        $config->setId($modelId);
+        if (null !== ($persisted = $dataProvider->fetch($config))) {
+            $dataProvider->saveVersion($persisted, $username);
+        }
+    }
+
+    /**
+     * Check if the data provider of the model has versioning enabled.
+     *
+     * @param ModelInterface $model The model.
+     *
+     * @return bool
+     */
+    private function isVersioningEnabled(ModelInterface $model): bool
+    {
+        return $this->getDataDefinition()
+            ->getDataProviderDefinition()
+            ->getInformation($model->getProviderName())
+            ->isVersioningEnabled();
+    }
+
+    /**
+     * Retrieve the name of the backend user which stores the versions.
+     *
+     * @return string
+     */
+    private function getUsername(): string
+    {
+        $username = BackendUser::getInstance()->username;
+        assert(\is_string($username));
+
+        return $username;
+    }
+
+    /**
+     * Load the saved record anew - derived values (aliases, combined values, ...) are computed while saving and are
+     * not part of the model that has been edited, so a version taken from that one would be outdated right away.
+     *
+     * @param DataProviderInterface $dataProvider The data provider.
+     * @param ModelInterface        $model        The model that has been saved.
+     *
+     * @return ModelInterface The reloaded model, the given one if it can not be found.
+     */
+    private function reloadSavedModel(DataProviderInterface $dataProvider, ModelInterface $model): ModelInterface
+    {
+        /** @var string|int|null $modelId */
+        $modelId = $model->getId();
+        if (null === $modelId) {
+            return $model;
+        }
+
+        $config = $dataProvider->getEmptyConfig();
+        $config->setId($modelId);
+
+        return $dataProvider->fetch($config) ?? $model;
     }
 
     /**
@@ -839,6 +931,8 @@ class EditMask
             if (!$this->allValuesUnique()) {
                 return false;
             }
+
+            $this->storeInitialVersion($this->model);
 
             // Save the model.
             $dataProvider->save($this->model, $this->editInformation->uniformTime());
