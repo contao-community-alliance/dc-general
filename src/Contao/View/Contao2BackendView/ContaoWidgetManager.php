@@ -276,8 +276,8 @@ class ContaoWidgetManager
         $template->readonly = (bool) ($widget->readonly ?? false);
         $template->enableAce = $GLOBALS['TL_CONFIG']['useCE'] ?? false;
         $template->aceType = $backendAdapter->getAceType($rteHighlight);
-        $template->enableTinyMce = $GLOBALS['TL_CONFIG']['useRTE'] ?? false;
-        $template->tinyMceLanguage = $backendAdapter->getTinyMceLanguage();
+        $template->enableHugeRte = $GLOBALS['TL_CONFIG']['useRTE'] ?? false;
+        $template->hugeRteLanguage = $backendAdapter->getHugeRteLanguage();
         $template->rows = (int) ($propExtra['rows'] ?? 0);
 
         return $buffer . $template->parse();

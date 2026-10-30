@@ -42,7 +42,7 @@
     "contao-community-alliance/events-contao-bindings": "^6.0@dev",
     "contao-community-alliance/translator": "^2.7@dev",
     "contao-community-alliance/url-builder": "^2.2@dev",
-    "contao/core-bundle": "^6.0",
+    "contao/core-bundle": "^6.1",
     "contao/image": "^1.2",
     "doctrine/cache": "^2.1",
     "doctrine/dbal": "^3.7 || ^4.3",
