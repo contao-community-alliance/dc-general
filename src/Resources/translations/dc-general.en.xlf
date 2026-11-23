@@ -452,5 +452,10 @@
         <source>This view only supports editing existing records.</source>
       </segment>
     </unit>
+    <unit id="exception.invalid_file_resource" name="exception.invalid_file_resource">
+      <segment>
+        <source>The following file(s) no longer exist on disk: %resources%. Please synchronise the file system in the file manager.</source>
+      </segment>
+    </unit>
   </file>
 </xliff>

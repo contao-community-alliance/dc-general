@@ -56,14 +56,6 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
     use RequestScopeDeterminatorAwareTrait;
     use CallActionTrait;
 
-    /**
-     * EditAllHandler constructor.
-     *
-     * @param RequestScopeDeterminator $scopeDeterminator
-     */
-    /** @var EditInformationInterface|null */
-    private ?EditInformationInterface $editInformation;
-
     /** @var Locales|null */
     private ?Locales $locales;
 
@@ -83,7 +75,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         ?Locales $locales = null
     ) {
         $this->scopeDeterminator = $scopeDeterminator;
-        $this->editInformation  = $editInformation;
+        $this->setEditInformation($editInformation);
         $this->locales          = $locales;
     }
 
@@ -265,11 +257,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
      */
     private function handleLegendCollapsed(array $fieldSets)
     {
-        $editInformation = $this->editInformation;
-        if (null === $editInformation) {
-            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-            assert($editInformation instanceof EditInformationInterface);
-        }
+        $editInformation = $this->getEditInformation();
 
         if (!$editInformation->hasAnyModelError()) {
             return $fieldSets;
@@ -508,11 +496,7 @@ class EditAllHandler extends AbstractPropertyOverrideEditAllHandler
         PropertyValueBagInterface $propertyValuesBag,
         EnvironmentInterface $environment
     ) {
-        $editInformation = $this->editInformation;
-        if (null === $editInformation) {
-            $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-            assert($editInformation instanceof EditInformationInterface);
-        }
+        $editInformation = $this->getEditInformation();
 
         $sessionValues = $this->getEditPropertiesByModelId($action, ModelId::fromModel($model), $environment);
 

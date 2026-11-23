@@ -40,11 +40,16 @@ use ContaoCommunityAlliance\DcGeneral\DataDefinition\ContainerInterface;
 use ContaoCommunityAlliance\DcGeneral\EnvironmentInterface;
 use ContaoCommunityAlliance\DcGeneral\InputProviderInterface;
 use ContaoCommunityAlliance\DcGeneral\SessionStorageInterface;
+use ContaoCommunityAlliance\Translator\TranslatorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+use function array_map;
+use function htmlspecialchars;
 use function implode;
 use function is_string;
+use function json_encode;
+use function sprintf;
 use function str_replace;
 use function str_starts_with;
 use function strlen;
@@ -120,6 +125,8 @@ class Ajax3X extends Ajax
      * @param string $value The value as comma separated list.
      *
      * @return list<string> The value array.
+     *
+     * @throws ResponseException Throws a response exception if a selected file no longer exists on disk.
      */
     protected function getTreeValue($type, $value)
     {
@@ -132,14 +139,86 @@ class Ajax3X extends Ajax
 
         // Automatically add resources to the DBAFS.
         if ('file' === $type) {
+            $invalidResources = [];
             foreach ($value as $k => $v) {
-                $uuid = Dbafs::addResource(urldecode($v))->uuid;
+                $resource = urldecode($v);
+                try {
+                    $uuid = Dbafs::addResource($resource)->uuid;
+                } catch (\InvalidArgumentException) {
+                    // The file has been removed from the file system directly without a DBAFS sync - report it
+                    // instead of letting the exception bubble up as an uncaught 500 (see #101).
+                    $invalidResources[] = $resource;
+                    continue;
+                }
                 assert(is_string($uuid));
                 $value[$k] = StringUtil::binToUuid($uuid);
+            }
+
+            if ([] !== $invalidResources) {
+                $this->logInvalidFileResources($invalidResources);
+
+                throw new ResponseException($this->buildInvalidFileResourceResponse($invalidResources));
             }
         }
 
         return array_map('strval', $value);
+    }
+
+    /**
+     * Log that one or more selected files no longer exist on disk.
+     *
+     * @param list<string> $invalidResources The resource paths that could not be added to the DBAFS.
+     *
+     * @return void
+     */
+    private function logInvalidFileResources(array $invalidResources): void
+    {
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $event = new LogEvent(
+            'The following file(s) no longer exist on disk and could not be added to the DBAFS: ' .
+            implode(', ', $invalidResources),
+            'Ajax executePostActions()',
+            'ERROR'
+        );
+
+        $dispatcher = $environment->getEventDispatcher();
+        assert($dispatcher instanceof EventDispatcherInterface);
+
+        $dispatcher->dispatch($event, ContaoEvents::SYSTEM_LOG);
+    }
+
+    /**
+     * Build a friendly ajax response informing the editor that one or more files no longer exist on disk.
+     *
+     * @param list<string> $invalidResources The resource paths that could not be added to the DBAFS.
+     *
+     * @return Response
+     */
+    private function buildInvalidFileResourceResponse(array $invalidResources): Response
+    {
+        $environment = $this->getEnvironment();
+        assert($environment instanceof EnvironmentInterface);
+
+        $translator = $environment->getTranslator();
+        assert($translator instanceof TranslatorInterface);
+
+        $message = $translator->translate(
+            'exception.invalid_file_resource',
+            'dc-general',
+            ['%resources%' => implode(', ', $invalidResources)]
+        );
+
+        $content = sprintf(
+            '<div><p class="tl_error">%s</p></div>',
+            htmlspecialchars($message, ENT_QUOTES)
+        );
+
+        $response = new Response((string) json_encode(['content' => $content]));
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
     }
 
     /**

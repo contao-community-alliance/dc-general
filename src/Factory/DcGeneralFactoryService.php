@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace ContaoCommunityAlliance\DcGeneral\Factory;
 
+use ContaoCommunityAlliance\DcGeneral\DataDefinitionContainerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
@@ -35,13 +36,20 @@ final class DcGeneralFactoryService implements DcGeneralFactoryServiceInterface
     private CacheInterface $cache;
 
     /**
+     * The data definition container.
+     */
+    private DataDefinitionContainerInterface $definitionContainer;
+
+    /**
      * DcGeneralFactoryService constructor.
      *
-     * @param CacheInterface $cache The cache of the dc-general instances.
+     * @param CacheInterface                    $cache               The cache of the dc-general instances.
+     * @param DataDefinitionContainerInterface $definitionContainer The data definition container.
      */
-    public function __construct(CacheInterface $cache)
+    public function __construct(CacheInterface $cache, DataDefinitionContainerInterface $definitionContainer)
     {
-        $this->cache = $cache;
+        $this->cache               = $cache;
+        $this->definitionContainer = $definitionContainer;
     }
 
     /**
@@ -50,6 +58,6 @@ final class DcGeneralFactoryService implements DcGeneralFactoryServiceInterface
     #[\Override]
     public function createFactory(): DcGeneralFactoryInterface
     {
-        return new DcGeneralFactory($this->cache);
+        return new DcGeneralFactory($this->cache, $this->definitionContainer);
     }
 }

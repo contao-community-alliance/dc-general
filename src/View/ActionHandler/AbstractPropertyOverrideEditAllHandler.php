@@ -60,6 +60,45 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     use CallActionTrait;
 
     /**
+     * The edit information, if injected by a subclass constructor.
+     *
+     * Nullable only for backwards compatibility with third-party code still constructing a
+     * subclass without this argument - see the subclass constructors' own docblocks. Use
+     * getEditInformation() below instead of this property directly.
+     */
+    private ?EditInformationInterface $editInformation = null;
+
+    /**
+     * Set the edit information injected by a subclass constructor.
+     *
+     * @param EditInformationInterface|null $editInformation The edit information.
+     *
+     * @return void
+     */
+    protected function setEditInformation(?EditInformationInterface $editInformation): void
+    {
+        $this->editInformation = $editInformation;
+    }
+
+    /**
+     * Obtain the edit information - the one injected by a subclass constructor if given, the
+     * service from the container otherwise (legacy callers not passing it).
+     *
+     * @return EditInformationInterface
+     */
+    protected function getEditInformation(): EditInformationInterface
+    {
+        if (null !== $this->editInformation) {
+            return $this->editInformation;
+        }
+
+        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
+        assert($editInformation instanceof EditInformationInterface);
+
+        return $editInformation;
+    }
+
+    /**
      * Handle submit triggered button.
      *
      * If the save button is triggered (final submit, not an intermediate auto submit),
@@ -240,8 +279,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         \ArrayObject $renderInformation,
         EnvironmentInterface $environment
     ) {
-        $editInformation  = System::getContainer()->get('cca.dc-general.edit-information');
-        assert($editInformation instanceof EditInformationInterface);
+        $editInformation = $this->getEditInformation();
 
         $errorInformation = $editInformation->getModelError($model);
         if (!$errorInformation) {
@@ -367,8 +405,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         $inputProvider = $this->getInputProvider($environment);
         assert($inputProvider instanceof InputProviderInterface);
 
-        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-        assert($editInformation instanceof EditInformationInterface);
+        $editInformation = $this->getEditInformation();
 
         $inputValues = $this->handleInputValues($action, $model, $environment);
 
@@ -569,8 +606,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
     ) {
         $propertiesDefinition = $this->getDataDefinition($environment)->getPropertiesDefinition();
 
-        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-        assert($editInformation instanceof EditInformationInterface);
+        $editInformation = $this->getEditInformation();
 
         $propertyValueBag = new PropertyValueBag();
 
@@ -731,8 +767,7 @@ abstract class AbstractPropertyOverrideEditAllHandler extends AbstractPropertyVi
         CollectionInterface $collection,
         EnvironmentInterface $environment
     ) {
-        $editInformation = System::getContainer()->get('cca.dc-general.edit-information');
-        assert($editInformation instanceof EditInformationInterface);
+        $editInformation = $this->getEditInformation();
 
         if (!$editInformation->hasAnyModelError()) {
             return;

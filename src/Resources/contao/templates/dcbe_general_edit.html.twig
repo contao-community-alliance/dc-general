@@ -34,6 +34,8 @@
                     </option>
                 {% endfor %}
                 </select> <input type="submit" name="showVersion" id="showVersion" class="tl_submit" value="{{ 'restore'|trans({}, 'dc-general') }}" />
+                {# Contao's own version panel has this diff icon next to the restore button, it opens a modal iframe that compares two versions. #}
+                <a href="{{ diffUrl|default('')|raw }}" onclick="Backend.openModalIframe({'title':'{{ 'MSC.recordOfTable'|trans([model.id, table], 'contao_default')|e('js') }}','url':this.href});return false">{{ backend_icon('diff.svg', 'MSC.showDifferences'|trans({}, 'contao_default')) }}</a>
                 </div>
             </form>
         </div>
