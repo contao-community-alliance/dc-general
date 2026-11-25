@@ -309,17 +309,18 @@ class DefaultDataProvider implements DataProviderInterface
             throw new DcGeneralRuntimeException("ID missing or given object not of type 'ModelInterface'.");
         }
 
-        // Insert undo.
+        // Insert undo. The id is quoted, the method takes strings and the statement is executed.
+        $quotedId = $this->connection->quote($modelId);
         $this->insertUndo(
             \sprintf(
                 'DELETE FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                $modelId
+                $quotedId
             ),
             \sprintf(
                 'SELECT * FROM %1$s WHERE %1$s.id = %2$s',
                 $this->source,
-                $modelId
+                $quotedId
             ),
             $this->source
         );
@@ -527,7 +528,10 @@ class DefaultDataProvider implements DataProviderInterface
         );
         // phpcs:enable
 
-        $this->connection->executeQuery('UPDATE ' . $this->source . ' SET ' . $field . ' = \'\'');
+        $this->connection->executeQuery(
+            'UPDATE ' . $this->connection->quoteSingleIdentifier($this->source)
+            . ' SET ' . $this->connection->quoteSingleIdentifier($field) . ' = \'\''
+        );
     }
 
     /**

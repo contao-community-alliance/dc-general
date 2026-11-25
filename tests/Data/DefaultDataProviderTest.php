@@ -265,4 +265,37 @@ final class DefaultDataProviderTest extends TestCase
     {
         self::markTestSkipped('This method is not testable.');
     }
+
+    /**
+     * The id is handed over as a string and put into a statement that is executed, so it has to be quoted.
+     */
+    public function testDeleteQuotesTheIdInTheStatementForTheUndoEntry(): void
+    {
+        $schemaTable = $this->createStub(Table::class);
+        $schemaTable->method('hasColumn')->willReturn(false);
+
+        $connection = $this
+            ->getMockBuilder(Connection::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['createSchemaManager', 'quote', 'executeQuery', 'delete'])
+            ->getMock();
+        $connection->method('createSchemaManager')->willReturn($this->mockSchemaManager($schemaTable));
+        $connection->method('quote')->willReturnCallback(
+            static fn (string $value): string => "'" . \str_replace("'", "''", $value) . "'"
+        );
+
+        $result = $this->createStub(\Doctrine\DBAL\Result::class);
+        $result->method('rowCount')->willReturn(0);
+        $connection
+            ->expects(self::once())
+            ->method('executeQuery')
+            ->with("SELECT * FROM tl_something WHERE tl_something.id = '1'' OR ''1''=''1'")
+            ->willReturn($result);
+        $connection->expects(self::once())->method('delete');
+
+        $dataProvider = new DefaultDataProvider();
+        $dataProvider->setBaseConfig(['source' => 'tl_something', 'connection' => $connection]);
+
+        $dataProvider->delete("1' OR '1'='1");
+    }
 }
