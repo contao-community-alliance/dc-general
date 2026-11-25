@@ -148,10 +148,10 @@
     </MixedAssignment>
     <MixedReturnStatement>
       <code><![CDATA[1 === count(array_unique($values))
-            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            ? unserialize((string) $values[0], ['allowed_classes' => false])
             : null]]></code>
       <code><![CDATA[1 === count(array_unique($values))
-            ? unserialize((string) $values[0], ['allowed_classes' => true])
+            ? unserialize((string) $values[0], ['allowed_classes' => false])
             : null]]></code>
       <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>
       <code><![CDATA[1 === count(array_unique($values)) ? $values[0] : null]]></code>

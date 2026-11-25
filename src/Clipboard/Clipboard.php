@@ -24,6 +24,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Clipboard;
 
+use ContaoCommunityAlliance\DcGeneral\Data\ModelId;
 use ContaoCommunityAlliance\DcGeneral\Data\ModelIdInterface;
 
 use function base64_decode;
@@ -69,9 +70,23 @@ class Clipboard implements ClipboardInterface
         $data = (string) $session->get('CLIPBOARD');
 
         if ($data) {
-            /** @var array<string, ItemInterface> $items */
-            $items = unserialize(base64_decode($data), ['allowed_classes' => true]);
-            $this->items = $items;
+            // Only the classes of the clipboard itself are restored, any other class would be a forged session value.
+            /** @psalm-suppress MixedAssignment - the session may hold anything, the result is checked below. */
+            // A damaged session value must not break the page, the "@" only hides the notice for it.
+            // phpcs:disable Generic.PHP.NoSilencedErrors
+            $items = @unserialize(
+                base64_decode($data),
+                ['allowed_classes' => [Item::class, UnsavedItem::class, ModelId::class]]
+            );
+            // phpcs:enable Generic.PHP.NoSilencedErrors
+            $this->items = [];
+            /** @psalm-suppress MixedAssignment */
+            foreach (\is_array($items) ? $items : [] as $key => $item) {
+                if ($item instanceof ItemInterface) {
+                    $this->items[(string) $key] = $item;
+                }
+            }
+
             foreach ($this->items as $item) {
                 if ($modelId = $item->getModelId()) {
                     $this->itemsByModelId[$modelId->getSerialized()][$item->getClipboardId()] = $item;

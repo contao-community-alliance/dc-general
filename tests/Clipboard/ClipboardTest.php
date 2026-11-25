@@ -163,4 +163,27 @@ final class ClipboardTest extends TestCase
         self::assertCount(2, $items);
         self::assertSame([$cutItem, $copyOtherItem], $items);
     }
+
+    public function testLoadingIgnoresObjectsOfForeignClasses(): void
+    {
+        $environment = $this->mockEnvironment();
+        $clipboard   = new Clipboard();
+        $clipboard->push(new UnsavedItem(ItemInterface::CREATE, null, 'dummy-provider'));
+
+        // A session value as a foreign class would put it there: the clipboard must not revive it.
+        $forged = ['x' => new \ArrayObject(['evil' => true])];
+        $environment->getSessionStorage()?->set('CLIPBOARD', \base64_encode(\serialize($forged)));
+
+        $clipboard->loadFrom($environment);
+
+        self::assertTrue((new Clipboard())->loadFrom($environment)->isEmpty(new Filter()));
+    }
+
+    public function testLoadingSurvivesGarbageInTheSession(): void
+    {
+        $environment = $this->mockEnvironment();
+        $environment->getSessionStorage()?->set('CLIPBOARD', \base64_encode('not serialized'));
+
+        self::assertTrue((new Clipboard())->loadFrom($environment)->isEmpty(new Filter()));
+    }
 }
