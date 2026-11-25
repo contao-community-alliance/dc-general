@@ -439,7 +439,7 @@ class Subscriber implements EventSubscriberInterface
             }
         }
 
-        $event->setRendered(\implode(', ', $value));
+        $event->setRendered(StringUtil::specialchars(\implode(', ', $value)));
     }
 
     /**
@@ -643,7 +643,7 @@ class Subscriber implements EventSubscriberInterface
         }
 
         if (ArrayUtil::isAssoc($options) && isset($options[$value])) {
-            $event->setRendered((string) $options[$value]);
+            $event->setRendered(StringUtil::specialchars((string) $options[$value]));
         }
     }
 }

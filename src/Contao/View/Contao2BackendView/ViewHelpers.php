@@ -25,6 +25,7 @@
 
 namespace ContaoCommunityAlliance\DcGeneral\Contao\View\Contao2BackendView;
 
+use Contao\StringUtil;
 use Contao\System;
 use ContaoCommunityAlliance\Contao\Bindings\ContaoEvents;
 use ContaoCommunityAlliance\Contao\Bindings\Events\Controller\RedirectEvent;
@@ -250,7 +251,12 @@ class ViewHelpers
             return $event->getRendered();
         }
 
-        return $event->getValue();
+        /** @psalm-suppress MixedAssignment - Any property value is possible, only strings are escaped. */
+        $value = $event->getValue();
+
+        // The consumers print the readable value as HTML (show view, group headers, labels). Contao 6 stores the text
+        // as entered, so a plain string has to be escaped here.
+        return \is_string($value) ? StringUtil::specialchars($value) : $value;
     }
 
     /**
